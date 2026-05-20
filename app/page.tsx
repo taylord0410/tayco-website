@@ -64,6 +64,16 @@ function Hero() {
             </div>
           ))}
         </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: "#C9A84C" }}>
+            Most contractors subcontract everything. We don&apos;t.
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            12+ trades performed by our own in-house crews — no middlemen, no delays, no excuses.
+          </p>
+        </div>
+
       </div>
     </section>
   );
@@ -344,7 +354,7 @@ const WHY = [
   { icon: "📞", title: "ONE Point of Contact", desc: "You call one number. We handle every trade. No confusion, no delays, no finger-pointing between contractors." },
   { icon: "✅", title: "Licensed & Insured", desc: "Fully licensed and insured in Wisconsin and Illinois. You are protected on every project." },
   { icon: "🏅", title: "Certified Restoration Contractor", desc: "Licensed for water and fire damage restoration — a capability most general contractors do not have." },
-  { icon: "👷", title: "In-House Crews + Qualified Subs", desc: "We self-perform the core work and use vetted subcontractors when needed. You get consistency and speed." },
+  { icon: "👷", title: "12+ Trades — All In-House", desc: "Most contractors subcontract almost everything. We self-perform 12+ trades with our own crews — drywall, flooring, painting, framing, roofing, electrical, plumbing, HVAC, siding, carpentry, concrete, and demolition. One team, zero hand-offs." },
   { icon: "🏗️", title: "Residential AND Commercial", desc: "From a single-family rehab to a full commercial buildout — we have the experience and capacity to deliver both." },
   { icon: "🧠", title: "We Know Your Business", desc: "We work with investors, banks, and property managers every day. We understand your deadlines, budgets, and expectations." },
   { icon: "📅", title: "On Time. On Budget. No Surprises.", desc: "We communicate throughout every phase of the project so you always know where things stand." },
