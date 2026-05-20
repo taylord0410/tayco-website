@@ -209,6 +209,100 @@ function Services() {
   );
 }
 
+// ── CERTIFICATIONS ────────────────────────────────────────────────────────────
+function Certifications() {
+  return (
+    <section className="py-24" style={{ background: "#0F2040" }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
+            Official Certifications
+          </p>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            We Are{" "}
+            <span style={{ color: "#C9A84C" }}>Certified.</span>
+          </h2>
+          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+            TAYCO LLC completed the official professional training and holds active certifications in
+            both Water &amp; Fire Damage Restoration — a specialized qualification that most general
+            contractors do not have.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 mb-10">
+          {/* Fire Damage Restoration */}
+          <div className="rounded-2xl p-8 border-2 text-left" style={{ borderColor: "#C9A84C", background: "rgba(201,168,76,0.07)" }}>
+            <div className="text-6xl mb-4">🔥</div>
+            <div className="inline-block px-4 py-1 rounded-full text-sm font-bold mb-4 uppercase tracking-wider" style={{ background: "#C9A84C", color: "#0F2040" }}>
+              Certified Contractor
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">
+              Fire Damage Restoration
+            </h3>
+            <p className="text-gray-300 leading-relaxed mb-5">
+              TAYCO LLC completed the required professional Fire Damage Restoration certification course.
+              Our team is trained and qualified to assess, remediate, and fully restore properties affected
+              by fire and smoke damage — from the first emergency call to the final finish.
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Fire & smoke damage assessment",
+                "Structural damage evaluation",
+                "Smoke & soot remediation",
+                "Full interior rebuild post-fire",
+                "Insurance documentation support",
+              ].map((item) => (
+                <li key={item} className="text-sm text-gray-300 flex items-start gap-2">
+                  <span style={{ color: "#C9A84C" }}>✔</span> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Water Damage Restoration */}
+          <div className="rounded-2xl p-8 border-2 text-left" style={{ borderColor: "#C9A84C", background: "rgba(201,168,76,0.07)" }}>
+            <div className="text-6xl mb-4">💧</div>
+            <div className="inline-block px-4 py-1 rounded-full text-sm font-bold mb-4 uppercase tracking-wider" style={{ background: "#C9A84C", color: "#0F2040" }}>
+              Certified Contractor
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">
+              Water Damage Restoration
+            </h3>
+            <p className="text-gray-300 leading-relaxed mb-5">
+              TAYCO LLC completed the official Water Damage Restoration certification course. We are
+              qualified to respond to floods, leaks, and water intrusion events — performing a full
+              and proper restoration that meets professional standards.
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Water damage inspection & assessment",
+                "Flood & leak damage repair",
+                "Moisture detection & structural drying",
+                "Mold remediation coordination",
+                "Full property restoration to pre-loss condition",
+              ].map((item) => (
+                <li key={item} className="text-sm text-gray-300 flex items-start gap-2">
+                  <span style={{ color: "#C9A84C" }}>✔</span> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="rounded-2xl p-7 text-center" style={{ background: "rgba(201,168,76,0.12)", border: "2px solid rgba(201,168,76,0.4)" }}>
+          <p className="text-white font-bold text-xl mb-2">
+            🏅 Not every contractor is certified in restoration.
+          </p>
+          <p className="text-gray-300">
+            Our certifications mean we follow the correct restoration process, meet safety and industry
+            standards, and properly document everything for insurance — so you are protected from start to finish.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── WHO WE WORK WITH ──────────────────────────────────────────────────────────
 const CLIENTS = [
   { icon: "🏦", title: "Banks & Lenders", desc: "REO property repairs, cleanouts, and full rehabs. We understand your timelines and compliance requirements." },
@@ -469,6 +563,7 @@ export default function Home() {
       <Hero />
       <About />
       <Services />
+      <Certifications />
       <WhoWeWorkWith />
       <WhyTayco />
       <Projects />

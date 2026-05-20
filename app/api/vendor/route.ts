@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, sanitize, validateOrigin } from "../_utils";
+import { checkRateLimit, sanitize, validateOrigin, checkTiming, checkUserAgent, checkPayloadSize } from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
@@ -17,10 +17,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    if (!checkUserAgent(req.headers.get("user-agent"))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const body = await req.json();
+
+    if (!checkPayloadSize(body)) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
 
     // Honeypot: bots fill hidden fields, humans don't
     if (body.website) {
+      return NextResponse.json({ success: true });
+    }
+
+    // Timing: bots submit in milliseconds, humans take seconds
+    if (!checkTiming(body._loadedAt)) {
       return NextResponse.json({ success: true });
     }
 

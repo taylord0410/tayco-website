@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 const PROJECT_TYPES = [
@@ -25,6 +25,8 @@ export default function EstimatePage() {
     website: "", // honeypot — never shown to user
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const loadedAt = useRef<number | null>(null);
+  useEffect(() => { loadedAt.current = Date.now(); }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -37,7 +39,7 @@ export default function EstimatePage() {
       const res = await fetch("/api/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, _loadedAt: loadedAt.current }),
       });
       if (res.ok) {
         setStatus("success");
