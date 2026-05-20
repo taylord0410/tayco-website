@@ -53,7 +53,7 @@ function Hero() {
 
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { number: "500+", label: "Projects Completed" },
+            { number: "2,800+", label: "Projects Completed" },
             { number: "Multiple", label: "States Served" },
             { number: "6+", label: "Trades In-House" },
             { number: "24h", label: "Response Time" },
