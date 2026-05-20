@@ -20,7 +20,7 @@ function Hero() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: "#C9A84C" }}>
-          Wisconsin &amp; Illinois
+          Wisconsin · Illinois · Iowa · Indiana · Minnesota · Michigan · Missouri · Texas
         </p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
           One Call.{" "}
@@ -54,7 +54,7 @@ function Hero() {
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { number: "2,800+", label: "Projects Completed" },
-            { number: "Multiple", label: "States Served" },
+            { number: "8", label: "States Served" },
             { number: "12+", label: "Trades In-House" },
             { number: "24h", label: "Response Time" },
           ].map((s) => (
@@ -488,13 +488,21 @@ function Testimonials() {
 }
 
 // ── SERVICE AREA ──────────────────────────────────────────────────────────────
-const WI_CITIES = ["Milwaukee", "Madison", "Kenosha", "Racine", "Green Bay", "Waukesha", "Oshkosh", "Surrounding areas"];
-const IL_CITIES = ["Chicago", "Rockford", "Aurora", "Naperville", "Joliet", "Elgin", "Waukegan", "Surrounding areas"];
+const SERVICE_STATES = [
+  { state: "Wisconsin", cities: ["Milwaukee", "Madison", "Kenosha", "Racine", "Green Bay", "Waukesha", "Oshkosh", "Surrounding areas"] },
+  { state: "Illinois", cities: ["Chicago", "Rockford", "Aurora", "Naperville", "Joliet", "Elgin", "Waukegan", "Surrounding areas"] },
+  { state: "Iowa", cities: ["Des Moines", "Cedar Rapids", "Davenport", "Iowa City", "Surrounding areas"] },
+  { state: "Indiana", cities: ["Indianapolis", "Fort Wayne", "South Bend", "Evansville", "Surrounding areas"] },
+  { state: "Minnesota", cities: ["Minneapolis", "St. Paul", "Bloomington", "Rochester", "Surrounding areas"] },
+  { state: "Michigan", cities: ["Detroit", "Grand Rapids", "Lansing", "Ann Arbor", "Surrounding areas"] },
+  { state: "Missouri", cities: ["St. Louis", "Kansas City", "Springfield", "Columbia", "Surrounding areas"] },
+  { state: "Texas", cities: ["Dallas", "Houston", "San Antonio", "Austin", "Fort Worth", "Surrounding areas"] },
+];
 
 function ServiceArea() {
   return (
     <section id="service-area" className="py-20" style={{ background: "#1B3A6B" }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
           Where We Work
         </p>
@@ -502,16 +510,13 @@ function ServiceArea() {
           We Work Where You Need Us.
         </h2>
         <p className="text-gray-300 mb-10">
-          TAYCO LLC serves clients across <strong className="text-white">Wisconsin and Illinois</strong> — including major metros and surrounding communities.
+          TAYCO LLC serves clients across <strong className="text-white">8 states</strong> — including major metros and surrounding communities.
         </p>
-        <div className="grid md:grid-cols-2 gap-6">
-          {[
-            { state: "Wisconsin", cities: WI_CITIES },
-            { state: "Illinois", cities: IL_CITIES },
-          ].map(({ state, cities }) => (
-            <div key={state} className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <h3 className="text-xl font-bold text-white mb-4">📍 {state}</h3>
-              <ul className="space-y-2">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {SERVICE_STATES.map(({ state, cities }) => (
+            <div key={state} className="rounded-2xl p-5 text-left" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <h3 className="text-lg font-bold text-white mb-3">📍 {state}</h3>
+              <ul className="space-y-1">
                 {cities.map((c) => (
                   <li key={c} className="text-gray-300 text-sm">{c}</li>
                 ))}
@@ -520,7 +525,7 @@ function ServiceArea() {
           ))}
         </div>
         <p className="text-gray-400 mt-8 text-sm">
-          <strong className="text-white">Not sure if we cover your area?</strong> Call us — chances are we do.
+          <strong className="text-white">Not sure if we cover your area?</strong> Submit a request — chances are we do.
         </p>
       </div>
     </section>
