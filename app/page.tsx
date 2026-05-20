@@ -55,7 +55,7 @@ function Hero() {
           {[
             { number: "2,800+", label: "Projects Completed" },
             { number: "Multiple", label: "States Served" },
-            { number: "6+", label: "Trades In-House" },
+            { number: "12+", label: "Trades In-House" },
             { number: "24h", label: "Response Time" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.07)" }}>
