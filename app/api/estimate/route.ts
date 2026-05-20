@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     if (!checkEmailDomain(email)) {
       return NextResponse.json({
         error: "disposable_email",
-        message: "We only accept real email addresses (Gmail, Outlook, Yahoo, iCloud, etc.). Temporary or disposable email addresses are not accepted — we need a real email to be able to contact you about your project.",
+        message: "We only accept real email addresses (Gmail, Outlook, Yahoo, iCloud, etc.). Temporary or disposable email addresses are not accepted — please use your real email so we can follow up on your request.",
       }, { status: 400 });
     }
 
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     if (!checkEmailLimit(email)) {
       return NextResponse.json({
         error: "duplicate_email",
-        message: "We already received a request from this email address today. We will contact you shortly. If this is urgent, please email us directly at info@taycoturnkey.com.",
+        message: "We already received a request from this email address today. Our team will review it and get back to you shortly. Please do not submit the form again.",
       }, { status: 429 });
     }
 

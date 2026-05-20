@@ -78,11 +78,11 @@ export default function VendorApplicationPage() {
         setStatus("success");
       } else {
         const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.message || "Something went wrong. Please try again or email us at info@taycoturnkey.com.");
+        setErrorMsg(data.message || "Something went wrong. Please try again.");
         setStatus("error");
       }
     } catch {
-      setErrorMsg("Something went wrong. Please try again or email us at info@taycoturnkey.com.");
+      setErrorMsg("Something went wrong. Please try again.");
       setStatus("error");
     }
   }
