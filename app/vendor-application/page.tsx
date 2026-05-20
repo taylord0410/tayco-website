@@ -42,6 +42,7 @@ export default function VendorApplicationPage() {
     stateServed: "",
     insured: "",
     notes: "",
+    website: "", // honeypot — never shown to user
   });
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -111,6 +112,10 @@ export default function VendorApplicationPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border-2 p-8 space-y-6" style={{ borderColor: "#E2E8F0" }}>
+            {/* Honeypot field — hidden from real users, catches bots */}
+            <div style={{ display: "none" }} aria-hidden="true">
+              <input name="website" value={form.website} onChange={handleChange} tabIndex={-1} autoComplete="off" />
+            </div>
             {/* Business Info */}
             <div>
               <h2 className="text-lg font-bold mb-4 pb-2 border-b-2" style={{ color: "#0F2040", borderColor: "#E2E8F0" }}>

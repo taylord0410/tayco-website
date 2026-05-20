@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, sanitize, validateOrigin } from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
@@ -6,14 +7,42 @@ const TABLE_NAME = "Subcontractors";
 
 export async function POST(req: NextRequest) {
   try {
-    const {
-      businessName, contactName, phone, email,
-      licenseNumber, yearsInBusiness, crewSize,
-      citiesServed, stateServed, insured, trades, notes,
-    } = await req.json();
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const origin = req.headers.get("origin");
+    if (!validateOrigin(origin)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await req.json();
+
+    // Honeypot: bots fill hidden fields, humans don't
+    if (body.website) {
+      return NextResponse.json({ success: true });
+    }
+
+    const businessName = sanitize(body.businessName);
+    const contactName = sanitize(body.contactName);
+    const phone = sanitize(body.phone, 30);
+    const email = sanitize(body.email, 200);
+    const licenseNumber = sanitize(body.licenseNumber, 100);
+    const yearsInBusiness = sanitize(body.yearsInBusiness, 20);
+    const crewSize = sanitize(body.crewSize, 50);
+    const citiesServed = sanitize(body.citiesServed, 500);
+    const stateServed = sanitize(body.stateServed, 50);
+    const insured = sanitize(body.insured, 10);
+    const trades = sanitize(body.trades, 1000);
+    const notes = sanitize(body.notes, 2000);
 
     if (!businessName || !contactName || !phone || !email || !yearsInBusiness || !crewSize || !stateServed || !citiesServed || !insured || !trades) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
     const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
@@ -28,14 +57,14 @@ export async function POST(req: NextRequest) {
           "Contact Name": contactName,
           "Phone": phone,
           "Email": email,
-          "License Number": licenseNumber || "",
+          "License Number": licenseNumber,
           "Years Experience": yearsInBusiness,
           "Crew Size": crewSize,
           "Cities Served": citiesServed,
           "State": stateServed,
           "Insurance": insured,
           "Trades": trades,
-          "Notes": notes || "",
+          "Notes": notes,
           "Approval Status": "Pending",
           "Source": "Website Application",
         },
@@ -45,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const err = await res.text();
       console.error("Airtable error:", err);
-      return NextResponse.json({ error: "Failed to save to Airtable" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to save" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });

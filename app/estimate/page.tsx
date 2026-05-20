@@ -22,6 +22,7 @@ export default function EstimatePage() {
     projectType: "",
     projectLocation: "",
     projectDetails: "",
+    website: "", // honeypot — never shown to user
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
@@ -40,7 +41,7 @@ export default function EstimatePage() {
       });
       if (res.ok) {
         setStatus("success");
-        setForm({ fullName: "", phone: "", email: "", projectType: "", projectLocation: "", projectDetails: "" });
+        setForm({ fullName: "", phone: "", email: "", projectType: "", projectLocation: "", projectDetails: "", website: "" });
       } else {
         setStatus("error");
       }
@@ -79,6 +80,10 @@ export default function EstimatePage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border-2 p-8 space-y-5" style={{ borderColor: "#E2E8F0" }}>
+            {/* Honeypot field — hidden from real users, catches bots */}
+            <div style={{ display: "none" }} aria-hidden="true">
+              <input name="website" value={form.website} onChange={handleChange} tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
