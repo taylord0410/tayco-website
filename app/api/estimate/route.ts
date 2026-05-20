@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, sanitize, validateOrigin, checkTiming, checkUserAgent, checkPayloadSize } from "../_utils";
+import {
+  checkRateLimit, checkEmailLimit, sanitize, validateOrigin,
+  checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
+} from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
@@ -8,12 +11,12 @@ const TABLE_NAME = "Estimate Requests";
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+
     if (!checkRateLimit(ip)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    const origin = req.headers.get("origin");
-    if (!validateOrigin(origin)) {
+    if (!validateOrigin(req.headers.get("origin"))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -27,15 +30,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
 
-    // Honeypot: bots fill hidden fields, humans don't
-    if (body.website) {
-      return NextResponse.json({ success: true });
-    }
+    // Honeypot trap
+    if (body.website) return NextResponse.json({ success: true });
 
-    // Timing: bots submit in milliseconds, humans take seconds
-    if (!checkTiming(body._loadedAt)) {
-      return NextResponse.json({ success: true });
-    }
+    // Timing trap
+    if (!checkTiming(body._loadedAt)) return NextResponse.json({ success: true });
 
     const fullName = sanitize(body.fullName);
     const phone = sanitize(body.phone, 30);
@@ -50,6 +49,21 @@ export async function POST(req: NextRequest) {
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    // Block disposable/fake email providers
+    if (!checkEmailDomain(email)) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    // Block same email submitting more than once per hour
+    if (!checkEmailLimit(email)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    // Spam keyword filter
+    if (!checkSpam(projectDetails)) {
+      return NextResponse.json({ success: true }); // silent reject
     }
 
     const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
