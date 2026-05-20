@@ -53,12 +53,18 @@ export async function POST(req: NextRequest) {
 
     // Block disposable/fake email providers
     if (!checkEmailDomain(email)) {
-      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+      return NextResponse.json({
+        error: "disposable_email",
+        message: "We only accept real email addresses (Gmail, Outlook, Yahoo, iCloud, etc.). Temporary or disposable email addresses are not accepted — we need a real email to be able to contact you about your project.",
+      }, { status: 400 });
     }
 
-    // Block same email submitting more than once per hour
+    // Block same email submitting more than once in 24 hours
     if (!checkEmailLimit(email)) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+      return NextResponse.json({
+        error: "duplicate_email",
+        message: "We already received a request from this email address today. We will contact you shortly. If this is urgent, please email us directly at info@taycoturnkey.com.",
+      }, { status: 429 });
     }
 
     // Spam keyword filter

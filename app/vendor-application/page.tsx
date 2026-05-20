@@ -46,6 +46,7 @@ export default function VendorApplicationPage() {
   });
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
   const loadedAt = useRef<number | null>(null);
   useEffect(() => { loadedAt.current = Date.now(); }, []);
 
@@ -66,6 +67,7 @@ export default function VendorApplicationPage() {
       return;
     }
     setStatus("sending");
+    setErrorMsg("");
     try {
       const res = await fetch("/api/vendor", {
         method: "POST",
@@ -75,9 +77,12 @@ export default function VendorApplicationPage() {
       if (res.ok) {
         setStatus("success");
       } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMsg(data.message || "Something went wrong. Please try again or email us at info@taycoturnkey.com.");
         setStatus("error");
       }
     } catch {
+      setErrorMsg("Something went wrong. Please try again or email us at info@taycoturnkey.com.");
       setStatus("error");
     }
   }
@@ -333,7 +338,9 @@ export default function VendorApplicationPage() {
             </div>
 
             {status === "error" && (
-              <p className="text-red-500 text-sm text-center">Something went wrong. Please try again.</p>
+              <div className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
+                {errorMsg}
+              </div>
             )}
 
             <button

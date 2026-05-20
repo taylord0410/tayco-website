@@ -15,13 +15,13 @@ export function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-// ── Rate limiting (per email) — same email blocked for 1 hour ─────────────────
+// ── Rate limiting (per email) — same email blocked for 24 hours ──────────────
 const emailLimitMap = new Map<string, number>();
 
 export function checkEmailLimit(email: string): boolean {
   const now = Date.now();
   const lastSent = emailLimitMap.get(email.toLowerCase());
-  if (lastSent && now - lastSent < 60 * 60 * 1000) return false;
+  if (lastSent && now - lastSent < 24 * 60 * 60 * 1000) return false;
   emailLimitMap.set(email.toLowerCase(), now);
   return true;
 }

@@ -25,6 +25,7 @@ export default function EstimatePage() {
     website: "", // honeypot — never shown to user
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
   const loadedAt = useRef<number | null>(null);
   useEffect(() => { loadedAt.current = Date.now(); }, []);
 
@@ -35,6 +36,7 @@ export default function EstimatePage() {
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("sending");
+    setErrorMsg("");
     try {
       const res = await fetch("/api/estimate", {
         method: "POST",
@@ -45,9 +47,12 @@ export default function EstimatePage() {
         setStatus("success");
         setForm({ fullName: "", phone: "", email: "", projectType: "", projectLocation: "", projectDetails: "", website: "" });
       } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMsg(data.message || "Something went wrong. Please try again or email us at info@taycoturnkey.com.");
         setStatus("error");
       }
     } catch {
+      setErrorMsg("Something went wrong. Please try again or email us at info@taycoturnkey.com.");
       setStatus("error");
     }
   }
@@ -183,7 +188,9 @@ export default function EstimatePage() {
             </div>
 
             {status === "error" && (
-              <p className="text-red-500 text-sm text-center">Something went wrong. Please try again or call us directly.</p>
+              <div className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
+                {errorMsg}
+              </div>
             )}
 
             <button
