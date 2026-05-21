@@ -390,7 +390,7 @@ function WhyTayco() {
 const PROJECT_TYPES: { type: string; before?: string; after?: string; split?: string }[] = [
   { type: "Full Home Renovation — Residential", before: "/renovation-before.png", after: "/renovation-after.png" },
   { type: "Turnkey Rehab — Real Estate Investor", before: "/turnkey-before.png", after: "/turnkey-after.png" },
-  { type: "REO Property Restoration — Bank Owned" },
+  { type: "REO Property Restoration — Bank Owned", split: "/reo.png" },
   { type: "Water Damage Restoration", split: "/water-damage.png" },
   { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
   { type: "Commercial Renovation / Tenant Improvement", split: "/commercial.png" },
