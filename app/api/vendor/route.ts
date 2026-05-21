@@ -121,6 +121,19 @@ export async function POST(req: NextRequest) {
       insuranceUrl ? `Insurance COI: ${insuranceUrl}` : "Insurance COI: Not uploaded",
     ].filter(Boolean).join("\n");
 
+    const tradesArray = trades.split(",").map((t) => t.trim()).filter(Boolean);
+
+    const generalNotes = [
+      `Source: Website Application`,
+      `State: ${stateServed}`,
+      `Insured: ${insured}`,
+      licenseNumber ? `License #: ${licenseNumber}` : null,
+      yearsInBusiness ? `Years in Business: ${yearsInBusiness}` : null,
+      notes ? `Notes: ${notes}` : null,
+      w9Url ? `W9: ${w9Url}` : `W9: Not uploaded`,
+      insuranceUrl ? `Insurance COI: ${insuranceUrl}` : `Insurance COI: Not uploaded`,
+    ].filter(Boolean).join("\n");
+
     const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
       method: "POST",
       headers: {
@@ -130,19 +143,14 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         fields: {
           "Business Name": businessName,
-          "Contact Name": contactName,
-          "Phone": phone,
-          "Email": email,
-          "License Number": licenseNumber,
-          "Years Experience": yearsInBusiness,
-          "Crew Size": crewSize,
+          "Primary Contact Name": contactName,
+          "Contact Phone": phone,
+          "Contact Email": email,
+          "Crew Size": Number(crewSize) || crewSize,
           "Cities Served": citiesServed,
-          "State": stateServed,
-          "Insurance": insured,
-          "Trades": trades,
-          "Notes": fullNotes,
+          "Types of Work/Trades": tradesArray,
           "Approval Status": "Pending",
-          "Source": "Website Application",
+          "General Notes": generalNotes,
         },
       }),
     });
