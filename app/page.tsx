@@ -393,7 +393,7 @@ const PROJECT_TYPES: { type: string; before?: string; after?: string; split?: st
   { type: "REO Property Restoration — Bank Owned" },
   { type: "Water Damage Restoration", split: "/water-damage.png" },
   { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
-  { type: "Commercial Renovation / Tenant Improvement" },
+  { type: "Commercial Renovation / Tenant Improvement", split: "/commercial.png" },
 ];
 
 function Projects() {
