@@ -87,7 +87,7 @@ function About() {
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               <strong>TAYCO LLC</strong> is a full-service General Contractor proudly serving{" "}
-              <strong>Wisconsin and Illinois</strong>. We handle every trade under one roof — from the first
+              <strong>Wisconsin, Illinois, Iowa, Indiana, Minnesota, Michigan, Missouri &amp; Texas</strong>. We handle every trade under one roof — from the first
               demolition to the final coat of paint — delivering complete, ready-to-use projects on time and
               within budget.
             </p>
@@ -339,7 +339,7 @@ function WhoWeWorkWith() {
 // ── WHY TAYCO ─────────────────────────────────────────────────────────────────
 const WHY = [
   { icon: "📞", title: "ONE Point of Contact", desc: "You call one number. We handle every trade. No confusion, no delays, no finger-pointing between contractors." },
-  { icon: "✅", title: "Licensed & Insured", desc: "Fully licensed and insured in Wisconsin and Illinois. You are protected on every project." },
+  { icon: "✅", title: "Licensed & Insured", desc: "Fully licensed and insured across 8 states. You are protected on every project." },
   { icon: "🏅", title: "Certified Restoration Contractor", desc: "Licensed for water and fire damage restoration — a capability most general contractors do not have." },
   { icon: "👷", title: "12+ Trades — All In-House", desc: "Most contractors subcontract almost everything. We self-perform 12+ trades with our own crews — drywall, flooring, painting, framing, roofing, electrical, plumbing, HVAC, siding, carpentry, concrete, and demolition. One team, zero hand-offs." },
   { icon: "🏗️", title: "Residential AND Commercial", desc: "From a single-family rehab to a full commercial buildout — we have the experience and capacity to deliver both." },
@@ -435,7 +435,7 @@ function Projects() {
               </div>
               <div className="p-4">
                 <p className="font-semibold text-sm" style={{ color: "#0F2040" }}>{type}</p>
-                <p className="text-xs text-gray-400 mt-1">Wisconsin / Illinois</p>
+                <p className="text-xs text-gray-400 mt-1">WI · IL · IA · IN · MN · MI · MO · TX</p>
                 <p className="text-xs mt-2 font-semibold" style={{ color: "#16A34A" }}>✅ Delivered on time &amp; within budget</p>
               </div>
             </div>
@@ -565,7 +565,7 @@ function ContactCTA() {
           </Link>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center text-white text-sm">
-<span>📍 Wisconsin &amp; Illinois</span>
+<span>📍 WI · IL · IA · IN · MN · MI · MO · TX</span>
           <span className="hidden sm:inline">·</span>
           <span>🕐 Mon–Fri 7am–6pm</span>
         </div>
