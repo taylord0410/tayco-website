@@ -226,9 +226,7 @@ function Certifications() {
             <span style={{ color: "#C9A84C" }}>Certified.</span>
           </h2>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            TAYCO LLC completed the official professional training and holds active certifications in
-            both Water &amp; Fire Damage Restoration — a specialized qualification that most general
-            contractors do not have.
+            TAYCO LLC is professionally certified in both Water &amp; Fire Damage Restoration — a specialized qualification that most general contractors do not have.
           </p>
         </div>
 
@@ -243,9 +241,7 @@ function Certifications() {
               Fire Damage Restoration
             </h3>
             <p className="text-gray-300 leading-relaxed mb-5">
-              TAYCO LLC completed the required professional Fire Damage Restoration certification course.
-              Our team is trained and qualified to assess, remediate, and fully restore properties affected
-              by fire and smoke damage — from the first emergency call to the final finish.
+              Our team is professionally trained and certified in Fire Damage Restoration. We assess, remediate, and fully rebuild properties affected by fire and smoke — handling every step from the first emergency call to the final finish.
             </p>
             <ul className="space-y-2">
               {[
@@ -272,9 +268,7 @@ function Certifications() {
               Water Damage Restoration
             </h3>
             <p className="text-gray-300 leading-relaxed mb-5">
-              TAYCO LLC completed the official Water Damage Restoration certification course. We are
-              qualified to respond to floods, leaks, and water intrusion events — performing a full
-              and proper restoration that meets professional standards.
+              Our team is professionally trained and certified in Water Damage Restoration. We respond quickly to floods, leaks, and water intrusion — restoring every property to its pre-loss condition with precision and care.
             </p>
             <ul className="space-y-2">
               {[
