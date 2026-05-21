@@ -114,18 +114,11 @@ export async function POST(req: NextRequest) {
 
     if (!checkSpam(notes)) return NextResponse.json({ success: true });
 
-    // Build notes with document URLs appended
-    const fullNotes = [
-      notes,
-      w9Url ? `W9: ${w9Url}` : "W9: Not uploaded",
-      insuranceUrl ? `Insurance COI: ${insuranceUrl}` : "Insurance COI: Not uploaded",
-    ].filter(Boolean).join("\n");
-
-    const tradesArray = trades.split(",").map((t) => t.trim()).filter(Boolean);
-
     const generalNotes = [
       `Source: Website Application`,
+      `Trades: ${trades}`,
       `State: ${stateServed}`,
+      `Cities: ${citiesServed}`,
       `Insured: ${insured}`,
       licenseNumber ? `License #: ${licenseNumber}` : null,
       yearsInBusiness ? `Years in Business: ${yearsInBusiness}` : null,
@@ -147,8 +140,6 @@ export async function POST(req: NextRequest) {
           "Contact Phone": phone,
           "Contact Email": email,
           "Crew Size": Number(crewSize) || crewSize,
-          "Cities Served": citiesServed,
-          "Types of Work/Trades": tradesArray,
           "Approval Status": "Pending",
           "General Notes": generalNotes,
         },
