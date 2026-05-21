@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-const EMAIL = "info@taycoturnkey.com";
 
 // ── HERO ──────────────────────────────────────────────────────────────────────
 function Hero() {
@@ -43,12 +42,6 @@ function Hero() {
           >
             Request a Free Estimate
           </Link>
-          <a
-            href={`mailto:${EMAIL}`}
-            className="font-bold px-8 py-4 rounded-xl text-lg border-2 border-white text-white hover:bg-white/10 transition-colors"
-          >
-            📧 Email Us
-          </a>
         </div>
 
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -576,17 +569,9 @@ function ContactCTA() {
           >
             Request a Free Estimate
           </Link>
-          <a
-            href={`mailto:${EMAIL}`}
-            className="border-2 border-white text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-colors"
-          >
-            📧 Email Us
-          </a>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center text-white text-sm">
-          <span>📧 {EMAIL}</span>
-          <span className="hidden sm:inline">·</span>
-          <span>📍 Wisconsin &amp; Illinois</span>
+<span>📍 Wisconsin &amp; Illinois</span>
           <span className="hidden sm:inline">·</span>
           <span>🕐 Mon–Fri 7am–6pm</span>
         </div>
