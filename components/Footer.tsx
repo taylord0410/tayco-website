@@ -12,7 +12,7 @@ export default function Footer() {
               <span className="font-bold text-xl tracking-tight" style={{ color: "#C9A84C" }}>TAYCO LLC</span>
             </div>
             <p className="text-sm text-gray-400 mb-2">Full-Service General Contractor</p>
-            <p className="text-sm text-gray-400">Wisconsin &amp; Illinois</p>
+            <p className="text-sm text-gray-400">WI · IL · IA · IN · MN · MI · MO · TX</p>
             <p className="text-sm text-gray-400 mt-1">Licensed &amp; Insured</p>
             <p className="text-sm text-gray-400">Certified Restoration Contractor</p>
           </div>
@@ -44,8 +44,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Contact</h4>
             <ul className="space-y-2 text-sm">
-              <li className="text-gray-400">📧 <a href="mailto:info@taycoturnkey.com" className="hover:text-white transition-colors">info@taycoturnkey.com</a></li>
-              <li className="text-gray-400">📍 Wisconsin &amp; Illinois</li>
+              <li className="text-gray-400">📍 WI · IL · IA · IN · MN · MI · MO · TX</li>
               <li className="text-gray-400">🕐 Mon–Fri 7am–6pm</li>
               <li className="text-gray-400">Sat by appointment</li>
             </ul>
