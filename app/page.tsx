@@ -241,7 +241,7 @@ function Certifications() {
               Fire Damage Restoration
             </h3>
             <p className="text-gray-300 leading-relaxed mb-5">
-              Our team is professionally trained and certified in Fire Damage Restoration. We assess, remediate, and fully rebuild properties affected by fire and smoke — handling every step from the first emergency call to the final finish.
+              TAYCO LLC is certified in Fire Damage Restoration. Our trained crews assess, remediate, and fully rebuild properties affected by fire and smoke — from the first emergency call to the final finish.
             </p>
             <ul className="space-y-2">
               {[
@@ -268,7 +268,7 @@ function Certifications() {
               Water Damage Restoration
             </h3>
             <p className="text-gray-300 leading-relaxed mb-5">
-              Our team is professionally trained and certified in Water Damage Restoration. We respond quickly to floods, leaks, and water intrusion — restoring every property to its pre-loss condition with precision and care.
+              TAYCO LLC is certified in Water Damage Restoration. We respond fast to floods, leaks, and water intrusion — detecting moisture, eliminating damage, and restoring every property to its original condition.
             </p>
             <ul className="space-y-2">
               {[
