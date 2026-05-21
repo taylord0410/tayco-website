@@ -389,7 +389,7 @@ function WhyTayco() {
 // ── PROJECTS ──────────────────────────────────────────────────────────────────
 const PROJECT_TYPES: { type: string; before?: string; after?: string }[] = [
   { type: "Full Home Renovation — Residential", before: "/renovation-before.png", after: "/renovation-after.png" },
-  { type: "Turnkey Rehab — Real Estate Investor" },
+  { type: "Turnkey Rehab — Real Estate Investor", before: "/turnkey-before.png", after: "/turnkey-after.png" },
   { type: "REO Property Restoration — Bank Owned" },
   { type: "Water Damage Restoration" },
   { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
