@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
     // Timing trap
     if (!checkTiming(body._loadedAt)) return NextResponse.json({ success: true });
 
+    const w9Url = typeof body.w9Url === "string" ? body.w9Url : "";
+    const insuranceUrl = typeof body.insuranceUrl === "string" ? body.insuranceUrl : "";
+    const docsPending = body.docsPending === true;
+
     const businessName = sanitize(body.businessName);
     const contactName = sanitize(body.contactName);
     const phone = sanitize(body.phone, 30);
@@ -100,6 +104,9 @@ export async function POST(req: NextRequest) {
           "Notes": notes,
           "Approval Status": "Pending",
           "Source": "Website Application",
+          "W9": w9Url ? [{ url: w9Url }] : undefined,
+          "Insurance Certificate": insuranceUrl ? [{ url: insuranceUrl }] : undefined,
+          "Documents Status": docsPending ? "Pending Upload" : (w9Url && insuranceUrl ? "Complete" : "Partial"),
         },
       }),
     });
