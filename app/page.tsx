@@ -29,9 +29,9 @@ function Hero() {
         </h1>
         <p className="text-xl text-gray-300 mb-2">Full-Service General Contractor</p>
         <p className="text-gray-400 mb-8 text-lg">
-          Residential &amp; Commercial &nbsp;|&nbsp; Turnkey &amp; Turnover Projects
+          Fire &amp; Water Damage Restoration &nbsp;|&nbsp; Licensed &amp; Insured
           <br />
-          Water &amp; Fire Damage Restoration &nbsp;|&nbsp; Licensed &amp; Insured
+          Residential &amp; Commercial &nbsp;|&nbsp; General Construction &amp; Remodeling
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -102,14 +102,18 @@ function About() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: "🏗️", title: "General Contractor", desc: "Complete builds & renovations" },
-              { icon: "🔑", title: "Turnkey Specialist", desc: "Start to finish delivery" },
-              { icon: "💧", title: "Water Restoration", desc: "Certified & responsive" },
-              { icon: "🔥", title: "Fire Restoration", desc: "Full rebuild capability" },
-              { icon: "🏦", title: "REO & Bank Work", desc: "Compliant & on-time" },
-              { icon: "⚡", title: "Licensed & Insured", desc: "WI & IL coverage" },
+              { icon: "🏗️", title: "General Contractor", desc: "Complete builds & renovations", accent: null as string | null },
+              { icon: "💧", title: "Water Restoration", desc: "Certified & responsive", accent: "#0EA5E9" as string | null },
+              { icon: "🔥", title: "Fire Restoration", desc: "Full rebuild capability", accent: "#DC2626" as string | null },
+              { icon: "🛠️", title: "Remodeling Experts", desc: "Renovations done right", accent: null as string | null },
+              { icon: "🏦", title: "REO & Bank Work", desc: "Compliant & on-time", accent: null as string | null },
+              { icon: "⚡", title: "Licensed & Insured", desc: "WI & IL coverage", accent: null as string | null },
             ].map((item) => (
-              <div key={item.title} className="rounded-xl p-4 border-2" style={{ borderColor: "#E2E8F0" }}>
+              <div
+                key={item.title}
+                className="rounded-xl p-4 border-2"
+                style={{ borderColor: item.accent ?? "#E2E8F0", background: item.accent ? `${item.accent}14` : undefined }}
+              >
                 <div className="text-3xl mb-2">{item.icon}</div>
                 <div className="font-semibold text-sm" style={{ color: "#0F2040" }}>{item.title}</div>
                 <div className="text-xs text-gray-500 mt-1">{item.desc}</div>
@@ -125,46 +129,52 @@ function About() {
 // ── SERVICES ──────────────────────────────────────────────────────────────────
 const SERVICES = [
   {
+    icon: "🔥",
+    title: "Fire & Water Damage Restoration",
+    desc: "Available 24/7 for emergency fire and water damage response. Licensed and certified — we restore your property to its original condition, or better.",
+    items: ["24/7 Emergency Response & Mitigation", "Fire & Smoke Damage Restoration", "Full Interior Rebuild Post-Disaster", "Water Damage Assessment & Restoration", "Flood & Leak Damage Repair", "Mold Remediation Coordination"],
+    badge: "24/7 Emergency Response" as string | null,
+    badgeColor: "#DC2626" as string | null,
+  },
+  {
+    icon: "🏗️",
+    title: "General Construction & Remodeling",
+    desc: "Full-service construction and remodeling for homes, rentals, and commercial properties — from single-room updates to complete property transformations, ready to move in, rent, or sell. This is our specialty.",
+    items: ["Kitchen & Bathroom Remodeling", "Whole-Home Renovations & Additions", "Full Property Rehab", "Rental Unit Turnovers", "REO & Bank-Owned Property Renovations", "Pre-Sale Renovations"],
+    badge: "Our Specialty" as string | null,
+    badgeColor: "#C9A84C" as string | null,
+  },
+  {
     icon: "🔨",
     title: "Construction & Renovation",
     desc: "Complete interior and exterior renovations for residential and commercial properties. We self-perform core trades with in-house crews.",
     items: ["Framing — Wood & Steel Stud", "Drywall & Finishing", "Carpentry & Millwork", "Demolition & Cleanout", "Interior & Exterior Painting"],
-    highlight: false,
+    badge: null as string | null,
+    badgeColor: null as string | null,
   },
   {
     icon: "🏠",
     title: "Roofing & Exterior",
     desc: "Residential and commercial roofing installations, repairs, and replacements. Asphalt shingles, flat systems, and commercial membranes.",
     items: ["Roof Installation & Replacement", "Roof Repair", "Commercial Flat Roofing", "Gutters & Drainage"],
-    highlight: false,
+    badge: null as string | null,
+    badgeColor: null as string | null,
   },
   {
     icon: "🪵",
     title: "Flooring",
     desc: "Full flooring installation for any room, property type, or budget. All materials, professional finishes every time.",
     items: ["Luxury Vinyl Plank (LVP)", "Hardwood Flooring", "Ceramic & Porcelain Tile", "Carpet", "Subfloor Repair & Preparation"],
-    highlight: false,
+    badge: null as string | null,
+    badgeColor: null as string | null,
   },
   {
     icon: "⚡",
     title: "Electrical & Plumbing",
     desc: "Licensed electrical and plumbing work for residential and commercial projects. Rough-in, finish work, panel upgrades, and more.",
     items: ["Electrical Rough-In & Finish", "Panel Upgrades", "Plumbing Rough-In & Finish", "Fixture Installation", "Water Heater Installation"],
-    highlight: false,
-  },
-  {
-    icon: "🔑",
-    title: "Turnkey & Turnover Projects",
-    desc: "We take a property from any condition and deliver it completely finished — ready to rent, sell, or occupy. This is our specialty.",
-    items: ["Full Property Rehab", "Rental Unit Turnovers", "REO & Bank-Owned Property Renovations", "Pre-Sale Renovations", "Vacant Property Restoration"],
-    highlight: true,
-  },
-  {
-    icon: "💧",
-    title: "Water & Fire Damage Restoration",
-    desc: "Licensed and certified for emergency and planned restoration. We respond quickly and restore the property to its original condition — or better.",
-    items: ["Water Damage Assessment & Restoration", "Flood & Leak Damage Repair", "Mold Remediation Coordination", "Fire & Smoke Damage Restoration", "Full Interior Rebuild Post-Disaster"],
-    highlight: false,
+    badge: null as string | null,
+    badgeColor: null as string | null,
   },
 ];
 
@@ -185,13 +195,13 @@ function Services() {
             <div
               key={s.title}
               className="rounded-2xl p-6 bg-white shadow-sm border-2 hover:shadow-md transition-shadow"
-              style={{ borderColor: s.highlight ? "#C9A84C" : "#E2E8F0" }}
+              style={{ borderColor: s.badgeColor ?? "#E2E8F0" }}
             >
               <div className="text-4xl mb-3">{s.icon}</div>
               <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>
-                {s.highlight && (
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full mr-2 text-white" style={{ background: "#C9A84C" }}>
-                    Our Specialty
+                {s.badge && (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full mr-2 text-white" style={{ background: s.badgeColor ?? undefined }}>
+                    {s.badge}
                   </span>
                 )}
                 {s.title}

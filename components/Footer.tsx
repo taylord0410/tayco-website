@@ -20,12 +20,13 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Services</h4>
             <ul className="space-y-2 text-sm">
+              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">General Construction &amp; Remodeling</Link></li>
+              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Fire Restoration</Link></li>
+              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Water Restoration</Link></li>
               <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Construction &amp; Renovation</Link></li>
               <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Roofing &amp; Exterior</Link></li>
               <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Flooring</Link></li>
               <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Electrical &amp; Plumbing</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Turnkey &amp; Turnover</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Water &amp; Fire Restoration</Link></li>
             </ul>
           </div>
 
