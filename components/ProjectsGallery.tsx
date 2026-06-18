@@ -92,31 +92,31 @@ export default function ProjectsGallery() {
 
             {/* Images */}
             {selected.split ? (
-              <img src={selected.split} alt={selected.type} className="w-full max-h-[75vh] object-contain rounded-xl" />
+              <img src={selected.split} alt={selected.type} className="w-full object-contain rounded-xl" style={{ maxHeight: "80vh" }} />
             ) : (
-              <div className="flex gap-4">
+              <div className="flex gap-3" style={{ height: "78vh" }}>
                 {/* BEFORE */}
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs font-bold text-white bg-black/50 px-3 py-1 rounded">BEFORE</span>
+                <div className="flex-1 flex flex-col gap-2 min-h-0">
+                  <span className="text-xs font-bold text-white bg-black/50 px-3 py-1 rounded self-center">BEFORE</span>
                   {selected.before ? (
-                    <img src={selected.before} alt="Before" className="w-full max-h-[70vh] object-contain rounded-xl" />
+                    <img src={selected.before} alt="Before" className="w-full flex-1 object-cover rounded-xl min-h-0" />
                   ) : (
-                    <div className="w-full h-64 flex items-center justify-center rounded-xl" style={{ background: "#E2E8F0" }}>
+                    <div className="flex-1 flex items-center justify-center rounded-xl" style={{ background: "#E2E8F0" }}>
                       <span className="text-gray-500 text-sm">No image yet</span>
                     </div>
                   )}
                 </div>
 
                 {/* Divider */}
-                <div className="w-px self-stretch" style={{ background: "#C9A84C" }} />
+                <div className="w-0.5 self-stretch" style={{ background: "#C9A84C" }} />
 
                 {/* AFTER */}
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs font-bold px-3 py-1 rounded" style={{ background: "#C9A84C", color: "#0F2040" }}>AFTER</span>
+                <div className="flex-1 flex flex-col gap-2 min-h-0">
+                  <span className="text-xs font-bold px-3 py-1 rounded self-center" style={{ background: "#C9A84C", color: "#0F2040" }}>AFTER</span>
                   {selected.after ? (
-                    <img src={selected.after} alt="After" className="w-full max-h-[70vh] object-contain rounded-xl" />
+                    <img src={selected.after} alt="After" className="w-full flex-1 object-cover rounded-xl min-h-0" />
                   ) : (
-                    <div className="w-full h-64 flex items-center justify-center rounded-xl" style={{ background: "#DBEAFE" }}>
+                    <div className="flex-1 flex items-center justify-center rounded-xl" style={{ background: "#DBEAFE" }}>
                       <span className="text-sm font-semibold" style={{ color: "#1B3A6B" }}>No image yet</span>
                     </div>
                   )}
