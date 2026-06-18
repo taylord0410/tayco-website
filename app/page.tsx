@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ProjectsGallery from "@/components/ProjectsGallery";
 
 
 // ── HERO ──────────────────────────────────────────────────────────────────────
@@ -384,15 +385,6 @@ function WhyTayco() {
 }
 
 // ── PROJECTS ──────────────────────────────────────────────────────────────────
-const PROJECT_TYPES: { type: string; before?: string; after?: string; split?: string }[] = [
-  { type: "Full Home Renovation — Residential", before: "/renovation-before.png", after: "/renovation-after.png" },
-  { type: "Turnkey Rehab — Real Estate Investor", before: "/turnkey-before.png", after: "/turnkey-after.png" },
-  { type: "REO Property Restoration — Bank Owned", split: "/reo.png" },
-  { type: "Water Damage Restoration", split: "/water-damage.png" },
-  { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
-  { type: "Commercial Renovation / Tenant Improvement", split: "/commercial.png" },
-];
-
 function Projects() {
   return (
     <section id="projects" className="py-20" style={{ background: "#F8FAFC" }}>
@@ -406,51 +398,7 @@ function Projects() {
           </h2>
           <p className="text-gray-500 mt-2">Before &amp; After — Real Projects, Real Results</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PROJECT_TYPES.map(({ type, before, after, split }) => (
-            <div key={type} className="rounded-2xl overflow-hidden bg-white shadow-sm border-2" style={{ borderColor: "#E2E8F0" }}>
-              <div className="relative h-48">
-                {split ? (
-                  <img src={split} alt={type} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="grid grid-cols-2 h-full">
-                    <div className="relative border-r overflow-hidden" style={{ borderColor: "#CBD5E1" }}>
-                      {before ? (
-                        <>
-                          <img src={before} alt="Before" className="w-full h-full object-cover" />
-                          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold text-white bg-black/50 px-2 py-0.5 rounded">BEFORE</span>
-                        </>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 h-full" style={{ background: "#E2E8F0" }}>
-                          <span className="text-3xl">📷</span>
-                          <span className="text-xs font-semibold text-gray-500">BEFORE</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="relative overflow-hidden">
-                      {after ? (
-                        <>
-                          <img src={after} alt="After" className="w-full h-full object-cover" />
-                          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs font-bold px-2 py-0.5 rounded" style={{ background: "#C9A84C", color: "#0F2040" }}>AFTER</span>
-                        </>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 h-full" style={{ background: "#DBEAFE" }}>
-                          <span className="text-3xl">🏠</span>
-                          <span className="text-xs font-semibold" style={{ color: "#1B3A6B" }}>AFTER</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="font-semibold text-sm" style={{ color: "#0F2040" }}>{type}</p>
-                <p className="text-xs text-gray-400 mt-1">WI · IL · IA · IN · MN · MI · MO · TX</p>
-                <p className="text-xs mt-2 font-semibold" style={{ color: "#16A34A" }}>✅ Delivered on time &amp; within budget</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProjectsGallery />
         <p className="text-center text-sm text-gray-400 mt-8 italic">
           Photos coming soon. Contact us to request a portfolio.
         </p>
