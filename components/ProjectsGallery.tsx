@@ -99,7 +99,7 @@ export default function ProjectsGallery() {
                 <div className="flex-1 flex flex-col gap-2 min-h-0">
                   <span className="text-xs font-bold text-white bg-black/50 px-3 py-1 rounded self-center">BEFORE</span>
                   {selected.before ? (
-                    <img src={selected.before} alt="Before" className="w-full flex-1 object-cover rounded-xl min-h-0" />
+                    <img src={selected.before} alt="Before" className="w-full flex-1 object-contain rounded-xl min-h-0" />
                   ) : (
                     <div className="flex-1 flex items-center justify-center rounded-xl" style={{ background: "#E2E8F0" }}>
                       <span className="text-gray-500 text-sm">No image yet</span>
@@ -114,7 +114,7 @@ export default function ProjectsGallery() {
                 <div className="flex-1 flex flex-col gap-2 min-h-0">
                   <span className="text-xs font-bold px-3 py-1 rounded self-center" style={{ background: "#C9A84C", color: "#0F2040" }}>AFTER</span>
                   {selected.after ? (
-                    <img src={selected.after} alt="After" className="w-full flex-1 object-cover rounded-xl min-h-0" />
+                    <img src={selected.after} alt="After" className="w-full flex-1 object-contain rounded-xl min-h-0" />
                   ) : (
                     <div className="flex-1 flex items-center justify-center rounded-xl" style={{ background: "#DBEAFE" }}>
                       <span className="text-sm font-semibold" style={{ color: "#1B3A6B" }}>No image yet</span>
