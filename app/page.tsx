@@ -132,8 +132,8 @@ const SERVICES = [
   {
     icon: "🏠",
     title: "Roofing",
-    desc: "Residential and commercial roofing installations, repairs, and full replacements. Asphalt shingles, flat systems, TPO, EPDM, and commercial membranes — all installed by our own in-house crews.",
-    items: ["Roof Installation & Full Replacement", "Roof Repair & Emergency Tarping", "Asphalt Shingles (Class A / 50-yr)", "Commercial Flat Roofing — TPO / EPDM", "Ice & Water Shield Installation", "Ridge Vents, Gutters & Downspouts"],
+    desc: "Residential and commercial roofing installations by our own in-house crews. We work with all major roofing systems — from asphalt shingles to full commercial flat roofing.",
+    items: ["Asphalt Shingles — Class A / 50-yr Warranty", "Commercial Flat Roofing — TPO & EPDM", "Metal Roofing — Standing Seam & Corrugated", "Modified Bitumen (Torch-Down)", "Ice & Water Shield Systems", "Ridge Vents, Gutters & Downspouts"],
     badge: "In-House Crews" as string | null,
     badgeColor: "#1B3A6B" as string | null,
   },
