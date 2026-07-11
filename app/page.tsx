@@ -130,6 +130,22 @@ function About() {
 // ── SERVICES ──────────────────────────────────────────────────────────────────
 const SERVICES = [
   {
+    icon: "🏠",
+    title: "Roofing",
+    desc: "Residential and commercial roofing installations, repairs, and full replacements. Asphalt shingles, flat systems, TPO, EPDM, and commercial membranes — all installed by our own in-house crews.",
+    items: ["Roof Installation & Full Replacement", "Roof Repair & Emergency Tarping", "Asphalt Shingles (Class A / 50-yr)", "Commercial Flat Roofing — TPO / EPDM", "Ice & Water Shield Installation", "Ridge Vents, Gutters & Downspouts"],
+    badge: "In-House Crews" as string | null,
+    badgeColor: "#1B3A6B" as string | null,
+  },
+  {
+    icon: "🏡",
+    title: "Siding",
+    desc: "Complete siding installation and replacement for homes and commercial buildings. We work with all major siding materials to protect, insulate, and transform any property.",
+    items: ["Vinyl Siding Installation & Replacement", "Fiber Cement (HardiePlank & James Hardie)", "Wood & Engineered Wood Siding", "Aluminum & Steel Siding", "Soffit, Fascia & Trim", "Siding Repair & Spot Replacement"],
+    badge: "In-House Crews" as string | null,
+    badgeColor: "#1B3A6B" as string | null,
+  },
+  {
     icon: "🔥",
     title: "Fire & Water Damage Restoration",
     desc: "Available 24/7 for emergency fire and water damage response. Licensed and certified — we restore your property to its original condition, or better.",
@@ -150,14 +166,6 @@ const SERVICES = [
     title: "Construction & Renovation",
     desc: "Complete interior and exterior renovations for residential and commercial properties. We self-perform core trades with in-house crews.",
     items: ["Framing — Wood & Steel Stud", "Drywall & Finishing", "Carpentry & Millwork", "Demolition & Cleanout", "Interior & Exterior Painting"],
-    badge: null as string | null,
-    badgeColor: null as string | null,
-  },
-  {
-    icon: "🏠",
-    title: "Roofing & Exterior",
-    desc: "Residential and commercial roofing installations, repairs, and replacements. Asphalt shingles, flat systems, and commercial membranes.",
-    items: ["Roof Installation & Replacement", "Roof Repair", "Commercial Flat Roofing", "Gutters & Drainage"],
     badge: null as string | null,
     badgeColor: null as string | null,
   },
