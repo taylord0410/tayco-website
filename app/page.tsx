@@ -165,40 +165,6 @@ const SERVICE_CARDS = [
   },
   {
     num: "03",
-    title: "Fire & Water Restoration",
-    accent: "#DC2626",
-    badge: "24 / 7 Emergency Response",
-    badgeBg: "#DC2626",
-    groups: [
-      {
-        label: "Emergency",
-        items: ["24/7 Response", "Damage Assessment", "Water Mitigation", "Emergency Board-Up", "Contents Protection"],
-      },
-      {
-        label: "Restoration",
-        items: ["Fire & Smoke Damage", "Flood & Water Damage", "Mold Remediation", "Odor Removal", "Full Reconstruction"],
-      },
-    ],
-  },
-  {
-    num: "04",
-    title: "General Construction",
-    accent: "#C9A84C",
-    badge: "Our Specialty",
-    badgeBg: "#C9A84C",
-    groups: [
-      {
-        label: "Residential",
-        items: ["Kitchen & Bath Remodeling", "Home Additions", "Basement Finishing", "Full Renovations", "Property Rehab"],
-      },
-      {
-        label: "Commercial",
-        items: ["Tenant Improvements", "Office Buildouts", "Retail Remodels", "REO & Bank Services", "Unit Turnovers"],
-      },
-    ],
-  },
-  {
-    num: "05",
     title: "Framing",
     accent: "#1B3A6B",
     badge: "Residential & Commercial",
@@ -215,7 +181,7 @@ const SERVICE_CARDS = [
     ],
   },
   {
-    num: "06",
+    num: "04",
     title: "Drywall",
     accent: "#1B3A6B",
     badge: "Residential & Commercial",
@@ -232,7 +198,7 @@ const SERVICE_CARDS = [
     ],
   },
   {
-    num: "07",
+    num: "05",
     title: "Carpentry",
     accent: "#C9A84C",
     badge: "Rough & Finish",
@@ -249,7 +215,7 @@ const SERVICE_CARDS = [
     ],
   },
   {
-    num: "08",
+    num: "06",
     title: "Concrete",
     accent: "#1B3A6B",
     badge: "Residential & Commercial",
@@ -262,6 +228,40 @@ const SERVICE_CARDS = [
       {
         label: "Commercial",
         items: ["Structural Concrete", "Grade Beams", "Tilt-Up", "Flatwork", "Parking Lots", "Site Concrete", "Repairs"],
+      },
+    ],
+  },
+  {
+    num: "07",
+    title: "Fire & Water Restoration",
+    accent: "#DC2626",
+    badge: "24 / 7 Emergency Response",
+    badgeBg: "#DC2626",
+    groups: [
+      {
+        label: "Water Damage",
+        items: ["Water Extraction", "Structural Drying", "Flood Damage", "Sewage Backup", "Pipe Burst", "Moisture Detection", "Mold Remediation"],
+      },
+      {
+        label: "Fire Damage",
+        items: ["Fire & Smoke Damage", "Soot Removal", "Odor Elimination", "Emergency Board-Up", "Contents Pack-Out", "Full Reconstruction"],
+      },
+    ],
+  },
+  {
+    num: "08",
+    title: "General Construction",
+    accent: "#C9A84C",
+    badge: "Our Specialty",
+    badgeBg: "#C9A84C",
+    groups: [
+      {
+        label: "Residential",
+        items: ["Kitchen Remodeling", "Bathroom Remodeling", "Home Additions", "Basement Finishing", "Full Renovations", "Property Rehab"],
+      },
+      {
+        label: "Commercial",
+        items: ["Tenant Improvements", "Office Buildouts", "Retail Remodels", "REO & Bank Rehab", "Unit Turnovers", "Commercial Renovations"],
       },
     ],
   },
