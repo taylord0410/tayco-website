@@ -137,12 +137,12 @@ const SERVICE_CARDS = [
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Systems",
-        items: ["Asphalt Shingles", "Metal Roofing", "Cedar Shake", "Slate", "Tile Roofing", "TPO", "EPDM", "PVC", "Modified Bitumen", "Roof Coatings"],
+        label: "Residential",
+        items: ["Full Replacement", "Repair & Maintenance", "Storm Damage", "Emergency Services", "Gutters & Drainage"],
       },
       {
-        label: "Services",
-        items: ["Roof Replacement", "Roof Repair", "Storm Damage", "Emergency Tarping", "Skylights", "Gutters & Drainage", "Soffit & Fascia"],
+        label: "Commercial",
+        items: ["Flat & Low-Slope Systems", "Metal Roofing", "Roof Coatings", "Preventive Maintenance", "Emergency Response"],
       },
     ],
   },
@@ -154,12 +154,12 @@ const SERVICE_CARDS = [
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Materials",
-        items: ["Vinyl", "Fiber Cement", "James Hardie", "Engineered Wood", "Aluminum", "Steel", "Composite"],
+        label: "Residential",
+        items: ["Full Installation", "Replacement", "Repair", "Soffit & Fascia", "Exterior Trim"],
       },
       {
-        label: "Components",
-        items: ["Soffit", "Fascia", "Exterior Trim", "Corner Boards", "Wrap & Flashing", "Repairs & Replacement"],
+        label: "Commercial",
+        items: ["Panel Systems", "Metal Cladding", "Storefront Siding", "Insulation Upgrades", "Repairs"],
       },
     ],
   },
@@ -172,11 +172,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Emergency",
-        items: ["24/7 Response", "Water Extraction", "Structural Drying", "Emergency Board-Up", "Contents Pack-Out"],
+        items: ["24/7 Response", "Damage Assessment", "Water Mitigation", "Emergency Board-Up", "Contents Protection"],
       },
       {
         label: "Restoration",
-        items: ["Fire Damage", "Smoke & Odor", "Flood Damage", "Mold Remediation", "Full Reconstruction"],
+        items: ["Fire & Smoke Damage", "Flood & Water Damage", "Mold Remediation", "Odor Removal", "Full Reconstruction"],
       },
     ],
   },
@@ -188,12 +188,12 @@ const SERVICE_CARDS = [
     badgeBg: "#C9A84C",
     groups: [
       {
-        label: "Interior",
-        items: ["Kitchen Remodeling", "Bathroom Remodeling", "Basement Finishing", "Flooring", "Painting", "Windows & Doors"],
+        label: "Residential",
+        items: ["Kitchen & Bath Remodeling", "Home Additions", "Basement Finishing", "Full Renovations", "Property Rehab"],
       },
       {
-        label: "Structural",
-        items: ["Home Additions", "Demolition", "REO & Bank Rehab", "Property Rehab", "Unit Turnovers"],
+        label: "Commercial",
+        items: ["Tenant Improvements", "Office Buildouts", "Retail Remodels", "REO & Bank Services", "Unit Turnovers"],
       },
     ],
   },
@@ -201,16 +201,16 @@ const SERVICE_CARDS = [
     num: "05",
     title: "Framing",
     accent: "#1B3A6B",
-    badge: "Wood & Steel",
+    badge: "Residential & Commercial",
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Wood Framing",
-        items: ["Wall Framing", "Floor Systems", "Roof Framing", "Structural Headers", "Stud Partitions", "Shear Walls", "Blocking & Backing"],
+        label: "Residential",
+        items: ["New Construction", "Room Additions", "Structural Repairs", "Remodeling Support"],
       },
       {
-        label: "Steel Framing",
-        items: ["Metal Stud Walls", "Load-Bearing Steel", "Light Gauge Steel", "Interior Partitions", "Soffit Framing", "Exterior Framing"],
+        label: "Commercial",
+        items: ["Steel Stud Systems", "Load-Bearing Structures", "Tenant Buildouts", "Interior Partitions"],
       },
     ],
   },
@@ -222,12 +222,12 @@ const SERVICE_CARDS = [
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Installation",
-        items: ["Standard Drywall", "5/8\" Type X (Fire-Rated)", "Moisture-Resistant", "Soundboard", "Ceiling Systems", "Drop Ceilings"],
+        label: "Residential",
+        items: ["Installation", "Finishing & Texture", "Repair & Patching", "Ceiling Systems"],
       },
       {
-        label: "Finishing",
-        items: ["Taping & Mudding", "Sanding", "Skim Coat", "Texture", "Level 5 Finish", "Primer Ready"],
+        label: "Commercial",
+        items: ["Fire-Rated Systems", "Acoustical Assemblies", "Large-Scale Finishing", "Suspended Ceilings"],
       },
     ],
   },
@@ -240,11 +240,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Rough",
-        items: ["Stair Framing", "Beam Installation", "Subflooring", "Blocking", "Ledger Boards", "Structural Backing"],
+        items: ["Structural Carpentry", "Stair Systems", "Beams & Headers", "Subfloor Installation"],
       },
       {
         label: "Finish",
-        items: ["Crown Molding", "Base & Casing", "Wainscoting", "Built-Ins", "Cabinet Installation", "Shelving", "Door & Window Trim"],
+        items: ["Trim & Molding", "Built-Ins & Shelving", "Cabinet Installation", "Custom Woodwork"],
       },
     ],
   },
@@ -252,16 +252,16 @@ const SERVICE_CARDS = [
     num: "08",
     title: "Concrete",
     accent: "#1B3A6B",
-    badge: "Structural & Flatwork",
+    badge: "Residential & Commercial",
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Structural",
-        items: ["Foundations", "Footings", "Grade Beams", "Walls & Columns", "Slabs-on-Grade", "Piers"],
+        label: "Residential",
+        items: ["Foundations", "Flatwork", "Decorative Concrete", "Repairs"],
       },
       {
-        label: "Flatwork",
-        items: ["Driveways", "Sidewalks", "Patios", "Garage Floors", "Parking Lots", "Curbs & Gutters"],
+        label: "Commercial",
+        items: ["Structural Concrete", "Flatwork", "Site Concrete", "Repairs"],
       },
     ],
   },
