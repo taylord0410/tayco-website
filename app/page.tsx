@@ -189,11 +189,79 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Interior",
-        items: ["Kitchen Remodeling", "Bathroom Remodeling", "Basement Finishing", "Drywall & Finishing", "Flooring", "Painting", "Trim & Millwork"],
+        items: ["Kitchen Remodeling", "Bathroom Remodeling", "Basement Finishing", "Flooring", "Painting", "Windows & Doors"],
       },
       {
         label: "Structural",
-        items: ["Framing", "Home Additions", "Windows & Doors", "Demolition", "Concrete", "REO & Bank Rehab"],
+        items: ["Home Additions", "Demolition", "REO & Bank Rehab", "Property Rehab", "Unit Turnovers"],
+      },
+    ],
+  },
+  {
+    num: "05",
+    title: "Framing",
+    accent: "#1B3A6B",
+    badge: "Wood & Steel",
+    badgeBg: "#1B3A6B",
+    groups: [
+      {
+        label: "Wood Framing",
+        items: ["Wall Framing", "Floor Systems", "Roof Framing", "Structural Headers", "Stud Partitions", "Shear Walls", "Blocking & Backing"],
+      },
+      {
+        label: "Steel Framing",
+        items: ["Metal Stud Walls", "Load-Bearing Steel", "Light Gauge Steel", "Interior Partitions", "Soffit Framing", "Exterior Framing"],
+      },
+    ],
+  },
+  {
+    num: "06",
+    title: "Drywall",
+    accent: "#1B3A6B",
+    badge: "Residential & Commercial",
+    badgeBg: "#1B3A6B",
+    groups: [
+      {
+        label: "Installation",
+        items: ["Standard Drywall", "5/8\" Type X (Fire-Rated)", "Moisture-Resistant", "Soundboard", "Ceiling Systems", "Drop Ceilings"],
+      },
+      {
+        label: "Finishing",
+        items: ["Taping & Mudding", "Sanding", "Skim Coat", "Texture", "Level 5 Finish", "Primer Ready"],
+      },
+    ],
+  },
+  {
+    num: "07",
+    title: "Carpentry",
+    accent: "#C9A84C",
+    badge: "Rough & Finish",
+    badgeBg: "#C9A84C",
+    groups: [
+      {
+        label: "Rough",
+        items: ["Stair Framing", "Beam Installation", "Subflooring", "Blocking", "Ledger Boards", "Structural Backing"],
+      },
+      {
+        label: "Finish",
+        items: ["Crown Molding", "Base & Casing", "Wainscoting", "Built-Ins", "Cabinet Installation", "Shelving", "Door & Window Trim"],
+      },
+    ],
+  },
+  {
+    num: "08",
+    title: "Concrete",
+    accent: "#1B3A6B",
+    badge: "Structural & Flatwork",
+    badgeBg: "#1B3A6B",
+    groups: [
+      {
+        label: "Structural",
+        items: ["Foundations", "Footings", "Grade Beams", "Walls & Columns", "Slabs-on-Grade", "Piers"],
+      },
+      {
+        label: "Flatwork",
+        items: ["Driveways", "Sidewalks", "Patios", "Garage Floors", "Parking Lots", "Curbs & Gutters"],
       },
     ],
   },
