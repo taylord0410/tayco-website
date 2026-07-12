@@ -206,11 +206,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Residential",
-        items: ["New Construction", "Room Additions", "Structural Repairs", "Remodeling Support"],
+        items: ["Platform Framing", "Roof Framing", "Floor Systems", "Wall Framing", "Stair Framing", "Structural Headers"],
       },
       {
         label: "Commercial",
-        items: ["Steel Stud Systems", "Load-Bearing Structures", "Tenant Buildouts", "Interior Partitions"],
+        items: ["Metal Stud Framing", "Light Gauge Steel", "Load-Bearing Steel", "Interior Partitions", "Exterior Framing", "Soffit Framing"],
       },
     ],
   },
@@ -223,11 +223,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Residential",
-        items: ["Installation", "Finishing & Texture", "Repair & Patching", "Ceiling Systems"],
+        items: ["Standard Drywall", "Moisture-Resistant", "Soundboard", "Fire-Rated Type X", "Textured Finish", "Repair & Patching"],
       },
       {
         label: "Commercial",
-        items: ["Fire-Rated Systems", "Acoustical Assemblies", "Large-Scale Finishing", "Suspended Ceilings"],
+        items: ["Fire-Rated Assemblies", "Shaft Liner", "Acoustic Panels", "Abuse-Resistant", "Suspended Ceilings", "Large-Format Systems"],
       },
     ],
   },
@@ -240,11 +240,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Rough",
-        items: ["Structural Carpentry", "Stair Systems", "Beams & Headers", "Subfloor Installation"],
+        items: ["Structural Carpentry", "Stair Framing", "Beams & Headers", "Blocking & Backing", "Subflooring", "Ledger Boards"],
       },
       {
         label: "Finish",
-        items: ["Trim & Molding", "Built-Ins & Shelving", "Cabinet Installation", "Custom Woodwork"],
+        items: ["Trim & Molding", "Crown Molding", "Base & Casing", "Wainscoting", "Built-Ins", "Cabinet Installation", "Custom Millwork"],
       },
     ],
   },
@@ -257,11 +257,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Residential",
-        items: ["Foundations", "Flatwork", "Decorative Concrete", "Repairs"],
+        items: ["Foundations", "Slabs", "Driveways", "Patios & Walkways", "Decorative Concrete", "Repairs"],
       },
       {
         label: "Commercial",
-        items: ["Structural Concrete", "Flatwork", "Site Concrete", "Repairs"],
+        items: ["Structural Concrete", "Grade Beams", "Tilt-Up", "Flatwork", "Parking Lots", "Site Concrete", "Repairs"],
       },
     ],
   },
