@@ -138,11 +138,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Residential",
-        items: ["Full Replacement", "Repair & Maintenance", "Storm Damage", "Emergency Services", "Gutters & Drainage"],
+        items: ["Asphalt Shingles", "Metal Roofing", "Cedar Shake", "Slate", "Tile", "Soffit & Fascia", "Gutters"],
       },
       {
         label: "Commercial",
-        items: ["Flat & Low-Slope Systems", "Metal Roofing", "Roof Coatings", "Preventive Maintenance", "Emergency Response"],
+        items: ["TPO", "EPDM", "PVC", "Modified Bitumen", "Roof Coatings", "Metal Roofing", "Roof Replacement", "Storm Damage"],
       },
     ],
   },
