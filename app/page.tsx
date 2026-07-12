@@ -155,11 +155,11 @@ const SERVICE_CARDS = [
     groups: [
       {
         label: "Residential",
-        items: ["Full Installation", "Replacement", "Repair", "Soffit & Fascia", "Exterior Trim"],
+        items: ["Vinyl", "Fiber Cement", "James Hardie", "Engineered Wood", "Cedar", "Aluminum", "Composite", "Soffit & Fascia"],
       },
       {
         label: "Commercial",
-        items: ["Panel Systems", "Metal Cladding", "Storefront Siding", "Insulation Upgrades", "Repairs"],
+        items: ["Metal Panels", "ACM Panels", "Steel Panels", "Fiber Cement", "Insulated Panels", "Storefront Cladding"],
       },
     ],
   },
