@@ -205,12 +205,12 @@ const SERVICE_CARDS = [
     badgeBg: "#1B3A6B",
     groups: [
       {
-        label: "Residential",
-        items: ["Platform Framing", "Roof Framing", "Floor Systems", "Wall Framing", "Stair Framing", "Structural Headers"],
+        label: "Wood Framing",
+        items: ["Platform Framing", "Balloon Framing", "Timber / Post & Beam", "Roof Framing", "Floor Systems", "Wall Framing", "Stair Framing", "Structural Headers"],
       },
       {
-        label: "Commercial",
-        items: ["Metal Stud Framing", "Light Gauge Steel", "Load-Bearing Steel", "Interior Partitions", "Exterior Framing", "Soffit Framing"],
+        label: "Steel Framing",
+        items: ["Metal Stud Framing", "Light Gauge Steel", "Structural Steel", "Load-Bearing Steel", "Interior Partitions", "Exterior Framing", "Soffit Framing"],
       },
     ],
   },
