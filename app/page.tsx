@@ -128,101 +128,147 @@ function About() {
 }
 
 // ── SERVICES ──────────────────────────────────────────────────────────────────
-const SERVICES = [
+const SERVICE_CARDS = [
   {
-    icon: "🏠",
+    num: "01",
     title: "Roofing",
-    desc: "Residential and commercial roofing installations by our own in-house crews. We work with all major roofing systems — from asphalt shingles to full commercial flat roofing.",
-    items: ["Asphalt Shingles — Class A / 50-yr Warranty", "Commercial Flat Roofing — TPO & EPDM", "Metal Roofing — Standing Seam & Corrugated", "Modified Bitumen (Torch-Down)", "Ice & Water Shield Systems", "Ridge Vents, Gutters & Downspouts"],
-    badge: "In-House Crews" as string | null,
-    badgeColor: "#1B3A6B" as string | null,
+    accent: "#1B3A6B",
+    badge: "Residential & Commercial",
+    badgeBg: "#1B3A6B",
+    groups: [
+      {
+        label: "Systems",
+        items: ["Asphalt Shingles", "Metal Roofing", "Cedar Shake", "Slate", "Tile Roofing", "TPO", "EPDM", "PVC", "Modified Bitumen", "Roof Coatings"],
+      },
+      {
+        label: "Services",
+        items: ["Roof Replacement", "Roof Repair", "Storm Damage", "Emergency Tarping", "Skylights", "Gutters & Drainage", "Soffit & Fascia"],
+      },
+    ],
   },
   {
-    icon: "🏡",
+    num: "02",
     title: "Siding",
-    desc: "Complete siding installation and replacement for homes and commercial buildings. We work with all major siding materials to protect, insulate, and transform any property.",
-    items: ["Vinyl Siding Installation & Replacement", "Fiber Cement (HardiePlank & James Hardie)", "Wood & Engineered Wood Siding", "Aluminum & Steel Siding", "Soffit, Fascia & Trim", "Siding Repair & Spot Replacement"],
-    badge: "In-House Crews" as string | null,
-    badgeColor: "#1B3A6B" as string | null,
+    accent: "#1B3A6B",
+    badge: "Residential & Commercial",
+    badgeBg: "#1B3A6B",
+    groups: [
+      {
+        label: "Materials",
+        items: ["Vinyl", "Fiber Cement", "James Hardie", "Engineered Wood", "Aluminum", "Steel", "Composite"],
+      },
+      {
+        label: "Components",
+        items: ["Soffit", "Fascia", "Exterior Trim", "Corner Boards", "Wrap & Flashing", "Repairs & Replacement"],
+      },
+    ],
   },
   {
-    icon: "🔥",
-    title: "Fire & Water Damage Restoration",
-    desc: "Available 24/7 for emergency fire and water damage response. Licensed and certified — we restore your property to its original condition, or better.",
-    items: ["24/7 Emergency Response & Mitigation", "Fire & Smoke Damage Restoration", "Full Interior Rebuild Post-Disaster", "Water Damage Assessment & Restoration", "Flood & Leak Damage Repair", "Mold Remediation Coordination"],
-    badge: "24/7 Emergency Response" as string | null,
-    badgeColor: "#DC2626" as string | null,
+    num: "03",
+    title: "Fire & Water Restoration",
+    accent: "#DC2626",
+    badge: "24 / 7 Emergency Response",
+    badgeBg: "#DC2626",
+    groups: [
+      {
+        label: "Emergency",
+        items: ["24/7 Response", "Water Extraction", "Structural Drying", "Emergency Board-Up", "Contents Pack-Out"],
+      },
+      {
+        label: "Restoration",
+        items: ["Fire Damage", "Smoke & Odor", "Flood Damage", "Mold Remediation", "Full Reconstruction"],
+      },
+    ],
   },
   {
-    icon: "🏗️",
-    title: "General Construction & Remodeling",
-    desc: "Full-service construction and remodeling for homes, rentals, and commercial properties — from single-room updates to complete property transformations, ready to move in, rent, or sell. This is our specialty.",
-    items: ["Kitchen & Bathroom Remodeling", "Whole-Home Renovations & Additions", "Full Property Rehab", "Rental Unit Turnovers", "REO & Bank-Owned Property Renovations", "Pre-Sale Renovations"],
-    badge: "Our Specialty" as string | null,
-    badgeColor: "#C9A84C" as string | null,
-  },
-  {
-    icon: "🔨",
-    title: "Construction & Renovation",
-    desc: "Complete interior and exterior renovations for residential and commercial properties. We self-perform core trades with in-house crews.",
-    items: ["Framing — Wood & Steel Stud", "Drywall & Finishing", "Carpentry & Millwork", "Demolition & Cleanout", "Interior & Exterior Painting"],
-    badge: null as string | null,
-    badgeColor: null as string | null,
-  },
-  {
-    icon: "🪵",
-    title: "Flooring",
-    desc: "Full flooring installation for any room, property type, or budget. All materials, professional finishes every time.",
-    items: ["Luxury Vinyl Plank (LVP)", "Hardwood Flooring", "Ceramic & Porcelain Tile", "Carpet", "Subfloor Repair & Preparation"],
-    badge: null as string | null,
-    badgeColor: null as string | null,
-  },
-  {
-    icon: "⚡",
-    title: "Electrical & Plumbing",
-    desc: "Licensed electrical and plumbing work for residential and commercial projects. Rough-in, finish work, panel upgrades, and more.",
-    items: ["Electrical Rough-In & Finish", "Panel Upgrades", "Plumbing Rough-In & Finish", "Fixture Installation", "Water Heater Installation"],
-    badge: null as string | null,
-    badgeColor: null as string | null,
+    num: "04",
+    title: "General Construction",
+    accent: "#C9A84C",
+    badge: "Our Specialty",
+    badgeBg: "#C9A84C",
+    groups: [
+      {
+        label: "Interior",
+        items: ["Kitchen Remodeling", "Bathroom Remodeling", "Basement Finishing", "Drywall & Finishing", "Flooring", "Painting", "Trim & Millwork"],
+      },
+      {
+        label: "Structural",
+        items: ["Framing", "Home Additions", "Windows & Doors", "Demolition", "Concrete", "REO & Bank Rehab"],
+      },
+    ],
   },
 ];
 
 function Services() {
   return (
-    <section id="services" className="py-20" style={{ background: "#F8FAFC" }}>
+    <section id="services" className="py-24" style={{ background: "#F8FAFC" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
+
+        {/* Header */}
+        <div className="text-center mb-16">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: "#C9A84C" }}>
             What We Do
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
+          <h2 className="text-4xl sm:text-5xl font-bold" style={{ color: "#0F2040" }}>
             Every Trade. One Team.
           </h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SERVICES.map((s) => (
+
+        {/* 2×2 Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {SERVICE_CARDS.map((card) => (
             <div
-              key={s.title}
-              className="rounded-2xl p-6 bg-white shadow-sm border-2 hover:shadow-md transition-shadow"
-              style={{ borderColor: s.badgeColor ?? "#E2E8F0" }}
+              key={card.title}
+              className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
+              style={{ border: "1px solid #E2E8F0" }}
             >
-              <div className="text-4xl mb-3">{s.icon}</div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>
-                {s.badge && (
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full mr-2 text-white" style={{ background: s.badgeColor ?? undefined }}>
-                    {s.badge}
+              {/* Card top bar */}
+              <div className="h-1 w-full" style={{ background: card.accent }} />
+
+              <div className="p-8">
+                {/* Number + title row */}
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: card.accent, opacity: 0.5 }}>
+                      {card.num}
+                    </span>
+                    <h3 className="text-2xl font-black mt-0.5 tracking-tight" style={{ color: "#0F2040" }}>
+                      {card.title}
+                    </h3>
+                  </div>
+                  <span
+                    className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shrink-0 ml-4 mt-1"
+                    style={{
+                      background: card.badgeBg === "#C9A84C" ? "#C9A84C" : card.badgeBg === "#DC2626" ? "#FEE2E2" : "#EEF2FF",
+                      color: card.badgeBg === "#C9A84C" ? "#fff" : card.badgeBg === "#DC2626" ? "#DC2626" : "#1B3A6B",
+                    }}
+                  >
+                    {card.badge}
                   </span>
-                )}
-                {s.title}
-              </h3>
-              <p className="text-gray-500 text-sm mb-4 leading-relaxed">{s.desc}</p>
-              <ul className="space-y-1">
-                {s.items.map((item) => (
-                  <li key={item} className="text-sm text-gray-700 flex items-start gap-2">
-                    <span style={{ color: "#C9A84C" }}>✔</span> {item}
-                  </li>
-                ))}
-              </ul>
+                </div>
+
+                {/* Two-column groups */}
+                <div className="grid grid-cols-2 gap-6">
+                  {card.groups.map((group) => (
+                    <div key={group.label}>
+                      <p
+                        className="text-[10px] font-black uppercase tracking-[0.2em] mb-3 pb-2"
+                        style={{ color: card.accent, borderBottom: `1.5px solid ${card.accent}20` }}
+                      >
+                        {group.label}
+                      </p>
+                      <ul className="space-y-1.5">
+                        {group.items.map((item) => (
+                          <li key={item} className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                            <span className="w-1 h-1 rounded-full shrink-0" style={{ background: card.accent }} />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
