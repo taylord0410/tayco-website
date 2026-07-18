@@ -256,11 +256,28 @@ function WhoWeWorkWith() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {CLIENTS.map((c) => (
-            <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
-              <div className="text-4xl mb-3">{c.icon}</div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
-            </div>
+            c.title === "Private Investors" ? (
+              <div key={c.title} className="rounded-2xl overflow-hidden border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#C9A84C" }}>
+                <div className="h-48 overflow-hidden relative">
+                  <img src="/commercial.png" alt="Commercial build for private investors" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(15,32,64,0.7) 0%, transparent 60%)" }} />
+                  <span className="absolute bottom-3 left-4 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded" style={{ background: "#C9A84C", color: "#0F2040" }}>
+                    Featured Project
+                  </span>
+                </div>
+                <div className="p-6">
+                  <div className="text-4xl mb-3">{c.icon}</div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
+                </div>
+              </div>
+            ) : (
+              <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
+                <div className="text-4xl mb-3">{c.icon}</div>
+                <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
+              </div>
+            )
           ))}
         </div>
       </div>
