@@ -69,7 +69,9 @@ export default function Home() {
           </p>
 
           <p className="text-gray-400 text-sm leading-relaxed mb-7 max-w-[260px] mx-auto">
-            Tenant improvements · Office buildouts · Retail remodels · Restaurant conversions · REO rehabs
+            Ground-Up Construction · Tenant Improvements · Office Buildouts
+            <br />
+            Retail &amp; Restaurant Conversions · Mixed-Use · Design-Build · Industrial
           </p>
 
           <div
