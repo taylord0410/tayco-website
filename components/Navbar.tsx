@@ -19,11 +19,14 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link href="#services" className="text-gray-300 hover:text-white text-sm transition-colors">Services</Link>
-            <Link href="#about" className="text-gray-300 hover:text-white text-sm transition-colors">About</Link>
-            <Link href="#projects" className="text-gray-300 hover:text-white text-sm transition-colors">Projects</Link>
-            <Link href="#service-area" className="text-gray-300 hover:text-white text-sm transition-colors">Service Area</Link>
-            <Link href="#contact" className="text-gray-300 hover:text-white text-sm transition-colors">Contact</Link>
+            <Link
+              href="/commercial"
+              className="text-sm font-bold transition-colors"
+              style={{ color: "#C9A84C" }}
+            >
+              Commercial
+            </Link>
+            <Link href="/residential" className="text-gray-300 hover:text-white text-sm transition-colors">Residential</Link>
             <Link href="/vendor-application" className="text-gray-300 hover:text-white text-sm transition-colors">Join Our Team</Link>
             <Link
               href="/estimate"
@@ -41,11 +44,8 @@ export default function Navbar() {
 
         {open && (
           <div className="md:hidden pb-4 flex flex-col gap-4 border-t border-white/10 pt-4">
-            <Link href="#services" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Services</Link>
-            <Link href="#about" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>About</Link>
-            <Link href="#projects" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Projects</Link>
-            <Link href="#service-area" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Service Area</Link>
-            <Link href="#contact" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Contact</Link>
+            <Link href="/commercial" className="text-sm font-bold" style={{ color: "#C9A84C" }} onClick={() => setOpen(false)}>Commercial</Link>
+            <Link href="/residential" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Residential</Link>
             <Link href="/vendor-application" className="text-gray-300 text-sm" onClick={() => setOpen(false)}>Join Our Team</Link>
             <Link
               href="/estimate"
