@@ -22,20 +22,18 @@ function Hero() {
           Commercial Division
         </p>
         <p className="text-xs uppercase tracking-widest mb-6 text-gray-400">
-          Wisconsin · Illinois · Iowa · Indiana · Minnesota · Michigan · Missouri · Texas
+          Wisconsin · Illinois · Minnesota · Open to Any State
         </p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
           Commercial Construction.{" "}
           <span style={{ color: "#C9A84C" }}>Done Right.</span>
         </h1>
         <p className="text-xl text-gray-300 mb-2">Full-Service Commercial General Contractor</p>
-        <p className="text-gray-400 mb-8 text-lg">
-          Tenant Improvements &nbsp;|&nbsp; Office Buildouts &nbsp;|&nbsp; Retail Remodels
-          <br />
-          Restaurant Conversions &nbsp;|&nbsp; REO Rehabs &nbsp;|&nbsp; Ground-Up Construction
+        <p className="text-gray-400 mb-3 text-base max-w-2xl mx-auto leading-relaxed">
+          At TAYCO LLC we deliver complete commercial construction solutions with a single point of contact — coordinating every phase from planning to final delivery. Our approach simplifies project management, optimizes timelines, and ensures clear communication throughout.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <Link
             href="/estimate"
             className="text-white font-bold px-8 py-4 rounded-xl text-lg hover:opacity-90 transition-opacity"
@@ -54,9 +52,9 @@ function Hero() {
 
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
+            { number: "22+", label: "Specialties In-House" },
+            { number: "50+", label: "States — We Mobilize" },
             { number: "500+", label: "Commercial Projects" },
-            { number: "8", label: "States Served" },
-            { number: "12+", label: "Trades In-House" },
             { number: "24h", label: "Response Time" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.07)" }}>
@@ -75,49 +73,71 @@ const COMMERCIAL_SERVICES = [
     num: "01",
     title: "Commercial Roofing",
     accent: "#1B3A6B",
-    items: ["TPO Roofing", "EPDM Systems", "PVC Membrane", "Modified Bitumen", "Roof Coatings", "Metal Roofing", "Roof Replacement", "Storm Damage Repair"],
+    desc: "We install, replace, and rehabilitate commercial roofing systems using high-performance materials tailored to each building's needs. Our goal is to deliver durable, efficient systems designed to protect our clients' investment.",
+    items: ["TPO Systems", "EPDM Roofing", "PVC Membrane", "Modified Bitumen", "Roof Coatings", "Metal Roofing", "Roof Replacement", "Storm Damage Repair"],
   },
   {
     num: "02",
-    title: "Exterior Cladding & Siding",
+    title: "Commercial Siding & Cladding",
     accent: "#1B3A6B",
+    desc: "We install exterior cladding systems that improve the appearance, energy efficiency, and protection of commercial buildings. We work with different materials and finishes to adapt to each project.",
     items: ["Metal Panels", "ACM Panels", "Steel Panels", "Fiber Cement", "Insulated Panels", "Storefront Cladding", "EIFS / Stucco", "Curtain Wall Support"],
   },
   {
     num: "03",
-    title: "Steel Framing",
+    title: "Commercial Framing",
     accent: "#1B3A6B",
-    items: ["Metal Stud Framing", "Light Gauge Steel", "Structural Steel", "Load-Bearing Steel", "Interior Partitions", "Exterior Framing", "Soffit Framing", "Specialty Headers"],
+    desc: "We build metal and wood structures for commercial projects, ensuring precision, stability, and compliance with construction standards for offices, retail spaces, restaurants, warehouses, and other facilities.",
+    items: ["Metal Stud Framing", "Light Gauge Steel", "Structural Steel", "Load-Bearing Systems", "Interior Partitions", "Exterior Framing", "Wood Framing", "Specialty Headers"],
   },
   {
     num: "04",
-    title: "Drywall Systems",
+    title: "Commercial Flooring",
     accent: "#1B3A6B",
-    items: ["Fire-Rated Assemblies", "Shaft Liner Systems", "Acoustic Panels", "Abuse-Resistant Board", "Suspended Ceilings", "Large-Format Systems", "Level 4 & 5 Finish", "GWB Repair"],
+    desc: "We install commercial flooring solutions designed to withstand high traffic and meet the demands of each industry — delivering the right system for every space.",
+    items: ["LVP / Luxury Vinyl", "Vinyl Tile", "Commercial Carpet", "Epoxy Flooring", "Polished Concrete", "Ceramic & Porcelain Tile", "Sheet Vinyl", "Specialty Systems"],
   },
   {
     num: "05",
-    title: "Concrete",
+    title: "Drywall Systems",
     accent: "#1B3A6B",
-    items: ["Structural Concrete", "Grade Beams", "Tilt-Up Construction", "Flatwork & Slabs", "Parking Lots", "Curb & Gutter", "Site Concrete", "Concrete Repair"],
+    desc: "We install, finish, and repair drywall systems for commercial spaces, delivering paint-ready surfaces with high quality and efficiency standards.",
+    items: ["Fire-Rated Assemblies", "Shaft Liner Systems", "Acoustic Panels", "Abuse-Resistant Board", "Suspended Ceilings", "Large-Format Systems", "Level 4 & 5 Finish", "GWB Repair"],
   },
   {
     num: "06",
-    title: "General Construction",
+    title: "Interior Build-Outs",
     accent: "#C9A84C",
-    items: ["Tenant Improvements", "Office Buildouts", "Retail Remodels", "Restaurant Conversions", "REO & Bank Rehab", "Commercial Renovations", "Unit Turnovers", "Ground-Up Builds"],
+    desc: "We transform interior spaces to meet the operational needs of each business — delivering complete remodels, office fit-outs, retail spaces, restaurants, and corporate environments.",
+    items: ["Tenant Improvements", "Office Buildouts", "Retail Remodels", "Restaurant Conversions", "Corporate Spaces", "Medical Offices", "Warehouse Fit-Outs", "Ground-Up Interiors"],
   },
   {
     num: "07",
-    title: "Fire & Water Restoration",
-    accent: "#DC2626",
-    items: ["Emergency Board-Up", "Fire & Smoke Damage", "Structural Drying", "Water Extraction", "Mold Remediation", "Full Commercial Rebuild", "Soot Removal", "Insurance Documentation"],
+    title: "Industrial Demolition",
+    accent: "#1B3A6B",
+    desc: "We perform interior demolition work safely, organized, and efficiently — preparing facilities for renovations, expansions, or new commercial developments.",
+    items: ["Selective Demolition", "Interior Strip-Out", "Concrete Cutting", "Saw-Cut & Core Drill", "Debris Haul-Off", "Structural Demo", "MEP Removal", "Site Preparation"],
   },
   {
     num: "08",
-    title: "Carpentry & Millwork",
+    title: "Exterior Renovations",
+    accent: "#1B3A6B",
+    desc: "We modernize and rehabilitate facades and exterior elements to improve the image, functionality, and value of commercial properties.",
+    items: ["Facade Renovation", "Storefront Upgrades", "Exterior Painting", "Awnings & Canopies", "Parking Lot Concrete", "Curb & Gutter", "Exterior Lighting Prep", "ADA Compliance Work"],
+  },
+  {
+    num: "09",
+    title: "General Commercial Remodeling",
     accent: "#C9A84C",
-    items: ["Rough Carpentry", "Blocking & Backing", "Structural Carpentry", "Cabinet Installation", "Custom Millwork", "Trim & Molding", "Built-In Casework", "Specialty Finishes"],
+    desc: "We manage complete commercial remodeling projects, coordinating each phase of the work to ensure efficient, organized execution with the highest quality standards.",
+    items: ["Full Commercial Renovations", "REO & Bank Rehab", "Property Repositioning", "Unit Turnovers", "Capital Improvements", "Multi-Site Programs", "Fast-Track Projects", "Design-Build"],
+  },
+  {
+    num: "10",
+    title: "Fire & Water Restoration",
+    accent: "#DC2626",
+    desc: "Emergency response for fire and water damage in commercial properties — from the first call to full rebuild.",
+    items: ["Emergency Board-Up", "Water Extraction", "Structural Drying", "Fire & Smoke Damage", "Soot Removal", "Mold Remediation", "Full Commercial Rebuild", "Insurance Documentation"],
   },
 ];
 
@@ -133,7 +153,7 @@ function Services() {
             Commercial Trades. One Team.
           </h2>
           <p className="text-gray-500 mt-3 max-w-xl mx-auto">
-            12+ trades performed by our own in-house crews — no middlemen, no delays.
+            22+ specialties performed by our own in-house crews — no middlemen, no delays.
           </p>
         </div>
 
@@ -146,15 +166,14 @@ function Services() {
             >
               <div className="h-1 w-full" style={{ background: card.accent }} />
               <div className="p-8">
-                <div className="flex items-start justify-between mb-5">
-                  <div>
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: card.accent, opacity: 0.5 }}>
-                      {card.num}
-                    </span>
-                    <h3 className="text-xl font-black mt-0.5 tracking-tight" style={{ color: "#0F2040" }}>
-                      {card.title}
-                    </h3>
-                  </div>
+                <div className="mb-4">
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: card.accent, opacity: 0.5 }}>
+                    {card.num}
+                  </span>
+                  <h3 className="text-xl font-black mt-0.5 tracking-tight" style={{ color: "#0F2040" }}>
+                    {card.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mt-2 mb-4">{card.desc}</p>
                 </div>
                 <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                   {card.items.map((item) => (
@@ -173,6 +192,47 @@ function Services() {
   );
 }
 
+function OneCallSection() {
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: "#C9A84C" }}>
+              One Contractor
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: "#0F2040" }}>
+              22+ Specialties.<br />One Call.
+            </h2>
+            <p className="text-gray-600 leading-relaxed mb-4">
+              With a single call, our clients gain access to coordination of more than 22 construction specialties. This eliminates the need to hire and manage multiple vendors — reducing timelines, simplifying communication, and improving project control.
+            </p>
+            <p className="text-gray-600 leading-relaxed">
+              Our team manages each project with detailed planning, continuous tracking, and constant supervision to ensure every phase is executed on schedule, within budget, and to the quality standards established.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {[
+              { icon: "📞", title: "Single Point of Contact", desc: "One number. One team. Every trade covered." },
+              { icon: "📋", title: "Professional Project Management", desc: "Detailed planning, continuous tracking, and constant on-site supervision." },
+              { icon: "🗂️", title: "Permit & Documentation Management", desc: "We handle permits, inspections, and all project documentation on your behalf." },
+              { icon: "🚚", title: "Nationwide Availability", desc: "Ready to mobilize for commercial projects anywhere in the United States." },
+            ].map((item) => (
+              <div key={item.title} className="flex gap-4 p-5 rounded-xl border" style={{ borderColor: "#E2E8F0" }}>
+                <div className="text-2xl shrink-0">{item.icon}</div>
+                <div>
+                  <h3 className="font-bold text-sm mb-1" style={{ color: "#0F2040" }}>{item.title}</h3>
+                  <p className="text-gray-500 text-sm">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const CLIENTS = [
   { icon: "🏦", title: "Banks & Lenders", desc: "REO property repairs, cleanouts, and full rehabs. We understand your timelines and compliance requirements." },
   { icon: "🏢", title: "Commercial Owners", desc: "Tenant improvements, office buildouts, retail remodels, and complete commercial renovations under one roof." },
@@ -184,7 +244,7 @@ const CLIENTS = [
 
 function WhoWeWorkWith() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20" style={{ background: "#F8FAFC" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
@@ -196,7 +256,7 @@ function WhoWeWorkWith() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {CLIENTS.map((c) => (
-            <div key={c.title} className="rounded-2xl p-6 border-2 hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
+            <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
               <div className="text-4xl mb-3">{c.icon}</div>
               <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
@@ -209,12 +269,15 @@ function WhoWeWorkWith() {
 }
 
 const WHY = [
-  { icon: "📞", title: "ONE Point of Contact", desc: "You call one number. We handle every trade. No confusion, no delays, no finger-pointing between contractors." },
-  { icon: "✅", title: "Licensed & Insured", desc: "Fully licensed and insured across 8 states. You are protected on every project." },
-  { icon: "👷", title: "12+ Trades — All In-House", desc: "We self-perform 12+ trades with our own crews — drywall, framing, roofing, electrical, plumbing, HVAC, siding, carpentry, concrete, and demolition." },
-  { icon: "🏗️", title: "Commercial Experience", desc: "From tenant improvements to ground-up commercial builds — we have the experience and capacity to deliver on time." },
-  { icon: "🧠", title: "We Know Your Business", desc: "We work with investors, banks, and property managers every day. We understand your deadlines, budgets, and expectations." },
-  { icon: "📅", title: "On Time. On Budget.", desc: "We communicate throughout every phase so you always know where things stand. No surprises." },
+  { icon: "📞", title: "Single Point of Contact", desc: "One number for the entire project. We coordinate every trade, every phase, every detail." },
+  { icon: "🔧", title: "22+ Specialties In-House", desc: "Access to more than 22 construction specialties — no subcontractor chaos, no delays between trades." },
+  { icon: "📋", title: "Professional Project Management", desc: "Detailed scheduling, continuous tracking, and constant supervision to keep every project on time and on budget." },
+  { icon: "🗂️", title: "Permits & Documentation", desc: "We manage permitting, inspections, and all project documentation so you don't have to." },
+  { icon: "✅", title: "Quality Control", desc: "Direct oversight of every trade means higher quality standards and fewer mistakes — we own the work." },
+  { icon: "🌎", title: "We Go to You", desc: "Based in Wisconsin, Illinois, and Minnesota — but open to mobilizing for commercial projects in any state where our clients need us." },
+  { icon: "⚡", title: "Efficient Scheduling", desc: "Coordinating all trades under one roof allows us to compress timelines and reduce costly project delays." },
+  { icon: "🤝", title: "Custom Solutions", desc: "Every client and project is different. We adapt our approach to the specific needs, budget, and timeline of each job." },
+  { icon: "🏅", title: "Safety & Excellence", desc: "Full commitment to safety protocols, workmanship standards, and delivering results that exceed expectations." },
 ];
 
 function WhyTayco() {
@@ -223,7 +286,7 @@ function WhyTayco() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Why Choose Us
+            Why Choose TAYCO LLC
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white">
             The Simplest Decision You Will Make on Your Next Project.
@@ -265,41 +328,57 @@ function Projects() {
   );
 }
 
-const SERVICE_STATES = [
-  { state: "Wisconsin", cities: ["Milwaukee", "Madison", "Kenosha", "Racine", "Green Bay", "Waukesha", "Oshkosh", "Surrounding areas"] },
-  { state: "Illinois", cities: ["Chicago", "Rockford", "Aurora", "Naperville", "Joliet", "Elgin", "Waukegan", "Surrounding areas"] },
-  { state: "Iowa", cities: ["Des Moines", "Cedar Rapids", "Davenport", "Iowa City", "Surrounding areas"] },
-  { state: "Indiana", cities: ["Indianapolis", "Fort Wayne", "South Bend", "Evansville", "Surrounding areas"] },
-  { state: "Minnesota", cities: ["Minneapolis", "St. Paul", "Bloomington", "Rochester", "Surrounding areas"] },
-  { state: "Michigan", cities: ["Detroit", "Grand Rapids", "Lansing", "Ann Arbor", "Surrounding areas"] },
-  { state: "Missouri", cities: ["St. Louis", "Kansas City", "Springfield", "Columbia", "Surrounding areas"] },
-  { state: "Texas", cities: ["Dallas", "Houston", "San Antonio", "Austin", "Fort Worth", "Surrounding areas"] },
-];
-
 function ServiceArea() {
   return (
     <section id="service-area" className="py-20" style={{ background: "#1B3A6B" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
           Where We Work
         </p>
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-          We Work Where You Need Us.
+          Based in the Midwest. Ready to Go to You.
         </h2>
-        <p className="text-gray-300 mb-10">
-          TAYCO LLC serves commercial clients across <strong className="text-white">8 states</strong>.
+        <p className="text-gray-300 mb-10 text-lg max-w-2xl mx-auto">
+          TAYCO LLC is headquartered and primarily serves clients in <strong className="text-white">Wisconsin, Illinois, and Minnesota</strong> — but we are open to mobilizing for commercial projects in any state where our clients need us, bringing the same level of quality, organization, and commitment to every location.
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {SERVICE_STATES.map(({ state, cities }) => (
-            <div key={state} className="rounded-2xl p-5 text-left" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <h3 className="text-lg font-bold text-white mb-3">📍 {state}</h3>
-              <ul className="space-y-1">
+
+        <div className="grid sm:grid-cols-3 gap-5 mb-10">
+          {[
+            {
+              state: "Wisconsin",
+              flag: "🏙️",
+              cities: ["Milwaukee", "Madison", "Kenosha", "Racine", "Green Bay", "Waukesha", "Oshkosh", "Surrounding areas"],
+            },
+            {
+              state: "Illinois",
+              flag: "🌆",
+              cities: ["Chicago", "Rockford", "Aurora", "Naperville", "Joliet", "Elgin", "Waukegan", "Surrounding areas"],
+            },
+            {
+              state: "Minnesota",
+              flag: "❄️",
+              cities: ["Minneapolis", "St. Paul", "Bloomington", "Rochester", "Duluth", "St. Cloud", "Mankato", "Surrounding areas"],
+            },
+          ].map(({ state, flag, cities }) => (
+            <div key={state} className="rounded-2xl p-6 text-left" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(201,168,76,0.3)" }}>
+              <h3 className="text-lg font-bold text-white mb-4">{flag} {state}</h3>
+              <ul className="space-y-1.5">
                 {cities.map((c) => (
                   <li key={c} className="text-gray-300 text-sm">{c}</li>
                 ))}
               </ul>
             </div>
           ))}
+        </div>
+
+        <div
+          className="rounded-2xl p-6 max-w-2xl mx-auto"
+          style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.35)" }}
+        >
+          <p className="text-white font-bold text-lg mb-2">📍 Outside these states?</p>
+          <p className="text-gray-300 text-sm">
+            We are open to mobilizing our team for commercial projects anywhere in the United States. Submit a request and we will review your project and respond within 24 hours.
+          </p>
         </div>
       </div>
     </section>
@@ -333,7 +412,7 @@ function ContactCTA() {
           </Link>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center text-white text-sm">
-          <span>📍 WI · IL · IA · IN · MN · MI · MO · TX</span>
+          <span>📍 WI · IL · MN · Open to Any State</span>
           <span className="hidden sm:inline">·</span>
           <span>🕐 Mon–Fri 7am–6pm</span>
         </div>
@@ -347,6 +426,7 @@ export default function CommercialPage() {
     <main>
       <Hero />
       <Services />
+      <OneCallSection />
       <WhoWeWorkWith />
       <WhyTayco />
       <Projects />
