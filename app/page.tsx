@@ -69,9 +69,11 @@ export default function Home() {
           </p>
 
           <p className="text-gray-400 text-sm leading-relaxed mb-7 max-w-[260px] mx-auto">
-            Ground-Up Construction · Tenant Improvements · Office Buildouts
+            Ground-Up Construction · Design-Build Services
             <br />
-            Retail &amp; Restaurant Conversions · Mixed-Use · Design-Build · Industrial
+            General Contracting · Construction Management
+            <br />
+            Tenant Improvements · Mixed-Use · Industrial
           </p>
 
           <div
