@@ -28,7 +28,7 @@ function Hero() {
           Your Home.{" "}
           <span style={{ color: "#C9A84C" }}>Our Priority.</span>
         </h1>
-        <p className="text-xl text-gray-300 mb-2">Full-Service Residential General Contractor</p>
+        <p className="text-xl text-gray-300 mb-2">Full-Service Residential Construction Company</p>
         <p className="text-gray-400 mb-8 text-lg">
           Home Renovations &nbsp;|&nbsp; Kitchen & Bath Remodels &nbsp;|&nbsp; Additions
           <br />

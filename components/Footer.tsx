@@ -11,7 +11,7 @@ export default function Footer() {
               <Image src="/logo.jpeg" alt="TAYCO LLC" width={48} height={48} className="rounded-full" />
               <span className="font-bold text-xl tracking-tight" style={{ color: "#C9A84C" }}>TAYCO LLC</span>
             </div>
-            <p className="text-sm text-gray-400 mb-2">Full-Service General Contractor</p>
+            <p className="text-sm text-gray-400 mb-2">Full-Service Construction Company</p>
             <p className="text-sm text-gray-400">WI · IL · IA · IN · MN · MI · MO · TX</p>
             <p className="text-sm text-gray-400 mt-1">Licensed &amp; Insured</p>
             <p className="text-sm text-gray-400">Certified Restoration Contractor</p>

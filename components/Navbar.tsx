@@ -14,7 +14,7 @@ export default function Navbar() {
             <Image src="/logo.jpeg" alt="TAYCO LLC" width={44} height={44} className="rounded-full" />
             <span className="flex flex-col leading-tight">
               <span className="font-bold text-xl tracking-tight" style={{ color: "#C9A84C" }}>TAYCO LLC</span>
-              <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider">General Contractor</span>
+              <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider">Construction Company</span>
             </span>
           </Link>
 

@@ -28,7 +28,7 @@ function Hero() {
           Commercial Construction.{" "}
           <span style={{ color: "#C9A84C" }}>Done Right.</span>
         </h1>
-        <p className="text-xl text-gray-300 mb-2">Full-Service Commercial General Contractor</p>
+        <p className="text-xl text-gray-300 mb-2">Full-Service Commercial Construction Company</p>
         <p className="text-gray-400 mb-3 text-base max-w-2xl mx-auto leading-relaxed">
           At TAYCO LLC we deliver complete commercial construction solutions with a single point of contact — coordinating every phase from planning to final delivery. Our approach simplifies project management, optimizes timelines, and ensures clear communication throughout.
         </p>
