@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProjectsGallery from "@/components/ProjectsGallery";
+import ProjectsGallery, { COMMERCIAL_PROJECTS } from "@/components/ProjectsGallery";
 
 function Hero() {
   return (
@@ -334,11 +334,11 @@ function Projects() {
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             See What We Build.
           </h2>
-          <p className="text-gray-500 mt-2">Before &amp; After — Real Commercial Projects</p>
+          <p className="text-gray-500 mt-2">Ground-Up Builds, Exteriors &amp; Interior Build-Outs</p>
         </div>
-        <ProjectsGallery />
+        <ProjectsGallery projects={COMMERCIAL_PROJECTS} />
         <p className="text-center text-sm text-gray-400 mt-8 italic">
-          Photos coming soon. Contact us to request a commercial portfolio.
+          Contact us to request our full commercial portfolio.
         </p>
       </div>
     </section>
