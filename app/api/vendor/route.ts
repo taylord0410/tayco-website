@@ -104,7 +104,7 @@ async function sendConfirmation(data: Record<string, string>) {
       </div>
       <p style="color:#444;font-size:14px;line-height:1.6">
         If you have any questions in the meantime, you can reply to this email or call us at
-        <strong>(414) 333-0000</strong>.
+        <strong>857-230-1452</strong>.
       </p>
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
       <p style="color:#999;font-size:12px;margin:0">TAYCO LLC · 2829 West Wisconsin Ave, Milwaukee, WI 53208</p>
