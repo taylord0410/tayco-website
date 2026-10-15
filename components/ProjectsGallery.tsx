@@ -1,24 +1,33 @@
 "use client";
 import { useState } from "react";
 
-const PROJECT_TYPES: { type: string; before?: string; after?: string; split?: string }[] = [
+export type Project = { type: string; before?: string; after?: string; split?: string };
+
+export const RESIDENTIAL_PROJECTS: Project[] = [
   { type: "Full Home Renovation — Residential", before: "/renovation-before.png", after: "/renovation-after.png" },
   { type: "Turnkey Rehab — Real Estate Investor", before: "/turnkey-before.png", after: "/turnkey-after.png" },
   { type: "REO Property Restoration — Bank Owned", split: "/reo.png" },
   { type: "Water Damage Restoration", split: "/water-damage.png" },
   { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
-  { type: "Commercial Renovation / Tenant Improvement", split: "/commercial.png" },
+  { type: "Roofing & Siding — Residential", split: "/projects/residential-roof-siding.jpg" },
 ];
 
-type Project = { type: string; before?: string; after?: string; split?: string };
+export const COMMERCIAL_PROJECTS: Project[] = [
+  { type: "Ground-Up Construction — Multi-Family", split: "/projects/commercial-ground-up.jpg" },
+  { type: "Commercial Steel Stud Framing", split: "/projects/commercial-steel-framing.jpg" },
+  { type: "Commercial Flat Roofing — TPO", split: "/projects/commercial-flat-roof.jpg" },
+  { type: "Metal Panel Siding & Cladding", split: "/projects/commercial-metal-cladding.jpg" },
+  { type: "Office Interior Build-Out", split: "/projects/commercial-office-buildout.jpg" },
+  { type: "Restaurant & Retail Build-Out", split: "/projects/commercial-restaurant-buildout.jpg" },
+];
 
-export default function ProjectsGallery() {
+export default function ProjectsGallery({ projects }: { projects: Project[] }) {
   const [selected, setSelected] = useState<Project | null>(null);
 
   return (
     <>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {PROJECT_TYPES.map((project) => {
+        {projects.map((project) => {
           const { type, before, after, split } = project;
           return (
             <div

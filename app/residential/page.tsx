@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProjectsGallery from "@/components/ProjectsGallery";
+import ProjectsGallery, { RESIDENTIAL_PROJECTS } from "@/components/ProjectsGallery";
 
 function Hero() {
   return (
@@ -309,9 +309,9 @@ function Projects() {
           </h2>
           <p className="text-gray-500 mt-2">Before &amp; After — Real Residential Projects</p>
         </div>
-        <ProjectsGallery />
+        <ProjectsGallery projects={RESIDENTIAL_PROJECTS} />
         <p className="text-center text-sm text-gray-400 mt-8 italic">
-          Photos coming soon. Contact us to request a residential portfolio.
+          Contact us to request our full residential portfolio.
         </p>
       </div>
     </section>
