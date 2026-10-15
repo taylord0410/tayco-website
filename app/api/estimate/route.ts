@@ -1,26 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import {
   checkRateLimit, checkEmailLimit, sanitize, validateOrigin,
   checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
+  clientIp, NOTIFY_EMAIL, EMAIL_FROM_ADDRESS,
 } from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
 const TABLE_NAME = "Estimate Requests";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const NOTIFY_EMAIL = "tayroofing@gmail.com";
 
 async function sendNotification(data: Record<string, string>) {
   if (!RESEND_API_KEY) return;
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "TAYCO Website <onboarding@resend.dev>",
+        from: `TAYCO Website <${EMAIL_FROM_ADDRESS}>`,
         to: [NOTIFY_EMAIL],
         subject: `New Estimate Request — ${data.fullName}`,
         html: `
@@ -37,6 +37,7 @@ async function sendNotification(data: Record<string, string>) {
         `,
       }),
     });
+    if (!res.ok) console.error("Email rejected:", res.status, await res.text());
   } catch (e) {
     console.error("Email notification failed:", e);
   }
@@ -44,9 +45,7 @@ async function sendNotification(data: Record<string, string>) {
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-
-    if (!checkRateLimit(ip)) {
+    if (!checkRateLimit(clientIp(req.headers))) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
@@ -132,8 +131,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save" }, { status: 500 });
     }
 
-    // Send email notification (non-blocking)
-    sendNotification({ fullName, phone, email, projectType, projectLocation, projectDetails });
+    // Send the notification after the response; after() keeps the function alive until it finishes.
+    after(() => sendNotification({ fullName, phone, email, projectType, projectLocation, projectDetails }));
 
     return NextResponse.json({ success: true });
   } catch (err) {

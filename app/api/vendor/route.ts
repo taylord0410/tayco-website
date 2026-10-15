@@ -1,37 +1,61 @@
-import { NextRequest, NextResponse } from "next/server";
+import { get } from "@vercel/blob";
+import { after, NextRequest, NextResponse } from "next/server";
 import {
   checkRateLimit, checkEmailLimit, sanitize, validateOrigin,
   checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
+  clientIp, isVendorDocPath, NOTIFY_EMAIL, EMAIL_FROM_ADDRESS,
 } from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
 const TABLE_NAME = "Subcontractors";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const NOTIFY_EMAIL = "tayroofing@gmail.com";
 
-async function sendEmail(to: string, subject: string, html: string) {
+type Attachment = { filename: string; content: string };
+
+// Reads a private vendor doc back from Blob so it can travel as an email attachment.
+async function loadAttachment(pathname: string, label: string): Promise<Attachment | null> {
+  try {
+    const res = await get(pathname, { access: "private" });
+    if (!res || res.statusCode !== 200) return null;
+    const buf = Buffer.from(await new Response(res.stream).arrayBuffer());
+    const ext = pathname.split(".").pop();
+    return { filename: `${label}.${ext}`, content: buf.toString("base64") };
+  } catch (e) {
+    console.error("Attachment read failed:", e);
+    return null;
+  }
+}
+
+async function sendEmail(to: string, subject: string, html: string, attachments: Attachment[] = []) {
   if (!RESEND_API_KEY) return;
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "TAYCO LLC <onboarding@resend.dev>",
+        from: `TAYCO LLC <${EMAIL_FROM_ADDRESS}>`,
         to: [to],
         subject,
         html,
+        ...(attachments.length > 0 && { attachments }),
       }),
     });
+    if (!res.ok) console.error("Email rejected:", res.status, await res.text());
   } catch (e) {
     console.error("Email failed:", e);
   }
 }
 
 async function sendNotification(data: Record<string, string>) {
+  const attachments = (await Promise.all([
+    data.w9Path ? loadAttachment(data.w9Path, `W9 - ${data.businessName}`) : null,
+    data.insurancePath ? loadAttachment(data.insurancePath, `COI - ${data.businessName}`) : null,
+  ])).filter((a): a is Attachment => a !== null);
+
   await sendEmail(
     NOTIFY_EMAIL,
     `New Vendor Application — ${data.businessName}`,
@@ -48,12 +72,13 @@ async function sendNotification(data: Record<string, string>) {
       <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Insured</td><td style="padding:8px;border:1px solid #eee">${data.insured}</td></tr>
       <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Years in Business</td><td style="padding:8px;border:1px solid #eee">${data.yearsInBusiness}</td></tr>
       <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Crew Size</td><td style="padding:8px;border:1px solid #eee">${data.crewSize}</td></tr>
-      <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">W9</td><td style="padding:8px;border:1px solid #eee">${data.w9Url ? `<a href="${data.w9Url}">View W9</a>` : "Not uploaded yet"}</td></tr>
-      <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Insurance COI</td><td style="padding:8px;border:1px solid #eee">${data.insuranceUrl ? `<a href="${data.insuranceUrl}">View COI</a>` : "Not uploaded yet"}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">W9</td><td style="padding:8px;border:1px solid #eee">${data.w9Path ? "Attached to this email" : "Not uploaded yet"}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Insurance COI</td><td style="padding:8px;border:1px solid #eee">${data.insurancePath ? "Attached to this email" : "Not uploaded yet"}</td></tr>
       <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold">Notes</td><td style="padding:8px;border:1px solid #eee">${data.notes || "—"}</td></tr>
     </table>
     <p style="margin-top:16px;color:#666;font-size:12px">Review in Airtable → Subcontractors</p>
-    `
+    `,
+    attachments,
   );
 }
 
@@ -90,9 +115,7 @@ async function sendConfirmation(data: Record<string, string>) {
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-
-    if (!checkRateLimit(ip)) {
+    if (!checkRateLimit(clientIp(req.headers))) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
@@ -113,8 +136,9 @@ export async function POST(req: NextRequest) {
     if (body.website) return NextResponse.json({ success: true });
     if (!checkTiming(body._loadedAt)) return NextResponse.json({ success: true });
 
-    const w9Url = typeof body.w9Url === "string" ? body.w9Url : "";
-    const insuranceUrl = typeof body.insuranceUrl === "string" ? body.insuranceUrl : "";
+    // Only accept references to our own private uploads, never arbitrary URLs.
+    const w9Path = isVendorDocPath(body.w9Url) && body.w9Url.startsWith("vendor-docs/w9-") ? body.w9Url : "";
+    const insurancePath = isVendorDocPath(body.insuranceUrl) && body.insuranceUrl.startsWith("vendor-docs/insurance-") ? body.insuranceUrl : "";
 
     const businessName = sanitize(body.businessName);
     const contactName = sanitize(body.contactName);
@@ -184,8 +208,8 @@ export async function POST(req: NextRequest) {
       yearsInBusiness ? `Years in Business: ${yearsInBusiness}` : null,
       crewSize ? `Crew: ${crewSize}` : null,
       notes ? `Notes: ${notes}` : null,
-      w9Url ? `W9: ${w9Url}` : `W9: Not uploaded`,
-      insuranceUrl ? `Insurance COI: ${insuranceUrl}` : `Insurance COI: Not uploaded`,
+      w9Path ? `W9: private blob ${w9Path} (attached to notification email)` : `W9: Not uploaded`,
+      insurancePath ? `Insurance COI: private blob ${insurancePath} (attached to notification email)` : `Insurance COI: Not uploaded`,
     ].filter(Boolean).join("\n");
 
     const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
@@ -214,9 +238,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save" }, { status: 500 });
     }
 
-    // Send emails (non-blocking)
-    sendNotification({ businessName, contactName, phone, email, trades, stateServed, citiesServed, insured, yearsInBusiness, crewSize, w9Url, insuranceUrl, notes });
-    sendConfirmation({ businessName, contactName, email, trades, stateServed });
+    // Send emails after the response; after() keeps the function alive until they finish.
+    after(() => Promise.all([
+      sendNotification({ businessName, contactName, phone, email, trades, stateServed, citiesServed, insured, yearsInBusiness, crewSize, w9Path, insurancePath, notes }),
+      sendConfirmation({ businessName, contactName, email, trades, stateServed }),
+    ]));
 
     return NextResponse.json({ success: true });
   } catch (err) {
