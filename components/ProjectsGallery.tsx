@@ -9,14 +9,14 @@ export const RESIDENTIAL_PROJECTS: Project[] = [
   { type: "REO Property Restoration — Bank Owned", split: "/reo.png" },
   { type: "Water Damage Restoration", split: "/water-damage.png" },
   { type: "Fire Damage Restoration", before: "/fire-damage-before.png", after: "/fire-damage-after.png" },
-  { type: "Roofing & Siding — Residential", split: "/projects/residential-roof-siding.jpg" },
+  { type: "Shingle Roofing — Residential", split: "/projects/residential-roof-siding.jpg" },
 ];
 
 export const COMMERCIAL_PROJECTS: Project[] = [
   { type: "Ground-Up Construction — Multi-Family", split: "/projects/commercial-ground-up.jpg" },
   { type: "Commercial Steel Stud Framing", split: "/projects/commercial-steel-framing.jpg" },
   { type: "Commercial Flat Roofing — TPO", split: "/projects/commercial-flat-roof.jpg" },
-  { type: "Metal Panel Siding & Cladding", split: "/projects/commercial-metal-cladding.jpg" },
+  { type: "Commercial Exterior Cladding", split: "/projects/commercial-metal-cladding.jpg" },
   { type: "Office Interior Build-Out", split: "/projects/commercial-office-buildout.jpg" },
   { type: "Restaurant & Retail Build-Out", split: "/projects/commercial-restaurant-buildout.jpg" },
 ];
