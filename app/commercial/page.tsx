@@ -239,7 +239,7 @@ const CLIENTS = [
   { icon: "🏦", title: "Banks & Lenders", desc: "REO property repairs, cleanouts, and full rehabs. We understand your timelines and compliance requirements." },
   { icon: "🏗️", title: "General Contractors", desc: "Reliable trade crews for framing, roofing, siding, drywall and finishes — coordinated to your schedule and specs." },
   { icon: "🏘️", title: "Property Managers", desc: "Fast, reliable commercial turnovers and capital improvement projects across your entire portfolio." },
-  { icon: "🍽️", title: "Restaurant & Retail", desc: "Full QSR and retail buildouts — from framing and concrete to finishes and MEP coordination." },
+  { icon: "🏪", title: "Business Owners", desc: "Retail, restaurant, and office buildouts — from framing and concrete to finishes and MEP coordination." },
 ];
 
 function WhoWeWorkWith() {

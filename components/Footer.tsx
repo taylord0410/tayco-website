@@ -33,18 +33,20 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Clients We Serve</h4>
             <ul className="space-y-2 text-sm">
+              <li className="text-gray-400">Property Owners</li>
+              <li className="text-gray-400">Investors</li>
               <li className="text-gray-400">Banks &amp; Lenders</li>
-              <li className="text-gray-400">Real Estate Investors</li>
+              <li className="text-gray-400">General Contractors</li>
               <li className="text-gray-400">Property Managers</li>
-              <li className="text-gray-400">Commercial Owners</li>
-              <li className="text-gray-400">Homeowners</li>
-              <li className="text-gray-400">Private Investors</li>
+              <li className="text-gray-400">Business Owners</li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Contact</h4>
             <ul className="space-y-2 text-sm">
+              <li><a href="tel:+18572301452" className="text-gray-300 hover:text-white transition-colors">📞 857-230-1452</a></li>
+              <li><a href="mailto:general@taycoturnkey.com" className="text-gray-300 hover:text-white transition-colors">✉️ general@taycoturnkey.com</a></li>
               <li className="text-gray-400">📍 WI · IL · IA · IN · MN · MI · MO · TX</li>
               <li className="text-gray-400">🕐 Mon–Fri 7am–6pm</li>
               <li className="text-gray-400">Sat by appointment</li>
