@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   checkRateLimit, checkEmailLimit, sanitize, validateOrigin,
   checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
+  clientIp,
 } from "../_utils";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
@@ -10,9 +11,7 @@ const TABLE_NAME = "Company Leads";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-
-    if (!checkRateLimit(ip)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    if (!checkRateLimit(clientIp(req.headers))) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     if (!validateOrigin(req.headers.get("origin"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     if (!checkUserAgent(req.headers.get("user-agent"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

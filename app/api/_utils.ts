@@ -1,18 +1,39 @@
 // ── Rate limiting (per IP) ────────────────────────────────────────────────────
+// In-memory, so it only applies within one serverless instance. For a hard limit
+// add a Vercel Firewall rate-limit rule on /api/* (see SECURITY.md).
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 3;
 const WINDOW_MS = 60 * 1000;
 
-export function checkRateLimit(ip: string): boolean {
+export function checkRateLimit(ip: string, bucket = "forms", limit = RATE_LIMIT): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const key = `${bucket}:${ip}`;
+  const entry = rateLimitMap.get(key);
   if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    rateLimitMap.set(key, { count: 1, resetAt: now + WINDOW_MS });
     return true;
   }
-  if (entry.count >= RATE_LIMIT) return false;
+  if (entry.count >= limit) return false;
   entry.count++;
   return true;
+}
+
+export function clientIp(headers: Headers): string {
+  return headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+}
+
+// ── Email settings ────────────────────────────────────────────────────────────
+// onboarding@resend.dev only delivers to the Resend account owner. To send from
+// and to general@taycoturnkey.com, verify the domain in Resend and set these env vars.
+export const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "tayroofing@gmail.com";
+export const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM || "onboarding@resend.dev";
+
+// ── Vendor documents (W9 / COI) ───────────────────────────────────────────────
+// Stored as PRIVATE blobs: the client only ever gets the pathname, never a public URL.
+export const VENDOR_DOC_TYPES = ["w9", "insurance"] as const;
+
+export function isVendorDocPath(value: unknown): value is string {
+  return typeof value === "string" && /^vendor-docs\/(w9|insurance)-[A-Za-z0-9_-]+\.(pdf|jpg|png)$/.test(value);
 }
 
 // ── Rate limiting (per email) — same email blocked for 24 hours ──────────────
@@ -33,10 +54,16 @@ export function sanitize(value: unknown, maxLen = 500): string {
 }
 
 // ── Origin validation ─────────────────────────────────────────────────────────
+// Extra origins (e.g. a Vercel preview URL) can be added with ALLOWED_ORIGINS, comma-separated.
 export function validateOrigin(origin: string | null): boolean {
   if (!origin) return true;
-  const allowed = ["https://taycoturnkey.com", "https://www.taycoturnkey.com", "http://localhost:3001", "http://localhost:3000"];
-  return allowed.some((o) => origin.startsWith(o));
+  const allowed = [
+    "https://tayco.llc", "https://www.tayco.llc",
+    "https://taycoturnkey.com", "https://www.taycoturnkey.com",
+    "http://localhost:3001", "http://localhost:3000",
+    ...(process.env.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean),
+  ];
+  return allowed.includes(origin);
 }
 
 // ── Timing check — bots submit in milliseconds, humans take seconds ───────────
