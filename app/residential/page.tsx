@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProjectsGallery from "@/components/ProjectsGallery";
+import TradeGallery from "@/components/TradeGallery";
 
 function Hero() {
   return (
@@ -227,11 +227,11 @@ function Certifications() {
 }
 
 const CLIENTS = [
-  { icon: "🏠", title: "Homeowners", desc: "Full home renovations, room additions, kitchen and bathroom remodels, and restoration work — all under one roof." },
-  { icon: "💼", title: "Real Estate Investors", desc: "Turnkey rehabs for flips and rentals. We maximize your ROI with quality finishes delivered on schedule." },
+  { icon: "🏠", title: "Property Owners", desc: "Full home renovations, room additions, kitchen and bathroom remodels, and restoration work — all under one roof." },
+  { icon: "💼", title: "Investors", desc: "Turnkey rehabs for flips and rentals. We maximize your ROI with quality finishes delivered on schedule." },
   { icon: "🏘️", title: "Property Managers", desc: "Fast, reliable unit turnovers and capital improvement projects. One call covers every trade." },
   { icon: "🏦", title: "Banks & Lenders", desc: "REO residential property repairs, cleanouts, and full rehabs. We meet your timelines and compliance requirements." },
-  { icon: "📈", title: "Private Investors", desc: "Complete residential renovations tailored to your investment strategy — from small rehabs to full rebuilds." },
+  { icon: "🏗️", title: "General Contractors", desc: "Reliable trade crews for framing, roofing, siding, drywall and finishes — coordinated to your schedule and specs." },
   { icon: "🔥", title: "Insurance Claims", desc: "Certified restoration contractors who work directly with insurance adjusters to document and restore your property." },
 ];
 
@@ -241,7 +241,7 @@ function WhoWeWorkWith() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Our Residential Clients
+            Who We Work With
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             We Serve Clients Who Need It Done Right — The First Time.
@@ -307,11 +307,11 @@ function Projects() {
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             See What We Build.
           </h2>
-          <p className="text-gray-500 mt-2">Before &amp; After — Real Residential Projects</p>
+          <p className="text-gray-500 mt-2">By trade — Residential, Multifamily &amp; Commercial</p>
         </div>
-        <ProjectsGallery />
+        <TradeGallery />
         <p className="text-center text-sm text-gray-400 mt-8 italic">
-          Photos coming soon. Contact us to request a residential portfolio.
+          Contact us to request our full portfolio.
         </p>
       </div>
     </section>

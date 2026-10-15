@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProjectsGallery from "@/components/ProjectsGallery";
+import TradeGallery from "@/components/TradeGallery";
 
 function Hero() {
   return (
@@ -234,12 +234,12 @@ function OneCallSection() {
 }
 
 const CLIENTS = [
+  { icon: "🏢", title: "Property Owners", desc: "Tenant improvements, office buildouts, retail remodels, and complete commercial renovations under one roof." },
+  { icon: "💼", title: "Investors", desc: "Ground-up commercial builds and turnkey rehabs tailored to your investment strategy." },
   { icon: "🏦", title: "Banks & Lenders", desc: "REO property repairs, cleanouts, and full rehabs. We understand your timelines and compliance requirements." },
-  { icon: "🏢", title: "Commercial Owners", desc: "Tenant improvements, office buildouts, retail remodels, and complete commercial renovations under one roof." },
-  { icon: "💼", title: "Real Estate Investors", desc: "Turnkey commercial rehabs. We maximize your ROI with quality results delivered on schedule." },
+  { icon: "🏗️", title: "General Contractors", desc: "Reliable trade crews for framing, roofing, siding, drywall and finishes — coordinated to your schedule and specs." },
   { icon: "🏘️", title: "Property Managers", desc: "Fast, reliable commercial turnovers and capital improvement projects across your entire portfolio." },
   { icon: "🍽️", title: "Restaurant & Retail", desc: "Full QSR and retail buildouts — from framing and concrete to finishes and MEP coordination." },
-  { icon: "📈", title: "Private Investors", desc: "Ground-up commercial builds and complete property renovations tailored to your investment strategy." },
 ];
 
 function WhoWeWorkWith() {
@@ -248,7 +248,7 @@ function WhoWeWorkWith() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Our Commercial Clients
+            Who We Work With
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             We Work With the People Who Need It Done Right.
@@ -256,28 +256,11 @@ function WhoWeWorkWith() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {CLIENTS.map((c) => (
-            c.title === "Private Investors" ? (
-              <div key={c.title} className="rounded-2xl overflow-hidden border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#C9A84C" }}>
-                <div className="h-48 overflow-hidden relative">
-                  <img src="/commercial.png" alt="Commercial build for private investors" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(15,32,64,0.7) 0%, transparent 60%)" }} />
-                  <span className="absolute bottom-3 left-4 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded" style={{ background: "#C9A84C", color: "#0F2040" }}>
-                    Featured Project
-                  </span>
-                </div>
-                <div className="p-6">
-                  <div className="text-4xl mb-3">{c.icon}</div>
-                  <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
-                </div>
-              </div>
-            ) : (
-              <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
-                <div className="text-4xl mb-3">{c.icon}</div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
-              </div>
-            )
+            <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
+              <div className="text-4xl mb-3">{c.icon}</div>
+              <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -334,11 +317,11 @@ function Projects() {
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             See What We Build.
           </h2>
-          <p className="text-gray-500 mt-2">Before &amp; After — Real Commercial Projects</p>
+          <p className="text-gray-500 mt-2">By trade — Residential, Multifamily &amp; Commercial</p>
         </div>
-        <ProjectsGallery />
+        <TradeGallery />
         <p className="text-center text-sm text-gray-400 mt-8 italic">
-          Photos coming soon. Contact us to request a commercial portfolio.
+          Contact us to request our full portfolio.
         </p>
       </div>
     </section>
