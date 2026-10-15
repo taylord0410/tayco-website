@@ -307,7 +307,7 @@ function Projects() {
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
             See What We Build.
           </h2>
-          <p className="text-gray-500 mt-2">Before &amp; After — Real Residential Projects</p>
+          <p className="text-gray-500 mt-2">Before &amp; After — Residential Projects</p>
         </div>
         <ProjectsGallery projects={RESIDENTIAL_PROJECTS} />
         <p className="text-center text-sm text-gray-400 mt-8 italic">

@@ -72,9 +72,7 @@ export default function ProjectsGallery({ projects }: { projects: Project[] }) {
               </div>
               <div className="p-4">
                 <p className="font-semibold text-sm" style={{ color: "#0F2040" }}>{type}</p>
-                <p className="text-xs text-gray-400 mt-1">WI · IL · IA · IN · MN · MI · MO · TX</p>
-                <p className="text-xs mt-2 font-semibold" style={{ color: "#16A34A" }}>✅ Delivered on time &amp; within budget</p>
-              </div>
+                <p className="text-xs text-gray-400 mt-1">WI · IL · IA · IN · MN · MI · MO · TX</p>              </div>
             </div>
           );
         })}
