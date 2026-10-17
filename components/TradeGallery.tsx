@@ -23,6 +23,25 @@ const TRADES = [
 
 const photo = (trade: string, sector: SectorKey) => `/work/${trade}_${sector}.jpg`;
 
+// Flooring also shows two photos per type at /work/flooring/<slug>_<1|2>.jpg
+const FLOOR_TYPES = [
+  { slug: "hardwood", name: "Hardwood" },
+  { slug: "engineered-hardwood", name: "Engineered Hardwood" },
+  { slug: "lvp", name: "Luxury Vinyl Plank" },
+  { slug: "lvt", name: "Luxury Vinyl Tile" },
+  { slug: "laminate", name: "Laminate" },
+  { slug: "ceramic-tile", name: "Ceramic Tile" },
+  { slug: "porcelain-tile", name: "Porcelain Tile" },
+  { slug: "natural-stone", name: "Natural Stone" },
+  { slug: "carpet", name: "Carpet" },
+  { slug: "sheet-vinyl", name: "Sheet Vinyl" },
+  { slug: "epoxy", name: "Epoxy" },
+  { slug: "polished-concrete", name: "Polished Concrete" },
+  { slug: "rubber", name: "Rubber" },
+  { slug: "bamboo", name: "Bamboo" },
+  { slug: "cork", name: "Cork" },
+];
+
 export default function TradeGallery() {
   const [active, setActive] = useState(TRADES[0].slug);
   const [zoom, setZoom] = useState<{ src: string; alt: string } | null>(null);
@@ -73,6 +92,40 @@ export default function TradeGallery() {
           );
         })}
       </div>
+
+      {/* Flooring: two photos per type */}
+      {trade.slug === "flooring" && (
+        <div className="mt-14">
+          <h3 className="text-center text-xl font-bold mb-8" style={{ color: "#0F2040" }}>
+            Types of Flooring
+          </h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {FLOOR_TYPES.map((f) => (
+              <figure key={f.slug} className="m-0">
+                <figcaption className="text-xs font-bold uppercase tracking-[0.2em] mb-3 text-center" style={{ color: "#C9A84C" }}>
+                  {f.name}
+                </figcaption>
+                <div className="grid grid-cols-2 gap-2">
+                  {[1, 2].map((n) => {
+                    const src = `/work/flooring/${f.slug}_${n}.jpg`;
+                    const alt = `${f.name} flooring ${n}`;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setZoom({ src, alt })}
+                        className="block w-full rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow aspect-[3/2]"
+                      >
+                        <img src={src} alt={alt} className="w-full h-full object-cover" loading="lazy" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {zoom && (
