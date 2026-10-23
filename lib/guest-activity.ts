@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { type Actor, requireRole } from './auth';
-import { guestProjectReviews } from './takeoff-viewer-access';
+import { guestConsoleSnapshot } from './guest-workspace';
 
 export const GUEST_ACTIVITY_ELEMENTS = ['review.visit', 'account.open', 'session.signout', 'year.select', 'month.select', 'summary.retry', 'project.open'] as const;
 export type GuestActivityElement = typeof GUEST_ACTIVITY_ELEMENTS[number];
@@ -75,7 +75,7 @@ function validateInput(value: unknown, now: number): GuestActivityInput {
   const current = new Date(now);
   if (result.elementId === 'month.select') {
     const currentPeriod = `${current.getUTCFullYear()}-${String(current.getUTCMonth() + 1).padStart(2, '0')}`;
-    if (typeof input.period !== 'string' || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(input.period) || input.period >= currentPeriod || Object.hasOwn(input, 'year')) throw new GuestActivityError('Choose a completed month for this activity.');
+    if (typeof input.period !== 'string' || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(input.period) || input.period > currentPeriod || Object.hasOwn(input, 'year')) throw new GuestActivityError('Choose the current month or a previous month for this activity.');
     result.period = input.period;
   } else if (result.elementId === 'year.select') {
     if (!Number.isInteger(input.year) || Number(input.year) < 1 || Number(input.year) > current.getUTCFullYear() || Object.hasOwn(input, 'period')) throw new GuestActivityError('Choose a valid review year.');
@@ -90,7 +90,7 @@ export function recordGuestActivity(actor: Actor, value: unknown): { duplicate: 
   const input = validateInput(value, now);
   if (input.elementId === 'project.open') {
     let approved = false;
-    try { approved = guestProjectReviews(actor).some(project => project.projectId === input.projectId); } catch { /* A denied or unavailable publication grants no activity write. */ }
+    try { approved = guestConsoleSnapshot(actor, { section: 'projects', now: new Date(now) }).projects.some(project => project.id === input.projectId); } catch { /* A denied or unavailable console grants no activity write. */ }
     if (!approved) throw new GuestActivityError('This project is not available for review.', 403);
   }
   const payloadHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');

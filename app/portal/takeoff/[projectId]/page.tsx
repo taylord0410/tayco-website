@@ -13,11 +13,11 @@ export default async function ProjectViewerPage({ params }: { params: Promise<{ 
   const { projectId } = await params;
   const actor = await getActor(new Request("http://tayco.local/portal/takeoff", { headers: await headers() }));
   if (!actor) redirect("/login");
-  let name = "", source = "", unavailable = false;
+  let name = "", source = "", unavailable = false, denied = false;
   try {
     if (actor.role === "guest") {
       const project = guestProjectReviews(actor).find(entry => entry.projectId === projectId);
-      if (!project) notFound();
+      if (!project) throw new TakeoffViewerAccessError(403, "Not authorized.");
       name = project.name;
     } else {
       const project = snapshot(actor).entries.find(entry => entry.kind === "project" && entry.id === projectId);
@@ -33,7 +33,8 @@ export default async function ProjectViewerPage({ params }: { params: Promise<{ 
     }
   } catch (error) {
     if (error instanceof TakeoffViewerAccessError) {
-      if (error.status === 503) unavailable = true;
+      if (error.status === 403 && actor.role === "guest") { denied = true; name = "Not authorized"; }
+      else if (error.status === 503) unavailable = true;
       else notFound();
     } else if (error instanceof AuthError) notFound();
     else throw error;
@@ -44,7 +45,7 @@ export default async function ProjectViewerPage({ params }: { params: Promise<{ 
         <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#F3D37A]">TAYCO / Project plans</p><h1 className="mt-3 break-words text-2xl font-black sm:text-4xl">{name}</h1><p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">Read approved plans and their available processed information. Access follows your current project and document permissions.</p></div>
         <Link className="inline-flex min-h-11 shrink-0 items-center rounded-xl border border-amber-200/30 px-4 py-3 text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-amber-200" href="/portal">Back to workspace</Link>
       </header>
-      {unavailable ? <section role="status" className="rounded-2xl border border-amber-200/20 bg-[#10223d] p-6 sm:p-8"><h2 className="text-xl font-bold text-white">The project reader is being prepared.</h2><p className="mt-3 max-w-2xl leading-relaxed text-slate-300">TAYCO must connect the private reader and approve the project sources before plans appear here. Your existing documents remain available in the workspace.</p><Link className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-amber-200 px-4 py-3 text-sm font-bold text-[#0f2040]" href="/portal">Return to project workspace</Link></section> : <TakeoffProjectReader source={source} projectName={name}/>}
+      {denied ? <section role="alert" className="rounded-2xl border border-amber-200/20 bg-[#10223d] p-6 sm:p-8"><h2 className="text-xl font-bold text-white">Not authorized</h2><p className="mt-3 max-w-2xl leading-relaxed text-slate-300">Your review access includes approved project details for the current month. Earlier months are available as general summaries only.</p><Link className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-amber-200 px-4 py-3 text-sm font-bold text-[#0f2040]" href="/portal">Return to current month</Link></section> : unavailable ? <section role="status" className="rounded-2xl border border-amber-200/20 bg-[#10223d] p-6 sm:p-8"><h2 className="text-xl font-bold text-white">The project reader is being prepared.</h2><p className="mt-3 max-w-2xl leading-relaxed text-slate-300">TAYCO must connect the private reader and approve the project sources before plans appear here. Your existing documents remain available in the workspace.</p><Link className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-amber-200 px-4 py-3 text-sm font-bold text-[#0f2040]" href="/portal">Return to project workspace</Link></section> : <TakeoffProjectReader source={source} projectName={name}/>}
     </div>
   </main>;
 }

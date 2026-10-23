@@ -4,6 +4,8 @@ import { TextDecoder } from 'node:util';
 import type { Actor } from './auth';
 import { database, documentForActor, ErpError, snapshot, type Entry } from './erp';
 import { COMMERCIAL_STAGE_CODES } from './commercial-stages';
+import { currentReportingPeriod } from './guest-period';
+import { isFinancialDate } from './financial-periods';
 
 export const VIEWER_PREFIX = '/api/takeoff-viewer';
 export class TakeoffViewerAccessError extends Error {
@@ -182,30 +184,55 @@ function assertActor(actor: Actor) {
     (actor.role === 'guest' && (actor.projectIds.length !== 0 || actor.vendorId !== undefined)))
     throw new TakeoffViewerAccessError(403, 'This account cannot access the Takeoff viewer.');
 }
-type ProjectReviewRow = { name: unknown; status: unknown; progress: unknown; progress_type: unknown; commercial_stage: unknown; completed_stages: unknown; deleted_at: unknown; purged_at: unknown };
+type GuestGuardRow = { review_period: unknown; reporting_period: unknown; period: unknown; deleted_at: unknown; purged_at: unknown; revoked_at: unknown; expires_at: unknown; purge_state: unknown; status: unknown };
+type ProjectReviewRow = GuestGuardRow & { name: unknown; progress: unknown; progress_type: unknown; commercial_stage: unknown; completed_stages: unknown };
+function explicitGuestPeriodMatches(row: GuestGuardRow, period: string) {
+  // Every declared period must agree. A current approval cannot override contradictory source evidence.
+  return [row.review_period, row.reporting_period, row.period].every(value => value === null || value === undefined || value === period);
+}
+function guestResourceActive(row: GuestGuardRow, now: Date) {
+  if ([row.deleted_at, row.purged_at, row.revoked_at, row.purge_state].some(value => value !== null && value !== undefined) ||
+    ['revoked','expired','deleted','purged','rejected'].includes(String(row.status))) return false;
+  const expiry = row.expires_at;
+  if (expiry === null || expiry === undefined || expiry === '') return true;
+  if (isFinancialDate(expiry)) return expiry >= now.toISOString().slice(0, 10);
+  if (typeof expiry !== 'string' || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(expiry) || !isFinancialDate(expiry.slice(0, 10))) return false;
+  const time = Date.parse(expiry);
+  return Number.isFinite(time) && time > now.getTime();
+}
 type GuestPolicy = ReturnType<typeof policies>;
-function usableGuestGrants(actor: Actor, policy: GuestPolicy, projectId?: string) {
-  const grants = policy.config.guestReviews.filter(grant => grant.tenantId === actor.tenantId && grant.guestId === actor.id && (projectId === undefined || grant.projectId === projectId));
+function usableGuestGrants(actor: Actor, policy: GuestPolicy, projectId: string | undefined, now: Date) {
+  const currentPeriod = currentReportingPeriod(now);
+  const grants = policy.config.guestReviews.filter(grant => grant.period === currentPeriod && grant.tenantId === actor.tenantId && grant.guestId === actor.id && (projectId === undefined || grant.projectId === projectId));
   if (!grants.length) return [];
   // Guest-specific, parameterized projections. Never snapshot(), fabricate a staff actor, or read raw payloads.
   const db = database();
-  const projectQuery = db.prepare(`SELECT json_extract(payload,'$.name') AS name,json_extract(payload,'$.status') AS status,
-    json_extract(payload,'$.progress') AS progress,json_type(payload,'$.progress') AS progress_type,
-    json_extract(payload,'$.commercialProgress.currentStage') AS commercial_stage,
-    json_extract(payload,'$.commercialProgress.reportedCompletedStages') AS completed_stages,
-    json_extract(payload,'$.deletedAt') AS deleted_at,json_extract(payload,'$.purgedAt') AS purged_at
-    FROM records WHERE id=? AND tenant_id=? AND kind='project' AND json_valid(payload) AND json_type(payload)='object'`);
-  const documentQuery = db.prepare(`SELECT id,json_extract(payload,'$.type') AS document_type,
-    json_extract(payload,'$.deletedAt') AS deleted_at,json_extract(payload,'$.purgedAt') AS purged_at
-    FROM records WHERE id=? AND tenant_id=? AND project_id=? AND kind='document' AND json_valid(payload) AND json_type(payload)='object'`);
+  // CASE protects every JSON expression even if SQLite reorders WHERE evaluation.
+  const safe = "CASE WHEN json_valid(payload) THEN payload ELSE '{}' END";
+  const value = (field: string) => `json_extract(${safe},'${field}')`;
+  const guards = [
+    ['review_period', '$.reviewPeriod'], ['reporting_period', '$.reportingPeriod'], ['period', '$.period'],
+    ['deleted_at', '$.deletedAt'], ['purged_at', '$.purgedAt'], ['revoked_at', '$.revokedAt'],
+    ['expires_at', '$.expiresAt'], ['purge_state', '$.purgeState'], ['status', '$.status'],
+  ].map(([alias, field]) => `${value(field)} AS ${alias}`).join(',');
+  const projectQuery = db.prepare(`SELECT CASE WHEN json_type(${safe},'$.name')='text' THEN ${value('$.name')} ELSE NULL END AS name,
+    ${value('$.progress')} AS progress,json_type(${safe},'$.progress') AS progress_type,
+    ${value('$.commercialProgress.currentStage')} AS commercial_stage,
+    ${value('$.commercialProgress.reportedCompletedStages')} AS completed_stages,${guards}
+    FROM records WHERE id=? AND tenant_id=? AND kind='project' AND project_id=id AND length(payload)<=1048576
+    AND json_valid(payload) AND json_type(${safe})='object'`);
+  const documentQuery = db.prepare(`SELECT id,${value('$.type')} AS document_type,${guards}
+    FROM records WHERE id=? AND tenant_id=? AND project_id=? AND kind='document' AND length(payload)<=1048576
+    AND json_valid(payload) AND json_type(${safe})='object'`);
   return grants.flatMap(grant => {
     const project = projectQuery.get(grant.projectId, actor.tenantId) as ProjectReviewRow | undefined;
-    if (!project || project.deleted_at || project.purged_at) return [];
+    if (!project || !guestResourceActive(project, now) || !explicitGuestPeriodMatches(project, currentPeriod)) return [];
     const mapped = new Map(policy.config.mappings.filter(mapping => mapping.tenantId === actor.tenantId && mapping.projectId === grant.projectId).flatMap(mapping => mapping.documents.map(document => [document.viewerDocumentId, document.erpDocumentId] as const)));
     const documentIds = grant.viewerDocumentIds.filter(documentId => {
       const erpDocumentId = mapped.get(documentId); if (!erpDocumentId) return false;
-      const document = documentQuery.get(erpDocumentId, actor.tenantId, grant.projectId) as { document_type: unknown; deleted_at: unknown; purged_at: unknown } | undefined;
-      return Boolean(document && document.document_type === 'project' && !document.deleted_at && !document.purged_at);
+      const document = documentQuery.get(erpDocumentId, actor.tenantId, grant.projectId) as GuestGuardRow & { document_type: unknown } | undefined;
+      // The exact document approval supplies the business period when an import declares none.
+      return Boolean(document && document.document_type === 'project' && guestResourceActive(document, now) && explicitGuestPeriodMatches(document, currentPeriod));
     });
     return documentIds.length ? [{ grant, project, documentIds }] : [];
   });
@@ -226,12 +253,12 @@ function projectName(value: unknown) {
   return 'Project plans';
 }
 /** Approved guest cards only. An unavailable publication does not interrupt the monthly review. */
-export function guestProjectReviews(actor: Actor): GuestProjectReview[] {
+export function guestProjectReviews(actor: Actor, now = new Date()): GuestProjectReview[] {
   assertActor(actor);
   if (actor.role !== 'guest') return [];
   try {
     const policy = policies(actor);
-    return usableGuestGrants(actor, policy).map(({ grant, project, documentIds }) => {
+    return usableGuestGrants(actor, policy, undefined, now).map(({ grant, project, documentIds }) => {
       const commercialStage = typeof project.commercial_stage === 'string' && (COMMERCIAL_STAGE_CODES as readonly string[]).includes(project.commercial_stage) ? project.commercial_stage : null;
       let completedStages: string[] = [];
       try {
@@ -251,13 +278,13 @@ export function guestProjectReviews(actor: Actor): GuestProjectReview[] {
  * v1 documents grant whole registered files, including assets shared by another document.
  * An asset grant never grants sibling document/context metadata. Page-subset grants are unsupported.
  */
-export function viewerScope(actor: Actor, projectId?: string): ViewerScope {
+export function viewerScope(actor: Actor, projectId?: string, now = new Date()): ViewerScope {
   assertActor(actor);
   if (projectId !== undefined && (typeof projectId !== 'string' || !erpId.test(projectId))) throw actor.role === 'guest' ? guestDenied() : denied();
   try {
     const policy = policies(actor.role === 'guest' ? actor : undefined, projectId);
     if (actor.role === 'guest') {
-      const grants = usableGuestGrants(actor, policy, projectId);
+      const grants = usableGuestGrants(actor, policy, projectId, now);
       if (!grants.length) throw guestDenied();
       return permittedScope(policy, grants.flatMap(grant => grant.documentIds));
     }

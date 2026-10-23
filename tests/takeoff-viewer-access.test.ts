@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { AuthError, requireProject, type Actor } from '../lib/auth';
 import { database, documentForActor, ErpError, execute, financialSummary, snapshot } from '../lib/erp';
+import { currentReportingPeriod } from '../lib/guest-period';
 import { VIEWER_PREFIX, TakeoffViewerAccessError, guestProjectReviews, viewerScope, type ViewerRelations } from '../lib/takeoff-viewer-access';
 
 const admin: Actor = { id: 'fixture-admin', email: 'admin@example.test', role: 'admin', tenantId: 'company-a', projectIds: [] };
@@ -49,7 +50,7 @@ function mappingFixture() {
     { tenantId: 'company-b', projectId: 'project-b', contextKey: 'ctx-b', documents: [{ viewerDocumentId: 'viewer-b', erpDocumentId: 'erp-b' }] },
   ] };
 }
-function guestMapping(viewerDocumentIds = ['viewer-client'], period = '2026-10') {
+function guestMapping(viewerDocumentIds = ['viewer-client'], period = currentReportingPeriod()) {
   return { ...mappingFixture(), schemaVersion: 'tayco-takeoff-viewer-access/v2', guestReviews: [{ tenantId: guest.tenantId, guestId: guest.id, projectId: 'project-a', period, viewerDocumentIds }] };
 }
 
@@ -305,21 +306,28 @@ test('guest project summary whitelists useful values and excludes every private 
   f.data('project-a', { name: 'Approved October plans', status: 'planning', progress: null, location: 'PRIVATE_LOCATION', clientEmail: 'private@example.test', clientPhone: 'PRIVATE_PHONE', budgetUsd: 123456, source: 'PRIVATE_SOURCE', history: ['PRIVATE_HISTORY'], commercialProgress: { currentStage: 'awaiting_insurance_information', reportedCompletedStages: ['contacted', 'meeting_scheduled', 'estimate_provided'], source: 'PRIVATE_INSURANCE_EXPLANATION', actorId: 'PRIVATE_AUTHOR', history: ['PRIVATE_STAGE_HISTORY'] } });
   f.publish(f.relations, guestMapping());
   const result = guestProjectReviews(guest);
-  assert.deepEqual(result, [{ projectId: 'project-a', name: 'Approved October plans', period: '2026-10', status: 'planning', progress: null, commercialStage: 'awaiting_insurance_information', completedStages: ['contacted', 'meeting_scheduled', 'estimate_provided'], documentCount: 1 }]);
+  assert.deepEqual(result, [{ projectId: 'project-a', name: 'Approved October plans', period: currentReportingPeriod(), status: 'planning', progress: null, commercialStage: 'awaiting_insurance_information', completedStages: ['contacted', 'meeting_scheduled', 'estimate_provided'], documentCount: 1 }]);
   assert.equal(Object.getPrototypeOf(result[0]), Object.prototype);
   const serialized = JSON.stringify(result);
   for (const field of ['PRIVATE_', 'private@example', '123456', '/fixture/private', 'budget', 'location', 'source', 'actorId', 'history', '"contact":', 'blobPath', 'viewer-client', 'asset-client']) assert.ok(!serialized.includes(field), field);
   assert.equal(existsSync(f.authFile), false, 'guest plan projection never invokes staff/auth snapshot reads');
 }));
 
-test('guest periods come from explicit config and never imply dates or financial-month grants', () => fixture(f => {
+test('only current UTC guest approvals grant detailed cards or viewer scope', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
   f.data('erp-client', { type: 'project' });
-  const config = guestMapping(); config.guestReviews.push({ ...config.guestReviews[0], period: '2025-12' });
+  const config = guestMapping(['viewer-client'], '2026-10');
+  config.guestReviews.push({ ...config.guestReviews[0], period: '2026-09' });
+  config.guestReviews.push({ ...config.guestReviews[0], period: '2026-11' });
   f.publish(f.relations, config);
-  assert.deepEqual(guestProjectReviews(guest).map(review => review.period), ['2026-10', '2025-12']);
-  f.publish(f.relations, guestMapping(['viewer-client'], '2027-01'));
-  assert.deepEqual(guestProjectReviews(guest).map(review => review.period), ['2027-01']);
-  assert.deepEqual(viewerScope(guest).documentIds, ['viewer-client']);
+  assert.deepEqual(guestProjectReviews(guest, now).map(review => review.period), ['2026-10']);
+  assert.deepEqual(viewerScope(guest, 'project-a', now).documentIds, ['viewer-client']);
+  for (const period of ['2026-09','2026-11','2025-12','2027-01']) {
+    f.publish(f.relations, guestMapping(['viewer-client'], period));
+    assert.deepEqual(guestProjectReviews(guest, now), []);
+    assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+    assert.throws(() => viewerScope(guest, undefined, now), fails(403));
+  }
 }));
 
 test('guest v2 validates strict schema, period, membership and duplicate approvals before DB reads', () => fixture(f => {
@@ -401,4 +409,118 @@ test('removing a v2 grant revokes the same guest without changing session assign
   f.publish(f.relations, { ...guestMapping(), guestReviews: [] });
   assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
   assert.deepEqual(guest.projectIds, []);
+}));
+
+test('explicit project periods cannot contradict a current grant, including lower-priority fields', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
+  f.data('erp-client', { type: 'project' });
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-10'));
+  const allowed = () => {
+    assert.deepEqual(viewerScope(guest, 'project-a', now).documentIds, ['viewer-client']);
+    assert.equal(guestProjectReviews(guest, now).length, 1);
+  };
+  const denied = () => {
+    assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+    assert.throws(() => viewerScope(guest, undefined, now), fails(403));
+    assert.deepEqual(guestProjectReviews(guest, now), []);
+  };
+  for (const field of ['reviewPeriod','reportingPeriod','period']) {
+    f.data('project-a', { name: 'Current source project', [field]: '2026-10' }); allowed();
+    for (const period of ['2026-09','2026-11','invalid','2026-1','',true,0,{},[]]) {
+      f.data('project-a', { name: 'Rejected source period', [field]: period }); denied();
+    }
+  }
+  f.data('project-a', { reviewPeriod: '2026-10', reportingPeriod: '2026-09' }); denied();
+  f.data('project-a', { reviewPeriod: '2026-10', reportingPeriod: '2026-10', period: '2026-11' }); denied();
+  f.data('project-a', { reviewPeriod: '2026-10', reportingPeriod: '2026-10', period: '2026-10' }); allowed();
+  database().prepare('UPDATE records SET tenant_id=? WHERE id=?').run('company-b', 'project-a'); denied();
+  database().prepare('UPDATE records SET tenant_id=? WHERE id=?').run('company-a', 'project-a'); allowed();
+  assert.throws(() => viewerScope({ ...guest, tenantId: 'company-b' }, 'project-a', now), fails(403));
+  assert.deepEqual(guestProjectReviews({ ...guest, tenantId: 'company-b' }, now), []);
+}));
+
+test('document declarations and lifecycle deny direct viewer access even for a current project grant', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
+  f.data('project-a', { name: 'Current project', reviewPeriod: '2026-10' });
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-10'));
+  for (const field of ['reviewPeriod','reportingPeriod','period']) {
+    f.data('erp-client', { type: 'project', [field]: '2026-10' });
+    assert.deepEqual(viewerScope(guest, 'project-a', now).documentIds, ['viewer-client']);
+    for (const period of ['2026-09','2026-11','invalid','',false,{},[]]) {
+      f.data('erp-client', { type: 'project', [field]: period });
+      assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+      assert.deepEqual(guestProjectReviews(guest, now), []);
+    }
+  }
+  const rejected = [
+    { reviewPeriod: '2026-10', reportingPeriod: '2026-09' },
+    { reportingPeriod: '2026-10', period: '2026-11' },
+    { revokedAt: '2026-10-23T00:00:00Z' }, { revokedAt: false }, { purgeState: 'processing' }, { purgeState: 'retry' },
+    { status: 'revoked' }, { status: 'expired' }, { status: 'deleted' }, { status: 'purged' },
+    { expiresAt: '2026-10-22' }, { expiresAt: '2026-10-23T11:59:59Z' }, { expiresAt: '2026-10-23T12:00:00Z' },
+    { expiresAt: '2026-02-31' }, { expiresAt: 'bad' }, { expiresAt: {} },
+  ];
+  for (const fields of rejected) {
+    f.data('erp-client', { type: 'project', ...fields });
+    assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+    assert.deepEqual(guestProjectReviews(guest, now), []);
+  }
+  for (const expiresAt of [null, '', '2026-10-23', '2026-10-24', '2026-10-23T12:00:01Z']) {
+    f.data('erp-client', { type: 'project', expiresAt });
+    assert.deepEqual(viewerScope(guest, 'project-a', now).documentIds, ['viewer-client']);
+  }
+  f.data('erp-client', { type: 'project', period: '2026-09' });
+  assert.deepEqual(viewerScope(staff, 'project-a', now).documentIds, ['viewer-client','viewer-client-owner','viewer-internal','viewer-vendor']);
+}));
+
+test('UTC rollover revalidates the grant for each resource request and needs no session change', () => fixture(f => {
+  f.data('erp-client', { type: 'project' });
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-10'));
+  const lastInstant = new Date('2026-10-31T23:59:59.999Z'), nextInstant = new Date('2026-11-01T00:00:00Z');
+  assert.deepEqual(viewerScope(guest, 'project-a', lastInstant).documentIds, ['viewer-client']);
+  assert.equal(guestProjectReviews(guest, lastInstant).length, 1);
+  assert.throws(() => viewerScope(guest, 'project-a', nextInstant), fails(403));
+  assert.deepEqual(guestProjectReviews(guest, nextInstant), []);
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-11'));
+  assert.deepEqual(viewerScope(guest, 'project-a', nextInstant).documentIds, ['viewer-client']);
+  f.data('project-a', { period: '2026-10' });
+  assert.throws(() => viewerScope(guest, 'project-a', nextInstant), fails(403));
+  assert.deepEqual(guest.projectIds, []);
+}));
+
+test('a current exact document approval declares an undated import business period without inventing a source date', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
+  f.data('project-a', { name: 'Undated import', source: 'takeoff_source_registration' });
+  f.data('erp-client', { type: 'project', storage: 'takeoff_viewer' });
+  database().prepare("UPDATE records SET created_at='2025-01-01T00:00:00Z' WHERE id IN ('project-a','erp-client')").run();
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-10'));
+  assert.deepEqual(viewerScope(guest, 'project-a', now).documentIds, ['viewer-client']);
+  assert.equal(guestProjectReviews(guest, now)[0].period, '2026-10');
+  f.data('erp-client', { type: 'project', period: '2025-01' });
+  assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+  assert.deepEqual(guestProjectReviews(guest, now), []);
+}));
+
+test('historical and future grants are denied before ERP initialization', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
+  for (const period of ['2026-09','2026-11']) {
+    f.publish(f.relations, guestMapping(['viewer-client'], period));
+    assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+    assert.deepEqual(guestProjectReviews(guest, now), []);
+    assert.equal(existsSync(f.erpFile), false);
+    assert.equal(existsSync(f.authFile), false);
+  }
+}, false));
+
+test('malformed source JSON never broadens a current guest approval', () => fixture(f => {
+  const now = new Date('2026-10-23T12:00:00Z');
+  f.publish(f.relations, guestMapping(['viewer-client'], '2026-10'));
+  f.data('erp-client', { type: 'project' });
+  database().prepare('UPDATE records SET payload=? WHERE id=?').run('{bad json', 'project-a');
+  assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+  assert.deepEqual(guestProjectReviews(guest, now), []);
+  f.data('project-a', { name: 'Current project' });
+  database().prepare('UPDATE records SET payload=? WHERE id=?').run('{bad json', 'erp-client');
+  assert.throws(() => viewerScope(guest, 'project-a', now), fails(403));
+  assert.deepEqual(guestProjectReviews(guest, now), []);
 }));

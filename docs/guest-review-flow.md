@@ -1,9 +1,10 @@
-# Private review: guest summaries, management estimates and activity
+# Private guest command center: current detail and historical totals
 
-Design revision 1 · 2026-10-23 · T45–T50.
+Design revision 4 · 2026-10-23 · T45–T50, T59, T61.
 
-Purpose: let an invited reviewer understand completed months without obtaining project,
-invoice, document, contact or weekly detail. Internal staff keep their existing workspace.
+This revision supersedes the initial summary-only guest UI. Historical verification below remains evidence of the earlier release, not certification of this revision.
+
+Purpose: let an invited reviewer enter the same TAYCO command-center design with every menu option visible, read whitelisted current-month module records and approved plans, and compare general totals of earlier months. Historical drilldown shows **Month closed** and returns403. The guest remains read-only and never receives administrator authority, raw accounting, contacts or historical detail. Internal staff keep their existing workspace.
 This document describes contracts; runtime certification is recorded separately.
 
 ## Confirmed company inputs
@@ -23,18 +24,23 @@ This document describes contracts; runtime certification is recorded separately.
 flowchart TD
   L[Sign in] --> A{Server resolves actor}
   A -->|admin / staff / assigned partner| P[Existing authorized workspace]
-  A -->|guest| G[Restricted monthly review]
+  A -->|guest| G[Shared command-center shell; guest role]
   A -->|missing / disabled / expired| X[Sign-in or access error]
-  G --> C[Server clock determines completed months]
-  C --> D[Company-scoped aggregate DTO]
-  D --> V[Year and month summaries; no drilldown]
+  G --> C{Server UTC reporting month}
+  C -->|current| D[Company-scoped whitelisted project / estimate / plan DTO]
+  C -->|past summary| V[General management range only]
+  C -->|past detail| Z[403 Month closed]
+  C -->|future / outside permissions| QX[403 Not authorized]
+  D --> T{Document approved and current?}
+  T -->|yes| U[Fresh session / period / document check on every resource]
+  T -->|no| Z
   G --> N[Visible activity notice]
   V --> E[Known visit / element event]
   E --> Q{Session / origin / schema / rate / period valid}
   Q -->|yes| R[Idempotent bounded event; server actor/company/time]
   Q -->|no| F[Reject telemetry; navigation remains usable]
   R --> H[Administrator-only activity review]
-  G --> B[Detailed ERP / files / exports / writes]
+  G --> B[Generic ERP / accounting / administration / writes]
   B --> Z[Server denies before reading provider or returning details]
 ```
 
@@ -43,9 +49,9 @@ flowchart TD
 | ID | Contract and surfaces | Failure and recovery |
 |---|---|---|
 | G01 | Add explicit guest role; migrate existing auth schema, preserve users/password hashes/sessions/invites. Guest assignments must be empty. | Transactional migration and foreign-key checks; failed migration does not erase the old database. Back up before cloud upgrade. |
-| G02 | Branch guest before portal snapshot/RSC serialization. Dedicated guest component and summary API expose only approved aggregate fields. | No client-side hiding of raw rows. Unauthorized requests return401/403 with no-store. |
-| G03 | Previous **months**, plural: server UTC reporting calendar follows existing financial periods. A client clock/asOf cannot authorize current/future periods. | Validate year/month and reject current/future requested periods; rollover tests cover January and year boundaries. |
-| G04 | No project IDs/names, invoice rows, contacts, payment references, source notes or document links in the guest DTO. Guest can change own password and sign out. | Test payload/RSC absence and every protected endpoint, including forged nonempty assignments and command replay. |
+| G02 | Branch guest before portal snapshot/RSC serialization. Shared presentational PortalShell with a dedicated GuestConsole and guest-workspace API exposes only approved current detail or historical aggregate fields. No generic management component is mounted. | No client-side hiding of raw rows. Unauthorized requests return401/403 with no-store. |
+| G03 | Previous **months**, plural: server UTC reporting calendar follows existing financial periods. Only the server clock authorizes current detail; client period/asOf cannot promote historical or future records. | Validate period and reject historical detail or future requests; rollover tests cover January and year boundaries. |
+| G04 | Only approved current project IDs/names, source-dated estimate fields and protected document links enter the guest DTO. No raw invoice rows, contacts, payment references, paths or internal source notes are serialized. Guest can change own password and sign out. | Test payload/RSC absence and every protected endpoint, including forged nonempty assignments and command replay. |
 | A01 | POST bounded semantic events: page visit, month/year selection and explicitly identified controls. Actor, tenant and timestamp come from the session/server. | Reject unknown fields/IDs, spoofed scope, oversized data, cross-origin and rate excess. Stable event IDs deduplicate retries. |
 | A02 | GET activity is company-scoped and admin-only; guest cannot query logs. Display the collection notice in the review. | Never collect typed values, passwords, DOM text, invite tokens, arbitrary URLs, fingerprints or screenshots. Client telemetry is best effort, not evidence of all user behavior. |
 | M01 | Monthly management estimates have USD range, period, source, author, recordedAt, version/history. Internal versioned writes; guest receives only permitted summaries. | Validate range/cents/period/source; stale writes conflict; repeat imports return the same semantic result. |
@@ -56,10 +62,10 @@ flowchart TD
 ## Server denial inventory
 
 Guest must be denied detailed GET/POST ERP-suite, finance periods/export, project dossier,
-document download/maintenance/upload, hours export, notifications and account/invitation
+document maintenance/upload, hours export, notifications and account/invitation
 administration. Domain guards also deny guest in ERP allowed/snapshot/financialSummary/
 execute/registerDocument and auth.requireProject. Provider reads/writes occur only after
-authorization. Public health and public enquiry submissions retain their existing public contract.
+authorization. Current document downloads use the dedicated guest projection and repeat session/record checks; historical, cross-company, revoked and expired resources fail closed. Public health and public enquiry submissions retain their existing public contract.
 
 ## Estimate and October workflow
 
@@ -121,9 +127,9 @@ Implementation/progress belongs in soul_ledger; this design is not a runtime cer
   A lost receipt freezes editing until the same payload/reference is retried.
 - Account & access → Guest review activity: manual refresh, visits/control counts, most recent
   200 retained events and UTC recording times. Only administrators can read the report.
-- Activity accepts six fixed IDs: review.visit, month.select, year.select, account.open,
+- The legacy summary component accepts six fixed IDs: review.visit, month.select, year.select, account.open,
   summary.retry and session.signout. Month/year are the only optional action metadata.
-  No arbitrary click text, input contents, IP/UA or browser identifiers are retained.
+  The current command-center component emits review.visit, month.select and project.open; the server validates project IDs against the same current projection. No arbitrary click text, input contents, IP/UA or browser identifiers are retained.
   Default retention90days (`TAYCO_GUEST_ACTIVITY_RETENTION_DAYS`,1–365), at most10000
   retained company events and120new events/minute/account. It is best-effort product telemetry,
   not a complete behavioral or security audit. A fixed page token does not record full URLs.
@@ -185,4 +191,21 @@ proposal acceptance, invoice, payment, expense or profit was inserted to fill th
 
 ## Explicit project-plan exception (October23)
 
-Historical financial summaries retain their existing boundary. Randolf additionally approved sharing selected October projects and plans through the private guest account. This uses separate v2 company/guest/project/document grants, never a general ERP assignment or public document URL. The current protected-reader flow, safe project-summary fields, activity projection and remaining runtime limits are specified in [Takeoff viewer integration](takeoff-viewer-integration.md). Earlier summary-only statements in this document describe financial access; this explicit approval is the only project-plan exception.
+Historical financial summaries retain their existing boundary. The later T59 instruction expands the current-month guest console to projects, estimates and plans, while keeping historical detail and all administration denied. Randolf additionally approved sharing selected October projects and plans through the private guest account. This uses separate v2 company/guest/project/document grants, never a general ERP assignment or public document URL. The current protected-reader flow, safe project-summary fields, activity projection and remaining runtime limits are specified in [Takeoff viewer integration](takeoff-viewer-integration.md). Earlier summary-only statements in this document describe financial access; this explicit approval is the only project-plan exception.
+
+## Full navigation and month boundary (revision 4)
+
+The administrator and guest read the same navigation catalog. The guest retains its real role and uses a separate whitelisted server projection. A visible menu entry never grants a mutation, an account list, an administrative audit log or provider access.
+
+| Selection | Visible result | Server boundary |
+|---|---|---|
+| Current month | Read-only source-backed projects, estimates, approved documents and module records | Per-record company, business-period, lifecycle and field whitelist |
+| Earlier month, Executive overview | Published general management total/range, with its estimate label | No raw monthly rows, private source attribution or records |
+| Earlier month, any detail module | Month closed; return to general summary | 403 before projection or provider read |
+| Future month | Not authorized | 403; client clock does not choose the business period |
+| B2B access & invitations | Account-owning settings link and administrative access explanation | No user/invitation lists, role changes or writes |
+| Missing source/reader | Explicit empty or pending state | No mock project, amount, plan or successful delivery |
+
+Read-only financial displays contain individually dated, validated USD source records. They do not turn invoice issuance into earned revenue, recorded amounts into cash, or incomplete estimates into profit. Modules with no usable business date remain empty rather than moving imported history into the current month.
+
+The source-registration, private file transfer, signed-reader deployment and real source reconciliation remain separate release gates. Navigation parity is not evidence that those services have delivered a document.

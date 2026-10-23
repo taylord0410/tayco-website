@@ -170,7 +170,7 @@ test('registered Takeoff sources use the protected reader and never enter Vercel
     const mapping={
       schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:relations.bundleId,relationsSha256,
       mappings:[{tenantId:admin.actor.tenantId,projectId,contextKey:'source-context',documents:[{viewerDocumentId:'source-document',erpDocumentId:id}]}],
-      guestReviews:[{tenantId:admin.actor.tenantId,guestId:guest.actor.id,projectId,period:'2026-10',viewerDocumentIds:['source-document']}],
+      guestReviews:[{tenantId:admin.actor.tenantId,guestId:guest.actor.id,projectId,period:new Date().toISOString().slice(0,7),viewerDocumentIds:['source-document']}],
     };
     const publish=(value:unknown=mapping)=>writeFileSync(filename('mapping.json'),JSON.stringify(value));
     publish();
@@ -179,15 +179,20 @@ test('registered Takeoff sources use the protected reader and never enter Vercel
     const mutate=(action:'delete'|'restore'|'retention',extra:Record<string,unknown>={})=>mutateDocumentLifecycle(admin.actor,{id,version:current().version,action,...extra});
     const setData=(data:Record<string,unknown>)=>database().prepare('UPDATE records SET payload=?,version=version+1 WHERE id=?').run(JSON.stringify(data),id);
 
-    await t.test('admin and assigned client redirect only to the current pinned same-origin reader; generic guest remains denied',async()=>{
-      for(const cookie of [admin.cookie,client.cookie]) {
+    await t.test('admin, assigned client and explicitly approved current guest use only the pinned same-origin reader',async()=>{
+      for(const cookie of [admin.cookie,client.cookie,guest.cookie]) {
         const response=await read(cookie,'?redirect=https://attacker.test/');
         assert.equal(response.status,307);
         assert.equal(response.headers.get('Location'),'/api/takeoff-viewer/viewer/?embed=1&project=source-context&document=source-document&page=1');
         assert.equal(response.headers.get('Cache-Control'),'private, no-store');
       }
       assert.deepEqual(viewerScope(guest.actor,projectId).documentIds,['source-document']);
+      publish({...mapping,guestReviews:[]});
       assert.equal((await read(guest.cookie)).status,403);
+      publish({...mapping,guestReviews:[{...mapping.guestReviews[0],period:'1900-01'}]});
+      assert.equal((await read(guest.cookie)).status,403);
+      publish();
+      assert.equal((await read(guest.cookie)).status,307);
       assert.equal((await read(vendor.cookie)).status,404);
       assert.throws(()=>getReadableDocument({...client.actor,tenantId:'other-company'},id),fails(404));
     });

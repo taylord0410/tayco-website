@@ -36,6 +36,7 @@ test("guest HTTP and domain boundaries reject private details even with forged a
     await provisionAdmin("admin@example.test", password);
     const admin = (await signIn("admin@example.test", password)).actor;
     const project = execute(admin, randomUUID(), { action: "create_project", name: "PRIVATE PROJECT SENTINEL", location: "PRIVATE LOCATION SENTINEL" }); opened = true;
+    database().prepare("UPDATE records SET payload=json_set(payload, '$.reviewPeriod', '2020-01') WHERE id=?").run(project.id);
     const document = registerDocument(admin, { projectId: project.id, type: "project", name: "PRIVATE FILE SENTINEL.pdf", blobPath: "private-fixture/not-a-real-blob.pdf", contentType: "application/pdf" });
     const invite = createInvitation(admin, { email: "guest@example.test", role: "guest", tenantId: admin.tenantId, projectIds: [] });
     const accepted = await acceptInvitation(invite.token, "guest@example.test", password);

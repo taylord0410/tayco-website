@@ -232,3 +232,21 @@ Runtime report .data/railway-review/contracting-deployment-verification.json SHA
 Dedicated guest SSR/API/component receives only historical management ranges before any ERP snapshot is serialized. Domain/provider and account-administration guards fail closed, including forged project assignments. New HTTP boundaries plus existing auth HTTP/accounts tests passed23/23 (JOB_20261023_154557_2100); production build JOB_20261023_154829_4400 passed. Daedalus exercised nine historical months at1440/390, native January/September selection, no horizontal overflow, absent detailed portal and private sentinels in raw server HTML/RSC. Browser fetches confirmed four protected endpoints403. Reporting periods use the existing UTC financial-calendar convention. Local evidence SHA256 b410dd252eb32078f24bd16b391242fe2bb0fe406bcbb2ed83738cf6a1276b9c.
 
 Activity collection notice is prepared; event delivery/admin review is a separate pending block. This local guest access result is not a cloud certification.
+
+## Guest command center and mobile reading track — local verification, 2026-10-23
+
+This section certifies the local read-only projection/navigation implementation only. It does not certify real source imports, a deployed private Takeoff reader, Railway delivery, physical mobile browsers, a four-hour review grant, or comprehensive new activity/cookie features.
+
+- Full regression: 429 passed, 0 failed. Command: `node --import tsx --test --test-concurrency=2 tests/*.test.ts`, job `JOB_20261023_210008_2300`.
+- Production build (including TypeScript): exit0, job `JOB_20261023_210012_8900`. Scoped ESLint: exit0, job `JOB_20261023_210015_1500`.
+- The administrator, staff and guest navigation metadata preserve all module labels/order; guest retains a separate role, DTO and read-only behavior. Client/provider navigation remains scoped.
+- HTTP exercises all23 current sections (200), all22 historical detail sections (403 Month closed), every future section (403), historical aggregates, malformed queries, company scope and real session revocation.
+- Daedalus atlas7, disposable local fixture at3018, actual UI navigation of all23 menu entries at1440x950. Source sentinels for old/foreign/private fields do not occur in the page; no horizontal viewport overflow was observed.
+- Chromium touch emulation at390x844: historical totals remain available, historical Financial dashboard shows Month closed, all23 navigation entries remain present; current detail renders without horizontal viewport overflow.
+- Private plan/source availability is explicit pending when the source is absent. No mock plan delivery is represented as a successful reader operation.
+- The independent mobile reading-track fix keeps its painted two-pixel track at rest; touch, trackpad and paused decorative motion were checked locally. Commit `d338991`; not a physical Safari or Railway certificate.
+- Bounded semantic visit/month/project activity exists. New four-hour links, broader audit events and the cookie/activity banner are a separate design and implementation block.
+
+The automatic review rejected a proposed broader removal of expired/rejected lifecycle exclusions. That rejected edit was not applied. Such module records remain excluded, including a compliance record whose operational status is expired. No claim of complete visibility of expired/rejected records is made.
+
+Private synthetic evidence remains outside Git in `.data/guest-console-qa/report.json`. Runtime source reconciliation is described in [guest-data-reconciliation.md](guest-data-reconciliation.md).

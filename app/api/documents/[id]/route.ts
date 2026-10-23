@@ -3,13 +3,16 @@ import {NextRequest,NextResponse} from 'next/server';
 import {requireActor,AuthError} from '@/lib/auth';
 import {ErpError} from '@/lib/erp';
 import {getReadableDocument} from '@/lib/document-lifecycle';
+import {guestConsoleDocument} from '@/lib/guest-workspace';
 import {VIEWER_PREFIX,TakeoffViewerAccessError,viewerScope} from '@/lib/takeoff-viewer-access';
 export const runtime='nodejs';
 const privateHeaders={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'};
 const sourceId=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(value);
 export async function GET(request:NextRequest,context:{params:Promise<{id:string}>}){
  try{
-  const actor=await requireActor(request),{id}=await context.params,entry=getReadableDocument(actor,id);
+  const actor=await requireActor(request),{id}=await context.params;
+  const readable=async()=>{const fresh=await requireActor(request);return fresh.role==='guest'?guestConsoleDocument(fresh,id):getReadableDocument(fresh,id);};
+  const entry=await readable();
   if(entry.data.storage==='takeoff_viewer'){
     const {viewerDocumentId,bundleId,contextKey,manifestSha256,relationsId}=entry.data;
     if(!entry.projectId||!sourceId(viewerDocumentId)||!sourceId(bundleId)||!sourceId(contextKey)||
@@ -20,16 +23,16 @@ export async function GET(request:NextRequest,context:{params:Promise<{id:string
     if(scope.bundleId!==bundleId||scope.manifestSha256!==manifestSha256||scope.relationsId!==relationsId||
       !scope.documentIds.includes(viewerDocumentId)||!scope.contexts.some(item=>item.key===contextKey&&item.documentIds.includes(viewerDocumentId)))
       throw new ErpError(404,'Document unavailable. Contact TAYCO.');
-    getReadableDocument(actor,id);
+    await readable();
     const query=new URLSearchParams({embed:'1',project:contextKey,document:viewerDocumentId,page:'1'});
     return new NextResponse(null,{status:307,headers:{...privateHeaders,Location:VIEWER_PREFIX+'/viewer/?'+query.toString()}});
    }
    if(typeof entry.data.blobPath!=='string'||!entry.data.blobPath)throw new ErpError(404,'Document unavailable. Contact TAYCO.');
    const result=await get(entry.data.blobPath,{access:'private'});
   if(!result||result.statusCode!==200)throw new ErpError(404,'Document unavailable. Contact TAYCO.');
-  try{getReadableDocument(actor,id);}catch(error){await result.stream.cancel().catch(()=>{});throw error;}
+  try{await readable();}catch(error){await result.stream.cancel().catch(()=>{});throw error;}
   const reader=result.stream.getReader();
-  const guarded=new ReadableStream<Uint8Array>({async pull(controller){try{getReadableDocument(actor,id);const chunk=await reader.read();getReadableDocument(actor,id);if(chunk.done)controller.close();else controller.enqueue(chunk.value);}catch(error){await reader.cancel().catch(()=>{});controller.error(error);}},cancel(reason){return reader.cancel(reason);}});
+  const guarded=new ReadableStream<Uint8Array>({async pull(controller){try{await readable();const chunk=await reader.read();await readable();if(chunk.done)controller.close();else controller.enqueue(chunk.value);}catch(error){await reader.cancel().catch(()=>{});controller.error(error);}},cancel(reason){return reader.cancel(reason);}});
   return new Response(guarded,{headers:{'Content-Type':'application/octet-stream','Content-Disposition':'attachment; filename="tayco-document"','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }catch(error){
   if(error instanceof TakeoffViewerAccessError){

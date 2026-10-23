@@ -18,7 +18,8 @@ import Image from "next/image";
 import DocumentMaintenance from "@/components/DocumentMaintenance";
 import ExecutiveConsole from "@/components/workspace/ExecutiveConsole";
 import OperationsModules from "@/components/workspace/OperationsModules";
-import "@/components/workspace/portal-shell.css";
+import PortalShell from "@/components/workspace/PortalShell";
+import { workspaceNavigation } from "@/lib/workspace-navigation";
 import EstimateArchive from "@/components/workspace/EstimateArchive";
 import WorkspaceDisplayControls, { useWorkspaceDisplay } from "@/components/workspace/WorkspaceDisplayControls";
 import { groupProjectEstimates } from "@/lib/project-estimates";
@@ -262,25 +263,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const projects = data.entries.filter((entry) => entry.kind === "project");
   const projectName = (id: string) => projects.find((project) => project.id === id)?.data.name;
   const roleName = { admin: "TAYCO administrator", staff: "TAYCO team", client: "Client workspace", vendor: "Trade partner workspace", guest: "Monthly review" }[data.actor.role];
-  const tabs = [
-    {id:"executive",label:"Executive overview",group:"Command center"},
-    ...(team?[{id:"financial_dashboard",label:"Financial dashboard",group:"Command center"}]:[]),
-    {id:"project",label:"Projects",group:"Command center"},
-    ...(team?[{id:"corporate_meetings",label:"Corporate meetings",group:"Command center"},{id:"followups",label:"Follow-ups & priorities",group:"Command center"}]:[]),
-    {id:"document",label:"Documents",group:"Command center"},
-    {id:"note",label:"Updates",group:"Command center"},
-    ...(!vendor?[{id:"change",label:"Changes",group:"Command center"}]:[]),
-    ...(team?[{id:"lead",label:"Requests",group:"Commercial"},{id:"proposal",label:"Client proposals",group:"Commercial"},{id:"vendor",label:"Trade partners",group:"Commercial"}]:[]),
-    ...(vendor?[{id:"vendor",label:"My company",group:"Commercial"}]:[]),
-    ...(team||vendor?[{id:"bid",label:"Bid leveling",group:"Commercial"}]:[]),
-    ...(team||vendor?[{id:"hours",label:"Team hours",group:"Field & procurement"},{id:"purchase_order",label:"Purchase orders",group:"Field & procurement"}]:[]),
-    ...(team?[{id:"team",label:"Project teams",group:"Field & procurement"},{id:"compliance",label:"Project requirements & certifications",group:"Field & procurement"}]:[]),
-    {id:"finance",label:"Financial overview",group:"Accounting & capital"},
-    {id:"invoice",label:"Invoices",group:"Accounting & capital"},
-    ...(!vendor?[{id:"dossier",label:"Investor & lender dossier",group:"Accounting & capital"}]:[]),
-    ...(team?[{id:"estimate",label:"Estimates & scenarios",group:"Preconstruction"}]:[]),
-    ...(team?[{id:"takeoff",label:"Takeoff Pro bridge",group:"Connections"},{id:"activity",label:"Activity",group:"Connections"}]:[]),
-  ];
+  const tabs = workspaceNavigation(data.actor.role);
   function navigate(view:string,selectedProject?:string,reportingMonth?:string) {
     if(["finance","financial_dashboard","corporate_meetings","followups"].includes(view))setFinancePeriod(reportingMonth&&/^\d{4}-(0[1-9]|1[0-2])$/.test(reportingMonth)?reportingMonth:null);
     if(view === "project" && selectedProject !== undefined)setProjectClassificationFilter({ contractType: "all", laborRegime: "all" });
@@ -439,9 +422,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
 
   const renderOperationsForm=(props:import("@/components/workspace/ProjectOverview").WorkspaceForm)=><CommandForm key={props.action+String(props.fixed?.id||"")} {...props} command={command}/>;
   const moduleId:Record<string,string>={executive:"executive",financial_dashboard:"financial-dashboard",corporate_meetings:"corporate-meetings",followups:"followups",proposal:"proposals",team:"project-teams",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",purchase_order:"purchase-orders",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
-  return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><main className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties}>
-    <div className="mx-auto grid max-w-[1600px] grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)]">
-      <aside ref={sidebarRef} id="tayco-command-sidebar" className="min-w-0 border-b border-amber-200/20 bg-gradient-to-b from-[#112748] to-[#09172b] p-4 sm:p-5 lg:sticky lg:top-0 lg:max-h-dvh lg:overflow-y-auto lg:self-start lg:border-b-0 lg:border-r">
+  return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><PortalShell className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties} sidebarRef={sidebarRef} sidebar={<>
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3"><Image src="/logo.jpeg" alt="TAYCO LLC · General Contractor" width={64} height={64} className="h-14 w-14 shrink-0 rounded-xl border border-amber-200/40 bg-[#f3efe2] object-cover shadow-lg" /><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-amber-100">Executive command</p><p className="mt-1 text-[11px] text-slate-400">{roleName}</p></div></div>
           <button ref={modulesToggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-expanded={mobileModulesOpen} aria-controls="tayco-portal-module-tabs" onClick={()=>setMobileModulesOpen(!mobileModulesOpen)}>{mobileModulesOpen?"Close modules":"Open modules"}</button>
@@ -451,9 +432,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
           {admin&&<div className="border-t border-amber-200/20 pt-4"><Link data-testid="module-access" href="/account" className="flex min-h-11 items-center rounded-xl border border-amber-200/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-200/10">B2B access &amp; invitations ↗</Link></div>}
         </nav>
         {team&&<div className="mt-5 hidden rounded-xl border border-amber-200/25 bg-[#102541] p-4 lg:block"><p className="text-[10px] font-semibold uppercase tracking-widest text-amber-200">Estimating bridge</p><p className="mt-2 text-sm font-semibold text-white">{data.integrations.takeoff==="not_configured"?"Not connected":label(data.integrations.takeoff)}</p><p className="mt-2 text-xs leading-relaxed text-slate-400">Project source records remain available.</p><button className="mt-3 min-h-11 text-xs font-semibold text-[#fb923c] underline underline-offset-4" onClick={()=>navigate("takeoff")}>Open bridge context ↗</button></div>}
-      </aside>
-      <div className="workspace-content min-w-0 px-4 pb-16 pt-7 sm:px-6 lg:px-7">
-      <div className="workspace-page-header flex flex-wrap items-start justify-between gap-5">
+      </>} header={<>
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">{roleName}</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">{team&&tab==="executive"?"Executive dashboard":<>Your projects. <em className="font-serif font-normal text-amber-200">Connected.</em></>}</h1>
@@ -465,7 +444,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
           <button className={secondaryClass} type="button" onClick={() => void refresh().catch(() => {})} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button>
           <Link className={buttonClass} href="/account">Account &amp; access</Link>
         </div>
-      </div>
+      </>}>
       {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error} {expired && <Link className="underline" href="/login?next=/portal">Sign in again</Link>}<p className="mt-1 text-xs">Previously loaded information remains visible and may be out of date.</p></div>}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         {!["lead","vendor","activity","corporate_meetings","followups"].includes(tab)?<label className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-300" htmlFor="portal-project-filter">Project<select id="portal-project-filter" className="min-h-11 max-w-full rounded-lg border border-slate-600 bg-[#0f2040] px-3 text-sm text-white" value={projectId} onChange={(event) => setProjectId(event.target.value)}><option value="">All assigned projects</option>{projects.map((entry) => <option key={entry.id} value={entry.id}>{value(entry.data, "name")}</option>)}</select></label>:<p className="text-xs text-slate-400">{team?"Company workspace":"Your linked company"} · no project filter</p>}
@@ -505,7 +484,5 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         <div className="rounded-xl border border-slate-700 bg-[#0f2040]/50 p-5"><h2 className="font-semibold text-amber-100">Need help with your project?</h2><p className="mt-2 text-sm leading-relaxed text-slate-300">Contact your TAYCO coordinator for assignments, documents or changes that need attention.</p><a className="mt-3 inline-flex min-h-11 items-center break-all text-sm font-semibold text-amber-200 underline underline-offset-4" href={COMPANY.emailHref}>{COMPANY.email}</a></div>
         {team && <div className="rounded-xl border border-slate-700 bg-[#0f2040]/50 p-5"><h2 className="font-semibold text-amber-100">Connected services</h2><p className="mt-2 text-sm leading-relaxed text-slate-300">Estimating: {data.integrations.takeoff === "not_configured" ? "Not connected" : label(data.integrations.takeoff)} · Accounting: {data.integrations.accounting === "not_configured" ? "Not connected" : label(data.integrations.accounting)}</p><p className="mt-2 text-xs text-slate-400">No financial or estimating system is shown as live until its connection has been verified.</p></div>}
       </div>
-      </div>
-    </div>
-  </main></CommandRecovery.Provider>;
+  </PortalShell></CommandRecovery.Provider>;
 }

@@ -145,15 +145,16 @@ test('allowed activity is server-scoped, deduplicated, conflict checked and admi
   });
 });
 
-test('UTC completed-month and year boundaries use the server clock', async t => {
+test('UTC current and previous months are accepted while future months remain denied', async t => {
   await fixture(async () => {
     t.mock.method(Date, 'now', () => Date.parse('2026-01-01T00:00:00Z'));
     assert.deepEqual(recordGuestActivity(guest, event('month.select', { period: '2025-12' })), { duplicate: false });
+    assert.deepEqual(recordGuestActivity(guest, event('month.select', { period: '2026-01' })), { duplicate: false });
     assert.deepEqual(recordGuestActivity(guest, event('year.select', { year: 2026 })), { duplicate: false });
-    for (const period of ['2026-01', '2026-02', '2027-01', '0000-12', '2025-1']) assert.throws(() => recordGuestActivity(guest, event('month.select', { period })), fails(400));
+    for (const period of ['2026-02', '2027-01', '0000-12', '2025-1']) assert.throws(() => recordGuestActivity(guest, event('month.select', { period })), fails(400));
     for (const year of [0, 2027, 2025.5, '2025']) assert.throws(() => recordGuestActivity(guest, event('year.select', { year })), fails(400));
     const report = guestActivityReport(admin);
-    assert.equal(report.events.find(row => row.elementId === 'month.select')!.period, '2025-12');
+    assert.deepEqual(report.events.filter(row => row.elementId === 'month.select').map(row => row.period).sort(), ['2025-12', '2026-01']);
     assert.equal(report.events.find(row => row.elementId === 'year.select')!.year, 2026);
     assert.equal(report.generatedAt, '2026-01-01T00:00:00.000Z');
   });
@@ -249,7 +250,7 @@ test('retention configuration validates its supported bounds before storage', as
   });
 });
 
-test('project activity accepts only its bounded ID metadata and requires an explicit review grant before storage', async () => {
+test('project activity accepts only its bounded ID metadata and requires console access before storage', async () => {
   await fixture(async filename => {
     for (const projectId of [undefined, null, '', 'project/secret', 'x'.repeat(201)]) {
       assert.throws(() => recordGuestActivity(guest, event('project.open', { projectId })), fails(400));
@@ -260,8 +261,50 @@ test('project activity accepts only its bounded ID metadata and requires an expl
     for (const extra of [{period:'2026-10'}, {year:2026}, {name:'Private project name'}, {text:'Document text'}, {url:'/private/plan.pdf'}]) {
       assert.throws(() => recordGuestActivity(guest, event('project.open', {projectId:'project-one',...extra})), fails(400));
     }
-    assert.throws(() => recordGuestActivity(guest, event('project.open', {projectId:'project-one'})), fails(403));
     assert.equal(existsSync(filename), false);
+    try {
+      assert.throws(() => recordGuestActivity(guest, event('project.open', {projectId:'project-one'})), fails(403));
+      inspect(filename, db => assert.equal(db.prepare("SELECT name FROM sqlite_schema WHERE name='guest_activity'").get(), undefined));
+    } finally { erpDatabase().close(); }
+  });
+});
+
+test('manual current console projects authorize bounded activity while historical, future and foreign projects do not', async t => {
+  await fixture(async filename => {
+    const now = '2026-01-01T00:00:00.000Z';
+    t.mock.method(Date, 'now', () => Date.parse(now));
+    const db = erpDatabase();
+    const seed = (id: string, reportingPeriod: string | null, tenantId = guest.tenantId, status = 'active', source = 'team') => {
+      db.prepare('INSERT INTO records(id,kind,tenant_id,project_id,owner_id,payload,version,created_at,updated_at) VALUES(?,?,?,?,?,?,1,?,?)')
+        .run(id, 'project', tenantId, id, admin.id, JSON.stringify({ name: 'Private console project ' + id, source, status, ...(reportingPeriod ? { reportingPeriod } : {}) }), now, now);
+    };
+    try {
+      seed('manual-current', '2026-01');
+      seed('manual-past', '2025-12');
+      seed('manual-future', '2026-02');
+      seed('foreign-current', '2026-01', 'company-two');
+      seed('revoked-current', '2026-01', guest.tenantId, 'revoked');
+      seed('unpublished-import', null, guest.tenantId, 'active', 'takeoff');
+      assert.deepEqual(guestProjectReviews(guest), []);
+      const selection = event('project.open', { projectId: 'manual-current' });
+      assert.deepEqual(recordGuestActivity(guest, selection), { duplicate: false });
+      assert.deepEqual(recordGuestActivity(guest, selection), { duplicate: true });
+      assert.deepEqual(recordGuestActivity({ ...guest, id: 'another-company-guest' }, event('project.open', { projectId: 'manual-current' })), { duplicate: false });
+      for (const projectId of ['manual-past', 'manual-future', 'foreign-current', 'revoked-current', 'unpublished-import', 'missing-project']) {
+        assert.throws(() => recordGuestActivity(guest, event('project.open', { projectId })), fails(403), projectId);
+      }
+      for (const actor of [{ ...guest, tenantId: 'company-two' }, { ...guest, projectIds: ['manual-current'] }]) {
+        assert.throws(() => recordGuestActivity(actor, event('project.open', { projectId: 'manual-current' })), fails(403));
+      }
+      const report = guestActivityReport(admin);
+      assert.equal(report.totalEvents, 2);
+      assert.equal(JSON.stringify(report).includes('Private console project'), false);
+      for (const row of report.events) assert.deepEqual(Object.keys(row).sort(), ['actorId', 'createdAt', 'elementId', 'eventId', 'page', 'projectId']);
+      // Removing current console access also denies retries of a recorded event.
+      db.prepare("UPDATE records SET payload=json_set(payload,'$.reportingPeriod','2025-12') WHERE id='manual-current'").run();
+      assert.throws(() => recordGuestActivity(guest, selection), fails(403));
+      inspect(filename, activity => assert.equal(activity.prepare('SELECT count(*) AS n FROM guest_activity').get()!.n, 2));
+    } finally { db.close(); }
   });
 });
 
@@ -274,6 +317,8 @@ test('an actual v2 grant authorizes project selection, scoped deduplication and 
       run({action:'create_project',name:'Synthetic confidential telemetry project B'}),
     ];
     try {
+      // Imported undated projects depend on publication; manual current projects do not.
+      for (const project of projects) erpDatabase().prepare("UPDATE records SET payload=json_set(payload,'$.source','takeoff') WHERE id=?").run(project.id);
       const docs = projects.map((project,index) => registerDocument(actors.admin,{
         projectId:project.id,type:'project',name:'Synthetic private plan '+index+'.pdf',
         blobPath:'synthetic-private-document-'+index+'.pdf',contentType:'application/pdf',
