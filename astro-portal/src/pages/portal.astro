@@ -1,0 +1,209 @@
+---
+import AstroPortalLayout from "../layouts/AstroPortalLayout.astro";
+
+const invitations = [
+  {
+    code: "INV-TAYCO-MASTER",
+    role: "MANAGING_DIRECTOR_MASTER",
+    ratio: "6/6 Modules Enabled",
+    recipient: "🔑 Managing Director Master Credential (6/6 Modules)",
+    modules: ["Takeoff Pro (:8085)", "1. CRM & Bid Leveling", "2. Payroll WH-347", "3. QuickBooks & 8 POs", "4. 9-State Tax & TERO", "5. Investor Dossier"],
+  },
+  {
+    code: "INV-CLIENT-CRM-TAKEOFF",
+    role: "COMMERCIAL_ESTIMATING_PARTNER",
+    ratio: "2/6 Modules Enabled",
+    recipient: "🎟️ Commercial Client & Estimating Partner Credential (2/6 Modules)",
+    modules: ["Takeoff Pro (:8085)", "1. CRM & Bid Leveling"],
+  },
+  {
+    code: "INV-CPA-FINANCE-TAX",
+    role: "CPA_ACCOUNTING_AUDITOR",
+    ratio: "3/6 Modules Enabled",
+    recipient: "🎟️ External CPA, Payroll & Tax Audit Credential (3/6 Modules)",
+    modules: ["2. Payroll WH-347", "3. QuickBooks & 8 POs", "4. 9-State Tax & TERO"],
+  },
+  {
+    code: "INV-INVESTOR-PORTFOLIO",
+    role: "INSTITUTIONAL_REIT_LENDER_BOARD",
+    ratio: "3/6 Modules Enabled",
+    recipient: "🎟️ Institutional REIT & Lender Board Credential (3/6 Modules)",
+    modules: ["1. CRM & Bid Leveling", "3. QuickBooks & 8 POs", "5. Investor Dossier"],
+  },
+];
+
+const takeoffConnectedModules = [
+  {
+    code: "VIEW_03_CRM · MODULE 1",
+    title: "1. Commercial CRM, 3-Bid Leveling & Subcontractor Registry",
+    kernel: "rust_critical_bid_and_dedup_gate (:8085)",
+    metrics: "$855,525.23 Base GMP → $824,875.23 Leveled Bid (-$30,650.00) → $798,175.23 VE Target (-$26,700.00)",
+    detail: "5 CSI Trades × 3 Subcontractors (15 bids), 3 Scope Gaps flagged, and live CRM stage mutations.",
+  },
+  {
+    code: "VIEW_04_PAYROLL · MODULE 2",
+    title: "2. Construction Payroll, Field Crews & Davis-Bacon WH-347",
+    kernel: "rust_critical_apu_exact_cents (:8085)",
+    metrics: "6,536.0 Total MH (4,845.2 Direct Field MH · 436.3 MH/Cabin) · $213,299.26 Loaded WH-347",
+    detail: "7 CSI Field Crews with interactive daily man-hour logger recalculating FICA, FUTA/SUTA, and Workers' Comp live.",
+  },
+  {
+    code: "VIEW_05_QUICKBOOKS · MODULE 3",
+    title: "3. QuickBooks Accounting Sync, 8 Material POs, 4 COs & AIA G702/G703",
+    kernel: "rust_critical_aia_g702_audit_cents (:8085 · 0¢ Drift)",
+    metrics: "8 Committed POs ($375,012.51) · 4 COs (+$26,578.85 → $882,104.08 Revised) · Pay App #3 $184,892.70 Net Due",
+    detail: "3 Critical Arctic Long-Lead POs (PO-002 LVL 6 WK, PO-005 Glazing 8 WK, PO-007 E-One 7 WK) + live G702 Draw Commit.",
+  },
+  {
+    code: "VIEW_06_TAX · MODULE 4",
+    title: "4. Multi-State Tax Engine (9 States), Tribal TERO 2.5% & IRS 1099-NEC",
+    kernel: "rust_critical_regional_cost_index_cents (:8085)",
+    metrics: "$375,012.51 Taxable Material Base · ND Sales Tax ($24,375.81) + MHA Nation TERO 2.5% ($21,388.13)",
+    detail: "Separates taxable materials from 100% exempt field labor across 9 states with real-time W-9 & COI verification.",
+  },
+  {
+    code: "VIEW_08_INVESTOR · MODULE 5",
+    title: "5. Executive Investor Portal, Lender Draws & 7-Section Master Dossier",
+    kernel: "DOSSIER-SON_OF_STAR-V28 · 369 SHA-256 Line Items (:8085)",
+    metrics: "$106,940.65 / cabin · $151.69 / sq.ft. · 99.4% Triple AI Consensus · 32 ARCH-D Sheets / 87 Sub-Views",
+    detail: "7 Certified Dossier Sections and Pareto Top 5 Blueprint Highlights (A-101, S-201, A-103, C-500, PR-5).",
+  },
+  {
+    code: "VIEW_07_TAKEOFF · MODULE 6",
+    title: "6. Takeoff Pro v5.0 (:8085) Multi-Endpoint 2D/3D CAD & Monte Carlo Bridge",
+    kernel: "21 Deterministic Rust Kernels (:8085)",
+    metrics: "P50 $855,525.23 · P80 $898,301.49 (+$42,776.26 Reserve) · P95 $928,244.87 · 7/7 GO FOR BID",
+    detail: "Parallel live sync with /suite-bridge-preview, /master-dossier, and /e2e-critical-audit.",
+  },
+];
+---
+<AstroPortalLayout title="Multi-Tenant Invitation Console & Takeoff Pro (:8085) Bridge — TAYCO Executive Command">
+  <main style="max-width: 1180px; margin: 0 auto; padding: 2.25rem 1.5rem;">
+    <section class="bento-card" data-response-kind="surface" style="padding: 2.2rem; margin-bottom: 1.5rem;">
+      <span class="response-wash" aria-hidden="true"></span>
+      <div class="preview-orbits"></div>
+
+      <!-- Rotating Orbital Stamp (.orbital-caption) -->
+      <div class="orbital-caption" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <path id="tayco-portal-orbital-path" d="M50,50m-36,0a36,36 0 1,1 72,0a36,36 0 1,1-72,0" />
+          </defs>
+          <text>
+            <textPath href="#tayco-portal-orbital-path">TAYCO EDITORIAL · MULTI-TENANT PORTAL · </textPath>
+          </text>
+        </svg>
+        <span>✳</span>
+      </div>
+
+      <span class="badge">🔐 TAYCO Executive Command · Connected to Takeoff Pro v5.0 (:8085)</span>
+      <p class="mono-eyebrow" style="margin-top: 0.7rem; margin-bottom: 0.35rem;">
+        GRANULAR ENTITLEMENT CREDENTIALS · 4 TENANT ORGANIZATIONS · 6 ENTERPRISE MODULES SYNCED WITH :8085
+      </p>
+      <h1 style="font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 900; margin-bottom: 0.6rem; max-width: 880px;">
+        TAYCO LLC — <span class="serif-italic" style="color: var(--gold-bright);">Module-Scoped</span> Partner Credential Console &amp; Takeoff Pro (:8085) Bridge
+      </h1>
+      <p style="color: #cbd5e1; max-width: 780px; margin-bottom: 1.4rem;">
+        Generate custom B2B partner credentials (<code>INV-TAYCO-...</code>) by selecting the exact modules (out of 6) each commercial client, REIT investor, or CPA auditor is authorized to access in <strong>TAYCO Executive Command</strong>. Every module is fed directly by <strong>Takeoff Pro v5.0 (<code>http://127.0.0.1:8085</code>)</strong> across 32 ARCH-D sheets and 87 sub-views.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        <a href="/portal" class="btn-gold" data-magnetic>🚀 Open Live TAYCO Executive Command (/portal) →</a>
+        <a href="http://127.0.0.1:8085" target="_blank" rel="noreferrer" class="btn-outline" data-magnetic>📐 Open Blueprint in Takeoff Pro (:8085) ↗</a>
+        <a href="/astro-preview/index.html" class="btn-outline" data-magnetic>📊 Back to TAYCO Editorial Overview</a>
+      </div>
+    </section>
+
+    <!-- Editorial Italic Kinetic Marquee Ticker (.tayco-editorial-ticker) -->
+    <div class="tayco-editorial-ticker" aria-hidden="true">
+      <div>
+        <span>TAYCO Executive Command · Connected to Takeoff Pro v5.0 (:8085)</span>
+        <i>✳</i>
+        <span>$855,525.23 Base GMP · $824,875.23 Leveled Bid · $798,175.23 VE Target · $882,104.08 Revised Contract</span>
+        <i>✳</i>
+        <span>8 Material POs ($375,012.51) · 6,536.0 MH WH-347 · MHA Nation TERO 2.5% ($21,388.13)</span>
+        <i>✳</i>
+        <span>TAYCO Executive Command · Connected to Takeoff Pro v5.0 (:8085)</span>
+        <i>✳</i>
+      </div>
+    </div>
+
+    <!-- SVG Horizon Wave Divider (.chromatic-horizon) -->
+    <div class="chromatic-horizon" aria-hidden="true">
+      <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+        <path class="horizon-land" d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z" />
+        <path class="horizon-trace a" d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50" />
+        <path class="horizon-trace b" d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25" />
+      </svg>
+    </div>
+
+    <!-- 4 Scoped Partner Credentials -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.15rem; margin-bottom: 1.75rem;">
+      {invitations.map((inv) => (
+        <article class="bento-card" data-response-kind="surface">
+          <span class="response-wash" aria-hidden="true"></span>
+          <div class="preview-orbits"></div>
+          <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+            {inv.code}
+          </div>
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--construction-orange); margin-bottom: 0.4rem;">
+            {inv.ratio} · {inv.role}
+          </div>
+          <h2 style="font-size: 1rem; font-weight: 800; color: #F4F2EA; margin-bottom: 0.65rem;">
+            {inv.recipient}
+          </h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem;">
+            {inv.modules.map((mod) => (
+              <span class="badge" style="font-size: 0.64rem;">{mod}</span>
+            ))}
+          </div>
+          <a href={`/portal?invite=${inv.code}`} class="btn-outline" data-magnetic style="display: inline-block; font-size: 0.76rem;">
+            Activate Credential in /portal →
+          </a>
+        </article>
+      ))}
+    </section>
+
+    <!-- Explicit Takeoff Pro (:8085) Connection Across All 6 Modules -->
+    <section style="margin-bottom: 1.75rem;">
+      <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+        📐 LIVE TAKEOFF PRO v5.0 (:8085) MULTI-ENDPOINT ENGINE FEEDS
+      </div>
+      <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 1rem;">
+        6 Enterprise Modules Synchronized with <span class="serif-italic" style="color: var(--gold-bright);">Takeoff Pro (:8085)</span>
+      </h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.15rem;">
+        {takeoffConnectedModules.map((mod) => (
+          <article class="bento-card" data-response-kind="surface">
+            <span class="response-wash" aria-hidden="true"></span>
+            <div class="preview-orbits"></div>
+            <div class="mono-eyebrow" style="margin-bottom: 0.25rem;">
+              {mod.code} · {mod.kernel}
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 800; color: #F4F2EA; margin-bottom: 0.4rem;">
+              {mod.title}
+            </h3>
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-bright); margin-bottom: 0.45rem;">
+              {mod.metrics}
+            </div>
+            <p style="font-size: 0.82rem; color: #cbd5e1;">
+              {mod.detail}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Warm Editorial Ivory (#F4F2EA) Contrast Section -->
+    <section class="editorial-ivory-section">
+      <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+        TAYCO EDITORIAL · MULTI-TENANT SECURITY GUARANTEE (#F4F2EA)
+      </div>
+      <h2 style="font-size: 1.3rem; font-weight: 900; color: #070E1A; margin-bottom: 0.4rem;">
+        Cryptographic Module Isolation for <span class="serif-italic" style="color: #1B3A6B;">External Auditors &amp; Capital Partners</span>
+      </h2>
+      <p style="font-size: 0.86rem; color: #0F2040;">
+        Each TAYCO LLC partner credential binds session scope directly to the authorized ERP modules—ensuring commercial estimators, CPAs, and REIT boards see only their designated operational telemetry synchronized from Takeoff Pro (:8085).
+      </p>
+    </section>
+  </main>
+</AstroPortalLayout>

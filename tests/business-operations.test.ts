@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { provisionAdmin,signIn,createInvitation,acceptInvitation,type Actor } from '../lib/auth';
+import { database,execute,snapshot,ErpError } from '../lib/erp';
+test('proposals and real project assignments persist, reject ambiguity, and stay internal',async()=>{
+ const folder=mkdtempSync(path.join(tmpdir(),'tayco-business-'));
+ process.env.TAYCO_AUTH_DB_PATH=path.join(folder,'auth.sqlite');process.env.TAYCO_ERP_DB_PATH=path.join(folder,'erp.sqlite');process.env.TAYCO_SESSION_SECRET=randomBytes(48).toString('hex');
+ try{
+  const password=randomBytes(28).toString('base64url')+'!';await provisionAdmin('business-admin@example.test',password);const admin=(await signIn('business-admin@example.test',password)).actor;
+  const run=(actor:Actor,input:Record<string,unknown>,key=randomUUID())=>execute(actor,key,input),status=(n:number)=>(e:unknown)=>e instanceof ErpError&&e.status===n;
+  const p=run(admin,{action:'create_project',name:'Synthetic business project'}),today=new Date().toISOString().slice(0,10),future='2099-01-01';
+  const create={action:'create_proposal',projectId:p.id,title:'Synthetic scope',reference:'P-FIXTURE',clientName:'Fixture client',amountUsd:125.25,issuedOn:today,source:'Synthetic signed-scope fixture'};
+  const key=randomUUID(),draft=run(admin,create,key);assert.equal(draft.data.status,'draft');assert.equal(run(admin,create,key).id,draft.id);
+  assert.throws(()=>run(admin,create),status(409));assert.throws(()=>run(admin,{...create,reference:'bad',amountUsd:0.001}),status(422));assert.throws(()=>run(admin,{...create,reference:'future',issuedOn:future}),status(422));
+  const sent=run(admin,{action:'send_proposal',id:draft.id,version:draft.version});assert.equal(sent.data.status,'sent');
+  assert.throws(()=>run(admin,{action:'decide_proposal',id:sent.id,version:draft.version,status:'accepted',decidedOn:today,evidence:'Source fixture'}),status(409));
+  assert.throws(()=>run(admin,{action:'decide_proposal',id:sent.id,version:sent.version,status:'accepted',decidedOn:future,evidence:'Source fixture'}),status(422));
+  assert.throws(()=>run(admin,{action:'decide_proposal',id:sent.id,version:sent.version,status:'accepted',decidedOn:today,evidence:''}),status(422));
+  const accepted=run(admin,{action:'decide_proposal',id:sent.id,version:sent.version,status:'accepted',decidedOn:today,evidence:'Signed approval fixture'});assert.equal(accepted.data.status,'accepted');assert.equal(accepted.data.amountUsd,125.25);
+  assert.throws(()=>run(admin,{action:'send_proposal',id:accepted.id,version:accepted.version}),status(409));
+  assert.equal(snapshot(admin).entries.filter(e=>e.kind==='invoice').length,0);assert.equal(snapshot(admin).entries.find(e=>e.id===p.id)?.data.budgetUsd,null);
+  const historical=run(admin,{...create,reference:'P-HISTORICAL',issuedOn:'2025-09-01',validUntil:'2025-09-30'});
+  assert.throws(()=>run(admin,{action:'send_proposal',id:historical.id,version:historical.version,sentOn:'2025-08-31'}),status(422));
+  assert.throws(()=>run(admin,{action:'send_proposal',id:historical.id,version:historical.version,sentOn:'2025-10-01'}),status(409));
+  const historySent=run(admin,{action:'send_proposal',id:historical.id,version:historical.version,sentOn:'2025-09-05'});
+  const historyAccepted=run(admin,{action:'decide_proposal',id:historySent.id,version:historySent.version,status:'accepted',decidedOn:'2025-09-06',evidence:'Historical dated approval fixture'});assert.equal(historyAccepted.data.decidedOn,'2025-09-06');
+  assert.equal(snapshot(admin).delivery.length,0);
+  const member=run(admin,{action:'add_project_team_member',id:p.id,version:p.version,memberId:admin.id,responsibility:'Project manager',assignedOn:today});assert.equal((member.data.teamMembers as unknown[]).length,1);
+  assert.throws(()=>run(admin,{action:'add_project_team_member',id:p.id,version:member.version,memberId:admin.id,responsibility:'Duplicate',assignedOn:today}),status(409));
+  const invitation=createInvitation(admin,{email:'business-client@example.test',role:'client',tenantId:admin.tenantId,projectIds:[p.id]});await acceptInvitation(invitation.token,'business-client@example.test',password);const client=(await signIn('business-client@example.test',password)).actor;
+  const clientView=snapshot(client);assert.equal(clientView.entries.some(e=>e.kind==='proposal'),false);assert.equal('teamMembers' in clientView.entries.find(e=>e.id===p.id)!.data,false);assert.throws(()=>run(client,{...create,reference:'client-attempt'}),status(403));
+  assert.throws(()=>run({...admin,tenantId:'other'}, {action:'send_proposal',id:sent.id,version:sent.version}),status(404));
+  assert.throws(()=>run(admin,{action:'add_project_team_member',id:p.id,version:member.version,memberId:client.id,responsibility:'Wrong account type',assignedOn:today}),/active TAYCO/);
+  const removed=run(admin,{action:'remove_project_team_member',id:p.id,version:member.version,memberId:admin.id,removedOn:today});assert.equal((removed.data.teamMembers as {removedOn:string}[])[0].removedOn,today);
+ }finally{database().close();try{rmSync(folder,{recursive:true,force:true});}catch{/* Auth handles may remain open until this isolated worker exits. */}}
+});

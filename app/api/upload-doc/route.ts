@@ -1,66 +1,39 @@
-import { put } from "@vercel/blob";
-import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, checkUserAgent, clientIp, validateOrigin, VENDOR_DOC_TYPES } from "../_utils";
-
-const MAX_BYTES = 10 * 1024 * 1024;
-
-// Detect the real file type from its first bytes instead of trusting the browser's MIME type.
-function sniffType(head: Uint8Array): { ext: "pdf" | "jpg" | "png"; contentType: string } | null {
-  if (head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46) return { ext: "pdf", contentType: "application/pdf" };
-  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return { ext: "jpg", contentType: "image/jpeg" };
-  if (head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47) return { ext: "png", contentType: "image/png" };
-  return null;
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    // W9 + COI + the form submit itself: allow a few more requests than the form routes.
-    if (!checkRateLimit(clientIp(req.headers), "upload", 6)) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-    }
-
-    if (!validateOrigin(req.headers.get("origin"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    if (!checkUserAgent(req.headers.get("user-agent"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const contentLength = Number(req.headers.get("content-length") ?? 0);
-    if (contentLength > MAX_BYTES + 64 * 1024) {
-      return NextResponse.json({ error: "File must be under 10MB." }, { status: 413 });
-    }
-
-    const formData = await req.formData();
-    const file = formData.get("file");
-    const docType = formData.get("docType");
-
-    if (!(file instanceof File) || typeof docType !== "string" || !(VENDOR_DOC_TYPES as readonly string[]).includes(docType)) {
-      return NextResponse.json({ error: "Missing file or docType" }, { status: 400 });
-    }
-
-    if (file.size > MAX_BYTES) {
-      return NextResponse.json({ error: "File must be under 10MB." }, { status: 400 });
-    }
-
-    const bytes = Buffer.from(await file.arrayBuffer());
-    const type = sniffType(bytes);
-    if (!type) {
-      return NextResponse.json({ error: "Only PDF, JPG, or PNG files are accepted." }, { status: 400 });
-    }
-
-    // W9s carry EIN/SSN: store privately with an unguessable name. Only the server can read it back.
-    const blob = await put(`vendor-docs/${docType}.${type.ext}`, bytes, {
-      access: "private",
-      addRandomSuffix: true,
-      contentType: type.contentType,
-    });
-
-    // The client keeps the pathname as an opaque reference and sends it back with the application.
-    return NextResponse.json({ url: blob.pathname });
-  } catch (err) {
-    console.error("Upload error:", err);
-    return NextResponse.json({ error: "Upload failed. Please try again." }, { status: 500 });
-  }
+import {put} from '@vercel/blob';
+import {randomUUID} from 'node:crypto';
+import {mkdirSync,writeFileSync,unlinkSync} from 'node:fs';
+import path from 'node:path';
+import {NextRequest,NextResponse} from 'next/server';
+import {requireActor,assertSameOrigin,AuthError} from '@/lib/auth';
+import {registerDocument,validateDocumentProject,ErpError} from '@/lib/erp';
+export const runtime='nodejs';
+const MAX=10*1024*1024;
+export async function POST(request:NextRequest){
+ let journal:string|undefined;
+ try{
+  const actor=await requireActor(request);assertSameOrigin(request);
+  if(!['admin','staff','vendor'].includes(actor.role))throw new ErpError(403,'Upload is available to assigned providers and TAYCO team members.');
+  if(!process.env.BLOB_READ_WRITE_TOKEN)throw new ErpError(503,'Secure storage is not configured. Contact your TAYCO coordinator.');
+  if(Number(request.headers.get('content-length')||0)>MAX+128000)throw new ErpError(413,'Choose a file smaller than 10 MB.');
+  const reader=request.body?.getReader();if(!reader)throw new ErpError(400,'Choose a document.');
+  const chunks:Uint8Array[]=[];let total=0;while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>MAX+128000){await reader.cancel();throw new ErpError(413,'Choose a file smaller than 10 MB.');}chunks.push(value);}
+  const form=await new Response(Buffer.concat(chunks),{headers:{'Content-Type':request.headers.get('content-type')||''}}).formData(),file=form.get('file'),type=form.get('type');
+  if(!(file instanceof File)||!file.size||file.size>MAX)throw new ErpError(422,'Choose a file between 1 byte and 10 MB.');
+  if(!['w9','insurance','project'].includes(String(type)))throw new ErpError(422,'Choose a document type.');
+  const bytes=Buffer.from(await file.arrayBuffer());
+  const ext=bytes.subarray(0,5).toString()==='%PDF-'?'pdf':bytes[0]===255&&bytes[1]===216&&bytes[2]===255?'jpg':bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))?'png':null;
+  if(!ext)throw new ErpError(422,'Use a PDF, JPEG or PNG document.');
+  const contentType=ext==='pdf'?'application/pdf':ext==='jpg'?'image/jpeg':'image/png';
+  const projectId=String(form.get('projectId')||'')||undefined;validateDocumentProject(actor,projectId);
+  const blobPath='vendor-docs/'+String(type)+'-'+randomUUID()+'.'+ext;
+  const journalDir=path.join(path.dirname(process.env.TAYCO_ERP_DB_PATH||path.join(process.cwd(),'.data','tayco-erp.sqlite')),'upload-intents');mkdirSync(journalDir,{recursive:true,mode:0o700});journal=path.join(journalDir,randomUUID()+'.json');
+  writeFileSync(journal,JSON.stringify({blobPath,actorId:actor.id,createdAt:new Date().toISOString()}),{flag:'wx',mode:0o600});
+  const blob=await put(blobPath,bytes,{access:'private',contentType,addRandomSuffix:false});
+  const entry=registerDocument(actor,{blobPath:blob.pathname,name:file.name.slice(0,160),contentType,type:String(type),projectId:String(form.get('projectId')||'')||undefined});
+  if(journal){try{unlinkSync(journal);}catch{console.error('TAYCO upload intent retained for reconciliation');}}
+  return NextResponse.json({success:true,documentId:entry.id,status:'pending_review'},{headers:{'Cache-Control':'no-store'}});
+ }catch(error){
+  if(journal)console.error('TAYCO upload requires private intent reconciliation; receipt not confirmed');
+  if(error instanceof AuthError||error instanceof ErpError)return NextResponse.json({success:false,error:error.message},{status:error.status});
+  console.error('TAYCO document upload failed');return NextResponse.json({success:false,error:'The document was not confirmed as received. Please retry.'},{status:503});
+ }
 }

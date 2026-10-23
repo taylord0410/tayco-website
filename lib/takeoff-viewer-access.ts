@@ -1,0 +1,287 @@
+import { createHash } from 'node:crypto';
+import { closeSync, existsSync, fstatSync, lstatSync, openSync, readSync } from 'node:fs';
+import { TextDecoder } from 'node:util';
+import type { Actor } from './auth';
+import { database, documentForActor, ErpError, snapshot, type Entry } from './erp';
+import { COMMERCIAL_STAGE_CODES } from './commercial-stages';
+
+export const VIEWER_PREFIX = '/api/takeoff-viewer';
+export class TakeoffViewerAccessError extends Error {
+  constructor(public status: number, message: string) { super(message); this.name = 'TakeoffViewerAccessError'; }
+}
+export type ViewerRelations = {
+  schemaVersion: 'takeoff-viewer-relations/v1'; bundleId: string; relationsId: string; manifestSha256: string;
+  contexts: { contextKey: string; displayName: string; identityStatus: 'resolved' | 'unresolved'; documentIds: string[] }[];
+  documents: { documentId: string; contextKeys: string[]; assetIds: string[]; kind: string }[];
+  assets: { assetId: string; documentIds: string[] }[];
+};
+export type ViewerScope = {
+  bundleId: string; relationsId: string; manifestSha256: string;
+  contexts: { key: string; documentIds: string[] }[]; documentIds: string[]; assetIds: string[];
+  documents: { id: string; contextKey: string; assetIds: string[] }[];
+};
+type Mapping = { tenantId: string; projectId: string; contextKey: string; documents: { viewerDocumentId: string; erpDocumentId: string }[] };
+type GuestReviewGrant = { tenantId: string; guestId: string; projectId: string; period: string; viewerDocumentIds: string[] };
+type AccessConfig = { schemaVersion: 'tayco-takeoff-viewer-access/v1' | 'tayco-takeoff-viewer-access/v2'; bundleId: string; relationsSha256: string; mappings: Mapping[]; guestReviews: GuestReviewGrant[] };
+export type GuestProjectReview = { projectId: string; name: string; period: string; status: string; progress: number | null; commercialStage: string | null; completedStages: string[]; documentCount: number };
+const unavailable = () => new TakeoffViewerAccessError(503, 'The Takeoff viewer is not configured or is temporarily unavailable.');
+const denied = () => new TakeoffViewerAccessError(404, 'The Takeoff viewer is not available for this project.');
+const guestDenied = () => new TakeoffViewerAccessError(403, 'This account cannot access these project plans.');
+const sourceId = /^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
+const erpId = /^[A-Za-z0-9][A-Za-z0-9_-]{0,199}$/;
+const sha256 = /^[a-f0-9]{64}$/;
+const periodPattern = /^(?:19|[2-9]\d)\d{2}-(?:0[1-9]|1[0-2])$/;
+const kinds = new Set(['drawing_pdf', 'drawing_image', 'itb', 'specification', 'addendum', 'reference', 'processed_docx']);
+// Bounded readonly policy inputs; there are no default files, records, or startup writes.
+const RELATIONS_BYTES = 5 * 1024 * 1024, MAPPING_BYTES = 1024 * 1024;
+const CONTEXT_LIMIT = 512, DOCUMENT_LIMIT = 4096, ASSET_LIMIT = 8192, MAPPING_LIMIT = 2048;
+
+function object(value: unknown, keys: readonly string[]): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype ||
+    Object.keys(value).length !== keys.length || Object.keys(value).some(key => !keys.includes(key))) throw unavailable();
+  return value as Record<string, unknown>;
+}
+function list(value: unknown, max: number, min = 0): unknown[] {
+  if (!Array.isArray(value) || value.length < min || value.length > max) throw unavailable();
+  return value;
+}
+function id(value: unknown, pattern = sourceId): string {
+  if (typeof value !== 'string' || !pattern.test(value)) throw unavailable();
+  return value;
+}
+function ids(value: unknown, max: number, min = 0): string[] {
+  const result = list(value, max, min).map(value => id(value));
+  if (new Set(result).size !== result.length) throw unavailable();
+  return result;
+}
+function unique<T>(rows: T[], key: (row: T) => string): Map<string, T> {
+  const result = new Map<string, T>();
+  for (const row of rows) { const value = key(row); if (result.has(value)) throw unavailable(); result.set(value, row); }
+  return result;
+}
+function label(value: unknown): string {
+  if (typeof value !== 'string' || value.length > 500 || !value.trim() || /[\u0000-\u001f\u007f-\u009f]/.test(value) ||
+    /(?:^|[^A-Za-z0-9])[A-Za-z]:[\\/]/.test(value) || /^[\\/]/.test(value) || /(?:^|\s)\/(?:[^/\s]+\/)+[^/\s]+/.test(value)) throw unavailable();
+  return value;
+}
+function readPolicyFile(filename: string, max: number): Buffer {
+  let descriptor: number | undefined;
+  try {
+    if (!filename.trim() || filename.includes('\0') || lstatSync(filename).isSymbolicLink()) throw unavailable();
+    descriptor = openSync(filename, 'r');
+    const before = fstatSync(descriptor);
+    if (!before.isFile() || before.size < 1 || before.size > max) throw unavailable();
+    const buffer = Buffer.alloc(before.size + 1);
+    let offset = 0;
+    while (offset < buffer.length) { const count = readSync(descriptor, buffer, offset, buffer.length - offset, offset); if (!count) break; offset += count; }
+    if (offset !== before.size || fstatSync(descriptor).size !== before.size) throw unavailable();
+    return buffer.subarray(0, offset);
+  } catch { throw unavailable(); }
+  finally { if (descriptor !== undefined) closeSync(descriptor); }
+}
+function json(bytes: Buffer): unknown {
+  try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
+  catch { throw unavailable(); }
+}
+
+function parseRelations(value: unknown): ViewerRelations {
+  const row = object(value, ['schemaVersion', 'bundleId', 'relationsId', 'manifestSha256', 'contexts', 'documents', 'assets']);
+  if (row.schemaVersion !== 'takeoff-viewer-relations/v1' || typeof row.relationsId !== 'string' || !/^relations-[a-f0-9]{64}$/.test(row.relationsId)) throw unavailable();
+  const bundleId = id(row.bundleId), manifestSha256 = id(row.manifestSha256, sha256);
+  const contexts = list(row.contexts, CONTEXT_LIMIT).map((value): ViewerRelations['contexts'][number] => {
+    const context = object(value, ['contextKey', 'displayName', 'identityStatus', 'documentIds']);
+    if (context.identityStatus !== 'resolved' && context.identityStatus !== 'unresolved') throw unavailable();
+    return { contextKey: id(context.contextKey), displayName: label(context.displayName), identityStatus: context.identityStatus, documentIds: ids(context.documentIds, DOCUMENT_LIMIT) };
+  });
+  const documents = list(row.documents, DOCUMENT_LIMIT).map(value => {
+    const document = object(value, ['documentId', 'contextKeys', 'assetIds', 'kind']);
+    if (typeof document.kind !== 'string' || !kinds.has(document.kind)) throw unavailable();
+    return { documentId: id(document.documentId), contextKeys: ids(document.contextKeys, 1, 1), assetIds: ids(document.assetIds, 2, 1), kind: document.kind };
+  });
+  const assets = list(row.assets, ASSET_LIMIT).map(value => {
+    const asset = object(value, ['assetId', 'documentIds']);
+    return { assetId: id(asset.assetId), documentIds: ids(asset.documentIds, DOCUMENT_LIMIT, 1) };
+  });
+  const contextById = unique(contexts, row => row.contextKey), documentById = unique(documents, row => row.documentId), assetById = unique(assets, row => row.assetId);
+  for (const context of contexts) for (const documentId of context.documentIds) {
+    if (documentById.get(documentId)?.contextKeys[0] !== context.contextKey) throw unavailable();
+  }
+  for (const document of documents) {
+    if (!contextById.get(document.contextKeys[0])?.documentIds.includes(document.documentId)) throw unavailable();
+    for (const assetId of document.assetIds) if (!assetById.get(assetId)?.documentIds.includes(document.documentId)) throw unavailable();
+  }
+  for (const asset of assets) for (const documentId of asset.documentIds) {
+    if (!documentById.get(documentId)?.assetIds.includes(asset.assetId)) throw unavailable();
+  }
+  return { schemaVersion: 'takeoff-viewer-relations/v1', bundleId, relationsId: row.relationsId, manifestSha256, contexts, documents, assets };
+}
+
+function parseConfig(value: unknown): AccessConfig {
+  const version = value && typeof value === 'object' ? (value as Record<string, unknown>).schemaVersion : undefined;
+  if (version !== 'tayco-takeoff-viewer-access/v1' && version !== 'tayco-takeoff-viewer-access/v2') throw unavailable();
+  const row = object(value, ['schemaVersion', 'bundleId', 'relationsSha256', 'mappings', ...(version === 'tayco-takeoff-viewer-access/v2' ? ['guestReviews'] : [])]);
+  let documentCount = 0;
+  const mappings = list(row.mappings, MAPPING_LIMIT).map(value => {
+    const mapping = object(value, ['tenantId', 'projectId', 'contextKey', 'documents']);
+    const documents = list(mapping.documents, DOCUMENT_LIMIT, 1).map(value => {
+      const document = object(value, ['viewerDocumentId', 'erpDocumentId']);
+      return { viewerDocumentId: id(document.viewerDocumentId), erpDocumentId: id(document.erpDocumentId, erpId) };
+    });
+    documentCount += documents.length; if (documentCount > DOCUMENT_LIMIT) throw unavailable();
+    unique(documents, row => row.viewerDocumentId); unique(documents, row => row.erpDocumentId);
+    return { tenantId: id(mapping.tenantId, erpId), projectId: id(mapping.projectId, erpId), contextKey: id(mapping.contextKey), documents };
+  });
+  unique(mappings, row => JSON.stringify([row.tenantId, row.projectId, row.contextKey]));
+  // A viewer document cannot ambiguously represent two ERP records/projects within one company.
+  const owners = new Map<string, string>();
+  for (const mapping of mappings) for (const document of mapping.documents) {
+    const key = JSON.stringify([mapping.tenantId, document.viewerDocumentId]), owner = JSON.stringify([mapping.projectId, document.erpDocumentId]);
+    if (owners.has(key) && owners.get(key) !== owner) throw unavailable();
+    owners.set(key, owner);
+  }
+  let grantDocumentCount = 0;
+  const guestReviews = version === 'tayco-takeoff-viewer-access/v1' ? [] : list(row.guestReviews, MAPPING_LIMIT).map(value => {
+    const grant = object(value, ['tenantId', 'guestId', 'projectId', 'period', 'viewerDocumentIds']);
+    if (typeof grant.period !== 'string' || !periodPattern.test(grant.period)) throw unavailable();
+    const viewerDocumentIds = ids(grant.viewerDocumentIds, DOCUMENT_LIMIT, 1);
+    grantDocumentCount += viewerDocumentIds.length; if (grantDocumentCount > DOCUMENT_LIMIT) throw unavailable();
+    const tenantId = id(grant.tenantId, erpId), projectId = id(grant.projectId, erpId);
+    const approved = new Set(mappings.filter(mapping => mapping.tenantId === tenantId && mapping.projectId === projectId).flatMap(mapping => mapping.documents.map(document => document.viewerDocumentId)));
+    if (viewerDocumentIds.some(documentId => !approved.has(documentId))) throw unavailable();
+    return { tenantId, guestId: id(grant.guestId, erpId), projectId, period: grant.period, viewerDocumentIds };
+  });
+  unique(guestReviews, grant => JSON.stringify([grant.tenantId, grant.guestId, grant.projectId, grant.period]));
+  return { schemaVersion: version, bundleId: id(row.bundleId), relationsSha256: id(row.relationsSha256, sha256), mappings, guestReviews };
+}
+function policies(guest?: Actor, projectId?: string) {
+  const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH, relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH;
+  if (!mappingPath || !relationsPath) throw guest ? guestDenied() : unavailable();
+  if (guest && (!existsSync(mappingPath) || !existsSync(relationsPath))) throw guestDenied();
+  const config = parseConfig(json(readPolicyFile(mappingPath, MAPPING_BYTES)));
+  if (guest && (config.schemaVersion !== 'tayco-takeoff-viewer-access/v2' || !config.guestReviews.some(grant => grant.tenantId === guest.tenantId && grant.guestId === guest.id && (projectId === undefined || grant.projectId === projectId)))) throw guestDenied();
+  const artifact = readPolicyFile(relationsPath, RELATIONS_BYTES);
+  if (createHash('sha256').update(artifact).digest('hex') !== config.relationsSha256) throw unavailable();
+  const relations = parseRelations(json(artifact));
+  if (config.bundleId !== relations.bundleId) throw unavailable();
+  const contexts = new Map(relations.contexts.map(context => [context.contextKey, context]));
+  const documents = new Map(relations.documents.map(document => [document.documentId, document]));
+  for (const mapping of config.mappings) {
+    const context = contexts.get(mapping.contextKey);
+    if (!context || context.identityStatus !== 'resolved') throw unavailable();
+    for (const document of mapping.documents) if (documents.get(document.viewerDocumentId)?.contextKeys[0] !== mapping.contextKey) throw unavailable();
+  }
+  return { config, relations, documents };
+}
+function intact(entry: Entry): boolean {
+  return Boolean(entry.data && typeof entry.data === 'object' && !Array.isArray(entry.data) && !entry.data.deletedAt && !entry.data.purgedAt);
+}
+function assertActor(actor: Actor) {
+  if (!actor || !['admin', 'staff', 'client', 'vendor', 'guest'].includes(actor.role) || typeof actor.id !== 'string' || !erpId.test(actor.id) ||
+    typeof actor.tenantId !== 'string' || !erpId.test(actor.tenantId) || !Array.isArray(actor.projectIds) || actor.projectIds.length > DOCUMENT_LIMIT ||
+    actor.projectIds.some(value => typeof value !== 'string' || !erpId.test(value)) || new Set(actor.projectIds).size !== actor.projectIds.length ||
+    (actor.role === 'guest' && (actor.projectIds.length !== 0 || actor.vendorId !== undefined)))
+    throw new TakeoffViewerAccessError(403, 'This account cannot access the Takeoff viewer.');
+}
+type ProjectReviewRow = { name: unknown; status: unknown; progress: unknown; progress_type: unknown; commercial_stage: unknown; completed_stages: unknown; deleted_at: unknown; purged_at: unknown };
+type GuestPolicy = ReturnType<typeof policies>;
+function usableGuestGrants(actor: Actor, policy: GuestPolicy, projectId?: string) {
+  const grants = policy.config.guestReviews.filter(grant => grant.tenantId === actor.tenantId && grant.guestId === actor.id && (projectId === undefined || grant.projectId === projectId));
+  if (!grants.length) return [];
+  // Guest-specific, parameterized projections. Never snapshot(), fabricate a staff actor, or read raw payloads.
+  const db = database();
+  const projectQuery = db.prepare(`SELECT json_extract(payload,'$.name') AS name,json_extract(payload,'$.status') AS status,
+    json_extract(payload,'$.progress') AS progress,json_type(payload,'$.progress') AS progress_type,
+    json_extract(payload,'$.commercialProgress.currentStage') AS commercial_stage,
+    json_extract(payload,'$.commercialProgress.reportedCompletedStages') AS completed_stages,
+    json_extract(payload,'$.deletedAt') AS deleted_at,json_extract(payload,'$.purgedAt') AS purged_at
+    FROM records WHERE id=? AND tenant_id=? AND kind='project' AND json_valid(payload) AND json_type(payload)='object'`);
+  const documentQuery = db.prepare(`SELECT id,json_extract(payload,'$.type') AS document_type,
+    json_extract(payload,'$.deletedAt') AS deleted_at,json_extract(payload,'$.purgedAt') AS purged_at
+    FROM records WHERE id=? AND tenant_id=? AND project_id=? AND kind='document' AND json_valid(payload) AND json_type(payload)='object'`);
+  return grants.flatMap(grant => {
+    const project = projectQuery.get(grant.projectId, actor.tenantId) as ProjectReviewRow | undefined;
+    if (!project || project.deleted_at || project.purged_at) return [];
+    const mapped = new Map(policy.config.mappings.filter(mapping => mapping.tenantId === actor.tenantId && mapping.projectId === grant.projectId).flatMap(mapping => mapping.documents.map(document => [document.viewerDocumentId, document.erpDocumentId] as const)));
+    const documentIds = grant.viewerDocumentIds.filter(documentId => {
+      const erpDocumentId = mapped.get(documentId); if (!erpDocumentId) return false;
+      const document = documentQuery.get(erpDocumentId, actor.tenantId, grant.projectId) as { document_type: unknown; deleted_at: unknown; purged_at: unknown } | undefined;
+      return Boolean(document && document.document_type === 'project' && !document.deleted_at && !document.purged_at);
+    });
+    return documentIds.length ? [{ grant, project, documentIds }] : [];
+  });
+}
+function permittedScope(policy: GuestPolicy, allowed: Iterable<string>): ViewerScope {
+  const documentIds = [...new Set(allowed)].sort(), contexts = new Map<string, string[]>(), assetIds = new Set<string>();
+  const documents = documentIds.map(id => {
+    const document = policy.documents.get(id)!;
+    const key = document.contextKeys[0], context = contexts.get(key) ?? []; context.push(id); contexts.set(key, context);
+    for (const assetId of document.assetIds) assetIds.add(assetId);
+    return { id, contextKey: key, assetIds: [...document.assetIds].sort() };
+  });
+  return { bundleId: policy.relations.bundleId, relationsId: policy.relations.relationsId, manifestSha256: policy.relations.manifestSha256,
+    contexts: [...contexts].sort(([a], [b]) => a.localeCompare(b)).map(([key, ids]) => ({ key, documentIds: ids })), documentIds, assetIds: [...assetIds].sort(), documents };
+}
+function projectName(value: unknown) {
+  try { if (typeof value === 'string' && value.length <= 200) return label(value).trim(); } catch { /* Keep private paths and invalid names out of the DTO. */ }
+  return 'Project plans';
+}
+/** Approved guest cards only. An unavailable publication does not interrupt the monthly review. */
+export function guestProjectReviews(actor: Actor): GuestProjectReview[] {
+  assertActor(actor);
+  if (actor.role !== 'guest') return [];
+  try {
+    const policy = policies(actor);
+    return usableGuestGrants(actor, policy).map(({ grant, project, documentIds }) => {
+      const commercialStage = typeof project.commercial_stage === 'string' && (COMMERCIAL_STAGE_CODES as readonly string[]).includes(project.commercial_stage) ? project.commercial_stage : null;
+      let completedStages: string[] = [];
+      try {
+        const completed: unknown = typeof project.completed_stages === 'string' ? JSON.parse(project.completed_stages) : null;
+        if (commercialStage && Array.isArray(completed) && completed.length < COMMERCIAL_STAGE_CODES.length && new Set(completed).size === completed.length && completed.every(stage => typeof stage === 'string' && (COMMERCIAL_STAGE_CODES as readonly string[]).indexOf(stage) >= 0 && (COMMERCIAL_STAGE_CODES as readonly string[]).indexOf(stage) < (COMMERCIAL_STAGE_CODES as readonly string[]).indexOf(commercialStage))) completedStages = [...completed];
+      } catch { /* An invalid completion report supplies no claimed completed stages. */ }
+      return { projectId: grant.projectId, name: projectName(project.name), period: grant.period,
+        status: typeof project.status === 'string' && ['planning', 'active', 'on_hold', 'paused', 'completed', 'cancelled'].includes(project.status) ? project.status : 'unknown',
+        progress: ['integer', 'real'].includes(String(project.progress_type)) && typeof project.progress === 'number' && Number.isFinite(project.progress) && project.progress >= 0 && project.progress <= 100 ? project.progress : null,
+        commercialStage, completedStages, documentCount: documentIds.length };
+    }).sort((a, b) => b.period.localeCompare(a.period) || a.name.localeCompare(b.name) || a.projectId.localeCompare(b.projectId));
+  } catch { return []; }
+}
+
+/**
+ * Fresh permissions per resource request. Relations identify candidates; ERP grants access.
+ * v1 documents grant whole registered files, including assets shared by another document.
+ * An asset grant never grants sibling document/context metadata. Page-subset grants are unsupported.
+ */
+export function viewerScope(actor: Actor, projectId?: string): ViewerScope {
+  assertActor(actor);
+  if (projectId !== undefined && (typeof projectId !== 'string' || !erpId.test(projectId))) throw actor.role === 'guest' ? guestDenied() : denied();
+  try {
+    const policy = policies(actor.role === 'guest' ? actor : undefined, projectId);
+    if (actor.role === 'guest') {
+      const grants = usableGuestGrants(actor, policy, projectId);
+      if (!grants.length) throw guestDenied();
+      return permittedScope(policy, grants.flatMap(grant => grant.documentIds));
+    }
+    const { config, relations, documents } = policy;
+    const candidates = config.mappings.filter(mapping => mapping.tenantId === actor.tenantId && (projectId === undefined || mapping.projectId === projectId));
+    if (!candidates.length) throw denied();
+    const projects = new Set(snapshot(actor).entries.filter(entry => entry.kind === 'project' && entry.tenantId === actor.tenantId && intact(entry)).map(entry => entry.id));
+    const contexts = new Map<string, Set<string>>(), documentIds = new Set<string>(), assetIds = new Set<string>();
+    for (const mapping of candidates) {
+      if (!projects.has(mapping.projectId) || (!['admin', 'staff'].includes(actor.role) && !actor.projectIds.includes(mapping.projectId))) continue;
+      for (const mapped of mapping.documents) {
+        let document: Entry;
+        try { document = documentForActor(actor, mapped.erpDocumentId); }
+        catch (error) { if (error instanceof ErpError && [403, 404].includes(error.status)) continue; throw error; }
+        if (document.kind !== 'document' || document.id !== mapped.erpDocumentId || document.tenantId !== actor.tenantId || document.projectId !== mapping.projectId || !intact(document) ||
+          (actor.role === 'client' && document.data.visibility !== 'client') || (actor.role === 'vendor' && document.ownerId !== actor.id)) continue;
+        documentIds.add(mapped.viewerDocumentId);
+        const visible = contexts.get(mapping.contextKey) ?? new Set<string>(); visible.add(mapped.viewerDocumentId); contexts.set(mapping.contextKey, visible);
+        for (const assetId of documents.get(mapped.viewerDocumentId)!.assetIds) assetIds.add(assetId);
+      }
+    }
+    if (!documentIds.size) throw denied();
+    return { bundleId: relations.bundleId, relationsId: relations.relationsId, manifestSha256: relations.manifestSha256,
+      contexts: [...contexts].sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => ({ key, documentIds: [...values].sort() })), documentIds: [...documentIds].sort(), assetIds: [...assetIds].sort(),
+      documents: [...documentIds].sort().map(id => ({ id, contextKey: documents.get(id)!.contextKeys[0], assetIds: [...documents.get(id)!.assetIds].sort() })) };
+  } catch (error) { if (error instanceof TakeoffViewerAccessError) throw error; throw unavailable(); }
+}

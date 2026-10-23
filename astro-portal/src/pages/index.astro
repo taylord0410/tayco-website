@@ -1,0 +1,332 @@
+---
+import AstroPortalLayout from "../layouts/AstroPortalLayout.astro";
+
+const modules = [
+  {
+    code: "MOD-01 · COMMERCIAL CRM",
+    title: "Commercial CRM, Bid Pipeline & Subcontractor Registry",
+    kpi: "$5.88M Pipeline · 5 Active Projects · 29 Trades",
+    desc: "Bidirectional bridge with /estimate, /investor, /vendor-application, and 3-Bid Leveling ($659,900.18 awarded subcontracts).",
+    href: "/portal?tab=MOD_CRM_BIDS",
+  },
+  {
+    code: "MOD-02 · DAVIS-BACON PAYROLL",
+    title: "Construction Payroll, Field Crews & Certified WH-347",
+    kpi: "$213,299.26 Total Labor · 6,536.0 Man-Hours",
+    desc: "Cent-exact reconciliation of Base Wages ($171,324.71), FICA 7.65% ($13,106.34), FUTA/SUTA ($5,825.04), and Workers' Comp ($23,043.17).",
+    href: "/portal?tab=MOD_PAYROLL_CREW",
+  },
+  {
+    code: "MOD-03 · QUICKBOOKS ERP",
+    title: "QuickBooks Desktop (.IIF) & Online (.QBO) Accounting Sync",
+    kpi: "$855,525.23 GMP · $184,892.70 Net AIA G702",
+    desc: "Automated CSI-32 ledger mapping (1100 A/R, 1210 10% Retainage $51,501.13, 5200 8 Material POs $375,012.51) with double-entry audit.",
+    href: "/portal?tab=MOD_QUICKBOOKS_ERP",
+  },
+  {
+    code: "MOD-04 · 9-STATE TAX ENGINE",
+    title: "Multi-State Sales & Use Tax, W-9/COI & IRS 1099-NEC",
+    kpi: "WI · IL · IA · IN · MN · MI · MO · TX · ND",
+    desc: "Separates taxable materials ($375,012.51) from exempt field labor ($213,299.26), Tax-Exempt certificates, 24% IRS backup withholding alerts, and Form 941.",
+    href: "/portal?tab=MOD_TAX_COMPLIANCE",
+  },
+];
+
+const nineStates = [
+  { code: "WI", name: "Wisconsin (HQ)", rate: "5.50%", tax: "$20,625.69", projects: 3, subs: 14 },
+  { code: "IL", name: "Illinois", rate: "8.50%", tax: "$31,876.06", projects: 2, subs: 11 },
+  { code: "IA", name: "Iowa", rate: "7.00%", tax: "$26,250.88", projects: 1, subs: 6 },
+  { code: "IN", name: "Indiana", rate: "7.00%", tax: "$26,250.88", projects: 1, subs: 7 },
+  { code: "MN", name: "Minnesota", rate: "7.375%", tax: "$27,657.17", projects: 2, subs: 9 },
+  { code: "MI", name: "Michigan", rate: "6.00%", tax: "$22,500.75", projects: 1, subs: 8 },
+  { code: "MO", name: "Missouri", rate: "7.50%", tax: "$28,125.94", projects: 1, subs: 6 },
+  { code: "TX", name: "Texas", rate: "8.25%", tax: "$30,938.53", projects: 2, subs: 12 },
+  { code: "ND", name: "North Dakota", rate: "6.50%", tax: "$24,375.81", projects: 2, subs: 10 },
+];
+---
+<AstroPortalLayout title="TAYCO LLC — TAYCO Executive Command">
+  <main style="max-width: 1280px; margin: 0 auto; padding: 2.25rem 1.5rem;">
+    <!-- Hero Bento with Rotating Orbital Stamp (.orbital-caption) & TAYCO Editorial Typography -->
+    <section class="bento-card" data-response-kind="surface" style="padding: 2.4rem; margin-bottom: 1.5rem;">
+      <span class="response-wash" aria-hidden="true"></span>
+      <div class="preview-orbits"></div>
+
+      <!-- Rotating Orbital Stamp (.orbital-caption) -->
+      <div class="orbital-caption" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <path id="tayco-orbital-path" d="M50,50m-36,0a36,36 0 1,1 72,0a36,36 0 1,1-72,0" />
+          </defs>
+          <text>
+            <textPath href="#tayco-orbital-path">TAYCO LLC · 9-STATE ERP · EXECUTIVE COMMAND · </textPath>
+          </text>
+        </svg>
+        <span>✳</span>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.9rem;">
+        <span class="badge">★ TAYCO Executive Command · TAYCO Editorial Architecture</span>
+        <span class="badge badge-orange">TKF-40 · Live Takeoff Pro Telemetry</span>
+      </div>
+      <p class="mono-eyebrow" style="margin-bottom: 0.45rem;">
+        TAYCO EXECUTIVE COMMAND CENTER · 9-STATE TURNKEY OPERATIONS
+      </p>
+      <h1 style="font-size: clamp(2rem, 3.8vw, 3.1rem); font-weight: 900; line-height: 1.12; margin-bottom: 0.9rem; max-width: 960px;">
+        Total Construction Governance with <span class="serif-italic" style="color: var(--gold-bright);">Zero Cognitive Overload</span>
+      </h1>
+      <p style="color: #cbd5e1; max-width: 820px; font-size: 0.98rem; margin-bottom: 1.5rem;">
+        Engineered with Astro 5 Zero-JS static islands and <strong>TAYCO Editorial</strong> interactive surface physics. Adjust the <strong>Light Angle (0°–90°)</strong>, inspect the 24-week Earned Value S-Curve, and generate module-scoped client invitations.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.8rem;">
+        <a href="/portal" class="btn-gold" data-magnetic>🔐 Launch TAYCO Executive Command (/portal) →</a>
+        <a href="/astro-preview/portal/index.html" class="btn-outline" data-magnetic>🎟️ Module-Scoped Invitations Preview</a>
+        <a href="/estimate" class="btn-outline" data-magnetic>🧮 Instant Sq Ft Cost Estimator</a>
+      </div>
+    </section>
+
+    <!-- Editorial Italic Kinetic Marquee Ticker (.tayco-editorial-ticker) -->
+    <div class="tayco-editorial-ticker" aria-hidden="true">
+      <div>
+        <span>TAYCO LLC · Precision Construction Governance Across 9 States</span>
+        <i>✳</i>
+        <span>$855,525.23 GMP Reconciled to the Cent · 6,536.0 Certified Man-Hours</span>
+        <i>✳</i>
+        <span>TAYCO Executive Command · Real-Time AIA G702 &amp; WH-347 Telemetry</span>
+        <i>✳</i>
+        <span>TAYCO LLC · Precision Construction Governance Across 9 States</span>
+        <i>✳</i>
+        <span>$855,525.23 GMP Reconciled to the Cent · 6,536.0 Certified Man-Hours</span>
+        <i>✳</i>
+      </div>
+    </div>
+
+    <!-- SVG Horizon Wave Divider (.chromatic-horizon) -->
+    <div class="chromatic-horizon" aria-hidden="true">
+      <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+        <path class="horizon-land" d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z" />
+        <path class="horizon-trace a" d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50" />
+        <path class="horizon-trace b" d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25" />
+      </svg>
+    </div>
+
+    <!-- Interactive SVG Telemetry Grid: S-Curve + CSI-32 Donut -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.35rem; margin-bottom: 1.75rem;">
+      <!-- 1. Bi-Weekly Cash-Flow S-Curve SVG (W02..W24) -->
+      <article class="bento-card" data-response-kind="surface">
+        <span class="response-wash" aria-hidden="true"></span>
+        <div class="preview-orbits"></div>
+        <div class="mono-eyebrow" style="margin-bottom: 0.3rem;">
+          EARNED VALUE &amp; AIA G702 CASH-FLOW S-CURVE (W02 – W24)
+        </div>
+        <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.35rem;">
+          Son of a Star Phase 1 · <span class="serif-italic" style="color: var(--gold-bright);">$855,525.23 GMP</span>
+        </h2>
+        <p style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 1rem;">
+          Active Cutoff <strong>W14</strong>: Earned Value <strong>$515,011.33</strong> (60.2%) · Net AIA G702 Due <strong>$184,892.70</strong> · <code>CPI = 1.04</code> · <code>SPI = 0.98</code>
+        </p>
+
+        <svg viewBox="0 0 520 210" width="100%" height="210" role="img" aria-label="Bi-Weekly Cash-Flow S-Curve W02 to W24">
+          <defs>
+            <linearGradient id="scurveAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.34" />
+              <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02" />
+            </linearGradient>
+          </defs>
+          <g stroke="rgba(244,242,234,0.14)" stroke-width="1">
+            <line x1="42" y1="24" x2="496" y2="24" />
+            <line x1="42" y1="68" x2="496" y2="68" />
+            <line x1="42" y1="112" x2="496" y2="112" />
+            <line x1="42" y1="156" x2="496" y2="156" />
+            <line x1="42" y1="184" x2="496" y2="184" />
+          </g>
+          <!-- Planned Value Curve W02..W24 ($42.7k -> $855.5k) -->
+          <path
+            d="M 48 176 L 88 164 L 128 148 L 168 128 L 208 106 L 248 88 L 288 74 L 328 56 L 368 42 L 408 32 L 448 27 L 488 24 L 488 184 L 48 184 Z"
+            fill="url(#scurveAreaGrad)"
+          />
+          <polyline
+            fill="none"
+            stroke="#C9A84C"
+            stroke-width="2.6"
+            points="48,176 88,164 128,148 168,128 208,106 248,88 288,74 328,56 368,42 408,32 448,27 488,24"
+          />
+          <!-- Earned Value Curve W02..W14 ($44.5k -> $515.0k) -->
+          <polyline
+            fill="none"
+            stroke="#F97316"
+            stroke-width="3"
+            points="48,175 88,162 128,146 168,126 208,107 248,90 288,76"
+          />
+          <!-- Active W14 Cutoff Marker -->
+          <line x1="288" y1="20" x2="288" y2="184" stroke="#F3D37A" stroke-width="1.4" stroke-dasharray="4,3" />
+          <circle cx="288" cy="76" r="5.5" fill="#F97316" stroke="#070E1A" stroke-width="2" />
+          <circle cx="488" cy="24" r="5" fill="#C9A84C" stroke="#070E1A" stroke-width="2" />
+          <text x="288" y="16" text-anchor="middle" fill="#F3D37A" font-family="monospace" font-size="9.5" font-weight="bold">
+            W14 CUTOFF · EV $515,011
+          </text>
+          <text x="486" y="16" text-anchor="end" fill="#C9A84C" font-family="monospace" font-size="9.5" font-weight="bold">
+            W24 · $855,525
+          </text>
+          <g fill="#cbd5e1" font-family="monospace" font-size="9">
+            <text x="48" y="198" text-anchor="middle">W02</text>
+            <text x="128" y="198" text-anchor="middle">W06</text>
+            <text x="208" y="198" text-anchor="middle">W10</text>
+            <text x="288" y="198" text-anchor="middle">W14</text>
+            <text x="368" y="198" text-anchor="middle">W18</text>
+            <text x="488" y="198" text-anchor="middle">W24</text>
+          </g>
+        </svg>
+      </article>
+
+      <!-- 2. CSI-32 Cost & Man-Hour Donut Ring SVG -->
+      <article class="bento-card" data-response-kind="surface">
+        <span class="response-wash" aria-hidden="true"></span>
+        <div class="preview-orbits"></div>
+        <div class="mono-eyebrow" style="margin-bottom: 0.3rem;">
+          CSI-32 COST ARCHITECTURE &amp; 6,536.0 MAN-HOURS
+        </div>
+        <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.35rem;">
+          4-Block GMP Ring · <span class="serif-italic" style="color: var(--gold-bright);">100% Reconciled</span>
+        </h2>
+        <p style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 1rem;">
+          Direct Cost <strong>$684,420.18</strong> + Overhead &amp; Fee <strong>$171,105.05</strong> = <strong>$855,525.23</strong>
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem;">
+          <svg viewBox="0 0 180 180" width="165" height="165" role="img" aria-label="CSI-32 GMP Donut Chart">
+            <circle cx="90" cy="90" r="64" fill="none" stroke="rgba(244,242,234,0.12)" stroke-width="20" />
+            <!-- Materials 43.83% -->
+            <circle cx="90" cy="90" r="64" fill="none" stroke="#C9A84C" stroke-width="20" stroke-dasharray="176.2 402.1" stroke-dashoffset="0" transform="rotate(-90 90 90)" />
+            <!-- Field Labor 24.93% -->
+            <circle cx="90" cy="90" r="64" fill="none" stroke="#F97316" stroke-width="20" stroke-dasharray="100.2 402.1" stroke-dashoffset="-176.2" transform="rotate(-90 90 90)" />
+            <!-- Equipment 11.23% -->
+            <circle cx="90" cy="90" r="64" fill="none" stroke="#F3D37A" stroke-width="20" stroke-dasharray="45.2 402.1" stroke-dashoffset="-276.4" transform="rotate(-90 90 90)" />
+            <!-- Overhead & Fee 20.00% -->
+            <circle cx="90" cy="90" r="64" fill="none" stroke="#1B3A6B" stroke-width="20" stroke-dasharray="80.5 402.1" stroke-dashoffset="-321.6" transform="rotate(-90 90 90)" />
+            <text x="90" y="86" text-anchor="middle" fill="#F4F2EA" font-family="monospace" font-size="12" font-weight="bold">
+              $855,525
+            </text>
+            <text x="90" y="103" text-anchor="middle" fill="#F3D37A" font-family="monospace" font-size="9.5">
+              6,536.0 MH
+            </text>
+          </svg>
+
+          <div style="flex: 1; min-width: 210px; display: grid; gap: 0.45rem; font-size: 0.8rem;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(244,242,234,0.15); padding-bottom: 0.25rem;">
+              <span>🟡 Materials (8 POs)</span>
+              <strong style="font-family: var(--font-mono); color: var(--gold-bright);">$375,012.51 (43.8%)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(244,242,234,0.15); padding-bottom: 0.25rem;">
+              <span>🟠 Field Labor (WH-347)</span>
+              <strong style="font-family: var(--font-mono); color: #fdba74;">$213,299.26 (24.9%)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(244,242,234,0.15); padding-bottom: 0.25rem;">
+              <span>✨ Fleet &amp; Equipment</span>
+              <strong style="font-family: var(--font-mono); color: #F4F2EA;">$96,108.41 (11.2%)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>🔷 Overhead, Cont. &amp; Fee</span>
+              <strong style="font-family: var(--font-mono); color: #93c5fd;">$171,105.05 (20.0%)</strong>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Warm Editorial Ivory (#F4F2EA) Contrast Section -->
+    <section class="editorial-ivory-section" style="margin-bottom: 1.75rem;">
+      <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+        TAYCO EDITORIAL · WARM IVORY EXECUTIVE BRIEFING (#F4F2EA)
+      </div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.25rem;">
+        <div style="max-width: 760px;">
+          <h2 style="font-size: 1.45rem; font-weight: 900; color: #070E1A; margin-bottom: 0.45rem;">
+            Architectural Clarity Meets <span class="serif-italic" style="color: #1B3A6B;">Cent-Exact Construction Accounting</span>
+          </h2>
+          <p style="font-size: 0.88rem; color: #0F2040;">
+            Every purchase order, Davis-Bacon certified payroll row, and multi-state tax exemption certificate is cross-verified between TAYCO Executive Command and QuickBooks ERP.
+          </p>
+        </div>
+        <a href="/portal" class="btn-gold" data-magnetic>Inspect Live Ledger →</a>
+      </div>
+    </section>
+
+    <!-- 4 Enterprise Modules Bento Grid -->
+    <section style="margin-bottom: 1.75rem;">
+      <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+        MODULE-SCOPED ENTERPRISE ARCHITECTURE
+      </div>
+      <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 1rem;">
+        The 4 Corporate ERP Pillars Synchronized with <span class="serif-italic" style="color: var(--gold-bright);">Takeoff Pro</span>
+      </h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 1.15rem;">
+        {modules.map((m) => (
+          <a href={m.href} class="bento-card" data-response-kind="surface" style="display: block;">
+            <span class="response-wash" aria-hidden="true"></span>
+            <div class="preview-orbits"></div>
+            <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+              {m.code}
+            </div>
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--construction-orange); margin-bottom: 0.45rem;">
+              {m.kpi}
+            </div>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #F4F2EA; margin-bottom: 0.55rem;">
+              {m.title}
+            </h3>
+            <p style="font-size: 0.83rem; color: #cbd5e1; margin-bottom: 0.9rem;">
+              {m.desc}
+            </p>
+            <span class="mono-eyebrow">Open in TAYCO Executive Command →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Reverse SVG Horizon Wave Divider (.chromatic-horizon.reverse) -->
+    <div class="chromatic-horizon reverse" aria-hidden="true">
+      <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+        <path class="horizon-land" d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z" />
+        <path class="horizon-trace a" d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50" />
+        <path class="horizon-trace b" d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25" />
+      </svg>
+    </div>
+
+    <!-- 9-State Tax & Operational Footprint Matrix -->
+    <section class="bento-card" data-response-kind="surface">
+      <span class="response-wash" aria-hidden="true"></span>
+      <div class="preview-orbits"></div>
+      <div class="mono-eyebrow" style="margin-bottom: 0.35rem;">
+        MULTI-STATE TAX &amp; COMPLIANCE FOOTPRINT (9 STATES)
+      </div>
+      <h2 style="font-size: 1.25rem; font-weight: 900; margin-bottom: 0.85rem;">
+        Midwest, Texas &amp; North Dakota Sales Tax on <span class="serif-italic" style="color: var(--gold-bright);">$375,012.51 Taxable Materials</span>
+      </h2>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--accent-border); text-align: left; color: var(--gold-bright); font-family: var(--font-mono);">
+              <th style="padding: 0.55rem;">State</th>
+              <th style="padding: 0.55rem;">Jurisdiction</th>
+              <th style="padding: 0.55rem;">Combined Rate</th>
+              <th style="padding: 0.55rem;">Est. Material Tax</th>
+              <th style="padding: 0.55rem;">Active Projects</th>
+              <th style="padding: 0.55rem;">Prequalified Subs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {nineStates.map((st) => (
+              <tr style="border-bottom: 1px solid rgba(244,242,234,0.14);">
+                <td style="padding: 0.5rem; font-family: var(--font-mono); font-weight: 800; color: var(--gold-primary);">{st.code}</td>
+                <td style="padding: 0.5rem;">{st.name}</td>
+                <td style="padding: 0.5rem; font-family: var(--font-mono);">{st.rate}</td>
+                <td style="padding: 0.5rem; font-family: var(--font-mono); color: var(--construction-orange); font-weight: 700;">{st.tax}</td>
+                <td style="padding: 0.5rem; font-family: var(--font-mono);">{st.projects}</td>
+                <td style="padding: 0.5rem; font-family: var(--font-mono);">{st.subs}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</AstroPortalLayout>

@@ -1,122 +1,358 @@
 "use client";
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
 const SECTORS = [
-  { key: "residential", label: "Residential" },
-  { key: "multifamily", label: "Multifamily" },
-  { key: "commercial", label: "Commercial" },
+  { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },
+  { key: "multifamily", label: "Multifamily", badge: "Multi-Unit & Hospitality" },
+  { key: "commercial", label: "Commercial", badge: "Ground-Up & Tenant TI" },
 ] as const;
 
 type SectorKey = (typeof SECTORS)[number]["key"];
 
-// Each trade has one photo per sector at /work/<slug>_<sector>.jpg
 const TRADES = [
-  { slug: "framing", name: "Framing" },
-  { slug: "carpentry", name: "Carpentry" },
-  { slug: "roofing", name: "Roofing" },
-  { slug: "siding", name: "Siding" },
-  { slug: "drywall", name: "Drywall" },
-  { slug: "painting", name: "Painting" },
-  { slug: "flooring", name: "Flooring" },
-  { slug: "stone", name: "Stone" },
+  {
+    slug: "framing",
+    name: "Framing",
+    csi: "CSI 06 11 00",
+    rate: "Project-specific estimate",
+    spec: "Wall, floor and roof framing for your project",
+  },
+  {
+    slug: "carpentry",
+    name: "Carpentry",
+    csi: "CSI 06 41 00",
+    rate: "Project-specific estimate",
+    spec: "Cabinetry, trim, millwork and finishing details",
+  },
+  {
+    slug: "roofing",
+    name: "Roofing",
+    csi: "CSI 07 50 00",
+    rate: "Project-specific estimate",
+    spec: "Roof repairs, replacements and material options",
+  },
+  {
+    slug: "siding",
+    name: "Siding",
+    csi: "CSI 07 46 00",
+    rate: "Project-specific estimate",
+    spec: "Siding, exterior trim and weather protection",
+  },
+  {
+    slug: "drywall",
+    name: "Drywall",
+    csi: "CSI 09 29 00",
+    rate: "Project-specific estimate",
+    spec: "Walls, ceilings, smooth finishes and repairs",
+  },
+  {
+    slug: "painting",
+    name: "Painting",
+    csi: "CSI 09 91 00",
+    rate: "Project-specific estimate",
+    spec: "Interior and exterior preparation and coatings",
+  },
+  {
+    slug: "flooring",
+    name: "Flooring",
+    csi: "CSI 09 60 00",
+    rate: "Project-specific estimate",
+    spec: "Wood, tile, vinyl, concrete and specialty finishes",
+  },
+  {
+    slug: "stone",
+    name: "Stone",
+    csi: "CSI 04 43 00",
+    rate: "Project-specific estimate",
+    spec: "Stone finishes, masonry and surface details",
+  },
 ];
 
-const photo = (trade: string, sector: SectorKey) => `/work/${trade}_${sector}.jpg`;
+const photo = (trade: string, sector: SectorKey) =>
+  `/work/${trade}_${sector}.jpg`;
 
-// Flooring also shows two photos per type at /work/flooring/<slug>_<1|2>.jpg
 const FLOOR_TYPES = [
-  { slug: "hardwood", name: "Hardwood" },
-  { slug: "engineered-hardwood", name: "Engineered Hardwood" },
-  { slug: "lvp", name: "Luxury Vinyl Plank" },
-  { slug: "lvt", name: "Luxury Vinyl Tile" },
-  { slug: "laminate", name: "Laminate" },
-  { slug: "ceramic-tile", name: "Ceramic Tile" },
-  { slug: "porcelain-tile", name: "Porcelain Tile" },
-  { slug: "natural-stone", name: "Natural Stone" },
-  { slug: "carpet", name: "Carpet" },
-  { slug: "sheet-vinyl", name: "Sheet Vinyl" },
-  { slug: "epoxy", name: "Epoxy" },
-  { slug: "polished-concrete", name: "Polished Concrete" },
-  { slug: "rubber", name: "Rubber" },
-  { slug: "bamboo", name: "Bamboo" },
-  { slug: "cork", name: "Cork" },
+  { slug: "hardwood", name: "Hardwood", csi: "CSI 09 64 00" },
+  {
+    slug: "engineered-hardwood",
+    name: "Engineered Hardwood",
+    csi: "CSI 09 64 29",
+  },
+  { slug: "lvp", name: "Luxury Vinyl Plank", csi: "CSI 09 65 19" },
+  { slug: "lvt", name: "Luxury Vinyl Tile", csi: "CSI 09 65 19" },
+  { slug: "laminate", name: "Laminate", csi: "CSI 09 62 00" },
+  { slug: "ceramic-tile", name: "Ceramic Tile", csi: "CSI 09 30 13" },
+  { slug: "porcelain-tile", name: "Porcelain Tile", csi: "CSI 09 30 13" },
+  { slug: "natural-stone", name: "Natural Stone", csi: "CSI 09 63 40" },
+  { slug: "carpet", name: "Carpet", csi: "CSI 09 68 00" },
+  { slug: "sheet-vinyl", name: "Sheet Vinyl", csi: "CSI 09 65 16" },
+  { slug: "epoxy", name: "Epoxy", csi: "CSI 09 67 23" },
+  {
+    slug: "polished-concrete",
+    name: "Polished Concrete",
+    csi: "CSI 03 35 43",
+  },
+  { slug: "rubber", name: "Rubber", csi: "CSI 09 65 00" },
+  { slug: "bamboo", name: "Bamboo", csi: "CSI 09 64 00" },
+  { slug: "cork", name: "Cork", csi: "CSI 09 65 00" },
 ];
 
 export default function TradeGallery() {
   const [active, setActive] = useState(TRADES[0].slug);
-  const [zoom, setZoom] = useState<{ src: string; alt: string } | null>(null);
+  const [zoom, setZoom] = useState<{
+    src: string;
+    alt: string;
+    csi: string;
+  } | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (!zoom || !dialogRef.current) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    dialogRef.current.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; previousFocus?.focus(); };
+  }, [zoom]);
   const trade = TRADES.find((t) => t.slug === active) ?? TRADES[0];
 
   return (
-    <>
-      {/* Trade selector */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10" role="tablist" aria-label="Trades">
+    <div className="space-y-8">
+      {/* Project services and resources */}
+      <div
+        className="flex flex-wrap justify-center gap-2.5"
+        role="group"
+        aria-label="Choose a trade"
+      >
         {TRADES.map((t) => {
           const on = t.slug === active;
           return (
             <button
               key={t.slug}
               type="button"
-              role="tab"
-              aria-selected={on}
+              aria-pressed={active === t.slug}
+              data-magnetic
               onClick={() => setActive(t.slug)}
-              className="px-5 py-2 rounded-full text-sm font-semibold border-2 transition-colors"
-              style={on
-                ? { background: "#0F2040", borderColor: "#0F2040", color: "#C9A84C" }
-                : { background: "white", borderColor: "#E2E8F0", color: "#0F2040" }}
+              className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center gap-2"
+              style={
+                on
+                  ? {
+                      background:
+                        "linear-gradient(135deg, #0F2040 0%, #1B3A6B 100%)",
+                      borderColor: "#C9A84C",
+                      color: "#F3D37A",
+                      boxShadow: "0 10px 24px -10px rgba(201, 168, 76, 0.55)",
+                    }
+                  : {
+                      background: "rgba(15, 32, 64, 0.78)",
+                      borderColor: "rgba(201, 168, 76, 0.28)",
+                      color: "#E2E8F0",
+                    }
+              }
             >
-              {t.name}
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded font-black"
+                style={{
+                  background: on
+                    ? "#C9A84C"
+                    : "rgba(201, 168, 76, 0.16)",
+                  color: on ? "#070E1A" : "#F3D37A",
+                }}
+              >
+                {t.csi}
+              </span>
+              <span>{t.name}</span>
             </button>
           );
         })}
       </div>
 
-      {/* One gallery per trade, grouped by sector */}
-      <div className="grid md:grid-cols-3 gap-6" role="tabpanel" aria-label={trade.name}>
+      {/* Project services and resources */}
+      <div
+        data-response-kind="surface"
+        className="tayco-living-card p-5 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(15, 32, 64, 0.94) 0%, rgba(27, 58, 107, 0.9) 100%)",
+          borderColor: "rgba(201, 168, 76, 0.45)",
+        }}
+      >
+        <div>
+          <div className="tayco-eyebrow mb-1" style={{ color: "#F3D37A" }}>
+            <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+            {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
+          </div>
+          <p className="text-xs sm:text-sm text-slate-200 font-medium">
+            {trade.spec}. Explore residential, multifamily and commercial applications.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <Link
+            href={`/estimate?trade=${encodeURIComponent(trade.csi)}`}
+            data-magnetic
+            className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
+            style={{ background: "#C9A84C", color: "#070E1A" }}
+          >
+            Discuss {trade.name.toLowerCase()} →
+          </Link>
+          <Link
+            href="/login"
+            data-magnetic
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white border hover:bg-white/10 transition-colors"
+            style={{ borderColor: "rgba(201, 168, 76, 0.5)" }}
+          >
+            Client sign in →
+          </Link>
+        </div>
+      </div>
+
+      {/* 3 Sector Photo Cards per Trade */}
+      <div
+        className="grid md:grid-cols-3 gap-6"
+        role="tabpanel"
+        aria-label={trade.name}
+      >
         {SECTORS.map((s) => {
           const src = photo(trade.slug, s.key);
-          const alt = `${trade.name} — ${s.label}`;
+          const alt = `${trade.name} (${trade.csi}) — ${s.label}`;
           return (
-            <figure key={s.key} className="m-0">
-              <figcaption className="text-xs font-bold uppercase tracking-[0.2em] mb-3 text-center" style={{ color: "#C9A84C" }}>
-                {s.label}
-              </figcaption>
+            <figure
+              key={s.key}
+              data-response-kind="surface"
+              className="tayco-living-card m-0 rounded-2xl overflow-hidden border p-3.5 flex flex-col justify-between group"
+              style={{
+                background:
+                  "linear-gradient(155deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))",
+                borderColor: "rgba(201, 168, 76, 0.35)",
+              }}
+            >
+              <div className="flex items-center justify-between gap-2 mb-3 px-1">
+                <div>
+                  <figcaption
+                    className="text-xs font-black uppercase tracking-[0.18em]"
+                    style={{ color: "#F3D37A" }}
+                  >
+                    {s.label}
+                  </figcaption>
+                  <div className="text-[10px] font-mono text-slate-400">
+                    {trade.csi} · {s.badge}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setZoom({ src, alt, csi: trade.csi })}
+                  aria-label={`Zoom ${alt}`}
+                  className="project-open cursor-pointer"
+                >
+                  🔍
+                </button>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setZoom({ src, alt })}
-                className="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow aspect-[3/2]"
+                onClick={() => setZoom({ src, alt, csi: trade.csi })}
+                className="relative block w-full rounded-xl overflow-hidden aspect-[3/2] border cursor-pointer"
+                style={{ borderColor: "rgba(201, 168, 76, 0.28)" }}
               >
-                <img src={src} alt={alt} className="w-full h-full object-cover" loading="lazy" />
+                <Image
+                  fill
+                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                  src={src}
+                  alt={alt}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <span
+                  className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold backdrop-blur-md border"
+                  style={{
+                    background: "rgba(7, 14, 26, 0.82)",
+                    borderColor: "rgba(201, 168, 76, 0.5)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  Open photo ↗
+                </span>
               </button>
+
+              <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-white/10 text-[11px] font-mono">
+                <Link
+                  href={`/estimate?sector=${s.key}&trade=${encodeURIComponent(trade.csi)}`}
+                  className="font-bold text-amber-300 hover:underline"
+                >
+                  Discuss this service →
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-slate-300 hover:text-white"
+                >
+                  /portal ↗
+                </Link>
+              </div>
             </figure>
           );
         })}
       </div>
 
-      {/* Flooring: two photos per type */}
+      {/* Project services and resources */}
       {trade.slug === "flooring" && (
-        <div className="mt-14">
-          <h3 className="text-center text-xl font-bold mb-8" style={{ color: "#0F2040" }}>
-            Types of Flooring
-          </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="mt-12 pt-8 border-t border-white/15">
+          <div className="text-center mb-8">
+            <div
+              className="tayco-eyebrow justify-center mb-1"
+              style={{ color: "#F3D37A" }}
+            >
+              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+              CSI 09 60 00 / 03 35 43 FLOORING MATERIAL MATRIX
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white">
+              Explore 15 flooring options
+            </h3>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {FLOOR_TYPES.map((f) => (
-              <figure key={f.slug} className="m-0">
-                <figcaption className="text-xs font-bold uppercase tracking-[0.2em] mb-3 text-center" style={{ color: "#C9A84C" }}>
-                  {f.name}
-                </figcaption>
+              <figure
+                key={f.slug}
+                data-response-kind="surface"
+                className="tayco-living-card m-0 p-4 rounded-2xl border"
+                style={{
+                  background: "rgba(15, 32, 64, 0.88)",
+                  borderColor: "rgba(201, 168, 76, 0.32)",
+                }}
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <figcaption
+                    className="text-xs font-black uppercase tracking-wider"
+                    style={{ color: "#F3D37A" }}
+                  >
+                    {f.name}
+                  </figcaption>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/15 text-amber-200 border border-amber-400/30">
+                    {f.csi}
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   {[1, 2].map((n) => {
                     const src = `/work/flooring/${f.slug}_${n}.jpg`;
-                    const alt = `${f.name} flooring ${n}`;
+                    const alt = `${f.name} (${f.csi}) flooring ${n}`;
                     return (
                       <button
                         key={n}
                         type="button"
-                        onClick={() => setZoom({ src, alt })}
-                        className="block w-full rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow aspect-[3/2]"
+                        onClick={() => setZoom({ src, alt, csi: f.csi })}
+                        className="relative block w-full rounded-xl overflow-hidden border aspect-[3/2] cursor-pointer hover:opacity-95 transition-opacity"
+                        style={{ borderColor: "rgba(201, 168, 76, 0.28)" }}
                       >
-                        <img src={src} alt={alt} className="w-full h-full object-cover" loading="lazy" />
+                        <Image
+                          fill
+                          sizes="(min-width: 1024px) 28vw, (min-width: 640px) 42vw, 85vw"
+                          src={src}
+                          alt={alt}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       </button>
                     );
                   })}
@@ -127,25 +363,77 @@ export default function TradeGallery() {
         </div>
       )}
 
-      {/* Lightbox */}
+      {/* Project services and resources */}
       {zoom && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,0.9)" }}
-          onClick={() => setZoom(null)}
+        <dialog
+          ref={dialogRef}
+          aria-label={zoom.alt}
+          onCancel={() => setZoom(null)}
+          className="fixed inset-0 m-0 w-screen h-dvh max-w-none max-h-none flex items-center justify-center p-3 sm:p-4"
+          style={{ background: "rgba(7, 14, 26, 0.94)" }}
+          onClick={(event) => { if (event.target === event.currentTarget) setZoom(null); }}
         >
-          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setZoom(null)}
-              className="absolute -top-10 right-0 text-white text-4xl font-bold leading-none hover:text-yellow-400"
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <img src={zoom.src} alt={zoom.alt} className="w-full object-contain rounded-xl" style={{ maxHeight: "80vh" }} />
+          <div
+            className="relative w-full max-w-5xl max-h-[94dvh] overflow-y-auto rounded-2xl border p-3 sm:p-4"
+            style={{
+              background: "#0F2040",
+              borderColor: "#C9A84C",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                <span
+                  className="px-2.5 py-0.5 rounded text-xs font-mono font-black"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                >
+                  {zoom.csi}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-white">
+                  {zoom.alt}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setZoom(null)}
+                className="px-3 py-1 rounded-lg text-xs font-black text-white border border-white/25 hover:bg-white/10 cursor-pointer"
+                aria-label="Close"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <Image
+              width={1440}
+              height={960}
+              sizes="95vw"
+              src={zoom.src}
+              alt={zoom.alt}
+              className="w-full object-contain rounded-xl border border-white/10"
+              style={{ maxHeight: "65dvh" }}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-white/15">
+              <span className="text-xs font-mono text-slate-300">
+                Trade gallery · Discuss materials and scope with TAYCO
+              </span>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/estimate?trade=${encodeURIComponent(zoom.csi)}`}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-black"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                >
+                  Ask about this trade →
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white border border-amber-400/40"
+                >
+                  Client sign in →
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
+        </dialog>
       )}
-    </>
+    </div>
   );
 }

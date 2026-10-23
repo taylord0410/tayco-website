@@ -1,0 +1,58 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+import type { Actor } from '../lib/auth';
+import { execute, snapshot, database, ErpError } from '../lib/erp';
+const folder=mkdtempSync(path.join(tmpdir(),'tayco-planning-'));
+process.env.TAYCO_ERP_DB_PATH=path.join(folder,'erp.sqlite');process.env.TAYCO_AUTH_DB_PATH=path.join(folder,'auth.sqlite');
+test.after(()=>{database().close();try{rmSync(folder,{recursive:true,force:true});}catch{/* Isolated auth handles close on worker exit. */}});
+const admin:Actor={id:'fixture-admin',email:'fixture@example.test',role:'admin',tenantId:'planning-fixture',projectIds:[]};
+const run=(input:Record<string,unknown>,actor=admin,key=randomUUID())=>execute(actor,key,input);
+const status=(n:number)=>(error:unknown)=>error instanceof ErpError&&error.status===n;
+const today=new Date().toISOString().slice(0,10);
+test('planning sources persist and cancel without creating invoices, cash or estimate changes',()=>{
+ let p=run({action:'create_project',name:'Synthetic planning project'});
+ const base={action:'record_project_forecast',id:p.id,version:p.version,title:'Fixture planned collection',direction:'client_collection',amountUsd:40.05,dueOn:'2026-11-10',source:'Synthetic dated cash schedule'};
+ assert.throws(()=>run({...base,amountUsd:0.001}),status(422));assert.throws(()=>run({...base,amountUsd:0}),status(422));assert.throws(()=>run({...base,dueOn:'2026-02-30'}),status(422));assert.throws(()=>run({...base,source:''}),status(422));
+ const key=randomUUID();p=run(base,admin,key);assert.equal(run(base,admin,key).version,p.version);
+ const plan=(p.data.forecastPlans as {id:string;status:string}[])[0];assert.equal(plan.status,'planned');
+ assert.throws(()=>run({...base,title:'Changed'}),status(409));
+ assert.throws(()=>run({action:'cancel_project_forecast',id:p.id,version:p.version,forecastId:plan.id,cancelReason:''}),status(422));
+ p=run({action:'cancel_project_forecast',id:p.id,version:p.version,forecastId:plan.id,cancelReason:'Revised fixture schedule'});assert.equal((p.data.forecastPlans as {status:string}[])[0].status,'cancelled');
+ assert.throws(()=>run({action:'cancel_project_forecast',id:p.id,version:p.version,forecastId:plan.id,cancelReason:'Again'}),status(409));
+ assert.equal(snapshot(admin).entries.filter(e=>e.projectId===p.id&&['invoice','estimate'].includes(e.kind)).length,0);
+ const client={...admin,id:'fixture-client',role:'client' as const,projectIds:[p.id]};assert.equal('forecastPlans' in snapshot(client).entries.find(e=>e.id===p.id)!.data,false);assert.throws(()=>run({...base,version:p.version},client),status(403));
+});
+test('linked plans validate project, direction, duplicate link and amount before persisting',()=>{
+ let p=run({action:'create_project',name:'Invoice planning fixture'});const other=run({action:'create_project',name:'Other planning fixture'});
+ const bill=run({action:'record_invoice',projectId:p.id,reference:'PLAN-INV',amountUsd:125.25,audience:'client',issuedOn:today,dueDate:'2099-01-01',source:'Fixture invoice'});
+ const command={action:'record_project_forecast',id:p.id,version:p.version,title:'Linked plan',direction:'client_collection',amountUsd:125.25,dueOn:'2099-01-01',source:'Fixture schedule',linkedInvoiceId:bill.id};
+ assert.throws(()=>run({...command,id:other.id}),status(422));assert.throws(()=>run({...command,direction:'vendor_payment'}),status(422));assert.throws(()=>run({...command,amountUsd:126}),status(422));
+ p=run(command);assert.throws(()=>run({...command,version:p.version}),status(409));assert.throws(()=>run({...command,version:p.version},{...admin,tenantId:'unrelated'}),status(404));
+ const internal=run({action:'record_invoice',projectId:p.id,reference:'PLAN-INTERNAL',amountUsd:20,audience:'internal',issuedOn:today,source:'Internal visibility fixture'});
+ assert.throws(()=>run({...command,version:p.version,direction:'internal_cost',amountUsd:20,linkedInvoiceId:internal.id}),status(422));
+});
+test('proposal forecasts require explicit bounded assumptions and retain correction/removal history',()=>{
+ const p=run({action:'create_project',name:'Opportunity fixture'});let proposal=run({action:'create_proposal',projectId:p.id,title:'Fixture proposal',reference:'FORECAST-001',clientName:'Fixture',amountUsd:100.01,issuedOn:today,source:'Fixture estimate'});
+ const input={action:'set_proposal_forecast',id:proposal.id,version:proposal.version,expectedBillingOn:'2099-01-01',probabilityPercent:50,allocationPercent:25,source:'Fixture operator assumption'};
+ for(const probabilityPercent of [-1,100.01,Number.NaN,0.001])assert.throws(()=>run({...input,probabilityPercent}),status(422));
+ assert.throws(()=>run({...input,allocationPercent:101}),status(422));assert.throws(()=>run({...input,expectedBillingOn:'1900-01-01'}),status(422));
+ proposal=run(input);assert.equal((proposal.data.forecast as {probabilityPercent:number}).probabilityPercent,50);
+ proposal=run({...input,version:proposal.version,probabilityPercent:0});assert.equal((proposal.data.forecastHistory as unknown[]).length,2);
+ proposal=run({action:'clear_proposal_forecast',id:proposal.id,version:proposal.version,reason:'Fixture withdrawn assumption'});assert.equal(proposal.data.forecast,null);assert.equal((proposal.data.forecastHistory as unknown[]).length,3);
+ proposal=run({action:'send_proposal',id:proposal.id,version:proposal.version,sentOn:today});proposal=run({action:'decide_proposal',id:proposal.id,version:proposal.version,status:'accepted',decidedOn:today,evidence:'Fixture decision'});
+ assert.throws(()=>run({...input,version:proposal.version}),status(409));assert.equal(snapshot(admin).entries.filter(e=>e.projectId===p.id&&e.kind==='invoice').length,0);
+});
+test('actual completion is explicitly dated, private evidence is redacted, and reopening clears the current completion',()=>{
+ let p=run({action:'create_project',name:'Completion fixture'});
+ assert.throws(()=>run({action:'record_project_completion',id:p.id,version:p.version,completedOn:today,evidence:'Fixture closeout'}),status(409));
+ p=run({action:'update_project',id:p.id,version:p.version,status:'closed',progress:100,nextAction:'Archive fixture evidence'});assert.equal(p.data.completedOn,undefined);
+ assert.throws(()=>run({action:'record_project_completion',id:p.id,version:p.version,completedOn:'2099-01-01',evidence:'Future'}),status(422));
+ p=run({action:'record_project_completion',id:p.id,version:p.version,completedOn:today,evidence:'Fixture closeout checklist'});
+ const view=snapshot({...admin,id:'fixture-client',role:'client',projectIds:[p.id]}).entries.find(e=>e.id===p.id)!;
+ assert.equal(view.data.completedOn,today);assert.equal('completionEvidence' in view.data,false);assert.equal('completionHistory' in view.data,false);
+ p=run({action:'update_project',id:p.id,version:p.version,status:'active',progress:90,nextAction:'Fixture reopened scope'});assert.equal(p.data.completedOn,null);assert.equal((p.data.completionHistory as unknown[]).length,1);
+});

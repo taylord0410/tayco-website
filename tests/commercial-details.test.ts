@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync,rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+import type { Actor } from '../lib/auth';
+import { execute,snapshot,database,ErpError } from '../lib/erp';
+const folder=mkdtempSync(path.join(tmpdir(),'tayco-commercial-details-'));
+process.env.TAYCO_ERP_DB_PATH=path.join(folder,'erp.sqlite');process.env.TAYCO_AUTH_DB_PATH=path.join(folder,'auth.sqlite');
+test.after(()=>{database().close();try{rmSync(folder,{recursive:true,force:true});}catch{/* Worker-scoped handles. */}});
+const actor:Actor={id:'fixture-admin',email:'fixture@example.test',role:'admin',tenantId:'commercial-details',projectIds:[]};
+const run=(input:Record<string,unknown>,user=actor)=>execute(user,randomUUID(),input);
+const status=(n:number)=>(error:unknown)=>error instanceof ErpError&&error.status===n;
+const today=new Date().toISOString().slice(0,10);
+test('opportunity metadata keeps estimate phase, exact cents, source and unknown value',()=>{
+ let lead=run({action:'create_lead',name:'Synthetic requester',email:'requester@example.test',details:'Synthetic scope'});
+ const detail={action:'update_lead_details',id:lead.id,version:lead.version,location:'Fixture county',estimatedValueUsd:125.25,estimateSource:'Fixture estimating summary'};
+ assert.throws(()=>run({...detail,estimateSource:''}),status(422));assert.throws(()=>run({...detail,estimatedValueUsd:0.001}),status(422));lead=run(detail);assert.equal(lead.data.estimatedValueUsd,125.25);assert.equal(lead.data.status,'new');
+ assert.throws(()=>run(detail),status(409));lead=run({...detail,version:lead.version,estimatedValueUsd:null,estimateSource:''});assert.equal(lead.data.estimatedValueUsd,null);assert.equal(lead.data.estimateSource,null);
+ assert.throws(()=>run({...detail,version:lead.version},{...actor,role:'client'}),status(403));assert.equal(snapshot(actor).entries.some(e=>e.kind==='invoice'||e.kind==='proposal'),false);
+});
+test('purchase sourcing dates and references remain traceable without changing order money or stage',()=>{
+ const project=run({action:'create_project',name:'Synthetic purchase project'});let order=run({action:'create_purchase_order',projectId:project.id,reference:'PO-FIXTURE-DETAIL',supplierName:'Fixture supplier',description:'Fixture scope',amountUsd:40.05,issuedOn:today,source:'Fixture requisition'});
+ const details={action:'update_purchase_order_details',id:order.id,version:order.version,quoteDate:today,leadTimeDays:14,expectedDeliveryOn:'2099-01-01',sheetRef:'S-FIXTURE',quoteSource:'Dated synthetic supplier quote'};
+ assert.throws(()=>run({...details,quoteDate:''}),status(422));assert.throws(()=>run({...details,leadTimeDays:1.5}),status(422));assert.throws(()=>run({...details,quoteDate:'2099-01-01'}),status(422));assert.throws(()=>run({...details,expectedDeliveryOn:'1900-01-01'}),status(422));assert.throws(()=>run({...details,documentId:'not-a-document'}),status(404));
+ order=run(details);assert.equal(order.data.amountUsd,40.05);assert.equal(order.data.status,'draft');assert.equal(order.data.leadTimeDays,14);assert.equal((order.data.sourcingHistory as unknown[]).length,1);
+ assert.throws(()=>run(details),status(409));assert.throws(()=>run({...details,version:order.version},{...actor,tenantId:'unrelated'}),status(404));
+ order=run({action:'update_purchase_order',id:order.id,version:order.version,status:'cancelled'});assert.throws(()=>run({...details,version:order.version}),status(409));
+});

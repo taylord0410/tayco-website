@@ -1,437 +1,1003 @@
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
-function Hero() {
-  return (
-    <section
-      className="relative min-h-screen flex items-center justify-center pt-16"
-      style={{ background: "linear-gradient(135deg, #0F2040 0%, #1B3A6B 60%, #0F2040 100%)" }}
-    >
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage:
-            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-      <div className="absolute left-0 top-0 h-full w-1" style={{ background: "#C9A84C" }} />
+type CommercialTradeCategory =
+  | "all"
+  | "structural_envelope"
+  | "interior_ti"
+  | "site_restoration";
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest mb-2" style={{ color: "#C9A84C" }}>
-          Commercial Division
-        </p>
-        <p className="text-xs uppercase tracking-widest mb-6 text-gray-400">
-          Wisconsin · Illinois · Minnesota · Open to Any State
-        </p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-          Commercial Construction.{" "}
-          <span style={{ color: "#C9A84C" }}>Done Right.</span>
-        </h1>
-        <p className="text-xl text-gray-300 mb-2">Full-Service Commercial Construction Company</p>
-        <p className="text-gray-400 mb-3 text-base max-w-2xl mx-auto leading-relaxed">
-          At TAYCO LLC we deliver complete commercial construction solutions with a single point of contact — coordinating every phase from planning to final delivery. Our approach simplifies project management, optimizes timelines, and ensures clear communication throughout.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          <Link
-            href="/estimate"
-            className="text-white font-bold px-8 py-4 rounded-xl text-lg hover:opacity-90 transition-opacity"
-            style={{ background: "#C9A84C" }}
-          >
-            Request a Free Estimate
-          </Link>
-          <Link
-            href="/residential"
-            className="font-bold px-8 py-4 rounded-xl text-lg border-2 text-white hover:opacity-80 transition-opacity"
-            style={{ borderColor: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.07)" }}
-          >
-            View Residential →
-          </Link>
-        </div>
-
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { number: "22+", label: "Specialties In-House" },
-            { number: "50+", label: "States — We Mobilize" },
-            { number: "500+", label: "Commercial Projects" },
-            { number: "24h", label: "Response Time" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.07)" }}>
-              <div className="text-3xl font-bold" style={{ color: "#C9A84C" }}>{s.number}</div>
-              <div className="text-gray-300 text-sm mt-1">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+interface CommercialTradeSpec {
+  num: string;
+  csiCode: string;
+  titleNode: React.ReactNode;
+  titlePlain: string;
+  category: Exclude<CommercialTradeCategory, "all">;
+  unitRate: string;
+  scheduleNote: string;
+  planningNote: string;
+  accent: string;
+  summary: string;
+  deliverables: string[];
 }
 
-const COMMERCIAL_SERVICES = [
+const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   {
-    num: "01",
-    title: "Commercial Roofing",
-    accent: "#1B3A6B",
-    desc: "We install, replace, and rehabilitate commercial roofing systems using high-performance materials tailored to each building's needs.",
-    items: ["All types of flat roofing", "All types of metal roofing", "Roof replacement & repair", "Storm damage restoration", "Coatings & maintenance", "Emergency services"],
+    "num": "01",
+    "csiCode": "Roofing",
+    "titleNode": "Roofing",
+    "titlePlain": "Roofing",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Roof repair and replacement planned around building use, condition and access.",
+    "deliverables": [
+      "Roof condition and leak review",
+      "Membrane, shingle and metal options",
+      "Drainage and flashing details",
+      "Insulation and ventilation review",
+      "Repair or replacement scope",
+      "Site access and protection"
+    ]
   },
   {
-    num: "02",
-    title: "Commercial Siding & Cladding",
-    accent: "#1B3A6B",
-    desc: "We install exterior cladding systems that improve the appearance, energy efficiency, and protection of commercial buildings.",
-    items: ["All types of exterior panels", "Metal & composite cladding", "Storefront systems", "Insulated panel systems", "Facade renovation", "All finishes & materials"],
+    "num": "02",
+    "csiCode": "Exterior",
+    "titleNode": "Siding, windows & exterior",
+    "titlePlain": "Siding, windows & exterior",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Improve the exterior with coordinated siding, window, door and weatherproofing work.",
+    "deliverables": [
+      "Siding repair and replacement",
+      "Window and door openings",
+      "Trim, soffit and fascia",
+      "Water-management detailing",
+      "Exterior finish selections",
+      "Coordination with occupied areas"
+    ]
   },
   {
-    num: "03",
-    title: "Commercial Framing",
-    accent: "#1B3A6B",
-    desc: "We build metal and wood structures for commercial projects, ensuring precision, stability, and compliance with construction standards.",
-    items: ["All types of metal framing", "All types of wood framing", "Structural steel systems", "Interior partitions", "Exterior structural framing", "Load-bearing systems"],
+    "num": "03",
+    "csiCode": "Framing",
+    "titleNode": "Framing & structural coordination",
+    "titlePlain": "Framing & structural coordination",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Coordinate the structure and layout for new construction, additions and interior changes.",
+    "deliverables": [
+      "Framing layout review",
+      "Wall and floor systems",
+      "Roof framing coordination",
+      "Openings and headers",
+      "Engineer coordination where required",
+      "Inspections and sequencing"
+    ]
   },
   {
-    num: "04",
-    title: "Commercial Flooring",
-    accent: "#1B3A6B",
-    desc: "We install commercial flooring solutions designed to withstand high traffic and meet the demands of each industry.",
-    items: ["All types of hard flooring", "All types of soft flooring", "Epoxy & industrial systems", "Decorative concrete", "Specialty flooring", "All materials & finishes"],
+    "num": "04",
+    "csiCode": "Flooring",
+    "titleNode": "Flooring",
+    "titlePlain": "Flooring",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Choose flooring suited to traffic, maintenance and the needs of your space.",
+    "deliverables": [
+      "Existing floor removal",
+      "Subfloor condition review",
+      "Tile, vinyl and wood options",
+      "Concrete and specialty finishes",
+      "Transitions and base details",
+      "Installation sequencing"
+    ]
   },
   {
-    num: "05",
-    title: "Drywall Systems",
-    accent: "#1B3A6B",
-    desc: "We install, finish, and repair drywall systems for commercial spaces, delivering paint-ready surfaces with the highest quality standards.",
-    items: ["All types of drywall systems", "Fire-rated assemblies", "Acoustic systems", "Suspended ceiling systems", "All finish levels", "Repair & patching"],
+    "num": "05",
+    "csiCode": "Interiors",
+    "titleNode": "Drywall, ceilings & painting",
+    "titlePlain": "Drywall, ceilings & painting",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Bring interior spaces together with coordinated walls, ceilings and finishes.",
+    "deliverables": [
+      "Partition layout",
+      "Drywall repair and installation",
+      "Ceiling systems",
+      "Surface preparation",
+      "Paint and finish selection",
+      "Final touch-ups and review"
+    ]
   },
   {
-    num: "06",
-    title: "Interior Build-Outs",
-    accent: "#C9A84C",
-    desc: "We transform interior spaces to meet the operational needs of each business — delivering complete buildouts for any commercial use.",
-    items: ["Offices & corporate spaces", "Retail & restaurant buildouts", "Medical & specialty spaces", "Warehouse fit-outs", "All commercial interior types", "Full interior renovations"],
+    "num": "06",
+    "csiCode": "Tenant improvements",
+    "titleNode": "Tenant improvements",
+    "titlePlain": "Tenant improvements",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Adapt an office, retail or business space to the needs of its next occupants.",
+    "deliverables": [
+      "Existing conditions and scope",
+      "Interior layout and finishes",
+      "Carpentry and cabinetry",
+      "Electrical and plumbing coordination",
+      "Occupied-space access planning",
+      "Walk-through and closeout"
+    ]
   },
   {
-    num: "07",
-    title: "Industrial Demolition",
-    accent: "#1B3A6B",
-    desc: "We perform demolition work safely and efficiently — preparing facilities for renovations, expansions, or new commercial developments.",
-    items: ["All types of selective demo", "Interior strip-out", "Structural demolition", "Concrete removal", "Complete site preparation", "Debris removal & haul-off"],
+    "num": "07",
+    "csiCode": "Site preparation",
+    "titleNode": "Demolition & site preparation",
+    "titlePlain": "Demolition & site preparation",
+    "category": "site_restoration",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Define removal and preparation work before the next phase of construction.",
+    "deliverables": [
+      "Removal scope review",
+      "Utility coordination",
+      "Protection of retained areas",
+      "Debris handling",
+      "Site access and logistics",
+      "Readiness for the next trade"
+    ]
   },
   {
-    num: "08",
-    title: "Exterior Renovations",
-    accent: "#1B3A6B",
-    desc: "We modernize and rehabilitate facades and exterior elements to improve the image, functionality, and value of commercial properties.",
-    items: ["All types of facade work", "Storefront renovation", "Exterior painting & coatings", "Site & parking concrete", "ADA compliance work", "All exterior systems"],
+    "num": "08",
+    "csiCode": "Concrete",
+    "titleNode": "Concrete & foundations",
+    "titlePlain": "Concrete & foundations",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Coordinate foundations, slabs and exterior concrete within the overall project.",
+    "deliverables": [
+      "Foundation and slab scope",
+      "Site conditions and access",
+      "Forms and reinforcement coordination",
+      "Walkways, steps and patios",
+      "Concrete repair options",
+      "Finishing and curing plan"
+    ]
   },
   {
-    num: "09",
-    title: "General Commercial Remodeling",
-    accent: "#C9A84C",
-    desc: "We manage complete commercial remodeling projects, coordinating every phase for efficient, organized execution with the highest quality standards.",
-    items: ["All types of commercial remodels", "Multi-site programs", "Property repositioning", "Fast-track projects", "Design-build delivery", "Full project management"],
+    "num": "09",
+    "csiCode": "Property programs",
+    "titleNode": "Property renovation programs",
+    "titlePlain": "Property renovation programs",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Plan turnovers and improvements across one property or a portfolio.",
+    "deliverables": [
+      "Property-by-property scope",
+      "Priority and budget review",
+      "Trade and material coordination",
+      "Site scheduling",
+      "Change documentation",
+      "Handover and outstanding items"
+    ]
   },
   {
-    num: "10",
-    title: "Fire & Water Restoration",
-    accent: "#DC2626",
-    desc: "Emergency response for fire and water damage in commercial properties — from the first call to full rebuild.",
-    items: ["All types of water damage", "All types of fire damage", "Emergency response", "Mold remediation", "Full commercial rebuild", "Insurance documentation"],
-  },
+    "num": "10",
+    "csiCode": "Restoration",
+    "titleNode": "Fire & water reconstruction",
+    "titlePlain": "Fire & water reconstruction",
+    "category": "site_restoration",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#F97316",
+    "summary": "Bring damage assessment, restoration planning and rebuilding into a coordinated scope.",
+    "deliverables": [
+      "Damage assessment",
+      "Fire, smoke and soot repairs",
+      "Water damage and drying coordination",
+      "Insurance documentation support",
+      "Reconstruction planning",
+      "Completion review"
+    ]
+  }
 ];
 
-function Services() {
-  return (
-    <section id="services" className="py-24" style={{ background: "#F8FAFC" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: "#C9A84C" }}>
-            What We Do
-          </p>
-          <h2 className="text-4xl sm:text-5xl font-bold" style={{ color: "#0F2040" }}>
-            Commercial Trades. One Team.
-          </h2>
-          <p className="text-gray-500 mt-3 max-w-xl mx-auto">
-            22+ specialties performed by our own in-house crews — no middlemen, no delays.
-          </p>
-        </div>
+const COMMERCIAL_PROJECT_STARTERS = [
+  {
+    "code": "01",
+    "name": "New construction",
+    "location": "Ground-up & additions",
+    "status": "Planning",
+    "sqft": "Site & intended use",
+    "helpfulDetails": "Plans & requirements",
+    "discussion": "Share available drawings and site details",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  },
+  {
+    "code": "02",
+    "name": "Tenant improvements",
+    "location": "Office, retail & business",
+    "status": "Renovation",
+    "sqft": "Layout & operating hours",
+    "helpfulDetails": "Current conditions",
+    "discussion": "Tell us about occupancy and target use",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  },
+  {
+    "code": "03",
+    "name": "Property turnover",
+    "location": "Owners & property managers",
+    "status": "Property programs",
+    "sqft": "Unit count & priorities",
+    "helpfulDetails": "Repair scope",
+    "discussion": "Identify urgent repairs and access needs",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  },
+  {
+    "code": "04",
+    "name": "Restoration",
+    "location": "Fire & water damage",
+    "status": "Recovery",
+    "sqft": "Damage & safe access",
+    "helpfulDetails": "Photos & documentation",
+    "discussion": "Discuss assessment and reconstruction",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  },
+  {
+    "code": "05",
+    "name": "Exterior improvements",
+    "location": "Roofing, siding & concrete",
+    "status": "Building envelope",
+    "sqft": "Condition & access",
+    "helpfulDetails": "Repair or replace",
+    "discussion": "Describe known issues and priorities",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  }
+];
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {COMMERCIAL_SERVICES.map((card) => (
-            <div
-              key={card.title}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
-              style={{ border: "1px solid #E2E8F0" }}
-            >
-              <div className="h-1 w-full" style={{ background: card.accent }} />
-              <div className="p-8">
-                <div className="mb-4">
-                  <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: card.accent, opacity: 0.5 }}>
-                    {card.num}
-                  </span>
-                  <h3 className="text-xl font-black mt-0.5 tracking-tight" style={{ color: "#0F2040" }}>
-                    {card.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mt-2 mb-4">{card.desc}</p>
+export default function CommercialPage() {
+  const [lightAngle, setLightAngle] = useState<number>(42);
+  const [activeCategory, setActiveCategory] =
+    useState<CommercialTradeCategory>("all");
+
+  const filteredTrades =
+    activeCategory === "all"
+      ? COMMERCIAL_CSI_TRADES
+      : COMMERCIAL_CSI_TRADES.filter((t) => t.category === activeCategory);
+
+  const normalizedLightPx = `${Math.round(20 + (lightAngle / 90) * 65)}%`;
+
+  return (
+    <main
+      className="min-h-screen pt-16"
+      style={
+        {
+          "--light-angle": `${lightAngle}deg`,
+          "--response-px": normalizedLightPx,
+          background: "#070E1A",
+        } as React.CSSProperties
+      }
+    >
+      {/* Project services and resources */}
+      <section
+        id="commercial-executive-hero"
+        className="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-8 border-b"
+        style={{
+          background: `radial-gradient(circle at ${18 + lightAngle * 0.65}% 18%, rgba(201, 168, 76, 0.2), transparent 45%), linear-gradient(${115 + lightAngle * 0.35}deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)`,
+          borderColor: "rgba(201, 168, 76, 0.35)",
+        }}
+      >
+        {/* Architectural Blueprint Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(201,168,76,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.07) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1.5"
+          style={{ background: "#C9A84C" }}
+        />
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Project services and resources */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 mb-10 border-b border-white/15">
+            <div className="flex items-center gap-5">
+              {/* Rotating Orbital Editorial Stamp */}
+              <div
+                className="orbital-caption rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-400/40 shadow-2xl p-1 shrink-0"
+                aria-hidden="true"
+              >
+                <svg viewBox="0 0 120 120">
+                  <defs>
+                    <path
+                      id="commercial-orbit-path"
+                      d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"
+                    />
+                  </defs>
+                  <text>
+                    <textPath href="#commercial-orbit-path" startOffset="0%">
+                      TAYCO COMMERCIAL DIVISION · CONSTRUCTION &amp; RENOVATION ·
+                    </textPath>
+                  </text>
+                </svg>
+                <span>🏢</span>
+              </div>
+
+              <div>
+                <div
+                  className="tayco-eyebrow mb-2"
+                  style={{ color: "#F3D37A" }}
+                >
+                  <span
+                    className="tayco-live-dot"
+                    style={{ color: "#10B981" }}
+                  />
+                  COMMERCIAL CONSTRUCTION · ONE POINT OF CONTACT
                 </div>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                  {card.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                      <span className="w-1 h-1 rounded-full shrink-0" style={{ background: card.accent }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <h1
+                  className="font-black text-white tracking-tight"
+                  style={{
+                    fontSize: "clamp(2.2rem, 4.8vw, 4rem)",
+                    lineHeight: 1.03,
+                  }}
+                >
+                  Commercial Construction.{" "}
+                  <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                    Engineered to Spec.
+                  </em>
+                </h1>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function OneCallSection() {
-  return (
-    <section className="py-20 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: "#C9A84C" }}>
-              One Contractor
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: "#0F2040" }}>
-              22+ Specialties.<br />One Call.
-            </h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              With a single call, our clients gain access to coordination of more than 22 construction specialties. This eliminates the need to hire and manage multiple vendors — reducing timelines, simplifying communication, and improving project control.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              Our team manages each project with detailed planning, continuous tracking, and constant supervision to ensure every phase is executed on schedule, within budget, and to the quality standards established.
-            </p>
+            {/* Interactive Raking Light Angle Control (0°–90°) */}
+            <div
+              className="tayco-living-card p-4 rounded-2xl border backdrop-blur-md min-w-[280px] sm:min-w-[330px]"
+              style={{
+                background: "rgba(7, 14, 26, 0.82)",
+                borderColor: "rgba(201, 168, 76, 0.45)",
+              }}
+            >
+              <label
+                htmlFor="commercial-light-angle-slider"
+                className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-amber-200 mb-2"
+              >
+                <span>☀️ Raking Light Angle: {lightAngle}°</span>
+                <span className="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                  0°–90°
+                </span>
+              </label>
+              <input
+                id="commercial-light-angle-slider"
+                type="range"
+                min={0}
+                max={90}
+                value={lightAngle}
+                onChange={(e) => setLightAngle(Number(e.target.value))}
+                className="w-full h-2 rounded-lg cursor-ew-resize accent-amber-400"
+              />
+              <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                <span>0° Low Grazing</span>
+                <span>45° Specular</span>
+                <span>90° Zenith</span>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-4">
+
+          {/* Project services and resources */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
+            <div className="lg:col-span-7">
+              <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
+                TAYCO LLC coordinates ground-up construction, commercial renovations and tenant improvements.
+                Talk to one team about the scope, schedule, trades and decisions that move your project forward.
+              </p>
+              <div className="flex flex-wrap gap-3 mt-6">
+                <Link
+                  href="/estimate"
+                  data-magnetic
+                  className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105 shadow-lg"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                >
+                  Request a commercial estimate →
+                </Link>
+                <Link
+                  href="/login"
+                  data-magnetic
+                  className="px-6 py-3.5 rounded-xl font-bold text-sm text-white border transition-colors hover:bg-white/10"
+                  style={{
+                    borderColor: "rgba(201, 168, 76, 0.55)",
+                    background: "rgba(15, 32, 64, 0.7)",
+                  }}
+                >
+                  Client project sign in →
+                </Link>
+                <Link
+                  href="/residential"
+                  data-magnetic
+                  className="px-5 py-3.5 rounded-xl font-bold text-sm text-amber-200 border border-white/20 hover:bg-white/10 transition-colors"
+                >
+                  View Residential Division →
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div
+                data-response-kind="surface"
+                className="tayco-living-card p-5 rounded-2xl border"
+                style={{
+                  background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))`,
+                  borderColor: "rgba(201, 168, 76, 0.45)",
+                }}
+              >
+                <div className="flex items-center justify-between text-xs font-mono text-emerald-300 font-bold mb-2">
+                  <span>YOUR PROJECT, COORDINATED</span>
+                  <span>PLANNING TO DELIVERY</span>
+                </div>
+                <div className="text-2xl font-black font-mono text-white">
+                  One team{" "}
+                  <span className="text-xs font-normal text-amber-300">
+                    for the work ahead
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                  From the first review through the final walk-through, bring your trades, requirements and next steps into one clear plan.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Project services and resources */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { icon: "📞", title: "Single Point of Contact", desc: "One number. One team. Every trade covered." },
-              { icon: "📋", title: "Professional Project Management", desc: "Detailed planning, continuous tracking, and constant on-site supervision." },
-              { icon: "🗂️", title: "Permit & Documentation Management", desc: "We handle permits, inspections, and all project documentation on your behalf." },
-              { icon: "🚚", title: "Nationwide Availability", desc: "Ready to mobilize for commercial projects anywhere in the United States." },
-            ].map((item) => (
-              <div key={item.title} className="flex gap-4 p-5 rounded-xl border" style={{ borderColor: "#E2E8F0" }}>
-                <div className="text-2xl shrink-0">{item.icon}</div>
-                <div>
-                  <h3 className="font-bold text-sm mb-1" style={{ color: "#0F2040" }}>{item.title}</h3>
-                  <p className="text-gray-500 text-sm">{item.desc}</p>
+  {
+    "metric": "Plan",
+    "label": "Scope & priorities",
+    "sub": "Start with drawings, photos or an idea",
+    "accent": "#C9A84C"
+  },
+  {
+    "metric": "Build",
+    "label": "Ground-up construction",
+    "sub": "Site, structure and coordinated trades",
+    "accent": "#10B981"
+  },
+  {
+    "metric": "Adapt",
+    "label": "Tenant improvements",
+    "sub": "Fit the space to your business",
+    "accent": "#4A90D9"
+  },
+  {
+    "metric": "Restore",
+    "label": "Property recovery",
+    "sub": "Fire & water reconstruction",
+    "accent": "#F97316"
+  },
+  {
+    "metric": "8 States",
+    "label": "Service coverage",
+    "sub": "Contact us about your location",
+    "accent": "#F3D37A"
+  }
+].map((item) => (
+              <div
+                key={item.label}
+                data-response-kind="surface"
+                className="tayco-living-card p-4 rounded-2xl border"
+                style={{
+                  background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.88) 0%, rgba(7, 14, 26, 0.94) 100%)`,
+                  borderColor: "rgba(201, 168, 76, 0.32)",
+                }}
+              >
+                <div
+                  className="text-xl sm:text-2xl font-black font-mono"
+                  style={{ color: item.accent }}
+                >
+                  {item.metric}
+                </div>
+                <div className="text-xs font-bold text-white mt-1">
+                  {item.label}
+                </div>
+                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                  {item.sub}
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-const CLIENTS = [
-  { icon: "🏢", title: "Property Owners", desc: "Tenant improvements, office buildouts, retail remodels, and complete commercial renovations under one roof." },
-  { icon: "💼", title: "Investors", desc: "Ground-up commercial builds and turnkey rehabs tailored to your investment strategy." },
-  { icon: "🏦", title: "Banks & Lenders", desc: "REO property repairs, cleanouts, and full rehabs. We understand your timelines and compliance requirements." },
-  { icon: "🏗️", title: "General Contractors", desc: "Reliable trade crews for framing, roofing, siding, drywall and finishes — coordinated to your schedule and specs." },
-  { icon: "🏘️", title: "Property Managers", desc: "Fast, reliable commercial turnovers and capital improvement projects across your entire portfolio." },
-  { icon: "🏪", title: "Business Owners", desc: "Retail, restaurant, and office buildouts — from framing and concrete to finishes and MEP coordination." },
-];
-
-function WhoWeWorkWith() {
-  return (
-    <section className="py-20" style={{ background: "#F8FAFC" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Who We Work With
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
-            We Work With the People Who Need It Done Right.
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {CLIENTS.map((c) => (
-            <div key={c.title} className="rounded-2xl p-6 border-2 bg-white hover:shadow-md transition-shadow" style={{ borderColor: "#E2E8F0" }}>
-              <div className="text-4xl mb-3">{c.icon}</div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: "#0F2040" }}>{c.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
-            </div>
-          ))}
+      {/* ── MARQUEE EDITORIAL CINÉTICO (.tayco-editorial-ticker) ── */}
+      <div
+        className="tayco-editorial-ticker"
+        aria-label="TAYCO commercial services"
+      >
+        <div>
+          <span className="gold">Concrete, foundations &amp; site improvements</span>
+          <i aria-hidden="true">✳</i>
+          <span>Framing, additions &amp; structural coordination</span>
+          <i className="gold-star" aria-hidden="true">
+            ✳
+          </i>
+          <span className="gold">Roofing, exterior &amp; building improvements</span>
+          <i aria-hidden="true">✳</i>
+          <span>Drywall, painting &amp; interior finishes</span>
+          <i className="gold-star" aria-hidden="true">
+            ✳
+          </i>
+          <span className="gold">Site preparation &amp; restoration planning</span>
+          <i aria-hidden="true">✳</i>
+          <span>Concrete, foundations &amp; site improvements</span>
+          <i className="gold-star" aria-hidden="true">
+            ✳
+          </i>
+          <span className="gold">Framing, additions &amp; structural coordination</span>
+          <i aria-hidden="true">✳</i>
+          <span>Roofing, exterior &amp; building improvements</span>
         </div>
       </div>
-    </section>
-  );
-}
 
-const WHY = [
-  { icon: "📞", title: "Single Point of Contact", desc: "One number for the entire project. We coordinate every trade, every phase, every detail." },
-  { icon: "🔧", title: "22+ Specialties In-House", desc: "Access to more than 22 construction specialties — no subcontractor chaos, no delays between trades." },
-  { icon: "📋", title: "Professional Project Management", desc: "Detailed scheduling, continuous tracking, and constant supervision to keep every project on time and on budget." },
-  { icon: "🗂️", title: "Permits & Documentation", desc: "We manage permitting, inspections, and all project documentation so you don't have to." },
-  { icon: "✅", title: "Quality Control", desc: "Direct oversight of every trade means higher quality standards and fewer mistakes — we own the work." },
-  { icon: "🌎", title: "We Go to You", desc: "Based in Wisconsin, Illinois, and Minnesota — but open to mobilizing for commercial projects in any state where our clients need us." },
-  { icon: "⚡", title: "Efficient Scheduling", desc: "Coordinating all trades under one roof allows us to compress timelines and reduce costly project delays." },
-  { icon: "🤝", title: "Custom Solutions", desc: "Every client and project is different. We adapt our approach to the specific needs, budget, and timeline of each job." },
-  { icon: "🏅", title: "Safety & Excellence", desc: "Full commitment to safety protocols, workmanship standards, and delivering results that exceed expectations." },
-];
-
-function WhyTayco() {
-  return (
-    <section className="py-20" style={{ background: "#0F2040" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Why Choose TAYCO LLC
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
-            The Simplest Decision You Will Make on Your Next Project.
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {WHY.map((w) => (
-            <div key={w.title} className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.07)" }}>
-              <div className="text-3xl mb-3">{w.icon}</div>
-              <h3 className="text-lg font-bold text-white mb-2">{w.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
-            </div>
-          ))}
-        </div>
+      {/* ── CHROMATIC HORIZON DIVIDER INTO WARM EDITORIAL IVORY ── */}
+      <div className="chromatic-horizon" aria-hidden="true">
+        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+          <path
+            className="horizon-land"
+            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
+          />
+          <path
+            className="horizon-trace a"
+            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
+          />
+          <path
+            className="horizon-trace b"
+            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
+          />
+        </svg>
       </div>
-    </section>
-  );
-}
 
-function Projects() {
-  return (
-    <section id="projects" className="py-20" style={{ background: "#F8FAFC" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-            Our Work
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F2040" }}>
-            See What We Build.
-          </h2>
-          <p className="text-gray-500 mt-2">By trade — Residential, Multifamily &amp; Commercial</p>
-        </div>
-        <TradeGallery />
-        <p className="text-center text-sm text-gray-400 mt-8 italic">
-          Contact us to request our full portfolio.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function ServiceArea() {
-  return (
-    <section id="service-area" className="py-20" style={{ background: "#1B3A6B" }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#C9A84C" }}>
-          Where We Work
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-          Based in the Midwest. Ready to Go to You.
-        </h2>
-        <p className="text-gray-300 mb-10 text-lg max-w-2xl mx-auto">
-          TAYCO LLC is headquartered and primarily serves clients in <strong className="text-white">Wisconsin, Illinois, and Minnesota</strong> — but we are open to mobilizing for commercial projects in any state where our clients need us, bringing the same level of quality, organization, and commitment to every location.
-        </p>
-
-        <div className="grid sm:grid-cols-3 gap-5 mb-10">
-          {[
-            {
-              state: "Wisconsin",
-              flag: "🏙️",
-              cities: ["Milwaukee", "Madison", "Kenosha", "Racine", "Green Bay", "Waukesha", "Oshkosh", "Surrounding areas"],
-            },
-            {
-              state: "Illinois",
-              flag: "🌆",
-              cities: ["Chicago", "Rockford", "Aurora", "Naperville", "Joliet", "Elgin", "Waukegan", "Surrounding areas"],
-            },
-            {
-              state: "Minnesota",
-              flag: "❄️",
-              cities: ["Minneapolis", "St. Paul", "Bloomington", "Rochester", "Duluth", "St. Cloud", "Mankato", "Surrounding areas"],
-            },
-          ].map(({ state, flag, cities }) => (
-            <div key={state} className="rounded-2xl p-6 text-left" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(201,168,76,0.3)" }}>
-              <h3 className="text-lg font-bold text-white mb-4">{flag} {state}</h3>
-              <ul className="space-y-1.5">
-                {cities.map((c) => (
-                  <li key={c} className="text-gray-300 text-sm">{c}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="rounded-2xl p-6 max-w-2xl mx-auto"
-          style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.35)" }}
-        >
-          <p className="text-white font-bold text-lg mb-2">📍 Outside these states?</p>
-          <p className="text-gray-300 text-sm">
-            We are open to mobilizing our team for commercial projects anywhere in the United States. Submit a request and we will review your project and respond within 24 hours.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ContactCTA() {
-  return (
-    <section id="contact" className="py-20" style={{ background: "#C9A84C" }}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-          Ready to Start Your Commercial Project?
-        </h2>
-        <p className="text-orange-100 mb-2">
-          Contact us today for a <strong>free estimate</strong>.
-        </p>
-        <p className="text-orange-100 mb-8">We respond within <strong>24 hours.</strong></p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-          <Link
-            href="/estimate"
-            className="bg-white font-bold px-8 py-4 rounded-xl text-lg hover:opacity-90 transition-opacity"
-            style={{ color: "#C9A84C" }}
+      {/* Project services and resources */}
+      <section
+        id="services"
+        className="section-editorial-ivory py-16 sm:py-24 px-4 sm:px-8"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div
+            className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-8 border-b"
+            style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
           >
-            Request a Free Estimate
-          </Link>
-          <Link
-            href="/residential"
-            className="font-bold px-8 py-4 rounded-xl text-lg border-2 border-white text-white hover:opacity-80 transition-opacity"
-          >
-            View Residential Services
-          </Link>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center text-white text-sm">
-          <span>📍 WI · IL · MN · Open to Any State</span>
-          <span className="hidden sm:inline">·</span>
-          <span>🕐 Mon–Fri 7am–6pm</span>
-        </div>
-      </div>
-    </section>
-  );
-}
+            <span
+              className="tayco-eyebrow font-bold"
+              style={{ color: "#1B3A6B" }}
+            >
+              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+              01 / COMMERCIAL SERVICES
+            </span>
+            <span
+              className="text-[11px] font-mono uppercase tracking-widest"
+              style={{ color: "#1B3A6B" }}
+            >
+              THE RIGHT SCOPE FOR YOUR SPACE
+            </span>
+          </div>
 
-export default function CommercialPage() {
-  return (
-    <main>
-      <Hero />
-      <Services />
-      <OneCallSection />
-      <WhoWeWorkWith />
-      <WhyTayco />
-      <Projects />
-      <ServiceArea />
-      <ContactCTA />
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+            <div>
+              <h2
+                className="font-black tracking-tight"
+                style={{
+                  color: "#0F2040",
+                  fontSize: "clamp(2rem, 4.2vw, 3.5rem)",
+                  lineHeight: 1.04,
+                }}
+              >
+                Every trade, coordinated.{" "}
+                <em
+                  className="tayco-serif-em font-normal"
+                  style={{ color: "#1B3A6B" }}
+                >
+                  One accountable team.
+                </em>
+              </h2>
+              <p
+                className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
+                style={{ color: "#334155" }}
+              >
+                Explore the work your project may need. Each service includes practical planning points
+                to help you prepare for a conversation with our team.
+              </p>
+            </div>
+
+            {/* Interactive Category Filter */}
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-label="Filter commercial services"
+            >
+              {[
+                {
+                  id: "all",
+                  label: "All services",
+                },
+                {
+                  id: "structural_envelope",
+                  label: "Structural & Envelope",
+                },
+                {
+                  id: "interior_ti",
+                  label: "Interior TI & Finishes",
+                },
+                {
+                  id: "site_restoration",
+                  label: (
+                    <>
+                      Site &amp; restoration
+                    </>
+                  ),
+                },
+              ].map((tab) => {
+                const active = activeCategory === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    data-magnetic
+                    aria-pressed={active}
+                    onClick={() =>
+                      setActiveCategory(tab.id as CommercialTradeCategory)
+                    }
+                    className="px-4 py-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer"
+                    style={{
+                      background: active ? "#0F2040" : "rgba(255,255,255,0.82)",
+                      color: active ? "#F3D37A" : "#0F2040",
+                      borderColor: active
+                        ? "#0F2040"
+                        : "rgba(27, 58, 107, 0.28)",
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 10 Living Commercial Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredTrades.map((card) => (
+              <div
+                key={card.num}
+                data-response-kind="surface"
+                className="tayco-living-card editorial-ivory-card p-6 sm:p-8 flex flex-col justify-between group"
+                style={
+                  {
+                    "--light-angle": `${lightAngle}deg`,
+                  } as React.CSSProperties
+                }
+              >
+                <div className="preview-orbits" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-black uppercase tracking-wider"
+                        style={{
+                          background: "#0F2040",
+                          color: "#F3D37A",
+                        }}
+                      >
+                        {card.csiCode}
+                      </span>
+                      <span
+                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold"
+                        style={{
+                          background: "rgba(201, 168, 76, 0.22)",
+                          color: "#0F2040",
+                        }}
+                      >
+                        {card.unitRate}
+                      </span>
+                    </div>
+
+                    <Link
+                      href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
+                      aria-label={`Estimate ${card.titlePlain}`}
+                      className="project-open"
+                    >
+                      ↗
+                    </Link>
+                  </div>
+
+                  <h3
+                    className="text-xl font-black tracking-tight leading-snug"
+                    style={{ color: "#0F2040" }}
+                  >
+                    {card.titleNode}
+                  </h3>
+                  <p
+                    className="text-xs sm:text-sm mt-2 leading-relaxed"
+                    style={{ color: "#334155" }}
+                  >
+                    {card.summary}
+                  </p>
+
+                  {/* 6 Technical Deliverables */}
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-5 pt-4 border-t border-slate-300/70">
+                    {card.deliverables.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-start gap-2 text-xs font-semibold"
+                        style={{ color: "#1E293B" }}
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                          style={{ background: card.accent }}
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div
+                  className="relative z-10 mt-6 pt-4 border-t flex flex-wrap items-center justify-between gap-3"
+                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
+                >
+                  <div className="flex items-center gap-3 text-[11px] font-mono font-bold text-slate-700">
+                    <span>⏱️ {card.scheduleNote}</span>
+                    <span>·</span>
+                    <span>📐 {card.planningNote}</span>
+                  </div>
+                  <Link
+                    href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
+                    data-magnetic
+                    className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
+                    style={{ background: "#0F2040", color: "#F3D37A" }}
+                  >
+                    Discuss this service →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── REVERSE CHROMATIC HORIZON BACK INTO DEEP STRUCTURAL NAVY (#070E1A) ── */}
+      <div className="chromatic-horizon reverse" aria-hidden="true">
+        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+          <path
+            className="horizon-land"
+            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
+          />
+          <path
+            className="horizon-trace a"
+            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
+          />
+          <path
+            className="horizon-trace b"
+            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
+          />
+        </svg>
+      </div>
+
+      {/* Project services and resources */}
+      <section
+        id="projects"
+        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
+        style={{ background: "#070E1A" }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
+            <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+              <span className="tayco-live-dot" style={{ color: "#10B981" }} />
+              02 / PLAN YOUR PROJECT
+            </span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
+              WHAT TO PREPARE FOR AN ESTIMATE
+            </span>
+          </div>
+
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+            <div>
+              <h2
+                className="font-black text-white tracking-tight"
+                style={{
+                  fontSize: "clamp(2rem, 4vw, 3.25rem)",
+                  lineHeight: 1.05,
+                }}
+              >
+                Different projects,{" "}
+                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                  a clear starting point.
+                </em>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl">
+                Gather what you have: location, photos, plans and your priorities.
+                We will help identify what else is needed to define the work.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/login"
+                data-magnetic
+                className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider"
+                style={{ background: "#C9A84C", color: "#070E1A" }}
+              >
+                Existing project sign in →
+              </Link>
+              <Link
+                href="/estimate"
+                data-magnetic
+                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white border border-amber-400/50 hover:bg-white/10"
+              >
+                Request an estimate →
+              </Link>
+            </div>
+          </div>
+
+          {/* Project services and resources */}
+          <div
+            data-response-kind="surface"
+            className="tayco-living-card rounded-2xl border overflow-hidden mb-16"
+            style={{
+              background: "rgba(15, 32, 64, 0.85)",
+              borderColor: "rgba(201, 168, 76, 0.35)",
+            }}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr
+                    className="border-b text-[11px] font-mono uppercase tracking-wider text-amber-200"
+                    style={{
+                      background: "rgba(7, 14, 26, 0.9)",
+                      borderColor: "rgba(201, 168, 76, 0.25)",
+                    }}
+                  >
+                    <th className="py-3.5 px-4">Step</th>
+                    <th className="py-3.5 px-4">Project type &amp; focus</th>
+                    <th className="py-3.5 px-4">Service</th>
+                    <th className="py-3.5 px-4">Starting information</th>
+                    <th className="py-3.5 px-4">Helpful details</th>
+                    <th className="py-3.5 px-4">To discuss</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10 text-xs sm:text-sm">
+                  {COMMERCIAL_PROJECT_STARTERS.map((proj) => (
+                    <tr
+                      key={proj.code}
+                      className="hover:bg-white/5 transition-colors"
+                    >
+                      <td className="py-4 px-4 font-mono font-black text-amber-300 whitespace-nowrap">
+                        {proj.code}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="font-bold text-white">{proj.name}</div>
+                        <div className="text-xs text-slate-400">
+                          {proj.location}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold"
+                          style={{
+                            background: "rgba(16, 185, 129, 0.14)",
+                            color: "#6EE7B7",
+                            border: `1px solid ${proj.badgeColor}`,
+                          }}
+                        >
+                          ● {proj.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 font-mono text-slate-200 whitespace-nowrap">
+                        {proj.sqft}
+                      </td>
+                      <td className="py-4 px-4 font-mono font-black text-amber-300 whitespace-nowrap">
+                        {proj.helpfulDetails}
+                      </td>
+                      <td className="py-4 px-4 font-mono text-xs text-sky-300">
+                        {proj.discussion}
+                      </td>
+                      <td className="py-4 px-4 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-2">
+                          <Link
+                            href={proj.portalHref}
+                            className="px-3 py-1.5 rounded-lg text-xs font-black"
+                            style={{ background: "#C9A84C", color: "#070E1A" }}
+                          >
+                            Sign in ↗
+                          </Link>
+                          <Link
+                            href={proj.estimateHref}
+                            className="px-3 py-1.5 rounded-lg text-xs font-bold text-white border border-white/25 hover:bg-white/10"
+                          >
+                            /estimate
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Project services and resources */}
+          <div className="pt-6">
+            <div className="text-center mb-10">
+              <div
+                className="tayco-eyebrow justify-center mb-2"
+                style={{ color: "#F3D37A" }}
+              >
+                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                EXPLORE WORK BY TRADE
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-white">
+                Materials &amp; craftsmanship for{" "}
+                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                  Every Sector.
+                </em>
+              </h3>
+            </div>
+            <TradeGallery />
+          </div>
+        </div>
+      </section>
+      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          <p className="tayco-eyebrow mb-3 text-[#1B3A6B]">Where we work</p>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F2040]">A local conversation. <em className="tayco-serif-em font-normal">A coordinated team.</em></h2>
+          <p className="max-w-2xl text-sm sm:text-base text-slate-600 mt-4 mb-8">Tell us where your property is located. We will review the work, access and scheduling with you. Commercial projects outside these service areas can be discussed with our team.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {COMPANY_SERVICE_AREAS.map(area => <div key={area.code} className="tayco-living-card editorial-ivory-card p-5"><p className="tayco-eyebrow text-[#1B3A6B]">{area.code}</p><h3 className="font-bold text-[#0F2040] mt-2">{area.state}</h3><p className="text-sm text-slate-600 mt-2 leading-relaxed">{area.cities}</p></div>)}
+          </div>
+          <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
+        </div>
+      </section>
     </main>
   );
 }

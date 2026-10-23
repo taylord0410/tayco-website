@@ -42,3 +42,14 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Private operational data must never enter Git or build artifacts
+.data/
+.tayco_erp_suite_state.json
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+astro-portal/node_modules/
+
+# Explicit deployment-only private metadata; never commit source grants or manifests.
+/private-operator-inputs/

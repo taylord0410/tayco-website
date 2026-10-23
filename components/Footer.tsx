@@ -1,70 +1,48 @@
 import Link from "next/link";
 import Image from "next/image";
+import { COMPANY, COMPANY_SERVICES } from "@/lib/company";
 
 export default function Footer() {
   return (
-    <footer style={{ background: "#0F2040" }} className="text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
-            <div className="flex items-center gap-3 mb-3">
-              <Image src="/logo.jpeg" alt="TAYCO LLC" width={48} height={48} className="rounded-full" />
-              <span className="font-bold text-xl tracking-tight" style={{ color: "#C9A84C" }}>TAYCO LLC</span>
-            </div>
-            <p className="text-sm text-gray-400 mb-2">Full-Service Construction Company</p>
-            <p className="text-sm text-gray-400">WI · IL · IA · IN · MN · MI · MO · TX</p>
-            <p className="text-sm text-gray-400 mt-1">Licensed &amp; Insured</p>
-            <p className="text-sm text-gray-400">Certified Restoration Contractor</p>
-          </div>
-
+    <footer className="text-slate-300" style={{ background: "linear-gradient(180deg, #070E1A 0%, #050A14 100%)", borderTop: "1px solid rgba(201,168,76,.25)" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9">
           <div>
-            <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Services</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">General Construction &amp; Remodeling</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Fire Restoration</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Water Restoration</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Construction &amp; Renovation</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Roofing &amp; Exterior</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Flooring</Link></li>
-              <li><Link href="#services" className="text-gray-400 hover:text-white transition-colors">Electrical &amp; Plumbing</Link></li>
-            </ul>
+            <Link href="/" className="inline-flex items-center gap-3 mb-4" aria-label="TAYCO home">
+              <Image src="/logo.jpeg" alt="" width={48} height={48} className="rounded-full ring-1 ring-amber-400/40" />
+              <span><span className="font-bold text-xl tracking-tight block text-[#C9A84C]">{COMPANY.name}</span><span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Construction Company</span></span>
+            </Link>
+            <p className="text-sm text-slate-400 leading-relaxed">Commercial construction, residential renovation and restoration. One team to help take your project from a clear scope to a finished space.</p>
+            <p className="mt-4 text-xs text-amber-200 leading-relaxed">{COMPANY.coverage}</p>
+            <p className="mt-3 text-xs text-slate-400">Licensed &amp; Insured · Certified Restoration Contractor</p>
           </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Clients We Serve</h4>
+          <nav aria-label="Footer services">
+            <h2 className="tayco-eyebrow mb-4">Our services</h2>
+            <ul className="space-y-2 text-sm">{COMPANY_SERVICES.map(service => <li key={service.label}><Link href={service.href} className="inline-block py-1 text-slate-400 hover:text-white transition-colors">{service.label}</Link></li>)}</ul>
+          </nav>
+          <nav aria-label="Footer project resources">
+            <h2 className="tayco-eyebrow mb-4">Build with TAYCO</h2>
             <ul className="space-y-2 text-sm">
-              <li className="text-gray-400">Property Owners</li>
-              <li className="text-gray-400">Investors</li>
-              <li className="text-gray-400">Banks &amp; Lenders</li>
-              <li className="text-gray-400">General Contractors</li>
-              <li className="text-gray-400">Property Managers</li>
-              <li className="text-gray-400">Business Owners</li>
+              <li><Link href="/estimate" className="inline-block py-1 text-amber-200 hover:text-white">Request a free estimate</Link></li>
+              <li><Link href="/investor" className="inline-block py-1 text-slate-400 hover:text-white">Owners &amp; property managers</Link></li>
+              <li><Link href="/vendor-application" className="inline-block py-1 text-slate-400 hover:text-white">Become a trade partner</Link></li>
+              <li><Link href="/login" className="inline-block py-1 text-slate-400 hover:text-white">Team, client &amp; supplier sign in</Link></li>
             </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Contact</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="tel:+18572301452" className="text-gray-300 hover:text-white transition-colors">📞 857-230-1452</a></li>
-              <li><a href="mailto:general@taycoturnkey.com" className="text-gray-300 hover:text-white transition-colors">✉️ general@taycoturnkey.com</a></li>
-              <li className="text-gray-400">📍 WI · IL · IA · IN · MN · MI · MO · TX</li>
-              <li className="text-gray-400">🕐 Mon–Fri 7am–6pm</li>
-              <li className="text-gray-400">Sat by appointment</li>
-            </ul>
-            <div className="mt-4 flex flex-col gap-2">
-              <Link href="/estimate" className="text-white text-sm font-semibold px-4 py-2 rounded-lg text-center transition-colors" style={{ background: "#C9A84C" }}>
-                Get Free Estimate
-              </Link>
-              <Link href="/vendor-application" className="text-sm px-4 py-2 rounded-lg text-center border border-gray-500 text-gray-300 hover:border-white hover:text-white transition-colors">
-                Vendor Application
-              </Link>
-            </div>
+            <p className="text-xs text-slate-400 leading-relaxed mt-5">For property owners, investors, banks and lenders, general contractors, property managers and business owners.</p>
+          </nav>
+          <div id="contact">
+            <h2 className="tayco-eyebrow mb-4">Let’s talk about your project</h2>
+            <address className="not-italic text-sm space-y-3">
+              <p><a href={COMPANY.phoneHref} className="inline-block py-1 text-white hover:text-amber-200">{COMPANY.phoneDisplay}</a></p>
+              <p><a href={COMPANY.emailHref} className="inline-block py-1 break-all text-slate-300 hover:text-white">{COMPANY.email}</a></p>
+              <p className="text-slate-400">{COMPANY.hours}<br />{COMPANY.saturday}</p>
+            </address>
+            <Link href="/estimate" data-magnetic className="mt-5 inline-flex justify-center px-5 py-3 rounded-xl text-sm font-bold bg-[#C9A84C] text-[#070E1A]">Tell us what you’re planning →</Link>
           </div>
         </div>
-
-        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-2 text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} TAYCO LLC — All Rights Reserved.</p>
-          <p>Licensed &amp; Insured | Water &amp; Fire Damage Restoration Certified</p>
+        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</p>
+          <Link href="/privacy" className="text-slate-400 hover:text-white">Privacy &amp; data protection</Link>
         </div>
       </div>
     </footer>
