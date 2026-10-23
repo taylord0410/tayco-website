@@ -12,7 +12,7 @@ The default private workspace is the Executive overview. Desktop has a grouped m
 - Bid leveling: separately recorded supplier offers with project, scope, amount, date and source; internal review and shortlist/accept/decline decisions. Providers see their own assigned offers.
 - Purchase orders: internal creation, optionally linked to an accepted matching offer; draft → issued → acknowledged → received → closed, with cancellation before receipt. A recorded acknowledgement is an internal record, not proof of supplier delivery.
 - Team hours: dated work records and internal review. This is preparation data, not a certified payroll filing.
-- Tax & TERO: project requirements, due dates and manual review evidence. Completion requires a review date and evidence; no tax calculation, eligibility determination or filing is implied.
+- Project requirements & certifications: project requirements, due dates and manual review evidence. Completion requires a review date and evidence; no tax calculation, eligibility determination or filing is implied.
 - Financial overview and invoices: dated issuance, separately recorded partial payments and retained correction history.
 - Investor & lender dossier: an authorized **client-facing** JSON package. It includes approved shared project documents and client invoices; it excludes internal procurement, provider invoice data and private storage paths. The same conservative export applies to team accounts.
 - Takeoff Pro bridge: integration availability and project context. Until configured, it reports unavailable rather than returning demonstration figures.

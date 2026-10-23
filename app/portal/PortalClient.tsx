@@ -7,6 +7,7 @@ import type { AuthRole } from "@/lib/auth";
 import { COMPANY } from "@/lib/company";
 import { isValidUsdAmount } from "@/lib/financial-values";
 import ProjectOverview, { type WorkspaceField } from "@/components/workspace/ProjectOverview";
+import ProjectClassification, { ProjectClassificationFilters, matchesProjectClassification, projectClassificationFields } from "@/components/workspace/ProjectClassification";
 import FinanceOverview from "@/components/workspace/FinanceOverview";
 import FinancialDashboard from "@/components/workspace/FinancialDashboard";
 import HoursReport from "@/components/workspace/HoursReport";
@@ -225,6 +226,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const modulesToggleRef=useRef<HTMLButtonElement>(null);
   const currentModuleRef=useRef<HTMLDivElement>(null);
   const [projectId, setProjectId] = useState("");
+  const [projectClassificationFilter, setProjectClassificationFilter] = useState({ contractType: "all", laborRegime: "all" });
   const [refreshing, setRefreshing] = useState(false);
   const [financePeriod, setFinancePeriod] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -250,7 +252,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
     ...(vendor?[{id:"vendor",label:"My company",group:"Commercial"}]:[]),
     ...(team||vendor?[{id:"bid",label:"Bid leveling",group:"Commercial"}]:[]),
     ...(team||vendor?[{id:"hours",label:"Team hours",group:"Field & procurement"},{id:"purchase_order",label:"Purchase orders",group:"Field & procurement"}]:[]),
-    ...(team?[{id:"team",label:"Project teams",group:"Field & procurement"},{id:"compliance",label:"Tax & TERO",group:"Field & procurement"}]:[]),
+    ...(team?[{id:"team",label:"Project teams",group:"Field & procurement"},{id:"compliance",label:"Project requirements & certifications",group:"Field & procurement"}]:[]),
     {id:"finance",label:"Financial overview",group:"Accounting & capital"},
     {id:"invoice",label:"Invoices",group:"Accounting & capital"},
     ...(!vendor?[{id:"dossier",label:"Investor & lender dossier",group:"Accounting & capital"}]:[]),
@@ -259,6 +261,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   ];
   function navigate(view:string,selectedProject?:string,reportingMonth?:string) {
     if(["finance","financial_dashboard","corporate_meetings","followups"].includes(view))setFinancePeriod(reportingMonth&&/^\d{4}-(0[1-9]|1[0-2])$/.test(reportingMonth)?reportingMonth:null);
+    if(view === "project" && selectedProject !== undefined)setProjectClassificationFilter({ contractType: "all", laborRegime: "all" });
     setTab(tabs.some(item=>item.id===view)?view:"project");
     if(selectedProject!==undefined)setProjectId(selectedProject);
     else if(["lead","vendor","activity","corporate_meetings","followups"].includes(view))setProjectId("");
@@ -275,7 +278,8 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
     document.addEventListener("keydown",key);document.addEventListener("pointerdown",outside);
     return()=>{document.removeEventListener("keydown",key);document.removeEventListener("pointerdown",outside);};
   },[mobileModulesOpen]);
-  const visible = data.entries.filter((entry) => entry.kind === tab && (!projectId || entry.projectId === projectId));
+  const scopedRecords = data.entries.filter((entry) => entry.kind === tab && (!projectId || entry.projectId === projectId));
+  const visible = tab === "project" ? scopedRecords.filter(entry => matchesProjectClassification(entry, projectClassificationFilter)) : scopedRecords;
   const card = "rounded-xl border border-slate-600/70 bg-[#09172b]/70 p-4 sm:p-5";
   const assigneeField = (entry?:Entry):Field => {
     const currentId=entry?value(entry.data,"assigneeId"):"";
@@ -401,6 +405,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         return <div key={key}><p className="text-xs capitalize text-slate-400">{title}</p><p className="whitespace-pre-wrap break-words text-slate-100">{text}</p></div>;
       })}
       {entry.kind === "lead" && team && <p><span className="text-slate-400">Responsible: </span>{value(d,"assigneeEmail")||"Unassigned — needs a team member"}{value(d,"assignedAt")&&<span className="mt-1 block text-xs text-slate-400">Assigned {timestamp(value(d,"assignedAt"))}</span>}</p>}
+      {entry.kind === "project" && <ProjectClassification entry={entry} team={team} renderForm={renderOperationsForm} onOpenRequirements={() => navigate("compliance", entry.id)} />}
       {entry.kind === "project" && <ProjectOverview entry={entry} team={team} vendor={vendor} documents={data.entries.filter(document=>document.kind==="document"&&document.projectId===entry.id&&document.data.type==="project")} renderForm={(props)=><CommandForm key={props.action+String(props.fixed?.milestoneId||props.fixed?.contactId||"")} {...props} command={command}/>} />}
       {entry.kind === "project" && !vendor && <p><span className="text-slate-400">{value(d,"budgetSource")&&value(d,"budgetApprovedOn")?"Approved budget: ":"Budget on record: "}</span>{money(d.budgetUsd)}</p>}
       {entry.kind === "invoice" && <p className="text-xl font-bold text-white">{money(d.amountUsd)}</p>}
@@ -452,7 +457,8 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
       </section>}
       <div ref={currentModuleRef} tabIndex={-1} role="region" aria-label={tabs.find(item=>item.id===tab)?.label||"Workspace module"} className="mt-5 min-w-0 outline-none" aria-busy={refreshing} data-testid={"module-"+(moduleId[tab]||tab)}>
         <Panel featured={tab==="executive"} title={tabs.find((item) => item.id === tab)?.label || "Workspace"} subtitle={tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
-          {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "budgetSource", label: "Approval source (required when budget is entered)", required: false }, { name: "budgetApprovedOn", label: "Approval date (required when budget is entered)", type: "date", required: false }, { name: "nextAction", label: "Next action (optional)", required: false, placeholder: "Record the actual next step for this project", type: "textarea" }]} />}
+          {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "budgetSource", label: "Approval source (required when budget is entered)", required: false }, { name: "budgetApprovedOn", label: "Approval date (required when budget is entered)", type: "date", required: false }, { name: "nextAction", label: "Next action (optional)", required: false, placeholder: "Record the actual next step for this project", type: "textarea" }, ...projectClassificationFields()]} />}
+          {tab === "project" && <ProjectClassificationFilters projects={scopedRecords} value={projectClassificationFilter} onChange={setProjectClassificationFilter} />}
           {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[assigneeField(),{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}
           {tab === "hours" && !(!team && !vendor) && projects.length > 0 && <CommandForm title="Submit work hours" action="log_hours" command={command} fields={[projectField(projects), { name: "date", label: "Work date", type: "date" }, { name: "hours", label: "Hours", type: "number", min: 0.1, max: 24, step: 0.1 }, { name: "trade", label: "Work performed" }]} />}
           {tab === "invoice" && (team || vendor) && projects.length > 0 && <CommandForm title="Record an invoice" action="record_invoice" command={command} fields={[projectField(projects), { name: "reference", label: "Invoice reference" }, { name: "amountUsd", label: "Amount (USD)", type: "number", min: 0, max: 1e10, step: 0.01 }, {name:"issuedOn",label:"Invoice issue date",type:"date",value:new Date().toISOString().slice(0,10)},{name:"source",label:"Invoice source",value:"Team record"},{ name: "dueDate", label: "Due date", type: "date", required: false }, ...(team ? [{ name: "audience", label: "Visible to", type: "select" as const, value: "client", options: [{ value: "client", label: "Assigned client" }, { value: "internal", label: "TAYCO team only" }] }] : [])]} />}
@@ -466,7 +472,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
             </div>
             {data.audit.length === 0 ? <Empty>No workspace activity has been recorded yet.</Empty> : data.audit.map((event, index) => <div key={index} className={card}><p className="text-sm font-semibold capitalize">{label(event.action)}</p><p className="mt-1 text-xs text-slate-400">{timestamp(value(event, "created_at"))}</p><p className="mt-1 break-all text-xs text-slate-400">Reference: {value(event, "resource_id")}</p></div>)}</div> :
             visible.length === 0 ? <div className="mt-4"><Empty>{tab === "project" && !team ? "No projects have been assigned to your account yet. Contact your TAYCO coordinator to confirm access." : "No records to show in this section" + (projectId ? " for the selected project." : " yet.")}</Empty></div> :
-              <div className="mt-5 grid min-w-0 gap-4 lg:grid-cols-2">{visible.map((entry) => <article key={entry.id} className={card}>
+              <div className="mt-5 grid min-w-0 gap-4 lg:grid-cols-2">{visible.map((entry) => <article key={entry.id} data-project-id={entry.kind === "project" ? entry.id : undefined} className={card}>
                 <div className="flex flex-wrap items-start justify-between gap-3"><h3 className="min-w-0 break-words text-lg font-semibold text-white">{recordTitle(entry)}</h3><Status>{label(entry.data.status) || "Recorded"}</Status></div>
                 {metadata(entry)}<p className="mt-1 break-all text-[11px] text-slate-400">Reference: {entry.id}</p>{detail(entry)}{controls(entry)}
               </article>)}</div>}

@@ -6,6 +6,7 @@ import { isValidUsdAmount } from './financial-values';
 import { isFinancialDate } from './financial-periods';
 import { parseProjectEstimate } from './project-estimates';
 import { isForecastPercentage } from './financial-forecast';
+import { CLASSIFICATION_HISTORY_LIMIT, COMPLIANCE_CATEGORY_OPTIONS, parseProjectClassificationInput, type ProjectClassification } from './project-classification';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
 export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate' | 'proposal' | 'corporate_meeting' | 'followup';
@@ -51,6 +52,19 @@ function requireEntry(actor: Actor, id: string, kind?: Kind) {
   return item;
 }
 function requireInternal(actor: Actor) { if (!internal(actor)) throw new ErpError(403, 'This action requires a TAYCO team member.'); }
+function projectClassification(actor:Actor,input:Data,previous?:unknown):ProjectClassification {
+  let fields;
+  try { fields=parseProjectClassificationInput(input); }
+  catch(error) { throw new ErpError(422,error instanceof Error?error.message:'Check project classification.'); }
+  const prior=previous&&typeof previous==='object'&&!Array.isArray(previous)?previous as Data:{};
+  const history=prior.history??[];
+  if(!Array.isArray(history)||history.some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new ErpError(409,'Classification history needs operator review before another change.');
+  if(history.length>=CLASSIFICATION_HISTORY_LIMIT)throw new ErpError(422,'Review project classification history before another change.');
+  const unknown=fields.contractType==='unknown'&&fields.fundingType==='unknown'&&fields.laborRegime==='unknown'&&!fields.jurisdiction&&!fields.source;
+  if(previous===undefined&&unknown)return {...fields,reviewedAt:null,reviewedBy:null,history:[]};
+  const review={...fields,reviewedAt:new Date().toISOString(),reviewedBy:actor.id};
+  return {...review,history:[...history,review] as ProjectClassification['history']};
+}
 function text(v: unknown, label: string, max=500, required=true) {
   if (typeof v !== 'string' || (required && !v.trim()) || v.length > max) throw new ErpError(422, `Check ${label}.`);
   return v.trim();
@@ -116,6 +130,7 @@ function exposed(actor:Actor,e:Entry):Entry {
   if(!internal(actor)&&e.kind==='purchase_order')for(const field of ['documentId','sheetRef','sourcingHistory'])delete data[field];
  if(!internal(actor)&&e.kind==='document'){for(const field of ['holdReason','holdChangedBy','deleteReason','deletedBy','purgeLastError','purgeAttempts','purgeLeaseUntil','purgeAttemptedAt','retentionDays','purgeAttemptToken'])delete data[field];}
  if(e.kind==='project'){
+   if(!internal(actor)&&data.classification&&typeof data.classification==='object'&&!Array.isArray(data.classification)){const classification={...data.classification as Data};for(const field of ['source','history','reviewedBy'])delete classification[field];data.classification=classification;}
     if(!internal(actor))for(const field of ['teamMembers','forecastPlans','completionEvidence','completionHistory','completionRecordedAt'])delete data[field];
    if(actor.role==='vendor'){for(const field of ['budgetUsd','budgetSource','budgetApprovedOn','budgetUpdatedAt','clientEmail','clientName','clientPhone'])delete data[field];}
    if(!internal(actor)&&Array.isArray(data.contacts))data.contacts=data.contacts.filter(contact=>contact&&typeof contact==='object'&&((contact as Data).visibility==='project'||(actor.role==='client'&&(contact as Data).visibility==='client'))&&(contact as Data).status!=='archived');
@@ -247,7 +262,7 @@ function mutate(actor: Actor, input: Data): Entry {
     const budgetSource=budgetUsd===null?'':text(input.budgetSource,'budget approval source',500);
     const budgetApprovedOn=budgetUsd===null?'':calendarDate(input.budgetApprovedOn,'budget approval date');
     if(budgetApprovedOn&&budgetApprovedOn>new Date().toISOString().slice(0,10))throw new ErpError(422,'A budget approval date cannot be in the future.');
-    return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:null,budgetUsd,budgetSource,budgetApprovedOn,...(budgetUsd===null?{}:{budgetUpdatedAt:new Date().toISOString()}),nextAction:text(input.nextAction??'','next action',500,false),source:'team'});
+    return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:null,budgetUsd,budgetSource,budgetApprovedOn,...(budgetUsd===null?{}:{budgetUpdatedAt:new Date().toISOString()}),nextAction:text(input.nextAction??'','next action',500,false),source:'team',classification:projectClassification(actor,input)});
   }
   if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team',...staffAssignment(actor,input.assigneeId)});}
   if(action==='create_proposal') {
@@ -331,6 +346,10 @@ function mutate(actor: Actor, input: Data): Entry {
   if(action==='update_lead_details') {
     requireInternal(actor);const item=requireEntry(actor,text(input.id,'request',100),'lead'),estimatedValueUsd=input.estimatedValueUsd==null?null:currencyAmount(input.estimatedValueUsd,'estimated opportunity value');
     return update(actor,item,{location:text(input.location??'','location',200,false),estimatedValueUsd,estimateSource:estimatedValueUsd===null?null:text(input.estimateSource,'estimate source',1000)},input.version);
+  }
+  if(action==='update_project_classification') {
+    requireInternal(actor);const item=project(actor,input.id);
+    return update(actor,item,{classification:projectClassification(actor,input,item.data.classification??{})},input.version);
   }
   if(action==='update_project_details') {
    requireInternal(actor);const item=project(actor,input.id);
@@ -436,7 +455,7 @@ function mutate(actor: Actor, input: Data): Entry {
     if(history.length>=100)throw new ErpError(422,'Review order sourcing history before another change.');
     return update(actor,item,{...details,sourcingHistory:[...history,details]},input.version);
   }
-  if(action==='create_compliance') {requireInternal(actor);const p=project(actor,input.projectId);return create(actor,'compliance',{jurisdiction:text(input.jurisdiction,'jurisdiction',200),topic:text(input.topic,'requirement to track',1000),source:text(input.source,'requirement source',1000),dueDate:calendarDate(input.dueDate,'review due date',true),status:'pending',evidence:'',reviewedOn:null},p.id);}
+  if(action==='create_compliance') {requireInternal(actor);const p=project(actor,input.projectId);return create(actor,'compliance',{jurisdiction:text(input.jurisdiction,'jurisdiction',200),category:choice(input.category??'general',COMPLIANCE_CATEGORY_OPTIONS.map(option=>option.value)),authority:text(input.authority??'','requirement authority',200,false),topic:text(input.topic,'requirement to track',1000),source:text(input.source,'requirement source',1000),dueDate:calendarDate(input.dueDate,'review due date',true),status:'pending',evidence:'',reviewedOn:null},p.id);}
   if(action==='review_compliance') {
    requireInternal(actor);const item=requireEntry(actor,text(input.id,'review item',100),'compliance'),status=choice(input.status,['pending','in_review','complete','not_applicable','expired']),evidence=text(input.evidence??'','review evidence',4000,['complete','not_applicable'].includes(status)),reviewedOn=['complete','not_applicable'].includes(status)?occurredDate(input.reviewedOn,'Review date'):null;
    return update(actor,item,{status,evidence,reviewedOn},input.version);

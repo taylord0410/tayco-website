@@ -19,7 +19,7 @@ try {
   await page.getByTestId("executive-console").waitFor();
   const nav=page.getByRole("navigation",{name:"Command Center Navigation",exact:true});
   for(const name of ["Projects","Documents","Updates","Financial overview","Invoices"])assert.equal(await nav.getByRole("button").filter({has:page.locator("span").filter({hasText:new RegExp("^"+name+"$")})}).count(),1);
-  assert.equal(await nav.getByRole("button").filter({has:page.locator("span").filter({hasText:/^Tax & TERO$/})}).count(),["admin","staff"].includes(role)?1:0);
+  assert.equal(await nav.getByRole("button").filter({has:page.locator("span").filter({hasText:/^Project requirements & certifications$/})}).count(),["admin","staff"].includes(role)?1:0);
   assert.equal(await nav.getByRole("button").filter({has:page.locator("span").filter({hasText:/^Bid leveling$/})}).count(),role==="client"||role==="other"?0:1);
   assert.equal(await page.getByTestId("module-access").count(),role==="admin"?1:0);
   if(role==="admin"){

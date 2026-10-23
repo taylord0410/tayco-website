@@ -79,7 +79,7 @@ try{
   await reload(vendor);await nav(vendor,"Bid leveling");
   for(const suffix of ["B","C"])assert.equal(await vendor.page.getByRole("heading",{name:supplier+" "+suffix,exact:true}).count(),0,"A competing supplier offer leaked.");
   await nav(vendor,"Purchase orders");assert.equal(await vendor.page.getByRole("heading",{name:poRef,exact:true}).isVisible(),true);assert.equal(await vendor.page.locator("summary").filter({hasText:/^Update purchase order$/}).count(),0);
-  await nav(admin,"Tax & TERO");f=await form(admin.page,"Add a compliance review");const topic="Synthetic compliance review "+nonce;
+  await nav(admin,"Project requirements & certifications");f=await form(admin.page,"Add a compliance review");const topic="Synthetic compliance review "+nonce;
   await fill(f,{projectId:config.projects[0],jurisdiction:"Synthetic project jurisdiction",topic,dueDate:"2026-02-01",source:"Synthetic review requirement"});await save(f);
   let item=(await snapshot(admin)).entries.find(e=>e.kind==="compliance"&&e.data.topic===topic);created.compliance=item.id;
   await denied(admin,{action:"review_compliance",id:item.id,version:item.version,status:"complete",evidence:"",reviewedOn:"2026-01-10"},422);
@@ -146,11 +146,11 @@ try{
   return {issuedAndEffectivePaymentMonthsSeparated:true,partialPaymentsGui:true,supplierDirectionSeparate:true,chartHasTwelveAccessibleRows:true,selectedCsvGuiDownload:true,correctionPreservesAuditEntry:true,invalidPeriodsRejected:true};
  });
  await run("roles",async()=>{
-  const expected={admin:["Bid leveling","Purchase orders","Tax & TERO","Investor & lender dossier","Takeoff Pro bridge"],staff:["Bid leveling","Purchase orders","Tax & TERO","Investor & lender dossier","Takeoff Pro bridge"],client:["Investor & lender dossier"],other:["Investor & lender dossier"],vendor:["Bid leveling","Purchase orders"]};
+  const expected={admin:["Bid leveling","Purchase orders","Project requirements & certifications","Investor & lender dossier","Takeoff Pro bridge"],staff:["Bid leveling","Purchase orders","Project requirements & certifications","Investor & lender dossier","Takeoff Pro bridge"],client:["Investor & lender dossier"],other:["Investor & lender dossier"],vendor:["Bid leveling","Purchase orders"]};
   const states=[];
   for(const role of ["admin","staff","client","other","vendor"]){
    const s=await session(role);await reload(s);const state=await snapshot(s);const navElement=s.page.getByRole("navigation",{name:"Command Center Navigation",exact:true});
-   for(const label of ["Bid leveling","Purchase orders","Tax & TERO","Investor & lender dossier","Takeoff Pro bridge"]){assert.equal(await navElement.getByRole("button",{name:new RegExp(label,"i")}).count(),expected[role].includes(label)?1:0,role+" nav "+label);}
+   for(const label of ["Bid leveling","Purchase orders","Project requirements & certifications","Investor & lender dossier","Takeoff Pro bridge"]){assert.equal(await navElement.getByRole("button",{name:new RegExp(label,"i")}).count(),expected[role].includes(label)?1:0,role+" nav "+label);}
    if(["client","other","vendor"].includes(role)){
     assert.equal(state.entries.some(e=>e.kind==="compliance"),false);
     if(role!=="vendor")assert.equal(state.entries.some(e=>e.kind==="bid"||e.kind==="purchase_order"),false);
@@ -173,7 +173,7 @@ try{
   const s=await session("admin"),measurements=[];
   for(const [width,height]of [[360,740],[390,844],[768,1024],[844,390],[1024,768],[1440,900]]){
    await s.page.setViewportSize({width,height});
-   for(const label of ["Executive overview","Bid leveling","Purchase orders","Tax & TERO","Financial overview","Investor & lender dossier","Takeoff Pro bridge"]){
+   for(const label of ["Executive overview","Bid leveling","Purchase orders","Project requirements & certifications","Financial overview","Investor & lender dossier","Takeoff Pro bridge"]){
     await nav(s,label);const excess=await s.page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);assert.ok(excess<=1,"Overflow "+width+" "+label);measurements.push({width,height,view:label,overflow:excess});
    }
    await nav(s,"Executive overview");await s.page.evaluate(()=>scrollTo(0,0));await s.page.screenshot({path:path.join(evidence,"console-"+width+"x"+height+".png"),fullPage:true});
