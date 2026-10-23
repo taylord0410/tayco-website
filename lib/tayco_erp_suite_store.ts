@@ -122,6 +122,58 @@ export interface TaycoStateTaxRate {
   constructionRule: string;
 }
 
+export interface TaycoSCurvePoint {
+  weekLabel: string;
+  weekNum: number;
+  completionPct: number;
+  planned_value_usd: number;
+  earned_value_usd: number;
+  actual_cost_usd: number;
+  cash_inflow_net_g702_usd: number;
+  cpi: number;
+  spi: number;
+}
+
+export interface TaycoCsiDonutSegment {
+  id: string;
+  code: string;
+  label: string;
+  category: "Materials" | "Field Labor" | "Equipment" | "Overhead & Fee" | "CSI Division";
+  amountUsd: number;
+  sharePct: number;
+  manHours: number;
+  crewAssigned: string;
+  colorHex: string;
+}
+
+export interface TaycoStateFootprintItem {
+  stateCode: string;
+  stateName: string;
+  active_pipeline_usd: number;
+  active_projects_count: number;
+  prequalified_vendors_count: number;
+  combined_tax_rate_pct: number;
+  estimated_material_tax_usd: number;
+}
+
+export interface TaycoVisualArsenal {
+  scurve_24_weeks: TaycoSCurvePoint[];
+  csi_cost_distribution: {
+    direct_cost_total_usd: number;
+    overhead_and_fee_usd: number;
+    total_gmp_usd: number;
+    cost_components: TaycoCsiDonutSegment[];
+    csi_divisions: TaycoCsiDonutSegment[];
+  };
+  state_footprint_analytics: TaycoStateFootprintItem[];
+  kpi_sparklines: {
+    pipeline_trend: number[];
+    cpi_trend: number[];
+    manhours_trend: number[];
+    cashflow_trend: number[];
+  };
+}
+
 export interface TaycoSuiteState {
   activeTenantId: string;
   activeInvitationCode: string;
@@ -759,6 +811,170 @@ export const TAYCO_STATE_TAX_RATES: TaycoStateTaxRate[] = [
   },
 ];
 
+export const TAYCO_VISUAL_ARSENAL: TaycoVisualArsenal = {
+  scurve_24_weeks: [
+    { weekLabel: "W02", weekNum: 2, completionPct: 4.5, planned_value_usd: 38500.0, earned_value_usd: 39200.0, actual_cost_usd: 37800.0, cash_inflow_net_g702_usd: 35280.0, cpi: 1.04, spi: 1.02 },
+    { weekLabel: "W04", weekNum: 4, completionPct: 11.2, planned_value_usd: 95800.0, earned_value_usd: 96400.0, actual_cost_usd: 92900.0, cash_inflow_net_g702_usd: 86760.0, cpi: 1.04, spi: 1.01 },
+    { weekLabel: "W06", weekNum: 6, completionPct: 20.8, planned_value_usd: 178000.0, earned_value_usd: 179500.0, actual_cost_usd: 172600.0, cash_inflow_net_g702_usd: 161550.0, cpi: 1.04, spi: 1.01 },
+    { weekLabel: "W08", weekNum: 8, completionPct: 31.5, planned_value_usd: 269500.0, earned_value_usd: 268100.0, actual_cost_usd: 257800.0, cash_inflow_net_g702_usd: 241290.0, cpi: 1.04, spi: 0.99 },
+    { weekLabel: "W10", weekNum: 10, completionPct: 42.0, planned_value_usd: 359300.0, earned_value_usd: 355800.0, actual_cost_usd: 342100.0, cash_inflow_net_g702_usd: 320220.0, cpi: 1.04, spi: 0.99 },
+    { weekLabel: "W12", weekNum: 12, completionPct: 51.4, planned_value_usd: 439700.0, earned_value_usd: 434200.0, actual_cost_usd: 417500.0, cash_inflow_net_g702_usd: 390780.0, cpi: 1.04, spi: 0.99 },
+    { weekLabel: "W14", weekNum: 14, completionPct: 60.2, planned_value_usd: 525500.0, earned_value_usd: 515011.33, actual_cost_usd: 495203.2, cash_inflow_net_g702_usd: 463510.2, cpi: 1.04, spi: 0.98 },
+    { weekLabel: "W16", weekNum: 16, completionPct: 71.0, planned_value_usd: 607400.0, earned_value_usd: 604800.0, actual_cost_usd: 581500.0, cash_inflow_net_g702_usd: 544320.0, cpi: 1.04, spi: 1.0 },
+    { weekLabel: "W18", weekNum: 18, completionPct: 81.5, planned_value_usd: 697200.0, earned_value_usd: 696500.0, actual_cost_usd: 669700.0, cash_inflow_net_g702_usd: 626850.0, cpi: 1.04, spi: 1.0 },
+    { weekLabel: "W20", weekNum: 20, completionPct: 90.4, planned_value_usd: 773400.0, earned_value_usd: 773400.0, actual_cost_usd: 743650.0, cash_inflow_net_g702_usd: 696060.0, cpi: 1.04, spi: 1.0 },
+    { weekLabel: "W22", weekNum: 22, completionPct: 96.8, planned_value_usd: 828150.0, earned_value_usd: 828150.0, actual_cost_usd: 796300.0, cash_inflow_net_g702_usd: 745335.0, cpi: 1.04, spi: 1.0 },
+    { weekLabel: "W24", weekNum: 24, completionPct: 100.0, planned_value_usd: 855525.23, earned_value_usd: 855525.23, actual_cost_usd: 822620.41, cash_inflow_net_g702_usd: 855525.23, cpi: 1.04, spi: 1.0 },
+  ],
+  csi_cost_distribution: {
+    direct_cost_total_usd: 684420.18,
+    overhead_and_fee_usd: 171105.05,
+    total_gmp_usd: 855525.23,
+    cost_components: [
+      {
+        id: "COMP-MAT",
+        code: "MAT-54.8%",
+        label: "Materials (8 Committed POs)",
+        category: "Materials",
+        amountUsd: 375012.51,
+        sharePct: 54.8,
+        manHours: 0,
+        crewAssigned: "8 Material Vendors (QuickBooks Acct 5200)",
+        colorHex: "#C9A84C",
+      },
+      {
+        id: "COMP-LAB",
+        code: "LAB-31.2%",
+        label: "Field Labor (Davis-Bacon WH-347)",
+        category: "Field Labor",
+        amountUsd: 213299.26,
+        sharePct: 31.2,
+        manHours: 6536.0,
+        crewAssigned: "7 CSI Field Crews (43 Tradesmen)",
+        colorHex: "#10B981",
+      },
+      {
+        id: "COMP-EQP",
+        code: "EQP-14.0%",
+        label: "Heavy Equipment & Crane Fleet",
+        category: "Equipment",
+        amountUsd: 96108.41,
+        sharePct: 14.0,
+        manHours: 1120.0,
+        crewAssigned: "Excavators, Concrete Pump & Telehandlers",
+        colorHex: "#38BDF8",
+      },
+      {
+        id: "COMP-OHP",
+        code: "OHP-20.0%",
+        label: "GC Overhead, Fee & Performance Bond (20%)",
+        category: "Overhead & Fee",
+        amountUsd: 171105.05,
+        sharePct: 20.0,
+        manHours: 0,
+        crewAssigned: "TAYCO Turnkey Project Management",
+        colorHex: "#A855F7",
+      },
+    ],
+    csi_divisions: [
+      {
+        id: "CSI-31-32",
+        code: "CSI 31/32",
+        label: "CSI 31/32 Civil & 8.5' Frost-Bury Utilities",
+        category: "CSI Division",
+        amountUsd: 156400.0,
+        sharePct: 22.85,
+        manHours: 1180.0,
+        crewAssigned: "CREW-CSI-31 (Civil & Trenching)",
+        colorHex: "#F59E0B",
+      },
+      {
+        id: "CSI-06",
+        code: "CSI 06",
+        label: "CSI 06 Wood, 16x LVL Ridge Beams & Framing",
+        category: "CSI Division",
+        amountUsd: 146900.0,
+        sharePct: 21.46,
+        manHours: 1680.0,
+        crewAssigned: "CREW-CSI-05-06 (10 Framing Carpenters)",
+        colorHex: "#C9A84C",
+      },
+      {
+        id: "CSI-03",
+        code: "CSI 03",
+        label: "CSI 03 Concrete 4000 PSI, Frost Walls & Pads",
+        category: "CSI Division",
+        amountUsd: 145200.0,
+        sharePct: 21.22,
+        manHours: 1420.0,
+        crewAssigned: "CREW-CSI-03 (8 Concrete Finishers)",
+        colorHex: "#10B981",
+      },
+      {
+        id: "CSI-07",
+        code: "CSI 07",
+        label: "CSI 07 Standing Seam Roof & R-38 Thermal",
+        category: "CSI Division",
+        amountUsd: 94300.0,
+        sharePct: 13.78,
+        manHours: 640.0,
+        crewAssigned: "CREW-CSI-07-08 (6 Envelope Techs)",
+        colorHex: "#38BDF8",
+      },
+      {
+        id: "CSI-08-09",
+        code: "CSI 08/09",
+        label: "CSI 08/09 Commercial Glazing, Type X Drywall & LVT",
+        category: "CSI Division",
+        amountUsd: 54920.18,
+        sharePct: 8.02,
+        manHours: 660.0,
+        crewAssigned: "CREW-CSI-09 (7 Interior Specialists)",
+        colorHex: "#818CF8",
+      },
+      {
+        id: "CSI-22-23",
+        code: "CSI 22/23",
+        label: "CSI 22/23 Commercial Plumbing, RTU HVAC & ERV",
+        category: "CSI Division",
+        amountUsd: 54200.0,
+        sharePct: 7.92,
+        manHours: 580.0,
+        crewAssigned: "CREW-CSI-22 & CREW-CSI-23 (8 MEP Techs)",
+        colorHex: "#34D399",
+      },
+      {
+        id: "CSI-26-33",
+        code: "CSI 26/33",
+        label: "CSI 26/33 400A 3-Phase Switchgear & Site Power",
+        category: "CSI Division",
+        amountUsd: 32500.0,
+        sharePct: 4.75,
+        manHours: 376.0,
+        crewAssigned: "CREW-CSI-26 (4 Inside Wiremen)",
+        colorHex: "#F472B6",
+      },
+    ],
+  },
+  state_footprint_analytics: [
+    { stateCode: "WI", stateName: "Wisconsin (HQ)", active_pipeline_usd: 1629192.5, active_projects_count: 2, prequalified_vendors_count: 14, combined_tax_rate_pct: 5.5, estimated_material_tax_usd: 20625.69 },
+    { stateCode: "IL", stateName: "Illinois", active_pipeline_usd: 2480000.0, active_projects_count: 1, prequalified_vendors_count: 11, combined_tax_rate_pct: 8.5, estimated_material_tax_usd: 31876.06 },
+    { stateCode: "ND", stateName: "North Dakota", active_pipeline_usd: 855525.23, active_projects_count: 1, prequalified_vendors_count: 6, combined_tax_rate_pct: 6.5, estimated_material_tax_usd: 24375.81 },
+    { stateCode: "TX", stateName: "Texas", active_pipeline_usd: 920000.0, active_projects_count: 1, prequalified_vendors_count: 9, combined_tax_rate_pct: 8.25, estimated_material_tax_usd: 30938.53 },
+    { stateCode: "MN", stateName: "Minnesota", active_pipeline_usd: 640000.0, active_projects_count: 1, prequalified_vendors_count: 8, combined_tax_rate_pct: 7.375, estimated_material_tax_usd: 27657.17 },
+    { stateCode: "MO", stateName: "Missouri", active_pipeline_usd: 510000.0, active_projects_count: 1, prequalified_vendors_count: 7, combined_tax_rate_pct: 7.5, estimated_material_tax_usd: 28125.94 },
+    { stateCode: "IN", stateName: "Indiana", active_pipeline_usd: 420000.0, active_projects_count: 1, prequalified_vendors_count: 5, combined_tax_rate_pct: 7.0, estimated_material_tax_usd: 26250.88 },
+    { stateCode: "IA", stateName: "Iowa", active_pipeline_usd: 380000.0, active_projects_count: 1, prequalified_vendors_count: 5, combined_tax_rate_pct: 7.0, estimated_material_tax_usd: 26250.88 },
+    { stateCode: "MI", stateName: "Michigan", active_pipeline_usd: 465000.0, active_projects_count: 1, prequalified_vendors_count: 6, combined_tax_rate_pct: 6.0, estimated_material_tax_usd: 22500.75 },
+  ],
+  kpi_sparklines: {
+    pipeline_trend: [3.2, 3.6, 4.1, 4.4, 4.9, 5.2, 5.55, 5.88],
+    cpi_trend: [1.01, 1.02, 1.02, 1.03, 1.03, 1.04, 1.04, 1.04],
+    manhours_trend: [820, 1640, 2590, 3480, 4390, 5210, 5940, 6536],
+    cashflow_trend: [86.7, 161.5, 241.3, 320.2, 390.8, 463.5, 544.3, 626.8],
+  },
+};
+
 const STATE_FILE_PATH = path.join(process.cwd(), ".tayco_erp_suite_state.json");
 
 function defaultState(): TaycoSuiteState {
@@ -783,7 +999,6 @@ export function loadSuiteState(): TaycoSuiteState {
       const raw = fs.readFileSync(STATE_FILE_PATH, "utf-8");
       const parsed = JSON.parse(raw) as Partial<TaycoSuiteState>;
       const base = defaultState();
-      // Ensure standard invitations always have English labels
       const customInvites = Array.isArray(parsed.invitations)
         ? parsed.invitations
             .filter((i) => !base.invitations.some((b) => b.code === i.code))
@@ -822,8 +1037,8 @@ export function computeTaxBreakdown(stateCode: string, taxExempt: boolean) {
 
   const taxableMaterialsUsd = 375012.51;
   const exemptLaborUsd = 213299.26;
-  const equipmentAndSubcontractsUsd = 109695.0;
-  const overheadProfitBondUsd = 157518.46;
+  const equipmentAndSubcontractsUsd = 96108.41;
+  const overheadProfitBondUsd = 171105.05;
   const totalContractGmpUsd = 855525.23;
 
   const effectiveRatePct = taxExempt ? 0 : rateObj.combinedSalesUseTaxPct;
@@ -956,9 +1171,9 @@ export function buildFullSuiteSnapshot(inviteQuery?: string | null, tenantQuery?
   const quickbooksSummary = {
     contractGmpUsd: 855525.23,
     aiaG702PayAppNumber: 3,
-    aiaGrossCompletedToDateUsd: 515011.3,
+    aiaGrossCompletedToDateUsd: 515011.33,
     aiaRetainage10PctUsd: 51501.13,
-    aiaPreviousCertificatesUsd: 278617.47,
+    aiaPreviousCertificatesUsd: 278617.5,
     aiaCurrentNetPaymentDueUsd: 184892.7,
     committedMaterialPosCount: 8,
     committedMaterialPosTotalUsd: 375012.51,
@@ -978,11 +1193,12 @@ export function buildFullSuiteSnapshot(inviteQuery?: string | null, tenantQuery?
     modules: TAYCO_MODULES,
     allowedModules: allowedModuleDefs,
     invitations: state.invitations,
+    analytics_visual_arsenal: TAYCO_VISUAL_ARSENAL,
     crm: {
       pipelineTotalUsd: Number(pipelineTotalUsd.toFixed(2)),
       activeProjectsCount: state.opportunities.length,
       takeoffSyncedCount,
-      statesCoveredCount: 8,
+      statesCoveredCount: 9,
       opportunities: state.opportunities,
       subcontractors: state.subcontractors,
     },
@@ -1021,6 +1237,8 @@ export function buildFullSuiteSnapshot(inviteQuery?: string | null, tenantQuery?
     },
   };
 }
+
+export const getErpSuiteDashboardState = buildFullSuiteSnapshot;
 
 export function createModuleInvitation(input: {
   guestName: string;

@@ -4,6 +4,15 @@
   --navy: #1B3A6B;
   --dark-navy: #0F2040;
   --orange: #F97316;
+  --umbra-ink: #070E1A;
+  --umbra-surface: #0F2040;
+  --umbra-paper: #F7F6F1;
+  --umbra-gold: #C9A84C;
+  --umbra-emerald: #10B981;
+  --umbra-glacier: #38BDF8;
+  --atmosphere-accent: #C9A84C;
+  --mono: "Cascadia Code", Consolas, "Courier New", monospace;
+  --serif: Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -14,4 +23,108 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   color: #1E293B;
   background: #ffffff;
+}
+
+/* ============================================================================
+   TAYCO × UMBRA DIGITAL MATTER & ATMOSPHERE DESIGN SYSTEM (B76)
+   ============================================================================ */
+
+.umbra-bento-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(201, 168, 76, 0.24);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+
+.umbra-bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px -24px rgba(8, 18, 31, 0.55);
+  border-color: rgba(201, 168, 76, 0.54);
+}
+
+[data-surface-mode="crystal"] {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(15, 32, 64, 0.72);
+}
+
+[data-surface-mode="mineral"] {
+  background: linear-gradient(155deg, #08121F 0%, #0F2040 62%, #13284C 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.preview-orbits {
+  position: absolute;
+  top: -18px;
+  right: -28px;
+  width: 165px;
+  height: 165px;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.preview-orbits i {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid var(--atmosphere-accent, #C9A84C);
+  display: block;
+}
+
+.preview-orbits i:nth-child(1) {
+  transform: rotate(-25deg) scaleX(0.52);
+}
+
+.preview-orbits i:nth-child(2) {
+  transform: rotate(35deg) scaleX(0.52);
+}
+
+.preview-orbits i:nth-child(3) {
+  transform: rotate(90deg) scaleX(0.52);
+}
+
+.umbra-eyebrow {
+  font: 600 10px/1.5 var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.umbra-serif-em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.umbra-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.umbra-pill .umbra-pill-arrow,
+.umbra-pill span:last-child {
+  display: inline-block;
+  transition: translate 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s ease;
+}
+
+.umbra-pill:hover .umbra-pill-arrow,
+.umbra-pill:hover span:last-child {
+  translate: 3px -2px;
+}
+
+.umbra-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
 }

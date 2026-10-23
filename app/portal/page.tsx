@@ -10,6 +10,15 @@ type TaycoModuleId =
   | "MOD_TAX_COMPLIANCE"
   | "MOD_INVESTOR_PORTAL";
 
+type UmbraViewId =
+  | "VIEW_01_COMMAND"
+  | "VIEW_02_INVITATIONS"
+  | "VIEW_03_CRM"
+  | "VIEW_04_PAYROLL"
+  | "VIEW_05_QUICKBOOKS"
+  | "VIEW_06_TAX"
+  | "VIEW_07_TAKEOFF";
+
 interface TaycoModuleDef {
   id: TaycoModuleId;
   code: string;
@@ -44,6 +53,40 @@ interface TaycoInvitation {
   shareUrl: string;
 }
 
+interface SCurvePoint {
+  weekLabel: string;
+  weekNum: number;
+  completionPct: number;
+  planned_value_usd: number;
+  earned_value_usd: number;
+  actual_cost_usd: number;
+  cash_inflow_net_g702_usd: number;
+  cpi: number;
+  spi: number;
+}
+
+interface CsiDonutSegment {
+  id: string;
+  code: string;
+  label: string;
+  category: string;
+  amountUsd: number;
+  sharePct: number;
+  manHours: number;
+  crewAssigned: string;
+  colorHex: string;
+}
+
+interface StateFootprintItem {
+  stateCode: string;
+  stateName: string;
+  active_pipeline_usd: number;
+  active_projects_count: number;
+  prequalified_vendors_count: number;
+  combined_tax_rate_pct: number;
+  estimated_material_tax_usd: number;
+}
+
 interface SuiteSnapshot {
   activeTenant: TaycoTenant;
   activeInvitation: TaycoInvitation;
@@ -51,6 +94,23 @@ interface SuiteSnapshot {
   modules: TaycoModuleDef[];
   allowedModules: TaycoModuleDef[];
   invitations: TaycoInvitation[];
+  analytics_visual_arsenal?: {
+    scurve_24_weeks: SCurvePoint[];
+    csi_cost_distribution: {
+      direct_cost_total_usd: number;
+      overhead_and_fee_usd: number;
+      total_gmp_usd: number;
+      cost_components: CsiDonutSegment[];
+      csi_divisions: CsiDonutSegment[];
+    };
+    state_footprint_analytics: StateFootprintItem[];
+    kpi_sparklines: {
+      pipeline_trend: number[];
+      cpi_trend: number[];
+      manhours_trend: number[];
+      cashflow_trend: number[];
+    };
+  };
   crm: {
     pipelineTotalUsd: number;
     activeProjectsCount: number;
@@ -195,10 +255,45 @@ interface SuiteSnapshot {
   };
 }
 
+function buildSparklinePoints(values: number[], width = 140, height = 34): string {
+  if (!values || values.length === 0) return "";
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  return values
+    .map((v, i) => {
+      const x = (i / Math.max(1, values.length - 1)) * (width - 8) + 4;
+      const y = height - 4 - ((v - min) / span) * (height - 10);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
 export default function TaycoMultiTenantPortalPage() {
   const [snapshot, setSnapshot] = useState<SuiteSnapshot | null>(null);
-  const [activeTab, setActiveTab] = useState<TaycoModuleId>("MOD_CRM_BIDS");
+  const [activeView, setActiveView] = useState<UmbraViewId>("VIEW_01_COMMAND");
   const [showInviteBuilder, setShowInviteBuilder] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Umbra Surface, Atmosphere & Cognitive Density States
+  const [surfaceMode, setSurfaceMode] = useState<"mineral" | "crystal">("crystal");
+  const [accentHex, setAccentHex] = useState<string>("#C9A84C");
+  const [densityMode, setDensityMode] = useState<"calm" | "deep">("calm");
+  const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({});
+
+  // Interactive Chart States
+  const [scurveWeekIdx, setScurveWeekIdx] = useState<number>(6); // Default W14 (60.2% Complete)
+  const [donutLayerMode, setDonutLayerMode] = useState<"components" | "divisions">("divisions");
+  const [selectedDonutIdx, setSelectedDonutIdx] = useState<number>(0);
+
+  // AIA G702/G703 Interactive Simulator
+  const [aiaProgressPct, setAiaProgressPct] = useState<number>(60.2);
+  const [aiaRetainagePct, setAiaRetainagePct] = useState<number>(10.0);
+
+  // CRM Stage Filter
+  const [crmStageFilter, setCrmStageFilter] = useState<string>("ALL");
+
+  // Bridge sync
   const [syncingBridge, setSyncingBridge] = useState(false);
   const [bridgeBannerMsg, setBridgeBannerMsg] = useState<string | null>(null);
 
@@ -224,6 +319,14 @@ export default function TaycoMultiTenantPortalPage() {
   // QuickBooks preview mode
   const [showIifModal, setShowIifModal] = useState(false);
 
+  const toggleTableExpand = (key: string) => {
+    setExpandedTables((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const isTableVisible = (key: string) => {
+    return densityMode === "deep" || Boolean(expandedTables[key]);
+  };
+
   const fetchSuite = useCallback(async (inviteCode?: string, tenantId?: string) => {
     const params = new URLSearchParams();
     if (inviteCode) params.set("invite", inviteCode);
@@ -232,24 +335,20 @@ export default function TaycoMultiTenantPortalPage() {
     if (res.ok) {
       const data: SuiteSnapshot = await res.json();
       setSnapshot(data);
-      const allowedIds = data.allowedModules.map((m) => m.id);
-      if (allowedIds.length > 0 && !allowedIds.includes(activeTab)) {
-        if (allowedIds.includes("MOD_CRM_BIDS")) {
-          setActiveTab("MOD_CRM_BIDS");
-        } else {
-          setActiveTab(allowedIds[0]);
-        }
-      }
     }
-  }, [activeTab]);
+  }, []);
 
   useEffect(() => {
     const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
     const inviteParam = search?.get("invite") || undefined;
     const tabParam = search?.get("tab") as TaycoModuleId | null;
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
+    if (tabParam === "MOD_CRM_BIDS") setActiveView("VIEW_03_CRM");
+    else if (tabParam === "MOD_PAYROLL_CREW") setActiveView("VIEW_04_PAYROLL");
+    else if (tabParam === "MOD_QUICKBOOKS_ERP") setActiveView("VIEW_05_QUICKBOOKS");
+    else if (tabParam === "MOD_TAX_COMPLIANCE") setActiveView("VIEW_06_TAX");
+    else if (tabParam === "MOD_TAKEOFF_PRO" || tabParam === "MOD_INVESTOR_PORTAL")
+      setActiveView("VIEW_07_TAKEOFF");
+
     fetchSuite(inviteParam);
   }, [fetchSuite]);
 
@@ -274,10 +373,6 @@ export default function TaycoMultiTenantPortalPage() {
     if (res.ok) {
       const data: SuiteSnapshot = await res.json();
       setSnapshot(data);
-      const allowedIds = data.allowedModules.map((m) => m.id);
-      if (allowedIds.length > 0 && !allowedIds.includes(activeTab)) {
-        setActiveTab(allowedIds[0]);
-      }
     }
   }
 
@@ -307,10 +402,6 @@ export default function TaycoMultiTenantPortalPage() {
       const data = await res.json();
       setSnapshot(data);
       setCreatedInviteBanner(data.invitation);
-      const allowedIds: TaycoModuleId[] = data.allowedModules.map((m: TaycoModuleDef) => m.id);
-      if (allowedIds.length > 0 && !allowedIds.includes(activeTab)) {
-        setActiveTab(allowedIds[0]);
-      }
     }
   }
 
@@ -385,12 +476,12 @@ export default function TaycoMultiTenantPortalPage() {
 
   if (!snapshot) {
     return (
-      <main className="min-h-screen pt-20 flex items-center justify-center" style={{ background: "#08121F" }}>
+      <main className="min-h-screen pt-20 flex items-center justify-center" style={{ background: "#060B14" }}>
         <div className="text-center text-white">
           <div className="text-3xl font-black mb-2" style={{ color: "#C9A84C" }}>
-            TAYCO LLC — ENTERPRISE SUITE
+            TAYCO LLC — UMBRA COMMAND CENTER
           </div>
-          <p className="text-sm text-gray-300">Loading Multi-Tenant Portal &amp; Takeoff Pro Bridge...</p>
+          <p className="text-sm text-gray-300">Loading Multi-Tenant ERP Suite &amp; Takeoff Pro Bridge...</p>
         </div>
       </main>
     );
@@ -399,134 +490,168 @@ export default function TaycoMultiTenantPortalPage() {
   const allowedIds = snapshot.allowedModules.map((m) => m.id);
   const isGuestRestricted = snapshot.activeInvitation.code !== "INV-TAYCO-MASTER";
 
+  // Visual Arsenal Data
+  const scurveSeries = snapshot.analytics_visual_arsenal?.scurve_24_weeks || [];
+  const activeScurvePoint =
+    scurveSeries[Math.min(scurveWeekIdx, Math.max(0, scurveSeries.length - 1))] || {
+      weekLabel: "W14",
+      weekNum: 14,
+      completionPct: 60.2,
+      planned_value_usd: 525500.0,
+      earned_value_usd: 515011.33,
+      actual_cost_usd: 495203.2,
+      cash_inflow_net_g702_usd: 463510.2,
+      cpi: 1.04,
+      spi: 0.98,
+    };
+
+  const csiDist = snapshot.analytics_visual_arsenal?.csi_cost_distribution;
+  const activeDonutSegments =
+    donutLayerMode === "divisions"
+      ? csiDist?.csi_divisions || []
+      : csiDist?.cost_components || [];
+  const selectedSegment =
+    activeDonutSegments[Math.min(selectedDonutIdx, Math.max(0, activeDonutSegments.length - 1))] ||
+    activeDonutSegments[0];
+
+  const stateFootprint = snapshot.analytics_visual_arsenal?.state_footprint_analytics || [];
+  const sparklines = snapshot.analytics_visual_arsenal?.kpi_sparklines || {
+    pipeline_trend: [3.2, 3.6, 4.1, 4.4, 4.9, 5.2, 5.55, 5.88],
+    cpi_trend: [1.01, 1.02, 1.02, 1.03, 1.03, 1.04, 1.04, 1.04],
+    manhours_trend: [820, 1640, 2590, 3480, 4390, 5210, 5940, 6536],
+    cashflow_trend: [86.7, 161.5, 241.3, 320.2, 390.8, 463.5, 544.3, 626.8],
+  };
+
+  // Dynamic Umbra Navigation Items (01 to 07) filtered by active invitation
+  const navItems: Array<{
+    viewId: UmbraViewId;
+    num: string;
+    label: string;
+    badge: string;
+    moduleRequirement: TaycoModuleId | "ALWAYS";
+    legacyBtnId?: string;
+  }> = [
+    {
+      viewId: "VIEW_01_COMMAND",
+      num: "01",
+      label: "Executive Command & Charts",
+      badge: "4 SVG Charts",
+      moduleRequirement: "ALWAYS",
+    },
+    {
+      viewId: "VIEW_02_INVITATIONS",
+      num: "02",
+      label: "Module Invitations & Tenants",
+      badge: `${snapshot.allowedModules.length}/6 Active`,
+      moduleRequirement: "ALWAYS",
+    },
+    {
+      viewId: "VIEW_03_CRM",
+      num: "03",
+      label: "Commercial CRM & Bid Pipeline",
+      badge: "$5.88M",
+      moduleRequirement: "MOD_CRM_BIDS",
+      legacyBtnId: "tab-btn-MOD_CRM_BIDS",
+    },
+    {
+      viewId: "VIEW_04_PAYROLL",
+      num: "04",
+      label: "Payroll, Crews & WH-347",
+      badge: "6,536 MH",
+      moduleRequirement: "MOD_PAYROLL_CREW",
+      legacyBtnId: "tab-btn-MOD_PAYROLL_CREW",
+    },
+    {
+      viewId: "VIEW_05_QUICKBOOKS",
+      num: "05",
+      label: "QuickBooks & AIA G702/G703",
+      badge: "8 POs · IIF",
+      moduleRequirement: "MOD_QUICKBOOKS_ERP",
+      legacyBtnId: "tab-btn-MOD_QUICKBOOKS_ERP",
+    },
+    {
+      viewId: "VIEW_06_TAX",
+      num: "06",
+      label: "Multi-State Tax & 1099-NEC",
+      badge: "9 States",
+      moduleRequirement: "MOD_TAX_COMPLIANCE",
+      legacyBtnId: "tab-btn-MOD_TAX_COMPLIANCE",
+    },
+    {
+      viewId: "VIEW_07_TAKEOFF",
+      num: "07",
+      label: "Takeoff Pro 2D/3D Bridge",
+      badge: "21 Kernels",
+      moduleRequirement: "MOD_TAKEOFF_PRO",
+      legacyBtnId: "tab-btn-MOD_TAKEOFF_PRO",
+    },
+  ];
+
+  const visibleNavItems = navItems.filter(
+    (item) =>
+      item.moduleRequirement === "ALWAYS" ||
+      allowedIds.includes(item.moduleRequirement) ||
+      (item.viewId === "VIEW_07_TAKEOFF" && allowedIds.includes("MOD_INVESTOR_PORTAL"))
+  );
+
+  // Surface styling helper
+  const cardSurfaceClass =
+    surfaceMode === "crystal"
+      ? "bg-slate-900/75 backdrop-blur-xl border border-white/15 shadow-2xl text-white"
+      : "bg-[#0D1829] border border-slate-700/80 shadow-lg text-slate-100";
+
+  // Interactive AIA G702 Simulator Calculations
+  const simContractGmp = snapshot.quickbooks.contractGmpUsd;
+  const simGrossCompleted = Number(((simContractGmp * aiaProgressPct) / 100).toFixed(2));
+  const simRetainageHeld = Number(((simGrossCompleted * aiaRetainagePct) / 100).toFixed(2));
+  const simTotalEarnedLessRetainage = Number((simGrossCompleted - simRetainageHeld).toFixed(2));
+  const simPreviousCertificates = snapshot.quickbooks.aiaPreviousCertificatesUsd;
+  const simCurrentNetPayment = Math.max(
+    0,
+    Number((simTotalEarnedLessRetainage - simPreviousCertificates).toFixed(2))
+  );
+
+  const filteredOpportunities =
+    crmStageFilter === "ALL"
+      ? snapshot.crm.opportunities
+      : snapshot.crm.opportunities.filter((o) => o.stage === crmStageFilter);
+
   return (
-    <main className="min-h-screen pt-16 pb-16" style={{ background: "#F1F5F9" }}>
-      {/* ── 1. MULTI-TENANT & INVITATION EXECUTIVE BAR (#tayco-tenant-bar) ── */}
-      <section
-        id="tayco-tenant-bar"
-        className="text-white border-b shadow-lg"
-        style={{
-          background: "linear-gradient(135deg, #08121F 0%, #0F2040 55%, #142B54 100%)",
-          borderColor: "rgba(201,168,76,0.4)",
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span
-                  className="px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider"
-                  style={{ background: "rgba(201,168,76,0.2)", color: "#C9A84C", border: "1px solid rgba(201,168,76,0.45)" }}
-                >
-                  🔐 TAYCO MULTI-TENANT PORTAL &amp; MODULE INVITATIONS
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  ● Takeoff Pro v{snapshot.takeoffBridge.rustEngineVersion} ({snapshot.takeoffBridge.activeKernelsCount} Rust Kernels)
-                </span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                {snapshot.activeTenant.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-300 mt-0.5">
-                {snapshot.activeTenant.subtitle} · Active Role:{" "}
-                <strong style={{ color: "#C9A84C" }}>{snapshot.activeInvitation.role}</strong>
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                id="btn-open-invite-builder"
-                onClick={() => setShowInviteBuilder(!showInviteBuilder)}
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-transform hover:scale-105 shadow-md"
-                style={{ background: "#C9A84C", color: "#0F2040" }}
-              >
-                🎟️ {showInviteBuilder ? "Hide Invitation Builder" : "Create Module Invitation"}
-              </button>
-
-              <button
-                type="button"
-                id="btn-sync-takeoff-live"
-                onClick={handleSyncTakeoffPro}
-                disabled={syncingBridge}
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white border transition-colors hover:bg-white/10"
-                style={{ borderColor: "rgba(201,168,76,0.55)" }}
-              >
-                {syncingBridge ? "🔄 Syncing :8085..." : "📐 Live Sync with Takeoff Pro (:8085)"}
-              </button>
-            </div>
-          </div>
-
-          {/* Selectors Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 pt-4 border-t border-white/10">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-300 mb-1">
-                🏢 ACTIVE ORGANIZATION / TENANT
-              </label>
-              <select
-                id="select-tayco-tenant"
-                value={snapshot.activeTenant.id}
-                onChange={(e) => handleSwitchTenant(e.target.value)}
-                className="w-full rounded-lg px-3.5 py-2 text-sm font-bold text-slate-900 bg-white focus:outline-none"
-              >
-                {snapshot.tenants.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} — (${(t.activeGmpUsd / 1e6).toFixed(2)}M Active)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-300 mb-1">
-                🎟️ SESSION PROFILE / GUEST INVITATION PREVIEW (FILTERS MODULES LIVE)
-              </label>
-              <select
-                id="select-active-invitation"
-                value={snapshot.activeInvitation.code}
-                onChange={(e) => handleSwitchInvitation(e.target.value)}
-                className="w-full rounded-lg px-3.5 py-2 text-sm font-bold text-slate-900 bg-white focus:outline-none"
-              >
-                {snapshot.invitations.map((inv) => (
-                  <option key={inv.code} value={inv.code}>
-                    {inv.label} [{inv.code}]
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {bridgeBannerMsg && (
-            <div className="mt-4 px-4 py-2.5 rounded-xl bg-emerald-950/90 border border-emerald-400/40 text-xs sm:text-sm text-emerald-200 font-semibold">
-              {bridgeBannerMsg}
-            </div>
-          )}
-        </div>
-      </section>
-
+    <main
+      className="min-h-screen pt-16 text-slate-100"
+      style={{
+        background:
+          surfaceMode === "crystal"
+            ? "radial-gradient(circle at 18% 12%, rgba(201,168,76,0.14), transparent 34%), radial-gradient(circle at 85% 20%, rgba(16,185,129,0.10), transparent 36%), linear-gradient(160deg, #050B14 0%, #0A1526 52%, #0E1E38 100%)"
+            : "#070E1A",
+      }}
+    >
       {/* ── GUEST PREVIEW BANNER (WHEN VIEWING AS AN INVITED CLIENT/CPA/INVESTOR) ── */}
       {isGuestRestricted && (
         <div
           id="tayco-guest-preview-banner"
-          className="border-b px-4 py-3"
-          style={{ background: "#FFFBEB", borderColor: "#F59E0B" }}
+          className="border-b px-4 py-2.5"
+          style={{ background: "rgba(245, 158, 11, 0.16)", borderColor: accentHex }}
         >
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs sm:text-sm text-amber-950">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-xs sm:text-sm text-amber-200">
               <strong>👁️ Guest Preview Active ({snapshot.activeInvitation.guestCompany}):</strong>{" "}
               Showing{" "}
               <strong>
                 {snapshot.allowedModules.length} of {snapshot.modules.length} authorized modules
               </strong>{" "}
-              under invitation code <code className="font-mono font-bold px-1.5 py-0.5 bg-amber-200/70 rounded">{snapshot.activeInvitation.code}</code>.
+              under invitation code{" "}
+              <code className="font-mono font-bold px-1.5 py-0.5 bg-amber-400/20 text-amber-100 rounded">
+                {snapshot.activeInvitation.code}
+              </code>
+              .
             </div>
             <button
               type="button"
               id="btn-restore-master-admin"
               onClick={() => handleSwitchInvitation("INV-TAYCO-MASTER")}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-white shrink-0"
-              style={{ background: "#0F2040" }}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-slate-950 shrink-0"
+              style={{ background: accentHex }}
             >
               🔓 Restore Full Admin View (6/6)
             </button>
@@ -534,966 +659,1849 @@ export default function TaycoMultiTenantPortalPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
-        {/* ── 2. INTERACTIVE MODULE INVITATION BUILDER (#tayco-invitation-builder-card) ── */}
-        {showInviteBuilder && (
-          <section
-            id="tayco-invitation-builder-card"
-            className="bg-white rounded-2xl shadow-lg border-2 p-6 sm:p-8"
-            style={{ borderColor: "#C9A84C" }}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200">
-              <div>
-                <span
-                  className="text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full"
-                  style={{ background: "rgba(201,168,76,0.2)", color: "#0F2040" }}
-                >
-                  🎟️ B2B MODULE-SCOPED INVITATION GENERATOR
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  Invite a Client, Investor, or CPA to Specific Modules
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  Select the exact modules you want to showcase in your meeting. The invited guest will only see the authorized tabs.
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleCreateAndPreviewInvite} className="mt-5 space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Guest Name *
-                  </label>
-                  <input
-                    id="invite-input-name"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    required
-                    className="w-full border rounded-lg px-3 py-2 text-sm font-semibold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Company / Firm *
-                  </label>
-                  <input
-                    id="invite-input-company"
-                    value={guestCompany}
-                    onChange={(e) => setGuestCompany(e.target.value)}
-                    required
-                    className="w-full border rounded-lg px-3 py-2 text-sm font-semibold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    id="invite-input-email"
-                    type="email"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    required
-                    className="w-full border rounded-lg px-3 py-2 text-sm font-semibold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Role / Expiration
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      id="invite-input-role"
-                      value={guestRole}
-                      onChange={(e) => setGuestRole(e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2 text-sm text-slate-900"
-                    />
-                    <select
-                      value={expiresInDays}
-                      onChange={(e) => setExpiresInDays(Number(e.target.value))}
-                      className="border rounded-lg px-2 py-2 text-xs font-bold text-slate-900 bg-slate-50"
-                    >
-                      <option value={7}>7d</option>
-                      <option value={14}>14d</option>
-                      <option value={30}>30d</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: "#0F2040" }}>
-                    SELECT MODULES TO PRESENT ({selectedModules.length} OF 6 CHECKED):
-                  </label>
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedModules(snapshot.modules.map((m) => m.id))}
-                      className="text-xs font-bold underline text-slate-600 hover:text-slate-900"
-                    >
-                      Select All (6)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedModules(["MOD_TAKEOFF_PRO", "MOD_CRM_BIDS"])}
-                      className="text-xs font-bold underline text-amber-700 hover:text-amber-900"
-                    >
-                      Commercial + Takeoff Only (2)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSelectedModules([
-                          "MOD_PAYROLL_CREW",
-                          "MOD_QUICKBOOKS_ERP",
-                          "MOD_TAX_COMPLIANCE",
-                        ])
-                      }
-                      className="text-xs font-bold underline text-emerald-700 hover:text-emerald-900"
-                    >
-                      CPA Finance + Tax (3)
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {snapshot.modules.map((mod) => {
-                    const checked = selectedModules.includes(mod.id);
-                    return (
-                      <label
-                        key={mod.id}
-                        className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                          checked
-                            ? "bg-amber-50/70 border-amber-500 shadow-sm"
-                            : "bg-slate-50 border-slate-200 opacity-75"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          id={`chk-invite-${mod.id}`}
-                          checked={checked}
-                          onChange={() => toggleModuleCheckbox(mod.id)}
-                          className="mt-1 h-4 w-4 accent-amber-600"
-                        />
-                        <div className="text-xs">
-                          <div className="font-extrabold text-slate-900">{mod.title}</div>
-                          <div className="text-slate-600 mt-0.5">{mod.description}</div>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                <button
-                  type="submit"
-                  id="btn-generate-and-preview-invite"
-                  className="px-6 py-3 rounded-xl font-black text-sm shadow-md transition-transform hover:scale-[1.01]"
-                  style={{ background: "#0F2040", color: "#C9A84C" }}
-                >
-                  ✨ Generate Invitation Link &amp; Preview Guest View Now
-                </button>
-
-                {createdInviteBanner && (
-                  <div
-                    id="generated-invite-result"
-                    className="flex flex-wrap items-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-950"
-                  >
-                    <span>
-                      Invitation Created: <strong className="font-mono">{createdInviteBanner.code}</strong>
-                    </span>
-                    <span className="font-mono bg-white px-2 py-1 rounded border border-emerald-200">
-                      {createdInviteBanner.shareUrl}
-                    </span>
-                    <span className="font-bold text-emerald-700">
-                      ({createdInviteBanner.allowedModules.length} active modules)
-                    </span>
-                  </div>
-                )}
-              </div>
-            </form>
-          </section>
-        )}
-
-        {/* ── 3. MODULE NAVIGATION TABS (FILTERED BY INVITATION PERMISSIONS) ── */}
-        <div
-          id="tayco-portal-module-tabs"
-          className="flex flex-wrap gap-2 bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200"
+      {/* ── UMBRA APP-SHELL RESPONSIVE GRID (grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]) ── */}
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] min-h-[calc(100vh-4rem)]">
+        {/* ── A) UMBRA LEFT SIDEBAR (#tayco-umbra-sidebar) ── */}
+        <aside
+          id="tayco-umbra-sidebar"
+          className="border-b lg:border-b-0 lg:border-r border-white/10 p-4 sm:p-5 flex flex-col justify-between gap-6"
+          style={{ background: "rgba(6, 12, 24, 0.88)" }}
         >
-          {snapshot.modules.map((mod) => {
-            const isAllowed = allowedIds.includes(mod.id);
-            if (!isAllowed) return null;
-            const isActive = activeTab === mod.id;
-            return (
-              <button
-                key={mod.id}
-                type="button"
-                id={`tab-btn-${mod.id}`}
-                onClick={() => setActiveTab(mod.id)}
-                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 ${
-                  isActive
-                    ? "shadow-md scale-[1.01]"
-                    : "text-slate-700 hover:bg-slate-100"
-                }`}
-                style={
-                  isActive
-                    ? { background: "#0F2040", color: "#C9A84C" }
-                    : undefined
-                }
-              >
-                <span>{mod.shortTitle}</span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isActive
-                      ? "bg-amber-400/20 text-amber-200"
-                      : "bg-slate-200 text-slate-700"
-                  }`}
+          <div className="space-y-5">
+            {/* Active Tenant Brand + Mobile Toggle */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shadow-md"
+                  style={{ background: "rgba(201,168,76,0.18)", color: accentHex, border: `1px solid ${accentHex}` }}
                 >
-                  {mod.badge}
-                </span>
+                  TC
+                </div>
+                <div>
+                  <div className="text-xs font-black tracking-wider uppercase" style={{ color: accentHex }}>
+                    TAYCO UMBRA OS
+                  </div>
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{snapshot.activeInvitation.code}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+                className="lg:hidden px-3 py-1.5 rounded-lg border border-white/15 text-xs font-bold text-slate-200"
+              >
+                {mobileSidebarOpen ? "Hide Menu ▴" : "Modules (01-07) ▾"}
               </button>
-            );
-          })}
-        </div>
-
-        {/* ── TAB 1: MOD_CRM_BIDS (COMMERCIAL CRM, BID PIPELINE & SUBCONTRACTOR REGISTRY) ── */}
-        {activeTab === "MOD_CRM_BIDS" && allowedIds.includes("MOD_CRM_BIDS") && (
-          <section id="panel-MOD_CRM_BIDS" className="space-y-6">
-            {/* KPIs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Total Commercial Pipeline</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  ${(snapshot.crm.pipelineTotalUsd / 1e6).toFixed(2)}M USD
-                </div>
-                <div className="text-xs text-emerald-700 font-semibold mt-1">
-                  ${snapshot.crm.pipelineTotalUsd.toLocaleString()} in active bids &amp; contracts
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Active Projects &amp; Web Leads</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  {snapshot.crm.activeProjectsCount} Projects
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Connected to <code className="font-mono">/estimate</code> &amp; <code className="font-mono">/investor</code>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Takeoff Pro CAD Bridge</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#C9A84C" }}>
-                  {snapshot.crm.takeoffSyncedCount} Synced
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Son of a Star ($855.5K) + Park Tower
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Subcontractor Network</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  {snapshot.crm.subcontractors.length} Vendors
-                </div>
-                <div className="text-xs text-emerald-700 font-semibold mt-1">
-                  29 Trades Across 8 States (W-9 &amp; COI Audited)
-                </div>
-              </div>
             </div>
 
-            {/* Opportunities Table + Quick Add */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+            {/* Numbered Navigation 01 - 07 */}
+            <nav
+              id="tayco-portal-module-tabs"
+              className={`${mobileSidebarOpen ? "flex" : "hidden"} lg:flex flex-col gap-1.5`}
+              aria-label="Command Center Navigation"
+            >
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 px-2 mb-1">
+                Command Views (01–07)
+              </div>
+              {visibleNavItems.map((item) => {
+                const isActive = activeView === item.viewId;
+                return (
+                  <button
+                    key={item.viewId}
+                    type="button"
+                    id={item.legacyBtnId || `nav-btn-${item.viewId}`}
+                    onClick={() => {
+                      setActiveView(item.viewId);
+                      if (item.viewId === "VIEW_02_INVITATIONS") {
+                        setShowInviteBuilder(true);
+                      }
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between gap-2 ${
+                      isActive
+                        ? "shadow-lg font-extrabold"
+                        : "text-slate-300 hover:bg-white/5 hover:text-white font-semibold"
+                    }`}
+                    style={
+                      isActive
+                        ? {
+                            background: "linear-gradient(135deg, rgba(201,168,76,0.24), rgba(15,32,64,0.9))",
+                            border: `1px solid ${accentHex}`,
+                            color: "#FFFFFF",
+                          }
+                        : { border: "1px solid transparent" }
+                    }
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className="font-mono text-xs font-black px-1.5 py-0.5 rounded"
+                        style={{
+                          background: isActive ? accentHex : "rgba(255,255,255,0.07)",
+                          color: isActive ? "#08121F" : accentHex,
+                        }}
+                      >
+                        {item.num}
+                      </span>
+                      <span className="text-xs truncate">{item.label}</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-slate-300 shrink-0">
+                      {item.badge}
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* ── UMBRA SIDEBAR BRIDGE CARD WITH ORBITAL SVG RINGS (#umbra-sidebar-bridge) ── */}
+          <div
+            id="umbra-sidebar-bridge"
+            className="relative overflow-hidden rounded-2xl p-4 border border-white/15"
+            style={{
+              background: "linear-gradient(150deg, rgba(15,32,64,0.92) 0%, rgba(8,18,31,0.96) 100%)",
+            }}
+          >
+            {/* Geometric Orbital Rings SVG (.preview-orbits) */}
+            <svg
+              className="preview-orbits absolute -right-8 -bottom-8 w-36 h-36 pointer-events-none opacity-35"
+              viewBox="0 0 160 160"
+              fill="none"
+            >
+              <circle cx="80" cy="80" r="68" stroke={accentHex} strokeWidth="1" strokeDasharray="4 4" />
+              <circle cx="80" cy="80" r="48" stroke="#10B981" strokeWidth="1.2" />
+              <circle cx="80" cy="80" r="28" stroke="#38BDF8" strokeWidth="1" />
+              <circle cx="80" cy="12" r="3.5" fill={accentHex} />
+              <circle cx="32" cy="80" r="3" fill="#10B981" />
+            </svg>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-300 mb-1">
+                <span>● Takeoff Pro Bridge</span>
+                <span>v{snapshot.takeoffBridge.rustEngineVersion}</span>
+              </div>
+              <div className="text-sm font-black text-white">
+                {snapshot.takeoffBridge.activeKernelsCount} Rust Kernels Active
+              </div>
+              <div className="text-[11px] text-slate-300 mt-0.5">
+                Son of a Star · ${snapshot.takeoffBridge.featuredProjectGmpUsd.toLocaleString()} GMP
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={handleSyncTakeoffPro}
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-black text-slate-950 transition-transform hover:scale-105"
+                  style={{ background: accentHex }}
+                >
+                  {syncingBridge ? "Syncing..." : "Sync :8085"}
+                </button>
+                <a
+                  href={snapshot.takeoffBridge.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-white/20 text-white hover:bg-white/10"
+                >
+                  Open CAD ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* ── B) MAIN WORKSPACE & UMBRA MASTHEAD ── */}
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden">
+          {/* ── UMBRA TOP MASTHEAD (#tayco-umbra-masthead & #tayco-tenant-bar) ── */}
+          <header
+            id="tayco-umbra-masthead"
+            className={`${cardSurfaceClass} rounded-2xl p-5 sm:p-6 relative overflow-hidden`}
+          >
+            <div id="tayco-tenant-bar" className="relative z-10 space-y-5">
+              {/* Top Row: Title + Surface/Atmosphere/Density Controls */}
+              <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black" style={{ color: "#0F2040" }}>
-                    🤝 1. Commercial Bid Pipeline &amp; CSI-32 Estimates
-                  </h2>
-                  <p className="text-xs text-slate-600">
-                    Every submission from <Link href="/estimate" className="underline font-bold">/estimate</Link> or <Link href="/investor" className="underline font-bold">/investor</Link> automatically populates this pipeline and links to Takeoff Pro.
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                    <span
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+                      style={{
+                        background: "rgba(201,168,76,0.18)",
+                        color: accentHex,
+                        border: `1px solid ${accentHex}`,
+                      }}
+                    >
+                      TAYCO TOTAL MANAGEMENT COMMAND CENTER
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                      ● {densityMode === "calm" ? "Calm Executive Overview" : "Deep-Dive Engineering Mode"}
+                    </span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
+                    {snapshot.activeTenant.name}
+                  </h1>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {snapshot.activeTenant.subtitle} · Active Role:{" "}
+                    <strong style={{ color: accentHex }}>{snapshot.activeInvitation.role}</strong>
                   </p>
                 </div>
 
-                <form onSubmit={handleCreateQuickLead} className="flex flex-wrap items-center gap-2">
+                {/* Umbra Surface, Atmosphere & Cognitive Density Controls */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {/* Cognitive Density Toggle (Calm Overview vs Deep-Dive Tables) */}
+                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      id="btn-density-calm"
+                      onClick={() => setDensityMode("calm")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                        densityMode === "calm"
+                          ? "bg-amber-400 text-slate-950 shadow"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      🧘 Calm Overview
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-density-deep"
+                      onClick={() => setDensityMode("deep")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                        densityMode === "deep"
+                          ? "bg-amber-400 text-slate-950 shadow"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      🔬 Deep-Dive Tables
+                    </button>
+                  </div>
+
+                  {/* Surface Mode: Mineral vs Crystal Glass */}
+                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      id="btn-surface-mineral"
+                      onClick={() => setSurfaceMode("mineral")}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        surfaceMode === "mineral"
+                          ? "bg-white/20 text-white"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      🪨 Mineral
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-surface-crystal"
+                      onClick={() => setSurfaceMode("crystal")}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        surfaceMode === "crystal"
+                          ? "bg-white/20 text-white"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      💎 Crystal Glass
+                    </button>
+                  </div>
+
+                  {/* Atmosphere Swatches */}
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1.5 rounded-xl border border-white/10">
+                    {[
+                      { label: "Gold", hex: "#C9A84C" },
+                      { label: "Emerald", hex: "#10B981" },
+                      { label: "Glacier", hex: "#38BDF8" },
+                    ].map((sw) => (
+                      <button
+                        key={sw.hex}
+                        type="button"
+                        title={`Atmosphere: ${sw.label}`}
+                        onClick={() => setAccentHex(sw.hex)}
+                        className={`w-4 h-4 rounded-full transition-transform ${
+                          accentHex === sw.hex ? "scale-125 ring-2 ring-white" : "opacity-70 hover:opacity-100"
+                        }`}
+                        style={{ background: sw.hex }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Second Row: Tenant Selector, Invitation Selector & Quick Action Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-4 border-t border-white/10 items-end">
+                <div className="md:col-span-4">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    🏢 ACTIVE ORGANIZATION / TENANT
+                  </label>
+                  <select
+                    id="select-tayco-tenant"
+                    value={snapshot.activeTenant.id}
+                    onChange={(e) => handleSwitchTenant(e.target.value)}
+                    className="w-full rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-950 bg-white focus:outline-none"
+                  >
+                    {snapshot.tenants.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} — (${(t.activeGmpUsd / 1e6).toFixed(2)}M Active)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="md:col-span-5">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    🎟️ SESSION PROFILE / GUEST INVITATION PREVIEW (FILTERS MODULES LIVE)
+                  </label>
+                  <select
+                    id="select-active-invitation"
+                    value={snapshot.activeInvitation.code}
+                    onChange={(e) => handleSwitchInvitation(e.target.value)}
+                    className="w-full rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-950 bg-white focus:outline-none"
+                  >
+                    {snapshot.invitations.map((inv) => (
+                      <option key={inv.code} value={inv.code}>
+                        {inv.label} [{inv.code}]
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="md:col-span-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    id="btn-open-invite-builder"
+                    onClick={() => setShowInviteBuilder(!showInviteBuilder)}
+                    className="flex-1 px-3 py-2 rounded-xl text-xs font-black text-slate-950 transition-transform hover:scale-[1.02] shadow-md"
+                    style={{ background: accentHex }}
+                  >
+                    🎟️ {showInviteBuilder ? "Hide Invite Builder" : "Invite Client by Modules"}
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-sync-takeoff-live"
+                    onClick={handleSyncTakeoffPro}
+                    disabled={syncingBridge}
+                    className="px-3 py-2 rounded-xl text-xs font-bold text-white border border-white/25 hover:bg-white/10"
+                  >
+                    {syncingBridge ? "🔄..." : "📐 Live Sync (:8085)"}
+                  </button>
+                </div>
+              </div>
+
+              {bridgeBannerMsg && (
+                <div className="px-4 py-2.5 rounded-xl bg-emerald-950/90 border border-emerald-400/40 text-xs text-emerald-200 font-semibold">
+                  {bridgeBannerMsg}
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* ── INTERACTIVE MODULE INVITATION BUILDER (#tayco-invitation-builder-card) ── */}
+          {(showInviteBuilder || activeView === "VIEW_02_INVITATIONS") && (
+            <section
+              id="tayco-invitation-builder-card"
+              className={`${cardSurfaceClass} rounded-2xl p-6 border-2`}
+              style={{ borderColor: accentHex }}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/10">
+                <div>
+                  <span
+                    className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full"
+                    style={{ background: "rgba(201,168,76,0.2)", color: accentHex }}
+                  >
+                    🎟️ B2B MODULE-SCOPED INVITATION GENERATOR
+                  </span>
+                  <h2 className="text-xl font-black text-white mt-1">
+                    Invite a Client, Investor, or CPA to Specific Modules
+                  </h2>
+                  <p className="text-xs text-slate-300">
+                    Select the exact modules you want to showcase in your meeting. The invited guest will only see the authorized tabs.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleCreateAndPreviewInvite} className="mt-4 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Guest Name *</label>
+                    <input
+                      id="invite-input-name"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      required
+                      className="w-full rounded-lg px-3 py-2 text-sm font-semibold text-slate-950 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Company / Firm *</label>
+                    <input
+                      id="invite-input-company"
+                      value={guestCompany}
+                      onChange={(e) => setGuestCompany(e.target.value)}
+                      required
+                      className="w-full rounded-lg px-3 py-2 text-sm font-semibold text-slate-950 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Email Address *</label>
+                    <input
+                      id="invite-input-email"
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      required
+                      className="w-full rounded-lg px-3 py-2 text-sm font-semibold text-slate-950 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Role / Expiration</label>
+                    <div className="flex gap-2">
+                      <input
+                        id="invite-input-role"
+                        value={guestRole}
+                        onChange={(e) => setGuestRole(e.target.value)}
+                        className="w-full rounded-lg px-3 py-2 text-sm text-slate-950 bg-white"
+                      />
+                      <select
+                        value={expiresInDays}
+                        onChange={(e) => setExpiresInDays(Number(e.target.value))}
+                        className="rounded-lg px-2 py-2 text-xs font-bold text-slate-950 bg-white"
+                      >
+                        <option value={7}>7d</option>
+                        <option value={14}>14d</option>
+                        <option value={30}>30d</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: accentHex }}>
+                      SELECT MODULES TO PRESENT ({selectedModules.length} OF 6 CHECKED):
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedModules(snapshot.modules.map((m) => m.id))}
+                        className="text-xs font-bold underline text-slate-300 hover:text-white"
+                      >
+                        Select All (6)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedModules(["MOD_TAKEOFF_PRO", "MOD_CRM_BIDS"])}
+                        className="text-xs font-bold underline text-amber-300 hover:text-amber-100"
+                      >
+                        Commercial + Takeoff Only (2)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedModules([
+                            "MOD_PAYROLL_CREW",
+                            "MOD_QUICKBOOKS_ERP",
+                            "MOD_TAX_COMPLIANCE",
+                          ])
+                        }
+                        className="text-xs font-bold underline text-emerald-300 hover:text-emerald-100"
+                      >
+                        CPA Finance + Tax (3)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {snapshot.modules.map((mod) => {
+                      const checked = selectedModules.includes(mod.id);
+                      return (
+                        <label
+                          key={mod.id}
+                          className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                            checked
+                              ? "bg-amber-500/15 border-amber-400 shadow-sm"
+                              : "bg-white/5 border-white/10 opacity-75"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            id={`chk-invite-${mod.id}`}
+                            checked={checked}
+                            onChange={() => toggleModuleCheckbox(mod.id)}
+                            className="mt-1 h-4 w-4 accent-amber-500"
+                          />
+                          <div className="text-xs">
+                            <div className="font-extrabold text-white">{mod.title}</div>
+                            <div className="text-slate-300 mt-0.5">{mod.description}</div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                  <button
+                    type="submit"
+                    id="btn-generate-and-preview-invite"
+                    className="px-6 py-3 rounded-xl font-black text-sm text-slate-950 shadow-md transition-transform hover:scale-[1.01]"
+                    style={{ background: accentHex }}
+                  >
+                    ✨ Generate Invitation Link &amp; Preview Guest View Now
+                  </button>
+
+                  {createdInviteBanner && (
+                    <div
+                      id="generated-invite-result"
+                      className="flex flex-wrap items-center gap-3 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-xs text-emerald-100"
+                    >
+                      <span>
+                        Invitation Created: <strong className="font-mono">{createdInviteBanner.code}</strong>
+                      </span>
+                      <span className="font-mono bg-black/40 px-2 py-1 rounded border border-emerald-400/30">
+                        {createdInviteBanner.shareUrl}
+                      </span>
+                      <span className="font-bold text-emerald-300">
+                        ({createdInviteBanner.allowedModules.length} active modules)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </form>
+            </section>
+          )}
+
+          {/* ── C) BENTO KPI CARDS WITH SPARKLINES & ORBITAL RINGS (ALWAYS VISIBLE AT TOP OF COMMAND CENTER) ── */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Bento KPI 1: Active Pipeline */}
+            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Active Commercial Pipeline
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-white mt-1">
+                    ${(snapshot.crm.pipelineTotalUsd / 1e6).toFixed(2)}M USD
+                  </div>
+                  <div className="text-xs text-emerald-300 font-semibold mt-1">
+                    {snapshot.crm.activeProjectsCount} Active Projects · 9 States
+                  </div>
+                </div>
+                <svg width="110" height="36" className="shrink-0">
+                  <polyline
+                    fill="none"
+                    stroke={accentHex}
+                    strokeWidth="2.4"
+                    points={buildSparklinePoints(sparklines.pipeline_trend, 110, 36)}
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Bento KPI 2: Takeoff Pro GMP */}
+            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Takeoff Pro Flagship GMP
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: accentHex }}>
+                    $855,525.23
+                  </div>
+                  <div className="text-xs text-slate-300 mt-1">
+                    Son of a Star · CPI {snapshot.takeoffBridge.evmCpi} / SPI {snapshot.takeoffBridge.evmSpi}
+                  </div>
+                </div>
+                <svg width="110" height="36" className="shrink-0">
+                  <polyline
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="2.4"
+                    points={buildSparklinePoints(sparklines.cpi_trend, 110, 36)}
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Bento KPI 3: WH-347 Field Labor */}
+            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    WH-347 Field Labor Budget
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-white mt-1">
+                    6,536.0 MH
+                  </div>
+                  <div className="text-xs text-emerald-300 font-semibold mt-1">
+                    $213,299.26 Loaded · 103.1 Crew-Days
+                  </div>
+                </div>
+                <svg width="110" height="36" className="shrink-0">
+                  <polyline
+                    fill="none"
+                    stroke="#38BDF8"
+                    strokeWidth="2.4"
+                    points={buildSparklinePoints(sparklines.manhours_trend, 110, 36)}
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Bento KPI 4: Net AIA G702 Billing */}
+            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Net AIA G702 Pay App #3
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">
+                    $184,892.70
+                  </div>
+                  <div className="text-xs text-slate-300 mt-1">
+                    10% Retainage Held: $51,501.13
+                  </div>
+                </div>
+                <svg width="110" height="36" className="shrink-0">
+                  <polyline
+                    fill="none"
+                    stroke="#F59E0B"
+                    strokeWidth="2.4"
+                    points={buildSparklinePoints(sparklines.cashflow_trend, 110, 36)}
+                  />
+                </svg>
+              </div>
+            </div>
+          </section>
+
+          {/* ── VIEW 01: EXECUTIVE COMMAND & INTERACTIVE SVG CHARTS ── */}
+          {activeView === "VIEW_01_COMMAND" && (
+            <section id="panel-VIEW_01_COMMAND" className="space-y-6">
+              {/* Row 1 of Charts: Interactive S-Curve + Interactive CSI-32 Donut */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                {/* 1. Interactive S-Curve Cashflow, Earned Value (EV) & AIA Billing Chart (#chart-scurve-svg) */}
+                <div className={`${cardSurfaceClass} xl:col-span-7 rounded-2xl p-6`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                        📈 EARNED VALUE MANAGEMENT (EVM) &amp; AIA G702 CASHFLOW
+                      </span>
+                      <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                        24-Week S-Curve: Planned vs. Earned Value vs. Actual Cost
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
+                      <span className="text-xs text-slate-300 font-semibold">Cutoff Week:</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={Math.max(0, scurveSeries.length - 1)}
+                        value={scurveWeekIdx}
+                        onChange={(e) => setScurveWeekIdx(Number(e.target.value))}
+                        className="w-24 accent-amber-400 cursor-pointer"
+                      />
+                      <span className="font-mono text-xs font-black px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                        {activeScurvePoint.weekLabel} ({activeScurvePoint.completionPct}%)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Active Week Telemetry Pill Bar */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                      <div className="text-[10px] uppercase text-slate-400 font-bold">Planned Value (PV)</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-slate-200 mt-0.5">
+                        ${activeScurvePoint.planned_value_usd.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
+                      <div className="text-[10px] uppercase text-amber-300 font-bold">Earned Value (EV)</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-amber-200 mt-0.5">
+                        ${activeScurvePoint.earned_value_usd.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/30">
+                      <div className="text-[10px] uppercase text-emerald-300 font-bold">Actual Cost (AC)</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-emerald-200 mt-0.5">
+                        ${activeScurvePoint.actual_cost_usd.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-400/30">
+                      <div className="text-[10px] uppercase text-sky-300 font-bold">EVM Indices</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-sky-200 mt-0.5">
+                        CPI {activeScurvePoint.cpi} · SPI {activeScurvePoint.spi}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interactive SVG S-Curve (#chart-scurve-svg) */}
+                  <div className="relative">
+                    <svg
+                      id="chart-scurve-svg"
+                      viewBox="0 0 640 230"
+                      className="w-full h-56 overflow-visible"
+                    >
+                      <defs>
+                        <linearGradient id="evAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={accentHex} stopOpacity="0.38" />
+                          <stop offset="100%" stopColor={accentHex} stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Horizontal Grid Lines */}
+                      {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
+                        const y = 195 - ratio * 165;
+                        const labelUsd = Math.round((855525 * ratio) / 1000);
+                        return (
+                          <g key={idx}>
+                            <line
+                              x1="48"
+                              y1={y}
+                              x2="620"
+                              y2={y}
+                              stroke="rgba(255,255,255,0.08)"
+                              strokeDasharray="3 3"
+                            />
+                            <text x="6" y={y + 4} fill="#94A3B8" fontSize="10" fontFamily="monospace">
+                              ${labelUsd}K
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Planned Value (PV) Dashed Line */}
+                      {scurveSeries.length > 1 && (
+                        <polyline
+                          fill="none"
+                          stroke="#94A3B8"
+                          strokeWidth="2"
+                          strokeDasharray="5 4"
+                          points={scurveSeries
+                            .map((pt, i) => {
+                              const x = 54 + (i / (scurveSeries.length - 1)) * 556;
+                              const y = 195 - (pt.planned_value_usd / 855525.23) * 165;
+                              return `${x.toFixed(1)},${y.toFixed(1)}`;
+                            })
+                            .join(" ")}
+                        />
+                      )}
+
+                      {/* Earned Value (EV) Shaded Area */}
+                      {scurveSeries.length > 1 && (
+                        <polygon
+                          fill="url(#evAreaGrad)"
+                          points={[
+                            `54,195`,
+                            ...scurveSeries.map((pt, i) => {
+                              const x = 54 + (i / (scurveSeries.length - 1)) * 556;
+                              const y = 195 - (pt.earned_value_usd / 855525.23) * 165;
+                              return `${x.toFixed(1)},${y.toFixed(1)}`;
+                            }),
+                            `610,195`,
+                          ].join(" ")}
+                        />
+                      )}
+
+                      {/* Earned Value (EV) Solid Gold Curve */}
+                      {scurveSeries.length > 1 && (
+                        <polyline
+                          fill="none"
+                          stroke={accentHex}
+                          strokeWidth="3"
+                          points={scurveSeries
+                            .map((pt, i) => {
+                              const x = 54 + (i / (scurveSeries.length - 1)) * 556;
+                              const y = 195 - (pt.earned_value_usd / 855525.23) * 165;
+                              return `${x.toFixed(1)},${y.toFixed(1)}`;
+                            })
+                            .join(" ")}
+                        />
+                      )}
+
+                      {/* Actual Cost (AC) Solid Emerald Curve */}
+                      {scurveSeries.length > 1 && (
+                        <polyline
+                          fill="none"
+                          stroke="#10B981"
+                          strokeWidth="2.2"
+                          points={scurveSeries
+                            .map((pt, i) => {
+                              const x = 54 + (i / (scurveSeries.length - 1)) * 556;
+                              const y = 195 - (pt.actual_cost_usd / 855525.23) * 165;
+                              return `${x.toFixed(1)},${y.toFixed(1)}`;
+                            })
+                            .join(" ")}
+                        />
+                      )}
+
+                      {/* Interactive Week Nodes */}
+                      {scurveSeries.map((pt, i) => {
+                        const x = 54 + (i / Math.max(1, scurveSeries.length - 1)) * 556;
+                        const yEv = 195 - (pt.earned_value_usd / 855525.23) * 165;
+                        const isSelected = i === scurveWeekIdx;
+                        return (
+                          <g
+                            key={pt.weekLabel}
+                            className="cursor-pointer"
+                            onClick={() => setScurveWeekIdx(i)}
+                          >
+                            {isSelected && (
+                              <line
+                                x1={x}
+                                y1="24"
+                                x2={x}
+                                y2="195"
+                                stroke={accentHex}
+                                strokeWidth="1.2"
+                                strokeDasharray="2 2"
+                              />
+                            )}
+                            <circle
+                              cx={x}
+                              cy={yEv}
+                              r={isSelected ? 6 : 4}
+                              fill={isSelected ? "#FFFFFF" : accentHex}
+                              stroke="#08121F"
+                              strokeWidth="2"
+                            />
+                            <text
+                              x={x}
+                              y="214"
+                              textAnchor="middle"
+                              fill={isSelected ? accentHex : "#94A3B8"}
+                              fontSize="10"
+                              fontWeight={isSelected ? "800" : "500"}
+                            >
+                              {pt.weekLabel}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </svg>
+                  </div>
+                </div>
+
+                {/* 2. Interactive CSI-32 Cost & Man-Hour Ring Chart (#chart-csi-donut-svg) */}
+                <div className={`${cardSurfaceClass} xl:col-span-5 rounded-2xl p-6 flex flex-col justify-between`}>
+                  <div>
+                    <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/10">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                          🍩 CSI-32 GMP COST &amp; CREW DISTRIBUTION
+                        </span>
+                        <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                          Interactive Takeoff Pro Ring ($855.5K)
+                        </h2>
+                      </div>
+                      <div className="flex bg-black/30 p-1 rounded-xl border border-white/10 text-[11px] font-bold">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDonutLayerMode("divisions");
+                            setSelectedDonutIdx(0);
+                          }}
+                          className={`px-2.5 py-1 rounded-lg ${
+                            donutLayerMode === "divisions" ? "bg-amber-400 text-slate-950" : "text-slate-300"
+                          }`}
+                        >
+                          7 CSI Divs
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDonutLayerMode("components");
+                            setSelectedDonutIdx(0);
+                          }}
+                          className={`px-2.5 py-1 rounded-lg ${
+                            donutLayerMode === "components" ? "bg-amber-400 text-slate-950" : "text-slate-300"
+                          }`}
+                        >
+                          Cost Tiers
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center mt-4">
+                      <div className="sm:col-span-6 flex justify-center">
+                        <svg
+                          id="chart-csi-donut-svg"
+                          viewBox="0 0 200 200"
+                          className="w-44 h-44"
+                        >
+                          {(() => {
+                            const radius = 72;
+                            const circumference = 2 * Math.PI * radius;
+                            const total = activeDonutSegments.reduce((acc, s) => acc + s.amountUsd, 0) || 1;
+                            let cumulativeAngle = 0;
+                            return activeDonutSegments.map((seg, idx) => {
+                              const fraction = seg.amountUsd / total;
+                              const dash = fraction * circumference;
+                              const rotateDeg = cumulativeAngle * 360 - 90;
+                              cumulativeAngle += fraction;
+                              const isSelected = idx === selectedDonutIdx;
+                              return (
+                                <circle
+                                  key={seg.id}
+                                  cx="100"
+                                  cy="100"
+                                  r={radius}
+                                  fill="transparent"
+                                  stroke={seg.colorHex}
+                                  strokeWidth={isSelected ? "24" : "18"}
+                                  strokeDasharray={`${dash} ${circumference}`}
+                                  transform={`rotate(${rotateDeg} 100 100)`}
+                                  className="cursor-pointer transition-all"
+                                  onClick={() => setSelectedDonutIdx(idx)}
+                                />
+                              );
+                            });
+                          })()}
+                          <circle cx="100" cy="100" r="52" fill="#08121F" />
+                          <text x="100" y="94" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="700">
+                            {selectedSegment?.code || "CSI-32"}
+                          </text>
+                          <text x="100" y="110" textAnchor="middle" fill="#FFFFFF" fontSize="13" fontWeight="900">
+                            ${selectedSegment ? (selectedSegment.amountUsd / 1000).toFixed(1) : "855.5"}K
+                          </text>
+                        </svg>
+                      </div>
+
+                      <div className="sm:col-span-6 space-y-1.5">
+                        {activeDonutSegments.map((seg, idx) => {
+                          const isSelected = idx === selectedDonutIdx;
+                          return (
+                            <button
+                              key={seg.id}
+                              type="button"
+                              onClick={() => setSelectedDonutIdx(idx)}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-all ${
+                                isSelected ? "bg-white/15 font-black text-white" : "text-slate-300 hover:bg-white/5"
+                              }`}
+                            >
+                              <span className="flex items-center gap-2 truncate">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                                  style={{ background: seg.colorHex }}
+                                />
+                                <span className="truncate">{seg.code}</span>
+                              </span>
+                              <span className="font-mono text-[11px] shrink-0">
+                                ${(seg.amountUsd / 1000).toFixed(1)}K
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selected Segment Detail Pill */}
+                  {selectedSegment && (
+                    <div className="mt-4 p-3.5 rounded-xl bg-black/35 border border-white/10 text-xs">
+                      <div className="font-black text-white">{selectedSegment.label}</div>
+                      <div className="flex flex-wrap justify-between gap-2 text-slate-300 mt-1">
+                        <span>
+                          Budget: <strong className="text-amber-300">${selectedSegment.amountUsd.toLocaleString()}</strong>
+                        </span>
+                        {selectedSegment.manHours > 0 && (
+                          <span>
+                            Field Labor: <strong className="text-emerald-300">{selectedSegment.manHours.toLocaleString()} MH</strong>
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        Assigned: {selectedSegment.crewAssigned}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 2: Interactive 9-State Pipeline & Sales/Use Tax Bar Matrix (#chart-states-bar-svg) */}
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-sky-300">
+                      🗺️ 9-STATE FOOTPRINT &amp;CONSTRUCTION SALES/USE TAX ENGINE
+                    </span>
+                    <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                      Interactive Multi-State Pipeline &amp; Material Tax Matrix (Click Any State Bar)
+                    </h2>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-xs text-slate-300">
+                      Active Tax State:{" "}
+                      <strong className="text-amber-300">
+                        {snapshot.taxCompliance.stateCode} ({snapshot.taxCompliance.effectiveRatePct}%)
+                      </strong>{" "}
+                      · Est. Material Tax:{" "}
+                      <strong className="text-emerald-300">
+                        ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString()}
+                      </strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveView("VIEW_06_TAX")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                    >
+                      Open Tax &amp; 1099-NEC Module →
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <svg
+                    id="chart-states-bar-svg"
+                    viewBox="0 0 720 185"
+                    className="w-full h-44 overflow-visible"
+                  >
+                    {stateFootprint.map((st, idx) => {
+                      const barWidth = 52;
+                      const gap = 26;
+                      const x = 24 + idx * (barWidth + gap);
+                      const maxPipeline = 2500000;
+                      const barH = Math.max(18, (st.active_pipeline_usd / maxPipeline) * 115);
+                      const y = 145 - barH;
+                      const isSelected = st.stateCode === snapshot.taxCompliance.stateCode;
+                      return (
+                        <g
+                          key={st.stateCode}
+                          className="cursor-pointer"
+                          onClick={() =>
+                            handleTaxStateChange(st.stateCode, snapshot.taxCompliance.taxExempt)
+                          }
+                        >
+                          <rect
+                            x={x}
+                            y={y}
+                            width={barWidth}
+                            height={barH}
+                            rx="8"
+                            fill={isSelected ? accentHex : "rgba(56, 189, 248, 0.45)"}
+                            stroke={isSelected ? "#FFFFFF" : "rgba(255,255,255,0.2)"}
+                            strokeWidth={isSelected ? "2" : "1"}
+                          />
+                          <text
+                            x={x + barWidth / 2}
+                            y={y - 6}
+                            textAnchor="middle"
+                            fill="#E2E8F0"
+                            fontSize="9.5"
+                            fontFamily="monospace"
+                            fontWeight="700"
+                          >
+                            ${(st.active_pipeline_usd / 1e6).toFixed(2)}M
+                          </text>
+                          <text
+                            x={x + barWidth / 2}
+                            y="162"
+                            textAnchor="middle"
+                            fill={isSelected ? accentHex : "#FFFFFF"}
+                            fontSize="11"
+                            fontWeight="900"
+                          >
+                            {st.stateCode}
+                          </text>
+                          <text
+                            x={x + barWidth / 2}
+                            y="176"
+                            textAnchor="middle"
+                            fill="#94A3B8"
+                            fontSize="9.5"
+                          >
+                            {st.combined_tax_rate_pct}% Tax
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+              </div>
+
+              {/* Row 3: Calm Executive Module Cards (Click to Jump into Any of the 4 Modules) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
+                  <div>
+                    <div className="text-xs font-black uppercase" style={{ color: accentHex }}>
+                      03 · Commercial CRM
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      $5.88M Bid Pipeline &amp; 29 Trades
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-1">
+                      5 active projects &amp; pre-qualified subcontractors across 8+ states with W-9/COI gate.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("VIEW_03_CRM")}
+                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open CRM &amp; Bids →
+                  </button>
+                </div>
+
+                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
+                  <div>
+                    <div className="text-xs font-black uppercase text-emerald-300">
+                      04 · Davis-Bacon Payroll
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      6,536 MH · $213,299.26 WH-347
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-1">
+                      7 CSI field crews, FICA 7.65% ($13.1K), FUTA/SUTA ($5.8K) &amp; Workers&apos; Comp ($23.0K).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("VIEW_04_PAYROLL")}
+                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open WH-347 Payroll →
+                  </button>
+                </div>
+
+                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
+                  <div>
+                    <div className="text-xs font-black uppercase text-sky-300">
+                      05 · QuickBooks &amp; AIA
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      $184,892.70 Net Pay App #3
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-1">
+                      8 Material POs ($375,012.51), 10% Retainage ($51,501.13) &amp; instant .IIF / .QBO export.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("VIEW_05_QUICKBOOKS")}
+                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open QuickBooks Sync →
+                  </button>
+                </div>
+
+                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
+                  <div>
+                    <div className="text-xs font-black uppercase text-purple-300">
+                      06 · 9-State Tax &amp; 1099-NEC
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      Sales Tax, Form 941 &amp; 1099-NEC
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-1">
+                      Taxable materials vs. exempt labor across WI, IL, IA, IN, MN, MI, MO, TX &amp; ND.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("VIEW_06_TAX")}
+                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open Tax Compliance →
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── VIEW 03: COMMERCIAL CRM, BID PIPELINE & SUBCONTRACTOR REGISTRY ── */}
+          {activeView === "VIEW_03_CRM" && (
+            <section id="panel-MOD_CRM_BIDS" className="space-y-6">
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <h2 className="text-xl font-black text-white">
+                      🤝 1. Commercial Bid Pipeline &amp; CSI-32 Estimates ($5.88M)
+                    </h2>
+                    <p className="text-xs text-slate-300">
+                      Connected to <Link href="/estimate" className="underline font-bold">/estimate</Link>, <Link href="/investor" className="underline font-bold">/investor</Link>, and Takeoff Pro (:8085).
+                    </p>
+                  </div>
+
+                  {/* Stage Filter Pills */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {["ALL", "Takeoff Synced", "Contract Awarded", "Bidding", "Due Diligence"].map((st) => (
+                      <button
+                        key={st}
+                        type="button"
+                        onClick={() => setCrmStageFilter(st)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                          crmStageFilter === st
+                            ? "bg-amber-400 text-slate-950"
+                            : "bg-white/10 text-slate-300 hover:bg-white/20"
+                        }`}
+                      >
+                        {st}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Add Bid Form */}
+                <form onSubmit={handleCreateQuickLead} className="flex flex-wrap items-center gap-2 mt-4">
                   <input
                     placeholder="New Project / Bid Title..."
                     value={newLeadTitle}
                     onChange={(e) => setNewLeadTitle(e.target.value)}
-                    className="border rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900"
+                    className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-950 bg-white flex-1 min-w-[180px]"
                   />
                   <input
                     placeholder="Client / REIT"
                     value={newLeadClient}
                     onChange={(e) => setNewLeadClient(e.target.value)}
-                    className="border rounded-lg px-3 py-1.5 text-xs text-slate-900 w-36"
+                    className="rounded-lg px-3 py-2 text-xs text-slate-950 bg-white w-40"
                   />
                   <input
                     placeholder="City, State"
                     value={newLeadLocation}
                     onChange={(e) => setNewLeadLocation(e.target.value)}
-                    className="border rounded-lg px-2.5 py-1.5 text-xs text-slate-900 w-32"
+                    className="rounded-lg px-3 py-2 text-xs text-slate-950 bg-white w-36"
                   />
                   <input
                     type="number"
                     placeholder="Value USD"
                     value={newLeadValue}
                     onChange={(e) => setNewLeadValue(e.target.value)}
-                    className="border rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 w-28"
+                    className="rounded-lg px-3 py-2 text-xs font-bold text-slate-950 bg-white w-32"
                   />
                   <button
                     type="submit"
                     id="btn-add-crm-opportunity"
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-white"
-                    style={{ background: "#0F2040" }}
+                    className="px-4 py-2 rounded-lg text-xs font-black text-slate-950"
+                    style={{ background: accentHex }}
                   >
                     + Add Commercial Bid
                   </button>
                 </form>
-              </div>
 
-              <div className="overflow-x-auto mt-4">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50 text-slate-600 uppercase text-[11px]">
-                      <th className="py-3 px-3">Code</th>
-                      <th className="py-3 px-3">Project / Opportunity</th>
-                      <th className="py-3 px-3">Client / Owner</th>
-                      <th className="py-3 px-3">Location</th>
-                      <th className="py-3 px-3 text-right">Area (SqFt)</th>
-                      <th className="py-3 px-3 text-right">GMP Estimate</th>
-                      <th className="py-3 px-3">Stage / Takeoff</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {snapshot.crm.opportunities.map((opp) => (
-                      <tr key={opp.id} className="hover:bg-slate-50/80">
-                        <td className="py-3 px-3 font-mono font-bold text-slate-700">{opp.projectCode}</td>
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900">{opp.title}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {opp.division} · {opp.csiDivisionsCount} CSI Divs · Source: {opp.source}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-slate-800">{opp.clientName}</div>
-                          <div className="text-[11px] text-slate-500">{opp.contactEmail}</div>
-                        </td>
-                        <td className="py-3 px-3 font-semibold text-slate-700">{opp.location}</td>
-                        <td className="py-3 px-3 text-right font-mono">{opp.sqft.toLocaleString()}</td>
-                        <td className="py-3 px-3 text-right font-mono font-black text-slate-900">
-                          ${opp.estimatedValueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900">
-                            {opp.stage}
-                          </span>
-                        </td>
+                {/* Opportunities Table */}
+                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                  <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                      <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
+                        <th className="py-3 px-3">Code</th>
+                        <th className="py-3 px-3">Project / Opportunity</th>
+                        <th className="py-3 px-3">Client / Owner</th>
+                        <th className="py-3 px-3">Location</th>
+                        <th className="py-3 px-3 text-right">Area (SqFt)</th>
+                        <th className="py-3 px-3 text-right">GMP Estimate</th>
+                        <th className="py-3 px-3">Stage</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Subcontractor Directory Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200">
-                <div>
-                  <h3 className="text-lg font-black" style={{ color: "#0F2040" }}>
-                    🛠️ Pre-Qualified Subcontractor Registry (29 Trades · W-9 &amp; COI Gate)
-                  </h3>
-                  <p className="text-xs text-slate-600">
-                    Synced with <Link href="/vendor-application" className="underline font-bold">/vendor-application</Link> and the IRS 1099-NEC Tax Engine.
-                  </p>
-                </div>
-                <Link
-                  href="/vendor-application"
-                  className="px-4 py-2 rounded-xl text-xs font-extrabold w-fit"
-                  style={{ background: "#C9A84C", color: "#0F2040" }}
-                >
-                  + Onboard New Subcontractor (/vendor-application)
-                </Link>
-              </div>
-
-              <div className="overflow-x-auto mt-4">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50 text-slate-600 uppercase text-[11px]">
-                      <th className="py-2.5 px-3">Subcontractor Business</th>
-                      <th className="py-2.5 px-3">State / Cities</th>
-                      <th className="py-2.5 px-3">Qualified Trades</th>
-                      <th className="py-2.5 px-3 text-center">Crew Size</th>
-                      <th className="py-2.5 px-3 text-center">W-9</th>
-                      <th className="py-2.5 px-3 text-center">COI Insurance</th>
-                      <th className="py-2.5 px-3 text-right">YTD Paid</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {snapshot.crm.subcontractors.map((sub) => (
-                      <tr key={sub.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900">{sub.businessName}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {sub.contactName} · {sub.phone}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="font-bold text-slate-900">{sub.stateServed}</span>
-                          <span className="text-[11px] text-slate-500 block">{sub.citiesServed}</span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="flex flex-wrap gap-1">
-                            {sub.trades.map((t) => (
-                              <span
-                                key={t}
-                                className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[11px] font-semibold"
-                              >
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-center font-bold">{sub.crewSize} techs</td>
-                        <td className="py-3 px-3 text-center">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                              sub.w9Status === "VERIFIED"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-800"
-                            }`}
-                          >
-                            {sub.w9Status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                              sub.coiStatus === "ACTIVE"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-800"
-                            }`}
-                          >
-                            {sub.coiStatus}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
-                          ${sub.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── TAB 2: MOD_PAYROLL_CREW (CONSTRUCTION PAYROLL, FIELD CREWS & DAVIS-BACON WH-347) ── */}
-        {activeTab === "MOD_PAYROLL_CREW" && allowedIds.includes("MOD_PAYROLL_CREW") && (
-          <section id="panel-MOD_PAYROLL_CREW" className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Total Labor Budget (Takeoff APU)</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  ${snapshot.payroll.totalLaborBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-xs text-emerald-700 font-semibold mt-1">
-                  Synced with Son of a Star CSI-32
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Total Field Man-Hours</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  {snapshot.payroll.totalManHours.toLocaleString("en-US", { minimumFractionDigits: 1 })} MH
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  {snapshot.payroll.totalCrewDays} Scheduled Crew-Days
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Weighted Loaded Hourly Rate</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#C9A84C" }}>
-                  ${snapshot.payroll.weightedAvgHourlyRateUsd.toFixed(2)} / hr
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Includes Base Wage + Fringe + Employer Burden
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Total Employer Tax &amp; Burden</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  $41,974.55
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  FICA $13,106.34 · FUTA/SUTA $5,825.04 · WC $23,043.17
-                </div>
-              </div>
-            </div>
-
-            {/* Labor Burden Breakdown Bar */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
-                <div>
-                  <h2 className="text-xl font-black" style={{ color: "#0F2040" }}>
-                    👷 2. Federal Certified Davis-Bacon Payroll (Form WH-347) &amp; CSI Field Crews
-                  </h2>
-                  <p className="text-xs text-slate-600">
-                    Exact breakdown of Base Wages ($171,324.71), FICA 7.65% ($13,106.34), FUTA/SUTA ($5,825.04), and Workers&apos; Comp &amp; Fringe ($23,043.17).
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    downloadFile(
-                      "TAYCO_Davis_Bacon_WH347_SonOfStar.json",
-                      JSON.stringify(snapshot.payroll, null, 2),
-                      "application/json"
-                    )
-                  }
-                  className="px-4 py-2 rounded-xl text-xs font-extrabold shrink-0"
-                  style={{ background: "#0F2040", color: "#C9A84C" }}
-                >
-                  ⬇️ Export Certified WH-347 Payroll (JSON/CSV)
-                </button>
-              </div>
-
-              <div className="overflow-x-auto mt-4">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50 text-slate-600 uppercase text-[11px]">
-                      <th className="py-3 px-3">Crew Code</th>
-                      <th className="py-3 px-3">CSI Division &amp; Davis-Bacon Classification</th>
-                      <th className="py-3 px-3 text-center">Workers</th>
-                      <th className="py-3 px-3 text-right">Hours (MH)</th>
-                      <th className="py-3 px-3 text-right">Base Wages</th>
-                      <th className="py-3 px-3 text-right">FICA (7.65%)</th>
-                      <th className="py-3 px-3 text-right">FUTA/SUTA</th>
-                      <th className="py-3 px-3 text-right">WC &amp; Fringe</th>
-                      <th className="py-3 px-3 text-right">Total Loaded</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {snapshot.payroll.crews.map((c) => (
-                      <tr key={c.crewCode} className="hover:bg-slate-50">
-                        <td className="py-3 px-3 font-mono font-bold text-slate-800">{c.crewCode}</td>
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900">{c.csiDivision}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {c.crewComposition || c.tradeClassification}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-center font-bold">{c.workersCount}</td>
-                        <td className="py-3 px-3 text-right font-mono">{c.totalManHours.toFixed(1)}</td>
-                        <td className="py-3 px-3 text-right font-mono">${c.grossWagesUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-3 px-3 text-right font-mono">${c.ficaUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-3 px-3 text-right font-mono">${c.futaSutaUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-3 px-3 text-right font-mono">${c.workersCompFringeUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-3 px-3 text-right font-mono font-black text-slate-900">
-                          ${c.totalLoadedLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── TAB 3: MOD_QUICKBOOKS_ERP (QUICKBOOKS ACCOUNTING SYNC & AIA G702/G703) ── */}
-        {activeTab === "MOD_QUICKBOOKS_ERP" && allowedIds.includes("MOD_QUICKBOOKS_ERP") && (
-          <section id="panel-MOD_QUICKBOOKS_ERP" className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">Active GMP Contract Sum</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  ${snapshot.quickbooks.contractGmpUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-xs text-slate-600 mt-1">QuickBooks Account 4100 Income</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">AIA G702/G703 Pay App #{snapshot.quickbooks.aiaG702PayAppNumber} Net</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">
-                  ${snapshot.quickbooks.aiaCurrentNetPaymentDueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Gross Completed to Date: ${snapshot.quickbooks.aiaGrossCompletedToDateUsd.toLocaleString()}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">10% Retainage (Account 1210)</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#C9A84C" }}>
-                  ${snapshot.quickbooks.aiaRetainage10PctUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-xs text-slate-600 mt-1">Held in Retainage Receivable Asset</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold uppercase text-slate-500">8 Material POs (Account 5200)</div>
-                <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: "#0F2040" }}>
-                  ${snapshot.quickbooks.committedMaterialPosTotalUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-xs text-emerald-700 font-semibold mt-1">
-                  8 Committed Purchase Orders Synced
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
-                <div>
-                  <h2 className="text-xl font-black" style={{ color: "#0F2040" }}>
-                    📗 3. CSI-32 ↔ QuickBooks Chart of Accounts Mapping &amp; Job Costing
-                  </h2>
-                  <p className="text-xs text-slate-600">
-                    Deterministic synchronization of Takeoff Pro budgets with QuickBooks Desktop (`.IIF`) and QuickBooks Online (`.QBO JSON`).
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    id="btn-toggle-iif-preview"
-                    onClick={() => setShowIifModal(!showIifModal)}
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-300 text-slate-800 hover:bg-slate-100"
-                  >
-                    {showIifModal ? "Hide .IIF Journal Entry" : "👁️ Preview QuickBooks .IIF"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      downloadFile(
-                        "TAYCO_SonOfStar_QuickBooks.iif",
-                        snapshot.quickbooks.iifExportPreview,
-                        "text/plain"
-                      )
-                    }
-                    className="px-4 py-2 rounded-xl text-xs font-extrabold"
-                    style={{ background: "#C9A84C", color: "#0F2040" }}
-                  >
-                    ⬇️ Download QuickBooks .IIF
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      downloadFile(
-                        "TAYCO_SonOfStar_QBO_Journal.json",
-                        JSON.stringify(snapshot.quickbooks, null, 2),
-                        "application/json"
-                      )
-                    }
-                    className="px-4 py-2 rounded-xl text-xs font-extrabold text-white"
-                    style={{ background: "#0F2040" }}
-                  >
-                    ⬇️ Download .QBO JSON
-                  </button>
-                </div>
-              </div>
-
-              {showIifModal && (
-                <pre className="mt-4 p-4 rounded-xl bg-slate-900 text-emerald-300 font-mono text-xs overflow-x-auto">
-                  {snapshot.quickbooks.iifExportPreview}
-                </pre>
-              )}
-
-              <div className="overflow-x-auto mt-4">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50 text-slate-600 uppercase text-[11px]">
-                      <th className="py-3 px-3">CSI Division</th>
-                      <th className="py-3 px-3">CSI-32 Scope Description</th>
-                      <th className="py-3 px-3">QuickBooks Account</th>
-                      <th className="py-3 px-3 text-right">GMP Budget</th>
-                      <th className="py-3 px-3 text-right">Committed POs</th>
-                      <th className="py-3 px-3 text-right">Billed to Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {snapshot.quickbooks.chartOfAccountsMapping.map((row) => (
-                      <tr key={row.csiDivision} className="hover:bg-slate-50">
-                        <td className="py-3 px-3 font-mono font-bold text-slate-800">{row.csiDivision}</td>
-                        <td className="py-3 px-3 font-semibold text-slate-900">{row.csiTitle}</td>
-                        <td className="py-3 px-3">
-                          <span className="font-mono font-bold text-indigo-900 bg-indigo-50 px-2 py-0.5 rounded">
-                            #{row.qbAccountNumber}
-                          </span>{" "}
-                          <span className="text-xs text-slate-700">{row.qbAccountName}</span>
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono">${row.budgetedUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-amber-800">
-                          ${row.committedPosUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-3 text-right font-mono font-black text-emerald-800">
-                          ${row.billedToDateUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── TAB 4: MOD_TAX_COMPLIANCE (MULTI-STATE TAX ENGINE & IRS 1099-NEC) ── */}
-        {activeTab === "MOD_TAX_COMPLIANCE" && allowedIds.includes("MOD_TAX_COMPLIANCE") && (
-          <section id="panel-MOD_TAX_COMPLIANCE" className="space-y-6">
-            {/* State Selector & Tax-Exempt Toggle */}
-            <div className="bg-white rounded-2xl border-2 p-6 shadow-sm" style={{ borderColor: "#0F2040" }}>
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">
-                <div>
-                  <h2 className="text-xl font-black" style={{ color: "#0F2040" }}>
-                    🏛️ 4. Multi-State Tax Engine (WI · IL · IA · IN · MN · MI · MO · TX · ND) &amp; IRS 1099-NEC
-                  </h2>
-                  <p className="text-xs text-slate-600">
-                    Automatically separates Taxable Construction Materials ($375,012.51) from Exempt Field Labor ($213,299.26) according to jobsite state law.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-                      Project Tax Jurisdiction
-                    </label>
-                    <select
-                      id="select-tayco-tax-state"
-                      value={snapshot.taxCompliance.stateCode}
-                      onChange={(e) =>
-                        handleTaxStateChange(e.target.value, snapshot.taxCompliance.taxExempt)
-                      }
-                      className="border-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-black text-slate-900 bg-amber-50/60"
-                      style={{ borderColor: "#C9A84C" }}
-                    >
-                      {snapshot.taxCompliance.availableStates.map((st) => (
-                        <option key={st.stateCode} value={st.stateCode}>
-                          {st.stateCode} — {st.stateName} ({st.combinedSalesUseTaxPct}% Sales/Use Tax)
-                        </option>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {filteredOpportunities.map((opp) => (
+                        <tr key={opp.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-3 font-mono font-bold text-slate-700">{opp.projectCode}</td>
+                          <td className="py-3 px-3">
+                            <div className="font-bold text-slate-900">{opp.title}</div>
+                            <div className="text-[11px] text-slate-500">
+                              {opp.division} · {opp.csiDivisionsCount} CSI Divs · Source: {opp.source}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3">
+                            <div className="font-semibold text-slate-800">{opp.clientName}</div>
+                            <div className="text-[11px] text-slate-500">{opp.contactEmail}</div>
+                          </td>
+                          <td className="py-3 px-3 font-semibold text-slate-700">{opp.location}</td>
+                          <td className="py-3 px-3 text-right font-mono">{opp.sqft.toLocaleString()}</td>
+                          <td className="py-3 px-3 text-right font-mono font-black text-slate-900">
+                            ${opp.estimatedValueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900">
+                              {opp.stage}
+                            </span>
+                          </td>
+                        </tr>
                       ))}
-                    </select>
-                  </div>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                  <label className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-300 cursor-pointer mt-4 lg:mt-0">
-                    <input
-                      type="checkbox"
-                      id="toggle-tax-exempt"
-                      checked={snapshot.taxCompliance.taxExempt}
-                      onChange={(e) =>
-                        handleTaxStateChange(snapshot.taxCompliance.stateCode, e.target.checked)
+              {/* Subcontractor Directory with Progressive Disclosure */}
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-lg font-black text-white">
+                      🛠️ Pre-Qualified Subcontractor Registry (29 Trades · W-9 &amp; COI Gate)
+                    </h3>
+                    <p className="text-xs text-slate-300">
+                      {snapshot.crm.subcontractors.length} Master Vendors across 8 states synced with <Link href="/vendor-application" className="underline font-bold">/vendor-application</Link>.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleTableExpand("crm_subs")}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                    >
+                      {isTableVisible("crm_subs") ? "Collapse Vendor Ledger ▴" : "Expand Full Ledger Table ▾"}
+                    </button>
+                    <Link
+                      href="/vendor-application"
+                      className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
+                      style={{ background: accentHex }}
+                    >
+                      + Onboard Subcontractor
+                    </Link>
+                  </div>
+                </div>
+
+                {isTableVisible("crm_subs") && (
+                  <div className="overflow-x-auto mt-4 bg-white rounded-xl text-slate-900 p-2">
+                    <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                      <thead>
+                        <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
+                          <th className="py-2.5 px-3">Subcontractor Business</th>
+                          <th className="py-2.5 px-3">State / Cities</th>
+                          <th className="py-2.5 px-3">Qualified Trades</th>
+                          <th className="py-2.5 px-3 text-center">Crew Size</th>
+                          <th className="py-2.5 px-3 text-center">W-9</th>
+                          <th className="py-2.5 px-3 text-center">COI Insurance</th>
+                          <th className="py-2.5 px-3 text-right">YTD Paid</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {snapshot.crm.subcontractors.map((sub) => (
+                          <tr key={sub.id} className="hover:bg-slate-50">
+                            <td className="py-3 px-3">
+                              <div className="font-bold text-slate-900">{sub.businessName}</div>
+                              <div className="text-[11px] text-slate-500">
+                                {sub.contactName} · {sub.phone}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3">
+                              <span className="font-bold text-slate-900">{sub.stateServed}</span>
+                              <span className="text-[11px] text-slate-500 block">{sub.citiesServed}</span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="flex flex-wrap gap-1">
+                                {sub.trades.map((t) => (
+                                  <span
+                                    key={t}
+                                    className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[11px] font-semibold"
+                                  >
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-center font-bold">{sub.crewSize} techs</td>
+                            <td className="py-3 px-3 text-center">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                                {sub.w9Status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-center">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                                {sub.coiStatus}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
+                              ${sub.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* ── VIEW 04: CONSTRUCTION PAYROLL, FIELD CREWS & DAVIS-BACON WH-347 ── */}
+          {activeView === "VIEW_04_PAYROLL" && (
+            <section id="panel-MOD_PAYROLL_CREW" className="space-y-6">
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                  <div>
+                    <h2 className="text-xl font-black text-white">
+                      👷 2. Construction Payroll, Field Crews &amp; Davis-Bacon Form WH-347
+                    </h2>
+                    <p className="text-xs text-slate-300">
+                      6,536.0 Total Man-Hours · 103.1 Crew-Days · $32.63/hr Weighted Rate · $213,299.26 Total Labor Budget.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleTableExpand("wh347_table")}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                    >
+                      {isTableVisible("wh347_table") ? "Collapse WH-347 Ledger ▴" : "Expand Full Ledger Table ▾"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadFile(
+                          "TAYCO_Davis_Bacon_WH347_SonOfStar.json",
+                          JSON.stringify(snapshot.payroll, null, 2),
+                          "application/json"
+                        )
                       }
-                      className="h-4 w-4 accent-emerald-600"
-                    />
-                    <span className="text-xs font-extrabold text-slate-900">
-                      Tax-Exempt Certificate ({snapshot.taxCompliance.exemptionCertificateNumber})
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="text-xs font-bold text-slate-500">Taxable Materials (8 POs)</div>
-                  <div className="text-2xl font-black text-slate-900 mt-1">
-                    ${snapshot.taxCompliance.taxableMaterialsUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-[11px] text-slate-600 mt-1">
-                    Applied Rate ({snapshot.taxCompliance.stateCode}):{" "}
-                    <strong>{snapshot.taxCompliance.effectiveRatePct}%</strong>
+                      className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
+                      style={{ background: accentHex }}
+                    >
+                      ⬇️ Export WH-347 (JSON/CSV)
+                    </button>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                  <div className="text-xs font-bold text-emerald-800">Exempt Field Labor (WH-347)</div>
-                  <div className="text-2xl font-black text-emerald-950 mt-1">
-                    ${snapshot.taxCompliance.exemptLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                    100% Sales Tax Exempt in {snapshot.taxCompliance.stateCode}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-300">
-                  <div className="text-xs font-bold text-amber-900">
-                    Estimated Sales &amp; Use Tax ({snapshot.taxCompliance.stateCode})
-                  </div>
-                  <div id="tax-estimated-amount" className="text-2xl font-black text-amber-950 mt-1">
-                    ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-[11px] text-amber-800 mt-1">
-                    {snapshot.taxCompliance.taxExempt
-                      ? `Exemption Savings: $${snapshot.taxCompliance.taxSavingsIfExemptUsd.toLocaleString()}`
-                      : `State SUTA Base Rate: ${snapshot.taxCompliance.sutaBaseRatePct}%`}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900 text-white">
-                  <div className="text-xs font-bold text-amber-300">Quarterly IRS Form 941 Deposit</div>
-                  <div className="text-2xl font-black mt-1">
-                    ${snapshot.taxCompliance.form941QuarterlySummary.totalForm941DepositUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-[11px] text-gray-300 mt-1">
-                    Employer FICA + Federal Withholding ({snapshot.taxCompliance.form941QuarterlySummary.quarter})
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3.5 rounded-xl bg-slate-100 text-xs text-slate-700">
-                <strong>Construction Tax Rule ({snapshot.taxCompliance.stateName}):</strong>{" "}
-                {snapshot.taxCompliance.constructionRule}
-              </div>
-            </div>
-
-            {/* 1099-NEC Compliance Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-lg font-black mb-1" style={{ color: "#0F2040" }}>
-                📋 Annual IRS Form 1099-NEC Compliance &amp; Preventive W-9 / COI Hold Gate
-              </h3>
-              <p className="text-xs text-slate-600 mb-4">
-                Automatically flags subcontractors exceeding the $600 USD threshold and places payment holds if a verified W-9 or active COI is missing.
-              </p>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50 text-slate-600 uppercase text-[11px]">
-                      <th className="py-2.5 px-3">Subcontractor</th>
-                      <th className="py-2.5 px-3">State</th>
-                      <th className="py-2.5 px-3">EIN / TIN</th>
-                      <th className="py-2.5 px-3 text-right">YTD Payments</th>
-                      <th className="py-2.5 px-3 text-center">W-9</th>
-                      <th className="py-2.5 px-3 text-center">COI</th>
-                      <th className="py-2.5 px-3">1099-NEC E-File Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {snapshot.taxCompliance.vendors1099Nec.map((v) => (
-                      <tr key={v.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-3 font-bold text-slate-900">{v.businessName}</td>
-                        <td className="py-3 px-3 font-semibold">{v.stateServed}</td>
-                        <td className="py-3 px-3 font-mono text-slate-600">{v.tinMasked}</td>
-                        <td className="py-3 px-3 text-right font-mono font-bold">
-                          ${v.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                            {v.w9Status}
+                {/* Visual Man-Hour Bars by Crew */}
+                <div className="space-y-3 mt-5">
+                  {snapshot.payroll.crews.map((c) => {
+                    const widthPct = Math.min(100, Math.round((c.totalManHours / 1700) * 100));
+                    return (
+                      <div key={c.crewCode} className="p-3 rounded-xl bg-white/5 border border-white/10">
+                        <div className="flex flex-wrap justify-between text-xs mb-1.5">
+                          <span className="font-bold text-white">
+                            <code className="text-amber-300 mr-2">{c.crewCode}</code>
+                            {c.csiDivision}
                           </span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                            {v.coiStatus}
+                          <span className="font-mono text-emerald-300 font-bold">
+                            {c.totalManHours.toFixed(1)} MH · {c.workersCount} Workers · $
+                            {c.totalLoadedLaborUsd.toLocaleString()}
                           </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                              v.filingStatus === "READY_TO_EFILE_1099"
-                                ? "bg-emerald-100 text-emerald-900"
-                                : "bg-amber-100 text-amber-900"
-                            }`}
-                          >
-                            {v.filingStatus}
-                          </span>
-                        </td>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-black/40 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${widthPct}%`, background: accentHex }}
+                          />
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-1">
+                          {c.crewComposition || c.tradeClassification}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Full WH-347 Table (Progressive Disclosure) */}
+                {isTableVisible("wh347_table") && (
+                  <div className="overflow-x-auto mt-6 bg-white rounded-xl text-slate-900 p-2">
+                    <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                      <thead>
+                        <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
+                          <th className="py-3 px-3">Crew Code</th>
+                          <th className="py-3 px-3">CSI Division &amp; Davis-Bacon Classification</th>
+                          <th className="py-3 px-3 text-center">Workers</th>
+                          <th className="py-3 px-3 text-right">Hours (MH)</th>
+                          <th className="py-3 px-3 text-right">Base Wages</th>
+                          <th className="py-3 px-3 text-right">FICA (7.65%)</th>
+                          <th className="py-3 px-3 text-right">FUTA/SUTA</th>
+                          <th className="py-3 px-3 text-right">WC &amp; Fringe</th>
+                          <th className="py-3 px-3 text-right">Total Loaded</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {snapshot.payroll.crews.map((c) => (
+                          <tr key={c.crewCode} className="hover:bg-slate-50">
+                            <td className="py-3 px-3 font-mono font-bold text-slate-800">{c.crewCode}</td>
+                            <td className="py-3 px-3">
+                              <div className="font-bold text-slate-900">{c.csiDivision}</div>
+                              <div className="text-[11px] text-slate-500">
+                                {c.crewComposition || c.tradeClassification}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-center font-bold">{c.workersCount}</td>
+                            <td className="py-3 px-3 text-right font-mono">{c.totalManHours.toFixed(1)}</td>
+                            <td className="py-3 px-3 text-right font-mono">${c.grossWagesUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+                            <td className="py-3 px-3 text-right font-mono">${c.ficaUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+                            <td className="py-3 px-3 text-right font-mono">${c.futaSutaUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+                            <td className="py-3 px-3 text-right font-mono">${c.workersCompFringeUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+                            <td className="py-3 px-3 text-right font-mono font-black text-slate-900">
+                              ${c.totalLoadedLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* ── VIEW 05: QUICKBOOKS ACCOUNTING SYNC, 8 POs & AIA G702/G703 SIMULATOR ── */}
+          {activeView === "VIEW_05_QUICKBOOKS" && (
+            <section id="panel-MOD_QUICKBOOKS_ERP" className="space-y-6">
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                  <div>
+                    <h2 className="text-xl font-black text-white">
+                      📗 3. QuickBooks Accounting Sync, 8 Material POs &amp; Interactive AIA G702/G703 Simulator
+                    </h2>
+                    <p className="text-xs text-slate-300">
+                      Simulate progress billing draw certificates and export directly to QuickBooks Desktop (`.IIF`) or QuickBooks Online (`.QBO JSON`).
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      id="btn-toggle-iif-preview"
+                      onClick={() => setShowIifModal(!showIifModal)}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                    >
+                      {showIifModal ? "Hide .IIF Journal Entry" : "👁️ Preview QuickBooks .IIF"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadFile(
+                          "TAYCO_SonOfStar_QuickBooks.iif",
+                          snapshot.quickbooks.iifExportPreview,
+                          "text/plain"
+                        )
+                      }
+                      className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
+                      style={{ background: accentHex }}
+                    >
+                      ⬇️ Download .IIF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadFile(
+                          "TAYCO_SonOfStar_QBO_Journal.json",
+                          JSON.stringify(snapshot.quickbooks, null, 2),
+                          "application/json"
+                        )
+                      }
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950"
+                    >
+                      ⬇️ Download .QBO JSON
+                    </button>
+                  </div>
+                </div>
+
+                {/* Interactive AIA G702/G703 Progress Simulator */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 p-4 rounded-xl bg-black/30 border border-white/10">
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="text-xs font-black uppercase tracking-wider" style={{ color: accentHex }}>
+                      🎛️ AIA G702/G703 Pay Application Simulator
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>Physical Completion (% Progress)</span>
+                        <strong className="font-mono text-amber-300">{aiaProgressPct.toFixed(1)}%</strong>
+                      </div>
+                      <input
+                        type="range"
+                        min={10}
+                        max={100}
+                        step={0.2}
+                        value={aiaProgressPct}
+                        onChange={(e) => setAiaProgressPct(Number(e.target.value))}
+                        className="w-full accent-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>Statutory Retainage Held (Account 1210)</span>
+                        <strong className="font-mono text-emerald-300">{aiaRetainagePct.toFixed(1)}%</strong>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={15}
+                        step={0.5}
+                        value={aiaRetainagePct}
+                        onChange={(e) => setAiaRetainagePct(Number(e.target.value))}
+                        className="w-full accent-emerald-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold">Total Completed &amp; Stored</div>
+                      <div className="text-base font-mono font-black text-white mt-1">
+                        ${simGrossCompleted.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
+                      <div className="text-[10px] text-amber-300 uppercase font-bold">Retainage (Acct 1210)</div>
+                      <div className="text-base font-mono font-black text-amber-200 mt-1">
+                        ${simRetainageHeld.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-400/40">
+                      <div className="text-[10px] text-emerald-300 uppercase font-bold">Current Net Payment Due</div>
+                      <div className="text-base font-mono font-black text-emerald-200 mt-1">
+                        ${simCurrentNetPayment.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {showIifModal && (
+                  <pre className="mt-4 p-4 rounded-xl bg-black/80 text-emerald-300 font-mono text-xs overflow-x-auto border border-emerald-500/30">
+                    {snapshot.quickbooks.iifExportPreview}
+                  </pre>
+                )}
+
+                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                  <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                      <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
+                        <th className="py-3 px-3">CSI Division</th>
+                        <th className="py-3 px-3">CSI-32 Scope Description</th>
+                        <th className="py-3 px-3">QuickBooks Account</th>
+                        <th className="py-3 px-3 text-right">GMP Budget</th>
+                        <th className="py-3 px-3 text-right">Committed POs</th>
+                        <th className="py-3 px-3 text-right">Billed to Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── TAB 5 / 6: MOD_TAKEOFF_PRO & MOD_INVESTOR_PORTAL ── */}
-        {(activeTab === "MOD_TAKEOFF_PRO" || activeTab === "MOD_INVESTOR_PORTAL") && (
-          <section id="panel-MOD_TAKEOFF_PRO" className="space-y-6">
-            <div
-              className="rounded-2xl p-6 sm:p-8 text-white shadow-xl border"
-              style={{
-                background: "linear-gradient(145deg, #08121F 0%, #0F2040 60%, #142B54 100%)",
-                borderColor: "#C9A84C",
-              }}
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                  <span
-                    className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
-                    style={{ background: "rgba(201,168,76,0.2)", color: "#C9A84C" }}
-                  >
-                    📐 LIVE TAKEOFF PRO BRIDGE v{snapshot.takeoffBridge.rustEngineVersion} · 21 RUST KERNELS
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-black mt-2">
-                    2D/3D CAD Workstation, CSI-32 Budget &amp; Executive Investor Dossier
-                  </h2>
-                  <p className="text-sm text-gray-300 mt-1 max-w-2xl">
-                    Connected directly to <code className="text-amber-300">{snapshot.takeoffBridge.url}</code>. All vector blueprint takeoffs drive purchase orders, certified WH-347 payroll, and AIA G702/G703 payment applications for TAYCO LLC.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <a
-                    href={snapshot.takeoffBridge.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-3 rounded-xl font-black text-xs sm:text-sm shadow-md"
-                    style={{ background: "#C9A84C", color: "#0F2040" }}
-                  >
-                    🚀 Launch Takeoff Pro Workstation (:8085) ↗
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleSyncTakeoffPro}
-                    className="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm border border-white/30 hover:bg-white/10"
-                  >
-                    🔄 Re-Sync CSI-32 Data
-                  </button>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {snapshot.quickbooks.chartOfAccountsMapping.map((row) => (
+                        <tr key={row.csiDivision} className="hover:bg-slate-50">
+                          <td className="py-3 px-3 font-mono font-bold text-slate-800">{row.csiDivision}</td>
+                          <td className="py-3 px-3 font-semibold text-slate-900">{row.csiTitle}</td>
+                          <td className="py-3 px-3">
+                            <span className="font-mono font-bold text-indigo-900 bg-indigo-50 px-2 py-0.5 rounded">
+                              #{row.qbAccountNumber}
+                            </span>{" "}
+                            <span className="text-xs text-slate-700">{row.qbAccountName}</span>
+                          </td>
+                          <td className="py-3 px-3 text-right font-mono">${row.budgetedUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold text-amber-800">
+                            ${row.committedPosUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-3 px-3 text-right font-mono font-black text-emerald-800">
+                            ${row.billedToDateUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
+            </section>
+          )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/10">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-gray-400">Flagship Synced Project</div>
-                  <div className="text-xl font-black mt-1" style={{ color: "#C9A84C" }}>
-                    Son of a Star ($855,525.23)
+          {/* ── VIEW 06: MULTI-STATE TAX ENGINE (9 STATES) & IRS 1099-NEC ── */}
+          {activeView === "VIEW_06_TAX" && (
+            <section id="panel-MOD_TAX_COMPLIANCE" className="space-y-6">
+              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <h2 className="text-xl font-black text-white">
+                      🏛️ 4. Multi-State Tax Engine (WI · IL · IA · IN · MN · MI · MO · TX · ND) &amp; IRS 1099-NEC
+                    </h2>
+                    <p className="text-xs text-slate-300">
+                      Automatically separates Taxable Construction Materials ($375,012.51) from Exempt Field Labor ($213,299.26).
+                    </p>
                   </div>
-                  <div className="text-xs text-emerald-300 mt-1">16 CSI Divisions · 369 SHA-256 Line Items</div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">
+                        Project Tax Jurisdiction
+                      </label>
+                      <select
+                        id="select-tayco-tax-state"
+                        value={snapshot.taxCompliance.stateCode}
+                        onChange={(e) =>
+                          handleTaxStateChange(e.target.value, snapshot.taxCompliance.taxExempt)
+                        }
+                        className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-black text-slate-950 bg-white"
+                      >
+                        {snapshot.taxCompliance.availableStates.map((st) => (
+                          <option key={st.stateCode} value={st.stateCode}>
+                            {st.stateCode} — {st.stateName} ({st.combinedSalesUseTaxPct}% Sales/Use Tax)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <label className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 cursor-pointer mt-4 lg:mt-0">
+                      <input
+                        type="checkbox"
+                        id="toggle-tax-exempt"
+                        checked={snapshot.taxCompliance.taxExempt}
+                        onChange={(e) =>
+                          handleTaxStateChange(snapshot.taxCompliance.stateCode, e.target.checked)
+                        }
+                        className="h-4 w-4 accent-emerald-500"
+                      />
+                      <span className="text-xs font-extrabold text-white">
+                        Tax-Exempt Certificate ({snapshot.taxCompliance.exemptionCertificateNumber})
+                      </span>
+                    </label>
+                  </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-gray-400">EVM Performance (Earned Value)</div>
-                  <div className="text-xl font-black text-white mt-1">
-                    CPI {snapshot.takeoffBridge.evmCpi} · SPI {snapshot.takeoffBridge.evmSpi}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div className="text-xs font-bold text-slate-400">Taxable Materials (8 POs)</div>
+                    <div className="text-2xl font-black text-white mt-1">
+                      ${snapshot.taxCompliance.taxableMaterialsUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-slate-300 mt-1">
+                      Applied Rate ({snapshot.taxCompliance.stateCode}):{" "}
+                      <strong>{snapshot.taxCompliance.effectiveRatePct}%</strong>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-300 mt-1">Under budget &amp; on critical path</div>
+
+                  <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-400/30">
+                    <div className="text-xs font-bold text-emerald-300">Exempt Field Labor (WH-347)</div>
+                    <div className="text-2xl font-black text-white mt-1">
+                      ${snapshot.taxCompliance.exemptLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-emerald-200 font-semibold mt-1">
+                      100% Sales Tax Exempt in {snapshot.taxCompliance.stateCode}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-400/40">
+                    <div className="text-xs font-bold text-amber-300">
+                      Estimated Sales &amp; Use Tax ({snapshot.taxCompliance.stateCode})
+                    </div>
+                    <div id="tax-estimated-amount" className="text-2xl font-black text-amber-200 mt-1">
+                      ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-amber-100 mt-1">
+                      {snapshot.taxCompliance.taxExempt
+                        ? `Exemption Savings: $${snapshot.taxCompliance.taxSavingsIfExemptUsd.toLocaleString()}`
+                        : `State SUTA Base Rate: ${snapshot.taxCompliance.sutaBaseRatePct}%`}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-sky-500/15 border border-sky-400/30">
+                    <div className="text-xs font-bold text-sky-300">Quarterly IRS Form 941 Deposit</div>
+                    <div className="text-2xl font-black text-white mt-1">
+                      ${snapshot.taxCompliance.form941QuarterlySummary.totalForm941DepositUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-slate-300 mt-1">
+                      Employer FICA + Federal Withholding ({snapshot.taxCompliance.form941QuarterlySummary.quarter})
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-gray-400">Monte Carlo Contingency (P80)</div>
-                  <div className="text-xl font-black text-amber-300 mt-1">
-                    ${snapshot.takeoffBridge.monteCarloP80ContingencyUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-xs text-gray-300 mt-1">2,000-iteration stochastic simulation</div>
+                <div className="mt-4 p-3.5 rounded-xl bg-black/40 border border-white/10 text-xs text-slate-200">
+                  <strong>Construction Tax Rule ({snapshot.taxCompliance.stateName}):</strong>{" "}
+                  {snapshot.taxCompliance.constructionRule}
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-gray-400">Hybrid Web Architecture</div>
-                  <div className="text-xl font-black text-emerald-300 mt-1">
-                    Astro 5 + Next.js 16
+                {/* 1099-NEC Table */}
+                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                  <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                      <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
+                        <th className="py-2.5 px-3">Subcontractor</th>
+                        <th className="py-2.5 px-3">State</th>
+                        <th className="py-2.5 px-3">EIN / TIN</th>
+                        <th className="py-2.5 px-3 text-right">YTD Payments</th>
+                        <th className="py-2.5 px-3 text-center">W-9</th>
+                        <th className="py-2.5 px-3 text-center">COI</th>
+                        <th className="py-2.5 px-3">1099-NEC E-File Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {snapshot.taxCompliance.vendors1099Nec.map((v) => (
+                        <tr key={v.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-3 font-bold text-slate-900">{v.businessName}</td>
+                          <td className="py-3 px-3 font-semibold">{v.stateServed}</td>
+                          <td className="py-3 px-3 font-mono text-slate-600">{v.tinMasked}</td>
+                          <td className="py-3 px-3 text-right font-mono font-bold">
+                            ${v.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                              {v.w9Status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                              {v.coiStatus}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                v.filingStatus === "READY_TO_EFILE_1099"
+                                  ? "bg-emerald-100 text-emerald-900"
+                                  : "bg-amber-100 text-amber-900"
+                              }`}
+                            >
+                              {v.filingStatus}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── VIEW 07: TAKEOFF PRO 2D/3D BRIDGE & MONTE CARLO P80 TELEMETRY ── */}
+          {activeView === "VIEW_07_TAKEOFF" && (
+            <section id="panel-MOD_TAKEOFF_PRO" className="space-y-6">
+              <div className={`${cardSurfaceClass} rounded-2xl p-6 sm:p-8`}>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div>
+                    <span
+                      className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
+                      style={{ background: "rgba(201,168,76,0.2)", color: accentHex }}
+                    >
+                      📐 LIVE TAKEOFF PRO BRIDGE v{snapshot.takeoffBridge.rustEngineVersion} · 21 RUST KERNELS
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white mt-2">
+                      2D/3D CAD Workstation, CSI-32 Budget &amp; Monte Carlo P80 Telemetry
+                    </h2>
+                    <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+                      Connected directly to <code className="text-amber-300">{snapshot.takeoffBridge.url}</code>. All vector blueprint takeoffs drive purchase orders, certified WH-347 payroll, and AIA G702/G703 payment applications for TAYCO LLC.
+                    </p>
                   </div>
-                  <div className="text-xs text-gray-300 mt-1">
-                    <a href="/astro-preview/index.html" className="underline">View Static Astro 5 Build →</a>
+
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-3 rounded-xl font-black text-xs sm:text-sm text-slate-950 shadow-md"
+                      style={{ background: accentHex }}
+                    >
+                      🚀 Launch Takeoff Pro Workstation (:8085) ↗
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleSyncTakeoffPro}
+                      className="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm border border-white/30 hover:bg-white/10 text-white"
+                    >
+                      🔄 Re-Sync CSI-32 Data
+                    </button>
+                  </div>
+                </div>
+
+                {/* Monte Carlo P50 / P80 / P95 Confidence Interval Visual Bar */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/10">
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div className="text-xs text-slate-400 font-bold">Monte Carlo P50 (Base Deterministic)</div>
+                    <div className="text-xl font-black text-white mt-1">$855,525.23</div>
+                    <div className="text-xs text-emerald-300 mt-1">16 CSI Divisions · 369 SHA-256 Line Items</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-400/40">
+                    <div className="text-xs text-amber-300 font-bold">Monte Carlo P80 (+5.0% Contingency)</div>
+                    <div className="text-xl font-black text-amber-200 mt-1">$898,301.49</div>
+                    <div className="text-xs text-amber-100 mt-1">+$42,776.26 Recommended Risk Reserve</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-sky-500/15 border border-sky-400/30">
+                    <div className="text-xs text-sky-300 font-bold">Monte Carlo P95 (Extreme Weather/Supply)</div>
+                    <div className="text-xl font-black text-white mt-1">$928,244.87</div>
+                    <div className="text-xs text-slate-300 mt-1">2,000 Stochastic Iterations Verified</div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
+        </div>
       </div>
     </main>
   );

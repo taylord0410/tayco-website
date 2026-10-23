@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  buildFullSuiteSnapshot,
+  getErpSuiteDashboardState,
   createModuleInvitation,
   loadSuiteState,
   probeTakeoffProBridge,
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const inviteQuery = searchParams.get("invite");
     const tenantQuery = searchParams.get("tenant");
 
-    const snapshot = buildFullSuiteSnapshot(inviteQuery, tenantQuery);
+    const snapshot = getErpSuiteDashboardState(inviteQuery, tenantQuery);
     return NextResponse.json({
       success: true,
       ...snapshot,
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         expiresInDays: Number(body.expiresInDays) || 14,
       });
 
-      const snapshot = buildFullSuiteSnapshot(created.code, created.tenantId);
+      const snapshot = getErpSuiteDashboardState(created.code, created.tenantId);
       return NextResponse.json({
         success: true,
         action: "create_invitation",
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         state.activeTenantId = String(body.tenantId);
       }
       saveSuiteState(state);
-      const snapshot = buildFullSuiteSnapshot(
+      const snapshot = getErpSuiteDashboardState(
         state.activeInvitationCode,
         state.activeTenantId
       );
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
         sqft: Number(body.sqft) || 6500,
       });
 
-      const snapshot = buildFullSuiteSnapshot();
+      const snapshot = getErpSuiteDashboardState();
       return NextResponse.json({
         success: true,
         action: "create_crm_lead",
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         state.exemptionCertificateNumber = String(body.exemptionCertificateNumber);
       }
       saveSuiteState(state);
-      const snapshot = buildFullSuiteSnapshot();
+      const snapshot = getErpSuiteDashboardState();
       return NextResponse.json({
         success: true,
         action: "calculate_state_tax",
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     if (action === "sync_with_takeoff_pro") {
       const state = loadSuiteState();
       const bridgeResult = await probeTakeoffProBridge(state);
-      const snapshot = buildFullSuiteSnapshot();
+      const snapshot = getErpSuiteDashboardState();
       return NextResponse.json({
         success: true,
         action: "sync_with_takeoff_pro",
