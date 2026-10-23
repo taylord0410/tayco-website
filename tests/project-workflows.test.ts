@@ -80,7 +80,7 @@ test("financial totals use disjoint source statuses with cents and preserve role
  const invoices=[["SUB",10.1,"submitted"],["APP",20.2,"approved"],["PAID",30.3,"paid"],["RETURN",40.4,"returned"]] as const;
  for(const [reference,amountUsd,status]of invoices){
   const invoice=run(admin,{action:"record_invoice",projectId,reference,amountUsd,audience:"client"});
-  if(status!=="submitted")run(admin,{action:"update_invoice",id:invoice.id,version:invoice.version,status});
+  if(status!=="submitted")run(admin,{action:"update_invoice",id:invoice.id,version:invoice.version,status,...(status==="paid"?{paidOn:new Date().toISOString().slice(0,10),reference:"Fixture dated settlement"}:{})});
  }
  run(vendor,{action:"record_invoice",projectId,reference:"VENDOR",amountUsd:0.1});
  const report=financialSummary(admin,projectId);

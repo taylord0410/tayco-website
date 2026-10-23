@@ -3,9 +3,10 @@ import { randomUUID, createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { isValidUsdAmount } from './financial-values';
+import { isFinancialDate } from './financial-periods';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
-export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change';
+export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance';
 export type Data = Record<string, unknown>;
 export type Entry = { id: string; kind: Kind; tenantId: string; projectId: string; ownerId: string; version: number; createdAt: string; updatedAt: string; data: Data };
 type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string };
@@ -32,6 +33,8 @@ function get(id: string) { const row = database().prepare('SELECT * FROM records
 function allowed(actor: Actor, entry: Entry) {
   if (entry.tenantId !== actor.tenantId) return false;
   if (internal(actor)) return true;
+  if(entry.kind==='compliance')return false;
+  if(entry.kind==='bid'||entry.kind==='purchase_order')return actor.role==='vendor'&&actor.projectIds.includes(entry.projectId)&&(entry.ownerId===actor.id||Boolean(actor.vendorId&&entry.data.vendorId===actor.vendorId));
   if (entry.kind === 'vendor') return entry.id === actor.vendorId || entry.ownerId === actor.id;
   if (entry.kind === 'document') return entry.ownerId === actor.id || (actor.role === 'client' && actor.projectIds.includes(entry.projectId) && entry.data.visibility === 'client');
   if (entry.kind === 'hours') return actor.role === 'vendor' && entry.ownerId === actor.id;
@@ -65,6 +68,31 @@ function calendarDate(v:unknown,label:string,optional=false) {
  const date=new Date(value+'T00:00:00Z');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==value)throw new ErpError(422,'Use a valid calendar date for '+label+'.');
  return value;
+}
+function occurredDate(v:unknown,label:string) {const value=calendarDate(v,label);if(value>new Date().toISOString().slice(0,10))throw new ErpError(422,label+' cannot be in the future.');return value;}
+type Payment = {id:string;amountUsd:number;occurredOn:string;reference:string;recordedAt:string;voidedAt?:string;voidReason?:string};
+function invoicePayments(item:Entry):Payment[] {
+ if(item.data.payments===undefined)return [];
+ const payments=item.data.payments,ids=new Set<string>(),today=new Date().toISOString().slice(0,10);
+ const timestamp=(v:unknown)=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v)&&isFinancialDate(v.slice(0,10))&&Number.isFinite(Date.parse(v));
+ if(!Array.isArray(payments)||payments.some(p=>{
+   if(!p||typeof p!=='object'||!isValidUsdAmount(p.amountUsd)||p.amountUsd<=0||typeof p.id!=='string'||!p.id||ids.has(p.id)||typeof p.reference!=='string'||!p.reference.trim()||!isFinancialDate(p.occurredOn)||p.occurredOn>today||!timestamp(p.recordedAt)||p.voidedAt!==undefined&&(!timestamp(p.voidedAt)||typeof p.voidReason!=='string'||!p.voidReason.trim()))return true;
+   ids.add(p.id);return typeof item.data.issuedOn==='string'&&p.occurredOn<item.data.issuedOn;
+ }))throw new ErpError(409,'Payment history needs operator review before another change.');
+ return payments as Payment[];
+}
+function addInvoicePayment(actor:Actor,item:Entry,input:Data) {
+ if(!Number.isInteger(input.version)||input.version!==item.version)throw new ErpError(409,'This invoice changed. Refresh and review its current version.');
+ if(!['approved','paid'].includes(String(item.data.status)))throw new ErpError(409,'Approve the invoice before recording a payment.');
+ if(!isValidUsdAmount(item.data.amountUsd))throw new ErpError(409,'Invoice amount needs review.');
+ const payments=invoicePayments(item),cents=Math.round(currencyAmount(input.amountUsd,'payment amount')*100),paid=payments.filter(p=>!p.voidedAt).reduce((sum,p)=>sum+Math.round(p.amountUsd*100),0),total=Math.round(item.data.amountUsd*100);
+ if(cents<=0||paid+cents>total)throw new ErpError(422,'Payment must be positive and cannot exceed the recorded outstanding amount.');
+ const occurredOn=occurredDate(input.occurredOn,'Payment date'),reference=text(input.reference,'payment reference',200);
+ if(typeof item.data.issuedOn==='string'&&occurredOn<item.data.issuedOn)throw new ErpError(422,'A payment date cannot precede the invoice issue date.');
+ if(payments.length>=1000)throw new ErpError(422,'This payment history requires operator review before adding records.');
+ if(payments.some(p=>!p.voidedAt&&p.reference.toLowerCase()===reference.toLowerCase()))throw new ErpError(409,'This payment reference is already recorded for the invoice.');
+ const payment:Payment={id:randomUUID(),amountUsd:cents/100,occurredOn,reference,recordedAt:new Date().toISOString()};
+ return update(actor,item,{payments:[...payments,payment],status:paid+cents===total?'paid':'approved'},input.version);
 }
 function create(actor: Actor, kind: Kind, data: Data, projectId='', ownerId=actor.id): Entry {
   const id = randomUUID(), at = new Date().toISOString();
@@ -113,7 +141,7 @@ export function financialSummary(actor:Actor, projectId?:string) {
  if(projectId)project(actor,projectId);
  const scoped=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(entry=>allowed(actor,entry)&&(!projectId||entry.projectId===projectId));
  const buckets={submitted:{count:0,amountUsd:0},approved:{count:0,amountUsd:0},paid:{count:0,amountUsd:0},returned:{count:0,amountUsd:0}};
- let excludedRecords=0;
+ let excludedRecords=0,approvedOutstandingCents=0,approvedOutstandingNeedsReviewCount=0;
  for(const entry of scoped.filter(entry=>entry.kind==='invoice')){
    const amount=entry.data.amountUsd,status=entry.data.status;
    if(!isValidUsdAmount(amount)||typeof status!=='string'||!Object.hasOwn(buckets,status)){excludedRecords++;continue;}
@@ -121,9 +149,18 @@ export function financialSummary(actor:Actor, projectId?:string) {
    const sum=Math.round(bucket.amountUsd*100)+cents;
    if(!Number.isSafeInteger(sum))throw new ErpError(503,'Financial totals exceed the supported reporting range.');
    bucket.amountUsd=sum/100;bucket.count++;
+   if(status==='approved'){
+     try{
+       const payments=invoicePayments(entry),paid=payments.filter(p=>!p.voidedAt).reduce((n,p)=>n+Math.round(p.amountUsd*100),0);
+       if(!Number.isSafeInteger(paid)||paid>cents)throw new Error('Inconsistent recorded payments');
+       const outstanding=approvedOutstandingCents+cents-paid;
+       if(!Number.isSafeInteger(outstanding))throw new ErpError(503,'Financial totals exceed the supported reporting range.');
+       approvedOutstandingCents=outstanding;
+     }catch(error){if(error instanceof ErpError&&error.status===503)throw error;approvedOutstandingNeedsReviewCount++;}
+   }
  }
  const projects=actor.role==='vendor'?[]:scoped.filter(entry=>entry.kind==='project').map(entry=>({projectId:entry.id,name:String(entry.data.name||'Project'),budgetUsd:isValidUsdAmount(entry.data.budgetUsd)?entry.data.budgetUsd:null,budgetNeedsReview:entry.data.budgetUsd!=null&&!isValidUsdAmount(entry.data.budgetUsd),budgetSource:typeof entry.data.budgetSource==='string'&&entry.data.budgetSource?entry.data.budgetSource:null,budgetApprovedOn:typeof entry.data.budgetApprovedOn==='string'&&entry.data.budgetApprovedOn?entry.data.budgetApprovedOn:null,budgetUpdatedAt:typeof entry.data.budgetUpdatedAt==='string'?entry.data.budgetUpdatedAt:entry.updatedAt}));
- return {currency:'USD' as const,asOf:new Date().toISOString(),source:'Recorded project budgets and invoices',scope:internal(actor)?'company':'assigned',projects,invoices:buckets,approvedOutstandingUsd:buckets.approved.amountUsd,paidRecordedUsd:buckets.paid.amountUsd,recordCount:Object.values(buckets).reduce((sum,bucket)=>sum+bucket.count,0),excludedRecords};
+ return {currency:'USD' as const,asOf:new Date().toISOString(),source:'Recorded project budgets and invoices',scope:internal(actor)?'company':'assigned',projects,invoices:buckets,approvedOutstandingUsd:approvedOutstandingCents/100,approvedOutstandingNeedsReviewCount,paidRecordedUsd:buckets.paid.amountUsd,recordCount:Object.values(buckets).reduce((sum,bucket)=>sum+bucket.count,0),excludedRecords};
 }
 export function snapshot(actor: Actor) {
   const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)&&!(e.kind==='document'&&(e.data.deletedAt||e.data.purgedAt))).map(e=>exposed(actor,e));
@@ -190,8 +227,57 @@ function mutate(actor: Actor, input: Data): Entry {
   if(action==='decide_change') {if(actor.role!=='client')throw new ErpError(403,'The assigned client must record this decision.');const item=requireEntry(actor,text(input.id,'record',100),'change');if(item.data.status!=='proposed')throw new ErpError(409,'Only a proposed change can be accepted or declined.');return update(actor,item,{status:choice(input.status,['accepted','declined'])},input.version);}
   if(action==='log_hours') {if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);return create(actor,'hours',{date:calendarDate(input.date,'work date'),hours:number(input.hours,'hours',0.1,24),trade:text(input.trade,'work performed',200),status:'submitted'},p.id);}
   if(action==='review_hours') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'hours');return update(actor,item,{status:choice(input.status,['approved','returned']),response:text(input.response??'','review note',1000,false)},input.version);}
-  if(action==='record_invoice') {if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);return create(actor,'invoice',{reference:text(input.reference,'invoice reference',100),amountUsd:currencyAmount(input.amountUsd,'amount'),status:'submitted',audience:actor.role==='vendor'?'vendor':choice(input.audience??'client',['client','internal']),dueDate:calendarDate(input.dueDate,'due date',true)},p.id);}
-  if(action==='update_invoice') {if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can record financial approvals.');const item=requireEntry(actor,text(input.id,'record',100),'invoice');return update(actor,item,{status:choice(input.status,['approved','paid','returned'])},input.version);}
+  if(action==='record_invoice') {
+   if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId),issuedOn=occurredDate(input.issuedOn??new Date().toISOString().slice(0,10),'Invoice issue date'),dueDate=calendarDate(input.dueDate,'due date',true);
+   if(dueDate&&dueDate<issuedOn)throw new ErpError(422,'The due date cannot precede the invoice issue date.');
+   return create(actor,'invoice',{reference:text(input.reference,'invoice reference',100),amountUsd:currencyAmount(input.amountUsd,'amount'),status:'submitted',audience:actor.role==='vendor'?'vendor':choice(input.audience??'client',['client','internal']),issuedOn,source:text(input.source??'Team record','invoice source',500),dueDate,payments:[]},p.id);
+  }
+  if(action==='update_invoice') {
+   if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can record financial approvals.');const item=requireEntry(actor,text(input.id,'record',100),'invoice'),status=choice(input.status,['approved','paid','returned']);
+   if(status==='paid'){
+    const paidOn=occurredDate(input.paidOn,'Payment date');
+    if(typeof item.data.issuedOn==='string'&&paidOn<item.data.issuedOn)throw new ErpError(422,'A payment date cannot precede the invoice issue date.');
+    if(item.data.amountUsd===0)return update(actor,item,{status:'paid',settledOn:paidOn},input.version);
+    const existing=invoicePayments(item).filter(p=>!p.voidedAt).reduce((sum,p)=>sum+Math.round(p.amountUsd*100),0);
+    return addInvoicePayment(actor,{...item,data:{...item.data,status:'approved'}},{...input,amountUsd:currencyAmount(item.data.amountUsd,'invoice amount')-existing/100,occurredOn:paidOn,reference:input.reference??('Recorded settlement '+item.id)});
+   }
+   return update(actor,item,{status},input.version);
+  }
+  if(action==='record_invoice_payment') {if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can record payments.');return addInvoicePayment(actor,requireEntry(actor,text(input.invoiceId,'invoice',100),'invoice'),input);}
+  if(action==='void_invoice_payment') {
+   if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can correct payments.');const item=requireEntry(actor,text(input.invoiceId,'invoice',100),'invoice'),payments=invoicePayments(item),id=text(input.paymentId,'payment',100),payment=payments.find(p=>p.id===id);
+   if(!payment||payment.voidedAt)throw new ErpError(409,'Choose a current payment to correct.');
+   const reason=text(input.reason,'correction reason',1000),at=new Date().toISOString();
+   return update(actor,item,{payments:payments.map(p=>p.id===id?{...p,voidedAt:at,voidReason:reason}:p),status:item.data.status==='paid'?'approved':item.data.status},input.version);
+  }
+  if(action==='create_bid') {
+   if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);let vendorId='';
+   if(actor.role==='vendor'){if(!actor.vendorId)throw new ErpError(403,'A linked provider account is required.');vendorId=actor.vendorId;if(input.vendorId&&input.vendorId!==vendorId)throw new ErpError(403,'Submit only your own offer.');}
+   else if(input.vendorId)vendorId=requireEntry(actor,text(input.vendorId,'provider',100),'vendor').id;
+   return create(actor,'bid',{supplierName:text(input.supplierName,'supplier name',200),scope:text(input.scope,'scope of work',2000),amountUsd:currencyAmount(input.amountUsd,'bid amount'),issuedOn:occurredDate(input.issuedOn,'Bid date'),source:text(input.source,'offer source',500),vendorId,status:'submitted'},p.id);
+  }
+  if(action==='review_bid') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'bid',100),'bid');return update(actor,item,{status:choice(input.status,['reviewing','shortlisted','accepted','declined']),response:text(input.response??'','review note',2000,false)},input.version);}
+  if(action==='create_purchase_order') {
+   requireInternal(actor);const p=project(actor,input.projectId),reference=text(input.reference,'purchase order reference',100),amountUsd=currencyAmount(input.amountUsd,'purchase order amount');
+   const duplicate=(database().prepare("SELECT payload FROM records WHERE tenant_id=? AND kind='purchase_order'").all(actor.tenantId) as {payload:string}[]).some(row=>String(JSON.parse(row.payload).reference).toLowerCase()===reference.toLowerCase());
+   if(duplicate)throw new ErpError(409,'This purchase order reference already exists in your company.');
+   let vendorId=input.vendorId?requireEntry(actor,text(input.vendorId,'provider',100),'vendor').id:'',bidId='';
+   if(input.bidId){const bid=requireEntry(actor,text(input.bidId,'accepted bid',100),'bid');if(bid.projectId!==p.id||bid.data.status!=='accepted'||bid.data.amountUsd!==amountUsd||(vendorId&&vendorId!==bid.data.vendorId)||text(input.supplierName,'supplier name',200)!==bid.data.supplierName)throw new ErpError(422,'Use the accepted bid, its project, supplier and amount.');bidId=bid.id;vendorId=String(bid.data.vendorId||'');
+    const linked=(database().prepare("SELECT payload FROM records WHERE tenant_id=? AND kind='purchase_order'").all(actor.tenantId) as {payload:string}[]).some(row=>{const data=JSON.parse(row.payload);return data.bidId===bidId&&data.status!=='cancelled';});if(linked)throw new ErpError(409,'An active purchase order already uses this accepted bid.');
+   }
+   return create(actor,'purchase_order',{reference,supplierName:text(input.supplierName,'supplier name',200),description:text(input.description,'purchase description',4000),amountUsd,issuedOn:occurredDate(input.issuedOn,'Order date'),source:text(input.source,'order source',500),vendorId,bidId,status:'draft'},p.id);
+  }
+  if(action==='update_purchase_order') {
+   requireInternal(actor);const item=requireEntry(actor,text(input.id,'purchase order',100),'purchase_order'),next=choice(input.status,['issued','acknowledged','received','cancelled','closed']);
+   const transitions:Record<string,string[]>={draft:['issued','cancelled'],issued:['acknowledged','cancelled'],acknowledged:['received','cancelled'],received:['closed'],closed:[],cancelled:[]};
+   if(!transitions[String(item.data.status)]?.includes(next))throw new ErpError(409,'Review the current purchase order stage before this change.');
+   return update(actor,item,{status:next},input.version);
+  }
+  if(action==='create_compliance') {requireInternal(actor);const p=project(actor,input.projectId);return create(actor,'compliance',{jurisdiction:text(input.jurisdiction,'jurisdiction',200),topic:text(input.topic,'requirement to track',1000),source:text(input.source,'requirement source',1000),dueDate:calendarDate(input.dueDate,'review due date',true),status:'pending',evidence:'',reviewedOn:null},p.id);}
+  if(action==='review_compliance') {
+   requireInternal(actor);const item=requireEntry(actor,text(input.id,'review item',100),'compliance'),status=choice(input.status,['pending','in_review','complete','not_applicable','expired']),evidence=text(input.evidence??'','review evidence',4000,['complete','not_applicable'].includes(status)),reviewedOn=['complete','not_applicable'].includes(status)?occurredDate(input.reviewedOn,'Review date'):null;
+   return update(actor,item,{status,evidence,reviewedOn},input.version);
+  }
   if(action==='review_document') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'document');if(item.data.deletedAt||item.data.purgedAt)throw new ErpError(409,'This document was deleted. Refresh the document list.');const visibility=choice(input.visibility??'owner',['owner','client']);if(visibility==='client'&&(!item.projectId||item.data.type!=='project'))throw new ErpError(422,'Only project documents can be shared with the assigned client.');return update(actor,item,{status:choice(input.status,['approved','rejected']),response:text(input.response,'review note',1000),expiresAt:calendarDate(input.expiresAt,'expiry',true),visibility},input.version);}
   throw new ErpError(422,'Unknown action.');
 }
