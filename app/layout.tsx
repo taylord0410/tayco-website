@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EditorialLivingEngine from "@/components/EditorialLivingEngine";
+import SiteFrame from "@/components/SiteFrame";
 
 export const metadata: Metadata = {
   title: "TAYCO LLC | Full-Service Construction Company | Wisconsin & Illinois",
@@ -21,9 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <EditorialLivingEngine />
-        <Navbar />
-        <div id="main-content" tabIndex={-1}>{children}</div>
-        <Footer />
+        <SiteFrame publicHeader={<Navbar />} publicFooter={<Footer />}>{children}</SiteFrame>
       </body>
     </html>
   );

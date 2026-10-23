@@ -98,6 +98,6 @@ npm run build -- --webpack
 npm audit --omit=dev
 ```
 
-[Flow contracts](docs/product-flows.md) link actors, states, authorization and failure recovery. Browser tests and isolated local-server certification are documented in [verification](docs/verification.md). Tests use synthetic private fixture databases; external email/blob delivery is disabled in the certification server. A local test or successful build does not certify a production provider, real device or legal compliance.
+[Flow contracts](docs/product-flows.md) link actors, states, authorization and failure recovery. The [administration flow map](docs/admin-product-flow-map.md) connects all 22 destinations, manual handoffs and recovery boundaries; the [product engineering review](docs/admin-product-review.md) distinguishes observed behavior from incomplete integration and untested branches. Public navigation belongs to known marketing pages; workspace, account, login and error pages use a separate focused shell. Browser tests and isolated local-server certification are documented in [verification](docs/verification.md). Tests use synthetic private fixture databases; external email/blob delivery is disabled in the certification server. A local test or successful build does not certify a production provider, real device or legal compliance.
 
 Commercial identity reference: [taycoturnkey.com](https://www.taycoturnkey.com/). Confirm business contacts, coverage, license/certification claims, portfolio permissions and the final privacy notice with TAYCO before publication.
