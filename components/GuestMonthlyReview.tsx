@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import type { GuestActivityElement } from "@/lib/guest-activity";
 import { COMPANY } from "@/lib/company";
 import type { guestMonthlyEstimateSummary } from "@/lib/monthly-management-estimates";
 
@@ -18,11 +19,40 @@ export default function GuestMonthlyReview({ initial }: { initial: Summary }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const pending = useRef<AbortController | null>(null);
+  const requestedYear = useRef(String(initial.year));
+  const activityPending = useRef(0);
+  const visitId = useRef<string | null>(null);
+  const record = useCallback(async (elementId: GuestActivityElement, metadata: { period?: string; year?: number } = {}, eventId?: string) => {
+    if (activityPending.current >= 20) return false;
+    activityPending.current++;
+    try {
+      const body = JSON.stringify({ eventId: eventId || crypto.randomUUID(), elementId, ...metadata });
+      const send = () => fetch("/api/guest-activity", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(8000), body });
+      let response: Response;
+      try { response = await send(); } catch { response = await send(); }
+      if (response.status >= 500) response = await send();
+      return response.ok;
+    } catch { return false; }
+    finally { activityPending.current--; }
+  }, []);
+  useEffect(() => {
+    visitId.current ||= crypto.randomUUID();
+    void record("review.visit", {}, visitId.current);
+    return () => pending.current?.abort();
+  }, [record]);
+  function captureClick(event: MouseEvent<HTMLElement>) {
+    const element = (event.target as Element).closest<HTMLElement>("[data-ui-event]");
+    const id = element?.dataset.uiEvent;
+    if (id === "month.select" && element?.dataset.uiPeriod) void record(id, { period: element.dataset.uiPeriod });
+    else if (id === "account.open" || id === "summary.retry") void record(id);
+  }
   const chosen = summary.months.find(month => month.period === selected);
   const totalLow = summary.months.reduce((sum, month) => sum + month.lowUsd, 0);
   const totalHigh = summary.months.reduce((sum, month) => sum + month.highUsd, 0);
 
-  async function changeYear(year: string) {
+  async function changeYear(year: string, track = true) {
+    requestedYear.current = year;
+    if (track) void record("year.select", { year: Number(year) });
     pending.current?.abort();
     const controller = new AbortController(); pending.current = controller;
     setBusy(true); setError("");
@@ -38,6 +68,7 @@ export default function GuestMonthlyReview({ initial }: { initial: Summary }) {
   async function logout() {
     setBusy(true); setError("");
     try {
+      await Promise.race([record("session.signout"), new Promise(resolve => setTimeout(resolve, 250))]);
       const response = await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       if (!response.ok) throw new Error("Sign out was not confirmed. Please try again.");
       router.replace("/login"); router.refresh();
@@ -45,7 +76,7 @@ export default function GuestMonthlyReview({ initial }: { initial: Summary }) {
   }
 
   return (
-    <main data-guest-review className="min-h-svh bg-[linear-gradient(145deg,#142e51_0%,#070e1a_70%)] px-4 py-6 text-slate-100 sm:px-8 sm:py-10">
+    <main data-guest-review onClickCapture={captureClick} className="min-h-svh bg-[linear-gradient(145deg,#142e51_0%,#070e1a_70%)] px-4 py-6 text-slate-100 sm:px-8 sm:py-10">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-center justify-between gap-5 border-b border-amber-200/20 pb-6">
           <div><p className="text-lg font-black tracking-wider text-[#F3D37A]">{COMPANY.name}</p><p className="mt-1 text-xs uppercase tracking-widest text-slate-400">Private monthly review</p></div>
@@ -66,7 +97,7 @@ export default function GuestMonthlyReview({ initial }: { initial: Summary }) {
           </div>
           <p className="mt-6 rounded-xl border border-amber-200/15 bg-amber-100/[0.04] p-4 text-sm leading-relaxed text-slate-300">For this private review, TAYCO records visits and selected controls to improve the experience. Typed form contents are not collected.</p>
         </section>
-        {error && <div role="alert" className="mb-6 rounded-xl border border-red-300/30 bg-red-950/40 p-4 text-sm text-red-100">{error}<button className={control + " ml-3"} onClick={() => changeYear(String(summary.year))}>Try again</button></div>}
+        {error && <div role="alert" className="mb-6 rounded-xl border border-red-300/30 bg-red-950/40 p-4 text-sm text-red-100">{error}<button data-ui-event="summary.retry" className={control + " ml-3"} onClick={() => changeYear(requestedYear.current, false)}>Try again</button></div>}
         <div aria-busy={busy} className="grid min-w-0 gap-6 lg:grid-cols-[1.1fr_1fr]">
           <section aria-labelledby="completed-months-title" className="min-w-0 rounded-2xl border border-amber-200/20 bg-[#0b1a30]/80 p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3"><h2 id="completed-months-title" className="text-xl font-bold">Monthly overview</h2><span className="text-xs text-slate-400">{summary.months.length} months recorded</span></div>
