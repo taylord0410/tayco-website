@@ -24,6 +24,9 @@ Public pages work without an account. Private access has no built-in credentials
 - Client workspace for assigned projects, updates, documents and scope-change decisions.
 - Provider workspace for assigned work, own hours, invoices and private documentation.
 - Administrator account assignments, suspension, invitations and notification delivery.
+- Private guest review of completed-month management estimate ranges; no project, document or accounting drilldown.
+- Versioned monthly gross projections, distinct from invoice/payment totals, with administrator-only guest visit/control activity review.
+- Explicit commercial milestones, including awaiting insurance information, without changing execution or proposal decisions.
 - Requests assigned to active TAYCO coordinators, with stage, next action and history.
 - Dated project schedules and milestones, approved budget source/date, selectively shared contacts and project files.
 - Refined executive console with interactive cost/status graphics, persisted atmosphere/density/lighting controls, grouped responsive navigation, bid comparison, purchase orders and evidence-based compliance tracking.
@@ -103,3 +106,9 @@ npm audit --omit=dev
 [Flow contracts](docs/product-flows.md) link actors, states, authorization and failure recovery. The [administration flow map](docs/admin-product-flow-map.md) connects all 22 destinations, manual handoffs and recovery boundaries; the [product engineering review](docs/admin-product-review.md) distinguishes observed behavior from incomplete integration and untested branches. Public navigation belongs to known marketing pages; workspace, account, login and error pages use a separate focused shell. Browser tests and isolated local-server certification are documented in [verification](docs/verification.md). Tests use synthetic private fixture databases; external email/blob delivery is disabled in the certification server. A local test or successful build does not certify a production provider, real device or legal compliance.
 
 Commercial identity reference: [taycoturnkey.com](https://www.taycoturnkey.com/). Confirm business contacts, coverage, license/certification claims, portfolio permissions and the final privacy notice with TAYCO before publication.
+
+## Private review and planning
+
+See [guest review contracts](docs/guest-review-flow.md) for the restricted role, completed-month calendar, projection sources and bounded first-party activity. Administrators create a private guest invitation in Account & access; there is no public guest registration or emailed password. Financial dashboard → Estimated monthly gross lets internal staff save/revise company ranges with a source. Account & access → Guest review activity is administrator-only.
+
+October plans and actual project identities must be supplied before attaching commercial progress or importing source estimates through Takeoff Pro. Approximate management ranges never create invoices, payments or assumed profit.

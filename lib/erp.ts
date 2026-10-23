@@ -8,6 +8,7 @@ import { parseProjectEstimate } from './project-estimates';
 import { isForecastPercentage } from './financial-forecast';
 import { CLASSIFICATION_HISTORY_LIMIT, COMPLIANCE_CATEGORY_OPTIONS, parseProjectClassificationInput, type ProjectClassification } from './project-classification';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
+import { CommercialStageError, recordCommercialStage } from './commercial-stages';
 
 export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate' | 'proposal' | 'corporate_meeting' | 'followup';
 export type Data = Record<string, unknown>;
@@ -130,6 +131,7 @@ function project(actor: Actor, id: unknown) { return requireEntry(actor,text(id,
 function transact<T>(fn: () => T): T { const db=database();db.exec('BEGIN IMMEDIATE');try {const result=fn();db.exec('COMMIT');return result;}catch(e){db.exec('ROLLBACK');throw e;} }
 function exposed(actor:Actor,e:Entry):Entry {
  const data={...e.data};delete data.blobPath;
+ if(!internal(actor))delete data.commercialProgress;
   if(!internal(actor)&&e.kind==='purchase_order')for(const field of ['documentId','sheetRef','sourcingHistory'])delete data[field];
  if(!internal(actor)&&e.kind==='document'){for(const field of ['holdReason','holdChangedBy','deleteReason','deletedBy','purgeLastError','purgeAttempts','purgeLeaseUntil','purgeAttemptedAt','retentionDays','purgeAttemptToken'])delete data[field];}
  if(e.kind==='project'){
@@ -219,6 +221,18 @@ export function execute(actor: Actor, key: string, input: Data) {
 }
 function mutate(actor: Actor, input: Data): Entry {
   const action=text(input.action,'action',60);
+  if(action==='record_commercial_stage') {
+    requireInternal(actor);
+    const item=requireEntry(actor,text(input.id,'commercial record',100));
+    if(item.kind!=='project'&&item.kind!=='lead')throw new ErpError(422,'Commercial progress belongs to a project or lead.');
+    const fields={...input};delete fields.action;delete fields.id;delete fields.version;
+    let commercialProgress;
+    try { commercialProgress=recordCommercialStage(item.data.commercialProgress,fields,actor.id,new Date().toISOString()); }
+    catch(error) { if(error instanceof CommercialStageError)throw new ErpError(error.status,error.message);throw error; }
+    const result=update(actor,item,{commercialProgress},input.version);
+    audit(actor,action,item.id);
+    return result;
+  }
   if(['create_corporate_meeting','create_followup','update_corporate_meeting','update_followup','set_corporate_meeting_state','set_followup_state'].includes(action)) {
     requireInternal(actor);
     const kind=action.includes('corporate_meeting')?'corporate_meeting':'followup';

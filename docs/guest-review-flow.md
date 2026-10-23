@@ -109,3 +109,28 @@ revenue earned, a sent proposal, an actual scheduled meeting or verified insuran
 API and GUI are required. Private operator import/provisioning uses existing supported
 authenticated routes/CLI as applicable. No product MCP or public CLI is promised by this request.
 Implementation/progress belongs in soul_ledger; this design is not a runtime certificate.
+
+## Implemented operations
+
+- Account & access: administrators invite a guest with no project/vendor assignments;
+  guests retain own password/sign-out actions. The server branches before a detailed snapshot.
+- Executive overview: compact company management-range series. Open month leads to the
+  Financial dashboard, where the internal editor preserves uncertain requests and versions.
+  The series is hidden under a project filter because its figures are company-wide.
+- The editor stores an explicit range and source; 409 requires reviewing the current version.
+  A lost receipt freezes editing until the same payload/reference is retried.
+- Account & access → Guest review activity: manual refresh, visits/control counts, most recent
+  200 retained events and UTC recording times. Only administrators can read the report.
+- Activity accepts six fixed IDs: review.visit, month.select, year.select, account.open,
+  summary.retry and session.signout. Month/year are the only optional action metadata.
+  No arbitrary click text, input contents, IP/UA or browser identifiers are retained.
+  Default retention90days (`TAYCO_GUEST_ACTIVITY_RETENTION_DAYS`,1–365), at most10000
+  retained company events and120new events/minute/account. It is best-effort product telemetry,
+  not a complete behavioral or security audit. A fixed page token does not record full URLs.
+- Projects and commercial requests have a separate internal commercial-progress editor.
+  Prior completed steps are explicit checkboxes; unknown occurrence dates stay empty/null.
+  The source/history are removed from assigned client/vendor responses.
+
+No January–September exact receipts or October placeholder projects are created by startup.
+The nine company-provided ranges are imported explicitly to the isolated review environment.
+Takeoff Pro connection and real October files remain dependent on their supplied source/URL.
