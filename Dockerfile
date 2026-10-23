@@ -18,6 +18,8 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Explicit private review metadata is optional and never served from public/.
+RUN mkdir -p private-operator-inputs
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build -- --webpack
@@ -48,6 +50,7 @@ COPY --from=runtime-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/private-operator-inputs ./private-operator-inputs
 
 USER nextjs
 

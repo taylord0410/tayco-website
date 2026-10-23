@@ -50,3 +50,6 @@ next-env.d.ts
 *.sqlite-wal
 *.sqlite-shm
 astro-portal/node_modules/
+
+# Explicit deployment-only private metadata; never commit source grants or manifests.
+/private-operator-inputs/

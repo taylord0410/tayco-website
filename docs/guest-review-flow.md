@@ -182,3 +182,7 @@ Cloud release evidence is appended only after deployment and authenticated check
 Actual October project names/plans and the protected Takeoff Pro viewer connection are still
 pending their supplied records and integration. No insurance incident narrative, false project,
 proposal acceptance, invoice, payment, expense or profit was inserted to fill the review.
+
+## Explicit project-plan exception (October23)
+
+Historical financial summaries retain their existing boundary. Randolf additionally approved sharing selected October projects and plans through the private guest account. This uses separate v2 company/guest/project/document grants, never a general ERP assignment or public document URL. The current protected-reader flow, safe project-summary fields, activity projection and remaining runtime limits are specified in [Takeoff viewer integration](takeoff-viewer-integration.md). Earlier summary-only statements in this document describe financial access; this explicit approval is the only project-plan exception.

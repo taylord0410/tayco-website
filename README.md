@@ -79,7 +79,7 @@ All successful public submissions return a durable reference. They atomically qu
 
 Private file upload requires an assigned account. PDF/JPEG/PNG signatures and bounded multipart bytes are checked. A receipt does not certify contents or insurance validity. Documents are private attachments available through authorized downloads, not public URLs. Malware scanning is not configured.
 
-Takeoff and accounting integrations remain **not configured**, rather than reporting a simulated connection. Source-backed project estimates can be recovered into the private workspace as versioned snapshots, independently of live integration. An estimate is not an approved contract, executed cost or payment; failed remote connections never report success. See [estimate recovery](docs/estimate-recovery.md).
+Accounting remains **not configured** until a real provider is connected. Takeoff provides an authenticated project-plan reader when its private source mappings and upstream are configured; configuration alone is not a successful document-delivery claim. See [protected viewer and explicit guest approvals](docs/takeoff-viewer-integration.md). Source-backed project estimates can be recovered into the private workspace as versioned snapshots, independently of live integration. An estimate is not an approved contract, executed cost or payment; failed remote connections never report success. See [estimate recovery](docs/estimate-recovery.md).
 
 ## Protect and recover data
 
@@ -111,4 +111,6 @@ Commercial identity reference: [taycoturnkey.com](https://www.taycoturnkey.com/)
 
 See [guest review contracts](docs/guest-review-flow.md) for the restricted role, completed-month calendar, projection sources and bounded first-party activity. Administrators create a private guest invitation in Account & access; there is no public guest registration or emailed password. Financial dashboard → Estimated monthly gross lets internal staff save/revise company ranges with a source. Account & access → Guest review activity is administrator-only.
 
-October plans and actual project identities must be supplied before attaching commercial progress or importing source estimates through Takeoff Pro. Approximate management ranges never create invoices, payments or assumed profit.
+Approved October project groups and plans can be shared with a specific guest through explicit company/project/document approvals, while financial access remains restricted to historical month summaries. Unidentified drawing sets stay unassociated. Source-backed documents are registered as external Takeoff references, not fictitious Blob uploads; removing a reference does not delete the shared source package. Approximate management ranges never create invoices, payments or assumed profit.
+
+The private reader keeps all document requests under the TAYCO session and same-origin gateway. No public reader domain or anonymous plan URL is needed. A disabled-by-default, temporary administrator-only source-registration API previews pinned metadata before committing records; it never accepts arbitrary file paths, upstream URLs or guest grants. Optional deployment-only operator inputs are kept outside public assets and ignored by Git.
