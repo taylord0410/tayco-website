@@ -218,3 +218,10 @@ Production build passed (JOB_20261023_144708_8300); Daedalus reviewed the render
 
 
 T44 workspace integration: the same central company update is displayed inside Project requirements & certifications (team access), with a compact responsive layout. It is corporate context and creates zero project compliance records. Final production rebuild JOB_20261023_150057_0200 and focused ESLint JOB_20261023_150055_4800 both exit0. Daedalus exercised native module selection and checked four company entries at1440x1000 and390x844; page/section overflowfalse and project-requirement cards0 in an empty isolated test company.
+
+
+## T44 deployed verification — 2026-10-23
+
+Final shared company update source4cc08b605fe12ec2a2022493a4a794d29429bc32 is deployed in product-review/tayco-review as5bbe5e7a-25f1-4c3e-89b0-2a8611fdcde4 (SUCCESS). Public HTTPS200 rendered all seven expected labels/date values and four program entries; health200 ready. Daedalus reused the original administrator cookie: session200, roleadmin, same actor ID, ERP-suite200 with zero business entries. Native module selection showed the company section with four entries and the two supplied dates. Desktop1440 and mobile390 had no page/section horizontal overflow; zero project requirements were created. The redundant private cookie file was removed, leaving the user preview session and the two private password handover files.
+
+Runtime report .data/railway-review/contracting-deployment-verification.json SHA256 0314e65823c9481ea6c50359d294129371f65d5498a2cc5572f288dfcf5ec2f3. This verifies displayed company information and retained review access, not independent issuance of credentials or project compliance.
