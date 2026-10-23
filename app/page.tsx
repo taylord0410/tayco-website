@@ -1,15 +1,16 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 
-type DivisionFilter = "all" | "commercial" | "telemetry" | "compliance";
+type ModuleFilter = "all" | "commercial" | "financial" | "tax_investor";
 
 const TAYCO_SHOWCASE_CARDS: Array<{
   id: string;
-  category: Exclude<DivisionFilter, "all">;
+  category: Exclude<ModuleFilter, "all">;
   eyebrow: string;
   title: string;
   serifEm: string;
+  subtitle: string;
   summary: string;
   metric: string;
   metricLabel: string;
@@ -20,101 +21,207 @@ const TAYCO_SHOWCASE_CARDS: Array<{
   badgeColor: string;
 }> = [
   {
-    id: "card-commercial",
+    id: "mod-00-takeoff-pro",
     category: "commercial",
-    eyebrow: "01 · COMMERCIAL & STRUCTURAL",
-    title: "Multi-State Construction",
-    serifEm: "Execution",
-    summary:
-      "$5.88M Active Bid Pipeline · 29 CSI Trades · Ground-Up & Tenant Improvements across 9 States",
-    metric: "$5.88M",
-    metricLabel: "Active Commercial GMP Pipeline",
-    href: "/commercial",
-    cta: "Explore Commercial Division",
-    sparkPath: "M2,28 L18,24 L34,26 L50,18 L66,19 L82,11 L98,13 L114,5",
-    stroke: "#1B3A6B",
-    badgeColor: "#C9A84C",
-  },
-  {
-    id: "card-takeoff",
-    category: "telemetry",
-    eyebrow: "02 · TAKEOFF PRO v5.0 BRIDGE",
-    title: "Parametric Blueprint",
+    eyebrow: "MOD-00 · TAKEOFF PRO v5.0 BRIDGE",
+    title: "Parametric 2D/3D Blueprint",
     serifEm: "Precision",
+    subtitle: "Parametric 2D/3D Blueprint Precision",
     summary:
-      "21 Rust C-ABI Kernels · AI Blueprint OCR · Live CSI-32 Sync & Monte Carlo P80 Cost Confidence",
+      "21 Rust 1.95 Kernels · 32 ARCH-D Sheets · 87 Sub-Views · $855,525.23 Son of a Star GMP",
     metric: "21 Kernels",
-    metricLabel: "Sub-Millisecond CSI-32 Quantity Takeoff",
-    href: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    cta: "Launch Takeoff Pro Bridge",
+    metricLabel: "32 ARCH-D Sheets · 87 Sub-Views (:8085)",
+    href: "/portal?invite=INV-TAYCO-MASTER",
+    cta: "Launch Takeoff Pro (:8085) Bridge",
     sparkPath: "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
     stroke: "#F97316",
     badgeColor: "#F97316",
   },
   {
-    id: "card-compliance",
-    category: "compliance",
-    eyebrow: "03 · FINANCIAL & TAX ENGINE",
-    title: "Audit-Ready Job Costing &",
-    serifEm: "Compliance",
+    id: "mod-01-commercial-crm",
+    category: "commercial",
+    eyebrow: "MOD-01 · COMMERCIAL CRM & 3-BID LEVELING",
+    title: "Multi-State Bid Pipeline &",
+    serifEm: "Leveling",
+    subtitle: "Multi-State Bid Pipeline & Leveling",
     summary:
-      "QuickBooks .IIF/.QBO · AIA G702/G703 · Davis-Bacon WH-347 · 9-State Sales/Use Tax & 1099-NEC",
-    metric: "9 States",
-    metricLabel: "WI · IL · IA · IN · MN · MI · MO · TX · ND",
+      "$5.88M Active Commercial Pipeline · 15 Subcontractor Bids Leveled to $824,875.23 (-$30,650 Savings)",
+    metric: "$5.88M",
+    metricLabel: "15 Sub-Bids Leveled (-$30,650 Savings)",
+    href: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
+    cta: "Open Commercial CRM & Bid Matrix",
+    sparkPath: "M2,28 L18,24 L34,26 L50,18 L66,19 L82,11 L98,13 L114,5",
+    stroke: "#1B3A6B",
+    badgeColor: "#C9A84C",
+  },
+  {
+    id: "mod-02-wh347-payroll",
+    category: "financial",
+    eyebrow: "MOD-02 · DAVIS-BACON WH-347 PAYROLL",
+    title: "Certified Field Crew",
+    serifEm: "Labor Engine",
+    subtitle: "Certified Field Crew Labor Engine",
+    summary:
+      "6,536.0 Total Man-Hours · 103.1 Crew-Days · $213,299.26 Loaded Labor across 7 CSI Crews",
+    metric: "6,536.0 MH",
+    metricLabel: "103.1 Crew-Days · $213,299.26 Loaded",
     href: "/portal?invite=INV-CPA-FINANCE-TAX",
-    cta: "Inspect CPA & Tax Suite",
+    cta: "Inspect WH-347 Certified Payroll",
+    sparkPath: "M2,27 L18,23 L34,19 L50,17 L66,14 L82,10 L98,8 L114,4",
+    stroke: "#0F2040",
+    badgeColor: "#C9A84C",
+  },
+  {
+    id: "mod-03-quickbooks-aia",
+    category: "financial",
+    eyebrow: "MOD-03 · QUICKBOOKS & AIA G702/G703",
+    title: "Committed POs & Progress",
+    serifEm: "Billing",
+    subtitle: "Committed POs & Progress Billing",
+    summary:
+      "8 Long-Lead Material POs ($375,012.51) · Pay App #3 $184,892.70 Net Due · .IIF & .QBO Export",
+    metric: "$375,012.51",
+    metricLabel: "8 Material POs · Pay App #3 $184,892.70",
+    href: "/portal?invite=INV-CPA-FINANCE-TAX",
+    cta: "Open AIA G702/G703 & QuickBooks Sync",
     sparkPath: "M2,26 L18,25 L34,20 L50,21 L66,13 L82,12 L98,7 L114,6",
     stroke: "#C9A84C",
     badgeColor: "#1B3A6B",
   },
   {
-    id: "card-governance",
-    category: "telemetry",
-    eyebrow: "04 · MODULE-SCOPED CLIENT PORTAL",
-    title: "Granular Multi-Tenant",
-    serifEm: "Governance",
+    id: "mod-04-tax-tero",
+    category: "tax_investor",
+    eyebrow: "MOD-04 · 9-STATE TAX & TRIBAL TERO",
+    title: "Material vs. Labor Tax",
+    serifEm: "Separation",
+    subtitle: "Material vs. Labor Tax Separation",
     summary:
-      "Invite Clients, Investors, or CPAs to Specific Modules with 1-Click Live Preview & Zero-Trust RBAC",
-    metric: "6 Modules",
-    metricLabel: "Zero-Friction Scoped B2B Invitations",
-    href: "/portal?builder=1",
-    cta: "Open Module Invitation Builder",
+      "WI · IL · IA · IN · MN · MI · MO · TX · ND + MHA Nation 2.5% TERO ($21,388.13) & 1099-NEC",
+    metric: "$21,388.13",
+    metricLabel: "9-State Tax Engine + MHA 2.5% TERO",
+    href: "/portal?invite=INV-CPA-FINANCE-TAX",
+    cta: "Verify 9-State Tax & TERO Compliance",
+    sparkPath: "M2,29 L18,24 L34,22 L50,16 L66,15 L82,11 L98,9 L114,5",
+    stroke: "#1B3A6B",
+    badgeColor: "#F97316",
+  },
+  {
+    id: "mod-05-investor-dossier",
+    category: "tax_investor",
+    eyebrow: "MOD-05 · INSTITUTIONAL INVESTOR DOSSIER",
+    title: "REIT Portfolio & 7/7 Pre-Flight",
+    serifEm: "Audit",
+    subtitle: "REIT Portfolio & 7/7 Pre-Flight Audit",
+    summary:
+      "24-Week S-Curve EVM (CPI 1.04) · 10% Escrow Retainage ($51,501.13) · 369 SHA-256 Line Items",
+    metric: "CPI 1.04",
+    metricLabel: "369 SHA-256 Items · $51,501.13 Escrow",
+    href: "/portal?invite=INV-INVESTOR-PORTFOLIO",
+    cta: "Open Institutional Investor Dossier",
     sparkPath: "M2,29 L18,26 L34,21 L50,15 L66,17 L82,9 L98,8 L114,3",
-    stroke: "#0F2040",
-    badgeColor: "#C9A84C",
+    stroke: "#F97316",
+    badgeColor: "#0F2040",
   },
 ];
 
 const LIGHT_STUDIES = [
   {
     index: 0,
-    code: "STUDY 001 · CSI 03 30 00 CAST-IN-PLACE CONCRETE",
+    code: "STUDY 001 · SHEET A-101 (1/A101) · CSI 03 30 00 CAST-IN-PLACE 4000 PSI SLAB ($145,180.00)",
     buttonTitle:
-      "01 / Raking Dawn Light — Laser-Screeded Industrial Slab (4000 PSI)",
-    label: "01 / RAKING DAWN LIGHT · FF 50 / FL 35 TOLERANCE",
-    note: "Low-angle raking illumination across a 4000 PSI power-troweled warehouse slab reveals sub-millimeter flatness, control-joint geometry, and vapor-barrier curing uniformity before rack installation.",
+      "STUDY 001 · SHEET A-101 (1/A101) · CSI 03 30 00 CAST-IN-PLACE 4000 PSI SLAB ($145,180.00)",
+    label: "01 / SHEET A-101 (1/A101) · FF 50 / FL 35 TOLERANCE · $145,180.00",
+    note: "Low-angle raking illumination across Sheet A-101 (1/A101) 4000 PSI power-troweled concrete slabs and monolithic footings ($145,180.00 CSI 03 30 00 allocation) verifies sub-millimeter flatness, control-joint geometry, and vapor-barrier curing uniformity before framing mobilization.",
     color: "#C9A84C",
-    specMetric: "4,000 PSI · FF50/FL35",
+    specMetric: "Sheet A-101 · 4,000 PSI · $145,180.00",
   },
   {
     index: 1,
-    code: "STUDY 002 · CSI 05 12 00 STRUCTURAL STEEL & ENVELOPE",
+    code: "STUDY 002 · SHEET S-201 & A-103 · CSI 06 18 00 16× LVL RIDGE BEAMS & R-56 SPRAY FOAM ($241,200.00)",
     buttonTitle:
-      "02 / Structural Frame & Envelope — Cold-Climate R-49 Assembly",
-    label: "02 / STRUCTURAL FRAME & ENVELOPE · THERMAL CONTINUITY",
-    note: "Oblique inspection across structural steel wide-flange bays and continuous R-49 roof/wall assemblies verifies thermal-bridge isolation across Wisconsin, Minnesota, and North Dakota winter loads.",
+      "STUDY 002 · SHEET S-201 & A-103 · CSI 06 18 00 16× LVL RIDGE BEAMS & R-56 SPRAY FOAM ($241,200.00)",
+    label: "02 / SHEET S-201 & A-103 · 16× LVL RIDGE BEAMS & R-56 ENVELOPE · $241,200.00",
+    note: "Oblique inspection across Sheets S-201 & A-103 engineered 1-3/4\"×14\" LVL structural ridge beams, Simpson HDU8 hold-downs, and closed-cell R-56 spray foam envelope verifies thermal-bridge isolation across Wisconsin, Minnesota, and North Dakota winter loads.",
     color: "#4A90D9",
-    specMetric: "R-49 Roof · R-21 + R-10 CI",
+    specMetric: "Sheets S-201 & A-103 · R-56 · $241,200.00",
   },
   {
     index: 2,
-    code: "STUDY 003 · CSI 02 41 00 RESTORATION & THERMAL CURE",
+    code: "STUDY 003 · SHEET C-500 & PR-5 · CSI 31 23 16 8.5-FT ARCTIC FROST-BURY & GAZEBOS ($208,800.00)",
     buttonTitle:
-      "03 / High-Visibility Field Safety & Thermal Cure Profile",
-    label: "03 / FIELD SAFETY & THERMAL CURE · 24/7 IICRC TELEMETRY",
-    note: "High-visibility OSHA field perimeter lighting and infrared psychrometric cure profiling track moisture extraction, structural drying, and exothermic concrete hydration in real time.",
+      "STUDY 003 · SHEET C-500 & PR-5 · CSI 31 23 16 8.5-FT ARCTIC FROST-BURY & GAZEBOS ($208,800.00)",
+    label: "03 / SHEET C-500 & PR-5 · 8.5-FT ARCTIC FROST-BURY & GAZEBOS · $208,800.00",
+    note: "High-visibility OSHA field telemetry across Civil Sheets C-500 & PR-5 tracks 8.5-ft North Dakota sub-zero frost-bury utility trenching, E-One grinder pump stations, and heavy timber octagon gazebos ($208,800.00 verified in Takeoff Pro :8085).",
     color: "#F97316",
-    specMetric: "OSHA 30 · IICRC S500/S520",
+    specMetric: "Sheets C-500 & PR-5 · 8.5' Bury · $208,800.00",
+  },
+];
+
+const VERIFIED_CONTRACTS = [
+  {
+    code: "PRJ-ND-001",
+    name: "Son of a Star 8-Cabin Casino Resort",
+    location: "New Town, ND · MHA Nation",
+    division: "Commercial & Hospitality Ground-Up",
+    sqft: "5,640 sq.ft. (8 Cabins + 2 Gazebos)",
+    gmp: "$855,525.23",
+    takeoffSpec: "32 ARCH-D Sheets · 87 Sub-Views (:8085)",
+    status: "Active Field Execution · CPI 1.04",
+    portalHref: "/portal?invite=INV-TAYCO-MASTER",
+    estimateHref: "/estimate?project=PRJ-ND-001",
+    accent: "#C9A84C",
+  },
+  {
+    code: "PRJ-WI-002",
+    name: "Park Tower Mixed-Use Structural & TI",
+    location: "Milwaukee, WI",
+    division: "Commercial Structural & Interior TI",
+    sqft: "14,200 sq.ft.",
+    gmp: "$389,192.50",
+    takeoffSpec: "CSI 03 / 05 / 09 Core & Acoustic Assembly",
+    status: "Active Execution · Pay App #2 Certified",
+    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
+    estimateHref: "/estimate?project=PRJ-WI-002",
+    accent: "#4A90D9",
+  },
+  {
+    code: "PRJ-WI-003",
+    name: "Wisconsin Ave Medical TI",
+    location: "Madison, WI",
+    division: "Clinical & Surgical Tenant Improvement",
+    sqft: "11,800 sq.ft.",
+    gmp: "$1,240,000.00",
+    takeoffSpec: "CSI 09 / 10 / 22 / 26 Medical-Grade TI",
+    status: "GMP Locked · 3-Bid Leveling Complete",
+    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
+    estimateHref: "/estimate?project=PRJ-WI-003",
+    accent: "#C9A84C",
+  },
+  {
+    code: "PRJ-IL-004",
+    name: "Chicago O'Hare Cold-Storage",
+    location: "Des Plaines, IL",
+    division: "Industrial Thermal Envelope & FF50 Slab",
+    sqft: "42,500 sq.ft.",
+    gmp: "$2,480,000.00",
+    takeoffSpec: "CSI 03 30 00 Laser Slab & CSI 07 R-49 IMP",
+    status: "Committed Long-Lead Steel & IMP POs",
+    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
+    estimateHref: "/estimate?project=PRJ-IL-004",
+    accent: "#10B981",
+  },
+  {
+    code: "PRJ-TX-005",
+    name: "Dallas 48-Unit Multi-Family Rehab",
+    location: "Dallas, TX",
+    division: "Multi-Family CapEx & IICRC Envelope",
+    sqft: "38,400 sq.ft.",
+    gmp: "$920,000.00",
+    takeoffSpec: "CSI 06 / 07 / 08 / 09 Turnkey Unit Matrix",
+    status: "Phase II Mobilization · 9-State Tax Synced",
+    portalHref: "/portal?invite=INV-INVESTOR-PORTFOLIO",
+    estimateHref: "/estimate?project=PRJ-TX-005",
+    accent: "#F97316",
   },
 ];
 
@@ -122,7 +229,7 @@ export default function Home() {
   const [hovered, setHovered] = useState<"commercial" | "residential" | null>(
     null
   );
-  const [activeFilter, setActiveFilter] = useState<DivisionFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<ModuleFilter>("all");
   const [activeStudy, setActiveStudy] = useState<number>(0);
   const [lightAngle, setLightAngle] = useState<number>(45);
 
@@ -152,11 +259,14 @@ export default function Home() {
   return (
     <main
       className="relative flex flex-col"
-      style={{
-        minHeight: "calc(100svh - 64px)",
-        marginTop: "64px",
-        background: "#070E1A",
-      }}
+      style={
+        {
+          minHeight: "calc(100svh - 64px)",
+          marginTop: "64px",
+          background: "#070E1A",
+          "--light-angle": `${lightAngle}deg`,
+        } as React.CSSProperties
+      }
     >
       {/* ── SPLIT HERO 50/50 WITH ORBITAL EDITORIAL STAMP ── */}
       <div
@@ -207,7 +317,7 @@ export default function Home() {
               style={{ color: "#F3D37A" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              ★ Primary Division · CSI-32 &amp; Takeoff Pro
+              ★ Primary Division · CSI-32 &amp; Takeoff Pro (:8085)
             </div>
 
             <div className="text-5xl mb-3">🏢</div>
@@ -382,14 +492,14 @@ export default function Home() {
         >
           <span className="tayco-live-dot" style={{ color: "#F97316" }} />
           <span className="text-[11px] font-mono text-slate-200 font-semibold">
-            TAYCO EXECUTIVE DOCK · 9-State Operations + ND Tax Engine
+            TAYCO EXECUTIVE DOCK · 9-State Operations + Takeoff Pro (:8085)
           </span>
           <Link
             href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
             className="text-[11px] font-mono font-bold hover:text-white underline"
             style={{ color: "#F3D37A" }}
           >
-            Client Demo
+            Commercial Bid Pipeline
           </Link>
           <span className="text-slate-500">·</span>
           <Link
@@ -397,7 +507,7 @@ export default function Home() {
             className="text-[11px] font-mono font-bold hover:text-white underline"
             style={{ color: "#F97316" }}
           >
-            CPA Audit Demo
+            WH-347 &amp; Tax Suite
           </Link>
           <span className="text-slate-500">·</span>
           <Link
@@ -421,7 +531,7 @@ export default function Home() {
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Real-Time Takeoff Pro CSI-32 Telemetry</span>
+          <span className="gold">Real-Time Takeoff Pro (:8085) CSI-32 Telemetry</span>
           <i aria-hidden="true">✳</i>
           <span>24/7 IICRC Certified Restoration</span>
           <i className="gold-star" aria-hidden="true">
@@ -433,7 +543,7 @@ export default function Home() {
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Real-Time Takeoff Pro CSI-32 Telemetry</span>
+          <span className="gold">Real-Time Takeoff Pro (:8085) CSI-32 Telemetry</span>
           <i aria-hidden="true">✳</i>
           <span>24/7 IICRC Certified Restoration</span>
           <i className="gold-star" aria-hidden="true">
@@ -457,7 +567,7 @@ export default function Home() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
               <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
                 <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                ★ TAYCO ENTERPRISE SUITE &amp; TAKEOFF PRO v5.0
+                ★ TAYCO ENTERPRISE SUITE &amp; TAKEOFF PRO v5.0 (:8085)
               </span>
               <span
                 className="text-xs font-mono font-bold px-2 py-0.5 rounded"
@@ -471,7 +581,7 @@ export default function Home() {
             </div>
             <p className="text-white font-bold text-sm sm:text-base">
               Multi-Tenant Client Portal · Module-Scoped Invitations · CRM ·
-              Davis-Bacon Payroll · QuickBooks · 9-State Tax Engine
+              Davis-Bacon WH-347 Payroll · QuickBooks · 9-State Tax Engine
             </p>
           </div>
 
@@ -547,7 +657,7 @@ export default function Home() {
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#1B3A6B" }}
             >
-              TAYCO DIGITAL COMMAND · FIELD TO BOARDROOM TELEMETRY
+              TAYCO EXECUTIVE COMMAND · LIVE TAKEOFF PRO (:8085) TELEMETRY
             </span>
           </div>
 
@@ -574,9 +684,10 @@ export default function Home() {
                 className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
                 style={{ color: "#334155" }}
               >
-                Every field estimate, subcontractor W-9/COI onboarding, and REIT
-                draw schedule synchronizes directly with our 6-module TAYCO
-                Digital Command Center.
+                Every field estimate, subcontractor 3-bid leveling matrix,
+                Davis-Bacon WH-347 payroll log, and REIT draw schedule
+                synchronizes directly with our 6-module TAYCO Executive Command
+                Center and Takeoff Pro (:8085).
               </p>
             </div>
 
@@ -584,21 +695,21 @@ export default function Home() {
             <div
               className="flex flex-wrap items-center gap-2"
               role="group"
-              aria-label="Filter TAYCO Capability Divisions"
+              aria-label="Filter TAYCO Executive Command Modules"
             >
               {[
-                { id: "all", label: "All Divisions", count: "04" },
+                { id: "all", label: "All Modules", count: "06" },
                 {
                   id: "commercial",
-                  label: "Commercial & Structural",
-                  count: "01",
-                },
-                {
-                  id: "telemetry",
-                  label: "ERP & Takeoff Telemetry",
+                  label: "Commercial & Takeoff",
                   count: "02",
                 },
-                { id: "compliance", label: "Tax & Compliance", count: "01" },
+                {
+                  id: "financial",
+                  label: "Financial & Payroll",
+                  count: "02",
+                },
+                { id: "tax_investor", label: "Tax & Investor", count: "02" },
               ].map((pill) => {
                 const active = activeFilter === pill.id;
                 return (
@@ -607,7 +718,7 @@ export default function Home() {
                     type="button"
                     data-magnetic
                     aria-pressed={active}
-                    onClick={() => setActiveFilter(pill.id as DivisionFilter)}
+                    onClick={() => setActiveFilter(pill.id as ModuleFilter)}
                     className="px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer border"
                     style={{
                       background: active ? "#0F2040" : "rgba(255,255,255,0.75)",
@@ -622,7 +733,7 @@ export default function Home() {
                   >
                     {pill.label}
                     <sup className="ml-1 text-[10px] opacity-80">
-                      {pill.count}
+                      ({pill.count})
                     </sup>
                   </button>
                 );
@@ -630,13 +741,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 4 Living Bento Showcase Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 6 Real Executive Command Module Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCards.map((card) => (
               <div
                 key={card.id}
                 data-response-kind="surface"
-                className="umbra-bento-card editorial-ivory-card p-6 flex flex-col justify-between group"
+                className="tayco-living-card editorial-ivory-card p-6 flex flex-col justify-between group"
               >
                 <div className="preview-orbits" aria-hidden="true">
                   <i />
@@ -650,6 +761,10 @@ export default function Home() {
                       className="tayco-eyebrow font-bold"
                       style={{ color: "#1B3A6B" }}
                     >
+                      <span
+                        className="tayco-live-dot"
+                        style={{ color: card.badgeColor }}
+                      />
                       {card.eyebrow}
                     </div>
                     <Link
@@ -673,8 +788,14 @@ export default function Home() {
                       {card.serifEm}
                     </em>
                   </h3>
+                  <div
+                    className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1"
+                    style={{ color: "#C9A84C" }}
+                  >
+                    {card.subtitle}
+                  </div>
                   <p
-                    className="text-xs mt-2.5 leading-relaxed"
+                    className="text-xs mt-2.5 leading-relaxed font-medium"
                     style={{ color: "#334155" }}
                   >
                     {card.summary}
@@ -774,7 +895,7 @@ export default function Home() {
               02 / ARCHITECTURAL LIGHT &amp; SURFACE INSPECTOR
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
-              LIGHT IS ALSO A STRUCTURAL MATERIAL · CSI TOLERANCE VERIFICATION
+              TAKEOFF PRO (:8085) ARCH-D BLUEPRINT SHEET VERIFICATION
             </span>
           </div>
 
@@ -794,8 +915,9 @@ export default function Home() {
                 </em>
               </h2>
               <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                Select a field engineering study and sweep the raking light
-                incidence angle from{" "}
+                Select an audited ARCH-D sheet study from{" "}
+                <span className="font-mono text-amber-300">Takeoff Pro (:8085)</span>{" "}
+                and sweep the raking light incidence angle from{" "}
                 <span className="font-mono text-amber-300">0°</span> to{" "}
                 <span className="font-mono text-amber-300">90°</span> to inspect
                 surface relief, thermal envelope continuity, and OSHA field
@@ -841,7 +963,7 @@ export default function Home() {
                           }}
                         />
                         <span
-                          className="text-xs sm:text-sm font-bold"
+                          className="text-xs font-mono font-bold leading-snug"
                           style={{
                             color: selected ? "#ffffff" : "#CBD5E1",
                           }}
@@ -872,7 +994,7 @@ export default function Home() {
                   htmlFor="tayco-light-angle-slider"
                   className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
                 >
-                  <span>Raking Light Incidence Angle</span>
+                  <span>☀️ Raking Light Angle: {lightAngle}°</span>
                   <output
                     htmlFor="tayco-light-angle-slider"
                     className="font-black text-sm px-2.5 py-0.5 rounded"
@@ -905,7 +1027,7 @@ export default function Home() {
             <div className="lg:col-span-7">
               <div
                 data-response-kind="surface"
-                className="light-experiment"
+                className="tayco-living-card light-experiment"
                 style={
                   {
                     "--study-color": currentStudy.color,
@@ -981,6 +1103,214 @@ export default function Home() {
                     Run CSI-32 Takeoff →
                   </Link>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 03 / VERIFIED MULTI-STATE COMMERCIAL & RESIDENTIAL TRACK RECORD ── */}
+      <section
+        id="tayco-verified-track-record"
+        className="py-16 sm:py-24 px-4 sm:px-8 border-t relative z-10"
+        style={{
+          background:
+            "linear-gradient(180deg, #070E1A 0%, #0F2040 55%, #070E1A 100%)",
+          borderColor: "rgba(201, 168, 76, 0.28)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
+            <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+              <span className="tayco-live-dot" style={{ color: "#10B981" }} />
+              03 / VERIFIED MULTI-STATE COMMERCIAL &amp; RESIDENTIAL TRACK RECORD
+            </span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
+              $5,884,717.73 ACTIVE GMP PORTFOLIO · 5 AUDITED CONTRACTS
+            </span>
+          </div>
+
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
+            <div>
+              <h2
+                className="font-black text-white tracking-tight"
+                style={{
+                  fontSize: "clamp(2rem, 4vw, 3.25rem)",
+                  lineHeight: 1.05,
+                }}
+              >
+                Five active contracts anchored in{" "}
+                <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
+                  Takeoff Pro (:8085).
+                </em>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl leading-relaxed">
+                Every contract below is backed by SHA-256 CSI-32 line items,
+                certified WH-347 field labor logs, and AIA G702/G703 progress
+                billing inside the TAYCO Multi-Tenant Command Center.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/portal?invite=INV-TAYCO-MASTER"
+                data-magnetic
+                className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-transform hover:scale-105"
+                style={{ background: "#C9A84C", color: "#070E1A" }}
+              >
+                Open Full Portfolio Ledger →
+              </Link>
+              <Link
+                href="/estimate"
+                data-magnetic
+                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white border hover:bg-white/10 transition-colors"
+                style={{ borderColor: "rgba(201, 168, 76, 0.5)" }}
+              >
+                Launch CSI-32 Estimator →
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {VERIFIED_CONTRACTS.map((contract) => (
+              <div
+                key={contract.code}
+                data-response-kind="surface"
+                className="tayco-living-card p-6 rounded-2xl flex flex-col justify-between group"
+                style={{
+                  background:
+                    "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
+                  borderColor: "rgba(201, 168, 76, 0.3)",
+                }}
+              >
+                <div className="preview-orbits" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span
+                      className="font-mono text-xs font-black px-2.5 py-1 rounded-full border"
+                      style={{
+                        background: "rgba(201, 168, 76, 0.14)",
+                        borderColor: contract.accent,
+                        color: "#F3D37A",
+                      }}
+                    >
+                      {contract.code}
+                    </span>
+                    <Link
+                      href={contract.portalHref}
+                      aria-label={`Inspect ${contract.code} in Command Center`}
+                      className="project-open"
+                    >
+                      ↗
+                    </Link>
+                  </div>
+
+                  <h3 className="text-lg font-black text-white leading-snug">
+                    {contract.code} · {contract.name}
+                  </h3>
+                  <div className="text-xs font-mono text-amber-300 mt-1">
+                    {contract.location} · {contract.sqft}
+                  </div>
+                  <p className="text-xs text-slate-300 mt-2.5 leading-relaxed">
+                    {contract.division} — {contract.takeoffSpec}
+                  </p>
+                </div>
+
+                <div className="relative z-10 mt-6 pt-4 border-t border-white/10">
+                  <div className="flex items-baseline justify-between gap-2 mb-3">
+                    <div>
+                      <div
+                        className="text-2xl font-black font-mono"
+                        style={{ color: "#F3D37A" }}
+                      >
+                        {contract.gmp}
+                      </div>
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-300">
+                        {contract.status}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={contract.portalHref}
+                      data-magnetic
+                      className="px-3 py-2 rounded-xl text-[11px] font-black text-center transition-transform hover:scale-105"
+                      style={{ background: "#C9A84C", color: "#070E1A" }}
+                    >
+                      Command Portal →
+                    </Link>
+                    <Link
+                      href={contract.estimateHref}
+                      data-magnetic
+                      className="px-3 py-2 rounded-xl text-[11px] font-bold text-center text-white border hover:bg-white/10 transition-colors"
+                      style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
+                    >
+                      CSI-32 Takeoff →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
+            <div
+              data-response-kind="surface"
+              className="tayco-living-card p-6 rounded-2xl flex flex-col justify-between group"
+              style={{
+                background:
+                  "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
+                borderColor: "rgba(249, 115, 22, 0.5)",
+              }}
+            >
+              <div className="preview-orbits" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+
+              <div className="relative z-10">
+                <div className="tayco-eyebrow mb-3" style={{ color: "#FDBA74" }}>
+                  <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+                  9-STATE RAPID MOBILIZATION
+                </div>
+                <h3 className="text-xl font-black text-white leading-snug">
+                   $5,884,717.73 Active Pipeline{" "}
+                  <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
+                    Across 9 States
+                  </em>
+                </h3>
+                <p className="text-xs text-slate-200 mt-2.5 leading-relaxed">
+                  Headquartered in the Midwest with active commercial and
+                  residential crews deployed across WI, IL, IA, IN, MN, MI, MO,
+                  TX, and ND (MHA Nation Tribal TERO).
+                </p>
+              </div>
+
+              <div className="relative z-10 mt-6 pt-4 border-t border-white/15 space-y-2">
+                <Link
+                  href="/commercial"
+                  data-magnetic
+                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                >
+                  <span>Explore Commercial Division</span>
+                  <span>→</span>
+                </Link>
+                <Link
+                  href="/residential"
+                  data-magnetic
+                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black text-white"
+                  style={{ background: "#F97316" }}
+                >
+                  <span>Explore Residential &amp; 24/7 IICRC</span>
+                  <span>→</span>
+                </Link>
               </div>
             </div>
           </div>

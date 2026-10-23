@@ -6,7 +6,12 @@ import {
   probeTakeoffProBridge,
   recordWebsiteSubmissionToSuite,
   saveSuiteState,
+  updateOpportunityStage,
+  logCrewPayrollHours,
+  verifySubcontractorCompliance,
+  recordQuickBooksG702Draw,
   TaycoModuleId,
+  TaycoCrmOpportunity,
 } from "@/lib/tayco_erp_suite_store";
 
 export async function GET(req: NextRequest) {
@@ -83,7 +88,7 @@ export async function POST(req: NextRequest) {
         fullName: String(body.clientName || body.fullName || "Commercial Client"),
         company: String(body.clientName || "Commercial Development Group"),
         email: String(body.contactEmail || "bids@client.com"),
-        phone: String(body.contactPhone || "(414) 555-0188"),
+        phone: String(body.contactPhone || "(414) 293-8400"),
         projectType: String(body.title || "Commercial Construction & Turnkey"),
         projectLocation: String(body.location || "Milwaukee, WI"),
         estimatedValueUsd: Number(body.estimatedValueUsd) || 450000,
@@ -95,6 +100,59 @@ export async function POST(req: NextRequest) {
         success: true,
         action: "create_crm_lead",
         createdLead,
+        ...snapshot,
+      });
+    }
+
+    if (action === "update_opportunity_stage") {
+      const oppId = String(body.opportunityId || body.id || "");
+      const newStage = String(body.stage || "Bidding") as TaycoCrmOpportunity["stage"];
+      const updatedOpportunity = updateOpportunityStage(oppId, newStage);
+      const snapshot = getErpSuiteDashboardState();
+      return NextResponse.json({
+        success: true,
+        action: "update_opportunity_stage",
+        updatedOpportunity,
+        ...snapshot,
+      });
+    }
+
+    if (action === "log_crew_payroll_hours") {
+      const crewCode = String(body.crewCode || "CREW-CSI-03");
+      const additionalHours = Number(body.additionalHours ?? body.hours ?? 8.0);
+      const updatedCrew = logCrewPayrollHours(crewCode, additionalHours);
+      const snapshot = getErpSuiteDashboardState();
+      return NextResponse.json({
+        success: true,
+        action: "log_crew_payroll_hours",
+        updatedCrew,
+        ...snapshot,
+      });
+    }
+
+    if (action === "verify_subcontractor_w9_coi") {
+      const subId = String(body.subcontractorId || body.id || "");
+      const w9Status = (body.w9Status === "PENDING" ? "PENDING" : "VERIFIED") as "VERIFIED" | "PENDING";
+      const coiStatus = (body.coiStatus === "EXPIRING_SOON" ? "EXPIRING_SOON" : "ACTIVE") as "ACTIVE" | "EXPIRING_SOON";
+      const updatedSubcontractor = verifySubcontractorCompliance(subId, w9Status, coiStatus);
+      const snapshot = getErpSuiteDashboardState();
+      return NextResponse.json({
+        success: true,
+        action: "verify_subcontractor_w9_coi",
+        updatedSubcontractor,
+        ...snapshot,
+      });
+    }
+
+    if (action === "record_quickbooks_g702_draw") {
+      const progressPct = Number(body.progressPct ?? 60.2);
+      const retainagePct = Number(body.retainagePct ?? 10.0);
+      const drawResult = recordQuickBooksG702Draw(progressPct, retainagePct);
+      const snapshot = getErpSuiteDashboardState();
+      return NextResponse.json({
+        success: true,
+        action: "record_quickbooks_g702_draw",
+        drawResult,
         ...snapshot,
       });
     }

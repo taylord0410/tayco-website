@@ -17,6 +17,7 @@ type CommandViewId =
   | "VIEW_04_PAYROLL"
   | "VIEW_05_QUICKBOOKS"
   | "VIEW_06_TAX"
+  | "VIEW_08_INVESTOR"
   | "VIEW_07_TAKEOFF";
 
 interface TaycoModuleDef {
@@ -87,6 +88,68 @@ interface StateFootprintItem {
   estimated_material_tax_usd: number;
 }
 
+interface BidLevelingRow {
+  csiPackage: string;
+  tradeTitle: string;
+  blueprintSheet: string;
+  engineerGmpUsd: number;
+  subABid: { vendor: string; amountUsd: number; note: string };
+  subBBid: { vendor: string; amountUsd: number; note: string };
+  subCBid: { vendor: string; amountUsd: number; note: string };
+  awardedVendor: string;
+  leveledAwardUsd: number;
+  levelingSavingsUsd: number;
+  scopeGapDetected: string | null;
+  veRfiDescription: string | null;
+  veTargetCreditUsd: number;
+  veFinalTargetUsd: number;
+}
+
+interface PurchaseOrderRow {
+  poNumber: string;
+  csiDivision: string;
+  title: string;
+  vendorName: string;
+  amountUsd: number;
+  leadTimeWeeks: number;
+  isCriticalLongLead: boolean;
+  leadTimeBadge: string;
+  blueprintSheet: string;
+  status: string;
+  qbAccountNumber: string;
+}
+
+interface ChangeOrderRow {
+  coNumber: string;
+  csiDivision: string;
+  title: string;
+  reasonCode: string;
+  blueprintSheet: string;
+  amountUsd: number;
+  status: string;
+  approvedAt: string;
+}
+
+interface DossierSection {
+  sectionNumber: number;
+  code: string;
+  title: string;
+  headlineKpi: string;
+  summary: string;
+  metrics: Array<{ label: string; value: string }>;
+  blueprintRef: string;
+}
+
+interface ParetoHighlight {
+  sheetCode: string;
+  sheetTitle: string;
+  csiDivision: string;
+  allocatedBudgetUsd: number;
+  shareOfDirectCostPct: number;
+  engineeringSpec: string;
+  takeoffViewerUrl: string;
+}
+
 interface SuiteSnapshot {
   activeTenant: TaycoTenant;
   activeInvitation: TaycoInvitation;
@@ -148,6 +211,20 @@ interface SuiteSnapshot {
       coiStatus: string;
       ytdPaidUsd: number;
     }>;
+    bidLevelingMatrix?: {
+      projectSlug: string;
+      engineKernel: string;
+      baseGmpUsd: number;
+      leveledBidUsd: number;
+      totalLevelingSavingsUsd: number;
+      veTargetUsd: number;
+      totalVeRfiCreditsUsd: number;
+      combinedSavingsUsd: number;
+      tradesCount: number;
+      subcontractorBidsCount: number;
+      scopeGapsDetectedCount: number;
+      rows: BidLevelingRow[];
+    };
   };
   payroll: {
     totalLaborBudgetUsd: number;
@@ -177,13 +254,19 @@ interface SuiteSnapshot {
   };
   quickbooks: {
     contractGmpUsd: number;
+    netChangeOrdersUsd?: number;
+    revisedContractGmpUsd?: number;
     aiaG702PayAppNumber: number;
+    aiaProgressPct?: number;
+    aiaRetainagePct?: number;
     aiaGrossCompletedToDateUsd: number;
     aiaRetainage10PctUsd: number;
     aiaPreviousCertificatesUsd: number;
     aiaCurrentNetPaymentDueUsd: number;
     committedMaterialPosCount: number;
     committedMaterialPosTotalUsd: number;
+    purchaseOrders?: PurchaseOrderRow[];
+    changeOrders?: ChangeOrderRow[];
     chartOfAccountsMapping: Array<{
       csiDivision: string;
       csiTitle: string;
@@ -212,6 +295,8 @@ interface SuiteSnapshot {
     overheadProfitBondUsd: number;
     estimatedSalesUseTaxUsd: number;
     taxSavingsIfExemptUsd: number;
+    tribalTeroFeePct?: number;
+    tribalTeroFeeUsd?: number;
     totalGmpWithTaxUsd: number;
     form941QuarterlySummary: {
       quarter: string;
@@ -241,6 +326,26 @@ interface SuiteSnapshot {
       filingStatus: string;
     }>;
   };
+  investorDossier?: {
+    dossierId: string;
+    projectSlug: string;
+    projectTitle: string;
+    location: string;
+    cabinsCount: number;
+    totalSqFt: number;
+    baseGmpUsd: number;
+    leveledBidUsd: number;
+    veTargetUsd: number;
+    revisedContractWithCosUsd: number;
+    costPerCabinUsd: number;
+    costPerSqFtUsd: number;
+    sha256LineItemsCount: number;
+    tripleAiConsensusPct: number;
+    sheetsCount: number;
+    subViewsCount: number;
+    sections: DossierSection[];
+    paretoHighlights: ParetoHighlight[];
+  };
   takeoffBridge: {
     online: boolean;
     url: string;
@@ -249,6 +354,9 @@ interface SuiteSnapshot {
     activeKernelsCount: number;
     featuredProjectSlug: string;
     featuredProjectGmpUsd: number;
+    leveledBidUsd?: number;
+    veTargetUsd?: number;
+    revisedContractUsd?: number;
     evmCpi: number;
     evmSpi: number;
     monteCarloP80ContingencyUsd: number;
@@ -269,13 +377,20 @@ function buildSparklinePoints(values: number[], width = 140, height = 34): strin
     .join(" ");
 }
 
-// Authentic TAYCO Signature Palette Constants
 const TAYCO_GOLD = "#C9A84C";
 const TAYCO_GOLD_LIGHT = "#F3D37A";
 const TAYCO_ORANGE = "#F97316";
 const TAYCO_EMERALD = "#10B981";
 const TAYCO_NAVY = "#1B3A6B";
 const TAYCO_DARK_NAVY = "#0F2040";
+
+const CRM_STAGE_OPTIONS = [
+  "Takeoff Synced",
+  "Bidding",
+  "Contract Awarded",
+  "New Website Lead",
+  "Due Diligence",
+] as const;
 
 export default function TaycoMultiTenantPortalPage() {
   const [snapshot, setSnapshot] = useState<SuiteSnapshot | null>(null);
@@ -289,16 +404,26 @@ export default function TaycoMultiTenantPortalPage() {
   const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({});
 
   // Interactive Chart States
-  const [scurveWeekIdx, setScurveWeekIdx] = useState<number>(6); // Default W14 (60.2% Complete)
+  const [scurveWeekIdx, setScurveWeekIdx] = useState<number>(6);
   const [donutLayerMode, setDonutLayerMode] = useState<"components" | "divisions">("divisions");
   const [selectedDonutIdx, setSelectedDonutIdx] = useState<number>(0);
 
   // AIA G702/G703 Interactive Simulator
   const [aiaProgressPct, setAiaProgressPct] = useState<number>(60.2);
   const [aiaRetainagePct, setAiaRetainagePct] = useState<number>(10.0);
+  const [aiaCommitNotice, setAiaCommitNotice] = useState<string | null>(null);
 
-  // CRM Stage Filter
+  // CRM Stage Filter & Notice
   const [crmStageFilter, setCrmStageFilter] = useState<string>("ALL");
+  const [crmUpdateNotice, setCrmUpdateNotice] = useState<string | null>(null);
+
+  // Payroll Crew Hours Logger State
+  const [selectedCrewCode, setSelectedCrewCode] = useState<string>("CREW-CSI-03");
+  const [crewHoursToAdd, setCrewHoursToAdd] = useState<string>("8.0");
+  const [payrollLogNotice, setPayrollLogNotice] = useState<string | null>(null);
+
+  // Tax 1099-NEC Verification Notice
+  const [taxVerifyNotice, setTaxVerifyNotice] = useState<string | null>(null);
 
   // Bridge sync
   const [syncingBridge, setSyncingBridge] = useState(false);
@@ -334,7 +459,6 @@ export default function TaycoMultiTenantPortalPage() {
     return densityMode === "deep" || Boolean(expandedTables[key]);
   };
 
-  // Interactive 3D Tilt & Gold Specular Wash Handler for Living Cards
   const handleSurfaceMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       const el = e.currentTarget;
@@ -366,6 +490,12 @@ export default function TaycoMultiTenantPortalPage() {
     if (res.ok) {
       const data: SuiteSnapshot = await res.json();
       setSnapshot(data);
+      if (typeof data.quickbooks?.aiaProgressPct === "number") {
+        setAiaProgressPct(data.quickbooks.aiaProgressPct);
+      }
+      if (typeof data.quickbooks?.aiaRetainagePct === "number") {
+        setAiaRetainagePct(data.quickbooks.aiaRetainagePct);
+      }
     }
   }, []);
 
@@ -377,8 +507,8 @@ export default function TaycoMultiTenantPortalPage() {
     else if (tabParam === "MOD_PAYROLL_CREW") setActiveView("VIEW_04_PAYROLL");
     else if (tabParam === "MOD_QUICKBOOKS_ERP") setActiveView("VIEW_05_QUICKBOOKS");
     else if (tabParam === "MOD_TAX_COMPLIANCE") setActiveView("VIEW_06_TAX");
-    else if (tabParam === "MOD_TAKEOFF_PRO" || tabParam === "MOD_INVESTOR_PORTAL")
-      setActiveView("VIEW_07_TAKEOFF");
+    else if (tabParam === "MOD_INVESTOR_PORTAL") setActiveView("VIEW_08_INVESTOR");
+    else if (tabParam === "MOD_TAKEOFF_PRO") setActiveView("VIEW_07_TAKEOFF");
 
     fetchSuite(inviteParam);
   }, [fetchSuite]);
@@ -449,7 +579,7 @@ export default function TaycoMultiTenantPortalPage() {
         const data = await res.json();
         setSnapshot(data);
         setBridgeBannerMsg(
-          `✅ Live Synced with Takeoff Pro (${data.bridgeResult?.source || "CSI-32 Bridge"}): Son of a Star $855,525.23 GMP · 6,536 MH · 8 POs ($375,012.51)`
+          `✅ Live Multi-Endpoint Sync with Takeoff Pro (:8085 · ${data.bridgeResult?.source || "CSI-32 Bridge"}): Son of a Star $855,525.23 Base GMP · $824,875.23 Leveled · $798,175.23 VE · 6,536.0 MH · 8 POs ($375,012.51) · 4 COs (+$26,578.85)`
         );
       }
     } finally {
@@ -495,6 +625,86 @@ export default function TaycoMultiTenantPortalPage() {
     }
   }
 
+  async function handleUpdateOpportunityStage(opportunityId: string, newStage: string) {
+    const res = await fetch("/api/erp-suite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update_opportunity_stage",
+        opportunityId,
+        stage: newStage,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setSnapshot(data);
+      setCrmUpdateNotice(
+        `✅ CRM Stage Updated: ${data.updatedOpportunity?.projectCode || opportunityId} → "${newStage}"`
+      );
+    }
+  }
+
+  async function handleLogCrewPayrollHours(e: React.FormEvent) {
+    e.preventDefault();
+    const hoursNum = Number(crewHoursToAdd);
+    if (!Number.isFinite(hoursNum) || hoursNum === 0) return;
+    const res = await fetch("/api/erp-suite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "log_crew_payroll_hours",
+        crewCode: selectedCrewCode,
+        additionalHours: hoursNum,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setSnapshot(data);
+      setPayrollLogNotice(
+        `✅ Logged +${hoursNum.toFixed(1)} MH to ${selectedCrewCode} — Updated Crew Total: ${data.updatedCrew?.totalManHours?.toFixed(1)} MH ($${data.updatedCrew?.totalLoadedLaborUsd?.toLocaleString("en-US", { minimumFractionDigits: 2 })} Loaded WH-347)`
+      );
+    }
+  }
+
+  async function handleCommitQuickBooksDraw() {
+    const res = await fetch("/api/erp-suite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "record_quickbooks_g702_draw",
+        progressPct: aiaProgressPct,
+        retainagePct: aiaRetainagePct,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setSnapshot(data);
+      setAiaCommitNotice(
+        `✅ Committed AIA G702 Pay App #${data.drawResult?.payAppNumber || 3} (${aiaProgressPct.toFixed(1)}% Complete · ${aiaRetainagePct.toFixed(1)}% Retainage): Net Payment Due $${Number(data.drawResult?.netPaymentDueUsd || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })} persisted to QuickBooks Ledger.`
+      );
+    }
+  }
+
+  async function handleVerifyVendorCompliance(subcontractorId: string, businessName: string) {
+    const res = await fetch("/api/erp-suite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "verify_subcontractor_w9_coi",
+        subcontractorId,
+        w9Status: "VERIFIED",
+        coiStatus: "ACTIVE",
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setSnapshot(data);
+      setTaxVerifyNotice(
+        `✅ Verified W-9 & COI Insurance for ${businessName} (${subcontractorId}) → Status promoted to READY_TO_EFILE_1099.`
+      );
+    }
+  }
+
   function downloadFile(filename: string, content: string, mime = "text/plain") {
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
@@ -512,7 +722,7 @@ export default function TaycoMultiTenantPortalPage() {
           <div className="text-3xl font-black mb-2" style={{ color: TAYCO_GOLD }}>
             TAYCO LLC — EXECUTIVE COMMAND CENTER
           </div>
-          <p className="text-sm text-gray-300">Loading Multi-Tenant ERP Suite &amp; Takeoff Pro Bridge...</p>
+          <p className="text-sm text-gray-300">Loading Multi-Tenant ERP Suite &amp; Takeoff Pro Bridge (:8085)...</p>
         </div>
       </main>
     );
@@ -521,7 +731,6 @@ export default function TaycoMultiTenantPortalPage() {
   const allowedIds = snapshot.allowedModules.map((m) => m.id);
   const isGuestRestricted = snapshot.activeInvitation.code !== "INV-TAYCO-MASTER";
 
-  // Visual Arsenal Data
   const scurveSeries = snapshot.analytics_visual_arsenal?.scurve_24_weeks || [];
   const activeScurvePoint =
     scurveSeries[Math.min(scurveWeekIdx, Math.max(0, scurveSeries.length - 1))] || {
@@ -553,7 +762,7 @@ export default function TaycoMultiTenantPortalPage() {
     cashflow_trend: [86.7, 161.5, 241.3, 320.2, 390.8, 463.5, 544.3, 626.8],
   };
 
-  // Dynamic Command Navigation Items (01 to 07) filtered by active invitation
+  // Complete 8 Command Views covering all 6 Enterprise Modules
   const navItems: Array<{
     viewId: CommandViewId;
     num: string;
@@ -565,53 +774,61 @@ export default function TaycoMultiTenantPortalPage() {
     {
       viewId: "VIEW_01_COMMAND",
       num: "01",
-      label: "Executive Command & Charts",
+      label: "Executive Overview",
       badge: "4 SVG Charts",
       moduleRequirement: "ALWAYS",
     },
     {
       viewId: "VIEW_02_INVITATIONS",
       num: "02",
-      label: "Module Invitations & Tenants",
+      label: "B2B Access & Invitations",
       badge: `${snapshot.allowedModules.length}/6 Active`,
       moduleRequirement: "ALWAYS",
     },
     {
       viewId: "VIEW_03_CRM",
       num: "03",
-      label: "Commercial CRM & Bid Pipeline",
-      badge: "$5.88M",
+      label: "1. CRM & Bid Leveling",
+      badge: "$824.9K Bid",
       moduleRequirement: "MOD_CRM_BIDS",
       legacyBtnId: "tab-btn-MOD_CRM_BIDS",
     },
     {
       viewId: "VIEW_04_PAYROLL",
       num: "04",
-      label: "Payroll, Crews & WH-347",
-      badge: "6,536 MH",
+      label: "2. Payroll & WH-347",
+      badge: `${snapshot.payroll.totalManHours.toFixed(0)} MH`,
       moduleRequirement: "MOD_PAYROLL_CREW",
       legacyBtnId: "tab-btn-MOD_PAYROLL_CREW",
     },
     {
       viewId: "VIEW_05_QUICKBOOKS",
       num: "05",
-      label: "QuickBooks & AIA G702/G703",
-      badge: "8 POs · IIF",
+      label: "3. QuickBooks & 8 POs",
+      badge: "8 POs · 4 COs",
       moduleRequirement: "MOD_QUICKBOOKS_ERP",
       legacyBtnId: "tab-btn-MOD_QUICKBOOKS_ERP",
     },
     {
       viewId: "VIEW_06_TAX",
       num: "06",
-      label: "Multi-State Tax & 1099-NEC",
+      label: "4. 9-State Tax & TERO",
       badge: "9 States",
       moduleRequirement: "MOD_TAX_COMPLIANCE",
       legacyBtnId: "tab-btn-MOD_TAX_COMPLIANCE",
     },
     {
-      viewId: "VIEW_07_TAKEOFF",
+      viewId: "VIEW_08_INVESTOR",
       num: "07",
-      label: "Takeoff Pro 2D/3D Bridge",
+      label: "📊 5. Investor & Lender Dossier",
+      badge: "7 Sections",
+      moduleRequirement: "MOD_INVESTOR_PORTAL",
+      legacyBtnId: "tab-btn-MOD_INVESTOR_PORTAL",
+    },
+    {
+      viewId: "VIEW_07_TAKEOFF",
+      num: "08",
+      label: "📐 Takeoff Pro Bridge",
       badge: "21 Kernels",
       moduleRequirement: "MOD_TAKEOFF_PRO",
       legacyBtnId: "tab-btn-MOD_TAKEOFF_PRO",
@@ -621,14 +838,12 @@ export default function TaycoMultiTenantPortalPage() {
   const visibleNavItems = navItems.filter(
     (item) =>
       item.moduleRequirement === "ALWAYS" ||
-      allowedIds.includes(item.moduleRequirement) ||
-      (item.viewId === "VIEW_07_TAKEOFF" && allowedIds.includes("MOD_INVESTOR_PORTAL"))
+      allowedIds.includes(item.moduleRequirement)
   );
 
-  // Authentic TAYCO Luxury Editorial Surface Class & Raking Light Specular Angle
   const normalizedLightPx = ((lightAngle - 15) / 70).toFixed(3);
   const cardSurfaceClass =
-    "umbra-bento-card bg-[#0F2040]/85 backdrop-blur-xl border border-[#C9A84C]/25 shadow-2xl text-white transition-all duration-300";
+    "tayco-bento-card bg-[#0F2040]/85 backdrop-blur-xl border border-[#C9A84C]/25 shadow-2xl text-white transition-all duration-300";
 
   const livingCardInlineStyle: React.CSSProperties = {
     ["--sculpture-angle" as string]: `${lightAngle}deg`,
@@ -637,7 +852,6 @@ export default function TaycoMultiTenantPortalPage() {
     background: `linear-gradient(${lightAngle}deg, rgba(27, 58, 107, 0.72) 0%, rgba(15, 32, 64, 0.92) 58%, rgba(201, 168, 76, 0.12) 100%)`,
   };
 
-  // Interactive AIA G702 Simulator Calculations
   const simContractGmp = snapshot.quickbooks.contractGmpUsd;
   const simGrossCompleted = Number(((simContractGmp * aiaProgressPct) / 100).toFixed(2));
   const simRetainageHeld = Number(((simGrossCompleted * aiaRetainagePct) / 100).toFixed(2));
@@ -652,6 +866,11 @@ export default function TaycoMultiTenantPortalPage() {
     crmStageFilter === "ALL"
       ? snapshot.crm.opportunities
       : snapshot.crm.opportunities.filter((o) => o.stage === crmStageFilter);
+
+  const bidMatrix = snapshot.crm.bidLevelingMatrix;
+  const purchaseOrders = snapshot.quickbooks.purchaseOrders || [];
+  const changeOrders = snapshot.quickbooks.changeOrders || [];
+  const dossier = snapshot.investorDossier;
 
   return (
     <main
@@ -668,7 +887,7 @@ export default function TaycoMultiTenantPortalPage() {
         background: `radial-gradient(circle at ${15 + (lightAngle - 15) * 0.8}% 12%, rgba(201,168,76,0.18), transparent 36%), radial-gradient(circle at 85% 22%, rgba(249,115,22,0.11), transparent 36%), linear-gradient(${lightAngle + 95}deg, #09152B 0%, #0F2040 52%, #1B3A6B 100%)`,
       }}
     >
-      {/* ── GUEST PREVIEW BANNER (WHEN VIEWING AS AN INVITED CLIENT/CPA/INVESTOR) ── */}
+      {/* ── GUEST PREVIEW BANNER ── */}
       {isGuestRestricted && (
         <div
           id="tayco-guest-preview-banner"
@@ -677,12 +896,12 @@ export default function TaycoMultiTenantPortalPage() {
         >
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-xs sm:text-sm text-amber-200">
-              <strong>👁️ Guest Preview Active ({snapshot.activeInvitation.guestCompany}):</strong>{" "}
+              <strong>👁️ Scoped Partner Credential Active ({snapshot.activeInvitation.guestCompany}):</strong>{" "}
               Showing{" "}
               <strong>
                 {snapshot.allowedModules.length} of {snapshot.modules.length} authorized modules
               </strong>{" "}
-              under invitation code{" "}
+              under credential{" "}
               <code className="font-mono font-bold px-1.5 py-0.5 bg-amber-400/20 text-amber-100 rounded">
                 {snapshot.activeInvitation.code}
               </code>
@@ -702,18 +921,17 @@ export default function TaycoMultiTenantPortalPage() {
         </div>
       )}
 
-      {/* ── TAYCO COMMAND APP-SHELL RESPONSIVE GRID (grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]) ── */}
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] min-h-[calc(100vh-4rem)]">
-        {/* ── A) TAYCO COMMAND LEFT SIDEBAR (#tayco-umbra-sidebar) ── */}
+      {/* ── TAYCO COMMAND APP-SHELL RESPONSIVE GRID ── */}
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] min-h-[calc(100vh-4rem)]">
+        {/* ── A) TAYCO COMMAND LEFT SIDEBAR ── */}
         <aside
-          id="tayco-umbra-sidebar"
+          id="tayco-command-sidebar"
           className="border-b lg:border-b-0 lg:border-r border-[#C9A84C]/20 p-4 sm:p-5 flex flex-col justify-between gap-6"
           style={{
             background: "linear-gradient(180deg, rgba(15, 32, 64, 0.96) 0%, rgba(9, 21, 43, 0.98) 100%)",
           }}
         >
           <div className="space-y-5">
-            {/* Active Tenant Brand + Mobile Toggle */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-3">
                 <div
@@ -746,18 +964,18 @@ export default function TaycoMultiTenantPortalPage() {
                 onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
                 className="lg:hidden px-3 py-1.5 rounded-lg border border-white/15 text-xs font-bold text-slate-200"
               >
-                {mobileSidebarOpen ? "Hide Menu ▴" : "Modules (01-07) ▾"}
+                {mobileSidebarOpen ? "Hide Menu ▴" : "Modules (01-08) ▾"}
               </button>
             </div>
 
-            {/* Numbered Navigation 01 - 07 */}
+            {/* Numbered Navigation 01 - 08 */}
             <nav
               id="tayco-portal-module-tabs"
               className={`${mobileSidebarOpen ? "flex" : "hidden"} lg:flex flex-col gap-1.5`}
               aria-label="Command Center Navigation"
             >
               <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-amber-200/80 px-2 mb-1">
-                Command Views (01–07)
+                Command Views (01–08 · 6 Modules)
               </div>
               {visibleNavItems.map((item) => {
                 const isActive = activeView === item.viewId;
@@ -790,9 +1008,9 @@ export default function TaycoMultiTenantPortalPage() {
                         : { border: "1px solid transparent" }
                     }
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
                       <span
-                        className="font-mono text-xs font-black px-1.5 py-0.5 rounded"
+                        className="font-mono text-xs font-black px-1.5 py-0.5 rounded shrink-0"
                         style={{
                           background: isActive ? TAYCO_GOLD : "rgba(255,255,255,0.08)",
                           color: isActive ? TAYCO_DARK_NAVY : TAYCO_GOLD_LIGHT,
@@ -811,19 +1029,18 @@ export default function TaycoMultiTenantPortalPage() {
             </nav>
           </div>
 
-          {/* ── TAYCO SIDEBAR BRIDGE CARD WITH ORBITAL SVG RINGS (#umbra-sidebar-bridge) ── */}
+          {/* ── TAYCO SIDEBAR BRIDGE CARD WITH ORBITAL SVG RINGS ── */}
           <div
-            id="umbra-sidebar-bridge"
+            id="tayco-sidebar-bridge"
             data-response-kind="surface"
             onMouseMove={handleSurfaceMouseMove}
             onMouseLeave={handleSurfaceMouseLeave}
-            className="umbra-bento-card relative overflow-hidden rounded-2xl p-4 border border-[#C9A84C]/30"
+            className="tayco-bento-card relative overflow-hidden rounded-2xl p-4 border border-[#C9A84C]/30"
             style={{
               background: "linear-gradient(150deg, #1B3A6B 0%, #0F2040 100%)",
             }}
           >
             <div className="response-wash pointer-events-none" aria-hidden="true" />
-            {/* Geometric Orbital Rings SVG (.preview-orbits) */}
             <svg
               className="preview-orbits absolute -right-8 -bottom-8 w-36 h-36 pointer-events-none opacity-40"
               viewBox="0 0 160 160"
@@ -838,14 +1055,14 @@ export default function TaycoMultiTenantPortalPage() {
 
             <div className="relative z-10">
               <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-300 mb-1">
-                <span>● Takeoff Pro Bridge</span>
+                <span>● Takeoff Pro (:8085)</span>
                 <span>v{snapshot.takeoffBridge.rustEngineVersion}</span>
               </div>
               <div className="text-sm font-black text-white">
                 {snapshot.takeoffBridge.activeKernelsCount} Rust Kernels Active
               </div>
               <div className="text-[11px] text-slate-200 mt-0.5">
-                Son of a Star · ${snapshot.takeoffBridge.featuredProjectGmpUsd.toLocaleString()} GMP
+                32 ARCH-D / 87 Sub-Views · ${snapshot.takeoffBridge.featuredProjectGmpUsd.toLocaleString()} GMP
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <button
@@ -864,7 +1081,7 @@ export default function TaycoMultiTenantPortalPage() {
                   data-magnetic
                   className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-[#C9A84C]/40 text-amber-100 hover:bg-white/10"
                 >
-                  Open CAD ↗
+                  Open Blueprint ↗
                 </a>
               </div>
             </div>
@@ -873,9 +1090,9 @@ export default function TaycoMultiTenantPortalPage() {
 
         {/* ── B) MAIN WORKSPACE & TAYCO EXECUTIVE MASTHEAD ── */}
         <div className="p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden">
-          {/* ── TAYCO EXECUTIVE TOP MASTHEAD (#tayco-umbra-masthead & #tayco-tenant-bar) ── */}
+          {/* ── TAYCO EXECUTIVE TOP MASTHEAD ── */}
           <header
-            id="tayco-umbra-masthead"
+            id="tayco-command-masthead"
             data-response-kind="surface"
             onMouseMove={handleSurfaceMouseMove}
             onMouseLeave={handleSurfaceMouseLeave}
@@ -884,7 +1101,6 @@ export default function TaycoMultiTenantPortalPage() {
           >
             <div className="response-wash pointer-events-none" aria-hidden="true" />
             <div id="tayco-tenant-bar" className="relative z-10 space-y-5">
-              {/* Top Row: Title + Cognitive Density & Raking Light Angle Controls */}
               <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -901,12 +1117,12 @@ export default function TaycoMultiTenantPortalPage() {
                     <span
                       className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
                       style={{
-                        background: "rgba(249,115,22,0.16)",
-                        color: "#FED7AA",
-                        borderColor: "rgba(249,115,22,0.4)",
+                        background: "rgba(16,185,129,0.16)",
+                        color: "#A7F3D0",
+                        borderColor: "rgba(16,185,129,0.4)",
                       }}
                     >
-                      ● {densityMode === "calm" ? "Calm Executive Overview" : "Deep-Dive Engineering Mode"}
+                      📐 Live Takeoff Pro v5.0 (:8085) · 6/6 Enterprise Modules Connected
                     </span>
                   </div>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
@@ -920,7 +1136,6 @@ export default function TaycoMultiTenantPortalPage() {
 
                 {/* Progressive Disclosure Toggle + Interactive Raking Light Angle Scrubber */}
                 <div className="flex flex-wrap items-center gap-3">
-                  {/* 1. Cognitive Density Toggle (Calm Overview vs Deep-Dive Tables) */}
                   <div className="flex items-center bg-[#09152B]/80 p-1 rounded-xl border border-[#C9A84C]/30">
                     <button
                       type="button"
@@ -952,7 +1167,6 @@ export default function TaycoMultiTenantPortalPage() {
                     </button>
                   </div>
 
-                  {/* 2. Interactive Raking Light Angle Scrubber (15° to 85°) */}
                   <div
                     id="tayco-raking-light-control"
                     className="flex items-center gap-2.5 bg-[#09152B]/80 px-3.5 py-2 rounded-xl border border-[#C9A84C]/30"
@@ -1000,7 +1214,7 @@ export default function TaycoMultiTenantPortalPage() {
 
                 <div className="md:col-span-5">
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-amber-200/90 mb-1">
-                    🎟️ SESSION PROFILE / GUEST INVITATION PREVIEW (FILTERS MODULES LIVE)
+                    🎟️ SESSION CREDENTIAL / PARTNER ACCESS TOKEN (FILTERS MODULES LIVE)
                   </label>
                   <select
                     id="select-active-invitation"
@@ -1048,7 +1262,7 @@ export default function TaycoMultiTenantPortalPage() {
             </div>
           </header>
 
-          {/* ── INTERACTIVE MODULE INVITATION BUILDER (#tayco-invitation-builder-card) ── */}
+          {/* ── INTERACTIVE MODULE INVITATION BUILDER ── */}
           {(showInviteBuilder || activeView === "VIEW_02_INVITATIONS") && (
             <section
               id="tayco-invitation-builder-card"
@@ -1071,7 +1285,7 @@ export default function TaycoMultiTenantPortalPage() {
                     Invite a Client, Investor, or CPA to Specific Modules
                   </h2>
                   <p className="text-xs text-slate-200">
-                    Select the exact modules you want to showcase in your meeting. The invited guest will only see the authorized tabs.
+                    Select the exact modules you want to authorize for your partner meeting. The invited guest will only see the authorized tabs.
                   </p>
                 </div>
               </div>
@@ -1134,7 +1348,7 @@ export default function TaycoMultiTenantPortalPage() {
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
-                      SELECT MODULES TO PRESENT ({selectedModules.length} OF 6 CHECKED):
+                      SELECT MODULES TO AUTHORIZE ({selectedModules.length} OF 6 CHECKED):
                     </label>
                     <div className="flex flex-wrap gap-3">
                       <button
@@ -1166,6 +1380,20 @@ export default function TaycoMultiTenantPortalPage() {
                         className="text-xs font-bold underline text-emerald-300 hover:text-emerald-100"
                       >
                         CPA Finance + Tax (3)
+                      </button>
+                      <button
+                        type="button"
+                        data-magnetic
+                        onClick={() =>
+                          setSelectedModules([
+                            "MOD_CRM_BIDS",
+                            "MOD_QUICKBOOKS_ERP",
+                            "MOD_INVESTOR_PORTAL",
+                          ])
+                        }
+                        className="text-xs font-bold underline text-sky-300 hover:text-sky-100"
+                      >
+                        Investor &amp; Lender Board (3)
                       </button>
                     </div>
                   </div>
@@ -1207,7 +1435,7 @@ export default function TaycoMultiTenantPortalPage() {
                     className="px-6 py-3 rounded-xl font-black text-sm text-slate-950 shadow-md transition-transform hover:scale-[1.01]"
                     style={{ background: TAYCO_GOLD }}
                   >
-                    ✨ Create Scoped Invitation &amp; Preview Guest View
+                    ✨ Create Scoped Invitation &amp; Activate Partner View
                   </button>
 
                   {createdInviteBanner && (
@@ -1233,7 +1461,6 @@ export default function TaycoMultiTenantPortalPage() {
 
           {/* ── C) 4 EXECUTIVE KPI CARDS WITH SPARKLINES & 3D LIVING SPECULAR WASH ── */}
           <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            {/* Executive KPI 1: Active Pipeline */}
             <div
               data-response-kind="surface"
               onMouseMove={handleSurfaceMouseMove}
@@ -1265,7 +1492,6 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Executive KPI 2: Takeoff Pro GMP */}
             <div
               data-response-kind="surface"
               onMouseMove={handleSurfaceMouseMove}
@@ -1283,7 +1509,7 @@ export default function TaycoMultiTenantPortalPage() {
                     $855,525.23
                   </div>
                   <div className="text-xs text-slate-200 mt-1">
-                    Son of a Star · CPI {snapshot.takeoffBridge.evmCpi} / SPI {snapshot.takeoffBridge.evmSpi}
+                    Leveled: $824,875.23 · VE: $798,175.23
                   </div>
                 </div>
                 <svg width="110" height="36" className="shrink-0">
@@ -1297,7 +1523,6 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Executive KPI 3: WH-347 Field Labor */}
             <div
               data-response-kind="surface"
               onMouseMove={handleSurfaceMouseMove}
@@ -1312,10 +1537,10 @@ export default function TaycoMultiTenantPortalPage() {
                     WH-347 Field Labor Budget
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-1">
-                    6,536.0 MH
+                    {snapshot.payroll.totalManHours.toLocaleString("en-US", { minimumFractionDigits: 1 })} MH
                   </div>
                   <div className="text-xs text-emerald-300 font-semibold mt-1">
-                    $213,299.26 Loaded · 103.1 Crew-Days
+                    ${snapshot.payroll.totalLaborBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })} Loaded · {snapshot.payroll.totalCrewDays} Days
                   </div>
                 </div>
                 <svg width="110" height="36" className="shrink-0">
@@ -1329,7 +1554,6 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Executive KPI 4: Net AIA G702 Billing */}
             <div
               data-response-kind="surface"
               onMouseMove={handleSurfaceMouseMove}
@@ -1341,13 +1565,13 @@ export default function TaycoMultiTenantPortalPage() {
               <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
                   <div className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">
-                    Net AIA G702 Pay App #3
+                    Net AIA G702 Pay App #{snapshot.quickbooks.aiaG702PayAppNumber}
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">
-                    $184,892.70
+                    ${snapshot.quickbooks.aiaCurrentNetPaymentDueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </div>
                   <div className="text-xs text-slate-200 mt-1">
-                    10% Retainage Held: $51,501.13
+                    Revised Contract (+4 COs): $882,104.08
                   </div>
                 </div>
                 <svg width="110" height="36" className="shrink-0">
@@ -1365,13 +1589,12 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 01: EXECUTIVE COMMAND & INTERACTIVE SVG CHARTS ── */}
           {activeView === "VIEW_01_COMMAND" && (
             <section id="panel-VIEW_01_COMMAND" className="space-y-6">
-              {/* Live Editorial Telemetry Marquee Strip + Rotating Orbital Seal Badge */}
               <div
                 id="tayco-live-telemetry-marquee"
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
                 onMouseLeave={handleSurfaceMouseLeave}
-                className="umbra-bento-card rounded-2xl px-4 py-3 border border-[#C9A84C]/35 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden"
+                className="tayco-bento-card rounded-2xl px-4 py-3 border border-[#C9A84C]/35 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden"
                 style={{
                   background:
                     "linear-gradient(90deg, rgba(15, 32, 64, 0.96) 0%, rgba(27, 58, 107, 0.92) 50%, rgba(15, 32, 64, 0.96) 100%)",
@@ -1387,11 +1610,10 @@ export default function TaycoMultiTenantPortalPage() {
                     LIVE TELEMETRY
                   </span>
                   <div className="text-xs font-mono font-bold tracking-wide text-amber-100 whitespace-nowrap">
-                    ✳ ACTIVE PIPELINE $5.88M ✳ SON OF A STAR GMP $855,525 (CPI 1.04 · SPI 0.98) ✳ 6,536 MAN-HOURS DAVIS-BACON WH-347 ✳ 9-STATE TAX &amp; 1099-NEC ENGINE ACTIVE ✳
+                    ✳ ACTIVE PIPELINE $5.88M ✳ SON OF A STAR GMP $855,525.23 → LEVELED $824,875.23 → VE $798,175.23 ✳ 6,536.0 MH WH-347 ✳ 8 POs ($375,012.51) &amp; 4 COs (+$26,578.85) ✳
                   </div>
                 </div>
 
-                {/* Rotating Orbital Seal Badge ("TAYCO EXECUTIVE ERP · LIVE SYNC ·") */}
                 <div
                   id="tayco-orbital-seal-badge"
                   className="relative z-10 flex items-center gap-2.5 shrink-0 px-3 py-1 rounded-full border border-[#C9A84C]/40 bg-[#09152B]/80"
@@ -1424,7 +1646,6 @@ export default function TaycoMultiTenantPortalPage() {
 
               {/* Row 1 of Charts: Interactive S-Curve + Interactive CSI-32 Cost Ring */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                {/* 1. Interactive S-Curve 24-Week EVM Chart (#chart-scurve-svg) */}
                 <div
                   data-response-kind="surface"
                   onMouseMove={handleSurfaceMouseMove}
@@ -1458,7 +1679,6 @@ export default function TaycoMultiTenantPortalPage() {
                     </div>
                   </div>
 
-                  {/* Active Week Telemetry Pill Bar */}
                   <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
                     <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                       <div className="text-[10px] uppercase text-slate-300 font-bold">Planned Value (PV)</div>
@@ -1486,7 +1706,6 @@ export default function TaycoMultiTenantPortalPage() {
                     </div>
                   </div>
 
-                  {/* Interactive SVG S-Curve (#chart-scurve-svg) */}
                   <div className="relative z-10">
                     <svg
                       id="chart-scurve-svg"
@@ -1500,7 +1719,6 @@ export default function TaycoMultiTenantPortalPage() {
                         </linearGradient>
                       </defs>
 
-                      {/* Horizontal Grid Lines */}
                       {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
                         const y = 195 - ratio * 165;
                         const labelUsd = Math.round((855525 * ratio) / 1000);
@@ -1521,7 +1739,6 @@ export default function TaycoMultiTenantPortalPage() {
                         );
                       })}
 
-                      {/* Planned Value (PV) Dashed Line */}
                       {scurveSeries.length > 1 && (
                         <polyline
                           fill="none"
@@ -1538,7 +1755,6 @@ export default function TaycoMultiTenantPortalPage() {
                         />
                       )}
 
-                      {/* Earned Value (EV) Shaded Area */}
                       {scurveSeries.length > 1 && (
                         <polygon
                           fill="url(#evAreaGrad)"
@@ -1554,7 +1770,6 @@ export default function TaycoMultiTenantPortalPage() {
                         />
                       )}
 
-                      {/* Earned Value (EV) Solid Gold Curve */}
                       {scurveSeries.length > 1 && (
                         <polyline
                           fill="none"
@@ -1570,7 +1785,6 @@ export default function TaycoMultiTenantPortalPage() {
                         />
                       )}
 
-                      {/* Actual Cost (AC) Solid Emerald Curve */}
                       {scurveSeries.length > 1 && (
                         <polyline
                           fill="none"
@@ -1586,7 +1800,6 @@ export default function TaycoMultiTenantPortalPage() {
                         />
                       )}
 
-                      {/* Interactive Week Nodes */}
                       {scurveSeries.map((pt, i) => {
                         const x = 54 + (i / Math.max(1, scurveSeries.length - 1)) * 556;
                         const yEv = 195 - (pt.earned_value_usd / 855525.23) * 165;
@@ -1633,7 +1846,7 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                {/* 2. Interactive CSI-32 Cost Ring Chart (#chart-csi-donut-svg) */}
+                {/* 2. Interactive CSI-32 Cost Ring Chart */}
                 <div
                   data-response-kind="surface"
                   onMouseMove={handleSurfaceMouseMove}
@@ -1757,7 +1970,6 @@ export default function TaycoMultiTenantPortalPage() {
                     </div>
                   </div>
 
-                  {/* Selected Segment Detail Pill */}
                   {selectedSegment && (
                     <div className="relative z-10 mt-4 p-3.5 rounded-xl bg-[#09152B]/70 border border-[#C9A84C]/25 text-xs">
                       <div className="font-black text-white">{selectedSegment.label}</div>
@@ -1781,7 +1993,6 @@ export default function TaycoMultiTenantPortalPage() {
 
               {/* Row 2 of Charts: 3. 9-State Pipeline & Tax Matrix + 4. WH-347 Crew Radial Gauges */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                {/* 3. Interactive 9-State Pipeline & Tax Matrix (#chart-states-bar-svg) */}
                 <div
                   data-response-kind="surface"
                   onMouseMove={handleSurfaceMouseMove}
@@ -1891,7 +2102,7 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                {/* 4. Interactive WH-347 Crew Radial Gauges (#chart-wh347-radial-svg) */}
+                {/* 4. Interactive WH-347 Crew Radial Gauges */}
                 <div
                   data-response-kind="surface"
                   onMouseMove={handleSurfaceMouseMove}
@@ -1907,7 +2118,7 @@ export default function TaycoMultiTenantPortalPage() {
                           👷 DAVIS-BACON CERTIFIED PAYROLL TELEMETRY
                         </span>
                         <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                          WH-347 Crew Radial Gauges (6,536 MH)
+                          WH-347 Crew Radial Gauges ({snapshot.payroll.totalManHours.toFixed(1)} MH)
                         </h2>
                       </div>
                       <button
@@ -1992,8 +2203,8 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
               </div>
 
-              {/* Row 3: 4 Executive Module Cards (Click to Jump into Any of the 4 Modules) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Row 3: 6 Executive Module Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div
                   data-response-kind="surface"
                   onMouseMove={handleSurfaceMouseMove}
@@ -2004,13 +2215,13 @@ export default function TaycoMultiTenantPortalPage() {
                   <div className="response-wash pointer-events-none" aria-hidden="true" />
                   <div className="relative z-10">
                     <div className="text-xs font-black uppercase" style={{ color: TAYCO_GOLD_LIGHT }}>
-                      03 · Commercial CRM
+                      03 · 1. Commercial CRM &amp; 3-Bid Leveling
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
-                      $5.88M Bid Pipeline &amp; 29 Trades
+                      $855.5K GMP → $824.9K Leveled (-$30,650)
                     </h3>
                     <p className="text-xs text-slate-200 mt-1">
-                      5 active projects &amp; pre-qualified subcontractors across 8+ states with W-9/COI gate.
+                      5 CSI Trades × 3 Subcontractor Bids (15 bids), 3 Scope Gaps flagged, and $798,175.23 VE target.
                     </p>
                   </div>
                   <button
@@ -2019,7 +2230,7 @@ export default function TaycoMultiTenantPortalPage() {
                     onClick={() => setActiveView("VIEW_03_CRM")}
                     className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
-                    Open CRM &amp; Bids →
+                    Open CRM &amp; 3-Bid Leveling →
                   </button>
                 </div>
 
@@ -2033,13 +2244,13 @@ export default function TaycoMultiTenantPortalPage() {
                   <div className="response-wash pointer-events-none" aria-hidden="true" />
                   <div className="relative z-10">
                     <div className="text-xs font-black uppercase text-emerald-300">
-                      04 · Davis-Bacon Payroll
+                      04 · 2. Davis-Bacon Payroll &amp; WH-347
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
-                      6,536 MH · $213,299.26 WH-347
+                      {snapshot.payroll.totalManHours.toFixed(1)} MH · ${snapshot.payroll.totalLaborBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </h3>
                     <p className="text-xs text-slate-200 mt-1">
-                      7 CSI field crews, FICA 7.65% ($13.1K), FUTA/SUTA ($5.8K) &amp; Workers&apos; Comp ($23.0K).
+                      7 CSI field crews (436.3 MH/Cabin) with live field crew hour logger and certified WH-347 export.
                     </p>
                   </div>
                   <button
@@ -2062,13 +2273,13 @@ export default function TaycoMultiTenantPortalPage() {
                   <div className="response-wash pointer-events-none" aria-hidden="true" />
                   <div className="relative z-10">
                     <div className="text-xs font-black uppercase text-orange-300">
-                      05 · QuickBooks &amp; AIA
+                      05 · 3. QuickBooks, 8 POs &amp; 4 COs
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
-                      $184,892.70 Net Pay App #3
+                      $375,012.51 POs · $882,104.08 Revised
                     </h3>
                     <p className="text-xs text-slate-200 mt-1">
-                      8 Material POs ($375,012.51), 10% Retainage ($51,501.13) &amp; instant .IIF / .QBO export.
+                      8 Material POs (3 Critical Arctic Long-Lead), 4 Change Orders (+$26,578.85), and AIA G702 Pay App #3.
                     </p>
                   </div>
                   <button
@@ -2077,7 +2288,7 @@ export default function TaycoMultiTenantPortalPage() {
                     onClick={() => setActiveView("VIEW_05_QUICKBOOKS")}
                     className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
-                    Open QuickBooks Sync →
+                    Open QuickBooks &amp; 8 POs →
                   </button>
                 </div>
 
@@ -2091,13 +2302,13 @@ export default function TaycoMultiTenantPortalPage() {
                   <div className="response-wash pointer-events-none" aria-hidden="true" />
                   <div className="relative z-10">
                     <div className="text-xs font-black uppercase text-amber-300">
-                      06 · 9-State Tax &amp; 1099-NEC
+                      06 · 4. 9-State Tax &amp; Tribal TERO 2.5%
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
-                      Sales Tax, Form 941 &amp; 1099-NEC
+                      ND TERO $21,388.13 &amp; IRS 1099-NEC
                     </h3>
                     <p className="text-xs text-slate-200 mt-1">
-                      Taxable materials vs. exempt labor across WI, IL, IA, IN, MN, MI, MO, TX &amp; ND.
+                      $375,012.51 Taxable Material Base across 9 states, MHA Nation TERO 2.5%, and live W-9/COI gate.
                     </p>
                   </div>
                   <button
@@ -2106,16 +2317,219 @@ export default function TaycoMultiTenantPortalPage() {
                     onClick={() => setActiveView("VIEW_06_TAX")}
                     className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
-                    Open Tax Compliance →
+                    Open Tax &amp; TERO Compliance →
+                  </button>
+                </div>
+
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="text-xs font-black uppercase text-sky-300">
+                      07 · 📊 5. Investor &amp; Lender Dossier
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      DOSSIER-SON_OF_STAR-V28 (7 Sections)
+                    </h3>
+                    <p className="text-xs text-slate-200 mt-1">
+                      $106,940.65/cabin · $151.69/sq.ft. · 369 SHA-256 Line Items · Pareto Top 5 Blueprint Sheets.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-magnetic
+                    onClick={() => setActiveView("VIEW_08_INVESTOR")}
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open Investor Dossier →
+                  </button>
+                </div>
+
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="text-xs font-black uppercase text-emerald-300">
+                      08 · 📐 Takeoff Pro Bridge (:8085)
+                    </div>
+                    <h3 className="text-base font-black text-white mt-1">
+                      32 ARCH-D Sheets · 21 Rust Kernels
+                    </h3>
+                    <p className="text-xs text-slate-200 mt-1">
+                      99.4% Triple AI Consensus, 0 Double Counting, and Monte Carlo P80 ($898,301.49).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-magnetic
+                    onClick={() => setActiveView("VIEW_07_TAKEOFF")}
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    Open Takeoff Pro Bridge →
                   </button>
                 </div>
               </div>
             </section>
           )}
 
-          {/* ── VIEW 03: COMMERCIAL CRM, BID PIPELINE & SUBCONTRACTOR REGISTRY ── */}
+          {/* ── VIEW 03: COMMERCIAL CRM, 3-BID LEVELING & SUBCONTRACTOR REGISTRY ── */}
           {activeView === "VIEW_03_CRM" && (
             <section id="panel-MOD_CRM_BIDS" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — BID LEVELING &amp; CSI-32 ESTIMATE FEED — rust_critical_bid_and_dedup_gate
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Synchronized across <strong>32 ARCH-D Sheets / 87 Sub-Views</strong>: <strong>$855,525.23 Base GMP</strong> →{" "}
+                      <strong className="text-emerald-300">$824,875.23 Leveled Bid (-$30,650.00 across 15 bids)</strong> →{" "}
+                      <strong className="text-amber-300">$798,175.23 VE Target (-$26,700.00 via 3 RFIs)</strong> · <strong>3 Scope Gaps Flagged</strong>.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* REAL 3-SUBCONTRACTOR BID LEVELING MATRIX */}
+              {bidMatrix && (
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                        ⚖️ 5 CSI TRADES × 3 SUBCONTRACTORS (15 BIDS) · KERNEL: {bidMatrix.engineKernel}
+                      </span>
+                      <h3 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                        3-Subcontractor Bid Leveling &amp; Value Engineering Matrix (Son of a Star)
+                      </h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 font-mono">
+                        Base GMP: <strong>${bidMatrix.baseGmpUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong>
+                      </span>
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 font-mono text-emerald-200">
+                        Leveled Bid: <strong>${bidMatrix.leveledBidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })} (-$30,650.00)</strong>
+                      </span>
+                      <span className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 font-mono text-amber-200">
+                        VE Target: <strong>${bidMatrix.veTargetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })} (-$26,700.00)</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 overflow-x-auto mt-4 bg-white rounded-xl text-slate-900 p-2">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[10px]">
+                          <th className="py-2.5 px-2.5">CSI Trade &amp; Sheet</th>
+                          <th className="py-2.5 px-2.5 text-right">Engineer GMP</th>
+                          <th className="py-2.5 px-2.5">Sub A Bid</th>
+                          <th className="py-2.5 px-2.5">Sub B Bid</th>
+                          <th className="py-2.5 px-2.5">Sub C Bid</th>
+                          <th className="py-2.5 px-2.5 text-right">Leveled Award</th>
+                          <th className="py-2.5 px-2.5 text-right">VE Target (RFI)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {bidMatrix.rows.map((row) => (
+                          <tr key={row.csiPackage} className="hover:bg-slate-50">
+                            <td className="py-2.5 px-2.5">
+                              <div className="font-black text-slate-900">
+                                {row.csiPackage} · {row.tradeTitle}
+                              </div>
+                              <div className="text-[11px] text-slate-500">
+                                Sheet: <code className="font-bold text-indigo-800">{row.blueprintSheet}</code> · Awarded:{" "}
+                                <strong className="text-emerald-800">{row.awardedVendor}</strong>
+                              </div>
+                              {row.scopeGapDetected && (
+                                <div className="mt-1 px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                                  ⚠️ {row.scopeGapDetected}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-2.5 text-right font-mono font-semibold text-slate-700">
+                              ${row.engineerGmpUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-2.5 px-2.5">
+                              <div className="font-mono font-bold text-emerald-800">
+                                ${row.subABid.amountUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[10px] text-slate-500">{row.subABid.vendor}</div>
+                            </td>
+                            <td className="py-2.5 px-2.5">
+                              <div className="font-mono font-semibold text-slate-800">
+                                ${row.subBBid.amountUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[10px] text-slate-500">{row.subBBid.note}</div>
+                            </td>
+                            <td className="py-2.5 px-2.5">
+                              <div className="font-mono font-semibold text-slate-800">
+                                ${row.subCBid.amountUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[10px] text-amber-800 font-semibold">{row.subCBid.note}</div>
+                            </td>
+                            <td className="py-2.5 px-2.5 text-right font-mono">
+                              <div className="font-black text-emerald-800">
+                                ${row.leveledAwardUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[10px] text-emerald-700 font-bold">
+                                {row.levelingSavingsUsd.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-2.5 text-right font-mono">
+                              <div className="font-black text-indigo-900">
+                                ${row.veFinalTargetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              </div>
+                              {row.veRfiDescription && (
+                                <div className="text-[10px] text-indigo-700">{row.veRfiDescription}</div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* COMMERCIAL CRM PIPELINE WITH LIVE STAGE MUTATION */}
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2127,16 +2541,15 @@ export default function TaycoMultiTenantPortalPage() {
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
-                      🤝 1. Commercial Bid Pipeline &amp; CSI-32 Estimates ($5.88M)
+                      🤝 1. Commercial CRM Bid Pipeline &amp; Live Stage Governance ($5.88M)
                     </h2>
                     <p className="text-xs text-slate-200">
-                      Connected to <Link href="/estimate" className="underline font-bold">/estimate</Link>, <Link href="/investor" className="underline font-bold">/investor</Link>, and Takeoff Pro (:8085).
+                      Connected to <Link href="/estimate" className="underline font-bold">/estimate</Link>, <Link href="/investor" className="underline font-bold">/investor</Link>, and Takeoff Pro (:8085). Change any opportunity stage live below.
                     </p>
                   </div>
 
-                  {/* Stage Filter Pills */}
                   <div className="flex flex-wrap gap-1.5">
-                    {["ALL", "Takeoff Synced", "Contract Awarded", "Bidding", "Due Diligence"].map((st) => (
+                    {["ALL", "Takeoff Synced", "Contract Awarded", "Bidding", "Due Diligence", "New Website Lead"].map((st) => (
                       <button
                         key={st}
                         type="button"
@@ -2155,7 +2568,12 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                {/* Quick Add Bid Form */}
+                {crmUpdateNotice && (
+                  <div className="relative z-10 mt-3 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-xs text-emerald-200 font-bold">
+                    {crmUpdateNotice}
+                  </div>
+                )}
+
                 <form onSubmit={handleCreateQuickLead} className="relative z-10 flex flex-wrap items-center gap-2 mt-4">
                   <input
                     placeholder="New Project / Bid Title..."
@@ -2193,18 +2611,17 @@ export default function TaycoMultiTenantPortalPage() {
                   </button>
                 </form>
 
-                {/* Opportunities Table */}
                 <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
                         <th className="py-3 px-3">Code</th>
                         <th className="py-3 px-3">Project / Opportunity</th>
-                        <th className="py-3 px-3">Client / Owner</th>
+                        <th className="py-3 px-3">Client / Contact</th>
                         <th className="py-3 px-3">Location</th>
                         <th className="py-3 px-3 text-right">Area (SqFt)</th>
                         <th className="py-3 px-3 text-right">GMP Estimate</th>
-                        <th className="py-3 px-3">Stage</th>
+                        <th className="py-3 px-3">Live Stage Control</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
@@ -2219,7 +2636,9 @@ export default function TaycoMultiTenantPortalPage() {
                           </td>
                           <td className="py-3 px-3">
                             <div className="font-semibold text-slate-800">{opp.clientName}</div>
-                            <div className="text-[11px] text-slate-500">{opp.contactEmail}</div>
+                            <div className="text-[11px] text-slate-500">
+                              {opp.contactEmail} · {opp.contactPhone}
+                            </div>
                           </td>
                           <td className="py-3 px-3 font-semibold text-slate-700">{opp.location}</td>
                           <td className="py-3 px-3 text-right font-mono">{opp.sqft.toLocaleString()}</td>
@@ -2227,9 +2646,18 @@ export default function TaycoMultiTenantPortalPage() {
                             ${opp.estimatedValueUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                           </td>
                           <td className="py-3 px-3">
-                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900">
-                              {opp.stage}
-                            </span>
+                            <select
+                              aria-label={`Stage for ${opp.title}`}
+                              value={opp.stage}
+                              onChange={(e) => handleUpdateOpportunityStage(opp.id, e.target.value)}
+                              className="rounded-lg border border-slate-300 bg-emerald-50 text-emerald-950 font-bold text-xs px-2.5 py-1.5 cursor-pointer"
+                            >
+                              {CRM_STAGE_OPTIONS.map((stageOpt) => (
+                                <option key={stageOpt} value={stageOpt}>
+                                  {stageOpt}
+                                </option>
+                              ))}
+                            </select>
                           </td>
                         </tr>
                       ))}
@@ -2238,7 +2666,7 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
               </div>
 
-              {/* Subcontractor Directory with Progressive Disclosure */}
+              {/* Subcontractor Directory */}
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2342,6 +2770,41 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 04: CONSTRUCTION PAYROLL, FIELD CREWS & DAVIS-BACON WH-347 ── */}
           {activeView === "VIEW_04_PAYROLL" && (
             <section id="panel-MOD_PAYROLL_CREW" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — APU LABOR &amp; CREW ENGINE FEED — rust_critical_apu_exact_cents (6,536.0 MH · 436.3 MH/Cabin)
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Synchronized across <strong>32 ARCH-D Sheets / 87 Sub-Views</strong>: <strong>{snapshot.payroll.totalManHours.toFixed(1)} Total Man-Hours</strong> (4,845.2 Direct Field MH · 436.3 MH/Cabin) · <strong>7 CSI Field Crews</strong> · <strong>${snapshot.payroll.totalLaborBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })} Loaded WH-347 Payroll</strong>.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2356,7 +2819,7 @@ export default function TaycoMultiTenantPortalPage() {
                       👷 2. Construction Payroll, Field Crews &amp; Davis-Bacon Form WH-347
                     </h2>
                     <p className="text-xs text-slate-200">
-                      6,536.0 Total Man-Hours · 103.1 Crew-Days · $32.63/hr Weighted Rate · $213,299.26 Total Labor Budget.
+                      {snapshot.payroll.totalManHours.toFixed(1)} Total Man-Hours · {snapshot.payroll.totalCrewDays} Crew-Days · ${snapshot.payroll.weightedAvgHourlyRateUsd}/hr Weighted Rate · ${snapshot.payroll.totalLaborBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })} Total Labor Budget.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -2386,6 +2849,58 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
+                {/* INTERACTIVE FIELD CREW HOURS LOGGER */}
+                <form
+                  onSubmit={handleLogCrewPayrollHours}
+                  className="relative z-10 mt-4 p-4 rounded-xl bg-[#09152B]/75 border border-[#C9A84C]/35 flex flex-col md:flex-row md:items-end justify-between gap-4"
+                >
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
+                      ⏱️ Log Real Field Crew Hours to WH-347
+                    </div>
+                    <p className="text-xs text-slate-200 mt-0.5">
+                      Record daily field man-hours to recalculate gross wages, FICA (7.65%), FUTA/SUTA, Workers&apos; Comp, and total WH-347 payroll live.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      aria-label="Select Field Crew"
+                      value={selectedCrewCode}
+                      onChange={(e) => setSelectedCrewCode(e.target.value)}
+                      className="rounded-lg px-3 py-2 text-xs font-bold text-slate-950 bg-white"
+                    >
+                      {snapshot.payroll.crews.map((c) => (
+                        <option key={c.crewCode} value={c.crewCode}>
+                          {c.crewCode} — {c.tradeClassification} ({c.totalManHours.toFixed(1)} MH)
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={crewHoursToAdd}
+                      onChange={(e) => setCrewHoursToAdd(e.target.value)}
+                      className="w-24 rounded-lg px-3 py-2 text-xs font-bold text-slate-950 bg-white"
+                      aria-label="Additional Man-Hours"
+                    />
+                    <button
+                      type="submit"
+                      id="btn-log-crew-hours"
+                      data-magnetic
+                      className="px-4 py-2 rounded-lg text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      + Log Field Hours to WH-347
+                    </button>
+                  </div>
+                </form>
+
+                {payrollLogNotice && (
+                  <div className="relative z-10 mt-3 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-xs text-emerald-200 font-bold">
+                    {payrollLogNotice}
+                  </div>
+                )}
+
                 {/* Visual Man-Hour Bars by Crew */}
                 <div className="relative z-10 space-y-3 mt-5">
                   {snapshot.payroll.crews.map((c) => {
@@ -2399,7 +2914,7 @@ export default function TaycoMultiTenantPortalPage() {
                           </span>
                           <span className="font-mono text-emerald-300 font-bold">
                             {c.totalManHours.toFixed(1)} MH · {c.workersCount} Workers · $
-                            {c.totalLoadedLaborUsd.toLocaleString()}
+                            {c.totalLoadedLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div className="w-full h-2.5 rounded-full bg-black/40 overflow-hidden">
@@ -2416,7 +2931,7 @@ export default function TaycoMultiTenantPortalPage() {
                   })}
                 </div>
 
-                {/* Full WH-347 Table (Progressive Disclosure) */}
+                {/* Full WH-347 Table */}
                 {isTableVisible("wh347_table") && (
                   <div className="relative z-10 overflow-x-auto mt-6 bg-white rounded-xl text-slate-900 p-2">
                     <table className="w-full text-left border-collapse text-xs sm:text-sm">
@@ -2462,9 +2977,46 @@ export default function TaycoMultiTenantPortalPage() {
             </section>
           )}
 
-          {/* ── VIEW 05: QUICKBOOKS ACCOUNTING SYNC, 8 POs & AIA G702/G703 SIMULATOR ── */}
+          {/* ── VIEW 05: QUICKBOOKS ACCOUNTING SYNC, 8 MATERIAL POs, 4 COs & AIA G702/G703 ── */}
           {activeView === "VIEW_05_QUICKBOOKS" && (
             <section id="panel-MOD_QUICKBOOKS_ERP" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — AIA G702/G703 &amp; PROCUREMENT FEED — rust_critical_aia_g702_audit_cents (0¢ Drift)
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Synchronized across <strong>32 ARCH-D Sheets / 87 Sub-Views</strong>: <strong>8 Material POs ($375,012.51)</strong> ·{" "}
+                      <strong>4 Change Orders (+$26,578.85 Net → $882,104.08 Revised Contract)</strong> ·{" "}
+                      <strong className="text-emerald-300">Pay App #3 Net Due $184,892.70 ($51,501.13 Retainage)</strong>.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2476,10 +3028,10 @@ export default function TaycoMultiTenantPortalPage() {
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
-                      📗 3. QuickBooks Accounting Sync, 8 Material POs &amp; Interactive AIA G702/G703 Simulator
+                      📗 3. QuickBooks Accounting Sync, 8 Material POs, 4 COs &amp; AIA G702/G703
                     </h2>
                     <p className="text-xs text-slate-200">
-                      Simulate progress billing draw certificates and export directly to QuickBooks Desktop (`.IIF`) or QuickBooks Online (`.QBO`).
+                      Simulate and commit progress billing draw certificates to QuickBooks Desktop (`.IIF`) or QuickBooks Online (`.QBO`).
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -2524,11 +3076,23 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                {/* Interactive AIA G702/G703 Progress Simulator */}
+                {/* Interactive AIA G702/G703 Progress Simulator + Commit Button */}
                 <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 p-4 rounded-xl bg-[#09152B]/65 border border-[#C9A84C]/25">
                   <div className="lg:col-span-5 space-y-4">
-                    <div className="text-xs font-black uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
-                      🎛️ AIA G702/G703 Pay Application Simulator
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-black uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
+                        🎛️ AIA G702/G703 Pay Application Simulator
+                      </div>
+                      <button
+                        type="button"
+                        id="btn-commit-g702-draw"
+                        data-magnetic
+                        onClick={handleCommitQuickBooksDraw}
+                        className="px-3 py-1.5 rounded-lg text-[11px] font-black text-slate-950 shadow"
+                        style={{ background: TAYCO_GOLD }}
+                      >
+                        💾 Commit Pay App Draw to QuickBooks Ledger
+                      </button>
                     </div>
                     <div>
                       <div className="flex justify-between text-xs mb-1">
@@ -2584,13 +3148,118 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
+                {aiaCommitNotice && (
+                  <div className="relative z-10 mt-3 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-xs text-emerald-200 font-bold">
+                    {aiaCommitNotice}
+                  </div>
+                )}
+
                 {showIifModal && (
                   <pre className="relative z-10 mt-4 p-4 rounded-xl bg-black/80 text-emerald-300 font-mono text-xs overflow-x-auto border border-emerald-500/30">
                     {snapshot.quickbooks.iifExportPreview}
                   </pre>
                 )}
 
-                <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                {/* 8 COMMITTED MATERIAL PURCHASE ORDERS (PO-001..PO-008) */}
+                <div className="relative z-10 mt-6">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <h3 className="text-base font-black text-white">
+                      📦 8 Committed Material Purchase Orders (PO-001..PO-008 · Total $375,012.51)
+                    </h3>
+                    <span className="text-xs font-bold text-amber-300">
+                      3 Critical Arctic Long-Lead Packages Flagged (6–8 Weeks)
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto bg-white rounded-xl text-slate-900 p-2">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[10px]">
+                          <th className="py-2.5 px-2.5">PO #</th>
+                          <th className="py-2.5 px-2.5">CSI &amp; Material Package</th>
+                          <th className="py-2.5 px-2.5">Vendor</th>
+                          <th className="py-2.5 px-2.5">Sheet</th>
+                          <th className="py-2.5 px-2.5">Lead Time</th>
+                          <th className="py-2.5 px-2.5 text-right">Committed Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {purchaseOrders.map((po) => (
+                          <tr key={po.poNumber} className="hover:bg-slate-50">
+                            <td className="py-2.5 px-2.5 font-mono font-black text-slate-900">{po.poNumber}</td>
+                            <td className="py-2.5 px-2.5">
+                              <span className="font-bold text-slate-900">{po.title}</span>{" "}
+                              <span className="text-[10px] text-slate-500">({po.csiDivision})</span>
+                            </td>
+                            <td className="py-2.5 px-2.5 text-slate-700 font-semibold">{po.vendorName}</td>
+                            <td className="py-2.5 px-2.5 font-mono text-indigo-800 font-bold">{po.blueprintSheet}</td>
+                            <td className="py-2.5 px-2.5">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                  po.isCriticalLongLead
+                                    ? "bg-red-100 text-red-900"
+                                    : "bg-emerald-100 text-emerald-900"
+                                }`}
+                              >
+                                {po.leadTimeBadge}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-2.5 text-right font-mono font-black text-slate-900">
+                              ${po.amountUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 4 APPROVED CHANGE ORDERS (CO-001..CO-004) */}
+                <div className="relative z-10 mt-6">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <h3 className="text-base font-black text-white">
+                      📝 4 Approved Change Orders (CO-001..CO-004 · Net +$26,578.85 → $882,104.08 Revised Contract)
+                    </h3>
+                    <span className="text-xs font-bold text-emerald-300">
+                      Reconciled with AIA G702 Line 2
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto bg-white rounded-xl text-slate-900 p-2">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[10px]">
+                          <th className="py-2.5 px-2.5">CO #</th>
+                          <th className="py-2.5 px-2.5">Change Order Scope</th>
+                          <th className="py-2.5 px-2.5">Engineering Justification</th>
+                          <th className="py-2.5 px-2.5">Sheet</th>
+                          <th className="py-2.5 px-2.5 text-right">Net Impact</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {changeOrders.map((co) => (
+                          <tr key={co.coNumber} className="hover:bg-slate-50">
+                            <td className="py-2.5 px-2.5 font-mono font-black text-slate-900">{co.coNumber}</td>
+                            <td className="py-2.5 px-2.5 font-bold text-slate-900">
+                              {co.title} <span className="text-[10px] text-slate-500">({co.csiDivision})</span>
+                            </td>
+                            <td className="py-2.5 px-2.5 text-slate-600">{co.reasonCode}</td>
+                            <td className="py-2.5 px-2.5 font-mono font-bold text-indigo-800">{co.blueprintSheet}</td>
+                            <td
+                              className={`py-2.5 px-2.5 text-right font-mono font-black ${
+                                co.amountUsd < 0 ? "text-emerald-700" : "text-amber-900"
+                              }`}
+                            >
+                              {co.amountUsd >= 0 ? "+" : "-"}$
+                              {Math.abs(co.amountUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* QuickBooks Chart of Accounts Mapping */}
+                <div className="relative z-10 overflow-x-auto mt-6 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -2629,9 +3298,46 @@ export default function TaycoMultiTenantPortalPage() {
             </section>
           )}
 
-          {/* ── VIEW 06: MULTI-STATE TAX ENGINE (9 STATES) & IRS 1099-NEC ── */}
+          {/* ── VIEW 06: MULTI-STATE TAX ENGINE, TRIBAL TERO 2.5% & IRS 1099-NEC ── */}
           {activeView === "VIEW_06_TAX" && (
             <section id="panel-MOD_TAX_COMPLIANCE" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — CSI-32 TAXABLE MATERIAL SEPARATION &amp; ND TERO FEED — rust_critical_regional_cost_index_cents
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Synchronized across <strong>32 ARCH-D Sheets / 87 Sub-Views</strong>: <strong>$375,012.51 Taxable Material Base</strong> ·{" "}
+                      <strong>$213,299.26 Exempt Field Labor (WH-347)</strong> ·{" "}
+                      <strong className="text-amber-300">MHA Nation Tribal TERO 2.5% Fee ($21,388.13) + North Dakota Material Tax ($24,375.81)</strong>.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2643,10 +3349,10 @@ export default function TaycoMultiTenantPortalPage() {
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
-                      🏛️ 4. Multi-State Tax Engine (WI · IL · IA · IN · MN · MI · MO · TX · ND) &amp; IRS 1099-NEC
+                      🏛️ 4. Multi-State Tax Engine (9 States), MHA Nation TERO 2.5% &amp; IRS 1099-NEC
                     </h2>
                     <p className="text-xs text-slate-200">
-                      Automatically separates Taxable Construction Materials ($375,012.51) from Exempt Field Labor ($213,299.26).
+                      Automatically separates Taxable Construction Materials ($375,012.51) from Exempt Field Labor ($213,299.26) and calculates Tribal TERO compliance.
                     </p>
                   </div>
 
@@ -2688,10 +3394,11 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+                {/* 5 KPI Cards including MHA Nation Tribal TERO Compliance Fee */}
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-5">
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                     <div className="text-xs font-bold text-slate-300">Taxable Materials (8 POs)</div>
-                    <div className="text-2xl font-black text-white mt-1">
+                    <div className="text-xl font-black text-white mt-1">
                       ${snapshot.taxCompliance.taxableMaterialsUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-[11px] text-slate-200 mt-1">
@@ -2702,7 +3409,7 @@ export default function TaycoMultiTenantPortalPage() {
 
                   <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-400/30">
                     <div className="text-xs font-bold text-emerald-300">Exempt Field Labor (WH-347)</div>
-                    <div className="text-2xl font-black text-white mt-1">
+                    <div className="text-xl font-black text-white mt-1">
                       ${snapshot.taxCompliance.exemptLaborUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-[11px] text-emerald-200 font-semibold mt-1">
@@ -2714,7 +3421,7 @@ export default function TaycoMultiTenantPortalPage() {
                     <div className="text-xs font-bold text-amber-300">
                       Estimated Sales &amp; Use Tax ({snapshot.taxCompliance.stateCode})
                     </div>
-                    <div id="tax-estimated-amount" className="text-2xl font-black text-amber-200 mt-1">
+                    <div id="tax-estimated-amount" className="text-xl font-black text-amber-200 mt-1">
                       ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-[11px] text-amber-100 mt-1">
@@ -2724,13 +3431,25 @@ export default function TaycoMultiTenantPortalPage() {
                     </div>
                   </div>
 
+                  <div className="p-4 rounded-xl bg-sky-500/15 border border-sky-400/40">
+                    <div className="text-xs font-bold text-sky-300">
+                      MHA Nation Tribal TERO (2.5%)
+                    </div>
+                    <div className="text-xl font-black text-sky-200 mt-1">
+                      $21,388.13
+                    </div>
+                    <div className="text-[11px] text-sky-100 mt-1">
+                      ND Material Tax ($24,375.81) + Fort Berthold TERO
+                    </div>
+                  </div>
+
                   <div className="p-4 rounded-xl bg-orange-500/15 border border-orange-400/30">
                     <div className="text-xs font-bold text-orange-300">Quarterly IRS Form 941 Deposit</div>
-                    <div className="text-2xl font-black text-white mt-1">
+                    <div className="text-xl font-black text-white mt-1">
                       ${snapshot.taxCompliance.form941QuarterlySummary.totalForm941DepositUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-[11px] text-slate-200 mt-1">
-                      Employer FICA + Federal Withholding ({snapshot.taxCompliance.form941QuarterlySummary.quarter})
+                      Employer FICA + Withholding ({snapshot.taxCompliance.form941QuarterlySummary.quarter})
                     </div>
                   </div>
                 </div>
@@ -2740,7 +3459,13 @@ export default function TaycoMultiTenantPortalPage() {
                   {snapshot.taxCompliance.constructionRule}
                 </div>
 
-                {/* 1099-NEC Table */}
+                {taxVerifyNotice && (
+                  <div className="relative z-10 mt-3 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-xs text-emerald-200 font-bold">
+                    {taxVerifyNotice}
+                  </div>
+                )}
+
+                {/* 1099-NEC Table with Live W-9 & COI Verification */}
                 <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
@@ -2751,41 +3476,72 @@ export default function TaycoMultiTenantPortalPage() {
                         <th className="py-2.5 px-3 text-right">YTD Payments</th>
                         <th className="py-2.5 px-3 text-center">W-9</th>
                         <th className="py-2.5 px-3 text-center">COI</th>
-                        <th className="py-2.5 px-3">1099-NEC E-File Status</th>
+                        <th className="py-2.5 px-3">1099-NEC E-File Status &amp; Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
-                      {snapshot.taxCompliance.vendors1099Nec.map((v) => (
-                        <tr key={v.id} className="hover:bg-slate-50">
-                          <td className="py-3 px-3 font-bold text-slate-900">{v.businessName}</td>
-                          <td className="py-3 px-3 font-semibold">{v.stateServed}</td>
-                          <td className="py-3 px-3 font-mono text-slate-600">{v.tinMasked}</td>
-                          <td className="py-3 px-3 text-right font-mono font-bold">
-                            ${v.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                              {v.w9Status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                              {v.coiStatus}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                                v.filingStatus === "READY_TO_EFILE_1099"
-                                  ? "bg-emerald-100 text-emerald-900"
-                                  : "bg-amber-100 text-amber-900"
-                              }`}
-                            >
-                              {v.filingStatus}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {snapshot.taxCompliance.vendors1099Nec.map((v) => {
+                        const needsVerification =
+                          v.w9Status !== "VERIFIED" || v.coiStatus !== "ACTIVE";
+                        return (
+                          <tr key={v.id} className="hover:bg-slate-50">
+                            <td className="py-3 px-3 font-bold text-slate-900">{v.businessName}</td>
+                            <td className="py-3 px-3 font-semibold">{v.stateServed}</td>
+                            <td className="py-3 px-3 font-mono text-slate-600">{v.tinMasked}</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold">
+                              ${v.ytdPaidUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-3 text-center">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                  v.w9Status === "VERIFIED"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-amber-100 text-amber-900"
+                                }`}
+                              >
+                                {v.w9Status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-center">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                  v.coiStatus === "ACTIVE"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-amber-100 text-amber-900"
+                                }`}
+                              >
+                                {v.coiStatus}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                    v.filingStatus === "READY_TO_EFILE_1099"
+                                      ? "bg-emerald-100 text-emerald-900"
+                                      : "bg-amber-100 text-amber-900"
+                                  }`}
+                                >
+                                  {v.filingStatus}
+                                </span>
+                                {needsVerification && (
+                                  <button
+                                    type="button"
+                                    data-magnetic
+                                    onClick={() =>
+                                      handleVerifyVendorCompliance(v.id, v.businessName)
+                                    }
+                                    className="px-2.5 py-1 rounded-lg text-[11px] font-black text-slate-950 shadow"
+                                    style={{ background: TAYCO_GOLD }}
+                                  >
+                                    ✅ Verify W-9 &amp; COI
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -2793,9 +3549,230 @@ export default function TaycoMultiTenantPortalPage() {
             </section>
           )}
 
+          {/* ── VIEW 08: EXECUTIVE INVESTOR PORTAL, LENDER DRAWS & 7-SECTION MASTER DOSSIER ── */}
+          {activeView === "VIEW_08_INVESTOR" && (
+            <section id="panel-MOD_INVESTOR_PORTAL" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — MASTER DOSSIER &amp; STOCHASTIC MONTE CARLO P80 FEED — 369 SHA-256 Line Items
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Synchronized across <strong>32 ARCH-D Sheets / 87 Sub-Views</strong>: <strong>DOSSIER-SON_OF_STAR-V28 (7 Certified Sections)</strong> ·{" "}
+                      <strong>$106,940.65 / cabin · $151.69 / sq.ft.</strong> ·{" "}
+                      <strong className="text-amber-300">99.4% Triple AI Consensus · 0 Double Counting</strong>.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* 7 CERTIFIED SECTIONS OF THE MASTER DOSSIER (DOSSIER-SON_OF_STAR-V28) */}
+              {dossier && (
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                        📊 CERTIFIED BANK &amp; REIT UNDERWRITING PACKAGE · {dossier.dossierId}
+                      </span>
+                      <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                        📊 5. Executive Investor Portal, Lender Draws &amp; 7-Section Master Dossier
+                      </h2>
+                      <p className="text-xs text-slate-200 mt-0.5">
+                        {dossier.projectTitle} · {dossier.location} · {dossier.cabinsCount} Cabins ({dossier.totalSqFt.toLocaleString()} Sq.Ft.)
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={() =>
+                        downloadFile(
+                          "TAYCO_DOSSIER_SON_OF_STAR_V28.json",
+                          JSON.stringify(dossier, null, 2),
+                          "application/json"
+                        )
+                      }
+                      className="px-4 py-2.5 rounded-xl text-xs font-black text-slate-950 shrink-0 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      ⬇️ Download Certified 7-Section Dossier (JSON)
+                    </button>
+                  </div>
+
+                  {/* 7 Dossier Cards Grid */}
+                  <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
+                    {dossier.sections.map((sec) => (
+                      <div
+                        key={sec.code}
+                        className="p-4 rounded-2xl bg-[#09152B]/80 border border-[#C9A84C]/30 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 text-[10px] font-mono font-bold text-amber-300">
+                            <span>
+                              SECTION 0{sec.sectionNumber} · {sec.code}
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-white/10 text-emerald-300">
+                              {sec.blueprintRef}
+                            </span>
+                          </div>
+                          <h3 className="text-base font-black text-white mt-1.5">
+                            {sec.sectionNumber}. {sec.title}
+                          </h3>
+                          <div className="text-xs font-bold text-amber-200 mt-1">
+                            {sec.headlineKpi}
+                          </div>
+                          <p className="text-xs text-slate-300 mt-1.5">{sec.summary}</p>
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
+                          {sec.metrics.map((m) => (
+                            <div
+                              key={m.label}
+                              className="flex items-center justify-between text-[11px] gap-2"
+                            >
+                              <span className="text-slate-300">{m.label}:</span>
+                              <strong className="font-mono text-white text-right">{m.value}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* PARETO TOP 5 BLUEPRINT HIGHLIGHTS */}
+                  <div className="relative z-10 mt-6 pt-6 border-t border-white/15">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                          📐 PARETO TOP 5 BLUEPRINT SHEETS (86.9% OF DIRECT CONSTRUCTION COST)
+                        </span>
+                        <h3 className="text-lg font-black text-white">
+                          Direct Sheet-to-Cost Traceability in Takeoff Pro (:8085)
+                        </h3>
+                      </div>
+                      <a
+                        href={snapshot.takeoffBridge.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        data-magnetic
+                        className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950"
+                        style={{ background: TAYCO_GOLD }}
+                      >
+                        🚀 Inspect All 32 Sheets in Takeoff Pro (:8085) ↗
+                      </a>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                      {dossier.paretoHighlights.map((ph) => (
+                        <div
+                          key={ph.sheetCode}
+                          className="p-3.5 rounded-xl bg-white/5 border border-[#C9A84C]/35 flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span
+                                className="px-2 py-0.5 rounded font-mono text-xs font-black text-slate-950"
+                                style={{ background: TAYCO_GOLD }}
+                              >
+                                {ph.sheetCode}
+                              </span>
+                              <span className="font-mono text-xs font-bold text-emerald-300">
+                                {ph.shareOfDirectCostPct}% Direct
+                              </span>
+                            </div>
+                            <div className="text-sm font-black text-white mt-2">
+                              {ph.sheetTitle}
+                            </div>
+                            <div className="text-base font-mono font-black text-amber-300 mt-1">
+                              ${ph.allocatedBudgetUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </div>
+                            <p className="text-[11px] text-slate-300 mt-1">{ph.engineeringSpec}</p>
+                          </div>
+                          <a
+                            href={ph.takeoffViewerUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-block text-[11px] font-extrabold text-amber-200 underline hover:text-white"
+                          >
+                            Open {ph.sheetCode} in :8085 ↗
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
           {/* ── VIEW 07: TAKEOFF PRO 2D/3D BRIDGE & MONTE CARLO P80 TELEMETRY ── */}
           {activeView === "VIEW_07_TAKEOFF" && (
             <section id="panel-MOD_TAKEOFF_PRO" className="space-y-6">
+              {/* EXPLICIT TAKEOFF PRO (:8085) CONNECTION BANNER */}
+              <div className="rounded-2xl p-4 sm:p-5 border-2 border-[#C9A84C]/60 bg-gradient-to-r from-[#09152B] via-[#1B3A6B] to-[#0F2040] shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      📐 CONNECTED TO TAKEOFF PRO v5.0 (:8085) — MULTI-ENDPOINT RUST ENGINE BRIDGE — 21 Deterministic Kernels
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-100">
+                      Live synchronization with <code>/suite-bridge-preview</code>, <code>/master-dossier</code>, and <code>/e2e-critical-audit</code> across{" "}
+                      <strong>32 ARCH-D Sheets / 87 Sub-Views</strong> (<strong>7/7 GO FOR BID</strong> · <strong>99.4% Triple AI Consensus</strong>).
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={handleSyncTakeoffPro}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black text-slate-950 shadow"
+                      style={{ background: TAYCO_GOLD }}
+                    >
+                      🔄 Sync Live from Takeoff Pro (:8085)
+                    </button>
+                    <a
+                      href={snapshot.takeoffBridge.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-magnetic
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[#C9A84C]/50 text-amber-100 hover:bg-white/10"
+                    >
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
                 onMouseMove={handleSurfaceMouseMove}
@@ -2816,7 +3793,7 @@ export default function TaycoMultiTenantPortalPage() {
                       2D/3D CAD Workstation, CSI-32 Budget &amp; Monte Carlo P80 Telemetry
                     </h2>
                     <p className="text-sm text-slate-200 mt-1 max-w-2xl">
-                      Connected directly to <code className="text-amber-300">{snapshot.takeoffBridge.url}</code>. All vector blueprint takeoffs drive purchase orders, certified WH-347 payroll, and AIA G702/G703 payment applications for TAYCO LLC.
+                      Connected directly to <code className="text-amber-300">{snapshot.takeoffBridge.url}</code>. All vector blueprint takeoffs drive purchase orders, certified WH-347 payroll, 3-Bid Leveling, and AIA G702/G703 payment applications for TAYCO LLC.
                     </p>
                   </div>
 
@@ -2829,7 +3806,7 @@ export default function TaycoMultiTenantPortalPage() {
                       className="px-5 py-3 rounded-xl font-black text-xs sm:text-sm text-slate-950 shadow-md"
                       style={{ background: TAYCO_GOLD }}
                     >
-                      🚀 Open CAD ↗ (:8085)
+                      🚀 Open Blueprint in Takeoff Pro (:8085) ↗
                     </a>
                     <button
                       type="button"
@@ -2837,7 +3814,7 @@ export default function TaycoMultiTenantPortalPage() {
                       onClick={handleSyncTakeoffPro}
                       className="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm border border-[#C9A84C]/40 hover:bg-white/10 text-white"
                     >
-                      🔄 Sync :8085 CSI-32 Data
+                      🔄 Sync Live from Takeoff Pro (:8085)
                     </button>
                   </div>
                 </div>

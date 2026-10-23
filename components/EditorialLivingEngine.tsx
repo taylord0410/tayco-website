@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 const SURFACE_SELECTOR =
-  '[data-response-kind="surface"], .umbra-bento-card, [data-living-card]';
+  '[data-response-kind="surface"], .tayco-living-card, [data-living-card]';
 const MAGNETIC_SELECTOR = "[data-magnetic]";
 
 export default function EditorialLivingEngine() {

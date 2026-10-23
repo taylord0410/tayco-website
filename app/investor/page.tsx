@@ -17,6 +17,7 @@ const WORK_TYPES = [
 const STATES_LIST = [
   "Wisconsin (WI)",
   "Illinois (IL)",
+  "North Dakota (ND)",
   "Iowa (IA)",
   "Indiana (IN)",
   "Minnesota (MN)",
@@ -26,7 +27,35 @@ const STATES_LIST = [
   "Other",
 ];
 
+const PORTFOLIO_METRICS = [
+  {
+    value: "$5,884,717.73",
+    title: "Active Multi-State Commercial & REIT Pipeline",
+    detail: "5 Active Turnkey Contracts Across WI · IL · ND · MN · TX",
+    badge: "MOD_CRM_BIDS",
+  },
+  {
+    value: "1.04 CPI / 0.98 SPI",
+    title: "Earned Value Performance",
+    detail: "Audited across 24-Week S-Curve in Takeoff Pro (:8085)",
+    badge: "EVM S-CURVE",
+  },
+  {
+    value: "$184,892.70",
+    title: "Current Net AIA G702 Pay App #3",
+    detail: "$51,501.13 10% Statutory Retainage in Escrow",
+    badge: "AIA G702/G703",
+  },
+  {
+    value: "7/7 GO FOR BID",
+    title: "Aerospace Pre-Flight Gate",
+    detail: "369 SHA-256 Audited BOQ Line Items in Takeoff Pro v5.0",
+    badge: "SHA-256 BOQ",
+  },
+];
+
 export default function InvestorPage() {
+  const [lightAngle, setLightAngle] = useState(38);
   const [form, setForm] = useState({
     fullName: "",
     company: "",
@@ -96,7 +125,7 @@ export default function InvestorPage() {
       >
         <div
           data-surface-mode="mineral"
-          className="umbra-bento-card p-10 max-w-md w-full text-center"
+          className="tayco-living-card editorial-ivory-card p-10 max-w-lg w-full text-center bg-white"
         >
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -121,16 +150,19 @@ export default function InvestorPage() {
           </h2>
           <p className="text-slate-600 mb-6 text-sm">
             We received your institutional portfolio profile and synced it with our{" "}
-            <strong>Commercial CRM &amp; REIT Turnkey Pipeline</strong>. Our executive team will reach out within{" "}
+            <strong>Commercial CRM &amp; REIT Turnkey Pipeline (MOD_INVESTOR_PORTAL)</strong>. Our executive capital team at{" "}
+            <strong>(414) 293-8400</strong> (Milwaukee HQ) &amp;{" "}
+            <strong>(701) 839-2277</strong> (North Dakota Operations) will reach out within{" "}
             <strong>24–48 hours</strong>.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/portal?invite=INV-INVESTOR-PORTFOLIO"
+              data-magnetic
               className="inline-block px-5 py-3 rounded-xl font-bold text-xs"
               style={{ background: "#C9A84C", color: "#070E1A" }}
             >
-              📊 Open REIT Investor Demo →
+              📊 Open Institutional Investor &amp; Lender Dossier in Command Center →
             </Link>
             <Link
               href="/"
@@ -147,83 +179,131 @@ export default function InvestorPage() {
 
   return (
     <div
-      className="min-h-screen pt-16"
+      className="min-h-screen pt-16 "
       style={{
-        background:
-          "radial-gradient(circle at 20% 0%, rgba(201,168,76,0.12), transparent 50%), linear-gradient(135deg,#070E1A 0%,#0F2040 55%,#142B54 100%)",
+        background: `radial-gradient(circle at ${20 + lightAngle * 0.5}% 0%, rgba(201,168,76,0.16), transparent 55%), linear-gradient(${125 + lightAngle * 0.35}deg,#070E1A 0%,#0F2040 55%,#142B54 100%)`,
       }}
     >
       {/* Header */}
-      <div className="max-w-3xl mx-auto px-4 pt-10 pb-6 text-center text-white">
-        <span className="umbra-eyebrow mb-4">
-          <span className="umbra-live-dot" />
-          Institutional Real Estate · REITs · Multi-State Asset Managers
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3 tracking-tight">
-          Partner With TAYCO LLC{" "}
-          <em className="umbra-serif-em">Turnkey Capital Programs</em>
-        </h1>
-        <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
-          We deliver cap-ex renovations, commercial tenant improvements, roofing, and certified restoration for institutional investors and property managers across 8 states.
-        </p>
-      </div>
-
-      {/* Live Command Center Connection Banner */}
-      <div className="max-w-3xl mx-auto px-4 mb-6">
-        <div
-          data-surface-mode="crystal"
-          className="umbra-bento-card p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4"
-        >
-          <div className="preview-orbits" aria-hidden="true" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="umbra-live-dot" />
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                LIVE COMMAND CENTER CONNECTION · COMMERCIAL CRM &amp; TAKEOFF PRO BRIDGE
-              </span>
-            </div>
-            <p className="text-xs text-slate-200 leading-relaxed">
-              Submitting this form registers your multi-property portfolio in{" "}
-              <strong className="text-white">Module 1 (Commercial CRM &amp; Bid Pipeline)</strong>, links unit-level scopes to{" "}
-              <strong className="text-amber-300">Takeoff Pro v5.0</strong>, and provisions{" "}
-              <strong className="text-emerald-300">Module 6 (REIT Portfolio IRR &amp; AIA G702/G703 Draw Tracking)</strong>.
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-6 text-white">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="text-center lg:text-left max-w-3xl">
+            <span className="tayco-eyebrow mb-4">
+              <span className="tayco-live-dot" />
+              Institutional Real Estate · REITs · 9-State Capital &amp; Asset Managers
+            </span>
+            <h1 className="text-3xl sm:text-5xl font-black mt-2 mb-3 tracking-tight">
+              Partner With TAYCO LLC{" "}
+              <em className="tayco-serif-em">Turnkey Capital Programs</em>
+            </h1>
+            <p className="text-slate-300 text-sm sm:text-base max-w-2xl">
+              We deliver ground-up commercial builds, cap-ex renovations, tenant improvements, roofing, and certified restoration for institutional investors, REIT boards, and lenders across all{" "}
+              <strong className="text-white">
+                9 States (WI · IL · IA · IN · MN · MI · MO · TX · ND)
+              </strong>
+              .
             </p>
           </div>
-          <Link
-            href="/portal?invite=INV-INVESTOR-PORTFOLIO"
-            className="relative z-10 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
-            style={{ background: "#C9A84C", color: "#070E1A" }}
-          >
-            📊 Launch REIT Board Demo →
-          </Link>
+
+          {/* Raking Light Control */}
+          <div className="shrink-0 flex flex-col items-center lg:items-end gap-2">
+            <div className="px-4 py-2.5 rounded-xl bg-slate-950/70 border border-amber-400/40 text-xs font-mono text-amber-200 flex items-center gap-3">
+              <span>☀️ Raking Light Angle: {lightAngle}°</span>
+              <input
+                id="investor-raking-light-slider"
+                type="range"
+                min={0}
+                max={90}
+                value={lightAngle}
+                onChange={(e) => setLightAngle(Number(e.target.value))}
+                className="w-28 accent-amber-400 cursor-pointer"
+                aria-label="Raking Light Angle"
+              />
+            </div>
+            <span className="text-[11px] font-mono text-slate-300">
+              📞 (414) 293-8400 Milwaukee HQ · 📞 (701) 839-2277 North Dakota Ops
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="max-w-3xl mx-auto px-4 mb-8">
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { n: "2,800+", l: "Projects Completed" },
-            { n: "8 States", l: "WI · IL · IA · IN · MN · MI · MO · TX" },
-            { n: "29 CSI", l: "Trades & Divisions" },
-          ].map((s) => (
+      {/* ── EXECUTIVE RIBBON OF REAL PORTFOLIO & TAKEOFF PRO (:8085) METRICS ── */}
+      <div className="max-w-6xl mx-auto px-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {PORTFOLIO_METRICS.map((m) => (
             <div
-              key={s.l}
+              key={m.value}
               data-surface-mode="crystal"
-              className="umbra-bento-card p-4 text-center"
+              className="tayco-living-card p-5 text-white flex flex-col justify-between"
             >
-              <p className="text-xl sm:text-2xl font-black font-mono" style={{ color: "#C9A84C" }}>
-                {s.n}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-amber-400/15 text-amber-300 border border-amber-400/35">
+                    {m.badge}
+                  </span>
+                  <span className="tayco-live-dot" />
+                </div>
+                <p
+                  className="text-xl sm:text-2xl font-black font-mono tracking-tight"
+                  style={{ color: "#C9A84C" }}
+                >
+                  {m.value}
+                </p>
+                <p className="text-xs font-bold text-white mt-1">{m.title}</p>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-2 pt-2 border-t border-white/10 font-mono">
+                {m.detail}
               </p>
-              <p className="text-[11px] text-slate-300 mt-1">{s.l}</p>
             </div>
           ))}
         </div>
       </div>
 
+      {/* ── DIRECT CONNECTION WITH MODULE 5 (MOD_INVESTOR_PORTAL) + TAKEOFF PRO MASTER DOSSIER ── */}
+      <div className="max-w-6xl mx-auto px-4 mb-8">
+        <div
+          data-surface-mode="crystal"
+          className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-6 text-white flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5"
+        >
+          <div className="preview-orbits" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="relative z-10 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="tayco-live-dot" />
+              <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
+                DIRECT MODULE 5 (MOD_INVESTOR_PORTAL) &amp; TAKEOFF PRO (:8085) MASTER DOSSIER CONNECTION
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Submitting this institutional profile registers your multi-property portfolio in{" "}
+              <strong className="text-white">Module 1 (MOD_CRM_BIDS)</strong>, links unit-level CSI-32 scopes to{" "}
+              <strong className="text-amber-300">Takeoff Pro v5.0 (:8085)</strong>, and provisions{" "}
+              <strong className="text-emerald-300">
+                Module 5 (MOD_INVESTOR_PORTAL — REIT Portfolio IRR, AIA G702/G703 Draw Schedules &amp; 14-Document Master Dossier)
+              </strong>
+              .
+            </p>
+          </div>
+          <Link
+            href="/portal?invite=INV-INVESTOR-PORTFOLIO"
+            data-magnetic
+            className="relative z-10 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
+            style={{ background: "#C9A84C", color: "#070E1A" }}
+          >
+            📊 Open Institutional Investor &amp; Lender Dossier in Command Center →
+          </Link>
+        </div>
+      </div>
+
       {/* Form */}
-      <div className="max-w-3xl mx-auto px-4 pb-16">
-        <div data-surface-mode="mineral" className="umbra-bento-card p-8">
+      <div className="max-w-4xl mx-auto px-4 pb-16">
+        <div
+          data-surface-mode="mineral"
+          className="tayco-living-card editorial-ivory-card p-8 bg-white"
+        >
           <div className="preview-orbits" aria-hidden="true" />
           <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-5">
             {/* Honeypot */}
@@ -252,7 +332,7 @@ export default function InvestorPage() {
                     value={form.fullName}
                     onChange={handleChange}
                     required
-                    placeholder="John Smith"
+                    placeholder="Victoria Sterling"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
@@ -264,7 +344,7 @@ export default function InvestorPage() {
                     name="company"
                     value={form.company}
                     onChange={handleChange}
-                    placeholder="Smith Capital Investments LLC"
+                    placeholder="Midwest Institutional Capital REIT"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
@@ -278,7 +358,7 @@ export default function InvestorPage() {
                     value={form.email}
                     onChange={handleChange}
                     required
-                    placeholder="john@smithcapital.com"
+                    placeholder="vsterling@midwestreit.com"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
@@ -292,7 +372,7 @@ export default function InvestorPage() {
                     value={form.phone}
                     onChange={handleChange}
                     required
-                    placeholder="(414) 000-0000"
+                    placeholder="(414) 293-8400"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
@@ -367,7 +447,7 @@ export default function InvestorPage() {
             {/* States */}
             <div>
               <label className="block text-sm font-semibold text-slate-800 mb-2">
-                States Where You Hold Assets
+                States Where You Hold Assets (All 9 TAYCO States Available)
               </label>
               <div className="flex flex-wrap gap-2">
                 {STATES_LIST.map((s) => (
@@ -440,7 +520,7 @@ export default function InvestorPage() {
                 value={form.notes}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Tell us about your portfolio, typical unit turn / cap-ex budget, draw schedule requirements, or target timelines..."
+                placeholder="Tell us about your portfolio, typical unit turn / cap-ex budget, AIA G702/G703 draw schedule requirements, or target timelines..."
                 className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 resize-none"
               />
             </div>
@@ -453,6 +533,7 @@ export default function InvestorPage() {
 
             <button
               type="submit"
+              data-magnetic
               disabled={status === "sending"}
               className="w-full py-4 rounded-xl font-black text-base transition-all disabled:opacity-60 cursor-pointer"
               style={{ background: "#C9A84C", color: "#070E1A" }}
@@ -463,7 +544,7 @@ export default function InvestorPage() {
             </button>
 
             <p className="text-center text-xs text-slate-500">
-              We respond within 24–48 hours. Directly integrated with TAYCO Commercial CRM &amp; REIT Portfolio Portal.
+              We respond within 24–48 hours. Directly integrated with TAYCO Module 5 (MOD_INVESTOR_PORTAL) &amp; Takeoff Pro v5.0 (:8085).
             </p>
           </form>
         </div>

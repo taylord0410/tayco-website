@@ -28,20 +28,26 @@ const TRADES = [
 ];
 
 const STATES = [
-  "Wisconsin",
-  "Illinois",
-  "Both (WI & IL)",
-  "Multi-State (WI · IL · IA · IN · MN · MI · MO · TX)",
+  "Wisconsin (WI)",
+  "Illinois (IL)",
+  "North Dakota (ND)",
+  "Minnesota (MN)",
+  "Texas (TX)",
+  "Iowa (IA)",
+  "Indiana (IN)",
+  "Michigan (MI)",
+  "Missouri (MO)",
+  "All 9 States — Multi-State Crew Mobilization",
 ];
 
 const COPY = {
-  badge: "29-Trade Subcontractor Registry & Compliance Onboarding",
+  badge: "29-Trade Subcontractor Registry & W-9 / COI Compliance Gate",
   title: "Vendor & Subcontractor Qualification Application",
   subtitle:
-    "Join TAYCO LLC's pre-qualified commercial and residential trade network across 8 states. All approved subcontractors are onboarded into our Davis-Bacon WH-347 & IRS 1099-NEC ERP Registry.",
+    "Join TAYCO LLC's pre-qualified commercial and residential trade network across all 9 states (WI · IL · IA · IN · MN · MI · MO · TX · ND). Approved subcontractors participate directly in Takeoff Pro v5.0 (:8085) 3-Bid Leveling matrices, Davis-Bacon WH-347 certified payroll, and automated IRS Form 1099-NEC reporting.",
   successTitle: "Subcontractor Application Registered!",
   successMsg:
-    "Thank you for applying. Your trade profile and compliance status have been logged in the TAYCO Command Center. Our procurement team will review your application within 2–3 business days.",
+    "Thank you for applying. Your trade profile and compliance status have been logged in the TAYCO Executive Command Center (/portal). Our procurement dispatch at (414) 293-8400 (Milwaukee HQ) and (701) 839-2277 (North Dakota Operations) will review your application within 2–3 business days.",
   successPending:
     "Your application was received. Your W-9 or COI documents are still marked as pending — you can upload them anytime by returning to this page or emailing general@taycoturnkey.com.",
   backHome: "Back to Home",
@@ -52,28 +58,28 @@ const COPY = {
   phone: "Direct Phone",
   email: "Accounting & Dispatch Email",
   licenseNumber: "State Contractor License Number",
-  licensePlaceholder: "State license # (if applicable)",
+  licenseHint: "State license # (if applicable)",
   yearsInBusiness: "Years in Business",
-  yearsPlaceholder: "e.g. 5",
+  yearsHint: "e.g. 5",
   crewSize: "Active Field Crew Size",
-  crewPlaceholder: "e.g. 6 trade technicians",
+  crewHint: "e.g. 6 trade technicians",
   insured: "Active General Liability Insurance?",
   insuredSelect: "Select...",
   insuredYes: "Yes — Active General Liability & Workers' Comp",
   insuredNo: "No",
-  sectionArea: "02 · Multi-State Service Territory",
-  statesServed: "States You Serve",
+  sectionArea: "02 · 9-State Service Territory",
+  statesServed: "States You Serve (WI · IL · ND · MN · TX · IA · IN · MI · MO)",
   statesSelect: "Select...",
   citiesServed: "Primary Metro Areas & Counties Covered",
-  citiesPlaceholder: "e.g. Milwaukee, Madison, Chicago Metro, Kenosha",
+  citiesHint: "e.g. Milwaukee, Madison, Chicago Metro, New Town ND, Minot ND",
   sectionTrades: "03 · CSI Trade Divisions & Services Offered",
   tradesNote: "(select all trades performed in-house)",
   tradesAlert: "Please select at least one trade.",
   sectionDocs: "04 · IRS 1099-NEC W-9 & COI Compliance Gate",
   docsIntro:
-    "Upload your signed IRS Form W-9 and Certificate of Insurance (COI). Subcontractors must pass the W-9 + COI Compliance Gate prior to dispatch or progress draw release.",
+    "Upload your signed IRS Form W-9 and Certificate of Insurance (COI). Subcontractors must pass the W-9 + COI Compliance Gate prior to Takeoff Pro bid award, dispatch, or AIA G702/G703 progress draw release.",
   w9Label: "IRS Form W-9 (TIN / EIN Verification)",
-  w9Desc: "Required for automated IRS 1099-NEC year-end reporting in TAYCO Tax Engine.",
+  w9Desc: "Required for automated IRS 1099-NEC year-end reporting in TAYCO Tax Engine (MOD_TAX_COMPLIANCE).",
   insuranceLabel: "Certificate of Insurance (COI — General Liability)",
   insuranceDesc:
     "Your insurance certificate must list TAYCO LLC as the Certificate Holder:",
@@ -89,12 +95,12 @@ const COPY = {
   skipDocs:
     "I do not have my W-9 / COI files ready right now — register my trade profile in PENDING compliance status",
   notes: "Additional Equipment, Bonding & Trade Certifications",
-  notesPlaceholder:
-    "List OSHA certifications, commercial bonding capacity, specialized heavy equipment, or union/prevailing-wage experience...",
+  notesHint:
+    "List OSHA certifications, commercial bonding capacity, specialized heavy equipment, or Davis-Bacon WH-347 prevailing-wage experience...",
   submit: "Submit Subcontractor Application & Sync to Registry →",
   submitting: "Registering Trade Profile in TAYCO ERP...",
   footer:
-    "All subcontractor applications are reviewed within 2–3 business days and synced with TAYCO Module 3 (Payroll/Subcontractors) & Module 5 (1099-NEC Tax Engine).",
+    "All subcontractor applications are reviewed within 2–3 business days and synced with TAYCO Module 1 (MOD_CRM_BIDS), Module 2 (MOD_PAYROLL_CREW WH-347) & Module 4 (MOD_TAX_COMPLIANCE 1099-NEC).",
   errorFallback: "Something went wrong. Please try again.",
   fileTypes: "PDF, JPG or PNG — max 10MB",
 };
@@ -271,65 +277,126 @@ export default function VendorApplicationPage() {
   }
 
   return (
-    <main className="min-h-screen pt-16" style={{ background: "#F7F6F1" }}>
+    <main className="min-h-screen pt-16 section-editorial-ivory" style={{ background: "#F7F6F1" }}>
       {/* Header */}
       <div
-        className="py-12 border-b"
+        className="py-12 border-b "
         style={{
           background: "linear-gradient(145deg, #070E1A 0%, #0F2040 60%, #142B54 100%)",
           borderColor: "rgba(201,168,76,0.35)",
         }}
       >
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <span className="umbra-eyebrow mb-3">
-            <span className="umbra-live-dot" />
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <span className="tayco-eyebrow mb-3">
+            <span className="tayco-live-dot" />
             {COPY.badge}
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-white mt-2 mb-3 tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-white mt-2 mb-3 tracking-tight">
             Vendor &amp; Subcontractor{" "}
-            <em className="umbra-serif-em">Qualification Portal</em>
+            <em className="tayco-serif-em">Qualification Portal</em>
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+          <p className="text-slate-300 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
             {COPY.subtitle}
           </p>
+          <div className="mt-4 inline-flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-amber-300">
+            <span>📞 Milwaukee HQ: (414) 293-8400</span>
+            <span>·</span>
+            <span>📞 North Dakota Operations: (701) 839-2277</span>
+          </div>
         </div>
       </div>
 
-      {/* Live Command Center Connection Banner */}
-      <div className="max-w-3xl mx-auto px-4 pt-8">
+      {/* ── TAKEOFF PRO (:8085) 3-BID LEVELING, WH-347 & 1099-NEC INTEGRATION PANEL ── */}
+      <div className="max-w-5xl mx-auto px-4 pt-8">
         <div
           data-surface-mode="crystal"
-          className="umbra-bento-card p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-6 text-white space-y-5"
         >
-          <div className="preview-orbits" aria-hidden="true" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="umbra-live-dot" />
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                LIVE COMMAND CENTER CONNECTION · 29-TRADE REGISTRY &amp; IRS 1099-NEC GATE
-              </span>
-            </div>
-            <p className="text-xs text-slate-200 leading-relaxed">
-              Applications submitted here feed directly into{" "}
-              <strong className="text-white">Module 3 (29-Trade Subcontractor Registry &amp; WH-347 Payroll)</strong> and{" "}
-              <strong className="text-amber-300">Module 5 (IRS 1099-NEC W-9/COI Compliance Gate)</strong> in the TAYCO Command Center.
-            </p>
+          <div className="preview-orbits" aria-hidden="true">
+            <i />
+            <i />
+            <i />
           </div>
-          <Link
-            href="/portal?invite=INV-CPA-FINANCE-TAX"
-            className="relative z-10 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
-            style={{ background: "#C9A84C", color: "#070E1A" }}
-          >
-            🏛️ Inspect Compliance Gate →
-          </Link>
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <span className="tayco-live-dot" />
+                <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
+                  TAKEOFF PRO (:8085) 3-BID LEVELING · DAVIS-BACON WH-347 · IRS FORM 1099-NEC GATE
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                Every pre-qualified subcontractor onboarded on this page participates directly in{" "}
+                <strong className="text-amber-300">
+                  Takeoff Pro (:8085) 3-Vendor Bid Leveling Matrices (MOD_CRM_BIDS)
+                </strong>{" "}
+                — calibrated on the{" "}
+                <strong className="text-white">
+                  $824,875.23 Leveled Bid on Son of a Star Phase 1
+                </strong>{" "}
+                — passes through the mandatory{" "}
+                <strong className="text-emerald-300">
+                  W-9 + COI Certificate Holder Gate (TAYCO LLC, 2829 West Wisconsin Ave, Milwaukee, WI 53208)
+                </strong>
+                , and is automatically synchronized into the Command Center (
+                <code className="text-amber-200">/portal</code>) for{" "}
+                <strong className="text-white">Davis-Bacon WH-347 (MOD_PAYROLL_CREW)</strong> and{" "}
+                <strong className="text-white">IRS Form 1099-NEC (MOD_TAX_COMPLIANCE)</strong>.
+              </p>
+            </div>
+            <Link
+              href="/portal?invite=INV-CPA-FINANCE-TAX"
+              data-magnetic
+              className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
+              style={{ background: "#C9A84C", color: "#070E1A" }}
+            >
+              🏛️ Inspect 3-Bid &amp; Compliance Gate →
+            </Link>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-white/10">
+            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-amber-400/30">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-amber-300 font-bold">
+                MOD_CRM_BIDS · 3-BID LEVELING
+              </div>
+              <div className="text-base font-black font-mono text-white mt-0.5">
+                $824,875.23 Leveled Bid
+              </div>
+              <p className="text-[11px] text-slate-300 mt-1">
+                Son of a Star 3-Vendor CSI-32 matrix inside Takeoff Pro (:8085)
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-sky-400/30">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-sky-300 font-bold">
+                MOD_PAYROLL_CREW · WH-347
+              </div>
+              <div className="text-base font-black font-mono text-white mt-0.5">
+                $32.63/hr Loaded Rate
+              </div>
+              <p className="text-[11px] text-slate-300 mt-1">
+                U.S. DOL Davis-Bacon WH-347 weekly certified payroll &amp; fringe audit
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-emerald-400/30">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 font-bold">
+                MOD_TAX_COMPLIANCE · 1099-NEC
+              </div>
+              <div className="text-base font-black font-mono text-white mt-0.5">
+                W-9 + COI Verified Gate
+              </div>
+              <p className="text-[11px] text-slate-300 mt-1">
+                TAYCO LLC, 2829 West Wisconsin Ave, Milwaukee, WI 53208 Certificate Holder
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {status === "success" ? (
           <div
             data-surface-mode="mineral"
-            className="umbra-bento-card text-center py-14 px-6"
+            className="tayco-living-card editorial-ivory-card text-center py-14 px-6 bg-white"
           >
             <div className="text-6xl mb-4">✅</div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#0F2040" }}>
@@ -357,10 +424,11 @@ export default function VendorApplicationPage() {
             <div className="flex flex-wrap justify-center gap-3">
               <Link
                 href="/portal?invite=INV-CPA-FINANCE-TAX"
+                data-magnetic
                 className="font-bold px-6 py-3 rounded-xl text-xs"
                 style={{ background: "#0F2040", color: "#C9A84C" }}
               >
-                🏛️ View Subcontractor &amp; 1099-NEC Registry →
+                🏛️ View Subcontractor &amp; 1099-NEC Registry in Command Center →
               </Link>
               <Link
                 href="/"
@@ -375,7 +443,7 @@ export default function VendorApplicationPage() {
           <form
             onSubmit={handleSubmit}
             data-surface-mode="mineral"
-            className="umbra-bento-card p-8 space-y-6"
+            className="tayco-living-card editorial-ivory-card p-8 space-y-6 bg-white"
           >
             <div className="preview-orbits" aria-hidden="true" />
             <div className="relative z-10 space-y-6">
@@ -401,7 +469,10 @@ export default function VendorApplicationPage() {
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.businessName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -415,7 +486,10 @@ export default function VendorApplicationPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.contactName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -423,7 +497,7 @@ export default function VendorApplicationPage() {
                         value={form.contactName}
                         onChange={handleChange}
                         required
-                        placeholder="John Smith"
+                        placeholder="Robert Kowalski"
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
@@ -431,7 +505,10 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.phone} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -439,13 +516,16 @@ export default function VendorApplicationPage() {
                         value={form.phone}
                         onChange={handleChange}
                         required
-                        placeholder="(414) 000-0000"
+                        placeholder="(414) 293-8400"
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.email} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -462,20 +542,26 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.licenseNumber}
                       </label>
                       <input
                         name="licenseNumber"
                         value={form.licenseNumber}
                         onChange={handleChange}
-                        placeholder={COPY.licensePlaceholder}
+                        placeholder={COPY.licenseHint}
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.yearsInBusiness} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -483,7 +569,7 @@ export default function VendorApplicationPage() {
                         value={form.yearsInBusiness}
                         onChange={handleChange}
                         required
-                        placeholder={COPY.yearsPlaceholder}
+                        placeholder={COPY.yearsHint}
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
@@ -491,7 +577,10 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.crewSize} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
@@ -499,13 +588,16 @@ export default function VendorApplicationPage() {
                         value={form.crewSize}
                         onChange={handleChange}
                         required
-                        placeholder={COPY.crewPlaceholder}
+                        placeholder={COPY.crewHint}
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                      <label
+                        className="block text-sm font-semibold mb-1"
+                        style={{ color: "#0F2040" }}
+                      >
                         {COPY.insured} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <select
@@ -535,7 +627,10 @@ export default function VendorApplicationPage() {
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                    <label
+                      className="block text-sm font-semibold mb-1"
+                      style={{ color: "#0F2040" }}
+                    >
                       {COPY.statesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <select
@@ -555,7 +650,10 @@ export default function VendorApplicationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                    <label
+                      className="block text-sm font-semibold mb-1"
+                      style={{ color: "#0F2040" }}
+                    >
                       {COPY.citiesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <input
@@ -563,7 +661,7 @@ export default function VendorApplicationPage() {
                       value={form.citiesServed}
                       onChange={handleChange}
                       required
-                      placeholder={COPY.citiesPlaceholder}
+                      placeholder={COPY.citiesHint}
                       className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                       style={{ borderColor: "#E2E8F0" }}
                     />
@@ -664,7 +762,10 @@ export default function VendorApplicationPage() {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-semibold mb-1" style={{ color: "#0F2040" }}>
+                <label
+                  className="block text-sm font-semibold mb-1"
+                  style={{ color: "#0F2040" }}
+                >
                   {COPY.notes}
                 </label>
                 <textarea
@@ -672,7 +773,7 @@ export default function VendorApplicationPage() {
                   value={form.notes}
                   onChange={handleChange}
                   rows={3}
-                  placeholder={COPY.notesPlaceholder}
+                  placeholder={COPY.notesHint}
                   className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none resize-none"
                   style={{ borderColor: "#E2E8F0" }}
                 />
@@ -686,6 +787,7 @@ export default function VendorApplicationPage() {
 
               <button
                 type="submit"
+                data-magnetic
                 disabled={status === "sending"}
                 className="w-full font-black py-3.5 rounded-xl text-base transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
                 style={{ background: "#C9A84C", color: "#070E1A" }}

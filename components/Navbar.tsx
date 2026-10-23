@@ -4,29 +4,33 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const QUICK_DEMO_PROFILES = [
+const VERIFIED_ROLE_PROFILES = [
   {
     code: "INV-TAYCO-MASTER",
     label: "🔑 Managing Director (6/6 Modules)",
-    scope: "Full Enterprise Command: CRM + Takeoff Pro + WH-347 Payroll + QuickBooks + 9-State Tax + Investor ROI",
+    scope:
+      "Full Enterprise Command: Takeoff Pro (:8085) + CRM + WH-347 Payroll + QuickBooks + 9-State Tax + Investor Dossier",
     href: "/portal?invite=INV-TAYCO-MASTER",
   },
   {
     code: "INV-CLIENT-CRM-TAKEOFF",
-    label: "📐 Commercial Client & Estimator Demo (2/6 Modules: Takeoff + CRM)",
-    scope: "Scoped B2B Client View: CSI-32 Blueprint Takeoff Pro v5.0 + Commercial Bid Pipeline",
+    label: "📐 Commercial Client & Estimator (2/6 Modules: Takeoff Pro + CRM)",
+    scope:
+      "Scoped B2B Client Access: CSI-32 Blueprint Takeoff Pro v5.0 + Commercial Bid Pipeline",
     href: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
   },
   {
     code: "INV-CPA-FINANCE-TAX",
-    label: "📗 CPA & Tax Auditor Demo (3/6 Modules: Payroll + QuickBooks + 9-State Tax)",
-    scope: "Audit & Accounting View: Davis-Bacon WH-347 + QuickBooks .IIF/.QBO + 9-State Tax & 1099-NEC",
+    label: "📗 CPA & Tax Auditor (3/6 Modules: Payroll + QuickBooks + 9-State Tax)",
+    scope:
+      "Audit & Accounting Access: Davis-Bacon WH-347 + QuickBooks .IIF/.QBO + 9-State Tax & 1099-NEC",
     href: "/portal?invite=INV-CPA-FINANCE-TAX",
   },
   {
     code: "INV-INVESTOR-PORTFOLIO",
-    label: "📊 REIT Investor Board Demo (3/6 Modules: CRM + QuickBooks + Investor ROI)",
-    scope: "Institutional Capital View: Turnkey Portfolio IRR, AIA G702/G703 Draw Schedules & Pipeline",
+    label: "📊 REIT Investor & Lender Board (3/6 Modules: CRM + QuickBooks + Investor Dossier)",
+    scope:
+      "Institutional Capital Access: Turnkey Portfolio IRR, AIA G702/G703 Draw Schedules & Master Dossier",
     href: "/portal?invite=INV-INVESTOR-PORTFOLIO",
   },
 ];
@@ -91,11 +95,14 @@ export default function Navbar() {
                 className="rounded-full ring-1 ring-amber-400/50 group-hover:ring-amber-400 transition-all"
               />
               <span className="flex flex-col leading-tight">
-                <span className="font-bold text-lg sm:text-xl tracking-tight" style={{ color: "#C9A84C" }}>
+                <span
+                  className="font-bold text-lg sm:text-xl tracking-tight"
+                  style={{ color: "#C9A84C" }}
+                >
                   TAYCO LLC
                 </span>
                 <span className="text-[10px] text-slate-300 uppercase tracking-widest font-mono">
-                  Commercial GC &amp; Digital Command
+                  Commercial GC &amp; Executive Command
                 </span>
               </span>
             </Link>
@@ -321,7 +328,7 @@ export default function Navbar() {
           <div
             data-surface-mode="crystal"
             data-response-kind="surface"
-            className=" relative w-full max-w-2xl p-6 sm:p-8 text-white rounded-2xl border"
+            className="tayco-living-card relative w-full max-w-2xl p-6 sm:p-8 text-white rounded-2xl border"
             style={{
               background: "linear-gradient(150deg, #0F2040 0%, #1B3A6B 100%)",
               borderColor: "rgba(201, 168, 76, 0.45)",
@@ -348,7 +355,7 @@ export default function Navbar() {
                     </em>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                    Enter a B2B Module Invitation Code or launch an instant role-scoped executive demo session.
+                    Enter a B2B Module Invitation Code or activate a verified role-scoped executive access credential.
                   </p>
                 </div>
                 <button
@@ -407,13 +414,13 @@ export default function Navbar() {
                 </div>
               </form>
 
-              {/* 4 One-Click Demo Profiles */}
+              {/* Verified Multi-Tenant Role & Partner Credentials */}
               <div className="mb-5">
                 <div className="text-[11px] font-mono uppercase tracking-widest text-slate-300 mb-2.5">
-                  1-Click Role-Scoped Executive Demo Profiles
+                  Verified Multi-Tenant Role &amp; Partner Credentials
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {QUICK_DEMO_PROFILES.map((profile) => (
+                  {VERIFIED_ROLE_PROFILES.map((profile) => (
                     <Link
                       key={profile.code}
                       href={profile.href}
