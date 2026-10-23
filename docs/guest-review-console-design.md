@@ -15,7 +15,7 @@
 6. Documentos no cargados o sin fuente comprobada se muestran pendientes. Un contador, un hash o una respuesta de health no acredita entrega de un plano.
 7. No se inventan ingresos, costos, utilidad, aceptación de propuestas, fechas o seguros para poblar pantallas.
 8. La auditoría de accesos del servidor es distinta de la analítica de interacción enviada por el navegador. Ninguna mide intenciones ni garantiza observar toda acción física de una persona.
-9. Se muestran todos los menús, pero gestión de cuentas/invitaciones y mutaciones del ERP permanecen reservadas al administrador. El invitado conserva solo las funciones de su propia cuenta permitidas por el flujo de revisión.
+9. Se muestran todos los menús, pero el invitado no puede gestionar cuentas/invitaciones ni mutar el ERP. Los permisos propios de admin, staff, client y vendor permanecen sin cambios. El invitado conserva solo las funciones de su propia cuenta permitidas por el flujo de revisión.
 10. El contenido ya entregado no puede retirarse del dispositivo. Expirar/revocar impide nuevas respuestas y corta transferencias futuras; no promete borrar una copia descargada.
 
 ## 2. Mapa completo del recorrido
@@ -170,6 +170,8 @@ sequenceDiagram
 ```
 
 - Gate común para /portal RSC, /api/guest-workspace, /api/guest-summary, visor RSC, gateway GET/HEAD/Range/304/206 y descargas directas.
+- Precedencia de rechazo: primero autenticación. Sesión ausente, expirada o revocada devuelve401 con reasonCode genérico de sesión y sin revelar datos del grant. Con sesión válida, revisión ausente/vencida/revocada devuelve403 con review_required / review_expired / review_revoked según el grant vinculado. Si ambos vencen simultáneamente gana401; tras reautenticar no se crea otra sesión para un grant vencido y el intento termina403 review_expired. La interfaz muestra acceso finalizado en ambos casos, sin bucle automático de login.
+- Default al cruzar mes UTC: si no se pide período ni sección, una revisión aún vigente abre summary del detailPeriod fijado en el grant, que ahora solo permite totales históricos. Si se pide una sección de detalle, se conserva el período del grant y devuelve403 Month closed; nunca se cambia implícitamente al nuevo mes. Un período explícito del mes nuevo queda403 Not authorized porque no coincide con el grant. Sin grant vigente no se sirve tampoco ese resumen.
 - Revalidar después de la espera al proveedor, antes de cabeceras/JSON/HEAD y antes/después de cada lectura de stream. Cancelar upstream si vence o se revoca.
 - Firmas documentales breves vinculadas a sesión, grant, recurso y versión; vencimiento no mayor a min(now+TTL breve, grant.expiresAt). El recurso vuelve a consultar concesión y publicación fresca; la firma sola no basta.
 - No-store privado, noindex y filtrado de recursos hermanos. Ninguna credencial del navegador se reenvía al proveedor privado.
