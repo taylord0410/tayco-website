@@ -4,7 +4,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
 
-export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor';
+export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
 export interface Actor { id: string; email: string; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string }
 type UserRow = { id: string; email: string; password_hash: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; disabled: number };
 type InviteRow = { id: string; token_hash: string; email: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; expires_at: number; revoked_at: number | null; accepted_at: number | null };
@@ -15,21 +15,61 @@ export const SESSION_TTL_SECONDS = 8 * 60 * 60;
 const passwordKey = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => scrypt(password, salt, 64, { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 }, (error, key) => error ? reject(error) : resolve(key)));
 const digest = (s: string) => createHash('sha256').update(s).digest('hex');
 
+const roleConstraint = /CHECK\s*\(\s*role\s+IN\s*\(([^)]*)\)\s*\)/i;
+function userSchema(db: DatabaseSync) { return (db.prepare("SELECT sql FROM sqlite_schema WHERE type='table' AND name='auth_users'").get() as { sql: string }).sql; }
+function migrateGuestRole(db: DatabaseSync) {
+  const needsMigration = (sql: string) => {
+    const roles = sql.match(roleConstraint)?.[1];
+    if (!roles) throw new Error('The account role constraint is unavailable; no account migration was applied.');
+    return !/['"]guest['"]/i.test(roles);
+  };
+  if (!needsMigration(userSchema(db))) return;
+  // SQLite requires FK enforcement to be suspended before opening the rebuild transaction.
+  // Keep the original table name for child references; never rename the old parent table.
+  db.exec('PRAGMA foreign_keys=OFF');
+  let active = false;
+  try {
+    db.exec('BEGIN IMMEDIATE'); active = true;
+    const sql = userSchema(db);
+    // Another connection may have completed the migration while this one waited for the lock.
+    if (needsMigration(sql)) {
+      const dependents = db.prepare("SELECT sql FROM sqlite_schema WHERE tbl_name='auth_users' AND type IN ('index','trigger') AND sql IS NOT NULL").all() as { sql: string }[];
+      const expanded = sql.replace(roleConstraint, (_match, roles: string) => `CHECK(role IN (${roles},'guest'))`);
+      db.exec(`CREATE TABLE auth_users_guest_migration${expanded.slice(expanded.indexOf('('))}`);
+      db.exec('INSERT INTO auth_users_guest_migration SELECT * FROM auth_users; DROP TABLE auth_users; ALTER TABLE auth_users_guest_migration RENAME TO auth_users');
+      for (const dependent of dependents) db.exec(dependent.sql);
+      if (db.prepare('PRAGMA foreign_key_check').all().length) throw new Error('Account migration failed its foreign-key check; the previous accounts were restored.');
+    }
+    db.exec('COMMIT'); active = false;
+  } catch (error) {
+    if (active) db.exec('ROLLBACK');
+    throw error;
+  } finally { db.exec('PRAGMA foreign_keys=ON'); }
+}
 function database() {
   const filename = process.env.TAYCO_AUTH_DB_PATH || path.join(process.cwd(), '.data', 'tayco-auth.sqlite');
   mkdirSync(path.dirname(filename), { recursive: true, mode: 0o700 });
   const db = new DatabaseSync(filename);
-  db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;
-    CREATE TABLE IF NOT EXISTS auth_users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','staff','client','vendor')),tenant_id TEXT NOT NULL,project_ids TEXT NOT NULL,vendor_id TEXT,disabled INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS auth_sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES auth_users(id),expires_at INTEGER NOT NULL,created_at INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS auth_invites(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,email TEXT NOT NULL,role TEXT NOT NULL,tenant_id TEXT NOT NULL,project_ids TEXT NOT NULL,vendor_id TEXT,expires_at INTEGER NOT NULL,revoked_at INTEGER,accepted_at INTEGER,created_by TEXT NOT NULL,created_at INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS auth_rate_limits(bucket TEXT PRIMARY KEY,window_start INTEGER NOT NULL,hits INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS auth_audit(id TEXT PRIMARY KEY,actor_id TEXT,event TEXT NOT NULL,subject_id TEXT,created_at INTEGER NOT NULL);`);
-  return db;
+  try {
+    db.exec(`PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
+      CREATE TABLE IF NOT EXISTS auth_users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','staff','client','vendor','guest')),tenant_id TEXT NOT NULL,project_ids TEXT NOT NULL,vendor_id TEXT,disabled INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS auth_sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES auth_users(id),expires_at INTEGER NOT NULL,created_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS auth_invites(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,email TEXT NOT NULL,role TEXT NOT NULL,tenant_id TEXT NOT NULL,project_ids TEXT NOT NULL,vendor_id TEXT,expires_at INTEGER NOT NULL,revoked_at INTEGER,accepted_at INTEGER,created_by TEXT NOT NULL,created_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS auth_rate_limits(bucket TEXT PRIMARY KEY,window_start INTEGER NOT NULL,hits INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS auth_audit(id TEXT PRIMARY KEY,actor_id TEXT,event TEXT NOT NULL,subject_id TEXT,created_at INTEGER NOT NULL);`);
+    migrateGuestRole(db);
+    return db;
+  } catch (error) { db.close(); throw error; }
 }
 function withDb<T>(fn: (db: DatabaseSync) => T): T { const db = database(); try { return fn(db); } finally { db.close(); } }
 function audit(db: DatabaseSync, actor: string | null, event: string, subject: string | null = null) { db.prepare('INSERT INTO auth_audit VALUES(?,?,?,?,?)').run(randomUUID(), actor, event, subject, Date.now()); }
-function actorOf(user: UserRow): Actor { return { id: user.id, email: user.email, role: user.role, tenantId: user.tenant_id, projectIds: JSON.parse(user.project_ids), ...(user.vendor_id ? { vendorId: user.vendor_id } : {}) }; }
+function actorOf(user: UserRow): Actor {
+  try {
+    const actor: Actor = { id: user.id, email: user.email, role: user.role, tenantId: user.tenant_id, projectIds: JSON.parse(user.project_ids), ...(user.vendor_id !== null ? { vendorId: user.vendor_id } : {}) };
+    validateScope(actor);
+    return actor;
+  } catch { throw new AuthError('Account access is invalid. Please contact TAYCO.', 403); }
+}
 function accessVersion(user: UserRow) { return digest(JSON.stringify([user.role, user.project_ids, user.vendor_id, user.disabled])); }
 function secret() { const s = process.env.TAYCO_SESSION_SECRET; if (!s || s.length < 32) throw new AuthError('Account access is not configured. Please contact TAYCO.', 503); return s; }
 export function normalizeEmail(value: unknown) { if (typeof value !== 'string' || value.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) throw new AuthError('Enter a valid email address.', 400); return value.trim().toLowerCase(); }
@@ -41,7 +81,7 @@ export function assertSameOrigin(request: Request) {
   if (!origin || origin !== expected || request.headers.get('sec-fetch-site') === 'cross-site') throw new AuthError('Please reload this page and try again.', 403);
 }
 export function requireRole(actor: Actor, roles: AuthRole[]) { if (!roles.includes(actor.role)) throw new AuthError('You do not have permission to perform this action.', 403); }
-export function requireProject(actor: Actor, projectId: string, tenantId: string) { if (actor.tenantId !== tenantId || (!['admin', 'staff'].includes(actor.role) && !actor.projectIds.includes(projectId))) throw new AuthError('You do not have access to this project.', 403); }
+export function requireProject(actor: Actor, projectId: string, tenantId: string) { if (actor.role === 'guest' || actor.tenantId !== tenantId || (!['admin', 'staff'].includes(actor.role) && !actor.projectIds.includes(projectId))) throw new AuthError('You do not have access to this project.', 403); }
 export function canAccessProject(actor: Actor, projectId: string, tenantId: string) { try { requireProject(actor, projectId, tenantId); return true; } catch { return false; } }
 function rateLimit(bucket: string, max: number, windowMs = 15 * 60_000) {
   withDb(db => { const now = Date.now(); db.exec('BEGIN IMMEDIATE'); try { db.prepare('DELETE FROM auth_rate_limits WHERE window_start < ?').run(now - windowMs); const row = db.prepare('SELECT hits FROM auth_rate_limits WHERE bucket=?').get(bucket) as { hits: number } | undefined; if (row && row.hits >= max) throw new AuthError('Too many attempts. Please try again in 15 minutes.', 429); db.prepare('INSERT INTO auth_rate_limits VALUES(?,?,1) ON CONFLICT(bucket) DO UPDATE SET hits=hits+1').run(bucket, now); db.exec('COMMIT'); } catch (error) { db.exec('ROLLBACK'); throw error; } });
@@ -77,8 +117,9 @@ export async function signOut(request: Request) { const token = await sessionTok
 export function sessionCookie(value: string, clear = false) { return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${clear ? 0 : SESSION_TTL_SECONDS}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
 
 function validateScope(scope: { role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string }) {
-  if (!['admin','staff','client','vendor'].includes(scope.role) || !/^[a-zA-Z0-9_-]{1,100}$/.test(scope.tenantId)) throw new AuthError('Choose a valid role and company.', 400);
+  if (!['admin','staff','client','vendor','guest'].includes(scope.role) || !/^[a-zA-Z0-9_-]{1,100}$/.test(scope.tenantId)) throw new AuthError('Choose a valid role and company.', 400);
   if (!Array.isArray(scope.projectIds) || scope.projectIds.length > 100 || scope.projectIds.some(id => typeof id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(id))) throw new AuthError('Choose valid project assignments.', 400);
+  if (scope.role === 'guest' && (scope.projectIds.length !== 0 || scope.vendorId !== undefined)) throw new AuthError('Guest accounts cannot have project or supplier assignments.', 400);
   if (scope.role === 'vendor' && (!scope.vendorId || !/^[a-zA-Z0-9_-]{1,100}$/.test(scope.vendorId))) throw new AuthError('Assign a supplier record to this account.', 400);
   if (scope.role !== 'vendor' && scope.vendorId) throw new AuthError('Supplier assignments require the supplier role.', 400);
   if (scope.vendorId && !/^[a-zA-Z0-9_-]{1,100}$/.test(scope.vendorId)) throw new AuthError('Invalid supplier record.', 400);
@@ -155,7 +196,7 @@ export function revokeInvitation(actor: Actor, id: string) { requireRole(actor, 
 export async function acceptInvitation(token: unknown, emailInput: unknown, password: unknown) {
   secret(); rateLimit('invite:global', 60); if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(token)) throw new AuthError('This invitation is invalid or no longer available.', 400);
   const email = normalizeEmail(emailInput); validatePassword(password); const hash = await hashPassword(password); const now = Date.now();
-  const id = withDb(db => { db.exec('BEGIN IMMEDIATE'); try { const invite = db.prepare('SELECT * FROM auth_invites WHERE token_hash=?').get(digest(token)) as InviteRow | undefined; if (!invite || invite.email !== email || invite.revoked_at || invite.accepted_at || invite.expires_at <= now) throw new AuthError('This invitation is invalid or no longer available.', 400); if (db.prepare('SELECT id FROM auth_users WHERE email=?').get(email)) throw new AuthError('An account already exists. Sign in or contact TAYCO for help.', 409); const userId = randomUUID(); db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(userId, email, hash, invite.role, invite.tenant_id, invite.project_ids, invite.vendor_id, now); db.prepare('UPDATE auth_invites SET accepted_at=? WHERE id=?').run(now, invite.id); audit(db, userId, 'invitation.accepted', invite.id); db.exec('COMMIT'); return userId; } catch (e) { db.exec('ROLLBACK'); throw e; } });
+  const id = withDb(db => { db.exec('BEGIN IMMEDIATE'); try { const invite = db.prepare('SELECT * FROM auth_invites WHERE token_hash=?').get(digest(token)) as InviteRow | undefined; if (!invite || invite.email !== email || invite.revoked_at || invite.accepted_at || invite.expires_at <= now) throw new AuthError('This invitation is invalid or no longer available.', 400); let projectIds: string[]; try { projectIds = JSON.parse(invite.project_ids); } catch { throw new AuthError('This invitation has invalid account assignments.', 400); } validateScope({ role: invite.role, tenantId: invite.tenant_id, projectIds, ...(invite.vendor_id !== null ? { vendorId: invite.vendor_id } : {}) }); if (invite.role === 'admin') throw new AuthError('This invitation is outside your account permissions.', 403); if (db.prepare('SELECT id FROM auth_users WHERE email=?').get(email)) throw new AuthError('An account already exists. Sign in or contact TAYCO for help.', 409); const userId = randomUUID(); db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(userId, email, hash, invite.role, invite.tenant_id, invite.project_ids, invite.vendor_id, now); db.prepare('UPDATE auth_invites SET accepted_at=? WHERE id=?').run(now, invite.id); audit(db, userId, 'invitation.accepted', invite.id); db.exec('COMMIT'); return userId; } catch (e) { db.exec('ROLLBACK'); throw e; } });
   return { cookie: await createSession(id) };
 }
 async function replacePassword(emailInput: unknown, password: string, actorId: string | null, event: string) {
