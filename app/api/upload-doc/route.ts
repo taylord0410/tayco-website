@@ -11,7 +11,7 @@ export async function POST(request:NextRequest){
  let journal:string|undefined;
  try{
   const actor=await requireActor(request);assertSameOrigin(request);
-  if(actor.role==='client')throw new ErpError(403,'Upload is available to assigned providers and TAYCO team members.');
+  if(!['admin','staff','vendor'].includes(actor.role))throw new ErpError(403,'Upload is available to assigned providers and TAYCO team members.');
   if(!process.env.BLOB_READ_WRITE_TOKEN)throw new ErpError(503,'Secure storage is not configured. Contact your TAYCO coordinator.');
   if(Number(request.headers.get('content-length')||0)>MAX+128000)throw new ErpError(413,'Choose a file smaller than 10 MB.');
   const reader=request.body?.getReader();if(!reader)throw new ErpError(400,'Choose a document.');

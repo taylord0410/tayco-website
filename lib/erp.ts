@@ -33,8 +33,11 @@ export function database() {
 const internal = (a: Actor) => a.role === 'admin' || a.role === 'staff';
 function decode(r: Row): Entry { return { id:r.id, kind:r.kind, tenantId:r.tenant_id, projectId:r.project_id, ownerId:r.owner_id, version:r.version, createdAt:r.created_at, updatedAt:r.updated_at, data:JSON.parse(r.payload) }; }
 function get(id: string) { const row = database().prepare('SELECT * FROM records WHERE id=?').get(id) as Row | undefined; return row ? decode(row) : null; }
+function requireWorkspaceActor(actor: Actor) {
+  if (!['admin', 'staff', 'client', 'vendor'].includes(actor.role)) throw new ErpError(403, 'This account can only view completed-month summaries.');
+}
 function allowed(actor: Actor, entry: Entry) {
-  if (entry.tenantId !== actor.tenantId) return false;
+  if (!['admin', 'staff', 'client', 'vendor'].includes(actor.role) || entry.tenantId !== actor.tenantId) return false;
   if (internal(actor)) return true;
   if(entry.kind==='compliance'||entry.kind==='estimate'||entry.kind==='proposal'||entry.kind==='corporate_meeting'||entry.kind==='followup')return false;
   if(entry.kind==='bid'||entry.kind==='purchase_order')return actor.role==='vendor'&&actor.projectIds.includes(entry.projectId)&&(entry.ownerId===actor.id||Boolean(actor.vendorId&&entry.data.vendorId===actor.vendorId));
@@ -173,6 +176,7 @@ function withinSchedule(item:Entry,dueDate:string) {
  if((start&&dueDate<start)||(end&&dueDate>end))throw new ErpError(422,'Milestone dates must fall within the project schedule.');
 }
 export function financialSummary(actor:Actor, projectId?:string) {
+ requireWorkspaceActor(actor);
  if(projectId)project(actor,projectId);
  const scoped=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(entry=>allowed(actor,entry)&&(!projectId||entry.projectId===projectId));
  const buckets={submitted:{count:0,amountUsd:0},approved:{count:0,amountUsd:0},paid:{count:0,amountUsd:0},returned:{count:0,amountUsd:0}};
@@ -198,10 +202,12 @@ export function financialSummary(actor:Actor, projectId?:string) {
  return {currency:'USD' as const,asOf:new Date().toISOString(),source:'Recorded project budgets and invoices',scope:internal(actor)?'company':'assigned',projects,invoices:buckets,approvedOutstandingUsd:approvedOutstandingCents/100,approvedOutstandingNeedsReviewCount,paidRecordedUsd:buckets.paid.amountUsd,recordCount:Object.values(buckets).reduce((sum,bucket)=>sum+bucket.count,0),excludedRecords};
 }
 export function snapshot(actor: Actor) {
+  requireWorkspaceActor(actor);
   const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)&&!(e.kind==='document'&&(e.data.deletedAt||e.data.purgedAt))).map(e=>exposed(actor,e));
   return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:'not_configured',accounting:'not_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
 }
 export function execute(actor: Actor, key: string, input: Data) {
+  requireWorkspaceActor(actor);
   if (!/^[\w-]{16,100}$/.test(key)) throw new ErpError(422,'A valid request reference is required.');
   const hash=createHash('sha256').update(JSON.stringify({role:actor.role,projects:[...actor.projectIds].sort(),vendorId:actor.vendorId??null,input})).digest('hex');
   return transact(()=>{
@@ -465,11 +471,11 @@ function mutate(actor: Actor, input: Data): Entry {
 }
 
 export function registerDocument(actor:Actor, input:{blobPath:string;name:string;contentType:string;type:string;projectId?:string}) {
-  if(actor.role==='client')throw new ErpError(403,'Document submission is available to the assigned team and providers.');
+  if(!['admin','staff','vendor'].includes(actor.role))throw new ErpError(403,'Document submission is available to the assigned team and providers.');
   const projectId=input.projectId?project(actor,input.projectId).id:'';
   return transact(()=>create(actor,'document',{...input,status:'pending_review',visibility:'owner',expiresAt:null},projectId));
 }
-export function documentForActor(actor:Actor,id:string) {return requireEntry(actor,id,'document');}
+export function documentForActor(actor:Actor,id:string) {requireWorkspaceActor(actor);return requireEntry(actor,id,'document');}
 export function validateInvitationAssignments(actor:Actor, projectIds:string[], vendorId?:string) {
   if(actor.role!=='admin')throw new ErpError(403,'Only administrators can assign access.');
   for(const id of projectIds)requireEntry(actor,id,'project');

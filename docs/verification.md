@@ -225,3 +225,10 @@ T44 workspace integration: the same central company update is displayed inside P
 Final shared company update source4cc08b605fe12ec2a2022493a4a794d29429bc32 is deployed in product-review/tayco-review as5bbe5e7a-25f1-4c3e-89b0-2a8611fdcde4 (SUCCESS). Public HTTPS200 rendered all seven expected labels/date values and four program entries; health200 ready. Daedalus reused the original administrator cookie: session200, roleadmin, same actor ID, ERP-suite200 with zero business entries. Native module selection showed the company section with four entries and the two supplied dates. Desktop1440 and mobile390 had no page/section horizontal overflow; zero project requirements were created. The redundant private cookie file was removed, leaving the user preview session and the two private password handover files.
 
 Runtime report .data/railway-review/contracting-deployment-verification.json SHA256 0314e65823c9481ea6c50359d294129371f65d5498a2cc5572f288dfcf5ec2f3. This verifies displayed company information and retained review access, not independent issuance of credentials or project compliance.
+
+
+## T46 local guest-access verification — 2026-10-23
+
+Dedicated guest SSR/API/component receives only historical management ranges before any ERP snapshot is serialized. Domain/provider and account-administration guards fail closed, including forged project assignments. New HTTP boundaries plus existing auth HTTP/accounts tests passed23/23 (JOB_20261023_154557_2100); production build JOB_20261023_154829_4400 passed. Daedalus exercised nine historical months at1440/390, native January/September selection, no horizontal overflow, absent detailed portal and private sentinels in raw server HTML/RSC. Browser fetches confirmed four protected endpoints403. Reporting periods use the existing UTC financial-calendar convention. Local evidence SHA256 b410dd252eb32078f24bd16b391242fe2bb0fe406bcbb2ed83738cf6a1276b9c.
+
+Activity collection notice is prepared; event delivery/admin review is a separate pending block. This local guest access result is not a cloud certification.

@@ -5,20 +5,27 @@ import { AuthError, getActor } from "@/lib/auth";
 import { snapshot } from "@/lib/erp";
 import { COMPANY } from "@/lib/company";
 import PortalClient, { type DashboardData } from "./PortalClient";
+import GuestMonthlyReview from "@/components/GuestMonthlyReview";
+import { guestMonthlyEstimateSummary } from "@/lib/monthly-management-estimates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function PortalPage() {
-  let initial: DashboardData;
+  let initial: DashboardData | undefined;
+  let guestInitial: ReturnType<typeof guestMonthlyEstimateSummary> | undefined;
   try {
     if (!process.env.TAYCO_SESSION_SECRET || process.env.TAYCO_SESSION_SECRET.length < 32) throw new AuthError("Account access is being prepared. Please contact TAYCO for assistance.", 503);
     const request = new Request("http://tayco.local/portal", { headers: await headers() });
     const actor = await getActor(request);
     if (!actor) redirect("/login?next=/portal");
+    if (actor.role === "guest") {
+      guestInitial = guestMonthlyEstimateSummary(actor);
+    } else {
     const current = snapshot(actor);
     // SQLite rows have a null prototype; send ordinary records across the RSC boundary.
     initial = { ...current, audit: current.audit.map((entry) => ({ ...entry })), delivery: current.delivery.map((entry) => ({ ...entry })) } as DashboardData;
+    }
   } catch (error) {
     // Preserve Next navigation control flow instead of swallowing a redirect.
     if (!(error instanceof AuthError)) throw error;
@@ -36,5 +43,7 @@ export default async function PortalPage() {
       </main>
     );
   }
+  if (guestInitial) return <GuestMonthlyReview initial={guestInitial} />;
+  if (!initial) throw new Error("Workspace data is unavailable.");
   return <PortalClient initial={initial} />;
 }

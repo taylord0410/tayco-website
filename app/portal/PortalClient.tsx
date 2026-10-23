@@ -239,7 +239,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const estimateReport=groupProjectEstimates(data.entries.filter(entry=>entry.kind==="estimate").map(entry=>entry.data),projectId||undefined);
   const projects = data.entries.filter((entry) => entry.kind === "project");
   const projectName = (id: string) => projects.find((project) => project.id === id)?.data.name;
-  const roleName = { admin: "TAYCO administrator", staff: "TAYCO team", client: "Client workspace", vendor: "Trade partner workspace" }[data.actor.role];
+  const roleName = { admin: "TAYCO administrator", staff: "TAYCO team", client: "Client workspace", vendor: "Trade partner workspace", guest: "Monthly review" }[data.actor.role];
   const tabs = [
     {id:"executive",label:"Executive overview",group:"Command center"},
     ...(team?[{id:"financial_dashboard",label:"Financial dashboard",group:"Command center"}]:[]),

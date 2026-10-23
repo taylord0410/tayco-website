@@ -1,7 +1,7 @@
 import type {Actor} from './auth';
 import {snapshot,ErpError} from './erp';
 export function projectDossier(actor:Actor,projectId:string){
- if(actor.role==='vendor')throw new ErpError(403,'Project dossiers are available to the assigned client and TAYCO team.');
+ if(!['admin','staff','client'].includes(actor.role))throw new ErpError(403,'Project dossiers are available to the assigned client and TAYCO team.');
  const scoped=snapshot(actor),project=scoped.entries.find(e=>e.kind==='project'&&e.id===projectId);
  if(!project)throw new ErpError(404,'Project not found.');
  const related=scoped.entries.filter(e=>e.projectId===projectId&&e.kind!=='project');

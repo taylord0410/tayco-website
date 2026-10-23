@@ -42,6 +42,7 @@ function authorizedDocuments(actor: Actor) {
 }
 function noticesTable() { database().exec('CREATE TABLE IF NOT EXISTS document_notices(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,document_id TEXT NOT NULL,expires_at TEXT NOT NULL,stage TEXT NOT NULL,created_at TEXT NOT NULL);'); }
 export function documentMaintenance(actor: Actor, now = new Date()) {
+  if (!['admin', 'staff', 'client', 'vendor'].includes(actor.role)) throw new ErpError(403, 'Document details are not available to this account.');
   noticesTable(); const documents = authorizedDocuments(actor); const permitted = new Map(documents.filter(d => !d.data.deletedAt).map(d => [d.id, d]));
   const notices = (database().prepare('SELECT id,document_id AS documentId,expires_at AS expiresAt,stage,created_at AS createdAt FROM document_notices WHERE tenant_id=? ORDER BY created_at DESC LIMIT 500').all(actor.tenantId) as { documentId: string; expiresAt: string; stage: string }[]).filter(notice => { const doc = permitted.get(notice.documentId); return doc && doc.data.status === 'approved' && doc.data.expiresAt === notice.expiresAt && documentExpiry(doc, now).state === notice.stage; });
   const policy = documentPolicy(); return { actor: { id: actor.id, role: actor.role }, documents: documents.map(entry => exposed(actor, entry, now)), notices, policy: { ...policy, defaultRetentionDays: internal(actor) ? policy.defaultRetentionDays : null } };
