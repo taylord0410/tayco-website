@@ -17,8 +17,17 @@ export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const workspace = authenticated || pathname === '/portal' || pathname === '/account';
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/auth/session', { cache: 'no-store', signal: controller.signal })
+      .then(response => { if (!controller.signal.aborted) setAuthenticated(response.ok); })
+      .catch(() => { if (!controller.signal.aborted) setAuthenticated(false); });
+    return () => controller.abort();
+  }, [pathname]);
 
   useEffect(() => {
     const readMotion = () => {
@@ -102,11 +111,11 @@ export default function Navbar() {
             <span aria-hidden="true">{motionPaused ? "Ⅱ" : "✦"}</span>
             {motionPaused ? "Motion paused" : "Pause motion"}
           </button>
-          <Link href="/login" className="tayco-nav-signin">Sign in</Link>
+          <Link href={workspace ? '/portal' : '/login'} className="tayco-nav-signin">{workspace ? 'Workspace' : 'Sign in'}</Link>
           <Link href="/estimate" className="tayco-nav-estimate">Get an estimate <span aria-hidden="true">↗</span></Link>
         </nav>
         <div className="tayco-mobile-actions">
-          <Link href="/login" className="tayco-nav-signin" onClick={() => setOpen(false)}>Sign in</Link>
+          <Link href={workspace ? '/portal' : '/login'} className="tayco-nav-signin" onClick={() => setOpen(false)}>{workspace ? 'Workspace' : 'Sign in'}</Link>
           <button
             ref={toggleRef}
             type="button"
