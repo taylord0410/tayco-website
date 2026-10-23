@@ -72,7 +72,6 @@ export default function EditorialLivingEngine() {
 
       if (thread) {
         thread.style.setProperty("--reading-progress", progress.toFixed(4));
-        thread.style.transform = `scaleX(${progress.toFixed(4)})`;
       }
 
       if (paused || document.hidden) {
