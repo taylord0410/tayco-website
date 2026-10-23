@@ -26,10 +26,14 @@ Public pages work without an account. Private access has no built-in credentials
 - Administrator account assignments, suspension, invitations and notification delivery.
 - Requests assigned to active TAYCO coordinators, with stage, next action and history.
 - Dated project schedules and milestones, approved budget source/date, selectively shared contacts and project files.
-- Recorded financial totals by status and project, plus a protected CSV export; no payment is initiated.
+- Executive console and grouped responsive navigation, bid comparison, purchase orders and evidence-based compliance tracking.
+- Monthly invoice/payment reporting, partial-payment records, corrections, twelve-month charts and protected CSV; no payment is initiated.
+- Scoped client-facing dossier export and explicit Takeoff/accounting integration availability.
 - Document renewal notices, preservation holds and reversible removal before an explicitly approved storage purge.
 
 The database starts empty. Unknown values stay unknown; a received document is pending review. No simulated payroll, tax certification, investment return or accounting synchronization is presented as live.
+
+See [workspace modules and reporting](docs/workspace-modules.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
 
 ## Private deployment configuration
 

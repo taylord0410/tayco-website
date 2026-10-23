@@ -13,8 +13,8 @@ const {chromium}=createRequire(import.meta.url)(process.env.TAYCO_PLAYWRIGHT_MOD
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 if(!process.env.TAYCO_TEST_CONFIG)throw Error("A disposable private fixture config is required.");
 const configFile=path.resolve(process.env.TAYCO_TEST_CONFIG),config=JSON.parse(fs.readFileSync(configFile,"utf8")),base=config.baseUrl;
-assert.match(base,/^http:\/\/(localhost|127\.0\.0\.1):3008$/);
-assert.ok(path.dirname(configFile).startsWith(path.join(root,".data","certification-completion-")));
+assert.match(base,/^http:\/\/(localhost|127\.0\.0\.1):(?:3008|3010)$/);
+assert.ok(["certification-completion-","certification-modules-"].some(prefix=>path.dirname(configFile).startsWith(path.join(root,".data",prefix))));
 for(const database of [config.authDb,config.erpDb]){const rel=path.relative(path.dirname(configFile),path.resolve(database));assert.ok(rel&&!rel.startsWith("..")&&!path.isAbsolute(rel));}
 for(const a of Object.values(config.accounts))assert.ok(a.email.endsWith("@example.test"));
 const evidence=path.resolve(process.env.TAYCO_EVIDENCE_DIR||path.join(root,".data","certification","product-completion-"+Date.now()));
@@ -26,12 +26,12 @@ const browser=await chromium.launch({headless:true}),contexts=[],sessions=new Ma
 const today=new Date().toISOString().slice(0,10),day=n=>new Date(Date.parse(today+"T12:00:00Z")+n*86400000).toISOString().slice(0,10);
 const exact=s=>new RegExp("^"+s.replace(/[.*+?^$()|[\]{}\\]/g,"\\$&")+"$");
 async function secure(c){await c.route("**/*",r=>new URL(r.request().url()).origin===base?r.continue():r.abort("blockedbyclient"));}
-async function session(role){if(sessions.has(role))return sessions.get(role);const context=await browser.newContext({reducedMotion:"reduce",viewport:{width:1440,height:1000}});contexts.push(context);await secure(context);await context.addCookies([{name:"tayco_session",value:encodeURIComponent(config.accounts[role].cookie),url:base,httpOnly:true,sameSite:"Lax",secure:true}]);const page=await context.newPage();await page.goto(base+"/portal",{waitUntil:"networkidle"});await page.getByRole("heading",{name:/Your projects/}).waitFor();const s={page,context};sessions.set(role,s);return s;}
+async function session(role){if(sessions.has(role))return sessions.get(role);const context=await browser.newContext({reducedMotion:"reduce",viewport:{width:1440,height:1000}});contexts.push(context);await secure(context);await context.addCookies([{name:"tayco_session",value:encodeURIComponent(config.accounts[role].cookie),url:base,httpOnly:true,sameSite:"Lax",secure:true}]);const page=await context.newPage();await page.goto(base+"/portal",{waitUntil:"domcontentloaded"});await page.getByRole("heading",{name:/Your projects/}).waitFor();const s={page,context};sessions.set(role,s);return s;}
 async function snapshot(s){const r=await s.context.request.get(base+"/api/erp-suite");assert.equal(r.status(),200);return r.json();}
 async function api(s,data){return s.context.request.post(base+"/api/erp-suite",{headers:{Origin:base,"Idempotency-Key":randomUUID()},data});}
 async function project(s){return(await snapshot(s)).entries.find(e=>e.id===config.projects[0]);}
-async function tab(s,name){await s.page.getByRole("button",{name,exact:true}).click();}
-async function fresh(s){await s.page.reload({waitUntil:"networkidle"});}
+async function tab(s,name){const nav=s.page.getByRole("navigation",{name:"Command Center Navigation",exact:true});if(!await nav.isVisible())await s.page.getByRole("button",{name:"Open modules",exact:true}).click();await nav.getByRole("button").filter({has:s.page.locator("span").filter({hasText:exact(name)})}).click();await s.page.getByRole("region",{name,exact:true}).waitFor();}
+async function fresh(s){await s.page.reload({waitUntil:"domcontentloaded"});await s.page.getByTestId("executive-console").waitFor();await tab(s,"Projects");}
 async function article(s){const p=await project(s);return s.page.locator("article").filter({has:s.page.getByRole("heading",{name:p.data.name,exact:true})});}
 async function form(scope,title){const sum=scope.locator("summary").filter({hasText:exact(title)});assert.equal(await sum.count(),1,"Unique form "+title);const d=sum.locator("..");if(await d.getAttribute("open")===null)await sum.click();return d.locator("form");}
 async function fill(f,fields){for(const [name,value]of Object.entries(fields)){const input=f.locator('[name="'+name+'"]');if(await input.evaluate(e=>e.tagName==="SELECT"))await input.selectOption(String(value));else await input.fill(String(value));}}
@@ -80,11 +80,11 @@ try{
   const s=await session("admin");await tab(s,"Invoices");const f=await form(s.page,"Record an invoice"),reference="=CERT_"+nonce;
   await fill(f,{projectId:config.projects[0],reference,amountUsd:"12.34",audience:"client"});await save(f);
   await tab(s,"Financial overview");await s.page.locator("#portal-project-filter").selectOption(config.projects[0]);
-  const waiting=s.page.waitForEvent("download");await s.page.getByRole("link",{name:"Download financial CSV"}).click();const download=await waiting,target=path.join(evidence,"financial-export.csv");await download.saveAs(target);
+  const waiting=s.page.waitForEvent("download");await s.page.getByRole("link",{name:"Download selected financial CSV",exact:true}).click();const download=await waiting,target=path.join(evidence,"financial-export.csv");await download.saveAs(target);
   const text=fs.readFileSync(target,"utf8");assert.ok(text.startsWith("\ufeff"));assert.ok(text.includes("'"+reference));assert.ok(!text.includes(config.projects[1]));
   const r=await s.context.request.get(base+"/api/finance/export?projectId="+config.projects[0]);assert.equal(r.status(),200);assert.match(r.headers()["cache-control"],/private.*no-store/);assert.match(r.headers()["content-type"],/text\/csv/);
   assert.equal((await s.context.request.get(base+"/api/finance/export?projectId="+randomUUID())).status(),404);
-  for(const role of ["client","vendor"]){const target=await session(role);assert.equal((await target.context.request.get(base+"/api/finance/export")).status(),403);await tab(target,"Financial overview");assert.equal(await target.page.getByRole("link",{name:"Download financial CSV"}).count(),0);}
+  for(const role of ["client","vendor"]){const target=await session(role);assert.equal((await target.context.request.get(base+"/api/finance/export")).status(),403);await tab(target,"Financial overview");assert.equal(await target.page.getByRole("link",{name:"Download selected financial CSV",exact:true}).count(),0);}
   return {guiDownload:true,scoped:true,spreadsheetFormulaGuard:true,privateNoStore:true,exportSha256:createHash("sha256").update(fs.readFileSync(target)).digest("hex"),exportBytes:fs.statSync(target).size};
  });
  await run("documents",async()=>{
@@ -130,7 +130,7 @@ try{
    if([390,844,1440].includes(width))await s.page.screenshot({path:path.join(evidence,"portal-"+width+"x"+height+".png"),fullPage:true});
   }
   const publicPage=await s.context.newPage();
-  for(const pathname of ["/estimate","/investor","/vendor-application"]){await publicPage.setViewportSize({width:390,height:844});await publicPage.goto(base+pathname,{waitUntil:"networkidle"});const input=publicPage.locator("form input:not([type=hidden]):visible").first();await input.focus();assert.equal(await input.evaluate(e=>e===document.activeElement),true);await publicPage.keyboard.press("Tab");assert.equal(await publicPage.evaluate(()=>document.activeElement?.matches("input,textarea,select,button,a")||false),true);assert.ok(await overflow(publicPage)<=1);await publicPage.evaluate(()=>scrollTo(0,0));await publicPage.screenshot({path:path.join(evidence,pathname.slice(1)+"-mobile.png"),fullPage:true});}
+  for(const pathname of ["/estimate","/investor","/vendor-application"]){await publicPage.setViewportSize({width:390,height:844});await publicPage.goto(base+pathname,{waitUntil:"domcontentloaded"});const input=publicPage.locator("form input:not([type=hidden]):visible").first();await input.focus();assert.equal(await input.evaluate(e=>e===document.activeElement),true);await publicPage.keyboard.press("Tab");assert.equal(await publicPage.evaluate(()=>document.activeElement?.matches("input,textarea,select,button,a")||false),true);assert.ok(await overflow(publicPage)<=1);await publicPage.evaluate(()=>scrollTo(0,0));await publicPage.screenshot({path:path.join(evidence,pathname.slice(1)+"-mobile.png"),fullPage:true});}
   await s.page.setViewportSize({width:1440,height:1000});await tab(s,"Projects");const summary=(await article(s)).locator("summary").filter({hasText:/^Manage schedule$/});await summary.focus();await s.page.keyboard.press("Enter");assert.notEqual(await summary.locator("..").getAttribute("open"),null);
   return {measurements,keyboardFields:true,keyboardDisclosure:true,physicalDeviceTested:false};
  });
@@ -143,7 +143,7 @@ try{
    await secure(context);await context.addCookies([{name:"tayco_session",value:encodeURIComponent(config.accounts.admin.cookie),url:base,httpOnly:true,sameSite:"Lax",secure:true}]);
    const worker=context.serviceWorkers()[0]||await context.waitForEvent("serviceworker",{timeout:10000}),page=await context.newPage(),measurements=[];
    for(const pathname of ["/estimate","/vendor-application","/portal"]){
-    await page.goto(base+pathname,{waitUntil:"networkidle"});const baseline=await page.evaluate(()=>({outer:outerWidth,dpr:devicePixelRatio}));
+    await page.goto(base+pathname,{waitUntil:"domcontentloaded"});const baseline=await page.evaluate(()=>({outer:outerWidth,dpr:devicePixelRatio}));
     for(const factor of [1,2,4]){
      const applied=await worker.evaluate(async({base,factor})=>{const tabs=await chrome.tabs.query({url:base+"/*"}),tab=tabs.find(t=>t.active)||tabs[0];await chrome.tabs.setZoomSettings(tab.id,{mode:"automatic",scope:"per-tab"});await chrome.tabs.setZoom(tab.id,factor);return chrome.tabs.getZoom(tab.id);},{base,factor});
      assert.ok(Math.abs(applied-factor)<1e-8);await page.waitForFunction(({factor,dpr})=>Math.abs(devicePixelRatio/dpr-factor)<.05,{factor,dpr:baseline.dpr});
