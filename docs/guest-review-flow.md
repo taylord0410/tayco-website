@@ -134,3 +134,51 @@ Implementation/progress belongs in soul_ledger; this design is not a runtime cer
 No January–September exact receipts or October placeholder projects are created by startup.
 The nine company-provided ranges are imported explicitly to the isolated review environment.
 Takeoff Pro connection and real October files remain dependent on their supplied source/URL.
+
+## Local verification, 2026-10-23
+
+- Auth/domain/HTTP/management/commercial regression:99 passed,0failed
+  (`JOB_20261023_160830_2900`). Existing admin credentials/sessions survive the tested
+  auth CHECK migration; guest detail boundaries deny before provider reads.
+- Production build `mjpcXKagAEpn3uKFU1yMN` and scoped ESLint pass.
+- Daedalus instanceatlas7, disposable local fixture at3013: native guest January selection
+  changes summary and persists month.select; administrator report observes one visit and
+  one control event, while guest report GET returns403. Manual activity refresh works.
+- Executive Open month opens the September finance editor with its persisted source/version.
+  A native edit plus simulated lost response *after server commit* freezes the form;
+  Retry same projection sends identical body/key and confirms without a duplicate update.
+- Project commercial editor: native awaiting-insurance selection, three explicit completed
+  checkboxes and a source save one report with occurrence date null. Execution staysplanning.
+- New guest/activity/range/commercial surfaces checked at390 and1440; no horizontal overflow.
+  These checks do not certify every unrelated project module or a physical mobile browser.
+- Private evidence `.data/certification/guest-management-20261023/report.json`, SHA256
+  `abe39ec3d44fd5ec6b3a1bfce3853fb11c01da3254b7b26453af55a99127d695`.
+
+Cloud release evidence is appended only after deployment and authenticated checks finish.
+
+## Isolated Railway release, 2026-10-23
+
+- Review URL: https://tayco-review-product-review.up.railway.app
+- Deployment `d324086c-e176-4c79-9a64-af59988a2f23`: SUCCESS, source
+  `8f29374bbdd6044ad339b0186e108ca6b12c7cac`, image digest
+  `sha256:0863b6484b17bc5541ae37f8d95b015e145e56a4ee01477eceec2d9b256e7935`.
+- Volume backup `d4efc596-5666-46df-bcc8-32b6d0957e25` listed before the auth migration.
+  This release did not exercise a cloud restore; the backup identifier is retained for recovery.
+- Existing two administrator IDs/access survive. One generic private guest is provisioned
+  using an accepted invitation, with empty assignments; no email is sent. Credentials are
+  handed over privately outside version control, never in source, queries or public docs.
+- Explicit January–September2026 import:9 management ranges ofUSD200000–500000 each,
+  with company attribution. Replayed imports use stable request keys; actual ERP entries remain0.
+- Authenticated guest HTTP checks: detailed ERP, finance/export, activity reports,
+  account administration and estimate sources return403; current/future requested months422.
+  The raw portal HTML/RSC contains neither source attribution nor detailed workspace data.
+- Daedalus native January and September selections on the deployed site change the selected
+  month and are observed in the administrator activity report. Guest390 and1440 have9months,
+  collection notice and no horizontal overflow. Activity report is visible to the existingadmin.
+- Private release evidence `.data/railway-review/guest-release-verification.json`, SHA256
+  `cfff9f6f2f104c71a53473945d371de1402513bc9f9016be25d682e745bbbf6c`.
+- Temporary exported cookie files were removed after verification; private handover files remain.
+
+Actual October project names/plans and the protected Takeoff Pro viewer connection are still
+pending their supplied records and integration. No insurance incident narrative, false project,
+proposal acceptance, invoice, payment, expense or profit was inserted to fill the review.
