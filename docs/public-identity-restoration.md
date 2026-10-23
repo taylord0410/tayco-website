@@ -19,8 +19,8 @@ The original site's licensed/insured and restoration-certified description is re
 
 | Surface | Restoration / improvement | Retained |
 | --- | --- | --- |
-| Home | Service discovery and a five-step project journey replace fabricated active contracts and financial totals. | Split hero, filterable six-card collection, material studies, animated detail. |
-| Commercial | Ten service categories, planning points and estimate preparation replace invented project ledgers and unit-rate claims. | Filters, editorial layout, gallery and motion. |
+| Home | Service discovery and a five-step project journey replace unverified presentation of project estimates as active contracts and financial performance. | Split hero, filterable six-card collection, material studies, animated detail. |
+| Commercial | Ten service categories, planning points and estimate preparation replace project ledgers and unit-rate claims whose business phase and pricing basis were not established. | Filters, editorial layout, gallery and motion. |
 | Residential | Eight practical service groups, restoration scope, eight-state city coverage. | Cards, interactive light, gallery and finish exploration. |
 | Property-owner inquiry | Property needs, scope, coordination and closeout replace performance/IRR promises and technical implementation copy. | Portfolio intake fields and visual presentation. |
 | Estimate | Free estimate request and optional, explicitly illustrative calculator. Calculator does not certify price, tax or schedule. User notes survive repeated prefill. Service/sector query context is shown for explicit review and application without silently replacing an existing draft. The request form precedes the optional calculator on mobile. | Calculator, form, material/labor/equipment visualization. |
@@ -32,7 +32,7 @@ The original site's licensed/insured and restoration-certified description is re
 
 - Localhost ports, Rust kernel names, internal module IDs and unsupported live-sync language.
 - Public master/client/CPA demo invite links. Portal entry uses `/login`; permission enforcement belongs to the server.
-- Unverified North Dakota office/coverage expansion, invented office phone numbers/addresses and fabricated contract names/totals.
+- Unverified North Dakota office/coverage expansion, invented office phone numbers/addresses and contract-award claims whose source and business phase were not established.
 - Guaranteed return/saving language, fake audited or certified financial performance, and assertions that a public form automatically provisions account access.
 - Upload-as-verification wording and requests to email W-9/tax records.
 
@@ -69,3 +69,10 @@ Native zoom is set using `chrome.tabs.setZoom` in automatic, per-tab mode inside
 The test requires an explicitly generated disposable fixture configuration (`TAYCO_TEST_CONFIG`); database paths must remain inside that fixture, all actors must use `example.test`, and browser network requests are restricted to the local fixture origin. Optional `TAYCO_PRODUCT_GROUPS` selects named groups and the report records the actual subset. Run with `node tests/product-completion.mjs` after setting the private fixture config, Playwright module and evidence directory. No fixture credentials belong in Git.
 
 This verifies local browser behavior and access boundaries. It does **not** certify physical iOS/Android hardware, configured production email delivery, cloud file upload/download, physical storage deletion, client credentials or legal retention policy. Storage lifecycle transport/SDK boundaries are tested separately by backend tests; the seeded GUI document is deliberately not represented as a successfully uploaded real cloud file.
+
+
+## Correction: a stored estimate is legitimate project information
+
+The client confirmed that the project previously shown in the private portal had genuinely been estimated. Source inspection then located its original TAYCO opportunity and complete Takeoff scenario, APU and BOQ exports. Earlier wording that treated all embedded project figures or names as fabricated was too broad and is corrected here. A source-backed estimate may be restored with its date, version, phase and cost breakdown; it must not be relabelled as an awarded contract, paid invoice, executed payroll or completed work. Static storage alone establishes none of those distinctions.
+
+The source estimates are restored only in an authenticated private local review database, with byte-hash archives. Public marketing does not inherit client amounts, private scenarios or estimating documents. See [estimate recovery](estimate-recovery.md).

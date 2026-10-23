@@ -26,14 +26,16 @@ Public pages work without an account. Private access has no built-in credentials
 - Administrator account assignments, suspension, invitations and notification delivery.
 - Requests assigned to active TAYCO coordinators, with stage, next action and history.
 - Dated project schedules and milestones, approved budget source/date, selectively shared contacts and project files.
-- Executive console and grouped responsive navigation, bid comparison, purchase orders and evidence-based compliance tracking.
+- Refined executive console with interactive cost/status graphics, persisted atmosphere/density/lighting controls, grouped responsive navigation, bid comparison, purchase orders and evidence-based compliance tracking.
+- Private estimating archive with source versions, exact CSI/APU breakdowns and separate material/labor/equipment tiers.
+- Monthly executive business report, explicit project teams and client proposals with draft/sent/decision history; accepted proposals do not create revenue or payments.
 - Monthly invoice/payment reporting, partial-payment records, corrections, twelve-month charts and protected CSV; no payment is initiated.
 - Scoped client-facing dossier export and explicit Takeoff/accounting integration availability.
 - Document renewal notices, preservation holds and reversible removal before an explicitly approved storage purge.
 
 The database starts empty. Unknown values stay unknown; a received document is pending review. No simulated payroll, tax certification, investment return or accounting synchronization is presented as live.
 
-See [workspace modules and reporting](docs/workspace-modules.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
+See [business reports and operational flows](docs/business-workspace.md), [workspace modules and reporting](docs/workspace-modules.md), [source-backed estimate recovery](docs/estimate-recovery.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
 
 ## Private deployment configuration
 
@@ -68,7 +70,7 @@ All successful public submissions return a durable reference. They atomically qu
 
 Private file upload requires an assigned account. PDF/JPEG/PNG signatures and bounded multipart bytes are checked. A receipt does not certify contents or insurance validity. Documents are private attachments available through authorized downloads, not public URLs. Malware scanning is not configured.
 
-Takeoff and accounting integrations remain **not configured**, rather than reporting a simulated connection. The reviewed legacy implementation's static numbers and local machine links are not used as operational integrations.
+Takeoff and accounting integrations remain **not configured**, rather than reporting a simulated connection. Source-backed project estimates can be recovered into the private workspace as versioned snapshots, independently of live integration. An estimate is not an approved contract, executed cost or payment; failed remote connections never report success. See [estimate recovery](docs/estimate-recovery.md).
 
 ## Protect and recover data
 

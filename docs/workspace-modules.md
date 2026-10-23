@@ -4,7 +4,10 @@ The default private workspace is the Executive overview. Desktop has a grouped m
 
 ## Recorded operations
 
-- Executive overview: authorized portfolio, status distribution, incoming requests, review queues, scope changes, recent activity and links to the corresponding module.
+- Executive overview: dated monthly commercial/work activity, current project status and proposal pipeline, explicit team coverage, incoming requests, recent activity and links to source modules. Monthly activity and current-state inventory are labeled separately.
+- Client proposals (internal): source-backed USD proposals, dated sending and acceptance/decline/withdrawal decisions. These are distinct from supplier offers and commercial requests; no email or accounting entry is created by recording a decision.
+- Project teams (internal): active company accounts, explicit responsibilities and dated assignment history. Roster membership does not change account access.
+- Estimates & scenarios (internal): privately archived source revisions with independent totals, exact cost divisions and material/labor/equipment tiers; estimates never imply contract award or cash movement.
 - Projects: schedules, milestones, approved budget provenance, contacts and shared information.
 - Bid leveling: separately recorded supplier offers with project, scope, amount, date and source; internal review and shortlist/accept/decline decisions. Providers see their own assigned offers.
 - Purchase orders: internal creation, optionally linked to an accepted matching offer; draft → issued → acknowledged → received → closed, with cancellation before receipt. A recorded acknowledgement is an internal record, not proof of supplier delivery.

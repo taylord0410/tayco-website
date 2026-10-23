@@ -84,7 +84,7 @@ The requested monthly financial view is additional scope. The original 24-week E
 - Executive navigation, project/request/vendor/invoice/hour/document/change counts, status distribution and project scope.
 - Invoice issuance grouped by explicit issue date (or labelled recorded-date fallback), payment movements grouped by their own occurrence date, approved budget sources, current-status cohorts, month filtering and source drilldown. Current status is not a historical balance; recorded payments are not independently verified bank settlement.
 - Assignees, trade-partner applications, reviewed hours, project contacts/schedule/milestones, approved documents, expiry and availability.
-- Rich tables, cards, charts, density, responsive navigation, controlled lighting and motion independent of fabricated values.
+- Rich tables, cards, charts, density, responsive navigation, controlled lighting and motion independent of whether a source value is a stored estimate or an operational record.
 - Bids/procurement after explicitly entered durable new records; absent records require useful empty states, not injection of the original embedded project.
 
 ## Separate data-dependent completion blocks
@@ -120,14 +120,14 @@ Responsive measurements: 42 module/viewport pairs, maximum horizontal overflow 0
 | X01 | Restored: grouped command navigation and role-specific module entries; exercised at six sizes. |
 | X02 | Secured replacement: actor-scoped snapshots; shared global impersonation is not restored. Role/project boundaries exercised. |
 | X03 | Authenticated account/invitation flow retained from prior work. Old capability presets and invitation-preview presentation are not reproduced by this restoration suite. |
-| X04 | Partial: accessible form disclosures remain; the old calm/deep density selector is still absent. |
-| X05 | Partial: navy/gold visual language and global motion control remain. The original portal-specific raking-light slider/surface interaction is not restored. |
+| X04 | Restored current controls: saved Calm/Deep atmosphere and comfortable/compact density, accessible disclosures and responsive presentation. Advanced original table-detail presets remain a separate parity item. |
+| X05 | Restored lighting-direction slider and navy/gold material surfaces. Operational panels deliberately keep fixed targets instead of whole-panel tilt/click scaling; public editorial motion remains available. |
 | E01 | Partial: actual counts/status cards restored. Historical sparklines require legitimate dated history and are absent. |
 | E02 | Pending advanced EVM inputs and chart restoration; no invented time series. |
-| E03 | Pending CSI-coded data and interactive cost-ring restoration. |
+| E03 | Restored source-backed cost ring, CSI/APU package selection, material/labor/equipment toggle and exact-cent reconciliation. Estimated work quantities remain labeled estimates; no payroll execution is inferred. |
 | E04 | Pending normalized geography/jurisdiction data and state-footprint drilldown. |
 | E05 | Partial: recorded-hour source grouping restored; original radial gauges/crew cost data remain absent. |
-| E06 | Restored core module discovery and sidebar access using authorized counts, without original fabricated headlines. |
+| E06 | Restored core module discovery and sidebar access using authorized counts, with clear source and business-phase labels. |
 | C01 | Partial: request intake/ownership retained; full opportunity location/estimated-value metadata is not yet restored. |
 | C02 | Partial: validated request status/ownership exists; original CRM stage-filter presentation is not restored. |
 | C03 | Restored core: three equal-scope offers recorded in GUI, explicit acceptance, accepted-offer/PO linkage and competitor isolation exercised. Engineer baseline/savings are not inferred. |
@@ -154,9 +154,16 @@ Responsive measurements: 42 module/viewport pairs, maximum horizontal overflow 0
 | I03 | Pending real verification results; unsupported certification/AI/kernel claims remain excluded. |
 | I04 | Pending genuine blueprint-to-cost mappings and Pareto calculation. |
 | I05 | Restored single authenticated JSON export; GUI download and 401/403/404/private-cache boundaries exercised. |
-| B01 | Honest disconnected state restored; live typed import/probe workflow remains pending. |
+| B01 | Private typed Takeoff estimate ingestion, byte-hash archive and independent revision comparison restored. Automated live bridge synchronization/probe remains pending. |
 | B02 | Project documents/offers remain accessible; configured external CAD/sheet deep links remain pending. |
 | B03 | Pending actual risk-run provenance and telemetry. |
 | N01 | Restored and exercised: issue cohorts, effective payment dates, partial payments, corrections, directions, project/month filters, accessible 12-month chart/table and period-scoped CSV. |
 
 Passing this core restoration suite does not close the advanced/data-dependent rows above. These are explicit remaining product blocks, including missing presentation controls and procurement/CRM details as well as regulated/accounting calculations. No real money, external email, cloud file, QuickBooks transaction or tax filing was executed. Later source changes require appropriate checks again.
+
+
+## Source and visual correction after client review
+
+The client clarified that the named project in the original portal was a real estimating engagement. Its Takeoff scenario, APU and BOQ sources were recovered and hashed. The earlier broad classification of static project amounts as fabricated was incorrect. Their valid use is an **estimate snapshot**, with independent revisions and dates; that does not prove contract award, bank settlement, payroll execution or progress.
+
+The new console restores the original rich bento hierarchy, gold/navy reactive surfaces, tabular figures, interactive project-state ring, source-backed cost ring, CSI/APU package versus material/labor/equipment views, saved Calm/Deep, density and light-direction controls. The offer matrix, purchase rows, seven dossier cards and monthly chart retain their workflows with refined presentation. The private source archive and generic recovery command restore real data without embedding customer amounts in source code or test fixtures. Execution progress and approved budget stay unknown when absent from the sources. Detailed current verification follows in docs/verification.md; these visual/source repairs do not certify unrelated advanced EVM or statutory forms.
