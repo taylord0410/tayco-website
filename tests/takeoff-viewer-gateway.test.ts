@@ -2,10 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { type Actor, acceptInvitation, createInvitation, createSession, provisionAdmin, revokeUserSessionsPrivately, sessionCookie } from '../lib/auth';
+import { type Actor, acceptInvitation, createInvitation, createSession, provisionAdmin, requireActor, requireProject, revokeUserSessionsPrivately, sessionCookie } from '../lib/auth';
 import { NextRequest } from 'next/server';
 import { database, execute, registerDocument } from '../lib/erp';
 import { handleViewerRequest } from '../lib/takeoff-viewer-gateway';
@@ -15,7 +15,7 @@ const prefix = '/api/takeoff-viewer';
 type Mode = 'ok' | 'redirect' | 'malformed' | 'oversize' | 'bundle' | 'link' | 'otherlink' | 'missingpin' | 'pin' | 'docx' | 'failure';
 type Fixture = { actor: Actor; projectId: string; filename: string; seen: { path: string; method: string; headers: IncomingHttpHeaders }[]; state: { mode: Mode; pdfDone: boolean }; cookie: string };
 const req = (tail = '/', init?: ConstructorParameters<typeof NextRequest>[1]) => new NextRequest('https://tayco.test' + prefix + tail, init);
-const doc = (id: string, context = 'ctx-a') => ({ id, title: 'Fixture drawing', kind: 'drawing_pdf', page_count: 2, source_name: 'fixture.pdf', revisions: [{ document_id: 'doc-private', source: 'SECRET REVISION' }], project_key: context, source_sha256: 'c'.repeat(64), metadata: { related_documents: ['doc-private'], secret: 'SECRET META' }, references: ['SECRET REFERENCE'], declared_scale: { status: 'unverified_text_candidates', candidates: [{ text: '1/4 in = 1 ft (candidate only)', page: 1, document_id: 'doc-private' }], calibration_applied: false, private_metadata: 'SECRET SCALE' }, ocr_status: null, index_status: 'indexed', calibration_status: null,
+const doc = (id: string, context = 'ctx-a') => ({ id, title: 'Fixture drawing', kind: 'drawing_pdf', page_count: 2, source_name: 'fixture.pdf', revisions: [{ document_id: 'doc-private', source: 'SECRET REVISION' }], finance: { budgetUsd: 999999, source: 'SECRET FINANCE' }, raw_source_path: '/internal/source-private.pdf', project_key: context, source_sha256: 'c'.repeat(64), metadata: { related_documents: ['doc-private'], secret: 'SECRET META' }, references: ['SECRET REFERENCE'], declared_scale: { status: 'unverified_text_candidates', candidates: [{ text: '1/4 in = 1 ft (candidate only)', page: 1, document_id: 'doc-private' }], calibration_applied: false, private_metadata: 'SECRET SCALE' }, ocr_status: null, index_status: 'indexed', calibration_status: null,
   index: { label: 'Authorized extract', pages: [{ page_number: 1, title: 'Fixture sheet', text_available: true, sheet_marks_candidates: ['A-101', 'S-201'], private_metadata: 'SECRET PAGE', document_id: 'doc-private', asset_url: 'https://outside.test/secret' }], text: 'Authorized document extract', related_documents: ['doc-private'] },
   measurements: [{ description: 'Fixture area', quantity: 12, unit: 'sf', document_id: 'doc-private', path: '/internal/file' }], boq: [{ description: 'Fixture item', quantity: 3, unit: 'ea', url: 'https://outside.test' }], paragraphs: [{ text: 'Fixture paragraph', related_documents: ['doc-private'] }], asset_url: prefix + '/api/v1/assets/asset-shared', asset_media_type: 'application/pdf' });
 function protectedHeaders(response: Response) {
@@ -193,6 +193,51 @@ test('untrusted upstream JSON, bundle mismatch, redirects and availability error
     state.mode = 'ok';
     process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL = 'http://127.0.0.1:1';
     const unavailable = await handleViewerRequest(req('/'), actor); assert.equal(unavailable.status, 502); protectedHeaders(unavailable);
+  });
+});
+
+test('explicit v2 guest review grants only approved October documents through fresh authenticated routes', async () => {
+  await fixture(async ({ actor, projectId, seen }) => {
+    const invitation = createInvitation(actor, { email: 'approved-review@example.test', role: 'guest', tenantId: actor.tenantId, projectIds: [] });
+    const cookie = (await acceptInvitation(invitation.token, 'approved-review@example.test', 'Isolated-review-password-2026!')).cookie;
+    const headers = { cookie: sessionCookie(cookie).split(';')[0] };
+    const guest = await requireActor(req('/', { headers }));
+    assert.deepEqual(guest.projectIds, []); assert.equal(guest.role, 'guest'); assert.equal(guest.vendorId, undefined);
+    assert.throws(() => requireProject(guest, projectId, actor.tenantId), (error: unknown) => error instanceof Error && 'status' in error && error.status === 403);
+    const legacy = await GET(req('/api/v1/projects', { headers }));
+    assert.equal(legacy.status, 403); protectedHeaders(legacy); assert.equal(seen.length, 0);
+    const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH!;
+    const mapping = JSON.parse(readFileSync(mappingPath, 'utf8'));
+    mapping.schemaVersion = 'tayco-takeoff-viewer-access/v2';
+    mapping.guestReviews = [{ tenantId: actor.tenantId, guestId: guest.id, projectId, period: '2026-10', viewerDocumentIds: ['doc-a'] }];
+    writeFileSync(mappingPath, JSON.stringify(mapping));
+    const catalog = await GET(req('/api/v1/projects', { headers }));
+    assert.equal(catalog.status, 200); protectedHeaders(catalog);
+    const listed = await catalog.json(); assert.equal(listed.projects.length, 1); assert.equal(listed.projects[0].key, 'ctx-a'); assert.equal(listed.projects[0].document_count, 1);
+    const context = await GET(req('/api/v1/projects/ctx-a', { headers }));
+    assert.equal(context.status, 200);
+    assert.deepEqual((await context.json()).documents.map((item: { id: string }) => item.id), ['doc-a']);
+    const detail = await GET(req('/api/v1/documents/doc-a', { headers }));
+    assert.equal(detail.status, 200); protectedHeaders(detail);
+    const text = await detail.text(), approved = JSON.parse(text);
+    assert.equal(approved.id, 'doc-a'); assert.equal(approved.asset_url, prefix + '/api/v1/assets/asset-shared');
+    for (const secret of ['doc-private', 'doc-b', 'ctx-secret', 'SECRET', 'raw_source_path', 'source-private', 'finance', 'budgetUsd', '999999', 'related_documents']) assert.equal(text.includes(secret), false, secret);
+    const head = await HEAD(req('/api/v1/assets/asset-shared', { method: 'HEAD', headers }));
+    assert.equal(head.status, 200); assert.equal(await head.text(), ''); protectedHeaders(head);
+    const partial = await GET(req('/api/v1/assets/asset-shared', { headers: { ...headers, Range: 'bytes=1-3' } }));
+    assert.equal(partial.status, 206); assert.equal(await partial.text(), 'PDF'); protectedHeaders(partial);
+    const previousCalls = seen.length;
+    for (const tail of ['/api/v1/documents/doc-private', '/api/v1/documents/doc-b', '/api/v1/documents/doc-secret', '/api/v1/projects/ctx-secret', '/api/v1/assets/asset-other-allowed', '/api/v1/assets/asset-secret', '/api/v1/assets/asset-source-private', '/api/v1/source']) {
+      const denied = await GET(req(tail, { headers })); assert.equal(denied.status, 404, tail); protectedHeaders(denied);
+    }
+    assert.equal(seen.length, previousCalls);
+    const otherInvitation = createInvitation(actor, { email: 'unapproved-review@example.test', role: 'guest', tenantId: actor.tenantId, projectIds: [] });
+    const otherCookie = (await acceptInvitation(otherInvitation.token, 'unapproved-review@example.test', 'Isolated-review-password-2026!')).cookie;
+    const outsider = await GET(req('/api/v1/projects', { headers: { cookie: sessionCookie(otherCookie).split(';')[0] } }));
+    assert.equal(outsider.status, 403); protectedHeaders(outsider); assert.equal(seen.length, previousCalls);
+    mapping.guestReviews = []; writeFileSync(mappingPath, JSON.stringify(mapping));
+    const revoked = await GET(req('/api/v1/documents/doc-a', { headers }));
+    assert.equal(revoked.status, 403); protectedHeaders(revoked); assert.equal(seen.length, previousCalls);
   });
 });
 

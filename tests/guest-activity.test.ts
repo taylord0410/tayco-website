@@ -1,13 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { randomBytes, randomUUID } from 'node:crypto';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { type Actor, AuthError, createSession, provisionAdmin, sessionCookie } from '../lib/auth';
 import { GUEST_ACTIVITY_ELEMENTS, GuestActivityError, guestActivityReport, recordGuestActivity } from '../lib/guest-activity';
 import { GET, POST } from '../app/api/guest-activity/route';
+import { database as erpDatabase, execute, registerDocument } from '../lib/erp';
+import { guestProjectReviews } from '../lib/takeoff-viewer-access';
 
 const guest: Actor = { id: 'guest-one', email: 'guest@example.test', role: 'guest', tenantId: 'company-one', projectIds: [] };
 const admin: Actor = { ...guest, id: 'admin-one', email: 'admin@example.test', role: 'admin' };
@@ -16,7 +18,7 @@ const fails = (status: number) => (error: unknown) => (error instanceof GuestAct
 
 async function fixture(run: (filename: string, folder: string) => Promise<void>) {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-guest-activity-'));
-  const keys = ['TAYCO_ERP_DB_PATH', 'TAYCO_AUTH_DB_PATH', 'TAYCO_APP_URL', 'TAYCO_SESSION_SECRET', 'TAYCO_GUEST_ACTIVITY_RETENTION_DAYS'] as const;
+  const keys = ['TAYCO_ERP_DB_PATH', 'TAYCO_AUTH_DB_PATH', 'TAYCO_APP_URL', 'TAYCO_SESSION_SECRET', 'TAYCO_GUEST_ACTIVITY_RETENTION_DAYS', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_RELATIONS_PATH'] as const;
   const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   const filename = path.join(folder, 'activity', 'erp.sqlite');
   process.env.TAYCO_ERP_DB_PATH = filename;
@@ -24,6 +26,8 @@ async function fixture(run: (filename: string, folder: string) => Promise<void>)
   process.env.TAYCO_APP_URL = 'https://tayco.test';
   process.env.TAYCO_SESSION_SECRET = randomBytes(48).toString('hex');
   delete process.env.TAYCO_GUEST_ACTIVITY_RETENTION_DAYS;
+  delete process.env.TAYCO_TAKEOFF_MAPPING_PATH;
+  delete process.env.TAYCO_TAKEOFF_RELATIONS_PATH;
   try { await run(filename, folder); }
   finally {
     for (const key of keys) { if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key]; }
@@ -113,7 +117,7 @@ test('allowed activity is server-scoped, deduplicated, conflict checked and admi
     const duplicate = await POST(post(cookies.guest, visit));
     assert.deepEqual(await duplicate.json(), { success: true, duplicate: true });
     assert.equal((await POST(post(cookies.guest, { ...visit, elementId: 'summary.retry' }))).status, 409);
-    for (const elementId of GUEST_ACTIVITY_ELEMENTS.filter(id => !['year.select', 'month.select', 'review.visit'].includes(id))) assert.equal((await POST(post(cookies.guest, event(elementId)))).status, 200);
+    for (const elementId of GUEST_ACTIVITY_ELEMENTS.filter(id => !['year.select', 'month.select', 'review.visit', 'project.open'].includes(id))) assert.equal((await POST(post(cookies.guest, event(elementId)))).status, 200);
     // The same event ID belongs independently to a different actor and a different company.
     recordGuestActivity({ ...guest, id: 'another-guest' }, visit);
     recordGuestActivity({ ...guest, id: 'other-company-guest', tenantId: 'company-two' }, visit);
@@ -198,7 +202,7 @@ test('retention and per-company caps bound reports and prune during ordinary wri
     inspect(filename, db => {
       db.exec('BEGIN');
       try {
-        const insert = db.prepare('INSERT INTO guest_activity VALUES(?,?,?,?,?,?,?,?)');
+        const insert = db.prepare('INSERT INTO guest_activity(event_id,actor_id,tenant_id,element_id,period,selected_year,page,created_at) VALUES(?,?,?,?,?,?,?,?)');
         insert.run(oldestId, 'seed-guest', guest.tenantId, 'review.visit', null, null, 'portal', now - 20_000);
         for (let index = 0; index < 10_005; index++) insert.run(randomUUID(), 'seed-guest', guest.tenantId, 'review.visit', null, null, 'portal', now - 10_010 + index);
         insert.run(randomUUID(), 'other-company', 'company-two', 'review.visit', null, null, 'portal', now - 1000);
@@ -242,5 +246,122 @@ test('retention configuration validates its supported bounds before storage', as
       recordGuestActivity(guest, event());
       assert.equal(guestActivityReport(admin).retentionDays, Number(days));
     }
+  });
+});
+
+test('project activity accepts only its bounded ID metadata and requires an explicit review grant before storage', async () => {
+  await fixture(async filename => {
+    for (const projectId of [undefined, null, '', 'project/secret', 'x'.repeat(201)]) {
+      assert.throws(() => recordGuestActivity(guest, event('project.open', { projectId })), fails(400));
+    }
+    for (const elementId of GUEST_ACTIVITY_ELEMENTS.filter(id => id !== 'project.open')) {
+      assert.throws(() => recordGuestActivity(guest, event(elementId, { projectId: 'project-one' })), fails(400));
+    }
+    for (const extra of [{period:'2026-10'}, {year:2026}, {name:'Private project name'}, {text:'Document text'}, {url:'/private/plan.pdf'}]) {
+      assert.throws(() => recordGuestActivity(guest, event('project.open', {projectId:'project-one',...extra})), fails(400));
+    }
+    assert.throws(() => recordGuestActivity(guest, event('project.open', {projectId:'project-one'})), fails(403));
+    assert.equal(existsSync(filename), false);
+  });
+});
+
+test('an actual v2 grant authorizes project selection, scoped deduplication and no private metadata in the report', async () => {
+  await fixture(async (filename, folder) => {
+    const {actors,cookies} = await sessions();
+    const run = (input:Record<string,unknown>) => execute(actors.admin,randomUUID(),input);
+    const projects = [
+      run({action:'create_project',name:'Synthetic confidential telemetry project A'}),
+      run({action:'create_project',name:'Synthetic confidential telemetry project B'}),
+    ];
+    try {
+      const docs = projects.map((project,index) => registerDocument(actors.admin,{
+        projectId:project.id,type:'project',name:'Synthetic private plan '+index+'.pdf',
+        blobPath:'synthetic-private-document-'+index+'.pdf',contentType:'application/pdf',
+      }));
+      const relations = {
+        schemaVersion:'takeoff-viewer-relations/v1',bundleId:'activity-project-fixture',
+        relationsId:'relations-'+'a'.repeat(64),manifestSha256:'b'.repeat(64),
+        contexts:projects.map((_,index)=>({contextKey:'context-'+index,displayName:'Synthetic context '+index,identityStatus:'resolved',documentIds:['viewer-'+index]})),
+        documents:projects.map((_,index)=>({documentId:'viewer-'+index,contextKeys:['context-'+index],assetIds:['asset-'+index],kind:'drawing_pdf'})),
+        assets:projects.map((_,index)=>({assetId:'asset-'+index,documentIds:['viewer-'+index]})),
+      };
+      const relationsBytes=JSON.stringify(relations)+'\n';
+      const relationsPath=path.join(folder,'relations.json'),mappingPath=path.join(folder,'mapping.json');
+      writeFileSync(relationsPath,relationsBytes);
+      process.env.TAYCO_TAKEOFF_RELATIONS_PATH=relationsPath;
+      process.env.TAYCO_TAKEOFF_MAPPING_PATH=mappingPath;
+      const grants=projects.map((project,index)=>({
+        tenantId:actors.guest.tenantId,guestId:actors.guest.id,projectId:project.id,
+        period:'2026-10',viewerDocumentIds:['viewer-'+index],
+      }));
+      const publish=(guestReviews=grants)=>writeFileSync(mappingPath,JSON.stringify({
+        schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:relations.bundleId,
+        relationsSha256:createHash('sha256').update(relationsBytes).digest('hex'),
+        mappings:projects.map((project,index)=>({
+          tenantId:actors.admin.tenantId,projectId:project.id,contextKey:'context-'+index,
+          documents:[{viewerDocumentId:'viewer-'+index,erpDocumentId:docs[index].id}],
+        })),guestReviews,
+      }));
+      publish();
+      assert.deepEqual(guestProjectReviews(actors.guest).map(project=>project.projectId).sort(),projects.map(project=>project.id).sort());
+
+      const deniedProject=event('project.open',{projectId:'unknown-project'});
+      assert.equal((await POST(post(cookies.guest,deniedProject))).status,403);
+      inspect(filename,db=>assert.equal(db.prepare("SELECT name FROM sqlite_schema WHERE name='guest_activity'").get(),undefined));
+
+      const selection=event('project.open',{projectId:projects[0].id});
+      assert.deepEqual(await (await POST(post(cookies.guest,selection))).json(),{success:true,duplicate:false});
+      assert.deepEqual(await (await POST(post(cookies.guest,selection))).json(),{success:true,duplicate:true});
+      assert.equal((await POST(post(cookies.guest,{...selection,projectId:projects[1].id}))).status,409);
+
+      for(const extra of [{period:'2026-10'},{year:2026},{name:'Raw name'},{documentId:docs[0].id},{url:'https://private.test/plan.pdf'}]) {
+        assert.equal((await POST(post(cookies.guest,event('project.open',{projectId:projects[0].id,...extra})))).status,400);
+      }
+      assert.throws(()=>recordGuestActivity({...actors.guest,id:'different-guest'},event('project.open',{projectId:projects[0].id})),fails(403));
+      assert.throws(()=>recordGuestActivity({...actors.guest,tenantId:'different-company'},event('project.open',{projectId:projects[0].id})),fails(403));
+      assert.throws(()=>recordGuestActivity({...actors.guest,projectIds:[projects[0].id]},event('project.open',{projectId:projects[0].id})),fails(403));
+
+      const report=await (await GET(get(cookies.admin))).json();
+      assert.equal(report.totalEvents,1);
+      assert.deepEqual(Object.keys(report.events[0]).sort(),['actorId','createdAt','elementId','eventId','page','projectId']);
+      assert.equal(report.events[0].projectId,projects[0].id);
+      assert.deepEqual(report.counts,[{elementId:'project.open',count:1}]);
+      const serialized=JSON.stringify(report);
+      for(const privateText of ['Synthetic confidential telemetry','Synthetic private plan','synthetic-private-document','viewer-0','asset-0']) assert.equal(serialized.includes(privateText),false);
+      inspect(filename,db=>{
+        assert.equal(db.prepare('SELECT count(*) AS n FROM guest_activity').get()!.n,1);
+        assert.equal(db.prepare('SELECT project_id FROM guest_activity').get()!.project_id,projects[0].id);
+        assert.equal(db.prepare('SELECT count(*) AS n FROM guest_activity_rate_events').get()!.n,1);
+      });
+
+      // Revocation applies even to retries; it grants no additional event write.
+      publish([]);
+      assert.equal((await POST(post(cookies.guest,selection))).status,403);
+      assert.equal((await POST(post(cookies.guest,event('project.open',{projectId:projects[0].id})))).status,403);
+      assert.equal(guestActivityReport(actors.admin).totalEvents,1);
+    } finally { erpDatabase().close(); }
+  });
+});
+
+test('adding project metadata migrates legacy activity rows without inventing project IDs or losing retry identity', async () => {
+  await fixture(async filename => {
+    mkdirSync(path.dirname(filename),{recursive:true});
+    const legacy=event();
+    inspect(filename,db=>{
+      db.exec(`CREATE TABLE guest_activity(
+        event_id TEXT NOT NULL,actor_id TEXT NOT NULL,tenant_id TEXT NOT NULL,element_id TEXT NOT NULL,
+        period TEXT,selected_year INTEGER,page TEXT NOT NULL CHECK(page='portal'),created_at INTEGER NOT NULL,
+        PRIMARY KEY(tenant_id,actor_id,event_id))`);
+      db.prepare('INSERT INTO guest_activity VALUES(?,?,?,?,?,?,?,?)').run(legacy.eventId,guest.id,guest.tenantId,'review.visit',null,null,'portal',Date.now());
+    });
+    const report=guestActivityReport(admin);
+    assert.equal(report.totalEvents,1);
+    assert.equal(Object.hasOwn(report.events[0],'projectId'),false);
+    assert.deepEqual(recordGuestActivity(guest,legacy),{duplicate:true});
+    inspect(filename,db=>{
+      assert.equal(db.prepare('SELECT project_id FROM guest_activity').get()!.project_id,null);
+      assert.equal(db.prepare('PRAGMA table_info(guest_activity)').all().filter(column=>column.name==='project_id').length,1);
+      assert.equal(db.prepare('SELECT count(*) AS n FROM guest_activity').get()!.n,1);
+    });
   });
 });

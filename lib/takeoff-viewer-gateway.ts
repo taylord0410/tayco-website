@@ -148,7 +148,7 @@ export async function handleViewerRequest(request: Request, actor: Actor): Promi
   const head = request.method === 'HEAD';
   let cleanup: (() => void) | undefined;
   try {
-    if (actor.role === 'guest' || !['admin', 'staff', 'client', 'vendor'].includes(actor.role)) fail(403, 'This account cannot open project documents.');
+    if (!['admin', 'staff', 'client', 'vendor', 'guest'].includes(actor.role)) fail(403, 'This account cannot open project documents.');
     if (!['GET', 'HEAD'].includes(request.method)) fail(405, 'Only document reads are supported.');
     const scope = viewerScope(actor);
     const route = routeFor(request, scope);

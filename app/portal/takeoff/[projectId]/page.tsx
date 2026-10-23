@@ -1,0 +1,50 @@
+import Link from "next/link";
+import { headers } from "next/headers";
+import { redirect, notFound } from "next/navigation";
+import { AuthError, getActor } from "@/lib/auth";
+import { snapshot } from "@/lib/erp";
+import { TakeoffViewerAccessError, VIEWER_PREFIX, viewerScope, guestProjectReviews } from "@/lib/takeoff-viewer-access";
+import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default async function ProjectViewerPage({ params }: { params: Promise<{ projectId: string }> }) {
+  const { projectId } = await params;
+  const actor = await getActor(new Request("http://tayco.local/portal/takeoff", { headers: await headers() }));
+  if (!actor) redirect("/login");
+  let name = "", source = "", unavailable = false;
+  try {
+    if (actor.role === "guest") {
+      const project = guestProjectReviews(actor).find(entry => entry.projectId === projectId);
+      if (!project) notFound();
+      name = project.name;
+    } else {
+      const project = snapshot(actor).entries.find(entry => entry.kind === "project" && entry.id === projectId);
+      if (!project) notFound();
+      name = typeof project.data.name === "string" ? project.data.name : "Project plans";
+    }
+    const scope = viewerScope(actor, projectId);
+    if (!process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL) unavailable = true;
+    else {
+      const context = scope.contexts[0];
+      if (!context?.documentIds.length) notFound();
+      source = VIEWER_PREFIX + "/viewer/?" + new URLSearchParams({ embed: "1", project: context.key, document: context.documentIds[0], page: "1" });
+    }
+  } catch (error) {
+    if (error instanceof TakeoffViewerAccessError) {
+      if (error.status === 503) unavailable = true;
+      else notFound();
+    } else if (error instanceof AuthError) notFound();
+    else throw error;
+  }
+  return <main className="min-h-svh bg-[#070e1a] px-3 py-5 text-slate-100 sm:px-7 sm:py-8" data-testid="takeoff-project-page">
+    <div className="mx-auto max-w-[1700px] space-y-5">
+      <header className="flex min-w-0 flex-wrap items-start justify-between gap-4 rounded-2xl border border-amber-200/20 bg-gradient-to-br from-[#173252] to-[#0b192e] p-5 sm:p-7">
+        <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#F3D37A]">TAYCO / Project plans</p><h1 className="mt-3 break-words text-2xl font-black sm:text-4xl">{name}</h1><p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">Read approved plans and their available processed information. Access follows your current project and document permissions.</p></div>
+        <Link className="inline-flex min-h-11 shrink-0 items-center rounded-xl border border-amber-200/30 px-4 py-3 text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-amber-200" href="/portal">Back to workspace</Link>
+      </header>
+      {unavailable ? <section role="status" className="rounded-2xl border border-amber-200/20 bg-[#10223d] p-6 sm:p-8"><h2 className="text-xl font-bold text-white">The project reader is being prepared.</h2><p className="mt-3 max-w-2xl leading-relaxed text-slate-300">TAYCO must connect the private reader and approve the project sources before plans appear here. Your existing documents remain available in the workspace.</p><Link className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-amber-200 px-4 py-3 text-sm font-bold text-[#0f2040]" href="/portal">Return to project workspace</Link></section> : <TakeoffProjectReader source={source} projectName={name}/>}
+    </div>
+  </main>;
+}

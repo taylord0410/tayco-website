@@ -4,15 +4,16 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import type { Actor } from '../lib/auth';
-import { database } from '../lib/erp';
-import { VIEWER_PREFIX, TakeoffViewerAccessError, viewerScope, type ViewerRelations } from '../lib/takeoff-viewer-access';
+import { AuthError, requireProject, type Actor } from '../lib/auth';
+import { database, documentForActor, ErpError, execute, financialSummary, snapshot } from '../lib/erp';
+import { VIEWER_PREFIX, TakeoffViewerAccessError, guestProjectReviews, viewerScope, type ViewerRelations } from '../lib/takeoff-viewer-access';
 
 const admin: Actor = { id: 'fixture-admin', email: 'admin@example.test', role: 'admin', tenantId: 'company-a', projectIds: [] };
 const staff: Actor = { ...admin, id: 'fixture-staff', role: 'staff' };
 const client: Actor = { ...admin, id: 'fixture-client', role: 'client', projectIds: ['project-a'] };
 const vendor: Actor = { ...admin, id: 'fixture-vendor', role: 'vendor', projectIds: ['project-a'], vendorId: 'vendor-a' };
 const other: Actor = { ...admin, tenantId: 'company-b' };
+const guest: Actor = { ...admin, id: 'fixture-guest', role: 'guest', projectIds: [] };
 const fails = (status: number) => (error: unknown) => error instanceof TakeoffViewerAccessError && error.status === status;
 const digest = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
 
@@ -47,6 +48,9 @@ function mappingFixture() {
     ] },
     { tenantId: 'company-b', projectId: 'project-b', contextKey: 'ctx-b', documents: [{ viewerDocumentId: 'viewer-b', erpDocumentId: 'erp-b' }] },
   ] };
+}
+function guestMapping(viewerDocumentIds = ['viewer-client'], period = '2026-10') {
+  return { ...mappingFixture(), schemaVersion: 'tayco-takeoff-viewer-access/v2', guestReviews: [{ tenantId: guest.tenantId, guestId: guest.id, projectId: 'project-a', period, viewerDocumentIds }] };
 }
 
 function fixture(run: (f: ReturnType<typeof createFixture>) => void, seed = true) {
@@ -266,4 +270,135 @@ test('policy files are reread so removing an explicit grant takes effect immedia
   assert.deepEqual(readFileSync(f.relationsFile), beforeRelations); assert.deepEqual(readFileSync(f.mappingFile), beforeMapping);
   const map = mappingFixture(); map.mappings[0].documents = map.mappings[0].documents.filter(document => document.viewerDocumentId !== 'viewer-client');
   f.publish(f.relations, map); assert.throws(() => viewerScope(client), fails(404));
+}));
+
+test('v1 and missing config deny guests before ERP reads while monthly summary stays usable', () => fixture(f => {
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  delete process.env.TAYCO_TAKEOFF_MAPPING_PATH;
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  process.env.TAYCO_TAKEOFF_MAPPING_PATH = path.join(f.folder, 'absent-policy.json');
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  assert.equal(existsSync(f.erpFile), false); assert.equal(existsSync(f.authFile), false);
+}, false));
+
+test('v2 guest grant is exact and exposes only explicitly selected project-category plans', () => fixture(f => {
+  f.data('erp-client', { type: 'project', visibility: 'internal', source: 'PRIVATE_SOURCE', blobPath: '/fixture/private/plan.pdf' });
+  f.publish(f.relations, guestMapping());
+  const result = viewerScope(guest, 'project-a');
+  assert.deepEqual(result.documentIds, ['viewer-client']);
+  assert.deepEqual(result.contexts, [{ key: 'ctx-a', documentIds: ['viewer-client'] }]);
+  assert.deepEqual(result.documents, [{ id: 'viewer-client', contextKey: 'ctx-a', assetIds: ['asset-client', 'asset-shared'] }]);
+  assert.deepEqual(result.assetIds, ['asset-client', 'asset-shared']);
+  assert.ok(!JSON.stringify(result).includes('PRIVATE_SOURCE')); assert.ok(!JSON.stringify(result).includes('viewer-internal'));
+  assert.throws(() => viewerScope({ ...guest, id: 'another-guest' }), fails(403));
+  assert.throws(() => viewerScope({ ...guest, tenantId: 'company-b' }), fails(403));
+  assert.throws(() => viewerScope(guest, 'project-a2'), fails(403));
+  assert.throws(() => viewerScope(guest, 'project-b'), fails(403));
+  assert.throws(() => viewerScope({ ...guest, projectIds: ['project-a'] }), fails(403));
+  assert.throws(() => viewerScope({ ...guest, vendorId: 'forged-vendor' }), fails(403));
+  assert.deepEqual(guestProjectReviews({ ...guest, id: 'another-guest' }), []);
+  assert.deepEqual(guestProjectReviews(admin), []);
+}));
+
+test('guest project summary whitelists useful values and excludes every private ERP field', () => fixture(f => {
+  f.data('erp-client', { type: 'project', visibility: 'owner', contact: 'private@example.test', blobPath: '/fixture/private/plan.pdf' });
+  f.data('project-a', { name: 'Approved October plans', status: 'planning', progress: null, location: 'PRIVATE_LOCATION', clientEmail: 'private@example.test', clientPhone: 'PRIVATE_PHONE', budgetUsd: 123456, source: 'PRIVATE_SOURCE', history: ['PRIVATE_HISTORY'], commercialProgress: { currentStage: 'awaiting_insurance_information', reportedCompletedStages: ['contacted', 'meeting_scheduled', 'estimate_provided'], source: 'PRIVATE_INSURANCE_EXPLANATION', actorId: 'PRIVATE_AUTHOR', history: ['PRIVATE_STAGE_HISTORY'] } });
+  f.publish(f.relations, guestMapping());
+  const result = guestProjectReviews(guest);
+  assert.deepEqual(result, [{ projectId: 'project-a', name: 'Approved October plans', period: '2026-10', status: 'planning', progress: null, commercialStage: 'awaiting_insurance_information', completedStages: ['contacted', 'meeting_scheduled', 'estimate_provided'], documentCount: 1 }]);
+  assert.equal(Object.getPrototypeOf(result[0]), Object.prototype);
+  const serialized = JSON.stringify(result);
+  for (const field of ['PRIVATE_', 'private@example', '123456', '/fixture/private', 'budget', 'location', 'source', 'actorId', 'history', '"contact":', 'blobPath', 'viewer-client', 'asset-client']) assert.ok(!serialized.includes(field), field);
+  assert.equal(existsSync(f.authFile), false, 'guest plan projection never invokes staff/auth snapshot reads');
+}));
+
+test('guest periods come from explicit config and never imply dates or financial-month grants', () => fixture(f => {
+  f.data('erp-client', { type: 'project' });
+  const config = guestMapping(); config.guestReviews.push({ ...config.guestReviews[0], period: '2025-12' });
+  f.publish(f.relations, config);
+  assert.deepEqual(guestProjectReviews(guest).map(review => review.period), ['2026-10', '2025-12']);
+  f.publish(f.relations, guestMapping(['viewer-client'], '2027-01'));
+  assert.deepEqual(guestProjectReviews(guest).map(review => review.period), ['2027-01']);
+  assert.deepEqual(viewerScope(guest).documentIds, ['viewer-client']);
+}));
+
+test('guest v2 validates strict schema, period, membership and duplicate approvals before DB reads', () => fixture(f => {
+  const config = guestMapping(), grant = config.guestReviews[0];
+  const invalid: unknown[] = [
+    { ...config, guestReviews: undefined }, { ...config, guests: config.guestReviews },
+    { ...config, guestReviews: [{ ...grant, extra: 'PRIVATE' }] },
+    { ...config, guestReviews: [{ ...grant, guestId: '*' }] },
+    { ...config, guestReviews: [{ ...grant, viewerDocumentIds: [] }] },
+    { ...config, guestReviews: [{ ...grant, viewerDocumentIds: ['viewer-client', 'viewer-client'] }] },
+    { ...config, guestReviews: [{ ...grant, viewerDocumentIds: ['viewer-b'] }] },
+    { ...config, guestReviews: [{ ...grant, viewerDocumentIds: ['missing-viewer-document'] }] },
+    { ...config, guestReviews: [{ ...grant, projectId: 'project-a2' }] },
+    { ...config, guestReviews: [{ ...grant, tenantId: 'company-b' }] },
+    { ...config, guestReviews: [grant, grant] },
+    ...['2026-1', '2026-00', '2026-13', '2026-10-01', 'October', '1899-12'].map(period => ({ ...config, guestReviews: [{ ...grant, period }] })),
+  ];
+  for (const value of invalid) { f.publish(f.relations, value); assert.throws(() => viewerScope(guest), fails(503)); assert.deepEqual(guestProjectReviews(guest), []); }
+  f.publish(f.relations, { ...mappingFixture(), guestReviews: [grant] }); assert.throws(() => viewerScope(guest), fails(503));
+  assert.equal(existsSync(f.erpFile), false); assert.equal(existsSync(f.authFile), false);
+}, false));
+
+test('guest plan approval never grants tax, insurance, W9 or other non-project documents', () => fixture(f => {
+  f.publish(f.relations, guestMapping());
+  for (const type of ['w9', 'tax', 'insurance', 'invoice', '', undefined, 'PROJECT']) {
+    f.data('erp-client', { type, visibility: 'client' });
+    assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  }
+  f.data('erp-client', { type: 'project' });
+  assert.equal(guestProjectReviews(guest)[0].documentCount, 1);
+  database().prepare('UPDATE records SET kind=? WHERE id=?').run('invoice', 'erp-client');
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+}));
+
+test('guest grants are revoked by document deletion, purge, moves, foreign tenant or missing project', () => fixture(f => {
+  f.publish(f.relations, guestMapping()); f.data('erp-client', { type: 'project' });
+  assert.equal(guestProjectReviews(guest).length, 1);
+  for (const flag of ['deletedAt', 'purgedAt']) {
+    f.data('erp-client', { type: 'project', [flag]: '2026-10-23T00:00:00Z' });
+    assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  }
+  f.data('erp-client', { type: 'project' });
+  database().prepare('UPDATE records SET project_id=? WHERE id=?').run('project-a2', 'erp-client');
+  assert.throws(() => viewerScope(guest), fails(403));
+  database().prepare('UPDATE records SET project_id=?,tenant_id=? WHERE id=?').run('project-a', 'company-b', 'erp-client');
+  assert.throws(() => viewerScope(guest), fails(403));
+  database().prepare('UPDATE records SET tenant_id=? WHERE id=?').run('company-a', 'erp-client');
+  f.data('project-a', { name: 'Approved project', deletedAt: '2026-10-23T00:00:00Z' });
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  database().prepare('DELETE FROM records WHERE id=?').run('project-a');
+  assert.throws(() => viewerScope(guest), fails(403));
+}));
+
+test('guest summary counts only usable granted plans and never invents progress or completions', () => fixture(f => {
+  f.publish(f.relations, guestMapping(['viewer-client', 'viewer-vendor']));
+  f.data('erp-client', { type: 'project' }); f.data('erp-vendor', { type: 'insurance' });
+  f.data('project-a', { name: '/fixture/private/source.pdf', status: 'PRIVATE_STATUS', progress: true, commercialProgress: { currentStage: 'estimate_provided', reportedCompletedStages: ['contacted', 'awaiting_insurance_information'] } });
+  const result = guestProjectReviews(guest)[0];
+  assert.equal(result.documentCount, 1); assert.equal(result.name, 'Project plans'); assert.equal(result.status, 'unknown'); assert.equal(result.progress, null); assert.deepEqual(result.completedStages, []);
+  f.data('project-a', { name: 'Approved project', status: 'active', progress: 0, commercialProgress: { currentStage: 'PRIVATE_STAGE', reportedCompletedStages: ['contacted'] } });
+  assert.equal(guestProjectReviews(guest)[0].progress, 0); assert.equal(guestProjectReviews(guest)[0].commercialStage, null); assert.deepEqual(guestProjectReviews(guest)[0].completedStages, []);
+  assert.deepEqual(viewerScope(guest).documentIds, ['viewer-client']);
+}));
+
+test('explicit plan approval leaves every general ERP guest guard intact', () => fixture(f => {
+  f.data('erp-client', { type: 'project' }); f.publish(f.relations, guestMapping());
+  assert.equal(guestProjectReviews(guest).length, 1);
+  const erpDenied = (error: unknown) => error instanceof ErpError && error.status === 403;
+  assert.throws(() => snapshot(guest), erpDenied);
+  assert.throws(() => financialSummary(guest), erpDenied);
+  assert.throws(() => documentForActor(guest, 'erp-client'), erpDenied);
+  assert.throws(() => execute(guest, 'guest-command-fixture-001', { action: 'create_project', name: 'Denied' }), erpDenied);
+  assert.throws(() => requireProject(guest, 'project-a', guest.tenantId), (error: unknown) => error instanceof AuthError && error.status === 403);
+}));
+
+test('removing a v2 grant revokes the same guest without changing session assignments', () => fixture(f => {
+  f.data('erp-client', { type: 'project' }); f.publish(f.relations, guestMapping());
+  assert.deepEqual(viewerScope(guest).documentIds, ['viewer-client']);
+  f.publish(f.relations, { ...guestMapping(), guestReviews: [] });
+  assert.throws(() => viewerScope(guest), fails(403)); assert.deepEqual(guestProjectReviews(guest), []);
+  assert.deepEqual(guest.projectIds, []);
 }));

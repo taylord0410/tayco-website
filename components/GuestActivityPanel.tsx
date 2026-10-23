@@ -10,6 +10,7 @@ const ELEMENT_LABELS: Record<GuestActivityElement, string> = {
   "year.select": "Year selected",
   "month.select": "Month selected",
   "summary.retry": "Summary retry selected",
+  "project.open": "Project reader selected",
 };
 const button = "min-h-11 rounded-xl border border-[#173252]/20 bg-white px-4 py-2 text-sm font-semibold text-[#173252] transition hover:bg-[#f6f3ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a66a20] disabled:cursor-wait disabled:opacity-60";
 const number = new Intl.NumberFormat("en-US");
@@ -35,12 +36,15 @@ function isReport(value: unknown): value is GuestActivityReport & { success: tru
     || !Number.isInteger(value.retentionDays) || Number(value.retentionDays) < 1
     || Number(value.retentionDays) > 365 || !validDate(value.windowStart)
     || !validDate(value.generatedAt) || !Array.isArray(value.counts)
-    || value.counts.length > 6 || !Array.isArray(value.events) || value.events.length > 200) return false;
+    || value.counts.length > Object.keys(ELEMENT_LABELS).length || !Array.isArray(value.events) || value.events.length > 200) return false;
   return value.counts.every(row => object(row) && knownElement(row.elementId) && validCount(row.count))
     && value.events.every(event => object(event) && knownElement(event.elementId)
       && typeof event.eventId === "string" && event.eventId.length > 0 && event.eventId.length <= 100
       && typeof event.actorId === "string" && event.actorId.length > 0 && event.actorId.length <= 200
       && event.page === "portal" && validDate(event.createdAt)
+      && (event.elementId === "project.open"
+        ? typeof event.projectId === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,199}$/.test(event.projectId) && event.period === undefined && event.year === undefined
+        : event.projectId === undefined)
       && (event.period === undefined || (typeof event.period === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(event.period)))
       && (event.year === undefined || (typeof event.year === "number" && Number.isSafeInteger(event.year))));
 }
@@ -58,6 +62,9 @@ async function fetchReport(signal: AbortSignal): Promise<GuestActivityReport> {
 }
 function accountLabel(actorId: string) {
   return "Account " + (actorId.length > 18 ? actorId.slice(0, 9) + "…" + actorId.slice(-6) : actorId);
+}
+function projectLabel(projectId: string) {
+  return "Project " + (projectId.length > 18 ? projectId.slice(0, 9) + "…" + projectId.slice(-6) : projectId);
 }
 function timestamp(value: string) {
   return date.format(new Date(value)) + " UTC";
@@ -172,6 +179,7 @@ export default function GuestActivityPanel() {
                   <div className="min-w-0">
                     <p className="break-words font-medium">{ELEMENT_LABELS[event.elementId]}</p>
                     <p className="mt-1 break-all text-xs text-slate-600">{accountLabel(event.actorId)}</p>
+                    {event.projectId && <p className="mt-1 break-all text-xs text-slate-600">{projectLabel(event.projectId)}</p>}
                     {(event.period || event.year !== undefined) && <p className="mt-1 text-xs text-slate-600">
                       {event.period ? "Month " + event.period : "Year " + event.year}
                     </p>}
