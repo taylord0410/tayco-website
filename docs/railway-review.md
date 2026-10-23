@@ -17,3 +17,10 @@ Release evidence must identify source commit/package manifest, deployment and im
 The launcher ownership step is intentionally limited to the new default private mount directory. It does not recursively chown restored DB/WAL files or arbitrary configured paths. Restore or custom-path operations must validate ownership as UID1001 before starting the application. The readiness query does not establish schema completeness, data validity, durable persistence or a successful business write; the restart/session observation supplies only its own bounded persistence evidence.
 
 The installed Railway CLI warns that `railway.json`/TOML config-as-code is deprecated and remains supported until2026-12-01. This release keeps its explicit Docker/readiness settings, with named service settings verified independently. Migrate to the documented `.railway/railway.ts` IaC workflow before that deadline; no migration is claimed by this deployment.
+
+
+## T43 completion — 2026-10-23
+
+Supersedes earlier pending-access notes: both explicitly authorized review administrators were provisioned and tested by HTTPS (admin role, company scope, session and ERP HTTP200, separate identities). Six temporary provisioning variables were removed. Controlled redeployment a6511210-5770-40f5-beaf-397a6bff80c6 reached SUCCESS; both existing sessions and accounts persisted, application/database UID1001 and build ID remained unchanged, and all provisioning-variable presence checks were false. The unused second test session was logged out and subsequently returned401. The named temporary Railway SSH key was removed, the account key listing returned zero, and its two local files were deleted.
+
+The review contains no copied client business database or fabricated financial records. Runtime evidence is kept locally in ignored .data/railway-review/completion-evidence.json; SHA256 73a3b1c03954fc6139adf368b77da9b53b7788bdce04f067623807caa8efa905. Private access handover files remain local and are not committed or emailed. This closes the review deployment/authentication scope, not certification of every business workflow.
