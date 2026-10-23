@@ -29,13 +29,17 @@ Public pages work without an account. Private access has no built-in credentials
 - Refined executive console with interactive cost/status graphics, persisted atmosphere/density/lighting controls, grouped responsive navigation, bid comparison, purchase orders and evidence-based compliance tracking.
 - Private estimating archive with source versions, exact CSI/APU breakdowns and separate material/labor/equipment tiers.
 - Monthly executive business report, explicit project teams and client proposals with draft/sent/decision history; accepted proposals do not create revenue or payments.
-- Monthly invoice/payment reporting, partial-payment records, corrections, twelve-month charts and protected CSV; no payment is initiated.
+- Interactive executive dashboard with the current TAYCO identity, source-backed indicators, twelve-month charts, agenda, quick access and next-month calendar.
+- Click any month for weekly client receipts, provider payments, recorded cash result and projects linked through explicit dates/activity; accounting profit is not inferred from incomplete costs.
+- Internal corporate meetings and follow-ups with dates, responsible staff, notes, priorities, state history and versioned edits.
+- Monthly invoice/payment reporting, partial-payment records, corrections, protected CSV, dated next-period plans and separately weighted proposal billing scenarios; no payment is initiated.
+- Dated work-hour reporting by ISO week, project, trade, submitter and review state, with protected CSV/JSON exports; no wages or statutory payroll are inferred.
 - Scoped client-facing dossier export and explicit Takeoff/accounting integration availability.
 - Document renewal notices, preservation holds and reversible removal before an explicitly approved storage purge.
 
 The database starts empty. Unknown values stay unknown; a received document is pending review. No simulated payroll, tax certification, investment return or accounting synchronization is presented as live.
 
-See [business reports and operational flows](docs/business-workspace.md), [workspace modules and reporting](docs/workspace-modules.md), [source-backed estimate recovery](docs/estimate-recovery.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
+See [data sources and reusable project setup](docs/data-sources.md), [the financial dashboard, interactive months and corporate agenda](docs/financial-dashboard.md), [business reports and operational flows](docs/business-workspace.md), [workspace modules and reporting](docs/workspace-modules.md), [source-backed estimate recovery](docs/estimate-recovery.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
 
 ## Private deployment configuration
 

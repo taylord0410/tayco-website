@@ -46,6 +46,12 @@
   .workspace-shell .workspace-header-tools > .workspace-source,
   .workspace-shell .workspace-quick-actions { display:none; }
   .workspace-shell .workspace-console-header { gap:12px; }
+  .workspace-shell .workspace-quick-actions:has(.workspace-button-primary) { display:flex; }
+  .workspace-shell .workspace-quick-actions > :not(.workspace-button-primary) { display:none; }
   .workspace-shell .workspace-header-description { margin:0; }
   .workspace-shell .workspace-header-estimate { font-size:22px;margin-top:6px; }
 }
+
+/* The executive workspace is a command surface, with no duplicate welcome hero. */
+.workspace-header-dashboard .workspace-header-description,.workspace-header-dashboard>div:first-child>.workspace-eyebrow{display:none}.workspace-shell:has(.workspace-header-dashboard) .workspace-panel-canvas>h2{display:none}.workspace-shell:has(.workspace-header-dashboard) .workspace-page-header>div:first-child>p:first-child{display:none}.workspace-shell:has(.workspace-header-dashboard) .workspace-page-header h1{margin-top:0;font-size:24px}.workspace-shell .workspace-header-dashboard{align-items:center;padding-bottom:10px;min-height:48px}.workspace-shell .workspace-header-dashboard h2{font-size:25px;line-height:1.25}.workspace-shell .workspace-header-dashboard .workspace-header-tools{display:flex;align-items:center;gap:10px}.workspace-shell .workspace-header-dashboard .workspace-source{font-size:9px}.workspace-shell:has(.workspace-header-dashboard) .workspace-page-header{align-items:center}.workspace-shell:has(.workspace-header-dashboard) .workspace-content{padding-top:20px}.workspace-shell:has(.workspace-header-dashboard) .workspace-console{gap:14px}
+@media(max-width:1100px){.workspace-shell .workspace-header-dashboard .workspace-header-tools>.workspace-source{display:none}}@media(max-width:639px){.workspace-shell .workspace-header-dashboard{justify-content:flex-end}.workspace-shell .workspace-header-dashboard .workspace-header-tools{width:100%}.workspace-shell .workspace-header-dashboard .workspace-display{width:100%}.workspace-shell:has(.workspace-header-dashboard) .workspace-page-header h1{font-size:23px}}

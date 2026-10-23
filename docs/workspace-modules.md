@@ -47,3 +47,11 @@ Recording or voiding payment metadata never sends, refunds or transfers money. D
 ## Completeness boundary
 
 See [the original module inventory](module-parity.md) for all 41 subfunctions and the separate input-dependent blocks. Restored navigation and tested core records do not certify EVM, G702/G703, IIF/QuickBooks synchronization, WH-347, tax filings or live Takeoff/Monte Carlo. Those require genuine contracts, mappings, upstream inputs and dedicated verification.
+
+## Interactive dashboard and planning workspace
+
+Internal navigation exposes Financial dashboard directly after Executive overview, followed by project records and the corporate agenda. The executive surface uses the current TAYCO logo, compact source-backed metrics, an interactive annual chart, upcoming/overdue dates, quick access and a next-month calendar. Each month hands its exact year/month to the full report, with weekly cash movements and source-backed project inclusion. See financial-dashboard.md for definitions and evidence boundaries.
+
+Corporate meetings and priority follow-ups are durable internal records, not external notifications. CRM now preserves location and sourced estimated values (including an explicit zero); procurement preserves quote date, zero/positive lead times, delivery expectations and drawing/source references. Team hours includes exact dated weekly reporting and scoped CSV/JSON download.
+
+QuickBooks is the named customer accounting system; Online versus Desktop has not been confirmed. No adapter is shown as connected and no export is represented as a completed synchronization.
