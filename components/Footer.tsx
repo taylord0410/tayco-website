@@ -178,7 +178,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-slate-500 font-mono">
           <p>
-            © {new Date().getFullYear()} TAYCO LLC — All Rights Reserved. Powered by Takeoff Pro Engine v5.0 &amp; Umbra Executive Architecture.
+            © {new Date().getFullYear()} TAYCO LLC — All Rights Reserved. Powered by Takeoff Pro Engine v5.0 &amp; TAYCO Executive Architecture.
           </p>
           <p>Licensed &amp; Insured · CSI-32 MasterFormat · Davis-Bacon WH-347 &amp; AIA G702/G703 Compliant</p>
         </div>

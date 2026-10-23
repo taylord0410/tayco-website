@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EditorialLivingEngine from "@/components/EditorialLivingEngine";
 
 export const metadata: Metadata = {
   title: "TAYCO LLC | Full-Service Construction Company | Wisconsin & Illinois",
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <EditorialLivingEngine />
         <Navbar />
         {children}
         <Footer />

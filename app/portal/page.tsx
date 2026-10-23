@@ -10,7 +10,7 @@ type TaycoModuleId =
   | "MOD_TAX_COMPLIANCE"
   | "MOD_INVESTOR_PORTAL";
 
-type UmbraViewId =
+type CommandViewId =
   | "VIEW_01_COMMAND"
   | "VIEW_02_INVITATIONS"
   | "VIEW_03_CRM"
@@ -269,16 +269,23 @@ function buildSparklinePoints(values: number[], width = 140, height = 34): strin
     .join(" ");
 }
 
+// Authentic TAYCO Signature Palette Constants
+const TAYCO_GOLD = "#C9A84C";
+const TAYCO_GOLD_LIGHT = "#F3D37A";
+const TAYCO_ORANGE = "#F97316";
+const TAYCO_EMERALD = "#10B981";
+const TAYCO_NAVY = "#1B3A6B";
+const TAYCO_DARK_NAVY = "#0F2040";
+
 export default function TaycoMultiTenantPortalPage() {
   const [snapshot, setSnapshot] = useState<SuiteSnapshot | null>(null);
-  const [activeView, setActiveView] = useState<UmbraViewId>("VIEW_01_COMMAND");
+  const [activeView, setActiveView] = useState<CommandViewId>("VIEW_01_COMMAND");
   const [showInviteBuilder, setShowInviteBuilder] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Umbra Surface, Atmosphere & Cognitive Density States
-  const [surfaceMode, setSurfaceMode] = useState<"mineral" | "crystal">("crystal");
-  const [accentHex, setAccentHex] = useState<string>("#C9A84C");
+  // TAYCO Executive Cognitive Density & Raking Light Angle States
   const [densityMode, setDensityMode] = useState<"calm" | "deep">("calm");
+  const [lightAngle, setLightAngle] = useState<number>(45);
   const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({});
 
   // Interactive Chart States
@@ -326,6 +333,30 @@ export default function TaycoMultiTenantPortalPage() {
   const isTableVisible = (key: string) => {
     return densityMode === "deep" || Boolean(expandedTables[key]);
   };
+
+  // Interactive 3D Tilt & Gold Specular Wash Handler for Living Cards
+  const handleSurfaceMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      const el = e.currentTarget;
+      const rect = el.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      const rx = ((0.5 - py) * 4.5).toFixed(2);
+      const ry = ((px - 0.5) * 5.5).toFixed(2);
+      el.style.setProperty("--response-px", px.toFixed(3));
+      el.style.setProperty("--response-py", py.toFixed(3));
+      el.style.setProperty("--rx", `${rx}deg`);
+      el.style.setProperty("--ry", `${ry}deg`);
+    },
+    []
+  );
+
+  const handleSurfaceMouseLeave = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
+  }, []);
 
   const fetchSuite = useCallback(async (inviteCode?: string, tenantId?: string) => {
     const params = new URLSearchParams();
@@ -476,10 +507,10 @@ export default function TaycoMultiTenantPortalPage() {
 
   if (!snapshot) {
     return (
-      <main className="min-h-screen pt-20 flex items-center justify-center" style={{ background: "#060B14" }}>
+      <main className="min-h-screen pt-20 flex items-center justify-center" style={{ background: TAYCO_DARK_NAVY }}>
         <div className="text-center text-white">
-          <div className="text-3xl font-black mb-2" style={{ color: "#C9A84C" }}>
-            TAYCO LLC — UMBRA COMMAND CENTER
+          <div className="text-3xl font-black mb-2" style={{ color: TAYCO_GOLD }}>
+            TAYCO LLC — EXECUTIVE COMMAND CENTER
           </div>
           <p className="text-sm text-gray-300">Loading Multi-Tenant ERP Suite &amp; Takeoff Pro Bridge...</p>
         </div>
@@ -522,9 +553,9 @@ export default function TaycoMultiTenantPortalPage() {
     cashflow_trend: [86.7, 161.5, 241.3, 320.2, 390.8, 463.5, 544.3, 626.8],
   };
 
-  // Dynamic Umbra Navigation Items (01 to 07) filtered by active invitation
+  // Dynamic Command Navigation Items (01 to 07) filtered by active invitation
   const navItems: Array<{
-    viewId: UmbraViewId;
+    viewId: CommandViewId;
     num: string;
     label: string;
     badge: string;
@@ -594,11 +625,17 @@ export default function TaycoMultiTenantPortalPage() {
       (item.viewId === "VIEW_07_TAKEOFF" && allowedIds.includes("MOD_INVESTOR_PORTAL"))
   );
 
-  // Surface styling helper
+  // Authentic TAYCO Luxury Editorial Surface Class & Raking Light Specular Angle
+  const normalizedLightPx = ((lightAngle - 15) / 70).toFixed(3);
   const cardSurfaceClass =
-    surfaceMode === "crystal"
-      ? "bg-slate-900/75 backdrop-blur-xl border border-white/15 shadow-2xl text-white"
-      : "bg-[#0D1829] border border-slate-700/80 shadow-lg text-slate-100";
+    "umbra-bento-card bg-[#0F2040]/85 backdrop-blur-xl border border-[#C9A84C]/25 shadow-2xl text-white transition-all duration-300";
+
+  const livingCardInlineStyle: React.CSSProperties = {
+    ["--sculpture-angle" as string]: `${lightAngle}deg`,
+    ["--response-px" as string]: normalizedLightPx,
+    ["--response-py" as string]: "0.28",
+    background: `linear-gradient(${lightAngle}deg, rgba(27, 58, 107, 0.72) 0%, rgba(15, 32, 64, 0.92) 58%, rgba(201, 168, 76, 0.12) 100%)`,
+  };
 
   // Interactive AIA G702 Simulator Calculations
   const simContractGmp = snapshot.quickbooks.contractGmpUsd;
@@ -620,10 +657,15 @@ export default function TaycoMultiTenantPortalPage() {
     <main
       className="min-h-screen pt-16 text-slate-100"
       style={{
-        background:
-          surfaceMode === "crystal"
-            ? "radial-gradient(circle at 18% 12%, rgba(201,168,76,0.14), transparent 34%), radial-gradient(circle at 85% 20%, rgba(16,185,129,0.10), transparent 36%), linear-gradient(160deg, #050B14 0%, #0A1526 52%, #0E1E38 100%)"
-            : "#070E1A",
+        ["--dark-navy" as string]: TAYCO_DARK_NAVY,
+        ["--navy" as string]: TAYCO_NAVY,
+        ["--gold" as string]: TAYCO_GOLD,
+        ["--gold-light" as string]: TAYCO_GOLD_LIGHT,
+        ["--orange" as string]: TAYCO_ORANGE,
+        ["--emerald" as string]: TAYCO_EMERALD,
+        ["--sculpture-angle" as string]: `${lightAngle}deg`,
+        ["--response-px" as string]: normalizedLightPx,
+        background: `radial-gradient(circle at ${15 + (lightAngle - 15) * 0.8}% 12%, rgba(201,168,76,0.18), transparent 36%), radial-gradient(circle at 85% 22%, rgba(249,115,22,0.11), transparent 36%), linear-gradient(${lightAngle + 95}deg, #09152B 0%, #0F2040 52%, #1B3A6B 100%)`,
       }}
     >
       {/* ── GUEST PREVIEW BANNER (WHEN VIEWING AS AN INVITED CLIENT/CPA/INVESTOR) ── */}
@@ -631,7 +673,7 @@ export default function TaycoMultiTenantPortalPage() {
         <div
           id="tayco-guest-preview-banner"
           className="border-b px-4 py-2.5"
-          style={{ background: "rgba(245, 158, 11, 0.16)", borderColor: accentHex }}
+          style={{ background: "rgba(249, 115, 22, 0.18)", borderColor: TAYCO_GOLD }}
         >
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-xs sm:text-sm text-amber-200">
@@ -649,9 +691,10 @@ export default function TaycoMultiTenantPortalPage() {
             <button
               type="button"
               id="btn-restore-master-admin"
+              data-magnetic
               onClick={() => handleSwitchInvitation("INV-TAYCO-MASTER")}
               className="px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-slate-950 shrink-0"
-              style={{ background: accentHex }}
+              style={{ background: TAYCO_GOLD }}
             >
               🔓 Restore Full Admin View (6/6)
             </button>
@@ -659,13 +702,15 @@ export default function TaycoMultiTenantPortalPage() {
         </div>
       )}
 
-      {/* ── UMBRA APP-SHELL RESPONSIVE GRID (grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]) ── */}
+      {/* ── TAYCO COMMAND APP-SHELL RESPONSIVE GRID (grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]) ── */}
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] min-h-[calc(100vh-4rem)]">
-        {/* ── A) UMBRA LEFT SIDEBAR (#tayco-umbra-sidebar) ── */}
+        {/* ── A) TAYCO COMMAND LEFT SIDEBAR (#tayco-umbra-sidebar) ── */}
         <aside
           id="tayco-umbra-sidebar"
-          className="border-b lg:border-b-0 lg:border-r border-white/10 p-4 sm:p-5 flex flex-col justify-between gap-6"
-          style={{ background: "rgba(6, 12, 24, 0.88)" }}
+          className="border-b lg:border-b-0 lg:border-r border-[#C9A84C]/20 p-4 sm:p-5 flex flex-col justify-between gap-6"
+          style={{
+            background: "linear-gradient(180deg, rgba(15, 32, 64, 0.96) 0%, rgba(9, 21, 43, 0.98) 100%)",
+          }}
         >
           <div className="space-y-5">
             {/* Active Tenant Brand + Mobile Toggle */}
@@ -673,15 +718,22 @@ export default function TaycoMultiTenantPortalPage() {
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shadow-md"
-                  style={{ background: "rgba(201,168,76,0.18)", color: accentHex, border: `1px solid ${accentHex}` }}
+                  style={{
+                    background: "rgba(201,168,76,0.2)",
+                    color: TAYCO_GOLD_LIGHT,
+                    border: `1px solid ${TAYCO_GOLD}`,
+                  }}
                 >
                   TC
                 </div>
                 <div>
-                  <div className="text-xs font-black tracking-wider uppercase" style={{ color: accentHex }}>
-                    TAYCO UMBRA OS
+                  <div
+                    className="text-xs font-black tracking-wider uppercase"
+                    style={{ color: TAYCO_GOLD }}
+                  >
+                    TAYCO COMMAND OS
                   </div>
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <div className="text-[11px] text-slate-300 flex items-center gap-1.5">
                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     <span>{snapshot.activeInvitation.code}</span>
                   </div>
@@ -690,6 +742,7 @@ export default function TaycoMultiTenantPortalPage() {
 
               <button
                 type="button"
+                data-magnetic
                 onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
                 className="lg:hidden px-3 py-1.5 rounded-lg border border-white/15 text-xs font-bold text-slate-200"
               >
@@ -703,7 +756,7 @@ export default function TaycoMultiTenantPortalPage() {
               className={`${mobileSidebarOpen ? "flex" : "hidden"} lg:flex flex-col gap-1.5`}
               aria-label="Command Center Navigation"
             >
-              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 px-2 mb-1">
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-amber-200/80 px-2 mb-1">
                 Command Views (01–07)
               </div>
               {visibleNavItems.map((item) => {
@@ -712,6 +765,7 @@ export default function TaycoMultiTenantPortalPage() {
                   <button
                     key={item.viewId}
                     type="button"
+                    data-magnetic
                     id={item.legacyBtnId || `nav-btn-${item.viewId}`}
                     onClick={() => {
                       setActiveView(item.viewId);
@@ -723,13 +777,14 @@ export default function TaycoMultiTenantPortalPage() {
                     className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between gap-2 ${
                       isActive
                         ? "shadow-lg font-extrabold"
-                        : "text-slate-300 hover:bg-white/5 hover:text-white font-semibold"
+                        : "text-slate-200 hover:bg-white/10 hover:text-white font-semibold"
                     }`}
                     style={
                       isActive
                         ? {
-                            background: "linear-gradient(135deg, rgba(201,168,76,0.24), rgba(15,32,64,0.9))",
-                            border: `1px solid ${accentHex}`,
+                            background:
+                              "linear-gradient(135deg, rgba(201,168,76,0.28), rgba(27,58,107,0.92))",
+                            border: `1px solid ${TAYCO_GOLD}`,
                             color: "#FFFFFF",
                           }
                         : { border: "1px solid transparent" }
@@ -739,15 +794,15 @@ export default function TaycoMultiTenantPortalPage() {
                       <span
                         className="font-mono text-xs font-black px-1.5 py-0.5 rounded"
                         style={{
-                          background: isActive ? accentHex : "rgba(255,255,255,0.07)",
-                          color: isActive ? "#08121F" : accentHex,
+                          background: isActive ? TAYCO_GOLD : "rgba(255,255,255,0.08)",
+                          color: isActive ? TAYCO_DARK_NAVY : TAYCO_GOLD_LIGHT,
                         }}
                       >
                         {item.num}
                       </span>
                       <span className="text-xs truncate">{item.label}</span>
                     </div>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-slate-300 shrink-0">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-amber-200 shrink-0">
                       {item.badge}
                     </span>
                   </button>
@@ -756,25 +811,29 @@ export default function TaycoMultiTenantPortalPage() {
             </nav>
           </div>
 
-          {/* ── UMBRA SIDEBAR BRIDGE CARD WITH ORBITAL SVG RINGS (#umbra-sidebar-bridge) ── */}
+          {/* ── TAYCO SIDEBAR BRIDGE CARD WITH ORBITAL SVG RINGS (#umbra-sidebar-bridge) ── */}
           <div
             id="umbra-sidebar-bridge"
-            className="relative overflow-hidden rounded-2xl p-4 border border-white/15"
+            data-response-kind="surface"
+            onMouseMove={handleSurfaceMouseMove}
+            onMouseLeave={handleSurfaceMouseLeave}
+            className="umbra-bento-card relative overflow-hidden rounded-2xl p-4 border border-[#C9A84C]/30"
             style={{
-              background: "linear-gradient(150deg, rgba(15,32,64,0.92) 0%, rgba(8,18,31,0.96) 100%)",
+              background: "linear-gradient(150deg, #1B3A6B 0%, #0F2040 100%)",
             }}
           >
+            <div className="response-wash pointer-events-none" aria-hidden="true" />
             {/* Geometric Orbital Rings SVG (.preview-orbits) */}
             <svg
-              className="preview-orbits absolute -right-8 -bottom-8 w-36 h-36 pointer-events-none opacity-35"
+              className="preview-orbits absolute -right-8 -bottom-8 w-36 h-36 pointer-events-none opacity-40"
               viewBox="0 0 160 160"
               fill="none"
             >
-              <circle cx="80" cy="80" r="68" stroke={accentHex} strokeWidth="1" strokeDasharray="4 4" />
-              <circle cx="80" cy="80" r="48" stroke="#10B981" strokeWidth="1.2" />
-              <circle cx="80" cy="80" r="28" stroke="#38BDF8" strokeWidth="1" />
-              <circle cx="80" cy="12" r="3.5" fill={accentHex} />
-              <circle cx="32" cy="80" r="3" fill="#10B981" />
+              <circle cx="80" cy="80" r="68" stroke={TAYCO_GOLD} strokeWidth="1" strokeDasharray="4 4" />
+              <circle cx="80" cy="80" r="48" stroke={TAYCO_EMERALD} strokeWidth="1.2" />
+              <circle cx="80" cy="80" r="28" stroke={TAYCO_ORANGE} strokeWidth="1" />
+              <circle cx="80" cy="12" r="3.5" fill={TAYCO_GOLD} />
+              <circle cx="32" cy="80" r="3" fill={TAYCO_EMERALD} />
             </svg>
 
             <div className="relative z-10">
@@ -785,15 +844,16 @@ export default function TaycoMultiTenantPortalPage() {
               <div className="text-sm font-black text-white">
                 {snapshot.takeoffBridge.activeKernelsCount} Rust Kernels Active
               </div>
-              <div className="text-[11px] text-slate-300 mt-0.5">
+              <div className="text-[11px] text-slate-200 mt-0.5">
                 Son of a Star · ${snapshot.takeoffBridge.featuredProjectGmpUsd.toLocaleString()} GMP
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <button
                   type="button"
+                  data-magnetic
                   onClick={handleSyncTakeoffPro}
                   className="px-2.5 py-1.5 rounded-lg text-[11px] font-black text-slate-950 transition-transform hover:scale-105"
-                  style={{ background: accentHex }}
+                  style={{ background: TAYCO_GOLD }}
                 >
                   {syncingBridge ? "Syncing..." : "Sync :8085"}
                 </button>
@@ -801,7 +861,8 @@ export default function TaycoMultiTenantPortalPage() {
                   href={snapshot.takeoffBridge.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-white/20 text-white hover:bg-white/10"
+                  data-magnetic
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-[#C9A84C]/40 text-amber-100 hover:bg-white/10"
                 >
                   Open CAD ↗
                 </a>
@@ -810,125 +871,117 @@ export default function TaycoMultiTenantPortalPage() {
           </div>
         </aside>
 
-        {/* ── B) MAIN WORKSPACE & UMBRA MASTHEAD ── */}
+        {/* ── B) MAIN WORKSPACE & TAYCO EXECUTIVE MASTHEAD ── */}
         <div className="p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden">
-          {/* ── UMBRA TOP MASTHEAD (#tayco-umbra-masthead & #tayco-tenant-bar) ── */}
+          {/* ── TAYCO EXECUTIVE TOP MASTHEAD (#tayco-umbra-masthead & #tayco-tenant-bar) ── */}
           <header
             id="tayco-umbra-masthead"
+            data-response-kind="surface"
+            onMouseMove={handleSurfaceMouseMove}
+            onMouseLeave={handleSurfaceMouseLeave}
             className={`${cardSurfaceClass} rounded-2xl p-5 sm:p-6 relative overflow-hidden`}
+            style={livingCardInlineStyle}
           >
+            <div className="response-wash pointer-events-none" aria-hidden="true" />
             <div id="tayco-tenant-bar" className="relative z-10 space-y-5">
-              {/* Top Row: Title + Surface/Atmosphere/Density Controls */}
+              {/* Top Row: Title + Cognitive Density & Raking Light Angle Controls */}
               <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-1.5">
                     <span
                       className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest"
                       style={{
-                        background: "rgba(201,168,76,0.18)",
-                        color: accentHex,
-                        border: `1px solid ${accentHex}`,
+                        background: "rgba(201,168,76,0.22)",
+                        color: TAYCO_GOLD_LIGHT,
+                        border: `1px solid ${TAYCO_GOLD}`,
                       }}
                     >
                       TAYCO TOTAL MANAGEMENT COMMAND CENTER
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                    <span
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                      style={{
+                        background: "rgba(249,115,22,0.16)",
+                        color: "#FED7AA",
+                        borderColor: "rgba(249,115,22,0.4)",
+                      }}
+                    >
                       ● {densityMode === "calm" ? "Calm Executive Overview" : "Deep-Dive Engineering Mode"}
                     </span>
                   </div>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
                     {snapshot.activeTenant.name}
                   </h1>
-                  <p className="text-xs text-slate-300 mt-0.5">
+                  <p className="text-xs text-slate-200 mt-0.5">
                     {snapshot.activeTenant.subtitle} · Active Role:{" "}
-                    <strong style={{ color: accentHex }}>{snapshot.activeInvitation.role}</strong>
+                    <strong style={{ color: TAYCO_GOLD_LIGHT }}>{snapshot.activeInvitation.role}</strong>
                   </p>
                 </div>
 
-                {/* Umbra Surface, Atmosphere & Cognitive Density Controls */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {/* Cognitive Density Toggle (Calm Overview vs Deep-Dive Tables) */}
-                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+                {/* Progressive Disclosure Toggle + Interactive Raking Light Angle Scrubber */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* 1. Cognitive Density Toggle (Calm Overview vs Deep-Dive Tables) */}
+                  <div className="flex items-center bg-[#09152B]/80 p-1 rounded-xl border border-[#C9A84C]/30">
                     <button
                       type="button"
                       id="btn-density-calm"
+                      data-magnetic
                       onClick={() => setDensityMode("calm")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
                         densityMode === "calm"
-                          ? "bg-amber-400 text-slate-950 shadow"
-                          : "text-slate-300 hover:text-white"
+                          ? "text-slate-950 shadow"
+                          : "text-slate-200 hover:text-white"
                       }`}
+                      style={densityMode === "calm" ? { background: TAYCO_GOLD } : undefined}
                     >
                       🧘 Calm Overview
                     </button>
                     <button
                       type="button"
                       id="btn-density-deep"
+                      data-magnetic
                       onClick={() => setDensityMode("deep")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
                         densityMode === "deep"
-                          ? "bg-amber-400 text-slate-950 shadow"
-                          : "text-slate-300 hover:text-white"
+                          ? "text-slate-950 shadow"
+                          : "text-slate-200 hover:text-white"
                       }`}
+                      style={densityMode === "deep" ? { background: TAYCO_GOLD } : undefined}
                     >
                       🔬 Deep-Dive Tables
                     </button>
                   </div>
 
-                  {/* Surface Mode: Mineral vs Crystal Glass */}
-                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
-                    <button
-                      type="button"
-                      id="btn-surface-mineral"
-                      onClick={() => setSurfaceMode("mineral")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        surfaceMode === "mineral"
-                          ? "bg-white/20 text-white"
-                          : "text-slate-400 hover:text-white"
-                      }`}
+                  {/* 2. Interactive Raking Light Angle Scrubber (15° to 85°) */}
+                  <div
+                    id="tayco-raking-light-control"
+                    className="flex items-center gap-2.5 bg-[#09152B]/80 px-3.5 py-2 rounded-xl border border-[#C9A84C]/30"
+                  >
+                    <label
+                      htmlFor="input-raking-light-angle"
+                      className="text-xs font-extrabold whitespace-nowrap"
+                      style={{ color: TAYCO_GOLD_LIGHT }}
                     >
-                      🪨 Mineral
-                    </button>
-                    <button
-                      type="button"
-                      id="btn-surface-crystal"
-                      onClick={() => setSurfaceMode("crystal")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        surfaceMode === "crystal"
-                          ? "bg-white/20 text-white"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      💎 Crystal Glass
-                    </button>
-                  </div>
-
-                  {/* Atmosphere Swatches */}
-                  <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1.5 rounded-xl border border-white/10">
-                    {[
-                      { label: "Gold", hex: "#C9A84C" },
-                      { label: "Emerald", hex: "#10B981" },
-                      { label: "Glacier", hex: "#38BDF8" },
-                    ].map((sw) => (
-                      <button
-                        key={sw.hex}
-                        type="button"
-                        title={`Atmosphere: ${sw.label}`}
-                        onClick={() => setAccentHex(sw.hex)}
-                        className={`w-4 h-4 rounded-full transition-transform ${
-                          accentHex === sw.hex ? "scale-125 ring-2 ring-white" : "opacity-70 hover:opacity-100"
-                        }`}
-                        style={{ background: sw.hex }}
-                      />
-                    ))}
+                      ☀️ Raking Light Angle: {lightAngle}°
+                    </label>
+                    <input
+                      id="input-raking-light-angle"
+                      type="range"
+                      min={15}
+                      max={85}
+                      value={lightAngle}
+                      onChange={(e) => setLightAngle(Number(e.target.value))}
+                      className="w-24 accent-amber-400 cursor-pointer"
+                      aria-label="Raking Light Angle"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Second Row: Tenant Selector, Invitation Selector & Quick Action Buttons */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-4 border-t border-white/10 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-4 border-t border-white/15 items-end">
                 <div className="md:col-span-4">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-amber-200/90 mb-1">
                     🏢 ACTIVE ORGANIZATION / TENANT
                   </label>
                   <select
@@ -946,7 +999,7 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 <div className="md:col-span-5">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-amber-200/90 mb-1">
                     🎟️ SESSION PROFILE / GUEST INVITATION PREVIEW (FILTERS MODULES LIVE)
                   </label>
                   <select
@@ -967,20 +1020,22 @@ export default function TaycoMultiTenantPortalPage() {
                   <button
                     type="button"
                     id="btn-open-invite-builder"
+                    data-magnetic
                     onClick={() => setShowInviteBuilder(!showInviteBuilder)}
                     className="flex-1 px-3 py-2 rounded-xl text-xs font-black text-slate-950 transition-transform hover:scale-[1.02] shadow-md"
-                    style={{ background: accentHex }}
+                    style={{ background: TAYCO_GOLD }}
                   >
-                    🎟️ {showInviteBuilder ? "Hide Invite Builder" : "Invite Client by Modules"}
+                    🎟️ {showInviteBuilder ? "Hide Invite Builder" : "Create Scoped Invitation"}
                   </button>
                   <button
                     type="button"
                     id="btn-sync-takeoff-live"
+                    data-magnetic
                     onClick={handleSyncTakeoffPro}
                     disabled={syncingBridge}
-                    className="px-3 py-2 rounded-xl text-xs font-bold text-white border border-white/25 hover:bg-white/10"
+                    className="px-3 py-2 rounded-xl text-xs font-bold text-white border border-[#C9A84C]/40 hover:bg-white/10"
                   >
-                    {syncingBridge ? "🔄..." : "📐 Live Sync (:8085)"}
+                    {syncingBridge ? "🔄..." : "📐 Sync :8085"}
                   </button>
                 </div>
               </div>
@@ -997,30 +1052,34 @@ export default function TaycoMultiTenantPortalPage() {
           {(showInviteBuilder || activeView === "VIEW_02_INVITATIONS") && (
             <section
               id="tayco-invitation-builder-card"
-              className={`${cardSurfaceClass} rounded-2xl p-6 border-2`}
-              style={{ borderColor: accentHex }}
+              data-response-kind="surface"
+              onMouseMove={handleSurfaceMouseMove}
+              onMouseLeave={handleSurfaceMouseLeave}
+              className={`${cardSurfaceClass} rounded-2xl p-6 border-2 relative overflow-hidden`}
+              style={{ ...livingCardInlineStyle, borderColor: TAYCO_GOLD }}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/10">
+              <div className="response-wash pointer-events-none" aria-hidden="true" />
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/15">
                 <div>
                   <span
                     className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full"
-                    style={{ background: "rgba(201,168,76,0.2)", color: accentHex }}
+                    style={{ background: "rgba(201,168,76,0.22)", color: TAYCO_GOLD_LIGHT }}
                   >
                     🎟️ B2B MODULE-SCOPED INVITATION GENERATOR
                   </span>
                   <h2 className="text-xl font-black text-white mt-1">
                     Invite a Client, Investor, or CPA to Specific Modules
                   </h2>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-slate-200">
                     Select the exact modules you want to showcase in your meeting. The invited guest will only see the authorized tabs.
                   </p>
                 </div>
               </div>
 
-              <form onSubmit={handleCreateAndPreviewInvite} className="mt-4 space-y-4">
+              <form onSubmit={handleCreateAndPreviewInvite} className="relative z-10 mt-4 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Guest Name *</label>
+                    <label className="block text-xs font-bold text-slate-200 mb-1">Guest Name *</label>
                     <input
                       id="invite-input-name"
                       value={guestName}
@@ -1030,7 +1089,7 @@ export default function TaycoMultiTenantPortalPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Company / Firm *</label>
+                    <label className="block text-xs font-bold text-slate-200 mb-1">Company / Firm *</label>
                     <input
                       id="invite-input-company"
                       value={guestCompany}
@@ -1040,7 +1099,7 @@ export default function TaycoMultiTenantPortalPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Email Address *</label>
+                    <label className="block text-xs font-bold text-slate-200 mb-1">Email Address *</label>
                     <input
                       id="invite-input-email"
                       type="email"
@@ -1051,7 +1110,7 @@ export default function TaycoMultiTenantPortalPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Role / Expiration</label>
+                    <label className="block text-xs font-bold text-slate-200 mb-1">Role / Expiration</label>
                     <div className="flex gap-2">
                       <input
                         id="invite-input-role"
@@ -1074,19 +1133,21 @@ export default function TaycoMultiTenantPortalPage() {
 
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: accentHex }}>
+                    <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
                       SELECT MODULES TO PRESENT ({selectedModules.length} OF 6 CHECKED):
                     </label>
                     <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
+                        data-magnetic
                         onClick={() => setSelectedModules(snapshot.modules.map((m) => m.id))}
-                        className="text-xs font-bold underline text-slate-300 hover:text-white"
+                        className="text-xs font-bold underline text-slate-200 hover:text-white"
                       >
                         Select All (6)
                       </button>
                       <button
                         type="button"
+                        data-magnetic
                         onClick={() => setSelectedModules(["MOD_TAKEOFF_PRO", "MOD_CRM_BIDS"])}
                         className="text-xs font-bold underline text-amber-300 hover:text-amber-100"
                       >
@@ -1094,6 +1155,7 @@ export default function TaycoMultiTenantPortalPage() {
                       </button>
                       <button
                         type="button"
+                        data-magnetic
                         onClick={() =>
                           setSelectedModules([
                             "MOD_PAYROLL_CREW",
@@ -1129,7 +1191,7 @@ export default function TaycoMultiTenantPortalPage() {
                           />
                           <div className="text-xs">
                             <div className="font-extrabold text-white">{mod.title}</div>
-                            <div className="text-slate-300 mt-0.5">{mod.description}</div>
+                            <div className="text-slate-200 mt-0.5">{mod.description}</div>
                           </div>
                         </label>
                       );
@@ -1141,10 +1203,11 @@ export default function TaycoMultiTenantPortalPage() {
                   <button
                     type="submit"
                     id="btn-generate-and-preview-invite"
+                    data-magnetic
                     className="px-6 py-3 rounded-xl font-black text-sm text-slate-950 shadow-md transition-transform hover:scale-[1.01]"
-                    style={{ background: accentHex }}
+                    style={{ background: TAYCO_GOLD }}
                   >
-                    ✨ Generate Invitation Link &amp; Preview Guest View Now
+                    ✨ Create Scoped Invitation &amp; Preview Guest View
                   </button>
 
                   {createdInviteBanner && (
@@ -1168,13 +1231,20 @@ export default function TaycoMultiTenantPortalPage() {
             </section>
           )}
 
-          {/* ── C) BENTO KPI CARDS WITH SPARKLINES & ORBITAL RINGS (ALWAYS VISIBLE AT TOP OF COMMAND CENTER) ── */}
+          {/* ── C) 4 EXECUTIVE KPI CARDS WITH SPARKLINES & 3D LIVING SPECULAR WASH ── */}
           <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            {/* Bento KPI 1: Active Pipeline */}
-            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
-              <div className="flex items-start justify-between gap-2">
+            {/* Executive KPI 1: Active Pipeline */}
+            <div
+              data-response-kind="surface"
+              onMouseMove={handleSurfaceMouseMove}
+              onMouseLeave={handleSurfaceMouseLeave}
+              className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}
+              style={livingCardInlineStyle}
+            >
+              <div className="response-wash pointer-events-none" aria-hidden="true" />
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">
                     Active Commercial Pipeline
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-1">
@@ -1187,7 +1257,7 @@ export default function TaycoMultiTenantPortalPage() {
                 <svg width="110" height="36" className="shrink-0">
                   <polyline
                     fill="none"
-                    stroke={accentHex}
+                    stroke={TAYCO_GOLD}
                     strokeWidth="2.4"
                     points={buildSparklinePoints(sparklines.pipeline_trend, 110, 36)}
                   />
@@ -1195,24 +1265,31 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Bento KPI 2: Takeoff Pro GMP */}
-            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
-              <div className="flex items-start justify-between gap-2">
+            {/* Executive KPI 2: Takeoff Pro GMP */}
+            <div
+              data-response-kind="surface"
+              onMouseMove={handleSurfaceMouseMove}
+              onMouseLeave={handleSurfaceMouseLeave}
+              className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}
+              style={livingCardInlineStyle}
+            >
+              <div className="response-wash pointer-events-none" aria-hidden="true" />
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">
                     Takeoff Pro Flagship GMP
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: accentHex }}>
+                  <div className="text-2xl sm:text-3xl font-black mt-1" style={{ color: TAYCO_GOLD_LIGHT }}>
                     $855,525.23
                   </div>
-                  <div className="text-xs text-slate-300 mt-1">
+                  <div className="text-xs text-slate-200 mt-1">
                     Son of a Star · CPI {snapshot.takeoffBridge.evmCpi} / SPI {snapshot.takeoffBridge.evmSpi}
                   </div>
                 </div>
                 <svg width="110" height="36" className="shrink-0">
                   <polyline
                     fill="none"
-                    stroke="#10B981"
+                    stroke={TAYCO_EMERALD}
                     strokeWidth="2.4"
                     points={buildSparklinePoints(sparklines.cpi_trend, 110, 36)}
                   />
@@ -1220,11 +1297,18 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Bento KPI 3: WH-347 Field Labor */}
-            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
-              <div className="flex items-start justify-between gap-2">
+            {/* Executive KPI 3: WH-347 Field Labor */}
+            <div
+              data-response-kind="surface"
+              onMouseMove={handleSurfaceMouseMove}
+              onMouseLeave={handleSurfaceMouseLeave}
+              className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}
+              style={livingCardInlineStyle}
+            >
+              <div className="response-wash pointer-events-none" aria-hidden="true" />
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">
                     WH-347 Field Labor Budget
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-1">
@@ -1237,7 +1321,7 @@ export default function TaycoMultiTenantPortalPage() {
                 <svg width="110" height="36" className="shrink-0">
                   <polyline
                     fill="none"
-                    stroke="#38BDF8"
+                    stroke={TAYCO_ORANGE}
                     strokeWidth="2.4"
                     points={buildSparklinePoints(sparklines.manhours_trend, 110, 36)}
                   />
@@ -1245,24 +1329,31 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
             </div>
 
-            {/* Bento KPI 4: Net AIA G702 Billing */}
-            <div className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}>
-              <div className="flex items-start justify-between gap-2">
+            {/* Executive KPI 4: Net AIA G702 Billing */}
+            <div
+              data-response-kind="surface"
+              onMouseMove={handleSurfaceMouseMove}
+              onMouseLeave={handleSurfaceMouseLeave}
+              className={`${cardSurfaceClass} rounded-2xl p-5 relative overflow-hidden`}
+              style={livingCardInlineStyle}
+            >
+              <div className="response-wash pointer-events-none" aria-hidden="true" />
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">
                     Net AIA G702 Pay App #3
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">
                     $184,892.70
                   </div>
-                  <div className="text-xs text-slate-300 mt-1">
+                  <div className="text-xs text-slate-200 mt-1">
                     10% Retainage Held: $51,501.13
                   </div>
                 </div>
                 <svg width="110" height="36" className="shrink-0">
                   <polyline
                     fill="none"
-                    stroke="#F59E0B"
+                    stroke={TAYCO_GOLD_LIGHT}
                     strokeWidth="2.4"
                     points={buildSparklinePoints(sparklines.cashflow_trend, 110, 36)}
                   />
@@ -1274,21 +1365,85 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 01: EXECUTIVE COMMAND & INTERACTIVE SVG CHARTS ── */}
           {activeView === "VIEW_01_COMMAND" && (
             <section id="panel-VIEW_01_COMMAND" className="space-y-6">
-              {/* Row 1 of Charts: Interactive S-Curve + Interactive CSI-32 Donut */}
+              {/* Live Editorial Telemetry Marquee Strip + Rotating Orbital Seal Badge */}
+              <div
+                id="tayco-live-telemetry-marquee"
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className="umbra-bento-card rounded-2xl px-4 py-3 border border-[#C9A84C]/35 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(15, 32, 64, 0.96) 0%, rgba(27, 58, 107, 0.92) 50%, rgba(15, 32, 64, 0.96) 100%)",
+                }}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex items-center gap-3 overflow-hidden w-full">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shrink-0"
+                    style={{ background: TAYCO_ORANGE, color: "#09152B" }}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    LIVE TELEMETRY
+                  </span>
+                  <div className="text-xs font-mono font-bold tracking-wide text-amber-100 whitespace-nowrap">
+                    ✳ ACTIVE PIPELINE $5.88M ✳ SON OF A STAR GMP $855,525 (CPI 1.04 · SPI 0.98) ✳ 6,536 MAN-HOURS DAVIS-BACON WH-347 ✳ 9-STATE TAX &amp; 1099-NEC ENGINE ACTIVE ✳
+                  </div>
+                </div>
+
+                {/* Rotating Orbital Seal Badge ("TAYCO EXECUTIVE ERP · LIVE SYNC ·") */}
+                <div
+                  id="tayco-orbital-seal-badge"
+                  className="relative z-10 flex items-center gap-2.5 shrink-0 px-3 py-1 rounded-full border border-[#C9A84C]/40 bg-[#09152B]/80"
+                >
+                  <svg
+                    viewBox="0 0 80 80"
+                    className="w-9 h-9 animate-spin"
+                    style={{ animationDuration: "18s" }}
+                    aria-label="TAYCO EXECUTIVE ERP · LIVE SYNC ·"
+                  >
+                    <defs>
+                      <path
+                        id="taycoSealCirclePath"
+                        d="M 40, 40 m -29, 0 a 29,29 0 1,1 58,0 a 29,29 0 1,1 -58,0"
+                      />
+                    </defs>
+                    <circle cx="40" cy="40" r="34" fill="none" stroke={TAYCO_GOLD} strokeWidth="1" strokeDasharray="3 3" />
+                    <circle cx="40" cy="40" r="10" fill={TAYCO_GOLD} fillOpacity="0.2" stroke={TAYCO_GOLD} strokeWidth="1.5" />
+                    <text fill={TAYCO_GOLD_LIGHT} fontSize="6.3" fontWeight="800" letterSpacing="1.2">
+                      <textPath href="#taycoSealCirclePath">
+                        TAYCO EXECUTIVE ERP · LIVE SYNC ·
+                      </textPath>
+                    </text>
+                  </svg>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: TAYCO_GOLD_LIGHT }}>
+                    TAYCO EXECUTIVE ERP · LIVE SYNC ·
+                  </span>
+                </div>
+              </div>
+
+              {/* Row 1 of Charts: Interactive S-Curve + Interactive CSI-32 Cost Ring */}
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                {/* 1. Interactive S-Curve Cashflow, Earned Value (EV) & AIA Billing Chart (#chart-scurve-svg) */}
-                <div className={`${cardSurfaceClass} xl:col-span-7 rounded-2xl p-6`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                {/* 1. Interactive S-Curve 24-Week EVM Chart (#chart-scurve-svg) */}
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} xl:col-span-7 rounded-2xl p-6 relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/15">
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
                         📈 EARNED VALUE MANAGEMENT (EVM) &amp; AIA G702 CASHFLOW
                       </span>
                       <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                        24-Week S-Curve: Planned vs. Earned Value vs. Actual Cost
+                        S-Curve 24-Week EVM: Planned vs. Earned Value vs. Actual Cost
                       </h2>
                     </div>
-                    <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
-                      <span className="text-xs text-slate-300 font-semibold">Cutoff Week:</span>
+                    <div className="flex items-center gap-2 bg-[#09152B]/70 px-3 py-1.5 rounded-xl border border-[#C9A84C]/30">
+                      <span className="text-xs text-slate-200 font-semibold">Cutoff Week:</span>
                       <input
                         type="range"
                         min={0}
@@ -1304,35 +1459,35 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
 
                   {/* Active Week Telemetry Pill Bar */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+                  <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
                     <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                      <div className="text-[10px] uppercase text-slate-400 font-bold">Planned Value (PV)</div>
-                      <div className="text-sm sm:text-base font-mono font-black text-slate-200 mt-0.5">
+                      <div className="text-[10px] uppercase text-slate-300 font-bold">Planned Value (PV)</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-slate-100 mt-0.5">
                         ${activeScurvePoint.planned_value_usd.toLocaleString()}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
+                    <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-400/35">
                       <div className="text-[10px] uppercase text-amber-300 font-bold">Earned Value (EV)</div>
                       <div className="text-sm sm:text-base font-mono font-black text-amber-200 mt-0.5">
                         ${activeScurvePoint.earned_value_usd.toLocaleString()}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/30">
+                    <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-400/35">
                       <div className="text-[10px] uppercase text-emerald-300 font-bold">Actual Cost (AC)</div>
                       <div className="text-sm sm:text-base font-mono font-black text-emerald-200 mt-0.5">
                         ${activeScurvePoint.actual_cost_usd.toLocaleString()}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-400/30">
-                      <div className="text-[10px] uppercase text-sky-300 font-bold">EVM Indices</div>
-                      <div className="text-sm sm:text-base font-mono font-black text-sky-200 mt-0.5">
+                    <div className="p-3 rounded-xl bg-orange-500/15 border border-orange-400/35">
+                      <div className="text-[10px] uppercase text-orange-300 font-bold">EVM Indices</div>
+                      <div className="text-sm sm:text-base font-mono font-black text-orange-200 mt-0.5">
                         CPI {activeScurvePoint.cpi} · SPI {activeScurvePoint.spi}
                       </div>
                     </div>
                   </div>
 
                   {/* Interactive SVG S-Curve (#chart-scurve-svg) */}
-                  <div className="relative">
+                  <div className="relative z-10">
                     <svg
                       id="chart-scurve-svg"
                       viewBox="0 0 640 230"
@@ -1340,8 +1495,8 @@ export default function TaycoMultiTenantPortalPage() {
                     >
                       <defs>
                         <linearGradient id="evAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={accentHex} stopOpacity="0.38" />
-                          <stop offset="100%" stopColor={accentHex} stopOpacity="0.0" />
+                          <stop offset="0%" stopColor={TAYCO_GOLD} stopOpacity="0.42" />
+                          <stop offset="100%" stopColor={TAYCO_GOLD} stopOpacity="0.0" />
                         </linearGradient>
                       </defs>
 
@@ -1356,10 +1511,10 @@ export default function TaycoMultiTenantPortalPage() {
                               y1={y}
                               x2="620"
                               y2={y}
-                              stroke="rgba(255,255,255,0.08)"
+                              stroke="rgba(255,255,255,0.1)"
                               strokeDasharray="3 3"
                             />
-                            <text x="6" y={y + 4} fill="#94A3B8" fontSize="10" fontFamily="monospace">
+                            <text x="6" y={y + 4} fill="#CBD5E1" fontSize="10" fontFamily="monospace">
                               ${labelUsd}K
                             </text>
                           </g>
@@ -1403,7 +1558,7 @@ export default function TaycoMultiTenantPortalPage() {
                       {scurveSeries.length > 1 && (
                         <polyline
                           fill="none"
-                          stroke={accentHex}
+                          stroke={TAYCO_GOLD}
                           strokeWidth="3"
                           points={scurveSeries
                             .map((pt, i) => {
@@ -1419,7 +1574,7 @@ export default function TaycoMultiTenantPortalPage() {
                       {scurveSeries.length > 1 && (
                         <polyline
                           fill="none"
-                          stroke="#10B981"
+                          stroke={TAYCO_EMERALD}
                           strokeWidth="2.2"
                           points={scurveSeries
                             .map((pt, i) => {
@@ -1448,7 +1603,7 @@ export default function TaycoMultiTenantPortalPage() {
                                 y1="24"
                                 x2={x}
                                 y2="195"
-                                stroke={accentHex}
+                                stroke={TAYCO_GOLD}
                                 strokeWidth="1.2"
                                 strokeDasharray="2 2"
                               />
@@ -1457,15 +1612,15 @@ export default function TaycoMultiTenantPortalPage() {
                               cx={x}
                               cy={yEv}
                               r={isSelected ? 6 : 4}
-                              fill={isSelected ? "#FFFFFF" : accentHex}
-                              stroke="#08121F"
+                              fill={isSelected ? "#FFFFFF" : TAYCO_GOLD}
+                              stroke={TAYCO_DARK_NAVY}
                               strokeWidth="2"
                             />
                             <text
                               x={x}
                               y="214"
                               textAnchor="middle"
-                              fill={isSelected ? accentHex : "#94A3B8"}
+                              fill={isSelected ? TAYCO_GOLD_LIGHT : "#CBD5E1"}
                               fontSize="10"
                               fontWeight={isSelected ? "800" : "500"}
                             >
@@ -1478,39 +1633,48 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                {/* 2. Interactive CSI-32 Cost & Man-Hour Ring Chart (#chart-csi-donut-svg) */}
-                <div className={`${cardSurfaceClass} xl:col-span-5 rounded-2xl p-6 flex flex-col justify-between`}>
-                  <div>
-                    <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/10">
+                {/* 2. Interactive CSI-32 Cost Ring Chart (#chart-csi-donut-svg) */}
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} xl:col-span-5 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/15">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
-                          🍩 CSI-32 GMP COST &amp; CREW DISTRIBUTION
+                          🍩 CSI-32 COST RING &amp; CREW DISTRIBUTION
                         </span>
                         <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                          Interactive Takeoff Pro Ring ($855.5K)
+                          CSI-32 Cost Ring ($855.5K GMP)
                         </h2>
                       </div>
-                      <div className="flex bg-black/30 p-1 rounded-xl border border-white/10 text-[11px] font-bold">
+                      <div className="flex bg-[#09152B]/70 p-1 rounded-xl border border-[#C9A84C]/30 text-[11px] font-bold">
                         <button
                           type="button"
+                          data-magnetic
                           onClick={() => {
                             setDonutLayerMode("divisions");
                             setSelectedDonutIdx(0);
                           }}
                           className={`px-2.5 py-1 rounded-lg ${
-                            donutLayerMode === "divisions" ? "bg-amber-400 text-slate-950" : "text-slate-300"
+                            donutLayerMode === "divisions" ? "bg-amber-400 text-slate-950" : "text-slate-200"
                           }`}
                         >
                           7 CSI Divs
                         </button>
                         <button
                           type="button"
+                          data-magnetic
                           onClick={() => {
                             setDonutLayerMode("components");
                             setSelectedDonutIdx(0);
                           }}
                           className={`px-2.5 py-1 rounded-lg ${
-                            donutLayerMode === "components" ? "bg-amber-400 text-slate-950" : "text-slate-300"
+                            donutLayerMode === "components" ? "bg-amber-400 text-slate-950" : "text-slate-200"
                           }`}
                         >
                           Cost Tiers
@@ -1553,8 +1717,8 @@ export default function TaycoMultiTenantPortalPage() {
                               );
                             });
                           })()}
-                          <circle cx="100" cy="100" r="52" fill="#08121F" />
-                          <text x="100" y="94" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="700">
+                          <circle cx="100" cy="100" r="52" fill={TAYCO_DARK_NAVY} />
+                          <text x="100" y="94" textAnchor="middle" fill={TAYCO_GOLD_LIGHT} fontSize="9" fontWeight="700">
                             {selectedSegment?.code || "CSI-32"}
                           </text>
                           <text x="100" y="110" textAnchor="middle" fill="#FFFFFF" fontSize="13" fontWeight="900">
@@ -1570,9 +1734,10 @@ export default function TaycoMultiTenantPortalPage() {
                             <button
                               key={seg.id}
                               type="button"
+                              data-magnetic
                               onClick={() => setSelectedDonutIdx(idx)}
                               className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-all ${
-                                isSelected ? "bg-white/15 font-black text-white" : "text-slate-300 hover:bg-white/5"
+                                isSelected ? "bg-white/15 font-black text-white" : "text-slate-200 hover:bg-white/5"
                               }`}
                             >
                               <span className="flex items-center gap-2 truncate">
@@ -1594,9 +1759,9 @@ export default function TaycoMultiTenantPortalPage() {
 
                   {/* Selected Segment Detail Pill */}
                   {selectedSegment && (
-                    <div className="mt-4 p-3.5 rounded-xl bg-black/35 border border-white/10 text-xs">
+                    <div className="relative z-10 mt-4 p-3.5 rounded-xl bg-[#09152B]/70 border border-[#C9A84C]/25 text-xs">
                       <div className="font-black text-white">{selectedSegment.label}</div>
-                      <div className="flex flex-wrap justify-between gap-2 text-slate-300 mt-1">
+                      <div className="flex flex-wrap justify-between gap-2 text-slate-200 mt-1">
                         <span>
                           Budget: <strong className="text-amber-300">${selectedSegment.amountUsd.toLocaleString()}</strong>
                         </span>
@@ -1606,7 +1771,7 @@ export default function TaycoMultiTenantPortalPage() {
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
+                      <div className="text-[11px] text-slate-300 mt-0.5">
                         Assigned: {selectedSegment.crewAssigned}
                       </div>
                     </div>
@@ -1614,189 +1779,332 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
               </div>
 
-              {/* Row 2: Interactive 9-State Pipeline & Sales/Use Tax Bar Matrix (#chart-states-bar-svg) */}
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-white/10">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-sky-300">
-                      🗺️ 9-STATE FOOTPRINT &amp;CONSTRUCTION SALES/USE TAX ENGINE
-                    </span>
-                    <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                      Interactive Multi-State Pipeline &amp; Material Tax Matrix (Click Any State Bar)
-                    </h2>
+              {/* Row 2 of Charts: 3. 9-State Pipeline & Tax Matrix + 4. WH-347 Crew Radial Gauges */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                {/* 3. Interactive 9-State Pipeline & Tax Matrix (#chart-states-bar-svg) */}
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} xl:col-span-7 rounded-2xl p-6 relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-white/15">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+                        🗺️ 9-STATE PIPELINE &amp; TAX MATRIX
+                      </span>
+                      <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                        9-State Pipeline &amp; Tax Matrix (Click Any State Bar)
+                      </h2>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-xs text-slate-200">
+                        Active Tax State:{" "}
+                        <strong className="text-amber-300">
+                          {snapshot.taxCompliance.stateCode} ({snapshot.taxCompliance.effectiveRatePct}%)
+                        </strong>{" "}
+                        · Est. Material Tax:{" "}
+                        <strong className="text-emerald-300">
+                          ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString()}
+                        </strong>
+                      </span>
+                      <button
+                        type="button"
+                        data-magnetic
+                        onClick={() => setActiveView("VIEW_06_TAX")}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                      >
+                        Open Tax &amp; 1099-NEC →
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs text-slate-300">
-                      Active Tax State:{" "}
-                      <strong className="text-amber-300">
-                        {snapshot.taxCompliance.stateCode} ({snapshot.taxCompliance.effectiveRatePct}%)
-                      </strong>{" "}
-                      · Est. Material Tax:{" "}
-                      <strong className="text-emerald-300">
-                        ${snapshot.taxCompliance.estimatedSalesUseTaxUsd.toLocaleString()}
-                      </strong>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setActiveView("VIEW_06_TAX")}
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                  <div className="relative z-10 mt-4">
+                    <svg
+                      id="chart-states-bar-svg"
+                      viewBox="0 0 720 185"
+                      className="w-full h-44 overflow-visible"
                     >
-                      Open Tax &amp; 1099-NEC Module →
-                    </button>
+                      {stateFootprint.map((st, idx) => {
+                        const barWidth = 52;
+                        const gap = 26;
+                        const x = 24 + idx * (barWidth + gap);
+                        const maxPipeline = 2500000;
+                        const barH = Math.max(18, (st.active_pipeline_usd / maxPipeline) * 115);
+                        const y = 145 - barH;
+                        const isSelected = st.stateCode === snapshot.taxCompliance.stateCode;
+                        return (
+                          <g
+                            key={st.stateCode}
+                            className="cursor-pointer"
+                            onClick={() =>
+                              handleTaxStateChange(st.stateCode, snapshot.taxCompliance.taxExempt)
+                            }
+                          >
+                            <rect
+                              x={x}
+                              y={y}
+                              width={barWidth}
+                              height={barH}
+                              rx="8"
+                              fill={isSelected ? TAYCO_GOLD : "rgba(249, 115, 22, 0.55)"}
+                              stroke={isSelected ? "#FFFFFF" : "rgba(201,168,76,0.45)"}
+                              strokeWidth={isSelected ? "2" : "1"}
+                            />
+                            <text
+                              x={x + barWidth / 2}
+                              y={y - 6}
+                              textAnchor="middle"
+                              fill="#F8FAFC"
+                              fontSize="9.5"
+                              fontFamily="monospace"
+                              fontWeight="700"
+                            >
+                              ${(st.active_pipeline_usd / 1e6).toFixed(2)}M
+                            </text>
+                            <text
+                              x={x + barWidth / 2}
+                              y="162"
+                              textAnchor="middle"
+                              fill={isSelected ? TAYCO_GOLD_LIGHT : "#FFFFFF"}
+                              fontSize="11"
+                              fontWeight="900"
+                            >
+                              {st.stateCode}
+                            </text>
+                            <text
+                              x={x + barWidth / 2}
+                              y="176"
+                              textAnchor="middle"
+                              fill="#CBD5E1"
+                              fontSize="9.5"
+                            >
+                              {st.combined_tax_rate_pct}% Tax
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </svg>
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <svg
-                    id="chart-states-bar-svg"
-                    viewBox="0 0 720 185"
-                    className="w-full h-44 overflow-visible"
-                  >
-                    {stateFootprint.map((st, idx) => {
-                      const barWidth = 52;
-                      const gap = 26;
-                      const x = 24 + idx * (barWidth + gap);
-                      const maxPipeline = 2500000;
-                      const barH = Math.max(18, (st.active_pipeline_usd / maxPipeline) * 115);
-                      const y = 145 - barH;
-                      const isSelected = st.stateCode === snapshot.taxCompliance.stateCode;
-                      return (
-                        <g
-                          key={st.stateCode}
-                          className="cursor-pointer"
-                          onClick={() =>
-                            handleTaxStateChange(st.stateCode, snapshot.taxCompliance.taxExempt)
-                          }
-                        >
-                          <rect
-                            x={x}
-                            y={y}
-                            width={barWidth}
-                            height={barH}
-                            rx="8"
-                            fill={isSelected ? accentHex : "rgba(56, 189, 248, 0.45)"}
-                            stroke={isSelected ? "#FFFFFF" : "rgba(255,255,255,0.2)"}
-                            strokeWidth={isSelected ? "2" : "1"}
-                          />
-                          <text
-                            x={x + barWidth / 2}
-                            y={y - 6}
-                            textAnchor="middle"
-                            fill="#E2E8F0"
-                            fontSize="9.5"
-                            fontFamily="monospace"
-                            fontWeight="700"
+                {/* 4. Interactive WH-347 Crew Radial Gauges (#chart-wh347-radial-svg) */}
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} xl:col-span-5 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/15">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-orange-300">
+                          👷 DAVIS-BACON CERTIFIED PAYROLL TELEMETRY
+                        </span>
+                        <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
+                          WH-347 Crew Radial Gauges (6,536 MH)
+                        </h2>
+                      </div>
+                      <button
+                        type="button"
+                        data-magnetic
+                        onClick={() => setActiveView("VIEW_04_PAYROLL")}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                      >
+                        WH-347 Ledger →
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                      {snapshot.payroll.crews.slice(0, 4).map((crew, idx) => {
+                        const pct = Math.min(100, Math.round((crew.totalManHours / 1700) * 100));
+                        const r = 30;
+                        const circ = 2 * Math.PI * r;
+                        const dash = (pct / 100) * circ;
+                        const strokeColors = [TAYCO_GOLD, TAYCO_ORANGE, TAYCO_EMERALD, TAYCO_GOLD_LIGHT];
+                        const ringColor = strokeColors[idx % strokeColors.length];
+                        return (
+                          <div
+                            key={crew.crewCode}
+                            className="p-2.5 rounded-xl bg-[#09152B]/65 border border-[#C9A84C]/25 flex flex-col items-center text-center"
                           >
-                            ${(st.active_pipeline_usd / 1e6).toFixed(2)}M
-                          </text>
-                          <text
-                            x={x + barWidth / 2}
-                            y="162"
-                            textAnchor="middle"
-                            fill={isSelected ? accentHex : "#FFFFFF"}
-                            fontSize="11"
-                            fontWeight="900"
-                          >
-                            {st.stateCode}
-                          </text>
-                          <text
-                            x={x + barWidth / 2}
-                            y="176"
-                            textAnchor="middle"
-                            fill="#94A3B8"
-                            fontSize="9.5"
-                          >
-                            {st.combined_tax_rate_pct}% Tax
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
+                            <svg
+                              id={idx === 0 ? "chart-wh347-radial-svg" : undefined}
+                              viewBox="0 0 80 80"
+                              className="w-16 h-16"
+                            >
+                              <circle
+                                cx="40"
+                                cy="40"
+                                r={r}
+                                fill="none"
+                                stroke="rgba(255,255,255,0.1)"
+                                strokeWidth="7"
+                              />
+                              <circle
+                                cx="40"
+                                cy="40"
+                                r={r}
+                                fill="none"
+                                stroke={ringColor}
+                                strokeWidth="7"
+                                strokeLinecap="round"
+                                strokeDasharray={`${dash} ${circ}`}
+                                transform="rotate(-90 40 40)"
+                              />
+                              <text
+                                x="40"
+                                y="43"
+                                textAnchor="middle"
+                                fill="#FFFFFF"
+                                fontSize="11"
+                                fontWeight="900"
+                                fontFamily="monospace"
+                              >
+                                {Math.round(crew.totalManHours)}h
+                              </text>
+                            </svg>
+                            <div className="text-[11px] font-black text-amber-200 mt-1">
+                              {crew.crewCode}
+                            </div>
+                            <div className="text-[10px] text-slate-300 truncate w-full">
+                              {crew.workersCount} Workers · ${(crew.totalLoadedLaborUsd / 1000).toFixed(1)}K
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 mt-4 p-3 rounded-xl bg-[#09152B]/70 border border-[#C9A84C]/25 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="text-slate-200">
+                      Weighted Rate: <strong className="text-amber-300">${snapshot.payroll.weightedAvgHourlyRateUsd}/hr</strong>
+                    </span>
+                    <span className="text-slate-200">
+                      FICA + WC Fringe: <strong className="text-emerald-300">${(snapshot.payroll.fica765Usd + snapshot.payroll.workersCompAndFringeUsd).toLocaleString()}</strong>
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Row 3: Calm Executive Module Cards (Click to Jump into Any of the 4 Modules) */}
+              {/* Row 3: 4 Executive Module Cards (Click to Jump into Any of the 4 Modules) */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
-                  <div>
-                    <div className="text-xs font-black uppercase" style={{ color: accentHex }}>
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="text-xs font-black uppercase" style={{ color: TAYCO_GOLD_LIGHT }}>
                       03 · Commercial CRM
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
                       $5.88M Bid Pipeline &amp; 29 Trades
                     </h3>
-                    <p className="text-xs text-slate-300 mt-1">
+                    <p className="text-xs text-slate-200 mt-1">
                       5 active projects &amp; pre-qualified subcontractors across 8+ states with W-9/COI gate.
                     </p>
                   </div>
                   <button
                     type="button"
+                    data-magnetic
                     onClick={() => setActiveView("VIEW_03_CRM")}
-                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
                     Open CRM &amp; Bids →
                   </button>
                 </div>
 
-                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
-                  <div>
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
                     <div className="text-xs font-black uppercase text-emerald-300">
                       04 · Davis-Bacon Payroll
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
                       6,536 MH · $213,299.26 WH-347
                     </h3>
-                    <p className="text-xs text-slate-300 mt-1">
+                    <p className="text-xs text-slate-200 mt-1">
                       7 CSI field crews, FICA 7.65% ($13.1K), FUTA/SUTA ($5.8K) &amp; Workers&apos; Comp ($23.0K).
                     </p>
                   </div>
                   <button
                     type="button"
+                    data-magnetic
                     onClick={() => setActiveView("VIEW_04_PAYROLL")}
-                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
                     Open WH-347 Payroll →
                   </button>
                 </div>
 
-                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
-                  <div>
-                    <div className="text-xs font-black uppercase text-sky-300">
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="text-xs font-black uppercase text-orange-300">
                       05 · QuickBooks &amp; AIA
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
                       $184,892.70 Net Pay App #3
                     </h3>
-                    <p className="text-xs text-slate-300 mt-1">
+                    <p className="text-xs text-slate-200 mt-1">
                       8 Material POs ($375,012.51), 10% Retainage ($51,501.13) &amp; instant .IIF / .QBO export.
                     </p>
                   </div>
                   <button
                     type="button"
+                    data-magnetic
                     onClick={() => setActiveView("VIEW_05_QUICKBOOKS")}
-                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
                     Open QuickBooks Sync →
                   </button>
                 </div>
 
-                <div className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between`}>
-                  <div>
-                    <div className="text-xs font-black uppercase text-purple-300">
+                <div
+                  data-response-kind="surface"
+                  onMouseMove={handleSurfaceMouseMove}
+                  onMouseLeave={handleSurfaceMouseLeave}
+                  className={`${cardSurfaceClass} rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden`}
+                  style={livingCardInlineStyle}
+                >
+                  <div className="response-wash pointer-events-none" aria-hidden="true" />
+                  <div className="relative z-10">
+                    <div className="text-xs font-black uppercase text-amber-300">
                       06 · 9-State Tax &amp; 1099-NEC
                     </div>
                     <h3 className="text-base font-black text-white mt-1">
                       Sales Tax, Form 941 &amp; 1099-NEC
                     </h3>
-                    <p className="text-xs text-slate-300 mt-1">
+                    <p className="text-xs text-slate-200 mt-1">
                       Taxable materials vs. exempt labor across WI, IL, IA, IN, MN, MI, MO, TX &amp; ND.
                     </p>
                   </div>
                   <button
                     type="button"
+                    data-magnetic
                     onClick={() => setActiveView("VIEW_06_TAX")}
-                    className="mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
+                    className="relative z-10 mt-4 w-full py-2 rounded-xl text-xs font-extrabold bg-white/10 hover:bg-white/20 text-white"
                   >
                     Open Tax Compliance →
                   </button>
@@ -1808,13 +2116,20 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 03: COMMERCIAL CRM, BID PIPELINE & SUBCONTRACTOR REGISTRY ── */}
           {activeView === "VIEW_03_CRM" && (
             <section id="panel-MOD_CRM_BIDS" className="space-y-6">
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
                       🤝 1. Commercial Bid Pipeline &amp; CSI-32 Estimates ($5.88M)
                     </h2>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-200">
                       Connected to <Link href="/estimate" className="underline font-bold">/estimate</Link>, <Link href="/investor" className="underline font-bold">/investor</Link>, and Takeoff Pro (:8085).
                     </p>
                   </div>
@@ -1825,12 +2140,14 @@ export default function TaycoMultiTenantPortalPage() {
                       <button
                         key={st}
                         type="button"
+                        data-magnetic
                         onClick={() => setCrmStageFilter(st)}
                         className={`px-3 py-1 rounded-lg text-xs font-bold ${
                           crmStageFilter === st
-                            ? "bg-amber-400 text-slate-950"
-                            : "bg-white/10 text-slate-300 hover:bg-white/20"
+                            ? "text-slate-950"
+                            : "bg-white/10 text-slate-200 hover:bg-white/20"
                         }`}
+                        style={crmStageFilter === st ? { background: TAYCO_GOLD } : undefined}
                       >
                         {st}
                       </button>
@@ -1839,7 +2156,7 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 {/* Quick Add Bid Form */}
-                <form onSubmit={handleCreateQuickLead} className="flex flex-wrap items-center gap-2 mt-4">
+                <form onSubmit={handleCreateQuickLead} className="relative z-10 flex flex-wrap items-center gap-2 mt-4">
                   <input
                     placeholder="New Project / Bid Title..."
                     value={newLeadTitle}
@@ -1868,15 +2185,16 @@ export default function TaycoMultiTenantPortalPage() {
                   <button
                     type="submit"
                     id="btn-add-crm-opportunity"
+                    data-magnetic
                     className="px-4 py-2 rounded-lg text-xs font-black text-slate-950"
-                    style={{ background: accentHex }}
+                    style={{ background: TAYCO_GOLD }}
                   >
                     + Add Commercial Bid
                   </button>
                 </form>
 
                 {/* Opportunities Table */}
-                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -1921,19 +2239,27 @@ export default function TaycoMultiTenantPortalPage() {
               </div>
 
               {/* Subcontractor Directory with Progressive Disclosure */}
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <h3 className="text-lg font-black text-white">
                       🛠️ Pre-Qualified Subcontractor Registry (29 Trades · W-9 &amp; COI Gate)
                     </h3>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-200">
                       {snapshot.crm.subcontractors.length} Master Vendors across 8 states synced with <Link href="/vendor-application" className="underline font-bold">/vendor-application</Link>.
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       type="button"
+                      data-magnetic
                       onClick={() => toggleTableExpand("crm_subs")}
                       className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
                     >
@@ -1941,8 +2267,9 @@ export default function TaycoMultiTenantPortalPage() {
                     </button>
                     <Link
                       href="/vendor-application"
+                      data-magnetic
                       className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
-                      style={{ background: accentHex }}
+                      style={{ background: TAYCO_GOLD }}
                     >
                       + Onboard Subcontractor
                     </Link>
@@ -1950,7 +2277,7 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 {isTableVisible("crm_subs") && (
-                  <div className="overflow-x-auto mt-4 bg-white rounded-xl text-slate-900 p-2">
+                  <div className="relative z-10 overflow-x-auto mt-4 bg-white rounded-xl text-slate-900 p-2">
                     <table className="w-full text-left border-collapse text-xs sm:text-sm">
                       <thead>
                         <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -2015,19 +2342,27 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 04: CONSTRUCTION PAYROLL, FIELD CREWS & DAVIS-BACON WH-347 ── */}
           {activeView === "VIEW_04_PAYROLL" && (
             <section id="panel-MOD_PAYROLL_CREW" className="space-y-6">
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
                       👷 2. Construction Payroll, Field Crews &amp; Davis-Bacon Form WH-347
                     </h2>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-200">
                       6,536.0 Total Man-Hours · 103.1 Crew-Days · $32.63/hr Weighted Rate · $213,299.26 Total Labor Budget.
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       type="button"
+                      data-magnetic
                       onClick={() => toggleTableExpand("wh347_table")}
                       className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
                     >
@@ -2035,6 +2370,7 @@ export default function TaycoMultiTenantPortalPage() {
                     </button>
                     <button
                       type="button"
+                      data-magnetic
                       onClick={() =>
                         downloadFile(
                           "TAYCO_Davis_Bacon_WH347_SonOfStar.json",
@@ -2043,7 +2379,7 @@ export default function TaycoMultiTenantPortalPage() {
                         )
                       }
                       className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
-                      style={{ background: accentHex }}
+                      style={{ background: TAYCO_GOLD }}
                     >
                       ⬇️ Export WH-347 (JSON/CSV)
                     </button>
@@ -2051,7 +2387,7 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 {/* Visual Man-Hour Bars by Crew */}
-                <div className="space-y-3 mt-5">
+                <div className="relative z-10 space-y-3 mt-5">
                   {snapshot.payroll.crews.map((c) => {
                     const widthPct = Math.min(100, Math.round((c.totalManHours / 1700) * 100));
                     return (
@@ -2069,10 +2405,10 @@ export default function TaycoMultiTenantPortalPage() {
                         <div className="w-full h-2.5 rounded-full bg-black/40 overflow-hidden">
                           <div
                             className="h-full rounded-full"
-                            style={{ width: `${widthPct}%`, background: accentHex }}
+                            style={{ width: `${widthPct}%`, background: TAYCO_GOLD }}
                           />
                         </div>
-                        <div className="text-[11px] text-slate-400 mt-1">
+                        <div className="text-[11px] text-slate-300 mt-1">
                           {c.crewComposition || c.tradeClassification}
                         </div>
                       </div>
@@ -2082,7 +2418,7 @@ export default function TaycoMultiTenantPortalPage() {
 
                 {/* Full WH-347 Table (Progressive Disclosure) */}
                 {isTableVisible("wh347_table") && (
-                  <div className="overflow-x-auto mt-6 bg-white rounded-xl text-slate-900 p-2">
+                  <div className="relative z-10 overflow-x-auto mt-6 bg-white rounded-xl text-slate-900 p-2">
                     <table className="w-full text-left border-collapse text-xs sm:text-sm">
                       <thead>
                         <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -2129,27 +2465,36 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 05: QUICKBOOKS ACCOUNTING SYNC, 8 POs & AIA G702/G703 SIMULATOR ── */}
           {activeView === "VIEW_05_QUICKBOOKS" && (
             <section id="panel-MOD_QUICKBOOKS_ERP" className="space-y-6">
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
                       📗 3. QuickBooks Accounting Sync, 8 Material POs &amp; Interactive AIA G702/G703 Simulator
                     </h2>
-                    <p className="text-xs text-slate-300">
-                      Simulate progress billing draw certificates and export directly to QuickBooks Desktop (`.IIF`) or QuickBooks Online (`.QBO JSON`).
+                    <p className="text-xs text-slate-200">
+                      Simulate progress billing draw certificates and export directly to QuickBooks Desktop (`.IIF`) or QuickBooks Online (`.QBO`).
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       id="btn-toggle-iif-preview"
+                      data-magnetic
                       onClick={() => setShowIifModal(!showIifModal)}
                       className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
                     >
-                      {showIifModal ? "Hide .IIF Journal Entry" : "👁️ Preview QuickBooks .IIF"}
+                      {showIifModal ? "Hide .IIF / .QBO Preview" : "👁️ Preview .IIF / .QBO"}
                     </button>
                     <button
                       type="button"
+                      data-magnetic
                       onClick={() =>
                         downloadFile(
                           "TAYCO_SonOfStar_QuickBooks.iif",
@@ -2158,12 +2503,13 @@ export default function TaycoMultiTenantPortalPage() {
                         )
                       }
                       className="px-4 py-2 rounded-xl text-xs font-black text-slate-950"
-                      style={{ background: accentHex }}
+                      style={{ background: TAYCO_GOLD }}
                     >
                       ⬇️ Download .IIF
                     </button>
                     <button
                       type="button"
+                      data-magnetic
                       onClick={() =>
                         downloadFile(
                           "TAYCO_SonOfStar_QBO_Journal.json",
@@ -2179,9 +2525,9 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 {/* Interactive AIA G702/G703 Progress Simulator */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 p-4 rounded-xl bg-black/30 border border-white/10">
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 p-4 rounded-xl bg-[#09152B]/65 border border-[#C9A84C]/25">
                   <div className="lg:col-span-5 space-y-4">
-                    <div className="text-xs font-black uppercase tracking-wider" style={{ color: accentHex }}>
+                    <div className="text-xs font-black uppercase tracking-wider" style={{ color: TAYCO_GOLD_LIGHT }}>
                       🎛️ AIA G702/G703 Pay Application Simulator
                     </div>
                     <div>
@@ -2218,12 +2564,12 @@ export default function TaycoMultiTenantPortalPage() {
 
                   <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                      <div className="text-[10px] text-slate-400 uppercase font-bold">Total Completed &amp; Stored</div>
+                      <div className="text-[10px] text-slate-300 uppercase font-bold">Total Completed &amp; Stored</div>
                       <div className="text-base font-mono font-black text-white mt-1">
                         ${simGrossCompleted.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
+                    <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-400/30">
                       <div className="text-[10px] text-amber-300 uppercase font-bold">Retainage (Acct 1210)</div>
                       <div className="text-base font-mono font-black text-amber-200 mt-1">
                         ${simRetainageHeld.toLocaleString("en-US", { minimumFractionDigits: 2 })}
@@ -2239,12 +2585,12 @@ export default function TaycoMultiTenantPortalPage() {
                 </div>
 
                 {showIifModal && (
-                  <pre className="mt-4 p-4 rounded-xl bg-black/80 text-emerald-300 font-mono text-xs overflow-x-auto border border-emerald-500/30">
+                  <pre className="relative z-10 mt-4 p-4 rounded-xl bg-black/80 text-emerald-300 font-mono text-xs overflow-x-auto border border-emerald-500/30">
                     {snapshot.quickbooks.iifExportPreview}
                   </pre>
                 )}
 
-                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -2286,20 +2632,27 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 06: MULTI-STATE TAX ENGINE (9 STATES) & IRS 1099-NEC ── */}
           {activeView === "VIEW_06_TAX" && (
             <section id="panel-MOD_TAX_COMPLIANCE" className="space-y-6">
-              <div className={`${cardSurfaceClass} rounded-2xl p-6`}>
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/15">
                   <div>
                     <h2 className="text-xl font-black text-white">
                       🏛️ 4. Multi-State Tax Engine (WI · IL · IA · IN · MN · MI · MO · TX · ND) &amp; IRS 1099-NEC
                     </h2>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-200">
                       Automatically separates Taxable Construction Materials ($375,012.51) from Exempt Field Labor ($213,299.26).
                     </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">
+                      <label className="block text-[10px] font-bold uppercase text-amber-200/90 mb-1">
                         Project Tax Jurisdiction
                       </label>
                       <select
@@ -2335,13 +2688,13 @@ export default function TaycoMultiTenantPortalPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-xs font-bold text-slate-400">Taxable Materials (8 POs)</div>
+                    <div className="text-xs font-bold text-slate-300">Taxable Materials (8 POs)</div>
                     <div className="text-2xl font-black text-white mt-1">
                       ${snapshot.taxCompliance.taxableMaterialsUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[11px] text-slate-300 mt-1">
+                    <div className="text-[11px] text-slate-200 mt-1">
                       Applied Rate ({snapshot.taxCompliance.stateCode}):{" "}
                       <strong>{snapshot.taxCompliance.effectiveRatePct}%</strong>
                     </div>
@@ -2371,24 +2724,24 @@ export default function TaycoMultiTenantPortalPage() {
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-sky-500/15 border border-sky-400/30">
-                    <div className="text-xs font-bold text-sky-300">Quarterly IRS Form 941 Deposit</div>
+                  <div className="p-4 rounded-xl bg-orange-500/15 border border-orange-400/30">
+                    <div className="text-xs font-bold text-orange-300">Quarterly IRS Form 941 Deposit</div>
                     <div className="text-2xl font-black text-white mt-1">
                       ${snapshot.taxCompliance.form941QuarterlySummary.totalForm941DepositUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[11px] text-slate-300 mt-1">
+                    <div className="text-[11px] text-slate-200 mt-1">
                       Employer FICA + Federal Withholding ({snapshot.taxCompliance.form941QuarterlySummary.quarter})
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 p-3.5 rounded-xl bg-black/40 border border-white/10 text-xs text-slate-200">
+                <div className="relative z-10 mt-4 p-3.5 rounded-xl bg-[#09152B]/70 border border-[#C9A84C]/25 text-xs text-slate-100">
                   <strong>Construction Tax Rule ({snapshot.taxCompliance.stateName}):</strong>{" "}
                   {snapshot.taxCompliance.constructionRule}
                 </div>
 
                 {/* 1099-NEC Table */}
-                <div className="overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
+                <div className="relative z-10 overflow-x-auto mt-5 bg-white rounded-xl text-slate-900 p-2">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b bg-slate-100 text-slate-600 uppercase text-[11px]">
@@ -2443,19 +2796,26 @@ export default function TaycoMultiTenantPortalPage() {
           {/* ── VIEW 07: TAKEOFF PRO 2D/3D BRIDGE & MONTE CARLO P80 TELEMETRY ── */}
           {activeView === "VIEW_07_TAKEOFF" && (
             <section id="panel-MOD_TAKEOFF_PRO" className="space-y-6">
-              <div className={`${cardSurfaceClass} rounded-2xl p-6 sm:p-8`}>
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div
+                data-response-kind="surface"
+                onMouseMove={handleSurfaceMouseMove}
+                onMouseLeave={handleSurfaceMouseLeave}
+                className={`${cardSurfaceClass} rounded-2xl p-6 sm:p-8 relative overflow-hidden`}
+                style={livingCardInlineStyle}
+              >
+                <div className="response-wash pointer-events-none" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div>
                     <span
                       className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
-                      style={{ background: "rgba(201,168,76,0.2)", color: accentHex }}
+                      style={{ background: "rgba(201,168,76,0.22)", color: TAYCO_GOLD_LIGHT }}
                     >
                       📐 LIVE TAKEOFF PRO BRIDGE v{snapshot.takeoffBridge.rustEngineVersion} · 21 RUST KERNELS
                     </span>
                     <h2 className="text-2xl sm:text-3xl font-black text-white mt-2">
                       2D/3D CAD Workstation, CSI-32 Budget &amp; Monte Carlo P80 Telemetry
                     </h2>
-                    <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+                    <p className="text-sm text-slate-200 mt-1 max-w-2xl">
                       Connected directly to <code className="text-amber-300">{snapshot.takeoffBridge.url}</code>. All vector blueprint takeoffs drive purchase orders, certified WH-347 payroll, and AIA G702/G703 payment applications for TAYCO LLC.
                     </p>
                   </div>
@@ -2465,25 +2825,27 @@ export default function TaycoMultiTenantPortalPage() {
                       href={snapshot.takeoffBridge.url}
                       target="_blank"
                       rel="noreferrer"
+                      data-magnetic
                       className="px-5 py-3 rounded-xl font-black text-xs sm:text-sm text-slate-950 shadow-md"
-                      style={{ background: accentHex }}
+                      style={{ background: TAYCO_GOLD }}
                     >
-                      🚀 Launch Takeoff Pro Workstation (:8085) ↗
+                      🚀 Open CAD ↗ (:8085)
                     </a>
                     <button
                       type="button"
+                      data-magnetic
                       onClick={handleSyncTakeoffPro}
-                      className="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm border border-white/30 hover:bg-white/10 text-white"
+                      className="px-4 py-3 rounded-xl font-bold text-xs sm:text-sm border border-[#C9A84C]/40 hover:bg-white/10 text-white"
                     >
-                      🔄 Re-Sync CSI-32 Data
+                      🔄 Sync :8085 CSI-32 Data
                     </button>
                   </div>
                 </div>
 
                 {/* Monte Carlo P50 / P80 / P95 Confidence Interval Visual Bar */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/10">
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/15">
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-xs text-slate-400 font-bold">Monte Carlo P50 (Base Deterministic)</div>
+                    <div className="text-xs text-slate-300 font-bold">Monte Carlo P50 (Base Deterministic)</div>
                     <div className="text-xl font-black text-white mt-1">$855,525.23</div>
                     <div className="text-xs text-emerald-300 mt-1">16 CSI Divisions · 369 SHA-256 Line Items</div>
                   </div>
@@ -2492,10 +2854,10 @@ export default function TaycoMultiTenantPortalPage() {
                     <div className="text-xl font-black text-amber-200 mt-1">$898,301.49</div>
                     <div className="text-xs text-amber-100 mt-1">+$42,776.26 Recommended Risk Reserve</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-sky-500/15 border border-sky-400/30">
-                    <div className="text-xs text-sky-300 font-bold">Monte Carlo P95 (Extreme Weather/Supply)</div>
+                  <div className="p-4 rounded-xl bg-orange-500/15 border border-orange-400/30">
+                    <div className="text-xs text-orange-300 font-bold">Monte Carlo P95 (Extreme Weather/Supply)</div>
                     <div className="text-xl font-black text-white mt-1">$928,244.87</div>
-                    <div className="text-xs text-slate-300 mt-1">2,000 Stochastic Iterations Verified</div>
+                    <div className="text-xs text-slate-200 mt-1">2,000 Stochastic Iterations Verified</div>
                   </div>
                 </div>
               </div>

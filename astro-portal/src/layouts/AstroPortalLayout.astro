@@ -1,0 +1,788 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-motion="live" data-light-angle="42">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | TAYCO LLC — TAYCO Executive Command &amp; TAYCO Editorial</title>
+    <style is:global>
+      @property --shine {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+      }
+
+      :root {
+        --navy-deep: #0F2040;
+        --navy-royal: #1B3A6B;
+        --obsidian-ink: #070E1A;
+        --gold-primary: #C9A84C;
+        --gold-bright: #F3D37A;
+        --construction-orange: #F97316;
+        --editorial-ivory: #F4F2EA;
+        --accent-primary: #C9A84C;
+        --accent-glow: rgba(201, 168, 76, 0.26);
+        --accent-border: rgba(201, 168, 76, 0.42);
+        --surface-card: rgba(15, 32, 64, 0.86);
+        --surface-blur: 16px;
+        --light-angle: 42deg;
+        --light-x: 42%;
+        --light-y: 28%;
+        --font-serif: Georgia, "Times New Roman", serif;
+        --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+        --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--obsidian-ink);
+        color: #f8fafc;
+        line-height: 1.55;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* Top 2px Gold/Orange Reading Thread */
+      .reading-thread {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        z-index: 60;
+        pointer-events: none;
+        background: rgba(15, 32, 64, 0.45);
+      }
+
+      .reading-thread i,
+      [data-reading-thread] {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold-primary) 0%, var(--gold-bright) 55%, var(--construction-orange) 100%);
+        transform: scaleX(var(--scroll-progress, 0.18));
+        transform-origin: left;
+        box-shadow: 0 0 12px rgba(249, 115, 22, 0.55);
+        transition: transform 0.12s ease-out;
+      }
+
+      /* Fixed Breathing Parallax Atmosphere (.tayco-atmosphere) */
+      .tayco-atmosphere {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+        contain: strict;
+      }
+
+      .atmosphere-parallax {
+        position: absolute;
+        inset: -6%;
+        transform: translate3d(
+          var(--pointer-x, 0px),
+          calc(var(--pointer-y, 0px) + var(--scroll-drift, 0px)),
+          0
+        );
+        transition: transform 0.25s ease-out;
+      }
+
+      .ambient-lobe {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(88px);
+        will-change: transform;
+      }
+
+      .ambient-lobe.a {
+        width: 680px;
+        height: 580px;
+        top: -180px;
+        right: -130px;
+        background: radial-gradient(circle, rgba(201, 168, 76, 0.36) 0%, rgba(243, 211, 122, 0.14) 45%, transparent 70%);
+        opacity: 0.72;
+        animation: tayco-breathe 18s ease-in-out infinite alternate;
+      }
+
+      .ambient-lobe.b {
+        width: 760px;
+        height: 650px;
+        bottom: -240px;
+        left: -160px;
+        background: radial-gradient(circle, rgba(27, 58, 107, 0.68) 0%, rgba(15, 32, 64, 0.38) 52%, transparent 72%);
+        opacity: 0.85;
+        animation: tayco-tide 25s ease-in-out infinite alternate;
+      }
+
+      .ambient-contours {
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(circle at var(--light-x, 42%) var(--light-y, 28%), rgba(243, 211, 122, 0.09) 0%, transparent 55%),
+          repeating-radial-gradient(
+            circle at 78% 18%,
+            transparent 0,
+            transparent 52px,
+            rgba(201, 168, 76, 0.04) 53px,
+            transparent 54px
+          );
+        background-size: 100% 100%, 100% 100%;
+      }
+
+      .ambient-grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.035;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.48) 1px, transparent 1px);
+        background-size: 4px 4px;
+      }
+
+      @keyframes tayco-breathe {
+        from {
+          transform: translate(-3%, 0) scale(0.92) rotate(-5deg);
+        }
+        to {
+          transform: translate(5%, 7%) scale(1.14) rotate(12deg);
+        }
+      }
+
+      @keyframes tayco-tide {
+        from {
+          transform: translate(0, -6%) scale(0.98);
+        }
+        to {
+          transform: translate(9%, 4%) scale(1.18);
+        }
+      }
+
+      /* Topbar & Controls */
+      .topbar {
+        position: sticky;
+        top: 2px;
+        z-index: 30;
+        background: rgba(7, 14, 26, 0.88);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--accent-border);
+        padding: 0.85rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .brand-title {
+        color: var(--gold-primary);
+        font-weight: 900;
+        font-size: 1.2rem;
+        letter-spacing: 0.04em;
+      }
+
+      .serif-italic {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-weight: 400;
+      }
+
+      .mono-eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--gold-primary);
+      }
+
+      .badge {
+        background: rgba(201, 168, 76, 0.16);
+        color: var(--gold-bright);
+        border: 1px solid var(--accent-border);
+        padding: 0.24rem 0.68rem;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .badge-orange {
+        background: rgba(249, 115, 22, 0.16);
+        color: #fdba74;
+        border: 1px solid rgba(249, 115, 22, 0.45);
+      }
+
+      .tayco-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem;
+      }
+
+      .control-pill-group {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(15, 32, 64, 0.78);
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        border-radius: 999px;
+        padding: 0.24rem 0.72rem;
+        gap: 0.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: #e2e8f0;
+      }
+
+      .light-angle-slider {
+        accent-color: var(--gold-primary);
+        width: 92px;
+        cursor: pointer;
+      }
+
+      .motion-toggle-btn {
+        background: linear-gradient(135deg, var(--gold-primary), var(--gold-bright));
+        color: var(--obsidian-ink);
+        border: 1px solid var(--gold-bright);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 0.34rem 0.78rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.22s ease;
+      }
+
+      .motion-toggle-btn[data-paused="true"] {
+        background: rgba(15, 32, 64, 0.9);
+        color: var(--gold-bright);
+        border-color: rgba(201, 168, 76, 0.45);
+      }
+
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+      }
+
+      .btn-gold {
+        background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-bright) 100%);
+        color: var(--obsidian-ink);
+        font-weight: 800;
+        padding: 0.54rem 1.08rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        border: 1px solid var(--gold-bright);
+        box-shadow: 0 10px 28px -12px rgba(201, 168, 76, 0.65);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .btn-outline {
+        background: rgba(15, 32, 64, 0.65);
+        border: 1px solid var(--accent-border);
+        color: #f8fafc;
+        font-weight: 700;
+        padding: 0.54rem 0.98rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      /* Magnetic Pull */
+      [data-magnetic],
+      .btn-gold,
+      .btn-outline,
+      .motion-toggle-btn {
+        translate: var(--mag-x, 0px) var(--mag-y, 0px);
+        transition:
+          translate 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      /* Cursor 3D Tilt, Specular Spotlight Wash & Rotating Conic Border Sheen */
+      .bento-card,
+      [data-response-kind="surface"] {
+        position: relative;
+        --response-rx: 0deg;
+        --response-ry: 0deg;
+        --response-px: 50%;
+        --response-py: 50%;
+        background:
+          radial-gradient(
+            circle at var(--light-x, 42%) var(--light-y, 28%),
+            rgba(243, 211, 122, 0.08),
+            transparent 62%
+          ),
+          linear-gradient(
+            var(--light-angle, 135deg),
+            rgba(27, 58, 107, 0.76) 0%,
+            rgba(15, 32, 64, 0.92) 60%,
+            rgba(7, 14, 26, 0.96) 100%
+          );
+        backdrop-filter: blur(var(--surface-blur));
+        border: 1px solid var(--accent-border);
+        border-radius: 1.15rem;
+        padding: 1.5rem;
+        overflow: hidden;
+        transform: perspective(1000px) rotateX(var(--response-rx)) rotateY(var(--response-ry));
+        transition:
+          transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1),
+          box-shadow 0.35s ease,
+          border-color 0.35s ease;
+      }
+
+      /* Rotating Conic Border Sheen */
+      .bento-card::after,
+      [data-response-kind="surface"]::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        border: 1.5px solid transparent;
+        background: conic-gradient(
+            from var(--shine),
+            transparent 25%,
+            rgba(243, 211, 122, 0.75) 46%,
+            rgba(249, 115, 22, 0.65) 54%,
+            transparent 72%
+          )
+          border-box;
+        -webkit-mask:
+          linear-gradient(#fff 0 0) padding-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#fff 0 0) padding-box,
+          linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: tayco-sheen 10s linear infinite;
+        opacity: 0.32;
+        transition: opacity 0.35s ease;
+      }
+
+      .bento-card:hover::after,
+      [data-response-kind="surface"][data-response-hover="true"]::after {
+        opacity: 1;
+      }
+
+      @keyframes tayco-sheen {
+        to {
+          --shine: 360deg;
+        }
+      }
+
+      /* Specular Spotlight Wash (.response-wash) */
+      .response-wash {
+        display: block !important;
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 2;
+        overflow: hidden;
+        border-radius: inherit;
+        pointer-events: none !important;
+        opacity: 0;
+        background: radial-gradient(
+          circle at var(--response-px, 50%) var(--response-py, 50%),
+          rgba(243, 211, 122, 0.32) 0%,
+          rgba(249, 115, 22, 0.14) 34%,
+          transparent 68%
+        );
+        mix-blend-mode: screen;
+        transition: opacity 0.28s ease;
+      }
+
+      .bento-card:hover > .response-wash,
+      [data-response-kind="surface"][data-response-hover="true"] > .response-wash {
+        opacity: 0.85;
+      }
+
+      /* Warm Editorial Ivory Contrast Section */
+      .editorial-ivory-section {
+        background:
+          radial-gradient(
+            ellipse at var(--light-x, 75%) 35%,
+            rgba(201, 168, 76, 0.22),
+            transparent 65%
+          ),
+          var(--editorial-ivory);
+        color: var(--obsidian-ink);
+        border: 1px solid rgba(201, 168, 76, 0.55);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .editorial-ivory-section .mono-eyebrow {
+        color: var(--navy-royal);
+        font-weight: 800;
+      }
+
+      /* Editorial Italic Kinetic Marquee Ticker (.tayco-editorial-ticker) */
+      .tayco-editorial-ticker {
+        overflow: hidden;
+        border-top: 1px solid rgba(201, 168, 76, 0.34);
+        border-bottom: 1px solid rgba(201, 168, 76, 0.34);
+        background: linear-gradient(90deg, rgba(7, 14, 26, 0.95), rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.95));
+        padding: 1.05rem 0;
+        margin: 1.5rem 0;
+        position: relative;
+        z-index: 2;
+      }
+
+      .tayco-editorial-ticker > div {
+        display: flex;
+        gap: 2.25rem;
+        width: max-content;
+        animation: tayco-marquee 38s linear infinite;
+        align-items: center;
+        will-change: transform;
+      }
+
+      .tayco-editorial-ticker span {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: clamp(1.25rem, 2.1vw, 1.65rem);
+        color: var(--editorial-ivory);
+        white-space: nowrap;
+      }
+
+      .tayco-editorial-ticker i {
+        font-style: normal;
+        font-size: 1.15rem;
+        color: var(--gold-primary);
+      }
+
+      @keyframes tayco-marquee {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Rotating Orbital Stamp (.orbital-caption) */
+      .orbital-caption {
+        position: absolute;
+        right: 1.25rem;
+        top: 1.25rem;
+        width: 96px;
+        height: 96px;
+        z-index: 5;
+        pointer-events: none;
+      }
+
+      .orbital-caption svg {
+        width: 100%;
+        height: 100%;
+        animation: tayco-orbit-stamp 28s linear infinite;
+      }
+
+      .orbital-caption text {
+        fill: var(--gold-bright);
+        font-family: var(--font-mono);
+        font-size: 8.5px;
+        letter-spacing: 1.8px;
+        font-weight: 700;
+      }
+
+      .orbital-caption > span {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        color: var(--construction-orange);
+      }
+
+      @keyframes tayco-orbit-stamp {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* SVG Horizon Wave Divider (.chromatic-horizon) */
+      .chromatic-horizon {
+        height: clamp(46px, 6vw, 96px);
+        position: relative;
+        margin: 1.25rem 0;
+        pointer-events: none;
+        overflow: hidden;
+        isolation: isolate;
+        z-index: 2;
+      }
+
+      .chromatic-horizon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+
+      .chromatic-horizon .horizon-land {
+        fill: rgba(27, 58, 107, 0.34);
+      }
+
+      .chromatic-horizon .horizon-trace {
+        fill: none;
+        stroke: var(--gold-primary);
+        stroke-width: 1.1;
+        opacity: 0.52;
+      }
+
+      .chromatic-horizon .horizon-trace.b {
+        stroke: var(--construction-orange);
+        opacity: 0.36;
+      }
+
+      .chromatic-horizon.reverse {
+        transform: rotate(180deg);
+      }
+
+      .preview-orbits {
+        position: absolute;
+        right: -36px;
+        top: -36px;
+        width: 150px;
+        height: 150px;
+        border-radius: 999px;
+        border: 1px dashed rgba(201, 168, 76, 0.28);
+        pointer-events: none;
+      }
+
+      .preview-orbits::after {
+        content: "";
+        position: absolute;
+        inset: 22px;
+        border-radius: 999px;
+        border: 1px solid rgba(249, 115, 22, 0.22);
+      }
+
+      main {
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Pause state */
+      html[data-motion="paused"] .ambient-lobe,
+      html[data-motion="paused"] .tayco-editorial-ticker > div,
+      html[data-motion="paused"] .orbital-caption svg,
+      html[data-motion="paused"] .bento-card::after,
+      html[data-motion="paused"] [data-response-kind="surface"]::after {
+        animation-play-state: paused !important;
+      }
+
+      html[data-motion="paused"] .bento-card,
+      html[data-motion="paused"] [data-response-kind="surface"],
+      html[data-motion="paused"] [data-magnetic] {
+        transform: none !important;
+        translate: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reading-thread" aria-hidden="true">
+      <i data-reading-thread></i>
+    </div>
+
+    <div class="tayco-atmosphere" aria-hidden="true" data-atmosphere-field>
+      <div class="atmosphere-parallax" data-atmosphere-parallax>
+        <div class="ambient-lobe a"></div>
+        <div class="ambient-lobe b"></div>
+        <div class="ambient-contours"></div>
+      </div>
+      <div class="ambient-grain"></div>
+    </div>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-title">TAYCO LLC <span class="serif-italic">Executive Command</span></span>
+        <span class="badge">⚡ TAYCO Editorial · Astro 5 Native Islands</span>
+      </div>
+
+      <div class="tayco-controls" aria-label="TAYCO Editorial Light Angle and Motion Controls">
+        <label class="control-pill-group" for="tayco-light-angle">
+          <span>☀️ Light Angle (<strong data-light-angle-val>42°</strong>)</span>
+          <input
+            id="tayco-light-angle"
+            class="light-angle-slider"
+            type="range"
+            min="0"
+            max="90"
+            value="42"
+            data-light-angle-slider
+            aria-label="Light Angle (0°–90°)"
+          />
+        </label>
+
+        <button
+          type="button"
+          class="motion-toggle-btn"
+          data-motion-toggle
+          data-magnetic
+          aria-pressed="false"
+        >
+          ✦ Live Motion / Ⅱ Pause
+        </button>
+      </div>
+
+      <nav class="nav-links">
+        <a href="/astro-preview/index.html" class="btn-outline" data-magnetic>🏠 TAYCO Executive Command</a>
+        <a href="/astro-preview/portal/index.html" class="btn-gold" data-magnetic>🔐 Multi-Tenant Portal →</a>
+        <a href="/portal" class="btn-outline" data-magnetic>⚡ Live Next.js Suite</a>
+        <a href="/" class="btn-outline" data-magnetic>↩ Main Website</a>
+      </nav>
+    </header>
+
+    <slot />
+
+    <script is:inline>
+      (function () {
+        const root = document.documentElement;
+        const thread = document.querySelector("[data-reading-thread]");
+        const parallax = document.querySelector("[data-atmosphere-parallax]");
+        const slider = document.querySelector("[data-light-angle-slider]");
+        const angleLabel = document.querySelector("[data-light-angle-val]");
+        const motionBtn = document.querySelector("[data-motion-toggle]");
+        let paused = false;
+
+        // 1. Reading Thread & Scroll Drift
+        function updateScroll() {
+          const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+          const progress = Math.min(1, Math.max(0.06, window.scrollY / maxScroll));
+          root.style.setProperty("--scroll-progress", progress.toFixed(4));
+          if (thread) {
+            thread.style.transform = "scaleX(" + progress.toFixed(4) + ")";
+          }
+          if (!paused) {
+            root.style.setProperty("--scroll-drift", (window.scrollY * -0.04).toFixed(1) + "px");
+          }
+        }
+        window.addEventListener("scroll", updateScroll, { passive: true });
+        updateScroll();
+
+        // 2. Light Angle (0°–90°) Slider
+        if (slider) {
+          slider.addEventListener("input", () => {
+            const val = Number(slider.value || 42);
+            root.setAttribute("data-light-angle", String(val));
+            root.style.setProperty("--light-angle", (90 + val) + "deg");
+            root.style.setProperty("--light-x", Math.round(15 + (val / 90) * 70) + "%");
+            root.style.setProperty("--light-y", Math.round(12 + (val / 90) * 45) + "%");
+            if (angleLabel) angleLabel.textContent = val + "°";
+          });
+        }
+
+        // 3. Live Motion / Pause Toggle
+        if (motionBtn) {
+          motionBtn.addEventListener("click", () => {
+            paused = !paused;
+            root.setAttribute("data-motion", paused ? "paused" : "live");
+            motionBtn.setAttribute("data-paused", String(paused));
+            motionBtn.setAttribute("aria-pressed", String(paused));
+            motionBtn.textContent = paused ? "Ⅱ Paused · Resume ✦" : "✦ Live Motion / Ⅱ Pause";
+          });
+        }
+
+        // 4. Attach Specular Wash (.response-wash) & Surface Response Kind to Cards
+        const surfaces = document.querySelectorAll(".bento-card, [data-response-kind='surface']");
+        surfaces.forEach((card) => {
+          card.setAttribute("data-response-kind", "surface");
+          if (!card.querySelector(":scope > .response-wash")) {
+            const wash = document.createElement("span");
+            wash.className = "response-wash";
+            wash.setAttribute("aria-hidden", "true");
+            card.appendChild(wash);
+          }
+        });
+
+        // 5. Cursor 3D Tilt, Specular Spotlight Wash, and Magnetic Pill Pull
+        const magnetics = document.querySelectorAll("[data-magnetic], .btn-gold, .btn-outline");
+        magnetics.forEach((el) => el.setAttribute("data-magnetic", ""));
+
+        document.addEventListener(
+          "pointermove",
+          (e) => {
+            if (paused || e.pointerType === "touch") return;
+
+            // Atmospheric pointer parallax
+            if (parallax) {
+              const nx = (e.clientX / Math.max(1, window.innerWidth) - 0.5) * -22;
+              const ny = (e.clientY / Math.max(1, window.innerHeight) - 0.5) * -18;
+              root.style.setProperty("--pointer-x", nx.toFixed(1) + "px");
+              root.style.setProperty("--pointer-y", ny.toFixed(1) + "px");
+            }
+
+            const target = e.target instanceof Element ? e.target : null;
+            if (!target) return;
+
+            const surface = target.closest("[data-response-kind='surface']");
+            surfaces.forEach((s) => {
+              if (s !== surface) {
+                s.removeAttribute("data-response-hover");
+                s.style.setProperty("--response-rx", "0deg");
+                s.style.setProperty("--response-ry", "0deg");
+              }
+            });
+
+            if (surface instanceof HTMLElement) {
+              const r = surface.getBoundingClientRect();
+              const rx = Math.max(-0.5, Math.min(0.5, (e.clientX - r.left) / Math.max(1, r.width) - 0.5));
+              const ry = Math.max(-0.5, Math.min(0.5, (e.clientY - r.top) / Math.max(1, r.height) - 0.5));
+              surface.setAttribute("data-response-hover", "true");
+              surface.style.setProperty("--response-px", (rx * 100 + 50).toFixed(1) + "%");
+              surface.style.setProperty("--response-py", (ry * 100 + 50).toFixed(1) + "%");
+              surface.style.setProperty("--response-rx", (-ry * 4.5).toFixed(2) + "deg");
+              surface.style.setProperty("--response-ry", (rx * 4.5).toFixed(2) + "deg");
+            }
+
+            const mag = target.closest("[data-magnetic]");
+            magnetics.forEach((m) => {
+              if (m !== mag && m instanceof HTMLElement) {
+                m.style.setProperty("--mag-x", "0px");
+                m.style.setProperty("--mag-y", "0px");
+              }
+            });
+
+            if (mag instanceof HTMLElement) {
+              const mr = mag.getBoundingClientRect();
+              const mx = Math.max(-0.5, Math.min(0.5, (e.clientX - mr.left) / Math.max(1, mr.width) - 0.5));
+              const my = Math.max(-0.5, Math.min(0.5, (e.clientY - mr.top) / Math.max(1, mr.height) - 0.5));
+              mag.style.setProperty("--mag-x", (mx * 8).toFixed(2) + "px");
+              mag.style.setProperty("--mag-y", (my * 8).toFixed(2) + "px");
+            }
+          },
+          { passive: true }
+        );
+      })();
+    </script>
+  </body>
+</html>

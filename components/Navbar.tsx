@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -35,7 +35,32 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [inviteCode, setInviteCode] = useState("INV-CLIENT-CRM-TAKEOFF");
+  const [motionPaused, setMotionPaused] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      setMotionPaused(localStorage.getItem("tayco-motion-paused") === "1");
+    } catch {
+      // ignore
+    }
+    const handleState = (e: Event) => {
+      const custom = e as CustomEvent<{ paused?: boolean }>;
+      if (typeof custom.detail?.paused === "boolean") {
+        setMotionPaused(custom.detail.paused);
+      }
+    };
+    window.addEventListener("tayco:motion-state", handleState);
+    return () => window.removeEventListener("tayco:motion-state", handleState);
+  }, []);
+
+  function toggleLivingMotion() {
+    const next = !motionPaused;
+    setMotionPaused(next);
+    window.dispatchEvent(
+      new CustomEvent("tayco:toggle-motion", { detail: { paused: next } })
+    );
+  }
 
   function handleLaunchInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -50,9 +75,9 @@ export default function Navbar() {
       <nav
         className="fixed top-0 w-full z-50 backdrop-blur-md border-b"
         style={{
-          background: "rgba(7, 14, 26, 0.88)",
-          borderColor: "rgba(201, 168, 76, 0.28)",
-          boxShadow: "0 8px 32px rgba(2, 6, 23, 0.55)",
+          background: "rgba(15, 32, 64, 0.92)",
+          borderColor: "rgba(201, 168, 76, 0.34)",
+          boxShadow: "0 8px 32px rgba(7, 14, 26, 0.65)",
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,19 +88,19 @@ export default function Navbar() {
                 alt="TAYCO LLC"
                 width={42}
                 height={42}
-                className="rounded-full ring-1 ring-amber-400/40 group-hover:ring-amber-400 transition-all"
+                className="rounded-full ring-1 ring-amber-400/50 group-hover:ring-amber-400 transition-all"
               />
               <span className="flex flex-col leading-tight">
                 <span className="font-bold text-lg sm:text-xl tracking-tight" style={{ color: "#C9A84C" }}>
                   TAYCO LLC
                 </span>
-                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-mono">
+                <span className="text-[10px] text-slate-300 uppercase tracking-widest font-mono">
                   Commercial GC &amp; Digital Command
                 </span>
               </span>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-3.5">
               <Link
                 href="/commercial"
                 className="text-xs font-bold uppercase tracking-wider transition-colors hover:text-white"
@@ -85,36 +110,72 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/residential"
-                className="text-slate-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="text-slate-200 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
               >
                 Residential
               </Link>
               <Link
                 href="/investor"
-                className="text-slate-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="text-slate-200 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
               >
                 Investors
               </Link>
               <Link
                 href="/vendor-application"
-                className="text-slate-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="text-slate-200 hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors"
               >
                 Subcontractors
               </Link>
 
+              <button
+                type="button"
+                id="btn-toggle-living-motion"
+                data-magnetic
+                onClick={toggleLivingMotion}
+                aria-pressed={motionPaused}
+                className="text-[11px] font-mono font-bold px-2.5 py-1.5 rounded-full border transition-all cursor-pointer flex items-center gap-1.5"
+                style={{
+                  background: motionPaused
+                    ? "rgba(27, 58, 107, 0.55)"
+                    : "rgba(201, 168, 76, 0.14)",
+                  borderColor: motionPaused
+                    ? "rgba(148, 163, 184, 0.35)"
+                    : "rgba(201, 168, 76, 0.5)",
+                  color: motionPaused ? "#CBD5E1" : "#F3D37A",
+                }}
+                title="Toggle Living Editorial Physics & Ambient Motion"
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{
+                    background: motionPaused ? "#94A3B8" : "#F97316",
+                    boxShadow: motionPaused ? "none" : "0 0 8px #F97316",
+                  }}
+                />
+                <span>{motionPaused ? "Ⅱ Motion Paused" : "✦ Live Editorial"}</span>
+              </button>
+
               <Link
                 href="/portal"
                 id="nav-portal-multitenant"
+                data-magnetic
                 className="text-xs font-extrabold px-3.5 py-2 rounded-lg border transition-all hover:scale-[1.03] flex items-center gap-2"
                 style={{
-                  background: "rgba(201, 168, 76, 0.14)",
-                  borderColor: "rgba(201, 168, 76, 0.55)",
+                  background: "rgba(27, 58, 107, 0.75)",
+                  borderColor: "rgba(201, 168, 76, 0.65)",
                   color: "#F3D37A",
                 }}
               >
-                <span className="umbra-live-dot" />
+                <span className="tayco-live-dot" style={{ color: "#F97316" }} />
                 <span>🏛️ Command Center</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-mono">
+                <span
+                  className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border"
+                  style={{
+                    background: "rgba(201, 168, 76, 0.2)",
+                    borderColor: "rgba(201, 168, 76, 0.45)",
+                    color: "#F3D37A",
+                  }}
+                >
                   6 Modules
                 </span>
               </Link>
@@ -122,11 +183,12 @@ export default function Navbar() {
               <button
                 type="button"
                 id="btn-open-quick-login-modal"
+                data-magnetic
                 onClick={() => setModalOpen(true)}
                 className="text-xs font-extrabold px-3.5 py-2 rounded-lg border transition-all hover:bg-white/10 text-slate-100 cursor-pointer"
                 style={{
-                  background: "rgba(15, 32, 64, 0.85)",
-                  borderColor: "rgba(56, 189, 248, 0.45)",
+                  background: "#1B3A6B",
+                  borderColor: "rgba(201, 168, 76, 0.45)",
                 }}
               >
                 🔐 Sign In / Invite Code
@@ -134,8 +196,9 @@ export default function Navbar() {
 
               <Link
                 href="/estimate"
-                className="text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-lg transition-transform hover:scale-[1.02]"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                data-magnetic
+                className="text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-lg transition-transform hover:scale-[1.02] shadow-md"
+                style={{ background: "#F97316", color: "#ffffff" }}
               >
                 Get Free Estimate
               </Link>
@@ -144,10 +207,22 @@ export default function Navbar() {
             <div className="flex lg:hidden items-center gap-2">
               <button
                 type="button"
+                onClick={toggleLivingMotion}
+                className="text-[10px] font-mono font-bold px-2 py-1 rounded-full border"
+                style={{
+                  background: "rgba(201,168,76,0.14)",
+                  borderColor: "rgba(201,168,76,0.45)",
+                  color: "#F3D37A",
+                }}
+              >
+                {motionPaused ? "Ⅱ Paused" : "✦ Live"}
+              </button>
+              <button
+                type="button"
                 onClick={() => setModalOpen(true)}
                 className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg border text-amber-300"
                 style={{
-                  background: "rgba(201,168,76,0.14)",
+                  background: "rgba(27, 58, 107, 0.8)",
                   borderColor: "rgba(201,168,76,0.45)",
                 }}
               >
@@ -175,21 +250,21 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/residential"
-                className="text-slate-300 text-sm"
+                className="text-slate-200 text-sm"
                 onClick={() => setOpen(false)}
               >
                 Residential Renovation &amp; 24/7 Restoration
               </Link>
               <Link
                 href="/investor"
-                className="text-slate-300 text-sm"
+                className="text-slate-200 text-sm"
                 onClick={() => setOpen(false)}
               >
                 Institutional Investors &amp; REITs
               </Link>
               <Link
                 href="/vendor-application"
-                className="text-slate-300 text-sm"
+                className="text-slate-200 text-sm"
                 onClick={() => setOpen(false)}
               >
                 Subcontractor Registry (29 CSI Trades)
@@ -199,7 +274,7 @@ export default function Navbar() {
                   href="/portal"
                   className="text-xs font-bold px-3.5 py-2 rounded-lg border"
                   style={{
-                    background: "rgba(201,168,76,0.15)",
+                    background: "rgba(27, 58, 107, 0.85)",
                     borderColor: "#C9A84C",
                     color: "#F3D37A",
                   }}
@@ -213,10 +288,10 @@ export default function Navbar() {
                     setOpen(false);
                     setModalOpen(true);
                   }}
-                  className="text-xs font-bold px-3.5 py-2 rounded-lg border text-sky-200"
+                  className="text-xs font-bold px-3.5 py-2 rounded-lg border text-white"
                   style={{
-                    background: "rgba(15, 32, 64, 0.9)",
-                    borderColor: "rgba(56, 189, 248, 0.45)",
+                    background: "#1B3A6B",
+                    borderColor: "rgba(201, 168, 76, 0.45)",
                   }}
                 >
                   🔐 Sign In / Invite Code
@@ -224,7 +299,7 @@ export default function Navbar() {
                 <Link
                   href="/estimate"
                   className="text-xs font-black px-4 py-2 rounded-lg"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                  style={{ background: "#F97316", color: "#ffffff" }}
                   onClick={() => setOpen(false)}
                 >
                   Get Free Estimate
@@ -240,26 +315,37 @@ export default function Navbar() {
         <div
           id="tayco-quick-login-modal"
           className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-          style={{ background: "rgba(4, 9, 18, 0.82)", backdropFilter: "blur(10px)" }}
+          style={{ background: "rgba(7, 14, 26, 0.84)", backdropFilter: "blur(10px)" }}
           onClick={() => setModalOpen(false)}
         >
           <div
             data-surface-mode="crystal"
-            className="umbra-bento-card relative w-full max-w-2xl p-6 sm:p-8 text-white"
+            data-response-kind="surface"
+            className=" relative w-full max-w-2xl p-6 sm:p-8 text-white rounded-2xl border"
+            style={{
+              background: "linear-gradient(150deg, #0F2040 0%, #1B3A6B 100%)",
+              borderColor: "rgba(201, 168, 76, 0.45)",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="preview-orbits" aria-hidden="true" />
+            <div className="preview-orbits" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
 
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <span className="umbra-eyebrow">
-                    <span className="umbra-live-dot" />
+                  <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+                    <span className="tayco-live-dot" style={{ color: "#F97316" }} />
                     Multi-Tenant RBAC · Module-Scoped Access
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-black mt-2 tracking-tight">
                     TAYCO Digital Command{" "}
-                    <em className="umbra-serif-em">Quick Sign-In</em>
+                    <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                      Quick Sign-In
+                    </em>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300 mt-1">
                     Enter a B2B Module Invitation Code or launch an instant role-scoped executive demo session.
@@ -278,7 +364,7 @@ export default function Navbar() {
               {/* Invite Code Input Form */}
               <form
                 onSubmit={handleLaunchInvite}
-                className="p-4 rounded-xl border border-amber-400/30 bg-slate-950/70 mb-5"
+                className="p-4 rounded-xl border border-amber-400/35 bg-slate-950/65 mb-5"
               >
                 <label className="block text-[11px] font-mono uppercase tracking-wider text-amber-300 mb-2">
                   Paste Module Invitation Code (Grants Only Authorized ERP &amp; Takeoff Modules)
@@ -294,6 +380,7 @@ export default function Navbar() {
                   />
                   <button
                     type="submit"
+                    data-magnetic
                     className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-black uppercase tracking-wider transition-transform hover:scale-[1.02] cursor-pointer"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
@@ -322,7 +409,7 @@ export default function Navbar() {
 
               {/* 4 One-Click Demo Profiles */}
               <div className="mb-5">
-                <div className="text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-2.5">
+                <div className="text-[11px] font-mono uppercase tracking-widest text-slate-300 mb-2.5">
                   1-Click Role-Scoped Executive Demo Profiles
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -331,19 +418,22 @@ export default function Navbar() {
                       key={profile.code}
                       href={profile.href}
                       onClick={() => setModalOpen(false)}
-                      className="group p-3.5 rounded-xl border border-white/10 bg-slate-900/75 hover:border-amber-400/60 hover:bg-slate-900 transition-all flex flex-col justify-between"
+                      className="group p-3.5 rounded-xl border border-white/15 bg-slate-950/60 hover:border-amber-400/70 hover:bg-slate-950/85 transition-all flex flex-col justify-between"
                     >
                       <div>
                         <div className="text-xs font-extrabold text-white group-hover:text-amber-300 transition-colors">
                           {profile.label}
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        <p className="text-[11px] text-slate-300 mt-1 leading-snug">
                           {profile.scope}
                         </p>
                       </div>
-                      <div className="mt-2.5 flex items-center justify-between text-[10px] font-mono text-emerald-300">
+                      <div className="mt-2.5 flex items-center justify-between text-[10px] font-mono text-amber-300">
                         <span>{profile.code}</span>
-                        <span className="text-amber-300 group-hover:translate-x-0.5 transition-transform">
+                        <span
+                          className="font-bold group-hover:translate-x-0.5 transition-transform"
+                          style={{ color: "#F97316" }}
+                        >
                           Enter →
                         </span>
                       </div>
@@ -353,14 +443,19 @@ export default function Navbar() {
               </div>
 
               {/* Bottom Action Bar: B2B Invitation Builder */}
-              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <span className="text-xs text-slate-300">
+              <div className="pt-4 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span className="text-xs text-slate-200">
                   Need to invite an external GC client, CPA firm, or REIT partner to specific modules?
                 </span>
                 <Link
                   href="/portal?builder=1"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-extrabold border border-emerald-400/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition-colors whitespace-nowrap"
+                  className="px-4 py-2 rounded-lg text-xs font-extrabold border transition-colors whitespace-nowrap"
+                  style={{
+                    background: "rgba(249, 115, 22, 0.16)",
+                    borderColor: "rgba(249, 115, 22, 0.55)",
+                    color: "#FDBA74",
+                  }}
                 >
                   🎟️ Open B2B Module Invitation Builder
                 </Link>
