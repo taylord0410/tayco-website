@@ -5,6 +5,10 @@ import Link from "next/link";
 import type { Entry, Data } from "@/lib/erp";
 import type { AuthRole } from "@/lib/auth";
 import { COMPANY } from "@/lib/company";
+import { isValidUsdAmount } from "@/lib/financial-values";
+import ProjectOverview, { type WorkspaceField } from "@/components/workspace/ProjectOverview";
+import FinanceOverview from "@/components/workspace/FinanceOverview";
+import DocumentMaintenance from "@/components/DocumentMaintenance";
 
 export type DashboardData = {
   actor: { id: string; email: string; role: AuthRole };
@@ -13,8 +17,9 @@ export type DashboardData = {
   integrations: { takeoff: string; accounting: string };
   delivery: Data[];
   audit: Data[];
+  assignees?: {id:string;email:string;role:AuthRole}[];
 };
-type Field = { name: string; label: string; type?: "text" | "email" | "number" | "date" | "textarea" | "select"; required?: boolean; options?: { value: string; label: string }[]; value?: string | number; min?: number; max?: number; step?: number };
+type Field = WorkspaceField;
 type Command = (data: Data, key: string) => Promise<void>;
 class RequestError extends Error {
   constructor(message: string, public status = 0) { super(message); }
@@ -24,7 +29,7 @@ const buttonClass = "inline-flex min-h-11 items-center justify-center rounded-lg
 const secondaryClass = "inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold text-slate-100 hover:border-amber-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 disabled:opacity-60";
 const label = (value: unknown) => typeof value === "string" ? value.replaceAll("_", " ") : "";
 const value = (data: Data, key: string) => typeof data[key] === "string" || typeof data[key] === "number" ? String(data[key]) : "";
-const money = (amount: unknown) => typeof amount === "number" ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount) : "Not set";
+const money = (amount: unknown) => isValidUsdAmount(amount) ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount) : "Not set";
 function timestamp(raw: string) {
   const parsed = new Date(raw);
   return Number.isNaN(parsed.valueOf()) ? raw : parsed.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
@@ -59,7 +64,10 @@ function CommandForm({ title, action, fields, fixed = {}, submit = "Save", comma
       const body: Data = { action, ...fixed };
       for (const field of fields) {
         const item = String(submitted.get(field.name) ?? "").trim();
-        if (field.type === "number" && item === "" && field.required === false) continue;
+        if (field.type === "number" && item === "" && field.required === false) {
+          if ("emptyValue" in field) body[field.name] = field.emptyValue;
+          continue;
+        }
         body[field.name] = field.type === "number" && item !== "" ? Number(item) : item;
       }
       pending.current = { key: crypto.randomUUID(), body };
@@ -71,7 +79,7 @@ function CommandForm({ title, action, fields, fixed = {}, submit = "Save", comma
       pending.current = null;
       setUncertain(false);
       setSuccess("Saved. The latest information is shown above.");
-      if (action.startsWith("create_") || ["add_note", "log_hours", "record_invoice", "request_change"].includes(action)) form.reset();
+      if (action.startsWith("create_") || ["add_note", "log_hours", "record_invoice", "request_change", "add_milestone"].includes(action) || (action === "save_project_contact" && !fixed.contactId)) form.reset();
     } catch (failure) {
       const issue = failure instanceof RequestError ? failure : new RequestError("The save could not be confirmed. Retry this same request before entering another.");
       const unknown = issue.status === 0 || issue.status >= 500;
@@ -88,7 +96,7 @@ function CommandForm({ title, action, fields, fixed = {}, submit = "Save", comma
         {fields.map((field) => <label key={field.name} htmlFor={id + field.name} className={"min-w-0 text-sm font-medium text-slate-200 " + (field.type === "textarea" ? "sm:col-span-2" : "")}>
           {field.label}{field.required !== false && <span className="text-amber-200" aria-hidden="true"> *</span>}
           {field.type === "select" ?
-            <select id={id + field.name} name={field.name} required={field.required !== false} defaultValue={field.value ?? ""} className={fieldClass}><option value="">{field.required === false ? "No project selected" : "Choose an option"}</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> :
+            <select id={id + field.name} name={field.name} required={field.required !== false} defaultValue={field.value ?? ""} className={fieldClass}><option value="">{field.placeholder || (field.required === false ? "Not assigned" : "Choose an option")}</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> :
             field.type === "textarea" ? <textarea id={id + field.name} name={field.name} required={field.required !== false} defaultValue={field.value ?? ""} maxLength={4000} rows={4} className={fieldClass} /> :
               <input id={id + field.name} name={field.name} type={field.type ?? "text"} required={field.required !== false} defaultValue={field.value ?? ""} min={field.min} max={field.max} step={field.step} maxLength={field.type === "email" ? 254 : 500} className={fieldClass} />}
         </label>)}
@@ -166,6 +174,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
     ...(team ? [{ id: "lead", label: "Requests" }, { id: "vendor", label: "Trade partners" }] : []),
     ...(vendor ? [{ id: "vendor", label: "My company" }] : []),
     ...(!team && !vendor ? [] : [{ id: "hours", label: "Team hours" }]),
+    { id: "finance", label: "Financial overview" },
     { id: "invoice", label: "Invoices" },
     { id: "document", label: "Documents" },
     ...(!vendor ? [{ id: "change", label: "Changes" }] : []),
@@ -174,6 +183,12 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   ];
   const visible = data.entries.filter((entry) => entry.kind === tab && (!projectId || entry.projectId === projectId));
   const card = "rounded-xl border border-slate-600/70 bg-[#09172b]/70 p-4 sm:p-5";
+  const assigneeField = (entry?:Entry):Field => {
+    const currentId=entry?value(entry.data,"assigneeId"):"";
+    const options=(data.assignees||[]).map(member=>({value:member.id,label:member.email}));
+    if(currentId&&!options.some(option=>option.value===currentId))options.unshift({value:currentId,label:(entry?value(entry.data,"assigneeEmail"):"Former team member")+" (unavailable — reassign)"});
+    return {name:"assigneeId",label:"Responsible team member",type:"select",required:false,placeholder:"Unassigned",value:currentId,options};
+  };
 
   async function refresh() {
     if (refreshing) return;
@@ -230,7 +245,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
       <CommandForm title="Post a project update" action="add_note" fixed={{ projectId: entry.id }} command={command} fields={[{ name: "title", label: "Update title" }, { name: "details", label: "What changed?", type: "textarea" }, ...(team ? [{ name: "visibility", label: "Share with", type: "select" as const, value: "internal", options: [{ value: "internal", label: "TAYCO team only" }, { value: "client", label: "Assigned client" }] }] : [])]} />
       {!vendor && <CommandForm title="Request a scope change" action="request_change" fixed={{ projectId: entry.id }} command={command} fields={[{ name: "title", label: "Change title" }, { name: "details", label: "Describe the requested change", type: "textarea" }]} />}
     </>;
-    if (entry.kind === "lead" && team) return <CommandForm title="Review request" action="update_lead" command={command} fixed={fixed} fields={[statusField(["new", "reviewing", "waiting", "quoted", "accepted", "closed"], entry.data.status), { name: "nextAction", label: "Next action", type: "textarea", required: false, value: value(entry.data, "nextAction") }]} />;
+    if (entry.kind === "lead" && team) return <CommandForm title="Review request" action="update_lead" command={command} fixed={fixed} fields={[assigneeField(entry),statusField(["new", "reviewing", "waiting", "quoted", "accepted", "closed"], entry.data.status), { name: "nextAction", label: "Next action", type: "textarea", required: false, value: value(entry.data, "nextAction") }]} />;
     if (entry.kind === "hours" && team) return <CommandForm title="Review time submission" action="review_hours" command={command} fixed={fixed} fields={[statusField(["approved", "returned"]), { ...responseField, required: false }]} />;
     if (entry.kind === "invoice" && admin) return <CommandForm title="Record invoice decision" action="update_invoice" command={command} fixed={fixed} fields={[statusField(["approved", "paid", "returned"])]} />;
     if (entry.kind === "document" && team) return <CommandForm title="Review document" action="review_document" command={command} fixed={fixed} fields={[statusField(["approved", "rejected"]), responseField, { name: "expiresAt", label: "Expiry date (if applicable)", type: "date", required: false }, ...(entry.data.type === "project" && entry.projectId ? [{ name: "visibility", label: "Visible to", type: "select" as const, value: value(entry.data, "visibility") || "owner", options: [{ value: "owner", label: "Uploader and TAYCO team" }, { value: "client", label: "Assigned client" }] }] : [])]} />;
@@ -252,7 +267,9 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         const title = ({ nextAction: "Next action", clientName: "Client", contactName: "Contact", yearsInBusiness: "Years in business", expiresAt: "Expiry date", dueDate: "Due date" } as Record<string, string>)[key] || key;
         return <div key={key}><p className="text-xs capitalize text-slate-400">{title}</p><p className="whitespace-pre-wrap break-words text-slate-100">{text}</p></div>;
       })}
-      {entry.kind === "project" && !vendor && <p><span className="text-slate-400">Approved budget: </span>{money(d.budgetUsd)}</p>}
+      {entry.kind === "lead" && team && <p><span className="text-slate-400">Responsible: </span>{value(d,"assigneeEmail")||"Unassigned — needs a team member"}{value(d,"assignedAt")&&<span className="mt-1 block text-xs text-slate-400">Assigned {timestamp(value(d,"assignedAt"))}</span>}</p>}
+      {entry.kind === "project" && <ProjectOverview entry={entry} team={team} vendor={vendor} documents={data.entries.filter(document=>document.kind==="document"&&document.projectId===entry.id&&document.data.type==="project")} renderForm={(props)=><CommandForm key={props.action+String(props.fixed?.milestoneId||props.fixed?.contactId||"")} {...props} command={command}/>} />}
+      {entry.kind === "project" && !vendor && <p><span className="text-slate-400">{value(d,"budgetSource")&&value(d,"budgetApprovedOn")?"Approved budget: ":"Budget on record: "}</span>{money(d.budgetUsd)}</p>}
       {entry.kind === "invoice" && <p className="text-xl font-bold text-white">{money(d.amountUsd)}</p>}
       {entry.kind === "hours" && <p className="text-lg font-bold text-white">{value(d, "hours")} hours</p>}
       {entry.kind === "document" && <a className={secondaryClass} href={"/api/documents/" + encodeURIComponent(entry.id)}>Download document</a>}
@@ -287,13 +304,14 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
       <div className="mt-5" aria-busy={refreshing}>
         <Panel title={tabs.find((item) => item.id === tab)?.label || "Workspace"} subtitle={tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
           {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "nextAction", label: "Next action", value: "Confirm scope and schedule", type: "textarea" }]} />}
-          {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}
+          {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[assigneeField(),{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}
           {tab === "hours" && !(!team && !vendor) && projects.length > 0 && <CommandForm title="Submit work hours" action="log_hours" command={command} fields={[projectField(projects), { name: "date", label: "Work date", type: "date" }, { name: "hours", label: "Hours", type: "number", min: 0.1, max: 24, step: 0.1 }, { name: "trade", label: "Work performed" }]} />}
           {tab === "invoice" && (team || vendor) && projects.length > 0 && <CommandForm title="Record an invoice" action="record_invoice" command={command} fields={[projectField(projects), { name: "reference", label: "Invoice reference" }, { name: "amountUsd", label: "Amount (USD)", type: "number", min: 0, max: 1e10, step: 0.01 }, { name: "dueDate", label: "Due date", type: "date", required: false }, ...(team ? [{ name: "audience", label: "Visible to", type: "select" as const, value: "client", options: [{ value: "client", label: "Assigned client" }, { value: "internal", label: "TAYCO team only" }] }] : [])]} />}
           {tab === "document" && (team || vendor) && <DocumentUpload projects={projects} refresh={refresh} />}
-          {tab === "activity" ? <div className="space-y-3">
-            <div className={card}><h3 className="font-semibold text-amber-100">Request notifications</h3><p className="mt-2 text-sm leading-relaxed text-slate-300">Request records are saved independently of email delivery.</p>
-              <div className="mt-3 flex flex-wrap gap-2">{data.delivery.length ? data.delivery.map((item, index) => <Status key={index}>{value(item, "status")}: {value(item, "count")}</Status>) : <p className="text-sm text-slate-400">No queued notifications.</p>}</div>
+          {tab === "document" && <details className="mb-5 rounded-xl border border-slate-600 bg-[#09172b]/40"><summary className="flex min-h-11 cursor-pointer items-center px-4 py-3 text-sm font-semibold text-amber-100">Document preservation and renewals</summary><div className="p-3"><DocumentMaintenance projectId={projectId||undefined} refreshKey={data.updatedAt} onChanged={()=>void refresh().catch(()=>{})} /></div></details>}
+          {tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
+            <div className={card}><h3 className="font-semibold text-amber-100">Request notifications</h3><p className="mt-2 text-sm leading-relaxed text-slate-300">Request records are saved independently of email delivery. Acceptance by the email provider does not guarantee delivery to the recipient’s inbox.</p>
+              <div className="mt-3 flex flex-wrap gap-2">{data.delivery.length ? data.delivery.map((item, index) => <Status key={index}>{item.status==="delivered"?"Accepted by email provider":label(item.status)}: {value(item, "count")}</Status>) : <p className="text-sm text-slate-400">No queued notifications.</p>}</div>
               {admin && <button type="button" className={secondaryClass + " mt-4"} disabled={sending} onClick={() => void deliverNotifications()}>{sending ? "Processing…" : "Send queued notifications"}</button>}
               {deliveryMessage && <p role="status" className="mt-3 text-sm text-amber-100">{deliveryMessage}</p>}
             </div>
