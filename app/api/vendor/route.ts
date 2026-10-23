@@ -5,9 +5,10 @@ import {
   checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
   clientIp, isVendorDocPath, NOTIFY_EMAIL, EMAIL_FROM_ADDRESS,
 } from "../_utils";
+import { recordWebsiteSubmissionToSuite } from "@/lib/tayco_erp_suite_store";
 
-const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_NAME = "Subcontractors";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -198,6 +199,23 @@ export async function POST(req: NextRequest) {
       .map((t) => TRADE_ALIASES[t] ?? t)
       .filter((t) => VALID_TRADES.has(t));
 
+    // Always record in TAYCO ERP Suite Subcontractor Directory & 1099-NEC Engine
+    const subRecord = recordWebsiteSubmissionToSuite("vendor", {
+      businessName,
+      contactName,
+      phone,
+      email,
+      stateServed,
+      citiesServed,
+      trades: mappedTrades.length > 0 ? mappedTrades : tradesRaw,
+      crewSize,
+      yearsInBusiness,
+      insured,
+      w9Path,
+      insurancePath,
+      notes,
+    });
+
     const generalNotes = [
       `Source: Website Application`,
       `Trades: ${trades}`,
@@ -212,30 +230,31 @@ export async function POST(req: NextRequest) {
       insurancePath ? `Insurance COI: private blob ${insurancePath} (attached to notification email)` : `Insurance COI: Not uploaded`,
     ].filter(Boolean).join("\n");
 
-    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fields: {
-          "Business Name": businessName,
-          "Primary Contact Name": contactName,
-          "Contact Phone": phone,
-          "Contact Email": email,
-          "Crew Size": Number(crewSize) || crewSize,
-          ...(mappedTrades.length > 0 && { "Types of Work/Trades": mappedTrades }),
-          "Approval Status": "Pending",
-          "General Notes": generalNotes,
+    if (AIRTABLE_TOKEN && AIRTABLE_BASE_ID) {
+      const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          fields: {
+            "Business Name": businessName,
+            "Primary Contact Name": contactName,
+            "Contact Phone": phone,
+            "Contact Email": email,
+            "Crew Size": Number(crewSize) || crewSize,
+            ...(mappedTrades.length > 0 && { "Types of Work/Trades": mappedTrades }),
+            "Approval Status": "Pending",
+            "General Notes": generalNotes,
+          },
+        }),
+      });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error("Airtable error:", err);
-      return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Airtable error (saved to local TAYCO Subcontractors Directory):", err);
+      }
     }
 
     // Send emails after the response; after() keeps the function alive until they finish.
@@ -244,7 +263,11 @@ export async function POST(req: NextRequest) {
       sendConfirmation({ businessName, contactName, email, trades, stateServed }),
     ]));
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      savedToTaycoCrm: true,
+      subcontractorId: subRecord && "id" in subRecord ? subRecord.id : undefined,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

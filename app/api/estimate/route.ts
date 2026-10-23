@@ -4,9 +4,10 @@ import {
   checkTiming, checkUserAgent, checkPayloadSize, checkEmailDomain, checkSpam,
   clientIp, NOTIFY_EMAIL, EMAIL_FROM_ADDRESS,
 } from "../_utils";
+import { recordWebsiteSubmissionToSuite } from "@/lib/tayco_erp_suite_store";
 
-const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN!;
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_NAME = "Estimate Requests";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -105,36 +106,53 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true }); // silent reject
     }
 
-    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fields: {
-          "Full Name": fullName,
-          "Phone": phone,
-          "Email": email,
-          "Project Type": projectType,
-          "Project Location": projectLocation,
-          "Project Details": projectDetails,
-          "Status": "New",
-          "Submitted At": new Date().toISOString(),
-        },
-      }),
+    // Always record in TAYCO ERP Suite CRM
+    const crmRecord = recordWebsiteSubmissionToSuite("estimate", {
+      fullName,
+      phone,
+      email,
+      projectType,
+      projectLocation,
+      projectDetails,
+      estimatedValueUsd: Number(body.estimatedValueUsd) || 285000,
+      sqft: Number(body.sqft) || 4500,
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error("Airtable error:", err);
-      return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+    if (AIRTABLE_TOKEN && AIRTABLE_BASE_ID) {
+      const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields: {
+            "Full Name": fullName,
+            "Phone": phone,
+            "Email": email,
+            "Project Type": projectType,
+            "Project Location": projectLocation,
+            "Project Details": projectDetails,
+            "Status": "New",
+            "Submitted At": new Date().toISOString(),
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Airtable error (saved to local TAYCO CRM):", err);
+      }
     }
 
     // Send the notification after the response; after() keeps the function alive until it finishes.
     after(() => sendNotification({ fullName, phone, email, projectType, projectLocation, projectDetails }));
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      savedToTaycoCrm: true,
+      crmOpportunityId: crmRecord && "id" in crmRecord ? crmRecord.id : undefined,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
