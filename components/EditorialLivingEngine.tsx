@@ -142,7 +142,9 @@ export default function EditorialLivingEngine() {
       pointerY = e.clientY;
 
       const target = e.target instanceof Element ? e.target : null;
-      const nextSurface = target
+      // Operational records and forms keep fixed hit targets. Their CSS hover/focus
+      // feedback must not tilt panels or append unmanaged nodes into React's tree.
+      const nextSurface = target && !target.closest('.workspace-shell')
         ? target.closest<HTMLElement>(SURFACE_SELECTOR)
         : null;
       const nextMagnetic = target
@@ -170,6 +172,7 @@ export default function EditorialLivingEngine() {
       if (paused || document.hidden || e.button !== 0) return;
       const target = e.target instanceof Element ? e.target : null;
       if (!target) return;
+      if (target.closest('.workspace-shell')) return;
 
       const surface = target.closest<HTMLElement>(SURFACE_SELECTOR);
       if (!surface) return;

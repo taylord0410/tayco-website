@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode, type CSSProperties } from "react";
 import Link from "next/link";
 import type { Entry, Data } from "@/lib/erp";
 import type { AuthRole } from "@/lib/auth";
@@ -11,6 +11,10 @@ import FinanceOverview from "@/components/workspace/FinanceOverview";
 import DocumentMaintenance from "@/components/DocumentMaintenance";
 import ExecutiveConsole from "@/components/workspace/ExecutiveConsole";
 import OperationsModules from "@/components/workspace/OperationsModules";
+import "@/components/workspace/portal-shell.css";
+import EstimateArchive from "@/components/workspace/EstimateArchive";
+import WorkspaceDisplayControls, { useWorkspaceDisplay } from "@/components/workspace/WorkspaceDisplayControls";
+import { groupProjectEstimates } from "@/lib/project-estimates";
 import InvoicePaymentControls from "@/components/workspace/InvoicePaymentControls";
 
 export type DashboardData = {
@@ -39,8 +43,8 @@ function timestamp(raw: string) {
 }
 function date(raw: string) { const parsed = new Date(raw); return Number.isNaN(parsed.valueOf()) ? raw : parsed.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }); }
 
-function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
-  return <section className="rounded-2xl border border-amber-200/20 bg-[#0f2040] p-5 shadow-xl sm:p-7"><h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>{subtitle && <p className="mt-2 text-sm leading-relaxed text-slate-300">{subtitle}</p>}<div className="mt-5">{children}</div></section>;
+function Panel({ title, subtitle, children, featured=false }: { title: string; subtitle?: string; children: ReactNode; featured?:boolean }) {
+  return <section className={"workspace-panel rounded-2xl border border-amber-200/20 bg-[#0f2040] p-5 shadow-xl sm:p-7 "+(featured?"workspace-panel-canvas":"")}><h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>{subtitle && <p className="mt-2 text-sm leading-relaxed text-slate-300">{subtitle}</p>}<div className="mt-5">{children}</div></section>;
 }
 function Empty({ children }: { children: ReactNode }) {
   return <p className="rounded-xl border border-dashed border-slate-600 bg-[#09172b]/60 px-5 py-7 text-sm leading-relaxed text-slate-300">{children}</p>;
@@ -159,6 +163,7 @@ const responseField: Field = { name: "response", label: "Review note", type: "te
 
 export default function PortalClient({ initial }: { initial: DashboardData }) {
   const [data, setData] = useState(initial);
+  const [display,setDisplay]=useWorkspaceDisplay();
   const [tab, setTab] = useState("executive");
   const [mobileModulesOpen,setMobileModulesOpen]=useState(false);
   const sidebarRef=useRef<HTMLElement>(null);
@@ -166,6 +171,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const currentModuleRef=useRef<HTMLDivElement>(null);
   const [projectId, setProjectId] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [financePeriod, setFinancePeriod] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [expired, setExpired] = useState(false);
   const [sending, setSending] = useState(false);
@@ -173,6 +179,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const team = data.actor.role === "admin" || data.actor.role === "staff";
   const admin = data.actor.role === "admin";
   const vendor = data.actor.role === "vendor";
+  const estimateReport=groupProjectEstimates(data.entries.filter(entry=>entry.kind==="estimate").map(entry=>entry.data),projectId||undefined);
   const projects = data.entries.filter((entry) => entry.kind === "project");
   const projectName = (id: string) => projects.find((project) => project.id === id)?.data.name;
   const roleName = { admin: "TAYCO administrator", staff: "TAYCO team", client: "Client workspace", vendor: "Trade partner workspace" }[data.actor.role];
@@ -182,17 +189,19 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
     {id:"document",label:"Documents",group:"Command center"},
     {id:"note",label:"Updates",group:"Command center"},
     ...(!vendor?[{id:"change",label:"Changes",group:"Command center"}]:[]),
-    ...(team?[{id:"lead",label:"Requests",group:"Commercial"},{id:"vendor",label:"Trade partners",group:"Commercial"}]:[]),
+    ...(team?[{id:"lead",label:"Requests",group:"Commercial"},{id:"proposal",label:"Client proposals",group:"Commercial"},{id:"vendor",label:"Trade partners",group:"Commercial"}]:[]),
     ...(vendor?[{id:"vendor",label:"My company",group:"Commercial"}]:[]),
     ...(team||vendor?[{id:"bid",label:"Bid leveling",group:"Commercial"}]:[]),
     ...(team||vendor?[{id:"hours",label:"Team hours",group:"Field & procurement"},{id:"purchase_order",label:"Purchase orders",group:"Field & procurement"}]:[]),
-    ...(team?[{id:"compliance",label:"Tax & TERO",group:"Field & procurement"}]:[]),
+    ...(team?[{id:"team",label:"Project teams",group:"Field & procurement"},{id:"compliance",label:"Tax & TERO",group:"Field & procurement"}]:[]),
     {id:"finance",label:"Financial overview",group:"Accounting & capital"},
     {id:"invoice",label:"Invoices",group:"Accounting & capital"},
     ...(!vendor?[{id:"dossier",label:"Investor & lender dossier",group:"Accounting & capital"}]:[]),
+    ...(team?[{id:"estimate",label:"Estimates & scenarios",group:"Preconstruction"}]:[]),
     ...(team?[{id:"takeoff",label:"Takeoff Pro bridge",group:"Connections"},{id:"activity",label:"Activity",group:"Connections"}]:[]),
   ];
-  function navigate(view:string,selectedProject?:string) {
+  function navigate(view:string,selectedProject?:string,reportingMonth?:string) {
+    if(view==="finance")setFinancePeriod(reportingMonth&&/^\d{4}-(0[1-9]|1[0-2])$/.test(reportingMonth)?reportingMonth:null);
     setTab(tabs.some(item=>item.id===view)?view:"project");
     if(selectedProject!==undefined)setProjectId(selectedProject);
     else if(["lead","vendor","activity"].includes(view))setProjectId("");
@@ -269,7 +278,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   function controls(entry: Entry) {
     const fixed = { id: entry.id, version: entry.version };
     if (entry.kind === "project") return <>
-      {team && <CommandForm title="Update project" action="update_project" command={command} fixed={fixed} fields={[statusField(["planning", "active", "blocked", "handover", "closed"], entry.data.status), { name: "progress", label: "Progress (%)", type: "number", value: Number(entry.data.progress || 0), min: 0, max: 100, step: 1 }, { name: "nextAction", label: "Next action", type: "textarea", value: value(entry.data, "nextAction") }]} />}
+      {team && <CommandForm title="Update project" action="update_project" command={command} fixed={fixed} fields={[statusField(["planning", "active", "blocked", "handover", "closed"], entry.data.status), { name: "progress", label: "Progress (%)", type: "number", value: typeof entry.data.progress==="number"?entry.data.progress:"", required:false, emptyValue:null, min: 0, max: 100, step: 1 }, { name: "nextAction", label: "Next action", type: "textarea", value: value(entry.data, "nextAction") }]} />}
       <CommandForm title="Post a project update" action="add_note" fixed={{ projectId: entry.id }} command={command} fields={[{ name: "title", label: "Update title" }, { name: "details", label: "What changed?", type: "textarea" }, ...(team ? [{ name: "visibility", label: "Share with", type: "select" as const, value: "internal", options: [{ value: "internal", label: "TAYCO team only" }, { value: "client", label: "Assigned client" }] }] : [])]} />
       {!vendor && <CommandForm title="Request a scope change" action="request_change" fixed={{ projectId: entry.id }} command={command} fields={[{ name: "title", label: "Change title" }, { name: "details", label: "Describe the requested change", type: "textarea" }]} />}
     </>;
@@ -287,7 +296,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
     const d = entry.data;
     const keys = entry.kind === "project" ? ["location", "clientName", "nextAction"] : entry.kind === "vendor" ? ["contact", "contactName", "email", "phone", "trade", "trades", "states", "experience", "yearsInBusiness"] : ["email", "details", "nextAction", "response", "type", "expiresAt", "date", "trade", "dueDate"];
     return <div className="mt-4 space-y-3 text-sm leading-relaxed">
-      {entry.kind === "project" && <div><div className="mb-2 flex justify-between text-xs text-slate-300"><span>Reported progress</span><span>{Number(d.progress || 0)}%</span></div><progress className="h-2 w-full accent-amber-300" max={100} value={Number(d.progress || 0)} aria-label="Reported project progress" /></div>}
+      {entry.kind === "project" && (typeof d.progress==="number"?<div><div className="mb-2 flex justify-between text-xs text-slate-300"><span>Reported progress</span><span>{d.progress}%</span></div><progress className="h-2 w-full accent-amber-300" max={100} value={d.progress} aria-label="Reported project progress" /></div>:<p className="text-xs text-slate-400">Execution progress not recorded</p>)}
       {keys.map((key) => {
         const raw = d[key];
         const text = Array.isArray(raw) ? raw.filter((item) => typeof item === "string").join(", ") : value(d, key);
@@ -305,8 +314,8 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   }
 
   const renderOperationsForm=(props:import("@/components/workspace/ProjectOverview").WorkspaceForm)=><CommandForm key={props.action+String(props.fixed?.id||"")} {...props} command={command}/>;
-  const moduleId:Record<string,string>={executive:"executive",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",purchase_order:"purchase-orders",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
-  return <main className="min-h-screen bg-[#070e1a] pt-16 text-slate-100">
+  const moduleId:Record<string,string>={executive:"executive",proposal:"proposals",team:"project-teams",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",purchase_order:"purchase-orders",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
+  return <main className="workspace-shell min-h-screen bg-[#070e1a] pt-16 text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties}>
     <div className="mx-auto grid max-w-[1600px] grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)]">
       <aside ref={sidebarRef} id="tayco-command-sidebar" className="min-w-0 border-b border-amber-200/20 bg-gradient-to-b from-[#112748] to-[#09172b] p-4 sm:p-5 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-4rem)] lg:overflow-y-auto lg:self-start lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between gap-3">
@@ -319,15 +328,16 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         </nav>
         {team&&<div className="mt-5 hidden rounded-xl border border-amber-200/25 bg-[#102541] p-4 lg:block"><p className="text-[10px] font-semibold uppercase tracking-widest text-amber-200">Estimating bridge</p><p className="mt-2 text-sm font-semibold text-white">{data.integrations.takeoff==="not_configured"?"Not connected":label(data.integrations.takeoff)}</p><p className="mt-2 text-xs leading-relaxed text-slate-400">Project source records remain available.</p><button className="mt-3 min-h-11 text-xs font-semibold text-[#fb923c] underline underline-offset-4" onClick={()=>navigate("takeoff")}>Open bridge context ↗</button></div>}
       </aside>
-      <div className="min-w-0 px-4 pb-16 pt-7 sm:px-6 lg:px-7">
-      <div className="flex flex-wrap items-start justify-between gap-5">
+      <div className="workspace-content min-w-0 px-4 pb-16 pt-7 sm:px-6 lg:px-7">
+      <div className="workspace-page-header flex flex-wrap items-start justify-between gap-5">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">{roleName}</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Your projects. <em className="font-serif font-normal text-amber-200">Connected.</em></h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">{team ? "Manage project progress, incoming requests and reviews from one workspace." : "Follow assigned projects, review updates and keep your next steps in view."}</p>
+          <p className="workspace-page-description mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">{team ? "Manage project progress, incoming requests and reviews from one workspace." : "Follow assigned projects, review updates and keep your next steps in view."}</p>
           <p className="mt-2 break-all text-xs text-slate-400">Signed in as {data.actor.email} · {team ? "Company workspace" : "Only records assigned or shared with your account"}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {tab!=="executive"&&<WorkspaceDisplayControls value={display} onChange={setDisplay}/>}
           <button className={secondaryClass} type="button" onClick={() => void refresh().catch(() => {})} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button>
           <Link className={buttonClass} href="/account">Account &amp; access</Link>
         </div>
@@ -338,15 +348,15 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         <p role="status" className="text-xs text-slate-400">Last refreshed {timestamp(data.updatedAt)}</p>
       </div>
       <div ref={currentModuleRef} tabIndex={-1} role="region" aria-label={tabs.find(item=>item.id===tab)?.label||"Workspace module"} className="mt-5 min-w-0 outline-none" aria-busy={refreshing} data-testid={"module-"+(moduleId[tab]||tab)}>
-        <Panel title={tabs.find((item) => item.id === tab)?.label || "Workspace"} subtitle={tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
-          {tab==="hours"&&<OperationsModules view="hours" entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} renderForm={renderOperationsForm} onNavigate={navigate}/>}
+        <Panel featured={tab==="executive"} title={tabs.find((item) => item.id === tab)?.label || "Workspace"} subtitle={tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
+          {tab==="hours"&&<OperationsModules view="hours" entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/>}
           {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "nextAction", label: "Next action", value: "Confirm scope and schedule", type: "textarea" }]} />}
           {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[assigneeField(),{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}
           {tab === "hours" && !(!team && !vendor) && projects.length > 0 && <CommandForm title="Submit work hours" action="log_hours" command={command} fields={[projectField(projects), { name: "date", label: "Work date", type: "date" }, { name: "hours", label: "Hours", type: "number", min: 0.1, max: 24, step: 0.1 }, { name: "trade", label: "Work performed" }]} />}
           {tab === "invoice" && (team || vendor) && projects.length > 0 && <CommandForm title="Record an invoice" action="record_invoice" command={command} fields={[projectField(projects), { name: "reference", label: "Invoice reference" }, { name: "amountUsd", label: "Amount (USD)", type: "number", min: 0, max: 1e10, step: 0.01 }, {name:"issuedOn",label:"Invoice issue date",type:"date",value:new Date().toISOString().slice(0,10)},{name:"source",label:"Invoice source",value:"Team record"},{ name: "dueDate", label: "Due date", type: "date", required: false }, ...(team ? [{ name: "audience", label: "Visible to", type: "select" as const, value: "client", options: [{ value: "client", label: "Assigned client" }, { value: "internal", label: "TAYCO team only" }] }] : [])]} />}
           {tab === "document" && (team || vendor) && <DocumentUpload projects={projects} refresh={refresh} />}
           {tab === "document" && <details className="mb-5 rounded-xl border border-slate-600 bg-[#09172b]/40"><summary className="flex min-h-11 cursor-pointer items-center px-4 py-3 text-sm font-semibold text-amber-100">Document preservation and renewals</summary><div className="p-3"><DocumentMaintenance projectId={projectId||undefined} refreshKey={data.updatedAt} onChanged={()=>void refresh().catch(()=>{})} /></div></details>}
-          {tab==="executive"?<ExecutiveConsole data={data} projectId={projectId} onNavigate={navigate}/>:["bid","purchase_order","compliance","dossier","takeoff"].includes(tab)?<OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} renderForm={renderOperationsForm} onNavigate={navigate}/>:tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
+          {tab==="executive"?<ExecutiveConsole data={data} projectId={projectId} onNavigate={navigate} estimates={estimateReport.estimates}/>:tab==="estimate"?<EstimateArchive estimates={estimateReport.estimates} invalidCount={estimateReport.invalidCount}/>: ["proposal","team","bid","purchase_order","compliance","dossier","takeoff"].includes(tab)?<OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/>:tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} initialPeriod={financePeriod} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
             <div className={card}><h3 className="font-semibold text-amber-100">Request notifications</h3><p className="mt-2 text-sm leading-relaxed text-slate-300">Request records are saved independently of email delivery. Acceptance by the email provider does not guarantee delivery to the recipient’s inbox.</p>
               <div className="mt-3 flex flex-wrap gap-2">{data.delivery.length ? data.delivery.map((item, index) => <Status key={index}>{item.status==="delivered"?"Accepted by email provider":label(item.status)}: {value(item, "count")}</Status>) : <p className="text-sm text-slate-400">No queued notifications.</p>}</div>
               {admin && <button type="button" className={secondaryClass + " mt-4"} disabled={sending} onClick={() => void deliverNotifications()}>{sending ? "Processing…" : "Send queued notifications"}</button>}
