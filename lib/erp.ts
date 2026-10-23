@@ -7,7 +7,7 @@ import { isFinancialDate } from './financial-periods';
 import { parseProjectEstimate } from './project-estimates';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
-export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate';
+export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate' | 'proposal';
 export type Data = Record<string, unknown>;
 export type Entry = { id: string; kind: Kind; tenantId: string; projectId: string; ownerId: string; version: number; createdAt: string; updatedAt: string; data: Data };
 type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string };
@@ -34,7 +34,7 @@ function get(id: string) { const row = database().prepare('SELECT * FROM records
 function allowed(actor: Actor, entry: Entry) {
   if (entry.tenantId !== actor.tenantId) return false;
   if (internal(actor)) return true;
-  if(entry.kind==='compliance'||entry.kind==='estimate')return false;
+  if(entry.kind==='compliance'||entry.kind==='estimate'||entry.kind==='proposal')return false;
   if(entry.kind==='bid'||entry.kind==='purchase_order')return actor.role==='vendor'&&actor.projectIds.includes(entry.projectId)&&(entry.ownerId===actor.id||Boolean(actor.vendorId&&entry.data.vendorId===actor.vendorId));
   if (entry.kind === 'vendor') return entry.id === actor.vendorId || entry.ownerId === actor.id;
   if (entry.kind === 'document') return entry.ownerId === actor.id || (actor.role === 'client' && actor.projectIds.includes(entry.projectId) && entry.data.visibility === 'client');
@@ -114,6 +114,7 @@ function exposed(actor:Actor,e:Entry):Entry {
  const data={...e.data};delete data.blobPath;
  if(!internal(actor)&&e.kind==='document'){for(const field of ['holdReason','holdChangedBy','deleteReason','deletedBy','purgeLastError','purgeAttempts','purgeLeaseUntil','purgeAttemptedAt','retentionDays','purgeAttemptToken'])delete data[field];}
  if(e.kind==='project'){
+    if(!internal(actor))delete data.teamMembers;
    if(actor.role==='vendor'){for(const field of ['budgetUsd','budgetSource','budgetApprovedOn','budgetUpdatedAt','clientEmail','clientName','clientPhone'])delete data[field];}
    if(!internal(actor)&&Array.isArray(data.contacts))data.contacts=data.contacts.filter(contact=>contact&&typeof contact==='object'&&((contact as Data).visibility==='project'||(actor.role==='client'&&(contact as Data).visibility==='client'))&&(contact as Data).status!=='archived');
  }
@@ -201,6 +202,41 @@ function mutate(actor: Actor, input: Data): Entry {
   }
   if(action==='create_project') {requireInternal(actor);return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:0,budgetUsd:input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget'),nextAction:text(input.nextAction??'Confirm scope and schedule','next action',500),source:'team'});}
   if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team',...staffAssignment(actor,input.assigneeId)});}
+  if(action==='create_proposal') {
+    requireInternal(actor);const p=project(actor,input.projectId),reference=text(input.reference,'proposal reference',100),issuedOn=occurredDate(input.issuedOn,'Proposal issue date'),validUntil=calendarDate(input.validUntil,'proposal validity',true);
+    if(validUntil&&validUntil<issuedOn)throw new ErpError(422,'Proposal validity cannot precede its issue date.');
+    const duplicate=(database().prepare("SELECT * FROM records WHERE tenant_id=? AND kind='proposal'").all(actor.tenantId) as Row[]).map(decode).some(e=>String(e.data.reference).toLowerCase()===reference.toLowerCase());
+    if(duplicate)throw new ErpError(409,'This proposal reference is already recorded. Review the existing proposal.');
+    return create(actor,'proposal',{title:text(input.title,'proposal title',200),reference,clientName:text(input.clientName,'client name',160),amountUsd:currencyAmount(input.amountUsd,'proposal amount'),currency:'USD',source:text(input.source,'proposal source',1000),issuedOn,validUntil:validUntil||null,status:'draft',sentOn:null,decidedOn:null,evidence:null},p.id);
+  }
+  if(action==='send_proposal') {
+    requireInternal(actor);const item=requireEntry(actor,text(input.id,'proposal',100),'proposal'),sentOn=occurredDate(input.sentOn??new Date().toISOString().slice(0,10),'Proposal sending date');
+    if(item.data.status!=='draft')throw new ErpError(409,'Only a draft proposal can be marked as sent.');
+    if(typeof item.data.issuedOn!=='string'||sentOn<item.data.issuedOn)throw new ErpError(422,'Sending cannot precede the proposal issue date.');
+    if(typeof item.data.validUntil==='string'&&item.data.validUntil<sentOn)throw new ErpError(409,'This proposal expired before the sending date. Record a new dated proposal.');
+    return update(actor,item,{status:'sent',sentOn},input.version);
+  }
+  if(action==='decide_proposal') {
+    requireInternal(actor);const item=requireEntry(actor,text(input.id,'proposal',100),'proposal'),status=choice(input.status,['accepted','declined','withdrawn']),decidedOn=occurredDate(input.decidedOn,'Proposal decision date');
+    if(item.data.status!=='sent')throw new ErpError(409,'Only a sent proposal can receive a decision.');
+    if(typeof item.data.sentOn!=='string'||decidedOn<item.data.sentOn)throw new ErpError(422,'A decision cannot precede the recorded sending date.');
+    if(status==='accepted'&&typeof item.data.validUntil==='string'&&decidedOn>item.data.validUntil)throw new ErpError(409,'This proposal expired before the acceptance date. Record a new proposal.');
+    return update(actor,item,{status,decidedOn,evidence:text(input.evidence,'decision evidence',2000),decisionRecordedAt:new Date().toISOString()},input.version);
+  }
+  if(action==='add_project_team_member'||action==='remove_project_team_member') {
+    requireInternal(actor);const p=project(actor,input.id),memberId=text(input.memberId,'team member',100),members=(Array.isArray(p.data.teamMembers)?p.data.teamMembers:[]) as Data[];
+    if(action==='add_project_team_member'){
+      const member=validateAssignableStaff(actor,memberId),assignedOn=occurredDate(input.assignedOn,'Assignment date');
+      if(members.some(m=>m.memberId===memberId&&!m.removedOn))throw new ErpError(409,'This team member is already assigned to the project.');
+      if(members.some(m=>m.memberId===memberId&&typeof m.removedOn==='string'&&assignedOn<m.removedOn))throw new ErpError(422,'A new assignment cannot overlap this member\u0027s previous assignment.');
+      if(members.length>=200)throw new ErpError(422,'Review the team history before adding more assignments.');
+      return update(actor,p,{teamMembers:[...members,{memberId:member.id,email:member.email,responsibility:text(input.responsibility,'project responsibility',160),assignedOn,removedOn:null}]},input.version);
+    }
+    const active=members.find(m=>m.memberId===memberId&&!m.removedOn),removedOn=occurredDate(input.removedOn,'Assignment end date');
+    if(!active)throw new ErpError(404,'Active project assignment not found.');
+    if(typeof active.assignedOn!=='string'||removedOn<active.assignedOn)throw new ErpError(422,'An assignment cannot end before it starts.');
+    return update(actor,p,{teamMembers:members.map(m=>m===active?{...m,removedOn}:m)},input.version);
+  }
   if(action==='update_lead') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'lead');return update(actor,item,{status:choice(input.status,['new','reviewing','waiting','quoted','accepted','closed']),nextAction:text(input.nextAction??'','next action',500,false),...(input.assigneeId!==undefined?staffAssignment(actor,input.assigneeId,item.data):{})},input.version);}
   if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id);return update(actor,item,{status:choice(input.status,['planning','active','blocked','handover','closed']),progress:input.progress===null?null:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500)},input.version);}
   if(action==='update_project_details') {
