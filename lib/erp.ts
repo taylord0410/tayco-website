@@ -2,7 +2,8 @@ import { DatabaseSync } from 'node:sqlite';
 import { randomUUID, createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import type { Actor } from './auth';
+import { isValidUsdAmount } from './financial-values';
+import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
 export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change';
 export type Data = Record<string, unknown>;
@@ -53,6 +54,11 @@ function number(v: unknown, label: string, min: number, max: number) {
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) throw new ErpError(422, `Check ${label}.`);
   return v;
 }
+function currencyAmount(v:unknown,label:string) {
+ const amount=number(v,label,0,1e10),nearest=Math.round(amount*100);
+ if(!isValidUsdAmount(amount))throw new ErpError(422,'Use at most two decimal places for '+label+'.');
+ return nearest/100;
+}
 function choice(v: unknown, values: string[]) { if (typeof v !== 'string' || !values.includes(v)) throw new ErpError(422, 'Choose a valid status.'); return v; }
 function calendarDate(v:unknown,label:string,optional=false) {
  const value=text(v??'',label,10,!optional);if(optional&&!value)return '';
@@ -77,13 +83,51 @@ function project(actor: Actor, id: unknown) { return requireEntry(actor,text(id,
 function transact<T>(fn: () => T): T { const db=database();db.exec('BEGIN IMMEDIATE');try {const result=fn();db.exec('COMMIT');return result;}catch(e){db.exec('ROLLBACK');throw e;} }
 function exposed(actor:Actor,e:Entry):Entry {
  const data={...e.data};delete data.blobPath;
- if(actor.role==='vendor'&&e.kind==='project'){delete data.budgetUsd;delete data.clientEmail;delete data.clientName;}
+ if(!internal(actor)&&e.kind==='document'){for(const field of ['holdReason','holdChangedBy','deleteReason','deletedBy','purgeLastError','purgeAttempts','purgeLeaseUntil','purgeAttemptedAt','retentionDays','purgeAttemptToken'])delete data[field];}
+ if(e.kind==='project'){
+   if(actor.role==='vendor'){for(const field of ['budgetUsd','budgetSource','budgetApprovedOn','budgetUpdatedAt','clientEmail','clientName','clientPhone'])delete data[field];}
+   if(!internal(actor)&&Array.isArray(data.contacts))data.contacts=data.contacts.filter(contact=>contact&&typeof contact==='object'&&((contact as Data).visibility==='project'||(actor.role==='client'&&(contact as Data).visibility==='client'))&&(contact as Data).status!=='archived');
+ }
  return {...e,data};
 }
 
+export type Milestone = {id:string;title:string;dueDate:string;status:'planned'|'active'|'completed'|'cancelled';completedOn:string|null};
+function staffAssignment(actor:Actor,id:unknown,previous?:Data) {
+ const memberId=text(id??'','responsible team member',100,false);
+ if(!memberId)return {assigneeId:null,assigneeEmail:null,assignedAt:null};
+ const member=validateAssignableStaff(actor,memberId);
+ return {assigneeId:member.id,assigneeEmail:member.email,assignedAt:previous?.assigneeId===member.id&&typeof previous.assignedAt==='string'?previous.assignedAt:new Date().toISOString()};
+}
+function checkedProjectDates(start:unknown,end:unknown) {
+ const plannedStart=calendarDate(start,'project start',true),plannedEnd=calendarDate(end,'project completion',true);
+ if(Boolean(plannedStart)!==Boolean(plannedEnd))throw new ErpError(422,'Set both project dates or leave both empty.');
+ if(plannedStart&&plannedStart>plannedEnd)throw new ErpError(422,'Project completion must be on or after its start.');
+ return {plannedStart,plannedEnd};
+}
+function milestones(item:Entry):Milestone[] {return Array.isArray(item.data.milestones)?item.data.milestones as Milestone[]:[];}
+function withinSchedule(item:Entry,dueDate:string) {
+ const start=String(item.data.plannedStart||''),end=String(item.data.plannedEnd||'');
+ if((start&&dueDate<start)||(end&&dueDate>end))throw new ErpError(422,'Milestone dates must fall within the project schedule.');
+}
+export function financialSummary(actor:Actor, projectId?:string) {
+ if(projectId)project(actor,projectId);
+ const scoped=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(entry=>allowed(actor,entry)&&(!projectId||entry.projectId===projectId));
+ const buckets={submitted:{count:0,amountUsd:0},approved:{count:0,amountUsd:0},paid:{count:0,amountUsd:0},returned:{count:0,amountUsd:0}};
+ let excludedRecords=0;
+ for(const entry of scoped.filter(entry=>entry.kind==='invoice')){
+   const amount=entry.data.amountUsd,status=entry.data.status;
+   if(!isValidUsdAmount(amount)||typeof status!=='string'||!Object.hasOwn(buckets,status)){excludedRecords++;continue;}
+   const bucket=buckets[status as keyof typeof buckets],cents=Math.round(amount*100);
+   const sum=Math.round(bucket.amountUsd*100)+cents;
+   if(!Number.isSafeInteger(sum))throw new ErpError(503,'Financial totals exceed the supported reporting range.');
+   bucket.amountUsd=sum/100;bucket.count++;
+ }
+ const projects=actor.role==='vendor'?[]:scoped.filter(entry=>entry.kind==='project').map(entry=>({projectId:entry.id,name:String(entry.data.name||'Project'),budgetUsd:isValidUsdAmount(entry.data.budgetUsd)?entry.data.budgetUsd:null,budgetNeedsReview:entry.data.budgetUsd!=null&&!isValidUsdAmount(entry.data.budgetUsd),budgetSource:typeof entry.data.budgetSource==='string'&&entry.data.budgetSource?entry.data.budgetSource:null,budgetApprovedOn:typeof entry.data.budgetApprovedOn==='string'&&entry.data.budgetApprovedOn?entry.data.budgetApprovedOn:null,budgetUpdatedAt:typeof entry.data.budgetUpdatedAt==='string'?entry.data.budgetUpdatedAt:entry.updatedAt}));
+ return {currency:'USD' as const,asOf:new Date().toISOString(),source:'Recorded project budgets and invoices',scope:internal(actor)?'company':'assigned',projects,invoices:buckets,approvedOutstandingUsd:buckets.approved.amountUsd,paidRecordedUsd:buckets.paid.amountUsd,recordCount:Object.values(buckets).reduce((sum,bucket)=>sum+bucket.count,0),excludedRecords};
+}
 export function snapshot(actor: Actor) {
-  const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)).map(e=>exposed(actor,e));
-  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:'not_configured',accounting:'not_configured'}, delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
+  const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)&&!(e.kind==='document'&&(e.data.deletedAt||e.data.purgedAt))).map(e=>exposed(actor,e));
+  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:'not_configured',accounting:'not_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
 }
 export function execute(actor: Actor, key: string, input: Data) {
   if (!/^[\w-]{16,100}$/.test(key)) throw new ErpError(422,'A valid request reference is required.');
@@ -97,19 +141,58 @@ export function execute(actor: Actor, key: string, input: Data) {
 }
 function mutate(actor: Actor, input: Data): Entry {
   const action=text(input.action,'action',60);
-  if(action==='create_project') {requireInternal(actor);return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:0,budgetUsd:input.budgetUsd==null?null:number(input.budgetUsd,'approved budget',0,1e10),nextAction:text(input.nextAction??'Confirm scope and schedule','next action',500),source:'team'});}
-  if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team'});}
-  if(action==='update_lead') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'lead');return update(actor,item,{status:choice(input.status,['new','reviewing','waiting','quoted','accepted','closed']),nextAction:text(input.nextAction??'','next action',500,false)},input.version);}
+  if(action==='create_project') {requireInternal(actor);return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:0,budgetUsd:input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget'),nextAction:text(input.nextAction??'Confirm scope and schedule','next action',500),source:'team'});}
+  if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team',...staffAssignment(actor,input.assigneeId)});}
+  if(action==='update_lead') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'lead');return update(actor,item,{status:choice(input.status,['new','reviewing','waiting','quoted','accepted','closed']),nextAction:text(input.nextAction??'','next action',500,false),...(input.assigneeId!==undefined?staffAssignment(actor,input.assigneeId,item.data):{})},input.version);}
   if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id);return update(actor,item,{status:choice(input.status,['planning','active','blocked','handover','closed']),progress:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500)},input.version);}
+  if(action==='update_project_details') {
+   requireInternal(actor);const item=project(actor,input.id);
+   const budgetUsd=input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget');
+   const budgetSource=budgetUsd===null?'':text(input.budgetSource,'budget approval source',500);
+   const budgetApprovedOn=budgetUsd===null?'':calendarDate(input.budgetApprovedOn,'budget approval date');
+   if(budgetApprovedOn&&budgetApprovedOn>new Date().toISOString().slice(0,10))throw new ErpError(422,'A budget approval date cannot be in the future.');
+   return update(actor,item,{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),budgetUsd,budgetSource,budgetApprovedOn,budgetUpdatedAt:new Date().toISOString()},input.version);
+  }
+  if(action==='set_project_schedule') {
+   requireInternal(actor);const item=project(actor,input.id),dates=checkedProjectDates(input.plannedStart,input.plannedEnd);
+   if(dates.plannedStart&&milestones(item).some(m=>m.status!=='cancelled'&&(m.dueDate<dates.plannedStart||m.dueDate>dates.plannedEnd)))throw new ErpError(422,'Review existing milestone dates before narrowing the project schedule.');
+   return update(actor,item,dates,input.version);
+  }
+  if(action==='add_milestone') {
+   requireInternal(actor);const item=project(actor,input.id),dueDate=calendarDate(input.dueDate,'milestone due date');withinSchedule(item,dueDate);
+   const current=milestones(item);if(current.length>=100)throw new ErpError(422,'A project can have up to 100 milestones. Review its existing milestones.');
+   const milestone:Milestone={id:randomUUID(),title:text(input.title,'milestone title',160),dueDate,status:'planned',completedOn:null};
+   return update(actor,item,{milestones:[...current,milestone].sort((a,b)=>a.dueDate.localeCompare(b.dueDate)||a.id.localeCompare(b.id))},input.version);
+  }
+  if(action==='update_milestone') {
+   requireInternal(actor);const item=project(actor,input.id),milestoneId=text(input.milestoneId,'milestone',100),current=milestones(item),old=current.find(m=>m.id===milestoneId);
+   if(!old)throw new ErpError(404,'Milestone not found.');
+   const dueDate=calendarDate(input.dueDate,'milestone due date'),status=choice(input.status,['planned','active','completed','cancelled']) as Milestone['status'];
+   if(status!=='cancelled')withinSchedule(item,dueDate);
+   const completedOn=status==='completed'?calendarDate(input.completedOn,'actual completion date'):null;
+   if(completedOn&&completedOn>new Date().toISOString().slice(0,10))throw new ErpError(422,'An actual completion date cannot be in the future.');
+   return update(actor,item,{milestones:current.map(m=>m.id===milestoneId?{...m,title:text(input.title??old.title,'milestone title',160),dueDate,status,completedOn}:m).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)||a.id.localeCompare(b.id))},input.version);
+  }
+  if(action==='save_project_contact') {
+   requireInternal(actor);const item=project(actor,input.id),contactId=text(input.contactId??'','contact',100,false);
+   const current=(Array.isArray(item.data.contacts)?item.data.contacts:[]) as Data[];
+   if(contactId&&!current.some(contact=>contact.id===contactId))throw new ErpError(404,'Contact not found.');
+   if(!contactId&&current.length>=32)throw new ErpError(422,'Review existing project contacts before adding more.');
+   const email=text(input.email??'','contact email',254,false),phone=text(input.phone??'','contact phone',80,false);
+   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new ErpError(422,'Enter a valid contact email.');
+   if(!email&&!phone)throw new ErpError(422,'Provide a contact email or phone number.');
+   const contact={id:contactId||randomUUID(),name:text(input.name,'contact name',160),email,phone,contactRole:text(input.contactRole??'','contact role',160,false),visibility:choice(input.visibility??'internal',['internal','client','project']),status:choice(input.status??'active',['active','archived'])};
+   return update(actor,item,{contacts:contactId?current.map(c=>c.id===contactId?contact:c):[...current,contact]},input.version);
+  }
   if(action==='add_note') {const p=project(actor,input.projectId);const visibility=internal(actor)?choice(input.visibility??'internal',['internal','client']):actor.role==='client'?'client':'internal';return create(actor,'note',{title:text(input.title,'title',160),details:text(input.details,'update',4000),visibility},p.id);}
   if(action==='request_change') {const p=project(actor,input.projectId);if(actor.role==='vendor')throw new ErpError(403,'Request the project manager to review scope changes.');return create(actor,'change',{title:text(input.title,'title',160),details:text(input.details,'scope change',4000),status:'requested'},p.id);}
   if(action==='review_change') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'change');return update(actor,item,{status:choice(input.status,['reviewing','proposed','declined']),response:text(input.response??'','response',2000,false)},input.version);}
   if(action==='decide_change') {if(actor.role!=='client')throw new ErpError(403,'The assigned client must record this decision.');const item=requireEntry(actor,text(input.id,'record',100),'change');if(item.data.status!=='proposed')throw new ErpError(409,'Only a proposed change can be accepted or declined.');return update(actor,item,{status:choice(input.status,['accepted','declined'])},input.version);}
   if(action==='log_hours') {if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);return create(actor,'hours',{date:calendarDate(input.date,'work date'),hours:number(input.hours,'hours',0.1,24),trade:text(input.trade,'work performed',200),status:'submitted'},p.id);}
   if(action==='review_hours') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'hours');return update(actor,item,{status:choice(input.status,['approved','returned']),response:text(input.response??'','review note',1000,false)},input.version);}
-  if(action==='record_invoice') {if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);return create(actor,'invoice',{reference:text(input.reference,'invoice reference',100),amountUsd:number(input.amountUsd,'amount',0,1e10),status:'submitted',audience:actor.role==='vendor'?'vendor':choice(input.audience??'client',['client','internal']),dueDate:calendarDate(input.dueDate,'due date',true)},p.id);}
+  if(action==='record_invoice') {if(actor.role==='client')throw new ErpError(403,'Not permitted.');const p=project(actor,input.projectId);return create(actor,'invoice',{reference:text(input.reference,'invoice reference',100),amountUsd:currencyAmount(input.amountUsd,'amount'),status:'submitted',audience:actor.role==='vendor'?'vendor':choice(input.audience??'client',['client','internal']),dueDate:calendarDate(input.dueDate,'due date',true)},p.id);}
   if(action==='update_invoice') {if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can record financial approvals.');const item=requireEntry(actor,text(input.id,'record',100),'invoice');return update(actor,item,{status:choice(input.status,['approved','paid','returned'])},input.version);}
-  if(action==='review_document') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'document');const visibility=choice(input.visibility??'owner',['owner','client']);if(visibility==='client'&&(!item.projectId||item.data.type!=='project'))throw new ErpError(422,'Only project documents can be shared with the assigned client.');return update(actor,item,{status:choice(input.status,['approved','rejected']),response:text(input.response,'review note',1000),expiresAt:calendarDate(input.expiresAt,'expiry',true),visibility},input.version);}
+  if(action==='review_document') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'document');if(item.data.deletedAt||item.data.purgedAt)throw new ErpError(409,'This document was deleted. Refresh the document list.');const visibility=choice(input.visibility??'owner',['owner','client']);if(visibility==='client'&&(!item.projectId||item.data.type!=='project'))throw new ErpError(422,'Only project documents can be shared with the assigned client.');return update(actor,item,{status:choice(input.status,['approved','rejected']),response:text(input.response,'review note',1000),expiresAt:calendarDate(input.expiresAt,'expiry',true),visibility},input.version);}
   throw new ErpError(422,'Unknown action.');
 }
 

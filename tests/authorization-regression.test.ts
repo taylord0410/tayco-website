@@ -11,6 +11,7 @@ test('authorization regression: replay cannot recover revoked or newly private r
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-authorization-'));
   const previous = process.env.TAYCO_ERP_DB_PATH;
   process.env.TAYCO_ERP_DB_PATH = path.join(folder, 'erp.sqlite');
+process.env.TAYCO_AUTH_DB_PATH=process.env.TAYCO_ERP_DB_PATH+'.auth.sqlite';
   const admin: Actor = { id: 'fixture-admin', email: 'admin@example.test', role: 'admin', tenantId: 'fixture-company', projectIds: [] };
   const denied = (error: unknown) => error instanceof ErpError && [403, 404, 409].includes(error.status);
   try {

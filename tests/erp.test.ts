@@ -7,6 +7,7 @@ import {randomUUID} from 'node:crypto';
 import type {Actor} from '../lib/auth';
 import {database,execute,snapshot,submitWebsite,registerDocument,documentForActor,validateInvitationAssignments} from '../lib/erp';
 process.env.TAYCO_ERP_DB_PATH=path.join(mkdtempSync(path.join(os.tmpdir(),'tayco-erp-')),'test.sqlite');
+process.env.TAYCO_AUTH_DB_PATH=process.env.TAYCO_ERP_DB_PATH+'.auth.sqlite';
 const admin={id:'admin-test',email:'admin@example.test',role:'admin',tenantId:'tayco_llc',projectIds:[]} as Actor;
 const run=(actor:Actor,body:Record<string,unknown>,key:string=randomUUID())=>execute(actor,key,body);
 test('empty store never manufactures projects or payroll/financial metrics',()=>{
