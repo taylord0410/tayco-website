@@ -15,6 +15,23 @@ export const COMPANY = {
   sourceUrl: "https://www.taycoturnkey.com/",
 } as const;
 
+/**
+ * Corporate update supplied by the company through Randolf on 2026-10-23.
+ * Month-level dates only; no certificate numbers, issuers or expiry dates supplied.
+ * Public corporate information, independent of project compliance records.
+ */
+export const COMPANY_CONTRACTING_UPDATE = {
+  title: "New Contracting Opportunities",
+  milestone: { label: "Certifications obtained", period: "Late September 2026", dateTime: "2026-09" },
+  expansion: { label: "Expansion Start", period: "October 2026", dateTime: "2026-10" },
+  programs: [
+    { id: "sam", category: "Federal registration", label: "SAM.gov — Federal Contractor Registration" },
+    { id: "certifications", category: "Business certifications", label: "SBE, WBE, MBE & ESBE Certifications" },
+    { id: "programs", category: "Contracting programs", label: "Federal & State Contracting Programs" },
+    { id: "opportunities", category: "Contracting opportunities", label: "Union & Private Contracting Opportunities" },
+  ],
+} as const;
+
 export const COMPANY_SERVICES = [
   { label: "Commercial construction", href: "/commercial", detail: "Ground-up construction, design-build, tenant improvements and construction management." },
   { label: "Residential renovation", href: "/residential", detail: "Home renovations, kitchens, bathrooms, additions and basement finishing." },

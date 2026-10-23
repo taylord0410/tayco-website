@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/company";
+import ContractingOpportunities from "@/components/ContractingOpportunities";
 
 type ServiceFilter = "all" | "commercial" | "residential" | "partners";
 
@@ -627,6 +628,8 @@ export default function Home() {
           />
         </svg>
       </div>
+
+      <ContractingOpportunities />
 
       {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION ── */}
       <section
