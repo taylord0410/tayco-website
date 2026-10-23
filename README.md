@@ -41,6 +41,8 @@ The database starts empty. Unknown values stay unknown; a received document is p
 
 See [data sources and reusable project setup](docs/data-sources.md), [the financial dashboard, interactive months and corporate agenda](docs/financial-dashboard.md), [business reports and operational flows](docs/business-workspace.md), [workspace modules and reporting](docs/workspace-modules.md), [source-backed estimate recovery](docs/estimate-recovery.md) and [the original module inventory](docs/module-parity.md) for restored functionality and the advanced data-dependent work that remains.
 
+Projects have independent contracting, funding and labor classifications with source-backed review history and manual, project-scoped requirement categories. See [project classification](docs/project-classification.md) and [Railway review operations](docs/railway-review.md).
+
 ## Private deployment configuration
 
 Set these in the deployment's secret/configuration store, never in Git:

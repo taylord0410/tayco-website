@@ -87,6 +87,27 @@ export async function provisionAdmin(emailInput: unknown, password: string, tena
   const email = normalizeEmail(emailInput); validateScope({ role: 'admin', tenantId, projectIds: [] }); const hash = await hashPassword(password);
   return withDb(db => { db.exec('BEGIN IMMEDIATE'); try { if ((db.prepare("SELECT count(*) AS count FROM auth_users WHERE role='admin'").get() as { count: number }).count) throw new AuthError('An administrator already exists. Use the recovery command.', 409); const id = randomUUID(); db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(id, email, hash, 'admin', tenantId, '[]', null, Date.now()); audit(db, id, 'admin.provisioned', id); db.exec('COMMIT'); return id; } catch (e) { db.exec('ROLLBACK'); throw e; } });
 }
+/** Private operator tooling only: database access is required; this is never an invitation or promotion. */
+export async function provisionAdditionalAdminPrivately(emailInput: unknown, password: string, tenantId: string) {
+  const email = normalizeEmail(emailInput);
+  if (typeof tenantId !== 'string' || !tenantId || !/^[a-zA-Z0-9_-]{1,100}$/.test(tenantId)) throw new AuthError('Choose an explicit valid company for the additional administrator.', 400);
+  validateScope({ role: 'admin', tenantId, projectIds: [] });
+  const hash = await hashPassword(password);
+  return withDb(db => {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const existingAdmin = db.prepare("SELECT id FROM auth_users WHERE tenant_id=? AND role='admin' AND disabled=0 LIMIT 1").get(tenantId);
+      if (!existingAdmin) throw new AuthError('An active administrator must already exist in this company. Use bootstrap or recovery first.', 409);
+      if (db.prepare('SELECT id FROM auth_users WHERE email=?').get(email)) throw new AuthError('An account already exists for this email. No account was changed.', 409);
+      const id = randomUUID();
+      db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(id, email, hash, 'admin', tenantId, '[]', null, Date.now());
+      // A database operator performed this action; do not impersonate an existing or newly created user.
+      audit(db, null, 'admin.provisioned_by_operator', id);
+      db.exec('COMMIT');
+      return id;
+    } catch (error) { db.exec('ROLLBACK'); throw error; }
+  });
+}
 export function createInvitation(actor: Actor, input: { email: unknown; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string; expiresInHours?: number }) {
   requireRole(actor, ['admin']); validateScope(input); if (input.tenantId !== actor.tenantId || input.role === 'admin') throw new AuthError('This invitation is outside your account permissions.', 403);
   const email = normalizeEmail(input.email); const hours = input.expiresInHours ?? 48; if (!Number.isFinite(hours) || hours < 1 || hours > 168) throw new AuthError('Invitation expiry must be between 1 and 168 hours.', 400);

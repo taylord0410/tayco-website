@@ -51,3 +51,9 @@ All account sessions are revoked. Deliver the temporary password privately; ask 
 Run isolated authentication and access regression tests with `node --import tsx --test tests/auth.test.ts tests/auth-http.test.ts tests/auth-accounts.test.ts tests/authorization-regression.test.ts`. Tests use temporary fixture databases and do not provision real accounts or contact an email service.
 
 References: installed Next.js authentication guide (`node_modules/next/dist/docs/01-app/02-guides/authentication.md`), [iron-session](https://github.com/vvo/iron-session), [Node.js SQLite](https://nodejs.org/api/sqlite.html).
+
+## Additional administrator through a private operator
+
+`bootstrap-admin` still refuses a second bootstrap administrator. When another administrator is explicitly approved, privately set `TAYCO_ADDITIONAL_ADMIN_EMAIL`, `TAYCO_ADDITIONAL_ADMIN_PASSWORD` and **explicit** `TAYCO_ADDITIONAL_ADMIN_TENANT`, then run `node --import tsx scripts/auth-admin.ts add-admin` in the approved private operator environment. It requires an existing active administrator in that same company, rejects any normalized email collision without changing that account's role, and audits the operator action with no impersonated actor. No public HTTP route, invitation or GUI promotion grants this capability. Clear the provisioning variables afterwards and hand over the temporary password privately. This does not enable self-registration or automatic administrator invitations.
+
+On the Railway review container the web server runs UID1001. A privileged SSH operator should drop to that same UID/GID before provisioning so the SQLite/WAL companions remain owned by the application. Do not provision root-owned database files into a running application volume or infer ownership recovery from a health200.

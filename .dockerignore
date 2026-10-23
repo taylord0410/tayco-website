@@ -14,3 +14,10 @@ Dockerfile
 node_modules
 astro-portal/node_modules
 .next
+
+# Development archives and certification artifacts never belong to an application image.
+astro-portal
+artifacts
+tests
+docs
+**/*.tsbuildinfo
