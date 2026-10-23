@@ -99,6 +99,24 @@ export function listAccounts(actor: Actor) {
   requireRole(actor, ['admin']);
   return withDb(db => (db.prepare('SELECT * FROM auth_users WHERE tenant_id=? ORDER BY email').all(actor.tenantId) as UserRow[]).map(row => ({ ...actorOf(row), accessVersion: accessVersion(row), disabled: Boolean(row.disabled), editable: row.id !== actor.id && row.role !== 'admin' })));
 }
+export function listAssignableStaff(actor: Actor): { id: string; email: string; role: AuthRole }[] {
+  requireRole(actor, ['admin', 'staff']);
+  return withDb(db => db.prepare("SELECT id,email,role FROM auth_users WHERE tenant_id=? AND disabled=0 AND role IN ('admin','staff') ORDER BY email").all(actor.tenantId).map(row => ({id:String(row.id),email:String(row.email),role:row.role as AuthRole})));
+}
+export function validateAssignableStaff(actor: Actor, id: string) {
+  const member = listAssignableStaff(actor).find(user => user.id === id);
+  if (!member) throw new AuthError('Choose an active TAYCO team member.', 422);
+  return member;
+}
+/** Private operator tooling only: the process must already have access to the account database. */
+export function notificationOperatorPrivately(emailInput: unknown): Actor {
+  const email = normalizeEmail(emailInput);
+  return withDb(db => {
+    const user = db.prepare("SELECT * FROM auth_users WHERE email=? AND role='admin' AND disabled=0").get(email) as UserRow | undefined;
+    if (!user) throw new AuthError('An active administrator is required for the notification worker.', 403);
+    return actorOf(user);
+  });
+}
 export function updateAccountAccess(actor: Actor, input: { id: string; role: AuthRole; projectIds: string[]; vendorId?: string; disabled: boolean; accessVersion: string }) {
   requireRole(actor, ['admin']); validateScope({ ...input, tenantId: actor.tenantId });
   if (input.role === 'admin' || input.id === actor.id || typeof input.disabled !== 'boolean') throw new AuthError('Administrator access must be managed by a verified operator.', 403);

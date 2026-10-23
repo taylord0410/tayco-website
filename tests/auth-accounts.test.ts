@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { acceptInvitation, createInvitation, getActor, listAccounts, provisionAdmin, sessionCookie, signIn } from '../lib/auth';
+import { acceptInvitation, createInvitation, getActor, listAccounts, listAssignableStaff, validateAssignableStaff, notificationOperatorPrivately, provisionAdmin, sessionCookie, signIn } from '../lib/auth';
 import { database, execute } from '../lib/erp';
 import { GET, PATCH } from '../app/api/auth/accounts/route';
 
@@ -23,6 +23,13 @@ test('administrators manage assigned access without escalation or stale overwrit
     const invitation = createInvitation(admin.actor, { email: 'client@example.test', role: 'client', tenantId: admin.actor.tenantId, projectIds: [first.id] });
     const originalSession = (await acceptInvitation(invitation.token, 'client@example.test', password)).cookie;
     const client = (await signIn('client@example.test', password)).actor;
+    assert.deepEqual(listAssignableStaff(admin.actor).map(user=>user.id),[admin.actor.id]);
+    assert.equal(validateAssignableStaff(admin.actor,admin.actor.id).email,admin.actor.email);
+    assert.throws(()=>validateAssignableStaff(admin.actor,client.id),/active TAYCO/);
+    assert.throws(()=>validateAssignableStaff({...admin.actor,tenantId:'other-tenant'},admin.actor.id),/active TAYCO/);
+    assert.throws(()=>listAssignableStaff(client),/permission/);
+    assert.equal(notificationOperatorPrivately(admin.actor.email).id,admin.actor.id);
+    assert.throws(()=>notificationOperatorPrivately(client.email),/active administrator/);
     const original = listAccounts(admin.actor).find(account => account.id === client.id)!;
     const update = { id: client.id, role: 'client', projectIds: [second.id], disabled: false, accessVersion: original.accessVersion };
     assert.equal((await GET(request(originalSession))).status, 403);
