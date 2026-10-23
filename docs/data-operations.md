@@ -29,3 +29,25 @@ Run node --import tsx scripts/reconcile-uploads.ts for counts only. Registered o
 Public requests and notification outbox entries commit together. The administrator's Activity delivery action handles configured Resend alerts. It does not send private attachments. Jobs retain a reference if the provider fails; lease fencing prevents a delayed worker from overwriting a newer attempt. A stable provider idempotency key is reused only within the safe retry window. Review needs_attention jobs against provider receipts before resending manually.
 
 No automated schedule is installed by this repository. Takeoff/accounting adapters remain not configured. Their credentials, scope, endpoint contract and real provider evidence must be agreed before enabling them.
+
+## Document lifecycle operations
+
+`TAYCO_DOCUMENT_RETENTION_DAYS` is absent by default: physical deletion is disabled. An explicit per-record policy can override it, including disabling deletion. `TAYCO_DOCUMENT_NOTICE_DAYS` defaults to30 UTC calendar days as a business reminder; this is not a prescribed legal retention period.
+
+Review, expiry, access removal and physical deletion are independent states. Only approved active documents enter renewal scanning. Pending/rejected documents are never promoted to approved by a scan. A changed expiry supersedes older notices.
+
+From the private operator environment, set `TAYCO_DOCUMENT_MAINTENANCE_TENANT_ID` explicitly:
+
+```text
+node --import tsx scripts/document-maintenance.ts list
+node --import tsx scripts/document-maintenance.ts scan
+node --import tsx scripts/document-maintenance.ts purge --id DOCUMENT_ID --version CURRENT_VERSION
+```
+
+The first command inspects policy/status. Scan records deduplicated portal notices and outbox events; it does not send email. Purge is dry-run unless `--apply` is explicitly added after review. The GUI requires administrator confirmation for permanent deletion.
+
+A preservation hold prevents purge. Expiry alone never deletes a file. Removing access immediately denies new downloads and leaves a restorable tombstone until a physical deletion attempt starts. An uncertain storage result remains unavailable, with a durable attempt record; restoration is blocked because the object may already be gone. Retry/reconcile the same object or arrange a replacement. Bytes already received by a downloader cannot be recalled.
+
+A confirmed purge removes the storage path but retains the audit/tombstone. Backups may retain previous copies under their separate agreed policy. This repository does not choose a legal retention period, erase historical Git content or certify deletion in a real provider merely by passing network-disabled SDK tests.
+
+See [notification operations](notification-operations.md) for dry-run and managed background processing. No external delivery or recurring service is installed by these instructions.

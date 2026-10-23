@@ -1,0 +1,46 @@
+// Local synthetic container only. No registry push or remote provider calls.
+import {readFileSync,writeFileSync} from 'node:fs';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {randomUUID} from 'node:crypto';
+import assert from 'node:assert/strict';
+const file=process.env.TAYCO_CONTAINER_ENV;
+if(!file||!path.resolve(file).includes(path.sep+'certification-'))throw new Error('Private certification environment required.');
+const env=Object.fromEntries(readFileSync(file,'utf8').trim().split(/\r?\n/).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));
+assert.equal(env.TAYCO_APP_URL,'http://localhost:3009');assert.match(env.TAYCO_BOOTSTRAP_EMAIL,/@example\.test$/);
+assert.equal(env.BLOB_READ_WRITE_TOKEN,'');assert.equal(env.RESEND_API_KEY,'');
+const base=env.TAYCO_APP_URL,container='tayco-atlas7-cert-20261023';
+const docker=(...argv)=>execFileSync('docker',argv,{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:60000}).trim();
+const checks=[];
+assert.equal((await fetch(base)).status,200);checks.push('standalone HTTP home');
+const login=await fetch(base+'/api/auth/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({email:env.TAYCO_BOOTSTRAP_EMAIL,password:env.TAYCO_BOOTSTRAP_PASSWORD})});
+assert.equal(login.status,200);
+const setCookie=login.headers.get('set-cookie');assert.match(setCookie,/HttpOnly/i);assert.match(setCookie,/Secure/i);assert.match(setCookie,/SameSite=Lax/i);
+const cookie=setCookie.split(';')[0];
+const headers={Cookie:cookie,Origin:base,'Content-Type':'application/json'};
+checks.push('private administrator login and secure cookie attributes');
+const key=randomUUID(),name='Container persistence '+randomUUID();
+const body=JSON.stringify({action:'create_project',name,budgetUsd:0});
+const mutation=()=>fetch(base+'/api/erp-suite',{method:'POST',headers:{...headers,'Idempotency-Key':key},body});
+const created=await mutation();assert.equal(created.status,200);const project=(await created.json()).result;
+assert.equal((await mutation()).status,200);checks.push('transaction and idempotency');
+assert.equal(docker('exec',container,'id','-u'),'1001');checks.push('non-root runtime');
+const mounts=JSON.parse(docker('inspect','--format','{{json .Mounts}}',container));assert.ok(mounts.some(m=>m.Type==='volume'&&m.Destination==='/app/.data'));
+docker('restart',container);
+let restored;
+for(let i=0;i<30;i++){try{restored=await fetch(base+'/api/erp-suite',{headers});if(restored.ok)break;}catch{}await new Promise(resolve=>setTimeout(resolve,500));}
+assert.ok(restored?.ok);const state=await restored.json();
+assert.equal(state.entries.filter(e=>e.id===project.id).length,1);assert.equal(state.entries.find(e=>e.id===project.id).data.budgetUsd,0);
+checks.push('session and zero-valued project survive container restart on volume');
+const csv=await fetch(base+'/api/finance/export?projectId='+project.id,{headers});assert.equal(csv.status,200);assert.match(csv.headers.get('cache-control'),/no-store/);checks.push('protected export in Linux image');
+const dry=JSON.parse(docker('exec',container,'node','--import','tsx','scripts/notification-worker.ts','--dry-run'));assert.equal(dry.mode,'dry_run');assert.equal(dry.configuration.configured,false);checks.push('production operator tooling without external delivery');
+const backupDir='/app/.data/cert-backup-'+randomUUID();
+const backup=docker('exec','--env','TAYCO_BACKUP_DIR='+backupDir,container,'node','--import','tsx','scripts/backup-data.ts','--maintenance-confirmed');
+const backupResult=JSON.parse(backup);assert.equal(backupResult.verified,true);assert.deepEqual(backupResult.files,['auth.sqlite','erp.sqlite']);
+const manifest=JSON.parse(docker('exec',container,'node','-e',"const fs=require('node:fs');console.log(fs.readFileSync(process.argv[1]+'/manifest.json','utf8'))",backupDir));
+for(const file of backupResult.files)assert.match(manifest.hashes[file],/^[a-f0-9]{64}$/);
+checks.push('SQLite backup tooling and hash manifest under production user');
+const report={base,container,checks,passed:checks.length,scope:'Synthetic local Linux container and isolated named volume; explicit Cookie header used for HTTP loopback only; no real TLS, provider delivery or deployment certified.'};
+writeFileSync(path.join(path.dirname(file),'container-report.json'),JSON.stringify(report,null,2));
+console.log(JSON.stringify(report));
+

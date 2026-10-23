@@ -9,7 +9,8 @@ async function main(){
  if(!file||!path.resolve(file).includes(path.sep+'certification-'))throw new Error('An isolated certification config is required.');
  const config=JSON.parse(readFileSync(file,'utf8'));
  process.env.TAYCO_AUTH_DB_PATH=config.authDb;process.env.TAYCO_ERP_DB_PATH=config.erpDb;process.env.TAYCO_SESSION_SECRET=config.sessionSecret;
- if(!config.authDb.startsWith(path.dirname(file))||!config.erpDb.startsWith(path.dirname(file)))throw new Error('Fixture paths must remain within the private test directory.');
+ const directory=path.resolve(path.dirname(file));
+ if(![config.authDb,config.erpDb].every((databasePath:string)=>{const relative=path.relative(directory,path.resolve(databasePath));return Boolean(relative)&&!relative.startsWith('..')&&!path.isAbsolute(relative);}))throw new Error('Fixture paths must remain within the private test directory.');
  const id=await provisionAdmin('admin@example.test',config.password);
  const actor={id,email:'admin@example.test',role:'admin',tenantId:'tayco_llc',projectIds:[]} as Actor;
  const a=execute(actor,randomUUID(),{action:'create_project',name:'Synthetic north project',location:'Fixture only',clientName:'Synthetic client A',budgetUsd:0});

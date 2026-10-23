@@ -14,7 +14,7 @@ const { chromium } = require(process.env.TAYCO_PLAYWRIGHT_MODULE || "playwright"
 if (!process.env.TAYCO_TEST_CONFIG) throw new Error("An isolated TAYCO_TEST_CONFIG file is required.");
 const config = JSON.parse(readFileSync(process.env.TAYCO_TEST_CONFIG, "utf8"));
 const base = config.baseUrl;
-if (!/^http:\/\/(localhost|127\.0\.0\.1):3006$/.test(base)) throw new Error("This test only accepts the isolated local certification server on port 3006.");
+if (!/^http:\/\/(localhost|127\.0\.0\.1):(?:3006|3008)$/.test(base)) throw new Error("This test only accepts the isolated local certification server on an approved certification port (3006 or 3008).");
 const evidence = process.env.TAYCO_EVIDENCE_DIR;
 if (evidence) mkdirSync(evidence, { recursive: true });
 const browser = await chromium.launch({ headless: true });
