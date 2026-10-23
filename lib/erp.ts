@@ -4,9 +4,10 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { isValidUsdAmount } from './financial-values';
 import { isFinancialDate } from './financial-periods';
+import { parseProjectEstimate } from './project-estimates';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
-export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance';
+export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate';
 export type Data = Record<string, unknown>;
 export type Entry = { id: string; kind: Kind; tenantId: string; projectId: string; ownerId: string; version: number; createdAt: string; updatedAt: string; data: Data };
 type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string };
@@ -33,7 +34,7 @@ function get(id: string) { const row = database().prepare('SELECT * FROM records
 function allowed(actor: Actor, entry: Entry) {
   if (entry.tenantId !== actor.tenantId) return false;
   if (internal(actor)) return true;
-  if(entry.kind==='compliance')return false;
+  if(entry.kind==='compliance'||entry.kind==='estimate')return false;
   if(entry.kind==='bid'||entry.kind==='purchase_order')return actor.role==='vendor'&&actor.projectIds.includes(entry.projectId)&&(entry.ownerId===actor.id||Boolean(actor.vendorId&&entry.data.vendorId===actor.vendorId));
   if (entry.kind === 'vendor') return entry.id === actor.vendorId || entry.ownerId === actor.id;
   if (entry.kind === 'document') return entry.ownerId === actor.id || (actor.role === 'client' && actor.projectIds.includes(entry.projectId) && entry.data.visibility === 'client');
@@ -178,10 +179,30 @@ export function execute(actor: Actor, key: string, input: Data) {
 }
 function mutate(actor: Actor, input: Data): Entry {
   const action=text(input.action,'action',60);
+  if(action==='restore_estimate_project') {
+    if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can recover an estimating project.');
+    const slug=text(input.sourceProjectSlug,'estimating project',100);if(!/^[a-z0-9_]+$/.test(slug))throw new ErpError(422,'Invalid estimating project reference.');
+    const existing=(database().prepare("SELECT * FROM records WHERE tenant_id=? AND kind='project'").all(actor.tenantId) as Row[]).map(decode).find(e=>e.data.sourceProjectSlug===slug);
+    if(existing)return existing;
+    return create(actor,'project',{name:text(input.name,'project name',200),status:'planning',progress:null,budgetUsd:null,source:'estimate_recovery',sourceProjectSlug:slug,nextAction:'Review the recovered estimate revisions and confirm the project baseline.'});
+  }
+  if(action==='import_project_estimate') {
+    if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can import estimate snapshots.');
+    const p=project(actor,input.projectId);let estimate;
+    try{estimate=parseProjectEstimate(input.estimate);}catch(error){throw new ErpError(422,error instanceof Error?error.message:'Invalid estimate snapshot.');}
+    if(estimate.projectId!==p.id||estimate.sourceProjectSlug!==p.data.sourceProjectSlug)throw new ErpError(422,'Estimate project and source do not match the recovered project.');
+    const previous=(database().prepare("SELECT * FROM records WHERE tenant_id=? AND kind='estimate' AND project_id=?").all(actor.tenantId,p.id) as Row[]).map(decode).find(e=>e.data.id===estimate.id||e.data.sourceSha256===estimate.sourceSha256);
+    if(previous){
+      const prior=parseProjectEstimate(previous.data);
+      if(JSON.stringify({...prior,capturedAt:''})!==JSON.stringify({...estimate,capturedAt:''}))throw new ErpError(409,'This estimate source is already archived with different values. Import a distinct revision.');
+      return previous;
+    }
+    return create(actor,'estimate',{...estimate},p.id);
+  }
   if(action==='create_project') {requireInternal(actor);return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:0,budgetUsd:input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget'),nextAction:text(input.nextAction??'Confirm scope and schedule','next action',500),source:'team'});}
   if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team',...staffAssignment(actor,input.assigneeId)});}
   if(action==='update_lead') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'lead');return update(actor,item,{status:choice(input.status,['new','reviewing','waiting','quoted','accepted','closed']),nextAction:text(input.nextAction??'','next action',500,false),...(input.assigneeId!==undefined?staffAssignment(actor,input.assigneeId,item.data):{})},input.version);}
-  if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id);return update(actor,item,{status:choice(input.status,['planning','active','blocked','handover','closed']),progress:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500)},input.version);}
+  if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id);return update(actor,item,{status:choice(input.status,['planning','active','blocked','handover','closed']),progress:input.progress===null?null:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500)},input.version);}
   if(action==='update_project_details') {
    requireInternal(actor);const item=project(actor,input.id);
    const budgetUsd=input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget');
