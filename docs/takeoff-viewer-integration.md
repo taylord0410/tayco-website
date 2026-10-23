@@ -49,20 +49,23 @@ deny access. Similar names, source aliases and matching hashes do not establish 
 
 ```mermaid
 flowchart TD
-  U[Open project viewer] --> S{Server session and allowed role}
+  U[Each viewer request: shell / catalog / document / asset / HEAD / range] --> S{Server session and allowed role}
   S -->|guest / absent / expired| D[Deny; no upstream data]
-  S -->|authorized actor| P{Company and project permission}
-  P -->|no| D
-  P -->|yes| M{Explicit approved source mapping}
+  S -->|authorized actor| P[Resolve permitted company and project set]
+  P --> M{Explicit approved source mappings}
   M -->|missing / unresolved| D
-  M -->|present| F[Filter catalog and document metadata]
-  F --> V[Same-origin iframe and reader]
-  V --> R[Each project / document / asset / HEAD / PDF range request]
-  R --> S
-  M --> A{Asset belongs to an authorized document}
+  M -->|present| Q{Requested resource}
+  Q -->|shell or application static| I[Fixed private internal viewer]
+  Q -->|catalog| I
+  Q -->|document metadata or text| C{Document visible within mapped scope}
+  C -->|no| D
+  C -->|yes| I
+  Q -->|asset or PDF range| A{Asset belongs to a visible mapped document}
   A -->|no| D
-  A -->|yes| I[Fixed private internal viewer]
-  I --> B[Stream only authorized response]
+  A -->|yes| I
+  I --> B[Filter catalog payload or stream only authorized response]
+  B --> V[Same-origin iframe and reader]
+  V -->|next resource request| U
 ```
 
 - Admin/staff remain company-scoped and mapped to approved sources.
