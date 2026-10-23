@@ -5,6 +5,7 @@ import { database, documentForActor, ErpError, type Entry } from './erp';
 
 const DAY = 86_400_000;
 const internal = (actor: Actor) => actor.role === 'admin' || actor.role === 'staff';
+const sourceManaged = (entry: Entry) => entry.data.storage === 'takeoff_viewer';
 type PurgeState = 'processing' | 'retry' | 'purged';
 type Mutation = { id: string; version: number; action: 'delete' | 'restore' | 'hold' | 'retention'; reason?: string; hold?: boolean; retentionDays?: number | null };
 function transact<T>(fn: () => T) { const db = database(); db.exec('BEGIN IMMEDIATE'); try { const result = fn(); db.exec('COMMIT'); return result; } catch (error) { db.exec('ROLLBACK'); throw error; } }
@@ -33,7 +34,7 @@ function exposed(actor: Actor, entry: Entry, now = new Date()) {
   const data = { ...entry.data }; delete data.blobPath; delete data.purgeAttemptToken;
   if (!internal(actor)) for (const key of ['holdReason', 'holdChangedBy', 'deleteReason', 'deletedBy', 'purgeLastError', 'purgeAttempts', 'purgeLeaseUntil', 'purgeAttemptedAt', 'retentionDays']) delete data[key];
   const expiry = documentExpiry(entry, now);
-  return { ...entry, data, expiry, availability: availability(entry), effectiveRetentionDays: internal(actor) ? retentionDays(entry) : null, canManage: internal(actor) || entry.ownerId === actor.id, canRestore: Boolean(entry.data.deletedAt && !entry.data.purgeAttemptedAt && !entry.data.purgedAt), canSetPolicy: internal(actor), canPurge: actor.role === 'admin' };
+  return { ...entry, data, expiry, availability: availability(entry), effectiveRetentionDays: internal(actor) && !sourceManaged(entry) ? retentionDays(entry) : null, canManage: internal(actor) || entry.ownerId === actor.id, canRestore: Boolean(entry.data.deletedAt && !entry.data.purgeAttemptedAt && !entry.data.purgedAt), canSetPolicy: internal(actor), canPurge: actor.role === 'admin' && !sourceManaged(entry) };
 }
 export function getReadableDocument(actor: Actor, id: string) { const entry = documentForActor(actor, id); if (entry.data.deletedAt || entry.data.purgedAt || entry.data.purgeState) throw new ErpError(410, 'This document is no longer available. Contact TAYCO if you need assistance.'); return entry; }
 function authorizedDocuments(actor: Actor) {
@@ -89,16 +90,19 @@ export function scanDocumentExpiry(actor: Actor, now = new Date()) {
 }
 function eligible(entry: Entry, now: Date) {
   const retention = retentionDays(entry); const deleted = typeof entry.data.deletedAt === 'string' ? Date.parse(entry.data.deletedAt) : NaN;
-  return Boolean(Number.isFinite(deleted) && retention !== null && Number.isInteger(retention) && retention >= 0 && !entry.data.hold && !entry.data.purgedAt && now.getTime() >= deleted + retention * DAY);
+  return Boolean(!sourceManaged(entry) && Number.isFinite(deleted) && retention !== null && Number.isInteger(retention) && retention >= 0 && !entry.data.hold && !entry.data.purgedAt && now.getTime() >= deleted + retention * DAY);
 }
 export type DeleteDocumentTransport = (pathname: string) => Promise<void>;
 const defaultRemove: DeleteDocumentTransport = async pathname => { await del(pathname); };
 export async function purgeDocument(actor: Actor, input: { id: string; version: number; apply?: boolean }, remove: DeleteDocumentTransport = defaultRemove) {
   if (actor.role !== 'admin') throw new ErpError(403, 'Only an administrator can permanently remove stored files.');
   if (!input.apply) { const entry = documentForActor(actor, input.id); checkVersion(entry, input.version); return { applied: false, eligible: eligible(entry, new Date()), document: exposed(actor, entry) }; }
+  const candidate = documentForActor(actor, input.id); checkVersion(candidate, input.version);
+  if (sourceManaged(candidate)) throw new ErpError(409, 'This source-managed document cannot be deleted from storage here. Remove its access record instead.');
   if (remove === defaultRemove && !process.env.BLOB_READ_WRITE_TOKEN) throw new ErpError(503, 'Secure storage is not configured. No storage deletion was attempted.');
   const claim = transact(() => {
     const entry = documentForActor(actor, input.id); checkVersion(entry, input.version); const now = new Date();
+    if (sourceManaged(entry)) throw new ErpError(409, 'This source-managed document cannot be deleted from storage here. Remove its access record instead.');
     if (entry.data.purgedAt) return { entry, token: null };
     if (!eligible(entry, now)) throw new ErpError(409, 'Permanent deletion requires removal, an elapsed explicit retention period and no preservation hold.');
     if (entry.data.purgeState === 'processing' && typeof entry.data.purgeLeaseUntil === 'string' && Date.parse(entry.data.purgeLeaseUntil) > now.getTime()) throw new ErpError(409, 'Storage deletion is already in progress.');

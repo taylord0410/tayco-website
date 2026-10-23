@@ -1,16 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { randomBytes, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { NextRequest } from 'next/server';
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici';
-import { acceptInvitation, createInvitation, provisionAdmin, sessionCookie, signIn, type Actor } from '../lib/auth';
+import { acceptInvitation, createInvitation, getActor, provisionAdmin, sessionCookie, signIn, type Actor } from '../lib/auth';
 import { database, documentForActor, execute, registerDocument, ErpError } from '../lib/erp';
 import { documentExpiry, documentMaintenance, getReadableDocument, mutateDocumentLifecycle, purgeDocument, scanDocumentExpiry } from '../lib/document-lifecycle';
 import { GET as maintenanceGet, POST as maintenancePost } from '../app/api/document-maintenance/route';
 import { GET as download } from '../app/api/documents/[id]/route';
+import { planTakeoffSourceRegistration, commitTakeoffSourceRegistration } from '../lib/takeoff-source-registration';
+import { viewerScope, TakeoffViewerAccessError } from '../lib/takeoff-viewer-access';
 
 test('document lifecycle preserves authorization, durable notices and uncertain storage boundaries', async t => {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-doc-lifecycle-'));
@@ -103,4 +105,158 @@ test('document lifecycle preserves authorization, durable notices and uncertain 
       const response = await download(new NextRequest(`https://tayco.test/api/documents/${entry.id}`, { headers: { cookie: sessionCookie(ownerCookie).split(';')[0] } }), { params: Promise.resolve({ id: entry.id }) }); assert.equal(response.status, 410);
     });
   } finally { if (opened) database().close(); for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } setGlobalDispatcher(previousDispatcher); await agent.close(); rmSync(folder, { recursive: true, force: true }); }
+});
+
+test('registered Takeoff sources use the protected reader and never enter Vercel storage deletion', async t => {
+  const folder=mkdtempSync(path.join(tmpdir(),'tayco-source-document-lifecycle-'));
+  const names=['TAYCO_AUTH_DB_PATH','TAYCO_ERP_DB_PATH','TAYCO_APP_URL','TAYCO_SESSION_SECRET','BLOB_READ_WRITE_TOKEN',
+    'TAYCO_DOCUMENT_RETENTION_DAYS','TAYCO_TAKEOFF_MAPPING_PATH','TAYCO_TAKEOFF_RELATIONS_PATH',
+    'TAYCO_TAKEOFF_MANIFEST_PATH','TAYCO_TAKEOFF_VIEWER_INTERNAL_URL'];
+  const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  const previousDispatcher=getGlobalDispatcher(),agent=new MockAgent();
+  agent.disableNetConnect();setGlobalDispatcher(agent);
+  const hash=(value:string)=>createHash('sha256').update(value).digest('hex');
+  const filename=(name:string)=>path.join(folder,name);
+  Object.assign(process.env,{
+    TAYCO_AUTH_DB_PATH:filename('auth.sqlite'),TAYCO_ERP_DB_PATH:filename('erp.sqlite'),TAYCO_APP_URL:'https://tayco.test',
+    TAYCO_SESSION_SECRET:randomBytes(48).toString('hex'),TAYCO_TAKEOFF_MAPPING_PATH:filename('mapping.json'),
+    TAYCO_TAKEOFF_RELATIONS_PATH:filename('relations.json'),TAYCO_TAKEOFF_MANIFEST_PATH:filename('manifest.json'),
+    TAYCO_TAKEOFF_VIEWER_INTERNAL_URL:'http://127.0.0.1:62661',
+  });
+  delete process.env.BLOB_READ_WRITE_TOKEN;delete process.env.TAYCO_DOCUMENT_RETENTION_DAYS;
+  let opened=false;
+  const fails=(status:number)=>(error:unknown)=>(error instanceof ErpError||error instanceof TakeoffViewerAccessError)&&error.status===status;
+  try {
+    const password='Source-document-fixture-password-only!';
+    await provisionAdmin('source-admin@example.test',password);
+    const admin=await signIn('source-admin@example.test',password);
+    const manifest={
+      schema_version:'takeoff-viewer-bundle/v1',bundle_id:'lifecycle-source-fixture',
+      projects:[{key:'source-context',display_name:'Synthetic source project',identity_status:'resolved',document_ids:['source-document']}],
+      documents:[{id:'source-document',project_key:'source-context',title:'Synthetic source plan',source_name:'synthetic.pdf',
+        source_sha256:'c'.repeat(64),kind:'drawing_pdf',asset_id:'source-asset',page_count:1}],
+      assets:[{id:'source-asset',path:'assets/synthetic.pdf',media_type:'application/pdf',size_bytes:12,sha256:'c'.repeat(64)}],
+    };
+    const manifestBytes=JSON.stringify(manifest)+'\n',manifestSha256=hash(manifestBytes);
+    const relations={
+      schemaVersion:'takeoff-viewer-relations/v1',bundleId:manifest.bundle_id,relationsId:'relations-'+'a'.repeat(64),manifestSha256,
+      contexts:[{contextKey:'source-context',displayName:'Synthetic source project',identityStatus:'resolved',documentIds:['source-document']}],
+      documents:[{documentId:'source-document',contextKeys:['source-context'],assetIds:['source-asset'],kind:'drawing_pdf'}],
+      assets:[{assetId:'source-asset',documentIds:['source-document']}],
+    };
+    const relationsBytes=JSON.stringify(relations)+'\n',relationsSha256=hash(relationsBytes);
+    writeFileSync(filename('manifest.json'),manifestBytes);writeFileSync(filename('relations.json'),relationsBytes);
+    const input={
+      expectedBundleId:manifest.bundle_id,expectedRelationsId:relations.relationsId,expectedRelationsSha256:relationsSha256,
+      expectedManifestSha256:manifestSha256,contextKey:'source-context',viewerDocumentIds:['source-document'],
+      visibility:'client',project:{mode:'create'},
+    };
+    const plan=planTakeoffSourceRegistration(admin.actor,input);
+    const result=commitTakeoffSourceRegistration(admin.actor,randomUUID(),input,plan.planHash);
+    opened=true;
+    const id=result.documents[0].id,projectId=result.projectId;
+    const current=()=>documentForActor(admin.actor,id);
+    const sourceData={...current().data};
+    assert.equal(sourceData.storage,'takeoff_viewer');
+    assert.equal(Object.hasOwn(sourceData,'blobPath'),false);
+    async function member(role:'client'|'guest'|'vendor') {
+      const email='source-'+role+'@example.test';
+      const invite=createInvitation(admin.actor,{email,role,tenantId:admin.actor.tenantId,projectIds:role==='guest'?[]:[projectId],...(role==='vendor'?{vendorId:'source-fixture-supplier'}:{})});
+      const accepted=await acceptInvitation(invite.token,email,password);
+      const actor=await getActor(new Request('https://tayco.test/portal',{headers:{cookie:sessionCookie(accepted.cookie).split(';')[0]}}));
+      assert(actor);return {actor,cookie:accepted.cookie};
+    }
+    const client=await member('client'),guest=await member('guest'),vendor=await member('vendor');
+    const mapping={
+      schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:relations.bundleId,relationsSha256,
+      mappings:[{tenantId:admin.actor.tenantId,projectId,contextKey:'source-context',documents:[{viewerDocumentId:'source-document',erpDocumentId:id}]}],
+      guestReviews:[{tenantId:admin.actor.tenantId,guestId:guest.actor.id,projectId,period:'2026-10',viewerDocumentIds:['source-document']}],
+    };
+    const publish=(value:unknown=mapping)=>writeFileSync(filename('mapping.json'),JSON.stringify(value));
+    publish();
+    const request=(cookie:string,query='')=>new NextRequest('https://tayco.test/api/documents/'+id+query,{headers:{cookie:sessionCookie(cookie).split(';')[0]}});
+    const read=(cookie:string,query='')=>download(request(cookie,query),{params:Promise.resolve({id})});
+    const mutate=(action:'delete'|'restore'|'retention',extra:Record<string,unknown>={})=>mutateDocumentLifecycle(admin.actor,{id,version:current().version,action,...extra});
+    const setData=(data:Record<string,unknown>)=>database().prepare('UPDATE records SET payload=?,version=version+1 WHERE id=?').run(JSON.stringify(data),id);
+
+    await t.test('admin and assigned client redirect only to the current pinned same-origin reader; generic guest remains denied',async()=>{
+      for(const cookie of [admin.cookie,client.cookie]) {
+        const response=await read(cookie,'?redirect=https://attacker.test/');
+        assert.equal(response.status,307);
+        assert.equal(response.headers.get('Location'),'/api/takeoff-viewer/viewer/?embed=1&project=source-context&document=source-document&page=1');
+        assert.equal(response.headers.get('Cache-Control'),'private, no-store');
+      }
+      assert.deepEqual(viewerScope(guest.actor,projectId).documentIds,['source-document']);
+      assert.equal((await read(guest.cookie)).status,403);
+      assert.equal((await read(vendor.cookie)).status,404);
+      assert.throws(()=>getReadableDocument({...client.actor,tenantId:'other-company'},id),fails(404));
+    });
+
+    await t.test('missing configuration, source mismatch and publication revocation never redirect or call Blob',async()=>{
+      delete process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL;
+      assert.equal((await read(admin.cookie)).status,503);
+      process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL='http://127.0.0.1:62661';
+      delete process.env.TAYCO_TAKEOFF_MAPPING_PATH;
+      assert.equal((await read(admin.cookie)).status,503);
+      process.env.TAYCO_TAKEOFF_MAPPING_PATH=filename('mapping.json');
+      for(const patch of [
+        {bundleId:'different-bundle'},{contextKey:'different-context'},{viewerDocumentId:'different-document'},
+        {viewerDocumentId:'../../private'},{manifestSha256:'d'.repeat(64)},{relationsId:'relations-'+'d'.repeat(64)},
+      ]) {
+        setData({...sourceData,...patch});
+        const response=await read(admin.cookie);
+        assert.equal(response.status,404);
+        assert.equal(response.headers.get('Location'),null);
+        assert.equal((await response.json()).error,'Document unavailable. Contact TAYCO.');
+      }
+      setData(sourceData);
+      publish({...mapping,mappings:[],guestReviews:[]});
+      assert.equal((await read(admin.cookie)).status,404);
+      publish();
+      assert.equal((await read(admin.cookie)).status,307);
+    });
+
+    await t.test('soft removal revokes direct and scoped reader access and restore preserves source identity',async()=>{
+      mutate('delete',{reason:'Synthetic source access removal'});
+      assert.equal((await read(admin.cookie)).status,410);
+      assert.throws(()=>viewerScope(admin.actor,projectId),fails(404));
+      assert.throws(()=>viewerScope(guest.actor,projectId),fails(403));
+      mutate('restore');
+      assert.equal((await read(admin.cookie)).status,307);
+      assert.equal(current().data.viewerDocumentId,'source-document');
+      assert.equal(Object.hasOwn(current().data,'blobPath'),false);
+    });
+
+    await t.test('retention preview and every physical purge path exclude the shared immutable source',async()=>{
+      mutate('delete');mutate('retention',{retentionDays:0});
+      const before=current();
+      const preview=await purgeDocument(admin.actor,{id,version:before.version});
+      assert.equal('eligible' in preview&&preview.eligible,false);
+      assert.equal(preview.document.canPurge,false);
+      assert.equal(preview.document.effectiveRetentionDays,null);
+      let removals=0;
+      await assert.rejects(purgeDocument(admin.actor,{id,version:current().version,apply:true}),fails(409));
+      await assert.rejects(purgeDocument(admin.actor,{id,version:current().version,apply:true},async()=>{removals++;}),fails(409));
+      process.env.BLOB_READ_WRITE_TOKEN='vercel_blob_rw_synthetic_should_not_be_used';
+      await assert.rejects(purgeDocument(admin.actor,{id,version:current().version,apply:true}),fails(409));
+      assert.equal(removals,0);
+      assert.equal(current().version,before.version);
+      for(const key of ['purgeAttemptedAt','purgeState','purgedAt'])assert.equal(current().data[key],undefined);
+      // Even an invalid legacy mixed-storage field cannot override the external storage marker.
+      setData({...current().data,blobPath:'vendor-docs/project-'+randomUUID()+'.pdf'});
+      await assert.rejects(purgeDocument(admin.actor,{id,version:current().version,apply:true},async()=>{removals++;}),fails(409));
+      assert.equal(removals,0);
+      setData({...sourceData,deletedAt:new Date().toISOString(),retentionDays:0});
+      mutate('restore');
+      assert.equal((await read(admin.cookie)).status,307);
+      const legacy={...sourceData};delete legacy.storage;
+      setData(legacy);
+      assert.equal((await read(admin.cookie)).status,404);
+      setData(sourceData);
+    });
+  } finally {
+    if(opened)database().close();
+    for(const [key,value] of Object.entries(previous)){if(value===undefined)delete process.env[key];else process.env[key]=value;}
+    setGlobalDispatcher(previousDispatcher);await agent.close();rmSync(folder,{recursive:true,force:true});
+  }
 });
