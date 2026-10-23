@@ -1,0 +1,9 @@
+﻿{
+  "name": "tayco-reclamo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visor privado de solo lectura, por invitacion, para las oportunidades a las que TAYCO fue invitada y no pudo ofertar",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node --test --test-timeout=20000 test/reclamo.test.js" },
+  "engines": { "node": ">=22" }
+}
