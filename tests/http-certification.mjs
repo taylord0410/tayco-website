@@ -33,7 +33,7 @@ await check('client mutations cannot create projects or modify another project',
 });
 let created;
 await check('actual HTTP duplicate request returns one committed project and changed intent conflicts',async()=>{
- const key=randomUUID(),body={action:'create_project',name:'HTTP synthetic project '+randomUUID(),budgetUsd:0};
+ const key=randomUUID(),body={action:'create_project',name:'HTTP synthetic project '+randomUUID(),budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)};
  const a=await call('/api/erp-suite',{role:'admin',body,key}),b=await call('/api/erp-suite',{role:'admin',body,key});
  assert.equal(a.status,200);assert.equal(b.status,200);assert.equal(a.data.result.id,b.data.result.id);assert.equal(a.data.result.data.budgetUsd,0);created=a.data.result;
  const changed=await call('/api/erp-suite',{role:'admin',body:{...body,name:'Different'},key});assert.equal(changed.status,409);

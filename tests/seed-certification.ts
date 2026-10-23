@@ -13,8 +13,8 @@ async function main(){
  if(![config.authDb,config.erpDb].every((databasePath:string)=>{const relative=path.relative(directory,path.resolve(databasePath));return Boolean(relative)&&!relative.startsWith('..')&&!path.isAbsolute(relative);}))throw new Error('Fixture paths must remain within the private test directory.');
  const id=await provisionAdmin('admin@example.test',config.password);
  const actor={id,email:'admin@example.test',role:'admin',tenantId:'tayco_llc',projectIds:[]} as Actor;
- const a=execute(actor,randomUUID(),{action:'create_project',name:'Synthetic north project',location:'Fixture only',clientName:'Synthetic client A',budgetUsd:0});
- const b=execute(actor,randomUUID(),{action:'create_project',name:'Synthetic south project',location:'Fixture only',clientName:'Synthetic client B',budgetUsd:100});
+ const a=execute(actor,randomUUID(),{action:'create_project',name:'Synthetic north project',location:'Fixture only',clientName:'Synthetic client A',budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)});
+ const b=execute(actor,randomUUID(),{action:'create_project',name:'Synthetic south project',location:'Fixture only',clientName:'Synthetic client B',budgetUsd:100,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)});
  const vendor=submitWebsite('vendor',{businessName:'Synthetic supplier',contactName:'Test provider',email:'vendor@example.test',phone:'555-test',trades:'Synthetic'},randomUUID());
  const accounts:Record<string,unknown>={admin:{id,email:actor.email,cookie:await createSession(id),projects:[a.id,b.id]}};
  for(const [name,role,projects] of [['client','client',[a.id]],['other','client',[b.id]],['vendor','vendor',[a.id]],['staff','staff',[]]] as const){

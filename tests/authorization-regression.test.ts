@@ -15,7 +15,7 @@ process.env.TAYCO_AUTH_DB_PATH=process.env.TAYCO_ERP_DB_PATH+'.auth.sqlite';
   const admin: Actor = { id: 'fixture-admin', email: 'admin@example.test', role: 'admin', tenantId: 'fixture-company', projectIds: [] };
   const denied = (error: unknown) => error instanceof ErpError && [403, 404, 409].includes(error.status);
   try {
-    const createKey = randomUUID(); const createBody = { action: 'create_project', name: 'Isolated fixture project', budgetUsd: 12345 };
+    const createKey = randomUUID(); const createBody = { action: 'create_project', name: 'Isolated fixture project', budgetUsd: 12345, budgetSource: 'Synthetic approval', budgetApprovedOn: new Date().toISOString().slice(0, 10) };
     const project = execute(admin, createKey, createBody);
     const client: Actor = { id: 'fixture-client', email: 'client@example.test', role: 'client', tenantId: admin.tenantId, projectIds: [project.id] };
     const vendor: Actor = { id: 'fixture-vendor', email: 'vendor@example.test', role: 'vendor', tenantId: admin.tenantId, projectIds: [project.id], vendorId: 'fixture-vendor-record' };

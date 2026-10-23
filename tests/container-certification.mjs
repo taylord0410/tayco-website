@@ -20,7 +20,7 @@ const cookie=setCookie.split(';')[0];
 const headers={Cookie:cookie,Origin:base,'Content-Type':'application/json'};
 checks.push('private administrator login and secure cookie attributes');
 const key=randomUUID(),name='Container persistence '+randomUUID();
-const body=JSON.stringify({action:'create_project',name,budgetUsd:0});
+const body=JSON.stringify({action:'create_project',name,budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)});
 const mutation=()=>fetch(base+'/api/erp-suite',{method:'POST',headers:{...headers,'Idempotency-Key':key},body});
 const created=await mutation();assert.equal(created.status,200);const project=(await created.json()).result;
 assert.equal((await mutation()).status,200);checks.push('transaction and idempotency');

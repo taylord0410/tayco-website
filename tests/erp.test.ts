@@ -13,7 +13,7 @@ const run=(actor:Actor,body:Record<string,unknown>,key:string=randomUUID())=>exe
 test('empty store never manufactures projects or payroll/financial metrics',()=>{
  const isolated={...admin,tenantId:'empty'};assert.deepEqual(snapshot(isolated).entries,[]);assert.equal(snapshot(isolated).integrations.takeoff,'not_configured');
 });
-const created=run(admin,{action:'create_project',name:'Synthetic project',location:'Test',budgetUsd:0});
+const created=run(admin,{action:'create_project',name:'Synthetic project',location:'Test',budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)});
 const client={...admin,id:'client-a',role:'client',projectIds:[created.id]} as Actor;
 const other={...client,id:'client-b',projectIds:[]} as Actor;
 const tenantB={...admin,id:'other-tenant',tenantId:'tenant-b'};

@@ -24,7 +24,7 @@ before(async()=>{
   return (await getActor(new Request("http://localhost",{headers:{cookie:"tayco_session="+encodeURIComponent(accepted.cookie)}})))!;
  }
  staff=await member("staff@example.test");foreign=await member("foreign@example.test",{...admin,tenantId:"other_company"});
- const created=run(admin,{action:"create_project",name:"Synthetic project",budgetUsd:0});
+ const created=run(admin,{action:"create_project",name:"Synthetic project",budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)});
  projectId=created.id;
  client={id:"client-fixture",email:"client@example.test",role:"client",tenantId:"tayco_llc",projectIds:[projectId]};
  vendor={id:"vendor-fixture",email:"vendor@example.test",role:"vendor",tenantId:"tayco_llc",projectIds:[projectId]};

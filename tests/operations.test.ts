@@ -3,7 +3,7 @@ import type {Actor} from '../lib/auth';import {execute,snapshot,submitWebsite,Er
 const folder=mkdtempSync(path.join(os.tmpdir(),'tayco-operations-'));process.env.TAYCO_ERP_DB_PATH=path.join(folder,'erp.sqlite');process.env.TAYCO_AUTH_DB_PATH=path.join(folder,'auth.sqlite');
 const a={id:'admin',email:'admin@example.test',role:'admin',tenantId:'tayco_llc',projectIds:[]} as Actor;
 const run=(actor:Actor,input:Record<string,unknown>)=>execute(actor,randomUUID(),input),status=(code:number)=>(e:unknown)=>e instanceof ErpError&&e.status===code;
-const p=run(a,{action:'create_project',name:'Scoped fixture',budgetUsd:0}),foreign=run({...a,tenantId:'other'},{action:'create_project',name:'Foreign fixture'});
+const p=run(a,{action:'create_project',name:'Scoped fixture',budgetUsd:0,budgetSource:'Synthetic approval',budgetApprovedOn:new Date().toISOString().slice(0,10)}),foreign=run({...a,tenantId:'other'},{action:'create_project',name:'Foreign fixture'});
 const vprofile=submitWebsite('vendor',{businessName:'Fixture provider'},randomUUID());
 const v={...a,id:'vendor',role:'vendor',vendorId:vprofile.id,projectIds:[p.id]} as Actor,c1={...a,id:'client',role:'client',projectIds:[p.id]} as Actor;
 test('bids and purchase orders preserve supplier/project scope and legal stage transitions',()=>{

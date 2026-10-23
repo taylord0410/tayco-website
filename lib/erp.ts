@@ -5,9 +5,10 @@ import path from 'node:path';
 import { isValidUsdAmount } from './financial-values';
 import { isFinancialDate } from './financial-periods';
 import { parseProjectEstimate } from './project-estimates';
+import { isForecastPercentage } from './financial-forecast';
 import { listAssignableStaff, validateAssignableStaff, type Actor } from './auth';
 
-export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate' | 'proposal';
+export type Kind = 'project' | 'lead' | 'vendor' | 'document' | 'hours' | 'invoice' | 'note' | 'change' | 'bid' | 'purchase_order' | 'compliance' | 'estimate' | 'proposal' | 'corporate_meeting' | 'followup';
 export type Data = Record<string, unknown>;
 export type Entry = { id: string; kind: Kind; tenantId: string; projectId: string; ownerId: string; version: number; createdAt: string; updatedAt: string; data: Data };
 type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string };
@@ -34,7 +35,7 @@ function get(id: string) { const row = database().prepare('SELECT * FROM records
 function allowed(actor: Actor, entry: Entry) {
   if (entry.tenantId !== actor.tenantId) return false;
   if (internal(actor)) return true;
-  if(entry.kind==='compliance'||entry.kind==='estimate'||entry.kind==='proposal')return false;
+  if(entry.kind==='compliance'||entry.kind==='estimate'||entry.kind==='proposal'||entry.kind==='corporate_meeting'||entry.kind==='followup')return false;
   if(entry.kind==='bid'||entry.kind==='purchase_order')return actor.role==='vendor'&&actor.projectIds.includes(entry.projectId)&&(entry.ownerId===actor.id||Boolean(actor.vendorId&&entry.data.vendorId===actor.vendorId));
   if (entry.kind === 'vendor') return entry.id === actor.vendorId || entry.ownerId === actor.id;
   if (entry.kind === 'document') return entry.ownerId === actor.id || (actor.role === 'client' && actor.projectIds.includes(entry.projectId) && entry.data.visibility === 'client');
@@ -112,9 +113,10 @@ function project(actor: Actor, id: unknown) { return requireEntry(actor,text(id,
 function transact<T>(fn: () => T): T { const db=database();db.exec('BEGIN IMMEDIATE');try {const result=fn();db.exec('COMMIT');return result;}catch(e){db.exec('ROLLBACK');throw e;} }
 function exposed(actor:Actor,e:Entry):Entry {
  const data={...e.data};delete data.blobPath;
+  if(!internal(actor)&&e.kind==='purchase_order')for(const field of ['documentId','sheetRef','sourcingHistory'])delete data[field];
  if(!internal(actor)&&e.kind==='document'){for(const field of ['holdReason','holdChangedBy','deleteReason','deletedBy','purgeLastError','purgeAttempts','purgeLeaseUntil','purgeAttemptedAt','retentionDays','purgeAttemptToken'])delete data[field];}
  if(e.kind==='project'){
-    if(!internal(actor))delete data.teamMembers;
+    if(!internal(actor))for(const field of ['teamMembers','forecastPlans','completionEvidence','completionHistory','completionRecordedAt'])delete data[field];
    if(actor.role==='vendor'){for(const field of ['budgetUsd','budgetSource','budgetApprovedOn','budgetUpdatedAt','clientEmail','clientName','clientPhone'])delete data[field];}
    if(!internal(actor)&&Array.isArray(data.contacts))data.contacts=data.contacts.filter(contact=>contact&&typeof contact==='object'&&((contact as Data).visibility==='project'||(actor.role==='client'&&(contact as Data).visibility==='client'))&&(contact as Data).status!=='archived');
  }
@@ -127,6 +129,22 @@ function staffAssignment(actor:Actor,id:unknown,previous?:Data) {
  if(!memberId)return {assigneeId:null,assigneeEmail:null,assignedAt:null};
  const member=validateAssignableStaff(actor,memberId);
  return {assigneeId:member.id,assigneeEmail:member.email,assignedAt:previous?.assigneeId===member.id&&typeof previous.assignedAt==='string'?previous.assignedAt:new Date().toISOString()};
+}
+const agendaPriorities=['low','normal','high','urgent'];
+function agendaFields(actor:Actor,input:Data,kind:'corporate_meeting'|'followup',previous?:Data):Data {
+ const assigneeId=text(input.assigneeId,'responsible team member',100),assignment=staffAssignment(actor,assigneeId,previous);
+ const common={title:text(input.title,'agenda title',200),notes:text(input.notes??'','agenda notes',4000,false),priority:choice(input.priority,agendaPriorities),...assignment};
+ if(kind==='followup')return {...common,dueDate:calendarDate(input.dueDate,'follow-up due date')};
+ const time=text(input.time??'','meeting time',5,false);
+ if(time&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw new ErpError(422,'Use HH:MM for the meeting time, or leave it empty.');
+ return {...common,date:calendarDate(input.date,'meeting date'),time,location:text(input.location??'','meeting location',500,false)};
+}
+function agendaHistory(actor:Actor,data:Data,action:string,previous?:Data):Data[] {
+ const history=previous?.history??[];
+ if(!Array.isArray(history)||history.some(item=>!item||typeof item!=='object'))throw new ErpError(409,'Agenda history needs review before another change.');
+ if(history.length>=100)throw new ErpError(422,'Review this agenda history before another change.');
+ const current={...data};delete current.history;
+ return [...history,{...current,action,actorId:actor.id,recordedAt:new Date().toISOString()}];
 }
 function checkedProjectDates(start:unknown,end:unknown) {
  const plannedStart=calendarDate(start,'project start',true),plannedEnd=calendarDate(end,'project completion',true);
@@ -180,6 +198,29 @@ export function execute(actor: Actor, key: string, input: Data) {
 }
 function mutate(actor: Actor, input: Data): Entry {
   const action=text(input.action,'action',60);
+  if(['create_corporate_meeting','create_followup','update_corporate_meeting','update_followup','set_corporate_meeting_state','set_followup_state'].includes(action)) {
+    requireInternal(actor);
+    const kind=action.includes('corporate_meeting')?'corporate_meeting':'followup';
+    if(action.startsWith('create_')) {
+      if(input.status!==undefined)throw new ErpError(422,'Use the explicit state action after creating the record.');
+      const projectId=text(input.projectId??'','agenda project',100,false);if(projectId)project(actor,projectId);
+      const data={...agendaFields(actor,input,kind),status:kind==='corporate_meeting'?'scheduled':'open'};
+      return create(actor,kind,{...data,history:agendaHistory(actor,data,action)},projectId);
+    }
+    const item=requireEntry(actor,text(input.id,'agenda record',100),kind);
+    if(input.projectId!==undefined&&input.projectId!==item.projectId)throw new ErpError(422,'Agenda records cannot be moved between projects. Create a separate record with the correct scope.');
+    if(action.startsWith('set_')) {
+      const states=kind==='corporate_meeting'?['scheduled','completed','cancelled']:['open','in_progress','completed','cancelled'];
+      const status=choice(input.status,states);
+      if(status===item.data.status)throw new ErpError(409,'This agenda record already has the selected state.');
+      const stateReason=text(input.stateReason,'state change note',1000),data:Data={...item.data,status,stateReason};delete data.history;
+      const result=update(actor,item,{status,stateReason,history:agendaHistory(actor,data,action,item.data)},input.version);
+      audit(actor,action,item.id);return result;
+    }
+    if(input.status!==undefined)throw new ErpError(422,'Use the explicit state action to change agenda status.');
+    const fields=agendaFields(actor,input,kind,item.data),data={...item.data,...fields};delete data.history;
+    return update(actor,item,{...fields,history:agendaHistory(actor,data,action,item.data)},input.version);
+  }
   if(action==='restore_estimate_project') {
     if(actor.role!=='admin')throw new ErpError(403,'Only an administrator can recover an estimating project.');
     const slug=text(input.sourceProjectSlug,'estimating project',100);if(!/^[a-z0-9_]+$/.test(slug))throw new ErpError(422,'Invalid estimating project reference.');
@@ -200,7 +241,14 @@ function mutate(actor: Actor, input: Data): Entry {
     }
     return create(actor,'estimate',{...estimate},p.id);
   }
-  if(action==='create_project') {requireInternal(actor);return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:0,budgetUsd:input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget'),nextAction:text(input.nextAction??'Confirm scope and schedule','next action',500),source:'team'});}
+  if(action==='create_project') {
+    requireInternal(actor);
+    const budgetUsd=input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget');
+    const budgetSource=budgetUsd===null?'':text(input.budgetSource,'budget approval source',500);
+    const budgetApprovedOn=budgetUsd===null?'':calendarDate(input.budgetApprovedOn,'budget approval date');
+    if(budgetApprovedOn&&budgetApprovedOn>new Date().toISOString().slice(0,10))throw new ErpError(422,'A budget approval date cannot be in the future.');
+    return create(actor,'project',{name:text(input.name,'project name',160),location:text(input.location??'','location',200,false),clientName:text(input.clientName??'','client name',160,false),status:'planning',progress:null,budgetUsd,budgetSource,budgetApprovedOn,...(budgetUsd===null?{}:{budgetUpdatedAt:new Date().toISOString()}),nextAction:text(input.nextAction??'','next action',500,false),source:'team'});
+  }
   if(action==='create_lead') {requireInternal(actor);return create(actor,'lead',{name:text(input.name,'name',160),email:text(input.email,'email',254),details:text(input.details,'project details',4000),status:'new',source:'team',...staffAssignment(actor,input.assigneeId)});}
   if(action==='create_proposal') {
     requireInternal(actor);const p=project(actor,input.projectId),reference=text(input.reference,'proposal reference',100),issuedOn=occurredDate(input.issuedOn,'Proposal issue date'),validUntil=calendarDate(input.validUntil,'proposal validity',true);
@@ -238,7 +286,52 @@ function mutate(actor: Actor, input: Data): Entry {
     return update(actor,p,{teamMembers:members.map(m=>m===active?{...m,removedOn}:m)},input.version);
   }
   if(action==='update_lead') {requireInternal(actor);const item=requireEntry(actor,text(input.id,'record',100),'lead');return update(actor,item,{status:choice(input.status,['new','reviewing','waiting','quoted','accepted','closed']),nextAction:text(input.nextAction??'','next action',500,false),...(input.assigneeId!==undefined?staffAssignment(actor,input.assigneeId,item.data):{})},input.version);}
-  if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id);return update(actor,item,{status:choice(input.status,['planning','active','blocked','handover','closed']),progress:input.progress===null?null:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500)},input.version);}
+  if(action==='update_project') {requireInternal(actor);const item=project(actor,input.id),status=choice(input.status,['planning','active','blocked','handover','closed']);return update(actor,item,{status,progress:input.progress===null?null:number(input.progress,'progress',0,100),nextAction:text(input.nextAction,'next action',500),...(status!=='closed'&&item.data.completedOn?{completedOn:null,completionEvidence:null}: {})},input.version);}
+  if(action==='record_project_completion') {
+    requireInternal(actor);const item=project(actor,input.id);
+    if(item.data.status!=='closed')throw new ErpError(409,'Close the project state before recording its actual completion date.');
+    const completedOn=occurredDate(input.completedOn,'Actual completion date'),evidence=text(input.evidence,'completion evidence',2000),at=new Date().toISOString(),history=(Array.isArray(item.data.completionHistory)?item.data.completionHistory:[]) as Data[];
+    if(history.length>=100)throw new ErpError(422,'Review completion history before recording another correction.');
+    return update(actor,item,{completedOn,completionEvidence:evidence,completionRecordedAt:at,completionHistory:[...history,{completedOn,evidence,recordedAt:at,actorId:actor.id}]},input.version);
+  }
+  if(action==='record_project_forecast') {
+    requireInternal(actor);const item=project(actor,input.id),plans=(Array.isArray(item.data.forecastPlans)?item.data.forecastPlans:[]) as Data[],direction=choice(input.direction,['client_collection','vendor_payment','internal_cost']),linkedInvoiceId=text(input.linkedInvoiceId??'','linked invoice',100,false),amountUsd=currencyAmount(input.amountUsd,'planned amount');
+    if(amountUsd<=0)throw new ErpError(422,'A planned amount must be greater than zero.');
+    if(plans.length>=300)throw new ErpError(422,'Review the planning history before adding more sources.');
+    if(linkedInvoiceId){
+      if(direction==='internal_cost')throw new ErpError(422,'Internal invoice visibility does not establish a cost direction. Use a separate source-backed internal cost plan.');
+      const invoice=requireEntry(actor,linkedInvoiceId,'invoice'),audience={client_collection:'client',vendor_payment:'vendor',internal_cost:'internal'}[direction];
+      if(invoice.projectId!==item.id||invoice.data.audience!==audience)throw new ErpError(422,'The invoice must belong to this project and planning direction.');
+      if(!isValidUsdAmount(invoice.data.amountUsd)||amountUsd>invoice.data.amountUsd)throw new ErpError(422,'A linked plan cannot exceed the invoice amount.');
+      if(plans.some(p=>p.status==='planned'&&p.linkedInvoiceId===linkedInvoiceId))throw new ErpError(409,'This invoice is already linked to an active plan.');
+    }
+    const plan={id:randomUUID(),title:text(input.title,'planning title',200),direction,amountUsd,dueOn:calendarDate(input.dueOn,'planned date'),source:text(input.source,'planning source',1000),linkedInvoiceId:linkedInvoiceId||null,status:'planned',createdAt:new Date().toISOString()};
+    return update(actor,item,{forecastPlans:[...plans,plan]},input.version);
+  }
+  if(action==='cancel_project_forecast') {
+    requireInternal(actor);const item=project(actor,input.id),plans=(Array.isArray(item.data.forecastPlans)?item.data.forecastPlans:[]) as Data[],id=text(input.forecastId,'plan',100),old=plans.find(p=>p.id===id);
+    if(!old)throw new ErpError(404,'Planning source not found.');
+    if(old.status!=='planned')throw new ErpError(409,'This planning source is already cancelled.');
+    const cancelReason=text(input.cancelReason,'cancellation reason',1000),cancelledAt=new Date().toISOString();
+    return update(actor,item,{forecastPlans:plans.map(p=>p.id===id?{...p,status:'cancelled',cancelReason,cancelledAt}:p)},input.version);
+  }
+  if(action==='set_proposal_forecast'||action==='clear_proposal_forecast') {
+    requireInternal(actor);const item=requireEntry(actor,text(input.id,'proposal',100),'proposal');
+    if(!['draft','sent'].includes(String(item.data.status)))throw new ErpError(409,'Only a draft or pending sent proposal can change its forecasting assumptions.');
+    const history=(Array.isArray(item.data.forecastHistory)?item.data.forecastHistory:[]) as Data[],at=new Date().toISOString();
+    if(history.length>=100)throw new ErpError(422,'Review this proposal assumption history before another change.');
+    if(action==='clear_proposal_forecast')return update(actor,item,{forecast:null,forecastHistory:[...history,{forecast:null,reason:text(input.reason,'removal reason',1000),recordedAt:at,actorId:actor.id}]},input.version);
+    const expectedBillingOn=calendarDate(input.expectedBillingOn,'expected billing date');
+    if(typeof item.data.issuedOn==='string'&&expectedBillingOn<item.data.issuedOn)throw new ErpError(422,'Expected billing cannot precede the proposal issue date.');
+    if(item.data.status==='sent'&&typeof item.data.sentOn==='string'&&expectedBillingOn<item.data.sentOn)throw new ErpError(422,'Expected billing cannot precede the recorded sending date.');
+    if(!isForecastPercentage(input.probabilityPercent)||!isForecastPercentage(input.allocationPercent))throw new ErpError(422,'Use a percentage from 0 to 100 with at most two decimals.');
+    const forecast={expectedBillingOn,probabilityPercent:input.probabilityPercent,allocationPercent:input.allocationPercent,source:text(input.source,'forecast assumption source',1000),updatedAt:at};
+    return update(actor,item,{forecast,forecastHistory:[...history,{forecast,recordedAt:at,actorId:actor.id}]},input.version);
+  }
+  if(action==='update_lead_details') {
+    requireInternal(actor);const item=requireEntry(actor,text(input.id,'request',100),'lead'),estimatedValueUsd=input.estimatedValueUsd==null?null:currencyAmount(input.estimatedValueUsd,'estimated opportunity value');
+    return update(actor,item,{location:text(input.location??'','location',200,false),estimatedValueUsd,estimateSource:estimatedValueUsd===null?null:text(input.estimateSource,'estimate source',1000)},input.version);
+  }
   if(action==='update_project_details') {
    requireInternal(actor);const item=project(actor,input.id);
    const budgetUsd=input.budgetUsd==null?null:currencyAmount(input.budgetUsd,'approved budget');
@@ -329,6 +422,19 @@ function mutate(actor: Actor, input: Data): Entry {
    const transitions:Record<string,string[]>={draft:['issued','cancelled'],issued:['acknowledged','cancelled'],acknowledged:['received','cancelled'],received:['closed'],closed:[],cancelled:[]};
    if(!transitions[String(item.data.status)]?.includes(next))throw new ErpError(409,'Review the current purchase order stage before this change.');
    return update(actor,item,{status:next},input.version);
+  }
+  if(action==='update_purchase_order_details') {
+    requireInternal(actor);const item=requireEntry(actor,text(input.id,'purchase order',100),'purchase_order');
+    if(!['draft','issued','acknowledged'].includes(String(item.data.status)))throw new ErpError(409,'Order sourcing details can change only before receipt or cancellation.');
+    const documentId=text(input.documentId??'','source document',100,false),quoteDate=calendarDate(input.quoteDate,'quote date',true),expectedDeliveryOn=calendarDate(input.expectedDeliveryOn,'expected delivery date',true),leadTimeDays=input.leadTimeDays==null?null:number(input.leadTimeDays,'lead time in days',0,3650);
+    if(leadTimeDays!==null&&!Number.isInteger(leadTimeDays))throw new ErpError(422,'Lead time must be a whole number of days.');
+    if(quoteDate&&quoteDate>new Date().toISOString().slice(0,10))throw new ErpError(422,'A received quote date cannot be in the future.');
+    if(leadTimeDays!==null&&!quoteDate)throw new ErpError(422,'Record the quote date when recording its lead time.');
+    if(expectedDeliveryOn&&((typeof item.data.issuedOn==='string'&&expectedDeliveryOn<item.data.issuedOn)||(quoteDate&&expectedDeliveryOn<quoteDate)))throw new ErpError(422,'Expected delivery cannot precede the order or quote date.');
+    if(documentId){const document=requireEntry(actor,documentId,'document');if(document.projectId!==item.projectId||document.data.type!=='project'||document.data.deletedAt||document.data.purgedAt)throw new ErpError(422,'Use a current project source document from this project.');}
+    const details={documentId:documentId||null,sheetRef:text(input.sheetRef??'','drawing sheet reference',120,false),quoteDate:quoteDate||null,leadTimeDays,expectedDeliveryOn:expectedDeliveryOn||null,quoteSource:text(input.quoteSource,'sourcing evidence',1000),recordedAt:new Date().toISOString()},history=(Array.isArray(item.data.sourcingHistory)?item.data.sourcingHistory:[]) as Data[];
+    if(history.length>=100)throw new ErpError(422,'Review order sourcing history before another change.');
+    return update(actor,item,{...details,sourcingHistory:[...history,details]},input.version);
   }
   if(action==='create_compliance') {requireInternal(actor);const p=project(actor,input.projectId);return create(actor,'compliance',{jurisdiction:text(input.jurisdiction,'jurisdiction',200),topic:text(input.topic,'requirement to track',1000),source:text(input.source,'requirement source',1000),dueDate:calendarDate(input.dueDate,'review due date',true),status:'pending',evidence:'',reviewedOn:null},p.id);}
   if(action==='review_compliance') {
