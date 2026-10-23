@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { COMPANY } from "@/lib/company";
 
 const TRADES = [
   "Framing",
@@ -30,28 +31,27 @@ const TRADES = [
 const STATES = [
   "Wisconsin (WI)",
   "Illinois (IL)",
-  "North Dakota (ND)",
   "Minnesota (MN)",
   "Texas (TX)",
   "Iowa (IA)",
   "Indiana (IN)",
   "Michigan (MI)",
   "Missouri (MO)",
-  "All 9 States — Multi-State Crew Mobilization",
+  "All eight service states",
 ];
 
 const COPY = {
-  badge: "29-Trade Subcontractor Registry & W-9 / COI Compliance Gate",
+  badge: "BUILD WITH TAYCO · TRADE PARTNERS",
   title: "Vendor & Subcontractor Qualification Application",
   subtitle:
-    "Join TAYCO LLC's pre-qualified commercial and residential trade network across all 9 states (WI · IL · IA · IN · MN · MI · MO · TX · ND). Approved subcontractors participate directly in Takeoff Pro v5.0 (:8085) 3-Bid Leveling matrices, Davis-Bacon WH-347 certified payroll, and automated IRS Form 1099-NEC reporting.",
-  successTitle: "Subcontractor Application Registered!",
+    "Tell us about your business, trades, service area and crew availability. We review applications for commercial, residential and restoration work.",
+  successTitle: "Application received",
   successMsg:
-    "Thank you for applying. Your trade profile and compliance status have been logged in the TAYCO Executive Command Center (/portal). Our procurement dispatch at (414) 293-8400 (Milwaukee HQ) and (701) 839-2277 (North Dakota Operations) will review your application within 2–3 business days.",
+    "Thank you for introducing your business. Your application has been saved for team review. Submission does not confirm approval or a project award.",
   successPending:
-    "Your application was received. Your W-9 or COI documents are still marked as pending — you can upload them anytime by returning to this page or emailing general@taycoturnkey.com.",
+    "If we need documents, we will provide the next steps through your invited account. Do not email tax or identity documents.",
   backHome: "Back to Home",
-  uploadDocs: "W-9 / COI Compliance Gate Pending",
+  uploadDocs: "Documents are requested after review",
   sectionBusiness: "01 · Legal Entity & Trade Qualifications",
   businessName: "Legal Business Name",
   contactName: "Primary Contact Name",
@@ -63,143 +63,32 @@ const COPY = {
   yearsHint: "e.g. 5",
   crewSize: "Active Field Crew Size",
   crewHint: "e.g. 6 trade technicians",
-  insured: "Active General Liability Insurance?",
+  insured: "Do you have general liability insurance?",
   insuredSelect: "Select...",
-  insuredYes: "Yes — Active General Liability & Workers' Comp",
+  insuredYes: "Yes",
   insuredNo: "No",
-  sectionArea: "02 · 9-State Service Territory",
-  statesServed: "States You Serve (WI · IL · ND · MN · TX · IA · IN · MI · MO)",
+  sectionArea: "02 · Your service area",
+  statesServed: "States you serve",
   statesSelect: "Select...",
   citiesServed: "Primary Metro Areas & Counties Covered",
-  citiesHint: "e.g. Milwaukee, Madison, Chicago Metro, New Town ND, Minot ND",
-  sectionTrades: "03 · CSI Trade Divisions & Services Offered",
+  citiesHint: "e.g. Milwaukee, Madison or Chicago and surrounding counties",
+  sectionTrades: "03 · Trades & services",
   tradesNote: "(select all trades performed in-house)",
   tradesAlert: "Please select at least one trade.",
-  sectionDocs: "04 · IRS 1099-NEC W-9 & COI Compliance Gate",
+  sectionDocs: "04 · Supporting documents",
   docsIntro:
-    "Upload your signed IRS Form W-9 and Certificate of Insurance (COI). Subcontractors must pass the W-9 + COI Compliance Gate prior to Takeoff Pro bid award, dispatch, or AIA G702/G703 progress draw release.",
-  w9Label: "IRS Form W-9 (TIN / EIN Verification)",
-  w9Desc: "Required for automated IRS 1099-NEC year-end reporting in TAYCO Tax Engine (MOD_TAX_COMPLIANCE).",
-  insuranceLabel: "Certificate of Insurance (COI — General Liability)",
-  insuranceDesc:
-    "Your insurance certificate must list TAYCO LLC as the Certificate Holder:",
-  holderInfo: "TAYCO LLC\n2829 West Wisconsin Ave\nMilwaukee, WI 53208",
-  insuranceReq1: "Commercial General Liability Insurance required",
-  insuranceReq2: "TAYCO LLC must be listed as Certificate Holder",
-  insuranceReq3: "Address: 2829 West Wisconsin Ave, Milwaukee, WI 53208",
-  uploadBtn: "Choose Compliance File",
-  uploaded: "Compliance document uploaded ✔",
-  uploading: "Uploading to Compliance Vault...",
-  uploadError:
-    "Upload failed. You can still submit your application and email your W-9 / COI to general@taycoturnkey.com.",
-  skipDocs:
-    "I do not have my W-9 / COI files ready right now — register my trade profile in PENDING compliance status",
+    "You can apply without uploading documents. When required, W-9 and insurance records are requested through an invited account and reviewed separately.",
+
   notes: "Additional Equipment, Bonding & Trade Certifications",
   notesHint:
-    "List OSHA certifications, commercial bonding capacity, specialized heavy equipment, or Davis-Bacon WH-347 prevailing-wage experience...",
-  submit: "Submit Subcontractor Application & Sync to Registry →",
-  submitting: "Registering Trade Profile in TAYCO ERP...",
+    "Tell us about relevant qualifications, equipment and availability. Do not include tax IDs, bank details or identity documents.",
+  submit: "Send trade partner application →",
+  submitting: "Sending your application...",
   footer:
-    "All subcontractor applications are reviewed within 2–3 business days and synced with TAYCO Module 1 (MOD_CRM_BIDS), Module 2 (MOD_PAYROLL_CREW WH-347) & Module 4 (MOD_TAX_COMPLIANCE 1099-NEC).",
+    "We review your trade experience, service area and project fit. A team member will contact you about the next steps.",
   errorFallback: "Something went wrong. Please try again.",
-  fileTypes: "PDF, JPG or PNG — max 10MB",
+
 };
-
-type UploadState = "idle" | "uploading" | "done" | "error";
-
-function FileUploadField({
-  label,
-  desc,
-  extra,
-  docType,
-  onUploaded,
-}: {
-  label: string;
-  desc: string;
-  extra?: React.ReactNode;
-  docType: string;
-  onUploaded: (url: string) => void;
-}) {
-  const [state, setState] = useState<UploadState>("idle");
-  const [fileName, setFileName] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setState("uploading");
-    setFileName(file.name);
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("docType", docType);
-    try {
-      const res = await fetch("/api/upload-doc", { method: "POST", body: fd });
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setState("done");
-        onUploaded(data.url);
-      } else {
-        setState("error");
-      }
-    } catch {
-      setState("error");
-    }
-  }
-
-  return (
-    <div
-      className="rounded-xl border-2 p-5"
-      style={{
-        borderColor: state === "done" ? "#16A34A" : "#E2E8F0",
-        background: state === "done" ? "#F0FDF4" : "white",
-      }}
-    >
-      <p className="font-semibold text-sm mb-1" style={{ color: "#0F2040" }}>
-        {label}
-      </p>
-      <p className="text-xs text-slate-500 mb-2">{desc}</p>
-      {extra}
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".pdf,.jpg,.jpeg,.png"
-        className="hidden"
-        onChange={handleFile}
-      />
-      {state === "done" ? (
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-green-700 text-sm font-semibold">{COPY.uploaded}</span>
-          <span className="text-xs text-slate-400 truncate max-w-[180px]">{fileName}</span>
-          <button
-            type="button"
-            onClick={() => {
-              setState("idle");
-              setFileName("");
-              onUploaded("");
-            }}
-            className="text-xs text-slate-400 underline ml-auto"
-          >
-            ✕
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 mt-2">
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={state === "uploading"}
-            className="text-sm font-semibold px-4 py-2 rounded-lg border-2 transition-colors disabled:opacity-50 cursor-pointer"
-            style={{ borderColor: "#C9A84C", color: "#0F2040", background: "#FEFCE8" }}
-          >
-            {state === "uploading" ? COPY.uploading : COPY.uploadBtn}
-          </button>
-          <span className="text-xs text-slate-400">{COPY.fileTypes}</span>
-        </div>
-      )}
-      {state === "error" && <p className="text-red-500 text-xs mt-1">{COPY.uploadError}</p>}
-    </div>
-  );
-}
 
 export default function VendorApplicationPage() {
   const [form, setForm] = useState({
@@ -217,12 +106,12 @@ export default function VendorApplicationPage() {
     website: "",
   });
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
-  const [w9Url, setW9Url] = useState("");
-  const [insuranceUrl, setInsuranceUrl] = useState("");
-  const [skipDocs, setSkipDocs] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [docsPending, setDocsPending] = useState(false);
+  const docsPending = true;
   const [errorMsg, setErrorMsg] = useState("");
+  const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [notificationStatus, setNotificationStatus] = useState("");
+  const requestRef = useRef<{ key: string; payload: string } | null>(null);
   const loadedAt = useRef<number | null>(null);
   useEffect(() => {
     loadedAt.current = Date.now();
@@ -243,31 +132,31 @@ export default function VendorApplicationPage() {
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     if (selectedTrades.length === 0) {
-      alert(COPY.tradesAlert);
+      setErrorMsg(COPY.tradesAlert);
+      setStatus("error");
       return;
     }
+    if (status === "sending") return;
     setStatus("sending");
     setErrorMsg("");
-    const pending = skipDocs || (!w9Url && !insuranceUrl);
-    setDocsPending(pending);
     try {
+      const payload = JSON.stringify({ ...form, trades: selectedTrades.join(", "), docsPending: true, _loadedAt: loadedAt.current });
+      if (requestRef.current?.payload !== payload) requestRef.current = { key: crypto.randomUUID(), payload };
       const res = await fetch("/api/vendor", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          trades: selectedTrades.join(", "),
-          w9Url,
-          insuranceUrl,
-          docsPending: pending,
-          _loadedAt: loadedAt.current,
-        }),
+        headers: { "Content-Type": "application/json", "Idempotency-Key": requestRef.current.key },
+        body: payload,
       });
       if (res.ok) {
+        const data = await res.json();
+        if (!data.success || !data.referenceId) throw new Error("Receipt unavailable");
+        setReferenceId(data.referenceId);
+        setNotificationStatus(data.notificationStatus || "pending");
+        requestRef.current = null;
         setStatus("success");
       } else {
         const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.message || COPY.errorFallback);
+        setErrorMsg(data.error || data.message || COPY.errorFallback);
         setStatus("error");
       }
     } catch {
@@ -293,100 +182,28 @@ export default function VendorApplicationPage() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-black text-white mt-2 mb-3 tracking-tight">
             Vendor &amp; Subcontractor{" "}
-            <em className="tayco-serif-em">Qualification Portal</em>
+            <em className="tayco-serif-em">Application</em>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
             {COPY.subtitle}
           </p>
           <div className="mt-4 inline-flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-amber-300">
-            <span>📞 Milwaukee HQ: (414) 293-8400</span>
+            <span>{COMPANY.phoneDisplay}</span>
             <span>·</span>
-            <span>📞 North Dakota Operations: (701) 839-2277</span>
+            <span>{COMPANY.email}</span>
           </div>
         </div>
       </div>
 
-      {/* ── TAKEOFF PRO (:8085) 3-BID LEVELING, WH-347 & 1099-NEC INTEGRATION PANEL ── */}
       <div className="max-w-5xl mx-auto px-4 pt-8">
-        <div
-          data-surface-mode="crystal"
-          className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-6 text-white space-y-5"
-        >
-          <div className="preview-orbits" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="tayco-live-dot" />
-                <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                  TAKEOFF PRO (:8085) 3-BID LEVELING · DAVIS-BACON WH-347 · IRS FORM 1099-NEC GATE
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                Every pre-qualified subcontractor onboarded on this page participates directly in{" "}
-                <strong className="text-amber-300">
-                  Takeoff Pro (:8085) 3-Vendor Bid Leveling Matrices (MOD_CRM_BIDS)
-                </strong>{" "}
-                — calibrated on the{" "}
-                <strong className="text-white">
-                  $824,875.23 Leveled Bid on Son of a Star Phase 1
-                </strong>{" "}
-                — passes through the mandatory{" "}
-                <strong className="text-emerald-300">
-                  W-9 + COI Certificate Holder Gate (TAYCO LLC, 2829 West Wisconsin Ave, Milwaukee, WI 53208)
-                </strong>
-                , and is automatically synchronized into the Command Center (
-                <code className="text-amber-200">/portal</code>) for{" "}
-                <strong className="text-white">Davis-Bacon WH-347 (MOD_PAYROLL_CREW)</strong> and{" "}
-                <strong className="text-white">IRS Form 1099-NEC (MOD_TAX_COMPLIANCE)</strong>.
-              </p>
-            </div>
-            <Link
-              href="/portal?invite=INV-CPA-FINANCE-TAX"
-              data-magnetic
-              className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
-              style={{ background: "#C9A84C", color: "#070E1A" }}
-            >
-              🏛️ Inspect 3-Bid &amp; Compliance Gate →
-            </Link>
-          </div>
-
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-white/10">
-            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-amber-400/30">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-amber-300 font-bold">
-                MOD_CRM_BIDS · 3-BID LEVELING
-              </div>
-              <div className="text-base font-black font-mono text-white mt-0.5">
-                $824,875.23 Leveled Bid
-              </div>
-              <p className="text-[11px] text-slate-300 mt-1">
-                Son of a Star 3-Vendor CSI-32 matrix inside Takeoff Pro (:8085)
-              </p>
-            </div>
-            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-sky-400/30">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-sky-300 font-bold">
-                MOD_PAYROLL_CREW · WH-347
-              </div>
-              <div className="text-base font-black font-mono text-white mt-0.5">
-                $32.63/hr Loaded Rate
-              </div>
-              <p className="text-[11px] text-slate-300 mt-1">
-                U.S. DOL Davis-Bacon WH-347 weekly certified payroll &amp; fringe audit
-              </p>
-            </div>
-            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-emerald-400/30">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 font-bold">
-                MOD_TAX_COMPLIANCE · 1099-NEC
-              </div>
-              <div className="text-base font-black font-mono text-white mt-0.5">
-                W-9 + COI Verified Gate
-              </div>
-              <p className="text-[11px] text-slate-300 mt-1">
-                TAYCO LLC, 2829 West Wisconsin Ave, Milwaukee, WI 53208 Certificate Holder
-              </p>
+        <div data-surface-mode="crystal" className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-5 sm:p-6">
+          <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
+          <div className="relative z-10">
+            <p className="tayco-eyebrow text-amber-300 mb-3">A clear path to working together</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div><h2 className="font-bold text-white">01 · Introduce your team</h2><p className="text-sm text-slate-300 mt-2">Share your trade experience, crew size and service area.</p></div>
+              <div><h2 className="font-bold text-white">02 · Application review</h2><p className="text-sm text-slate-300 mt-2">We review project fit and contact you for any missing information.</p></div>
+              <div><h2 className="font-bold text-white">03 · Invited account</h2><p className="text-sm text-slate-300 mt-2">If invited, sign in to exchange project information and requested documents.</p></div>
             </div>
           </div>
         </div>
@@ -403,6 +220,7 @@ export default function VendorApplicationPage() {
               {COPY.successTitle}
             </h2>
             <p className="text-slate-600 mb-4 max-w-xl mx-auto text-sm">{COPY.successMsg}</p>
+            <p role="status" className="text-xs text-slate-600 mb-5 break-all">Reference: <strong>{referenceId}</strong><br />{notificationStatus === "pending" ? "Saved. Team notification is pending; your reference remains valid." : "Saved for team review."}</p>
             {docsPending && (
               <div
                 className="mx-auto max-w-md rounded-xl px-5 py-4 mb-6 text-sm"
@@ -413,22 +231,22 @@ export default function VendorApplicationPage() {
                 </p>
                 <p className="text-slate-600 text-xs">{COPY.successPending}</p>
                 <Link
-                  href="/vendor-application"
+                  href="/login"
                   className="block mt-3 text-xs font-semibold underline"
                   style={{ color: "#0F2040" }}
                 >
-                  → Return here to upload W-9 &amp; COI documents
+                  Invited partner sign in →
                 </Link>
               </div>
             )}
             <div className="flex flex-wrap justify-center gap-3">
               <Link
-                href="/portal?invite=INV-CPA-FINANCE-TAX"
+                href="/login"
                 data-magnetic
                 className="font-bold px-6 py-3 rounded-xl text-xs"
                 style={{ background: "#0F2040", color: "#C9A84C" }}
               >
-                🏛️ View Subcontractor &amp; 1099-NEC Registry in Command Center →
+                Existing partner sign in →
               </Link>
               <Link
                 href="/"
@@ -443,7 +261,7 @@ export default function VendorApplicationPage() {
           <form
             onSubmit={handleSubmit}
             data-surface-mode="mineral"
-            className="tayco-living-card editorial-ivory-card p-8 space-y-6 bg-white"
+            className="tayco-living-card editorial-ivory-card p-5 sm:p-8 space-y-6 bg-white"
           >
             <div className="preview-orbits" aria-hidden="true" />
             <div className="relative z-10 space-y-6">
@@ -469,14 +287,15 @@ export default function VendorApplicationPage() {
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label
+                      <label htmlFor="vendor-businessName"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.businessName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="businessName"
+                    id="vendor-businessName"
+                    name="businessName" autoComplete="organization"
                         value={form.businessName}
                         onChange={handleChange}
                         required
@@ -486,14 +305,15 @@ export default function VendorApplicationPage() {
                       />
                     </div>
                     <div>
-                      <label
+                      <label htmlFor="vendor-contactName"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.contactName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="contactName"
+                    id="vendor-contactName"
+                    name="contactName" autoComplete="name"
                         value={form.contactName}
                         onChange={handleChange}
                         required
@@ -505,31 +325,33 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label
+                      <label htmlFor="vendor-phone"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.phone} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="phone"
+                    id="vendor-phone"
+                    name="phone" autoComplete="tel" inputMode="tel"
                         value={form.phone}
                         onChange={handleChange}
                         required
-                        placeholder="(414) 293-8400"
+                        placeholder="Your phone number"
                         className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
                         style={{ borderColor: "#E2E8F0" }}
                       />
                     </div>
                     <div>
-                      <label
+                      <label htmlFor="vendor-email"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.email} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="email"
+                    id="vendor-email"
+                    name="email" autoComplete="email"
                         type="email"
                         value={form.email}
                         onChange={handleChange}
@@ -542,14 +364,15 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label
+                      <label htmlFor="vendor-licenseNumber"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.licenseNumber}
                       </label>
                       <input
-                        name="licenseNumber"
+                    id="vendor-licenseNumber"
+                    name="licenseNumber"
                         value={form.licenseNumber}
                         onChange={handleChange}
                         placeholder={COPY.licenseHint}
@@ -558,14 +381,15 @@ export default function VendorApplicationPage() {
                       />
                     </div>
                     <div>
-                      <label
+                      <label htmlFor="vendor-yearsInBusiness"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.yearsInBusiness} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="yearsInBusiness"
+                    id="vendor-yearsInBusiness"
+                    name="yearsInBusiness"
                         value={form.yearsInBusiness}
                         onChange={handleChange}
                         required
@@ -577,14 +401,15 @@ export default function VendorApplicationPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label
+                      <label htmlFor="vendor-crewSize"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.crewSize} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                        name="crewSize"
+                    id="vendor-crewSize"
+                    name="crewSize"
                         value={form.crewSize}
                         onChange={handleChange}
                         required
@@ -594,14 +419,15 @@ export default function VendorApplicationPage() {
                       />
                     </div>
                     <div>
-                      <label
+                      <label htmlFor="vendor-insured"
                         className="block text-sm font-semibold mb-1"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.insured} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <select
-                        name="insured"
+                    id="vendor-insured"
+                    name="insured"
                         value={form.insured}
                         onChange={handleChange}
                         required
@@ -627,14 +453,15 @@ export default function VendorApplicationPage() {
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label
+                    <label htmlFor="vendor-stateServed"
                       className="block text-sm font-semibold mb-1"
                       style={{ color: "#0F2040" }}
                     >
                       {COPY.statesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <select
-                      name="stateServed"
+                    id="vendor-stateServed"
+                    name="stateServed"
                       value={form.stateServed}
                       onChange={handleChange}
                       required
@@ -650,14 +477,15 @@ export default function VendorApplicationPage() {
                     </select>
                   </div>
                   <div>
-                    <label
+                    <label htmlFor="vendor-citiesServed"
                       className="block text-sm font-semibold mb-1"
                       style={{ color: "#0F2040" }}
                     >
                       {COPY.citiesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <input
-                      name="citiesServed"
+                    id="vendor-citiesServed"
+                    name="citiesServed"
                       value={form.citiesServed}
                       onChange={handleChange}
                       required
@@ -685,6 +513,7 @@ export default function VendorApplicationPage() {
                     <button
                       key={trade}
                       type="button"
+                      aria-pressed={selectedTrades.includes(trade)}
                       onClick={() => toggleTrade(trade)}
                       className="text-left text-xs px-3 py-2 rounded-lg border-2 font-semibold transition-colors cursor-pointer"
                       style={{
@@ -710,66 +539,23 @@ export default function VendorApplicationPage() {
                 </h2>
                 <p className="text-xs text-slate-500 mb-4">{COPY.docsIntro}</p>
 
-                {!skipDocs && (
-                  <div className="space-y-4">
-                    <FileUploadField
-                      label={COPY.w9Label}
-                      desc={COPY.w9Desc}
-                      docType="w9"
-                      onUploaded={setW9Url}
-                    />
-
-                    <FileUploadField
-                      label={COPY.insuranceLabel}
-                      desc={COPY.insuranceDesc}
-                      docType="insurance"
-                      onUploaded={setInsuranceUrl}
-                      extra={
-                        <div
-                          className="rounded-lg px-4 py-3 mb-3 text-xs"
-                          style={{ background: "#F0F9FF", border: "1px solid #BAE6FD" }}
-                        >
-                          <p className="font-bold mb-1" style={{ color: "#0F2040" }}>
-                            Required Certificate Holder Endorsement:
-                          </p>
-                          <pre
-                            className="font-semibold whitespace-pre-wrap"
-                            style={{ color: "#1B3A6B", fontFamily: "inherit" }}
-                          >
-                            {COPY.holderInfo}
-                          </pre>
-                          <ul className="mt-2 space-y-1 text-slate-600">
-                            <li>✔ {COPY.insuranceReq1}</li>
-                            <li>✔ {COPY.insuranceReq2}</li>
-                            <li>✔ {COPY.insuranceReq3}</li>
-                          </ul>
-                        </div>
-                      }
-                    />
-                  </div>
-                )}
-
-                <label className="flex items-start gap-3 mt-4 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={skipDocs}
-                    onChange={(e) => setSkipDocs(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded accent-yellow-600"
-                  />
-                  <span className="text-xs text-slate-600">{COPY.skipDocs}</span>
-                </label>
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-slate-700">
+                  Do not include tax identification numbers or banking details in this form.
+                  Already invited? <Link href="/login" className="font-semibold underline">Sign in to your partner account</Link>.
+                </div>
               </div>
 
               {/* Notes */}
               <div>
-                <label
+                <label htmlFor="vendor-notes"
                   className="block text-sm font-semibold mb-1"
                   style={{ color: "#0F2040" }}
                 >
                   {COPY.notes}
                 </label>
                 <textarea
-                  name="notes"
+                    id="vendor-notes"
+                    name="notes"
                   value={form.notes}
                   onChange={handleChange}
                   rows={3}
@@ -780,11 +566,12 @@ export default function VendorApplicationPage() {
               </div>
 
               {status === "error" && (
-                <div className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
+                <div role="alert" className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
                   {errorMsg}
                 </div>
               )}
 
+              <p className="text-xs text-slate-600">We use these details to review your application and contact you. <Link href="/privacy" className="underline">Privacy &amp; data protection</Link>.</p>
               <button
                 type="submit"
                 data-magnetic

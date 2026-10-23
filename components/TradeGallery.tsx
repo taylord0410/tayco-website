@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const SECTORS = [
   { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },
@@ -15,57 +16,57 @@ const TRADES = [
     slug: "framing",
     name: "Framing",
     csi: "CSI 06 11 00",
-    rate: "$18.00–$52.00 / sq.ft.",
-    spec: "16× LVL Ridge Beams, 2x6 Platform & 16-Ga Structural Studs",
+    rate: "Project-specific estimate",
+    spec: "Wall, floor and roof framing for your project",
   },
   {
     slug: "carpentry",
     name: "Carpentry",
     csi: "CSI 06 41 00",
-    rate: "$145.00–$320.00 / lin.ft.",
-    spec: "Architectural Millwork, Cabinetry, Trim & Custom Gazebos",
+    rate: "Project-specific estimate",
+    spec: "Cabinetry, trim, millwork and finishing details",
   },
   {
     slug: "roofing",
     name: "Roofing",
     csi: "CSI 07 50 00",
-    rate: "$6.80–$28.00 / sq.ft.",
-    spec: "TPO / EPDM, 24-Ga Standing Seam & Class-4 Architectural Shingles",
+    rate: "Project-specific estimate",
+    spec: "Roof repairs, replacements and material options",
   },
   {
     slug: "siding",
     name: "Siding",
     csi: "CSI 07 46 00",
-    rate: "$11.50–$46.00 / sq.ft.",
-    spec: "James Hardie Fiber Cement, IMP, ACM & Continuous Insulation",
+    rate: "Project-specific estimate",
+    spec: "Siding, exterior trim and weather protection",
   },
   {
     slug: "drywall",
     name: "Drywall",
     csi: "CSI 09 29 00",
-    rate: "$4.20–$18.50 / sq.ft.",
-    spec: "UL 1-Hr/2-Hr 5/8\" Type-X, STC 55+ Acoustic & Level-5 Finish",
+    rate: "Project-specific estimate",
+    spec: "Walls, ceilings, smooth finishes and repairs",
   },
   {
     slug: "painting",
     name: "Painting",
     csi: "CSI 09 91 00",
-    rate: "$3.40–$9.50 / sq.ft.",
-    spec: "Sherwin-Williams Commercial Coatings, Elastomeric & Intumescent",
+    rate: "Project-specific estimate",
+    spec: "Interior and exterior preparation and coatings",
   },
   {
     slug: "flooring",
     name: "Flooring",
     csi: "CSI 09 60 00",
-    rate: "$8.50–$21.00 / sq.ft.",
-    spec: "100%-Solids Epoxy, FF50 Polished Concrete, 20-Mil LVT & Hardwood",
+    rate: "Project-specific estimate",
+    spec: "Wood, tile, vinyl, concrete and specialty finishes",
   },
   {
     slug: "stone",
     name: "Stone",
     csi: "CSI 04 43 00",
-    rate: "$24.00–$68.00 / sq.ft.",
-    spec: "Architectural Natural Stone Veneer, Masonry & Quartz Assemblies",
+    rate: "Project-specific estimate",
+    spec: "Stone finishes, masonry and surface details",
   },
 ];
 
@@ -105,15 +106,24 @@ export default function TradeGallery() {
     alt: string;
     csi: string;
   } | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (!zoom || !dialogRef.current) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    dialogRef.current.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; previousFocus?.focus(); };
+  }, [zoom]);
   const trade = TRADES.find((t) => t.slug === active) ?? TRADES[0];
 
   return (
     <div className="space-y-8">
-      {/* Executive Command Trade Selector Tabs */}
+      {/* Project services and resources */}
       <div
         className="flex flex-wrap justify-center gap-2.5"
-        role="tablist"
-        aria-label="CSI-32 Trades"
+        role="group"
+        aria-label="Choose a trade"
       >
         {TRADES.map((t) => {
           const on = t.slug === active;
@@ -121,9 +131,8 @@ export default function TradeGallery() {
             <button
               key={t.slug}
               type="button"
-              role="tab"
+              aria-pressed={active === t.slug}
               data-magnetic
-              aria-selected={on}
               onClick={() => setActive(t.slug)}
               className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center gap-2"
               style={
@@ -159,7 +168,7 @@ export default function TradeGallery() {
         })}
       </div>
 
-      {/* Active Trade Executive Telemetry Banner */}
+      {/* Project services and resources */}
       <div
         data-response-kind="surface"
         className="tayco-living-card p-5 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
@@ -175,8 +184,7 @@ export default function TradeGallery() {
             {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
           </div>
           <p className="text-xs sm:text-sm text-slate-200 font-medium">
-            {trade.spec} — Quantified in Takeoff Pro (:8085) across Residential,
-            Multifamily, and Commercial sectors.
+            {trade.spec}. Explore residential, multifamily and commercial applications.
           </p>
         </div>
 
@@ -187,15 +195,15 @@ export default function TradeGallery() {
             className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
             style={{ background: "#C9A84C", color: "#070E1A" }}
           >
-            🧮 Estimate {trade.name} (/estimate) →
+            Discuss {trade.name.toLowerCase()} →
           </Link>
           <Link
-            href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+            href="/login"
             data-magnetic
             className="px-4 py-2 rounded-xl text-xs font-bold text-white border hover:bg-white/10 transition-colors"
             style={{ borderColor: "rgba(201, 168, 76, 0.5)" }}
           >
-            🏛️ Inspect in /portal →
+            Client sign in →
           </Link>
         </div>
       </div>
@@ -248,7 +256,9 @@ export default function TradeGallery() {
                 className="relative block w-full rounded-xl overflow-hidden aspect-[3/2] border cursor-pointer"
                 style={{ borderColor: "rgba(201, 168, 76, 0.28)" }}
               >
-                <img
+                <Image
+                  fill
+                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
                   src={src}
                   alt={alt}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -262,7 +272,7 @@ export default function TradeGallery() {
                     color: "#F3D37A",
                   }}
                 >
-                  Click to Inspect ↗
+                  Open photo ↗
                 </span>
               </button>
 
@@ -271,10 +281,10 @@ export default function TradeGallery() {
                   href={`/estimate?sector=${s.key}&trade=${encodeURIComponent(trade.csi)}`}
                   className="font-bold text-amber-300 hover:underline"
                 >
-                  Run {s.label} Takeoff →
+                  Discuss this service →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   className="text-slate-300 hover:text-white"
                 >
                   /portal ↗
@@ -285,7 +295,7 @@ export default function TradeGallery() {
         })}
       </div>
 
-      {/* Flooring: 15 Sub-Types with CSI-32 Badges */}
+      {/* Project services and resources */}
       {trade.slug === "flooring" && (
         <div className="mt-12 pt-8 border-t border-white/15">
           <div className="text-center mb-8">
@@ -297,7 +307,7 @@ export default function TradeGallery() {
               CSI 09 60 00 / 03 35 43 FLOORING MATERIAL MATRIX
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-white">
-              15 Audited Commercial &amp; Residential Flooring Systems
+              Explore 15 flooring options
             </h3>
           </div>
 
@@ -332,10 +342,12 @@ export default function TradeGallery() {
                         key={n}
                         type="button"
                         onClick={() => setZoom({ src, alt, csi: f.csi })}
-                        className="block w-full rounded-xl overflow-hidden border aspect-[3/2] cursor-pointer hover:opacity-95 transition-opacity"
+                        className="relative block w-full rounded-xl overflow-hidden border aspect-[3/2] cursor-pointer hover:opacity-95 transition-opacity"
                         style={{ borderColor: "rgba(201, 168, 76, 0.28)" }}
                       >
-                        <img
+                        <Image
+                          fill
+                          sizes="(min-width: 1024px) 28vw, (min-width: 640px) 42vw, 85vw"
                           src={src}
                           alt={alt}
                           className="w-full h-full object-cover"
@@ -351,15 +363,18 @@ export default function TradeGallery() {
         </div>
       )}
 
-      {/* Executive Lightbox Modal */}
+      {/* Project services and resources */}
       {zoom && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <dialog
+          ref={dialogRef}
+          aria-label={zoom.alt}
+          onCancel={() => setZoom(null)}
+          className="fixed inset-0 m-0 w-screen h-dvh max-w-none max-h-none flex items-center justify-center p-3 sm:p-4"
           style={{ background: "rgba(7, 14, 26, 0.94)" }}
-          onClick={() => setZoom(null)}
+          onClick={(event) => { if (event.target === event.currentTarget) setZoom(null); }}
         >
           <div
-            className="relative w-full max-w-5xl rounded-2xl border p-4"
+            className="relative w-full max-w-5xl max-h-[94dvh] overflow-y-auto rounded-2xl border p-3 sm:p-4"
             style={{
               background: "#0F2040",
               borderColor: "#C9A84C",
@@ -387,16 +402,18 @@ export default function TradeGallery() {
                 ✕ Close
               </button>
             </div>
-            <img
+            <Image
+              width={1440}
+              height={960}
+              sizes="95vw"
               src={zoom.src}
               alt={zoom.alt}
               className="w-full object-contain rounded-xl border border-white/10"
-              style={{ maxHeight: "75vh" }}
+              style={{ maxHeight: "65dvh" }}
             />
             <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-white/15">
               <span className="text-xs font-mono text-slate-300">
-                TAYCO Executive Field Verification · Takeoff Pro (:8085) CSI-32
-                Synced
+                Trade gallery · Discuss materials and scope with TAYCO
               </span>
               <div className="flex items-center gap-2">
                 <Link
@@ -404,18 +421,18 @@ export default function TradeGallery() {
                   className="px-3.5 py-1.5 rounded-lg text-xs font-black"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  Estimate This CSI Trade →
+                  Ask about this trade →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white border border-amber-400/40"
                 >
-                  Open Command Portal →
+                  Client sign in →
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

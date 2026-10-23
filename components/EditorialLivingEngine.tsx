@@ -10,31 +10,24 @@ export default function EditorialLivingEngine() {
     const controller = new AbortController();
     const { signal } = controller;
 
-    let paused = false;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let userPaused = false;
     try {
-      paused = localStorage.getItem("tayco-motion-paused") === "1";
+      userPaused = localStorage.getItem("tayco-motion-paused") === "1";
     } catch {
-      paused = false;
+      // Motion remains available when preference storage is unavailable.
     }
+    let paused = userPaused || motionPreference.matches;
 
-    const applyMotionState = (isPaused: boolean) => {
-      paused = isPaused;
-      if (isPaused) {
-        document.body.dataset.motion = "reduced";
-      } else {
-        delete document.body.dataset.motion;
-      }
-      try {
-        localStorage.setItem("tayco-motion-paused", isPaused ? "1" : "0");
-      } catch {
-        // ignore storage errors
-      }
+    const applyMotionState = () => {
+      paused = userPaused || motionPreference.matches;
+      document.body.dataset.motion = paused ? "reduced" : "full";
       window.dispatchEvent(
-        new CustomEvent("tayco:motion-state", { detail: { paused: isPaused } })
+        new CustomEvent("tayco:motion-state", { detail: { paused } })
       );
     };
 
-    applyMotionState(paused);
+    applyMotionState();
 
     let rafId = 0;
     let pointerX = 0;
@@ -82,7 +75,7 @@ export default function EditorialLivingEngine() {
         thread.style.transform = `scaleX(${progress.toFixed(4)})`;
       }
 
-      if (paused) {
+      if (paused || document.hidden) {
         if (field) {
           field.style.setProperty("--pointer-x", "0%");
           field.style.setProperty("--pointer-y", "0%");
@@ -138,12 +131,13 @@ export default function EditorialLivingEngine() {
     };
 
     const scheduleFrame = () => {
-      if (!rafId) {
+      if (!rafId && !document.hidden) {
         rafId = window.requestAnimationFrame(updateFrame);
       }
     };
 
     const handlePointerMove = (e: PointerEvent) => {
+      if (paused || document.hidden || e.pointerType === "touch") return;
       pointerX = e.clientX;
       pointerY = e.clientY;
 
@@ -173,7 +167,7 @@ export default function EditorialLivingEngine() {
     };
 
     const handlePointerDown = (e: PointerEvent) => {
-      if (paused || e.button !== 0) return;
+      if (paused || document.hidden || e.button !== 0) return;
       const target = e.target instanceof Element ? e.target : null;
       if (!target) return;
 
@@ -229,13 +223,41 @@ export default function EditorialLivingEngine() {
         typeof custom.detail?.paused === "boolean"
           ? custom.detail.paused
           : !paused;
-      applyMotionState(nextPaused);
-      if (nextPaused) {
+      userPaused = nextPaused;
+      try {
+        localStorage.setItem("tayco-motion-paused", userPaused ? "1" : "0");
+      } catch {
+        // The in-memory preference still works without local storage.
+      }
+      applyMotionState();
+      if (paused) {
         resetSurface(hoveredSurface);
         resetMagnetic(hoveredMagnetic);
       }
       scheduleFrame();
     };
+
+    const handleSystemMotion = () => {
+      applyMotionState();
+      if (paused) {
+        resetSurface(hoveredSurface);
+        resetMagnetic(hoveredMagnetic);
+      }
+      scheduleFrame();
+    };
+    const handleVisibility = () => {
+      document.body.dataset.visibility = document.hidden ? "hidden" : "visible";
+      if (document.hidden) {
+        if (rafId) window.cancelAnimationFrame(rafId);
+        rafId = 0;
+        handlePointerLeaveDocument();
+      } else {
+        scheduleFrame();
+      }
+    };
+    document.body.dataset.visibility = document.hidden ? "hidden" : "visible";
+    motionPreference.addEventListener("change", handleSystemMotion);
+    document.addEventListener("visibilitychange", handleVisibility, { signal });
 
     window.addEventListener("scroll", scheduleFrame, { signal, passive: true });
     window.addEventListener("resize", scheduleFrame, { signal, passive: true });
@@ -258,6 +280,9 @@ export default function EditorialLivingEngine() {
     return () => {
       if (rafId) window.cancelAnimationFrame(rafId);
       controller.abort();
+      motionPreference.removeEventListener("change", handleSystemMotion);
+      resetSurface(hoveredSurface);
+      resetMagnetic(hoveredMagnetic);
     };
   }, []);
 

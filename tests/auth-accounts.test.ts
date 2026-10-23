@@ -1,0 +1,47 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { acceptInvitation, createInvitation, getActor, listAccounts, provisionAdmin, sessionCookie, signIn } from '../lib/auth';
+import { database, execute } from '../lib/erp';
+import { GET, PATCH } from '../app/api/auth/accounts/route';
+
+test('administrators manage assigned access without escalation or stale overwrites', async () => {
+  const folder = mkdtempSync(path.join(tmpdir(), 'tayco-accounts-'));
+  const old = { TAYCO_AUTH_DB_PATH: process.env.TAYCO_AUTH_DB_PATH, TAYCO_ERP_DB_PATH: process.env.TAYCO_ERP_DB_PATH, TAYCO_APP_URL: process.env.TAYCO_APP_URL, TAYCO_SESSION_SECRET: process.env.TAYCO_SESSION_SECRET };
+  process.env.TAYCO_AUTH_DB_PATH = path.join(folder, 'auth.sqlite'); process.env.TAYCO_ERP_DB_PATH = path.join(folder, 'erp.sqlite'); process.env.TAYCO_APP_URL = 'https://tayco.test'; process.env.TAYCO_SESSION_SECRET = randomBytes(48).toString('hex');
+  const request = (cookie: string, body?: unknown) => new Request('https://tayco.test/api/auth/accounts', { method: body === undefined ? 'GET' : 'PATCH', headers: { origin: 'https://tayco.test', 'Content-Type': 'application/json', cookie: sessionCookie(cookie).split(';')[0] }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+  let dbOpened = false;
+  try {
+    const password = 'Isolated-account-management-password!'; await provisionAdmin('admin@example.test', password);
+    const admin = await signIn('admin@example.test', password);
+    const first = execute(admin.actor, randomUUID(), { action: 'create_project', name: 'First fixture project' }); dbOpened = true;
+    const second = execute(admin.actor, randomUUID(), { action: 'create_project', name: 'Second fixture project' });
+    const otherProject = execute({ ...admin.actor, tenantId: 'other-tenant' }, randomUUID(), { action: 'create_project', name: 'Other fixture project' });
+    const invitation = createInvitation(admin.actor, { email: 'client@example.test', role: 'client', tenantId: admin.actor.tenantId, projectIds: [first.id] });
+    const originalSession = (await acceptInvitation(invitation.token, 'client@example.test', password)).cookie;
+    const client = (await signIn('client@example.test', password)).actor;
+    const original = listAccounts(admin.actor).find(account => account.id === client.id)!;
+    const update = { id: client.id, role: 'client', projectIds: [second.id], disabled: false, accessVersion: original.accessVersion };
+    assert.equal((await GET(request(originalSession))).status, 403);
+    assert.equal((await PATCH(request(originalSession, update))).status, 403);
+    assert.equal((await PATCH(request(admin.cookie, { ...update, projectIds: [otherProject.id] }))).status, 404);
+    assert.equal((await PATCH(request(admin.cookie, { ...update, id: admin.actor.id }))).status, 403);
+    assert.equal((await PATCH(request(admin.cookie, { ...update, role: 'admin' }))).status, 403);
+    assert.equal((await PATCH(request(admin.cookie, { ...update, role: 'vendor' }))).status, 400);
+    const applied = await PATCH(request(admin.cookie, update)); assert.equal(applied.status, 200);
+    assert.equal(await getActor(request(originalSession)), null);
+    assert.deepEqual((await signIn('client@example.test', password)).actor.projectIds, [second.id]);
+    assert.equal((await PATCH(request(admin.cookie, { ...update, projectIds: [first.id] }))).status, 409);
+    const current = listAccounts(admin.actor).find(account => account.id === client.id)!;
+    assert.equal((await PATCH(request(admin.cookie, { ...update, accessVersion: current.accessVersion, disabled: true }))).status, 200);
+    await assert.rejects(signIn('client@example.test', password), /Email or password is incorrect/);
+    const suspended = listAccounts(admin.actor).find(account => account.id === client.id)!;
+    assert.equal((await PATCH(request(admin.cookie, { ...update, accessVersion: suspended.accessVersion, disabled: false }))).status, 200);
+    assert.equal((await signIn('client@example.test', password)).actor.role, 'client');
+    const listing = await (await GET(request(admin.cookie))).json(); assert.equal(listing.accounts.length, 2); assert.equal(listing.accounts.some((a: Record<string, unknown>) => 'password_hash' in a), false);
+    assert.equal(listing.accounts.find((a: { id: string }) => a.id === admin.actor.id).editable, false);
+  } finally { if (dbOpened) database().close(); for (const [key, value] of Object.entries(old)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } rmSync(folder, { recursive: true, force: true }); }
+});

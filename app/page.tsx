@@ -1,12 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { COMPANY } from "@/lib/company";
 
-type ModuleFilter = "all" | "commercial" | "financial" | "tax_investor";
+type ServiceFilter = "all" | "commercial" | "residential" | "partners";
 
 const TAYCO_SHOWCASE_CARDS: Array<{
   id: string;
-  category: Exclude<ModuleFilter, "all">;
+  category: Exclude<ServiceFilter, "all">;
   eyebrow: string;
   title: string;
   serifEm: string;
@@ -21,215 +22,206 @@ const TAYCO_SHOWCASE_CARDS: Array<{
   badgeColor: string;
 }> = [
   {
-    id: "mod-00-takeoff-pro",
-    category: "commercial",
-    eyebrow: "MOD-00 · TAKEOFF PRO v5.0 BRIDGE",
-    title: "Parametric 2D/3D Blueprint",
-    serifEm: "Precision",
-    subtitle: "Parametric 2D/3D Blueprint Precision",
-    summary:
-      "21 Rust 1.95 Kernels · 32 ARCH-D Sheets · 87 Sub-Views · $855,525.23 Son of a Star GMP",
-    metric: "21 Kernels",
-    metricLabel: "32 ARCH-D Sheets · 87 Sub-Views (:8085)",
-    href: "/portal?invite=INV-TAYCO-MASTER",
-    cta: "Launch Takeoff Pro (:8085) Bridge",
-    sparkPath: "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    stroke: "#F97316",
-    badgeColor: "#F97316",
+    "id": "service-1",
+    "category": "commercial",
+    "eyebrow": "01 / PLANNING",
+    "title": "Clear scope.",
+    "serifEm": "Better starts.",
+    "subtitle": "Planning & estimates",
+    "summary": "Share your plans, location and priorities. We help define the work before construction begins.",
+    "metric": "Scope",
+    "metricLabel": "Start with your project details",
+    "href": "/estimate",
+    "cta": "Request a free estimate",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#F97316",
+    "badgeColor": "#C9A84C"
   },
   {
-    id: "mod-01-commercial-crm",
-    category: "commercial",
-    eyebrow: "MOD-01 · COMMERCIAL CRM & 3-BID LEVELING",
-    title: "Multi-State Bid Pipeline &",
-    serifEm: "Leveling",
-    subtitle: "Multi-State Bid Pipeline & Leveling",
-    summary:
-      "$5.88M Active Commercial Pipeline · 15 Subcontractor Bids Leveled to $824,875.23 (-$30,650 Savings)",
-    metric: "$5.88M",
-    metricLabel: "15 Sub-Bids Leveled (-$30,650 Savings)",
-    href: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    cta: "Open Commercial CRM & Bid Matrix",
-    sparkPath: "M2,28 L18,24 L34,26 L50,18 L66,19 L82,11 L98,13 L114,5",
-    stroke: "#1B3A6B",
-    badgeColor: "#C9A84C",
+    "id": "service-2",
+    "category": "commercial",
+    "eyebrow": "02 / COMMERCIAL",
+    "title": "Spaces built for",
+    "serifEm": "your business.",
+    "subtitle": "Construction & renovation",
+    "summary": "Ground-up construction, design-build, tenant improvements and construction management.",
+    "metric": "Build",
+    "metricLabel": "Commercial & industrial",
+    "href": "/commercial",
+    "cta": "Explore commercial services",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#1B3A6B",
+    "badgeColor": "#C9A84C"
   },
   {
-    id: "mod-02-wh347-payroll",
-    category: "financial",
-    eyebrow: "MOD-02 · DAVIS-BACON WH-347 PAYROLL",
-    title: "Certified Field Crew",
-    serifEm: "Labor Engine",
-    subtitle: "Certified Field Crew Labor Engine",
-    summary:
-      "6,536.0 Total Man-Hours · 103.1 Crew-Days · $213,299.26 Loaded Labor across 7 CSI Crews",
-    metric: "6,536.0 MH",
-    metricLabel: "103.1 Crew-Days · $213,299.26 Loaded",
-    href: "/portal?invite=INV-CPA-FINANCE-TAX",
-    cta: "Inspect WH-347 Certified Payroll",
-    sparkPath: "M2,27 L18,23 L34,19 L50,17 L66,14 L82,10 L98,8 L114,4",
-    stroke: "#0F2040",
-    badgeColor: "#C9A84C",
+    "id": "service-3",
+    "category": "residential",
+    "eyebrow": "03 / RESIDENTIAL",
+    "title": "More life in",
+    "serifEm": "every room.",
+    "subtitle": "Renovation & additions",
+    "summary": "Kitchens, bathrooms, additions and basement finishing designed around the way you use your home.",
+    "metric": "Home",
+    "metricLabel": "Renovation & remodeling",
+    "href": "/residential",
+    "cta": "Explore residential services",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#0F2040",
+    "badgeColor": "#C9A84C"
   },
   {
-    id: "mod-03-quickbooks-aia",
-    category: "financial",
-    eyebrow: "MOD-03 · QUICKBOOKS & AIA G702/G703",
-    title: "Committed POs & Progress",
-    serifEm: "Billing",
-    subtitle: "Committed POs & Progress Billing",
-    summary:
-      "8 Long-Lead Material POs ($375,012.51) · Pay App #3 $184,892.70 Net Due · .IIF & .QBO Export",
-    metric: "$375,012.51",
-    metricLabel: "8 Material POs · Pay App #3 $184,892.70",
-    href: "/portal?invite=INV-CPA-FINANCE-TAX",
-    cta: "Open AIA G702/G703 & QuickBooks Sync",
-    sparkPath: "M2,26 L18,25 L34,20 L50,21 L66,13 L82,12 L98,7 L114,6",
-    stroke: "#C9A84C",
-    badgeColor: "#1B3A6B",
+    "id": "service-4",
+    "category": "residential",
+    "eyebrow": "04 / RESTORATION",
+    "title": "A clear route to",
+    "serifEm": "recovery.",
+    "subtitle": "Fire & water restoration",
+    "summary": "Coordinate the repair scope, documentation and reconstruction after damage to your property.",
+    "metric": "Restore",
+    "metricLabel": "Fire, water & property repairs",
+    "href": "/residential#restoration",
+    "cta": "Discuss your restoration",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#C9A84C",
+    "badgeColor": "#C9A84C"
   },
   {
-    id: "mod-04-tax-tero",
-    category: "tax_investor",
-    eyebrow: "MOD-04 · 9-STATE TAX & TRIBAL TERO",
-    title: "Material vs. Labor Tax",
-    serifEm: "Separation",
-    subtitle: "Material vs. Labor Tax Separation",
-    summary:
-      "WI · IL · IA · IN · MN · MI · MO · TX · ND + MHA Nation 2.5% TERO ($21,388.13) & 1099-NEC",
-    metric: "$21,388.13",
-    metricLabel: "9-State Tax Engine + MHA 2.5% TERO",
-    href: "/portal?invite=INV-CPA-FINANCE-TAX",
-    cta: "Verify 9-State Tax & TERO Compliance",
-    sparkPath: "M2,29 L18,24 L34,22 L50,16 L66,15 L82,11 L98,9 L114,5",
-    stroke: "#1B3A6B",
-    badgeColor: "#F97316",
+    "id": "service-5",
+    "category": "partners",
+    "eyebrow": "05 / PROPERTY OWNERS",
+    "title": "One property or",
+    "serifEm": "a portfolio.",
+    "subtitle": "Owners & property managers",
+    "summary": "Plan repairs, turnovers and renovations with a clear scope and priorities for each property.",
+    "metric": "Plan",
+    "metricLabel": "Property improvement programs",
+    "href": "/investor",
+    "cta": "Tell us about your properties",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#1B3A6B",
+    "badgeColor": "#C9A84C"
   },
   {
-    id: "mod-05-investor-dossier",
-    category: "tax_investor",
-    eyebrow: "MOD-05 · INSTITUTIONAL INVESTOR DOSSIER",
-    title: "REIT Portfolio & 7/7 Pre-Flight",
-    serifEm: "Audit",
-    subtitle: "REIT Portfolio & 7/7 Pre-Flight Audit",
-    summary:
-      "24-Week S-Curve EVM (CPI 1.04) · 10% Escrow Retainage ($51,501.13) · 369 SHA-256 Line Items",
-    metric: "CPI 1.04",
-    metricLabel: "369 SHA-256 Items · $51,501.13 Escrow",
-    href: "/portal?invite=INV-INVESTOR-PORTFOLIO",
-    cta: "Open Institutional Investor Dossier",
-    sparkPath: "M2,29 L18,26 L34,21 L50,15 L66,17 L82,9 L98,8 L114,3",
-    stroke: "#F97316",
-    badgeColor: "#0F2040",
-  },
+    "id": "service-6",
+    "category": "partners",
+    "eyebrow": "06 / TRADE PARTNERS",
+    "title": "Good work starts with",
+    "serifEm": "good people.",
+    "subtitle": "Suppliers & subcontractors",
+    "summary": "Tell us your trade, service area and availability so our team can review the right project opportunities.",
+    "metric": "Partner",
+    "metricLabel": "Trades & service coverage",
+    "href": "/vendor-application",
+    "cta": "Apply as a trade partner",
+    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
+    "stroke": "#F97316",
+    "badgeColor": "#C9A84C"
+  }
 ];
 
 const LIGHT_STUDIES = [
   {
-    index: 0,
-    code: "STUDY 001 · SHEET A-101 (1/A101) · CSI 03 30 00 CAST-IN-PLACE 4000 PSI SLAB ($145,180.00)",
-    buttonTitle:
-      "STUDY 001 · SHEET A-101 (1/A101) · CSI 03 30 00 CAST-IN-PLACE 4000 PSI SLAB ($145,180.00)",
-    label: "01 / SHEET A-101 (1/A101) · FF 50 / FL 35 TOLERANCE · $145,180.00",
-    note: "Low-angle raking illumination across Sheet A-101 (1/A101) 4000 PSI power-troweled concrete slabs and monolithic footings ($145,180.00 CSI 03 30 00 allocation) verifies sub-millimeter flatness, control-joint geometry, and vapor-barrier curing uniformity before framing mobilization.",
-    color: "#C9A84C",
-    specMetric: "Sheet A-101 · 4,000 PSI · $145,180.00",
+    "index": 0,
+    "code": "MATERIAL STUDY 01 · SURFACE",
+    "buttonTitle": "01 / Concrete & surface texture",
+    "label": "CONCRETE / SURFACE",
+    "note": "Explore how changing light reveals texture. Final material selections and finish samples are reviewed for your project.",
+    "color": "#C9A84C",
+    "specMetric": "Concrete · Texture"
   },
   {
-    index: 1,
-    code: "STUDY 002 · SHEET S-201 & A-103 · CSI 06 18 00 16× LVL RIDGE BEAMS & R-56 SPRAY FOAM ($241,200.00)",
-    buttonTitle:
-      "STUDY 002 · SHEET S-201 & A-103 · CSI 06 18 00 16× LVL RIDGE BEAMS & R-56 SPRAY FOAM ($241,200.00)",
-    label: "02 / SHEET S-201 & A-103 · 16× LVL RIDGE BEAMS & R-56 ENVELOPE · $241,200.00",
-    note: "Oblique inspection across Sheets S-201 & A-103 engineered 1-3/4\"×14\" LVL structural ridge beams, Simpson HDU8 hold-downs, and closed-cell R-56 spray foam envelope verifies thermal-bridge isolation across Wisconsin, Minnesota, and North Dakota winter loads.",
-    color: "#4A90D9",
-    specMetric: "Sheets S-201 & A-103 · R-56 · $241,200.00",
+    "index": 1,
+    "code": "MATERIAL STUDY 02 · STRUCTURE",
+    "buttonTitle": "02 / Timber & structure",
+    "label": "TIMBER / STRUCTURE",
+    "note": "Light and shadow give form to structural rhythm. Discuss framing, detailing and finishes with the team for your space.",
+    "color": "#4A90D9",
+    "specMetric": "Timber · Structure"
   },
   {
-    index: 2,
-    code: "STUDY 003 · SHEET C-500 & PR-5 · CSI 31 23 16 8.5-FT ARCTIC FROST-BURY & GAZEBOS ($208,800.00)",
-    buttonTitle:
-      "STUDY 003 · SHEET C-500 & PR-5 · CSI 31 23 16 8.5-FT ARCTIC FROST-BURY & GAZEBOS ($208,800.00)",
-    label: "03 / SHEET C-500 & PR-5 · 8.5-FT ARCTIC FROST-BURY & GAZEBOS · $208,800.00",
-    note: "High-visibility OSHA field telemetry across Civil Sheets C-500 & PR-5 tracks 8.5-ft North Dakota sub-zero frost-bury utility trenching, E-One grinder pump stations, and heavy timber octagon gazebos ($208,800.00 verified in Takeoff Pro :8085).",
-    color: "#F97316",
-    specMetric: "Sheets C-500 & PR-5 · 8.5' Bury · $208,800.00",
-  },
+    "index": 2,
+    "code": "MATERIAL STUDY 03 · DETAIL",
+    "buttonTitle": "03 / Shape & detail",
+    "label": "DETAIL / CRAFT",
+    "note": "Small details shape how a space feels. This interactive material study is a visual illustration, not an inspection or construction specification.",
+    "color": "#F97316",
+    "specMetric": "Shape · Detail"
+  }
 ];
 
-const VERIFIED_CONTRACTS = [
+const PROJECT_STEPS = [
   {
-    code: "PRJ-ND-001",
-    name: "Son of a Star 8-Cabin Casino Resort",
-    location: "New Town, ND · MHA Nation",
-    division: "Commercial & Hospitality Ground-Up",
-    sqft: "5,640 sq.ft. (8 Cabins + 2 Gazebos)",
-    gmp: "$855,525.23",
-    takeoffSpec: "32 ARCH-D Sheets · 87 Sub-Views (:8085)",
-    status: "Active Field Execution · CPI 1.04",
-    portalHref: "/portal?invite=INV-TAYCO-MASTER",
-    estimateHref: "/estimate?project=PRJ-ND-001",
-    accent: "#C9A84C",
+    "code": "01",
+    "name": "Tell us what matters",
+    "location": "Project goals",
+    "division": "Location, scope & priorities",
+    "sqft": "Start a conversation",
+    "headline": "Share your project",
+    "phase": "Initial inquiry",
+    "status": "Initial inquiry",
+    "requestHref": "/estimate",
+    "loginHref": "/login",
+    "accent": "#C9A84C"
   },
   {
-    code: "PRJ-WI-002",
-    name: "Park Tower Mixed-Use Structural & TI",
-    location: "Milwaukee, WI",
-    division: "Commercial Structural & Interior TI",
-    sqft: "14,200 sq.ft.",
-    gmp: "$389,192.50",
-    takeoffSpec: "CSI 03 / 05 / 09 Core & Acoustic Assembly",
-    status: "Active Execution · Pay App #2 Certified",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-WI-002",
-    accent: "#4A90D9",
+    "code": "02",
+    "name": "Define the work",
+    "location": "Scope & site review",
+    "division": "Plans, photos & existing conditions",
+    "sqft": "Review requirements",
+    "headline": "Agree on the scope",
+    "phase": "Planning",
+    "status": "Planning",
+    "requestHref": "/estimate",
+    "loginHref": "/login",
+    "accent": "#4A90D9"
   },
   {
-    code: "PRJ-WI-003",
-    name: "Wisconsin Ave Medical TI",
-    location: "Madison, WI",
-    division: "Clinical & Surgical Tenant Improvement",
-    sqft: "11,800 sq.ft.",
-    gmp: "$1,240,000.00",
-    takeoffSpec: "CSI 09 / 10 / 22 / 26 Medical-Grade TI",
-    status: "GMP Locked · 3-Bid Leveling Complete",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-WI-003",
-    accent: "#C9A84C",
+    "code": "03",
+    "name": "Make informed choices",
+    "location": "Materials & budget",
+    "division": "Selections, allowances & exclusions",
+    "sqft": "Review your proposal",
+    "headline": "Written proposal",
+    "phase": "Estimate review",
+    "status": "Estimate review",
+    "requestHref": "/estimate",
+    "loginHref": "/login",
+    "accent": "#C9A84C"
   },
   {
-    code: "PRJ-IL-004",
-    name: "Chicago O'Hare Cold-Storage",
-    location: "Des Plaines, IL",
-    division: "Industrial Thermal Envelope & FF50 Slab",
-    sqft: "42,500 sq.ft.",
-    gmp: "$2,480,000.00",
-    takeoffSpec: "CSI 03 30 00 Laser Slab & CSI 07 R-49 IMP",
-    status: "Committed Long-Lead Steel & IMP POs",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-IL-004",
-    accent: "#10B981",
+    "code": "04",
+    "name": "Coordinate the build",
+    "location": "Construction & communication",
+    "division": "Schedule, milestones & changes",
+    "sqft": "Keep the work connected",
+    "headline": "Project delivery",
+    "phase": "Construction",
+    "status": "Construction",
+    "requestHref": "/estimate",
+    "loginHref": "/login",
+    "accent": "#10B981"
   },
   {
-    code: "PRJ-TX-005",
-    name: "Dallas 48-Unit Multi-Family Rehab",
-    location: "Dallas, TX",
-    division: "Multi-Family CapEx & IICRC Envelope",
-    sqft: "38,400 sq.ft.",
-    gmp: "$920,000.00",
-    takeoffSpec: "CSI 06 / 07 / 08 / 09 Turnkey Unit Matrix",
-    status: "Phase II Mobilization · 9-State Tax Synced",
-    portalHref: "/portal?invite=INV-INVESTOR-PORTFOLIO",
-    estimateHref: "/estimate?project=PRJ-TX-005",
-    accent: "#F97316",
-  },
+    "code": "05",
+    "name": "Finish with clarity",
+    "location": "Review & handover",
+    "division": "Walk-through, final details & records",
+    "sqft": "Confirm completion",
+    "headline": "Finished space",
+    "phase": "Closeout",
+    "status": "Closeout",
+    "requestHref": "/estimate",
+    "loginHref": "/login",
+    "accent": "#F97316"
+  }
 ];
 
 export default function Home() {
   const [hovered, setHovered] = useState<"commercial" | "residential" | null>(
     null
   );
-  const [activeFilter, setActiveFilter] = useState<ModuleFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
   const [activeStudy, setActiveStudy] = useState<number>(0);
   const [lightAngle, setLightAngle] = useState<number>(45);
 
@@ -268,6 +260,7 @@ export default function Home() {
         } as React.CSSProperties
       }
     >
+      <h1 className="sr-only">{COMPANY.name} · Construction, renovation &amp; restoration</h1>
       {/* ── SPLIT HERO 50/50 WITH ORBITAL EDITORIAL STAMP ── */}
       <div
         className="relative flex-1 flex flex-col md:flex-row overflow-hidden"
@@ -317,7 +310,7 @@ export default function Home() {
               style={{ color: "#F3D37A" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              ★ Primary Division · CSI-32 &amp; Takeoff Pro (:8085)
+              ★ Primary Service · Commercial Construction
             </div>
 
             <div className="text-5xl mb-3">🏢</div>
@@ -340,7 +333,7 @@ export default function Home() {
                 className="tayco-serif-em text-sm"
                 style={{ color: "#F3D37A" }}
               >
-                Executive TI
+                Tenant Improvements
               </em>
             </p>
 
@@ -394,7 +387,7 @@ export default function Home() {
               </defs>
               <text>
                 <textPath href="#tayco-orbit-path" startOffset="0%">
-                  TAYCO CONCRETE &amp; CONSTRUCTION · EST. 1995 · 9 STATES ·
+                  TAYCO LLC · CONSTRUCTION &amp; RENOVATION · 8 STATES ·
                 </textPath>
               </text>
             </svg>
@@ -436,7 +429,7 @@ export default function Home() {
               }}
             >
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              Residential Division · 24/7 IICRC Restoration
+              Residential Division · Fire & Water Restoration
             </div>
 
             <div className="text-5xl mb-3">🏠</div>
@@ -482,7 +475,7 @@ export default function Home() {
           </div>
         </Link>
 
-        {/* Floating TAYCO Executive Dock */}
+        {/* Project services and resources */}
         <div
           className="hidden xl:flex items-center gap-3 px-5 py-2.5 rounded-full border backdrop-blur-md shadow-2xl absolute bottom-4 left-1/2 -translate-x-1/2 z-20"
           style={{
@@ -492,29 +485,29 @@ export default function Home() {
         >
           <span className="tayco-live-dot" style={{ color: "#F97316" }} />
           <span className="text-[11px] font-mono text-slate-200 font-semibold">
-            TAYCO EXECUTIVE DOCK · 9-State Operations + Takeoff Pro (:8085)
+            YOUR NEXT PROJECT STARTS HERE
           </span>
           <Link
-            href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+            href="/login"
             className="text-[11px] font-mono font-bold hover:text-white underline"
             style={{ color: "#F3D37A" }}
           >
-            Commercial Bid Pipeline
+            Client sign in
           </Link>
           <span className="text-slate-500">·</span>
           <Link
-            href="/portal?invite=INV-CPA-FINANCE-TAX"
+            href="/login"
             className="text-[11px] font-mono font-bold hover:text-white underline"
             style={{ color: "#F97316" }}
           >
-            WH-347 &amp; Tax Suite
+            Team & supplier sign in
           </Link>
           <span className="text-slate-500">·</span>
           <Link
             href="/estimate"
             className="text-[11px] font-mono font-bold text-white hover:text-amber-300 underline"
           >
-            CSI-32 Calculator
+            Request an estimate
           </Link>
         </div>
       </div>
@@ -527,32 +520,32 @@ export default function Home() {
         <div>
           <span className="gold">Precision Commercial Execution</span>
           <i aria-hidden="true">✳</i>
-          <span>Multi-State Field Governance</span>
+          <span>Commercial & Residential</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Real-Time Takeoff Pro (:8085) CSI-32 Telemetry</span>
+          <span className="gold">Clear scopes. Thoughtful construction.</span>
           <i aria-hidden="true">✳</i>
-          <span>24/7 IICRC Certified Restoration</span>
+          <span>Fire & Water Restoration</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
           <span className="gold">Precision Commercial Execution</span>
           <i aria-hidden="true">✳</i>
-          <span>Multi-State Field Governance</span>
+          <span>Commercial & Residential</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Real-Time Takeoff Pro (:8085) CSI-32 Telemetry</span>
+          <span className="gold">Clear scopes. Thoughtful construction.</span>
           <i aria-hidden="true">✳</i>
-          <span>24/7 IICRC Certified Restoration</span>
+          <span>Fire & Water Restoration</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
         </div>
       </div>
 
-      {/* ── EXECUTIVE ERP & MULTI-TENANT PORTAL RIBBON ── */}
+      {/* Project services and resources */}
       <section
         id="home-erp-suite-ribbon"
         className="border-b px-4 sm:px-8 py-5 relative z-10"
@@ -567,7 +560,7 @@ export default function Home() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
               <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
                 <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                ★ TAYCO ENTERPRISE SUITE &amp; TAKEOFF PRO v5.0 (:8085)
+                TAYCO LLC · FULL-SERVICE CONSTRUCTION
               </span>
               <span
                 className="text-xs font-mono font-bold px-2 py-0.5 rounded"
@@ -576,23 +569,23 @@ export default function Home() {
                   color: "#F3D37A",
                 }}
               >
-                WI · IL · IA · IN · MN · MI · MO · TX · ND
+                {COMPANY.coverage}
               </span>
             </div>
             <p className="text-white font-bold text-sm sm:text-base">
-              Multi-Tenant Client Portal · Module-Scoped Invitations · CRM ·
-              Davis-Bacon WH-347 Payroll · QuickBooks · 9-State Tax Engine
+              Commercial construction, home renovations and restoration.
+              Tell us what you need and where you need it.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             <Link
-              href="/portal"
+              href="/login"
               data-magnetic
               className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-transform hover:scale-105 shadow-md"
               style={{ background: "#C9A84C", color: "#070E1A" }}
             >
-              🏛️ Open Multi-Tenant Command Center →
+              Project portal sign in →
             </Link>
             <Link
               href="/estimate"
@@ -600,10 +593,10 @@ export default function Home() {
               className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white border transition-colors hover:bg-white/10"
               style={{ borderColor: "rgba(201,168,76,0.55)" }}
             >
-              🧮 Instant Cost Estimator
+              Request a free estimate
             </Link>
             <Link
-              href="/portal?builder=1"
+              href="/login"
               data-magnetic
               className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-white border transition-colors"
               style={{
@@ -611,7 +604,7 @@ export default function Home() {
                 borderColor: "rgba(249, 115, 22, 0.55)",
               }}
             >
-              🎟️ Module Invite Builder
+              Trade partner sign in
             </Link>
           </div>
         </div>
@@ -651,13 +644,13 @@ export default function Home() {
               style={{ color: "#1B3A6B" }}
             >
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / OPEN CAPABILITY COLLECTION
+              01 / WHAT WE CAN BUILD TOGETHER
             </span>
             <span
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#1B3A6B" }}
             >
-              TAYCO EXECUTIVE COMMAND · LIVE TAKEOFF PRO (:8085) TELEMETRY
+              CONSTRUCTION · RENOVATION · RESTORATION
             </span>
           </div>
 
@@ -684,10 +677,8 @@ export default function Home() {
                 className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
                 style={{ color: "#334155" }}
               >
-                Every field estimate, subcontractor 3-bid leveling matrix,
-                Davis-Bacon WH-347 payroll log, and REIT draw schedule
-                synchronizes directly with our 6-module TAYCO Executive Command
-                Center and Takeoff Pro (:8085).
+                From a single room to a commercial property, find the right team for the work.
+                Explore our services or tell us about your project.
               </p>
             </div>
 
@@ -695,21 +686,21 @@ export default function Home() {
             <div
               className="flex flex-wrap items-center gap-2"
               role="group"
-              aria-label="Filter TAYCO Executive Command Modules"
+              aria-label="Filter TAYCO services"
             >
               {[
-                { id: "all", label: "All Modules", count: "06" },
+                { id: "all", label: "All services", count: "06" },
                 {
                   id: "commercial",
-                  label: "Commercial & Takeoff",
+                  label: "Commercial",
                   count: "02",
                 },
                 {
-                  id: "financial",
-                  label: "Financial & Payroll",
+                  id: "residential",
+                  label: "Home & restoration",
                   count: "02",
                 },
-                { id: "tax_investor", label: "Tax & Investor", count: "02" },
+                { id: "partners", label: "Property & partners", count: "02" },
               ].map((pill) => {
                 const active = activeFilter === pill.id;
                 return (
@@ -718,7 +709,7 @@ export default function Home() {
                     type="button"
                     data-magnetic
                     aria-pressed={active}
-                    onClick={() => setActiveFilter(pill.id as ModuleFilter)}
+                    onClick={() => setActiveFilter(pill.id as ServiceFilter)}
                     className="px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer border"
                     style={{
                       background: active ? "#0F2040" : "rgba(255,255,255,0.75)",
@@ -741,7 +732,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 6 Real Executive Command Module Cards */}
+          {/* Project services and resources */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCards.map((card) => (
               <div
@@ -892,10 +883,10 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              02 / ARCHITECTURAL LIGHT &amp; SURFACE INSPECTOR
+              02 / MATERIALS IN A DIFFERENT LIGHT
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
-              TAKEOFF PRO (:8085) ARCH-D BLUEPRINT SHEET VERIFICATION
+              AN INTERACTIVE MATERIAL STUDY
             </span>
           </div>
 
@@ -915,13 +906,10 @@ export default function Home() {
                 </em>
               </h2>
               <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                Select an audited ARCH-D sheet study from{" "}
-                <span className="font-mono text-amber-300">Takeoff Pro (:8085)</span>{" "}
-                and sweep the raking light incidence angle from{" "}
+                Choose a material study and move the light from{" "}
                 <span className="font-mono text-amber-300">0°</span> to{" "}
                 <span className="font-mono text-amber-300">90°</span> to inspect
-                surface relief, thermal envelope continuity, and OSHA field
-                telemetry.
+                texture, form and shadow. Use this illustration to start a conversation about your finishes.
               </p>
 
               {/* 3 Study Switcher Buttons */}
@@ -1100,7 +1088,7 @@ export default function Home() {
                     className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105 text-center"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
-                    Run CSI-32 Takeoff →
+                    Discuss your project →
                   </Link>
                 </div>
               </div>
@@ -1109,7 +1097,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 03 / VERIFIED MULTI-STATE COMMERCIAL & RESIDENTIAL TRACK RECORD ── */}
+      {/* Project services and resources */}
       <section
         id="tayco-verified-track-record"
         className="py-16 sm:py-24 px-4 sm:px-8 border-t relative z-10"
@@ -1123,10 +1111,10 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#10B981" }} />
-              03 / VERIFIED MULTI-STATE COMMERCIAL &amp; RESIDENTIAL TRACK RECORD
+              03 / FROM FIRST CONVERSATION TO FINISHED SPACE
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
-              $5,884,717.73 ACTIVE GMP PORTFOLIO · 5 AUDITED CONTRACTS
+              A CLEAR PATH FOR YOUR PROJECT
             </span>
           </div>
 
@@ -1139,40 +1127,39 @@ export default function Home() {
                   lineHeight: 1.05,
                 }}
               >
-                Five active contracts anchored in{" "}
+                Good projects begin with{" "}
                 <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                  Takeoff Pro (:8085).
+                  a shared plan.
                 </em>
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl leading-relaxed">
-                Every contract below is backed by SHA-256 CSI-32 line items,
-                certified WH-347 field labor logs, and AIA G702/G703 progress
-                billing inside the TAYCO Multi-Tenant Command Center.
+                Here is how we approach a project. The specific scope, schedule and responsibilities
+                are agreed with you before work begins.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/portal?invite=INV-TAYCO-MASTER"
+                href="/estimate"
                 data-magnetic
                 className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-transform hover:scale-105"
                 style={{ background: "#C9A84C", color: "#070E1A" }}
               >
-                Open Full Portfolio Ledger →
+                Start a project conversation →
               </Link>
               <Link
-                href="/estimate"
+                href="/login"
                 data-magnetic
                 className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white border hover:bg-white/10 transition-colors"
                 style={{ borderColor: "rgba(201, 168, 76, 0.5)" }}
               >
-                Launch CSI-32 Estimator →
+                Existing client sign in →
               </Link>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {VERIFIED_CONTRACTS.map((contract) => (
+            {PROJECT_STEPS.map((contract) => (
               <div
                 key={contract.code}
                 data-response-kind="surface"
@@ -1202,8 +1189,8 @@ export default function Home() {
                       {contract.code}
                     </span>
                     <Link
-                      href={contract.portalHref}
-                      aria-label={`Inspect ${contract.code} in Command Center`}
+                      href={contract.requestHref}
+                      aria-label={`Discuss ${contract.name.toLowerCase()}`}
                       className="project-open"
                     >
                       ↗
@@ -1217,7 +1204,7 @@ export default function Home() {
                     {contract.location} · {contract.sqft}
                   </div>
                   <p className="text-xs text-slate-300 mt-2.5 leading-relaxed">
-                    {contract.division} — {contract.takeoffSpec}
+                    {contract.division} — {contract.phase}
                   </p>
                 </div>
 
@@ -1228,7 +1215,7 @@ export default function Home() {
                         className="text-2xl font-black font-mono"
                         style={{ color: "#F3D37A" }}
                       >
-                        {contract.gmp}
+                        {contract.headline}
                       </div>
                       <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-300">
                         {contract.status}
@@ -1238,20 +1225,20 @@ export default function Home() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <Link
-                      href={contract.portalHref}
+                      href={contract.requestHref}
                       data-magnetic
                       className="px-3 py-2 rounded-xl text-[11px] font-black text-center transition-transform hover:scale-105"
                       style={{ background: "#C9A84C", color: "#070E1A" }}
                     >
-                      Command Portal →
+                      Request an estimate →
                     </Link>
                     <Link
-                      href={contract.estimateHref}
+                      href={contract.loginHref}
                       data-magnetic
                       className="px-3 py-2 rounded-xl text-[11px] font-bold text-center text-white border hover:bg-white/10 transition-colors"
                       style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
                     >
-                      CSI-32 Takeoff →
+                      Client sign in →
                     </Link>
                   </div>
                 </div>
@@ -1277,18 +1264,17 @@ export default function Home() {
               <div className="relative z-10">
                 <div className="tayco-eyebrow mb-3" style={{ color: "#FDBA74" }}>
                   <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                  9-STATE RAPID MOBILIZATION
+                  SERVING EIGHT STATES
                 </div>
                 <h3 className="text-xl font-black text-white leading-snug">
-                   $5,884,717.73 Active Pipeline{" "}
+                   Your next project{" "}
                   <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                    Across 9 States
+                    Across 8 States
                   </em>
                 </h3>
                 <p className="text-xs text-slate-200 mt-2.5 leading-relaxed">
-                  Headquartered in the Midwest with active commercial and
-                  residential crews deployed across WI, IL, IA, IN, MN, MI, MO,
-                  TX, and ND (MHA Nation Tribal TERO).
+                  We serve WI, IL, IA, IN, MN, MI, MO and TX.
+                  Contact us to confirm your location, project scope and scheduling.
                 </p>
               </div>
 
@@ -1308,7 +1294,7 @@ export default function Home() {
                   className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black text-white"
                   style={{ background: "#F97316" }}
                 >
-                  <span>Explore Residential &amp; 24/7 IICRC</span>
+                  <span>Explore Residential Services</span>
                   <span>→</span>
                 </Link>
               </div>

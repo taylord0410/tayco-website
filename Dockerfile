@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for Next.js Standalone
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # 1. Install dependencies only when needed
 FROM base AS deps
@@ -8,6 +8,10 @@ WORKDIR /app
 
 COPY package.json package-lock.json* ./
 RUN npm ci
+
+# Private operator commands use the same production dependencies as the server.
+FROM deps AS runtime-deps
+RUN npm prune --omit=dev
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
@@ -33,13 +37,17 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir -p .next .data
+RUN chown nextjs:nodejs .next .data
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=runtime-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
 
 USER nextjs
 

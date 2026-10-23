@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type ResidentialCategory =
   | "all"
@@ -15,7 +16,7 @@ interface ResidentialTradeCard {
   title: string;
   category: Exclude<ResidentialCategory, "all">;
   unitRate: string;
-  takeoffBenchmark: string;
+  planningNote: string;
   accent: string;
   summary: string;
   items: string[];
@@ -23,165 +24,149 @@ interface ResidentialTradeCard {
 
 const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   {
-    num: "01",
-    csiCode: "CSI 07 31 00",
-    title:
-      "01 · CSI 07 31 00 — Architectural Shingle, Cedar Shake & Standing Seam Roofing",
-    category: "envelope_structural",
-    unitRate: "$6.80–$16.50 / sq.ft.",
-    takeoffBenchmark: "54.2 MH / Unit Audited (:8085)",
-    accent: "#1B3A6B",
-    summary:
-      "Class-4 impact-resistant architectural shingles, 24-gauge standing seam metal roofs, high-temp ice & water shield, and seamless gutter assemblies.",
-    items: [
-      "Owens Corning & GAF Class-4 Impact Architectural Shingles",
-      "24-Gauge Residential Standing Seam & Stone-Coated Steel",
-      "Cedar Shake, Synthetic Slate & Copper Valley Flashing",
-      "High-Temp Ice & Water Shield Eave & Valley Protection",
-      "R-49 Attic Blown-In & Baffled Ridge-Ventilation Systems",
-      "Seamless 6\" K-Style Aluminum Gutters & Storm Hail Rebuild",
-    ],
+    "num": "01",
+    "csiCode": "Roofing",
+    "title": "Roofing",
+    "category": "envelope_structural",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#C9A84C",
+    "summary": "Repair or replace the roof with materials and details suited to your home.",
+    "items": [
+      "Shingles, metal and other roof options",
+      "Soffit and fascia",
+      "Gutters and downspouts",
+      "Leak and storm damage repairs",
+      "Ventilation and flashing review",
+      "Roof condition assessment"
+    ]
   },
   {
-    num: "02",
-    csiCode: "CSI 07 46 00",
-    title:
-      "02 · CSI 07 46 00 — James Hardie Fiber Cement, Engineered Wood & Siding",
-    category: "envelope_structural",
-    unitRate: "$11.50–$24.00 / sq.ft.",
-    takeoffBenchmark: "62.0 MH / Unit Audited (:8085)",
-    accent: "#1B3A6B",
-    summary:
-      "ColorPlus James Hardie fiber-cement lap and board-and-batten siding, LP SmartSide engineered wood, and continuous R-10 exterior insulation.",
-    items: [
-      "James Hardie Plank Lap & Artisan Board-and-Batten Siding",
-      "LP SmartSide Engineered Wood & Natural Western Red Cedar",
-      "Insulated Vinyl Siding & Composite Architectural Trim",
-      "Tyvek DrainWrap & Continuous Exterior Foam Sheathing",
-      "Vented Aluminum & Fiber-Cement Soffit and Fascia Wraps",
-      " Andersen / Pella Low-E Argon Window & Door Flashing Integration",
-    ],
+    "num": "02",
+    "csiCode": "Exterior",
+    "title": "Siding, windows & doors",
+    "category": "envelope_structural",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#1B3A6B",
+    "summary": "Refresh the exterior while addressing weather protection and existing conditions.",
+    "items": [
+      "Vinyl and fiber-cement siding",
+      "Engineered wood and cedar",
+      "Exterior trim",
+      "Window and door coordination",
+      "Soffit and fascia",
+      "Repair and replacement planning"
+    ]
   },
   {
-    num: "03",
-    csiCode: "CSI 06 11 00",
-    title:
-      "03 · CSI 06 11 00 — Residential Platform Framing, LVL Headers & Additions",
-    category: "envelope_structural",
-    unitRate: "$18.00–$38.00 / sq.ft.",
-    takeoffBenchmark: "118.4 MH / Unit Audited (:8085)",
-    accent: "#C9A84C",
-    summary:
-      "2x6 structural platform framing, 1-3/4\"×14\" LVL structural ridge beams, open-concept load-bearing wall removals, and full home additions.",
-    items: [
-      "2x6 Exterior Cold-Climate Stud Walls & ZIP System Sheathing",
-      "1-3/4\"×14\" Engineered LVL Ridge Beams & Open-Span Headers",
-      "Engineered Floor Trusses, TJI Joists & Advantech Subfloors",
-      "Simpson Strong-Tie Hurricane Clips & HDU8 Hold-Downs",
-      "Second-Story Home Additions, Sunrooms & Dormer Expansions",
-      "Custom Timber Frame Porches, Decks & Octagon Gazebos",
-    ],
+    "num": "03",
+    "csiCode": "Framing",
+    "title": "Framing & additions",
+    "category": "envelope_structural",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#1B3A6B",
+    "summary": "Create more usable space with framing and additions coordinated around your home.",
+    "items": [
+      "Home additions",
+      "Wall and roof framing",
+      "Floor systems",
+      "Structural headers",
+      "Porches and decks",
+      "Engineering review where required"
+    ]
   },
   {
-    num: "04",
-    csiCode: "CSI 09 29 00",
-    title:
-      "04 · CSI 09 29 00 — Level-4/Level-5 Drywall, Moisture-Shield & Acoustic Ceilings",
-    category: "interiors_carpentry",
-    unitRate: "$4.20–$9.80 / sq.ft.",
-    takeoffBenchmark: "48.5 MH / Unit Audited (:8085)",
-    accent: "#1B3A6B",
-    summary:
-      "Smooth Level-4 and Level-5 residential drywall, mold/moisture-resistant bath and basement boards, and acoustic theater/bedroom isolation.",
-    items: [
-      "GA-214 Level-4 & Level-5 Smooth Architectural Wall Finishes",
-      "Purple Mold & Moisture-Resistant Bathroom & Basement Board",
-      "5/8\" Type-X Fire-Rated Garage-to-Living Separation Walls",
-      "STC 52+ Sound-Dampening Home Office & Media Room Walls",
-      "Custom Coffered, Tray & Vaulted Drywall Ceiling Framing",
-      "Seamless Water-Damage Drywall Patching & Texture Matching",
-    ],
+    "num": "04",
+    "csiCode": "Interiors",
+    "title": "Drywall & interior finishes",
+    "category": "interiors_carpentry",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#C9A84C",
+    "summary": "Finish new spaces and restore existing rooms with coordinated drywall and painting.",
+    "items": [
+      "Drywall installation",
+      "Moisture-resistant board",
+      "Smooth and textured finishes",
+      "Repair and patching",
+      "Ceiling details",
+      "Painting and final touch-ups"
+    ]
   },
   {
-    num: "05",
-    csiCode: "CSI 06 41 00",
-    title:
-      "05 · CSI 06 41 00 — Custom Kitchen Cabinetry, Bath Vanities & Finish Carpentry",
-    category: "interiors_carpentry",
-    unitRate: "$145.00–$320.00 / lin.ft.",
-    takeoffBenchmark: "52.0 MH / Unit Audited (:8085)",
-    accent: "#C9A84C",
-    summary:
-      "Solid-wood dovetail kitchen cabinetry, quartz countertops, custom bath vanities, wainscoting, crown molding, and hardwood stair systems.",
-    items: [
-      "Solid-Wood Dovetail Soft-Close Kitchen & Pantry Cabinetry",
-      "Custom Double-Sink Bathroom Vanities & Linen Towers",
-      "3cm Quartz, Granite & Butcher-Block Countertop Fabrication",
-      "Architectural Crown Molding, Wainscoting & Coffered Trim",
-      "Solid-Core Interior Doors, Casing & Built-In Mudroom Lockers",
-      "Red/White Oak Stair Treads, Risers & Wrought-Iron Balusters",
-    ],
+    "num": "05",
+    "csiCode": "Carpentry",
+    "title": "Kitchens, baths & carpentry",
+    "category": "interiors_carpentry",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#1B3A6B",
+    "summary": "Bring storage, fixtures and finishes together around the way your household lives.",
+    "items": [
+      "Kitchen cabinetry",
+      "Bathroom vanities",
+      "Trim and molding",
+      "Built-in storage",
+      "Countertop coordination",
+      "Stairs and finish carpentry"
+    ]
   },
   {
-    num: "06",
-    csiCode: "CSI 03 30 00",
-    title:
-      "06 · CSI 03 30 00 — Residential Foundations, 4000 PSI Driveways & Stamped Patios",
-    category: "envelope_structural",
-    unitRate: "$9.50–$22.00 / sq.ft.",
-    takeoffBenchmark: "46.8 MH / Unit Audited (:8085)",
-    accent: "#1B3A6B",
-    summary:
-      "Full-depth frost footings, 4000 PSI air-entrained concrete driveways, heated garage slabs, basement egress walls, and stamped patios.",
-    items: [
-      "Poured Concrete Basement Walls & 42\"–102\" Frost Footings",
-      "4000 PSI Air-Entrained Reinforced Concrete Driveways",
-      "Vapor-Barrier Basement & Heated Garage Monolithic Slabs",
-      "Decorative Stamped, Colored & Exposed-Aggregate Patios",
-      "Architectural Steps, Stoops & Retaining Wall Systems",
-      "Epoxy Flake Garage Flooring & Polyurea Crack Injection",
-    ],
+    "num": "06",
+    "csiCode": "Concrete",
+    "title": "Concrete & foundations",
+    "category": "envelope_structural",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#1B3A6B",
+    "summary": "Plan practical concrete improvements from foundations to outdoor living areas.",
+    "items": [
+      "Foundations and basement slabs",
+      "Driveways and garage slabs",
+      "Patios and walkways",
+      "Steps and stoops",
+      "Decorative concrete options",
+      "Concrete repair"
+    ]
   },
   {
-    num: "07",
-    csiCode: "IICRC S500 / S520",
-    title:
-      "07 · IICRC S500 / S520 — 24/7 Certified Fire, Water, Smoke & Mold Restoration",
-    category: "restoration_turnkey",
-    unitRate: "24/7 Rapid Dispatch",
-    takeoffBenchmark: "IICRC + Takeoff Pro (:8085)",
-    accent: "#F97316",
-    summary:
-      "Immediate emergency water extraction, structural psychrometric drying, fire/soot remediation, mold containment, and full insurance rebuild.",
-    items: [
-      "24/7 Emergency Water Extraction & Structural Dehumidification",
-      "Burst Pipe, Sump Failure & Basement Flood Recovery",
-      "Fire, Smoke, Soot & Thermal Odor Structural Remediation",
-      "IICRC S520 HEPA Negative-Air Mold Remediation Protocols",
-      "Direct Insurance Adjuster Xactimate + Takeoff Pro Documentation",
-      "Complete Pre-Loss & Code-Upgraded Residential Reconstruction",
-    ],
+    "num": "07",
+    "csiCode": "Restoration",
+    "title": "Fire & water restoration",
+    "category": "restoration_turnkey",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#F97316",
+    "summary": "Coordinate damage assessment, repairs and rebuilding after a loss.",
+    "items": [
+      "Fire and smoke damage assessment",
+      "Water extraction and structural drying",
+      "Flood and pipe-burst damage",
+      "Soot and smoke repairs",
+      "Insurance documentation support",
+      "Home reconstruction"
+    ]
   },
   {
-    num: "08",
-    csiCode: "CSI 01 31 00",
-    title:
-      "08 · CSI 01 31 00 — Turnkey Whole-Home Remodeling, Basements & Multi-Unit Rehab",
-    category: "restoration_turnkey",
-    unitRate: "$95.00–$185.00 / sq.ft.",
-    takeoffBenchmark: "$106,940.65 / Unit ($151.69/sf)",
-    accent: "#C9A84C",
-    summary:
-      "Turnkey kitchen and bath transformations, legal egress basement finishing, and multi-cabin / multi-family investor CapEx rehabs.",
-    items: [
-      "Turnkey Luxury Kitchen & Spa Bathroom Transformations",
-      "Finished Basements with Egress Windows, Wet Bars & Baths",
-      "$106,940.65 Audited Cabin/Unit Benchmark ($151.69/sq.ft. :8085)",
-      "436.3 Field Man-Hours per Turnkey Residential Unit",
-      "Investor Flip, BRRRR & Multi-Family Unit Turnover Programs",
-      "Single-Point Permitting, MEP Coordination & Final Walkthrough",
-    ],
-  },
+    "num": "08",
+    "csiCode": "Renovation",
+    "title": "Whole-home renovation",
+    "category": "restoration_turnkey",
+    "unitRate": "Estimate by project",
+    "planningNote": "Scope, selections and schedule reviewed with you",
+    "accent": "#1B3A6B",
+    "summary": "Coordinate rooms, trades and priorities within one renovation plan.",
+    "items": [
+      "Kitchen and bathroom remodeling",
+      "Home additions",
+      "Basement finishing",
+      "Property rehabilitation",
+      "Rental unit turnovers",
+      "Bank-owned property repairs"
+    ]
+  }
 ];
 
 export default function ResidentialPage() {
@@ -207,7 +192,7 @@ export default function ResidentialPage() {
         } as React.CSSProperties
       }
     >
-      {/* ── CABECERA EXECUTIVE COMMAND RESIDENCIAL (#0F2040 -> #1B3A6B) ── */}
+      {/* Project services and resources */}
       <section
         id="residential-executive-hero"
         className="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-8 border-b"
@@ -251,7 +236,7 @@ export default function ResidentialPage() {
                   </defs>
                   <text>
                     <textPath href="#residential-orbit-path" startOffset="0%">
-                      TAYCO RESIDENTIAL · 2,300+ HOMES · 24/7 IICRC ·
+                      TAYCO RESIDENTIAL · YOUR HOME · OUR PRIORITY ·
                     </textPath>
                   </text>
                 </svg>
@@ -267,7 +252,7 @@ export default function ResidentialPage() {
                     className="tayco-live-dot"
                     style={{ color: "#F97316" }}
                   />
-                  TAYCO RESIDENTIAL &amp; 24/7 IICRC RESTORATION COMMAND
+                  RESIDENTIAL RENOVATION &amp; RESTORATION
                 </div>
                 <h1
                   className="font-black text-white tracking-tight"
@@ -278,7 +263,7 @@ export default function ResidentialPage() {
                 >
                   Your Home.{" "}
                   <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                    Engineered &amp; Restored.
+                    Our Priority.
                   </em>
                 </h1>
               </div>
@@ -318,18 +303,12 @@ export default function ResidentialPage() {
             </div>
           </div>
 
-          {/* Executive Summary + Takeoff Pro Benchmark Card */}
+          {/* Project services and resources */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
             <div className="lg:col-span-7">
               <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
-                From whole-home renovations, luxury kitchens, and structural
-                additions to{" "}
-                <strong className="text-orange-300">
-                  24/7 IICRC-certified fire &amp; water damage restoration
-                </strong>
-                , TAYCO LLC self-performs 12+ residential trades across 9 states
-                with unit-cost precision audited in{" "}
-                <strong className="text-amber-300">Takeoff Pro (:8085)</strong>.
+                From kitchens and bathrooms to additions, basement finishing and restoration,
+                TAYCO helps make your next step clear. Tell us about your home, your priorities and the work you have in mind.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 <Link
@@ -338,15 +317,15 @@ export default function ResidentialPage() {
                   className="px-6 py-3.5 rounded-xl font-black text-sm text-white transition-transform hover:scale-105 shadow-lg"
                   style={{ background: "#F97316" }}
                 >
-                  🧮 Launch Residential CSI-32 Estimator →
+                  Request a home project estimate →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   data-magnetic
                   className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  🏛️ Inspect Unit Takeoff in /portal →
+                  Client project sign in →
                 </Link>
                 <Link
                   href="/commercial"
@@ -368,58 +347,56 @@ export default function ResidentialPage() {
                 }}
               >
                 <div className="flex items-center justify-between text-xs font-mono text-amber-300 font-bold mb-2">
-                  <span>● TAKEOFF PRO (:8085) UNIT BENCHMARK</span>
-                  <span>705 SQ.FT. / CABIN</span>
+                  <span>A HOME THAT WORKS FOR YOU</span>
+                  <span>YOUR SPACE · YOUR PRIORITIES</span>
                 </div>
                 <div className="text-2xl font-black font-mono text-white">
-                  $106,940.65{" "}
+                  Thoughtful renovation{" "}
                   <span className="text-xs font-normal text-emerald-300">
-                    ($151.69 / sq.ft.)
+                    from room to whole home
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                  Audited Turnkey Residential / Cabin Unit Benchmark across 32
-                  ARCH-D Sheets: 436.3 Field Man-Hours per Unit, R-56 Spray Foam
-                  Envelope, and 1-3/4&quot;×14&quot; LVL Ridge Framing.
+                  Start with your goals and existing conditions. We help coordinate scope, finishes and trades, with the details agreed before work begins.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Cinta de Telemetría Residencial & Takeoff Pro (:8085) */}
+          {/* Project services and resources */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              {
-                metric: "2,300+",
-                label: "Homes Renovated",
-                sub: "Kitchens, Baths, Additions & Rehabs",
-                accent: "#C9A84C",
-              },
-              {
-                metric: "$106,940.65",
-                label: "Turnkey Multi-Cabin Unit Benchmark",
-                sub: "$151.69 / sq.ft. audited in Takeoff Pro",
-                accent: "#10B981",
-              },
-              {
-                metric: "436.3",
-                label: "Field Man-Hours per Unit",
-                sub: "Self-Performing 12+ Residential Trades",
-                accent: "#4A90D9",
-              },
-              {
-                metric: "9",
-                label: "States Covered",
-                sub: "WI · IL · IA · IN · MN · MI · MO · TX · ND",
-                accent: "#F3D37A",
-              },
-              {
-                metric: "24/7",
-                label: "Emergency Fire & Water Dispatch",
-                sub: "IICRC S500 / S520 Certified Crews",
-                accent: "#F97316",
-              },
-            ].map((item) => (
+  {
+    "metric": "Renovate",
+    "label": "Kitchens & bathrooms",
+    "sub": "Make everyday spaces work better",
+    "accent": "#C9A84C"
+  },
+  {
+    "metric": "Expand",
+    "label": "Additions & basements",
+    "sub": "Plan the space you need",
+    "accent": "#10B981"
+  },
+  {
+    "metric": "Restore",
+    "label": "Fire & water damage",
+    "sub": "Bring repair and rebuilding together",
+    "accent": "#4A90D9"
+  },
+  {
+    "metric": "8 States",
+    "label": "Service coverage",
+    "sub": "WI · IL · IA · IN · MN · MI · MO · TX",
+    "accent": "#F3D37A"
+  },
+  {
+    "metric": "One team",
+    "label": "Coordinated trades",
+    "sub": "Talk through scope and schedule",
+    "accent": "#F97316"
+  }
+].map((item) => (
               <div
                 key={item.label}
                 data-response-kind="surface"
@@ -450,28 +427,28 @@ export default function ResidentialPage() {
       {/* ── MARQUEE EDITORIAL CINÉTICO (.tayco-editorial-ticker) ── */}
       <div
         className="tayco-editorial-ticker"
-        aria-label="TAYCO Residential & IICRC Restoration Highlights"
+        aria-label="TAYCO residential services"
       >
         <div>
-          <span className="gold">2,300+ Homes Renovated Across 9 States</span>
+          <span className="gold">Home renovation across eight states</span>
           <i aria-hidden="true">✳</i>
-          <span>$106,940.65 Turnkey Unit Benchmark ($151.69/sq.ft.)</span>
+          <span>Planning, construction &amp; the finishing details</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">24/7 IICRC S500/S520 Fire &amp; Water Restoration</span>
+          <span className="gold">Fire &amp; Water Restoration</span>
           <i aria-hidden="true">✳</i>
           <span>Custom Kitchens, Baths &amp; Structural Additions</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">2,300+ Homes Renovated Across 9 States</span>
+          <span className="gold">Home renovation across eight states</span>
           <i aria-hidden="true">✳</i>
-          <span>$106,940.65 Turnkey Unit Benchmark ($151.69/sq.ft.)</span>
+          <span>Planning, construction &amp; the finishing details</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">24/7 IICRC S500/S520 Fire &amp; Water Restoration</span>
+          <span className="gold">Fire &amp; Water Restoration</span>
           <i aria-hidden="true">✳</i>
           <span>Custom Kitchens, Baths &amp; Structural Additions</span>
         </div>
@@ -495,7 +472,7 @@ export default function ResidentialPage() {
         </svg>
       </div>
 
-      {/* ── SECCIÓN 01 / RESIDENTIAL CSI-32 TRADES & TURNKEY REMODELING ASSEMBLIES (#F4F2EA) ── */}
+      {/* Project services and resources */}
       <section
         id="services"
         className="section-editorial-ivory py-16 sm:py-24 px-4 sm:px-8"
@@ -510,13 +487,13 @@ export default function ResidentialPage() {
               style={{ color: "#1B3A6B" }}
             >
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / RESIDENTIAL CSI-32 TRADES &amp; TURNKEY REMODELING ASSEMBLIES
+              01 / SERVICES FOR YOUR HOME
             </span>
             <span
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#1B3A6B" }}
             >
-              8 CORE RESIDENTIAL ASSEMBLIES · TAKEOFF PRO (:8085) VERIFIED
+              RENOVATION · REPAIRS · RESTORATION
             </span>
           </div>
 
@@ -542,19 +519,18 @@ export default function ResidentialPage() {
                 className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
                 style={{ color: "#334155" }}
               >
-                12+ residential specialties executed by TAYCO in-house crews
-                with transparent CSI-32 unit pricing and zero subcontractor
-                markups.
+                Explore services and options for your home. Your estimate is based on the agreed scope,
+                site conditions and material selections.
               </p>
             </div>
 
             <div
               className="flex flex-wrap gap-2"
               role="group"
-              aria-label="Filter Residential CSI-32 Trades"
+              aria-label="Filter residential services"
             >
               {[
-                { id: "all", label: "All 8 Residential Assemblies" },
+                { id: "all", label: "All services" },
                 {
                   id: "envelope_structural",
                   label: "Roofing, Siding, Framing & Concrete",
@@ -565,7 +541,7 @@ export default function ResidentialPage() {
                 },
                 {
                   id: "restoration_turnkey",
-                  label: "24/7 IICRC & Turnkey Remodeling",
+                  label: "Restoration & remodeling",
                 },
               ].map((tab) => {
                 const active = activeCategory === tab.id;
@@ -680,7 +656,7 @@ export default function ResidentialPage() {
                   style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
                 >
                   <span className="text-[11px] font-mono font-bold text-slate-700">
-                    📐 Takeoff Pro: {card.takeoffBenchmark}
+                    {card.planningNote}
                   </span>
                   <Link
                     href={`/estimate?division=residential&trade=${encodeURIComponent(card.csiCode)}`}
@@ -717,7 +693,7 @@ export default function ResidentialPage() {
 
       {/* ── SECCIÓN 02 / 24/7 CERTIFIED FIRE, WATER & STORM RESTORATION COMMAND + TRADE GALLERY ── */}
       <section
-        id="restoration-and-gallery"
+        id="restoration"
         className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
         style={{ background: "#070E1A" }}
       >
@@ -725,10 +701,10 @@ export default function ResidentialPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#FDBA74" }}>
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              02 / 24/7 CERTIFIED FIRE, WATER &amp; STORM RESTORATION COMMAND
+              02 / FIRE &amp; WATER RESTORATION
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
-              IICRC S500 / S520 CERTIFIED · XACTIMATE + TAKEOFF PRO (:8085)
+              ASSESSMENT · REPAIRS · RECONSTRUCTION
             </span>
           </div>
 
@@ -748,27 +724,26 @@ export default function ResidentialPage() {
                   className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
                   style={{ background: "#F97316", color: "#ffffff" }}
                 >
-                  🔥 IICRC Fire &amp; Smoke Certified
+                  🔥 Fire &amp; smoke restoration
                 </span>
                 <span className="font-mono text-xs text-amber-300">
                   CSI 02 41 00 / 06 11 00
                 </span>
               </div>
               <h3 className="text-2xl font-black text-white mb-3">
-                24/7 Fire &amp; Structural Damage Reconstruction
+                Fire damage repair &amp; reconstruction
               </h3>
               <p className="text-sm text-slate-300 mb-5 leading-relaxed">
-                Emergency board-up, structural char evaluation, thermal/hydroxyl
-                odor neutralization, and full code-upgraded residential rebuild
-                synchronized with your insurance carrier.
+                Review fire and smoke damage, define repairs and coordinate the rebuilding plan.
+                We can help organize documentation for your insurance conversation.
               </p>
               <ul className="space-y-2 mb-6">
                 {[
-                  "Immediate 24/7 Emergency Board-Up & Roof Tarping",
-                  "Structural Framing & Engineered LVL Damage Assessment",
-                  "HEPA Air Scrubbing, Soot & Smoke Odor Remediation",
-                  "Xactimate + Takeoff Pro (:8085) Line-Item Insurance Scope",
-                  "Complete Turnkey Home Reconstruction to Occupancy",
+                  "Damage assessment and repair planning",
+                  "Structural damage evaluation",
+                  "Smoke and soot remediation",
+                  "Insurance documentation and repair scope",
+                  "Interior repairs and home reconstruction",
                 ].map((item) => (
                   <li
                     key={item}
@@ -786,13 +761,13 @@ export default function ResidentialPage() {
                   className="px-5 py-2.5 rounded-xl text-xs font-black text-white"
                   style={{ background: "#F97316" }}
                 >
-                  Dispatch Fire Restoration Scope →
+                  Discuss fire restoration →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   className="px-4 py-2.5 rounded-xl text-xs font-bold text-amber-200 border border-amber-400/40 hover:bg-white/10"
                 >
-                  Open Carrier Portal →
+                  Client project sign in →
                 </Link>
               </div>
             </div>
@@ -812,27 +787,26 @@ export default function ResidentialPage() {
                   className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  💧 IICRC S500 / S520 Water &amp; Mold
+                  💧 Water damage restoration
                 </span>
                 <span className="font-mono text-xs text-sky-300">
-                  Psychrometric Telemetry
+                  Assessment &amp; drying
                 </span>
               </div>
               <h3 className="text-2xl font-black text-white mb-3">
-                24/7 Water Extraction, Drying &amp; Mold Remediation
+                Water damage repairs &amp; recovery
               </h3>
               <p className="text-sm text-slate-300 mb-5 leading-relaxed">
-                Rapid flood extraction, FLIR infrared moisture mapping, LGR
-                dehumidification, and turnkey drywall, flooring, and cabinetry
-                restoration across 9 states.
+                From flood and leak damage to affected walls, floors and cabinetry,
+                bring drying, repairs and reconstruction into one coordinated scope.
               </p>
               <ul className="space-y-2 mb-6">
                 {[
-                  "Submersible Extraction & LGR Structural Dehumidification",
-                  "FLIR Thermal Camera & Deep-Probe Moisture Mapping",
-                  "IICRC S520 Containment & Antimicrobial Mold Remediation",
-                  "Burst Pipe, Ice-Dam & Finished Basement Flood Recovery",
-                  "Turnkey Cabinetry, Flooring & Level-5 Drywall Replacement",
+                  "Water damage inspection and assessment",
+                  "Moisture detection and structural drying",
+                  "Mold remediation coordination",
+                  "Flood and leak damage repair",
+                  "Cabinetry, flooring and drywall repairs",
                 ].map((item) => (
                   <li
                     key={item}
@@ -853,10 +827,10 @@ export default function ResidentialPage() {
                   Request Water &amp; Storm Estimate →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   className="px-4 py-2.5 rounded-xl text-xs font-bold text-amber-200 border border-amber-400/40 hover:bg-white/10"
                 >
-                  Inspect Drying Telemetry →
+                  Client project sign in →
                 </Link>
               </div>
             </div>
@@ -875,12 +849,23 @@ export default function ResidentialPage() {
               <h3 className="text-2xl sm:text-3xl font-black text-white">
                 Explore Our Work by{" "}
                 <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  CSI-32 Trade.
+                  Trade.
                 </em>
               </h3>
             </div>
             <TradeGallery />
           </div>
+        </div>
+      </section>
+      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          <p className="tayco-eyebrow mb-3 text-[#1B3A6B]">Where we work</p>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F2040]">A local conversation. <em className="tayco-serif-em font-normal">A coordinated team.</em></h2>
+          <p className="max-w-2xl text-sm sm:text-base text-slate-600 mt-4 mb-8">Tell us where your property is located. We will review the work, access and scheduling with you. Commercial projects outside these service areas can be discussed with our team.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {COMPANY_SERVICE_AREAS.map(area => <div key={area.code} className="tayco-living-card editorial-ivory-card p-5"><p className="tayco-eyebrow text-[#1B3A6B]">{area.code}</p><h3 className="font-bold text-[#0F2040] mt-2">{area.state}</h3><p className="text-sm text-slate-600 mt-2 leading-relaxed">{area.cities}</p></div>)}
+          </div>
+          <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
         </div>
       </section>
     </main>

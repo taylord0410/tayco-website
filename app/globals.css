@@ -669,3 +669,139 @@ body[data-motion="reduced"] [data-magnetic] {
   background: linear-gradient(155deg, rgba(15, 32, 64, 0.96), rgba(7, 14, 26, 0.98)) !important;
   border-color: rgba(201, 168, 76, 0.38) !important;
 }
+
+
+/* Public navigation: one compact header, with a keyboard-accessible disclosure. */
+html {
+  scroll-padding-top: 5rem;
+}
+#main-content { outline: none; }
+.tayco-site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  color: #f1f5f9;
+  background: rgba(15, 32, 64, 0.97);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.34);
+  box-shadow: 0 8px 32px rgba(7, 14, 26, 0.24);
+}
+.tayco-nav-bar {
+  min-height: 4rem;
+  width: min(100%, 86rem);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2.5vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.tayco-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.65rem;
+  min-height: 44px;
+  text-decoration: none;
+}
+.tayco-brand-mark {
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.65);
+}
+.tayco-brand-name { display: flex; flex-direction: column; line-height: 1.2; }
+.tayco-brand-name strong { color: #f3d37a; font-size: 1.1rem; letter-spacing: 0.025em; }
+.tayco-brand-name > span { font-size: 0.625rem; color: #cbd5e1; margin-top: 0.2rem; }
+.tayco-desktop-navigation { display: none; }
+.tayco-nav-link,
+.tayco-nav-signin,
+.tayco-nav-estimate,
+.tayco-motion-control,
+.tayco-nav-phone,
+.tayco-menu-toggle {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  font: 600 0.8125rem/1.35 Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 160ms, background-color 160ms, border-color 160ms;
+}
+.tayco-nav-link { color: #e2e8f0; padding: 0.65rem 0.7rem; }
+.tayco-nav-link:hover,
+.tayco-nav-link[aria-current="page"] { color: #f3d37a; background: rgba(201, 168, 76, 0.1); }
+.tayco-nav-signin { color: #f1f5f9; padding: 0.65rem 0.9rem; border: 1px solid rgba(201, 168, 76, 0.45); }
+.tayco-nav-signin:hover { background: #1b3a6b; border-color: #f3d37a; }
+.tayco-nav-estimate { color: #fff; background: #c34808; padding: 0.7rem 1rem; font-weight: 700; }
+.tayco-nav-estimate:hover { background: #a83b06; }
+.tayco-motion-control { font-size: 0.75rem; color: #e2e8f0; padding: 0.65rem 0.5rem; }
+.tayco-motion-control:hover { color: #f3d37a; background: rgba(255,255,255,0.06); }
+.tayco-motion-control > span { color: #f3d37a; }
+.tayco-mobile-actions { display: flex; align-items: center; gap: 0.5rem; }
+.tayco-menu-toggle { width: 44px; color: #f3d37a; border: 1px solid rgba(201, 168, 76, 0.35); background: rgba(27,58,107,0.5); }
+.tayco-mobile-navigation {
+  max-height: calc(100vh - 4rem);
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 0.75rem max(1rem, calc((100% - 82rem)/2)) max(1rem, env(safe-area-inset-bottom));
+  background: linear-gradient(150deg, #0f2040, #142c50);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.tayco-mobile-navigation[hidden] { display: none; }
+.tayco-mobile-links { display: grid; gap: 0.25rem; margin-bottom: 0.75rem; }
+.tayco-mobile-links .tayco-nav-link { justify-content: flex-start; font-size: 1rem; padding-inline: 0.75rem; }
+.tayco-mobile-navigation > .tayco-nav-estimate { width: 100%; }
+.tayco-mobile-menu-footer { display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+.tayco-nav-phone { color: #f3d37a; padding-inline: 0.25rem; }
+.tayco-skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  color: #0f2040;
+  background: #f3d37a;
+  border-radius: 0.5rem;
+  transform: translateY(-200%);
+}
+.tayco-skip-link:focus { transform: translateY(0); }
+.tayco-site-header :focus-visible {
+  outline: 2px solid #f3d37a;
+  outline-offset: 3px;
+}
+@media (min-width: 1200px) {
+  .tayco-desktop-navigation { display: flex; align-items: center; gap: 0.35rem; }
+  .tayco-mobile-actions, .tayco-mobile-navigation { display: none; }
+}
+@media (max-width: 374px) {
+  .tayco-nav-bar { gap: 0.5rem; padding-inline: 0.75rem; }
+  .tayco-brand { gap: 0.4rem; }
+  .tayco-brand-name strong { font-size: 1rem; }
+  .tayco-brand-name > span { font-size: 0.5625rem; }
+  .tayco-nav-signin { padding-inline: 0.65rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-response-kind="surface"], .tayco-bento-card { transform: none !important; }
+  [data-magnetic] { translate: none !important; }
+}
+body[data-motion="reduced"] { scroll-behavior: auto; }
+body[data-motion="reduced"] *, body[data-motion="reduced"] *::before, body[data-motion="reduced"] *::after {
+  transition-duration: 0.01ms !important;
+}
+
+body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body[data-visibility="hidden"] *::after {
+  animation-play-state: paused !important;
+}
+
+/* Decorative orbits stay inside their surface at every breakpoint. */
+.preview-orbits { right: 0; top: 0; }

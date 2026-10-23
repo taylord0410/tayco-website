@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { COMPANY } from "@/lib/company";
 
 const WORK_TYPES = [
   "Roofing",
@@ -17,7 +18,6 @@ const WORK_TYPES = [
 const STATES_LIST = [
   "Wisconsin (WI)",
   "Illinois (IL)",
-  "North Dakota (ND)",
   "Iowa (IA)",
   "Indiana (IN)",
   "Minnesota (MN)",
@@ -29,29 +29,29 @@ const STATES_LIST = [
 
 const PORTFOLIO_METRICS = [
   {
-    value: "$5,884,717.73",
-    title: "Active Multi-State Commercial & REIT Pipeline",
-    detail: "5 Active Turnkey Contracts Across WI · IL · ND · MN · TX",
-    badge: "MOD_CRM_BIDS",
+    "value": "Plan",
+    "title": "Define each property’s needs",
+    "detail": "Share condition, location and the work you want to prioritize.",
+    "badge": "SCOPE"
   },
   {
-    value: "1.04 CPI / 0.98 SPI",
-    title: "Earned Value Performance",
-    detail: "Audited across 24-Week S-Curve in Takeoff Pro (:8085)",
-    badge: "EVM S-CURVE",
+    "value": "Coordinate",
+    "title": "Bring trades together",
+    "detail": "Discuss repairs, renovation and turnovers with one team.",
+    "badge": "DELIVERY"
   },
   {
-    value: "$184,892.70",
-    title: "Current Net AIA G702 Pay App #3",
-    detail: "$51,501.13 10% Statutory Retainage in Escrow",
-    badge: "AIA G702/G703",
+    "value": "Track",
+    "title": "Keep decisions clear",
+    "detail": "Agree on scope, milestones and how changes will be reviewed.",
+    "badge": "COMMUNICATION"
   },
   {
-    value: "7/7 GO FOR BID",
-    title: "Aerospace Pre-Flight Gate",
-    detail: "369 SHA-256 Audited BOQ Line Items in Takeoff Pro v5.0",
-    badge: "SHA-256 BOQ",
-  },
+    "value": "Review",
+    "title": "Prepare for handover",
+    "detail": "Identify completion details and the records your project needs.",
+    "badge": "CLOSEOUT"
+  }
 ];
 
 export default function InvestorPage() {
@@ -71,6 +71,9 @@ export default function InvestorPage() {
   const [selectedWork, setSelectedWork] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [notificationStatus, setNotificationStatus] = useState("");
+  const requestRef = useRef<{ key: string; payload: string } | null>(null);
   const loadedAt = useRef<number | null>(null);
   useEffect(() => {
     loadedAt.current = Date.now();
@@ -89,26 +92,30 @@ export default function InvestorPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (selectedWork.length === 0) {
-      alert("Please select at least one type of work.");
+      setErrorMsg("Please select at least one type of work.");
       return;
     }
+    if (status === "sending") return;
     setStatus("sending");
     setErrorMsg("");
     try {
+      const payload = JSON.stringify({ ...form, workNeeded: selectedWork.join(", "), _loadedAt: loadedAt.current });
+      if (requestRef.current?.payload !== payload) requestRef.current = { key: crypto.randomUUID(), payload };
       const res = await fetch("/api/investor", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          workNeeded: selectedWork.join(", "),
-          _loadedAt: loadedAt.current,
-        }),
+        headers: { "Content-Type": "application/json", "Idempotency-Key": requestRef.current.key },
+        body: payload,
       });
       if (res.ok) {
+        const data = await res.json();
+        if (!data.success || !data.referenceId) throw new Error("Receipt unavailable");
+        setReferenceId(data.referenceId);
+        setNotificationStatus(data.notificationStatus || "pending");
+        requestRef.current = null;
         setStatus("success");
       } else {
         const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.message || "Something went wrong. Please try again.");
+        setErrorMsg(data.error || data.message || "Something went wrong. Please try again.");
         setStatus("error");
       }
     } catch {
@@ -146,23 +153,22 @@ export default function InvestorPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold mb-3" style={{ color: "#0F2040" }}>
-            Portfolio Inquiry Registered!
+            Property inquiry received
           </h2>
           <p className="text-slate-600 mb-6 text-sm">
-            We received your institutional portfolio profile and synced it with our{" "}
-            <strong>Commercial CRM &amp; REIT Turnkey Pipeline (MOD_INVESTOR_PORTAL)</strong>. Our executive capital team at{" "}
-            <strong>(414) 293-8400</strong> (Milwaukee HQ) &amp;{" "}
-            <strong>(701) 839-2277</strong> (North Dakota Operations) will reach out within{" "}
-            <strong>24–48 hours</strong>.
+            Your property inquiry has been saved for review. Keep your reference number below.
+            For questions, contact <a href={COMPANY.phoneHref} className="font-semibold underline">{COMPANY.phoneDisplay}</a>.
+            Submitting an inquiry does not create an account or a construction agreement.
           </p>
+          <p className="text-xs text-slate-600 mb-5 break-all" role="status">Reference: <strong>{referenceId}</strong><br />{notificationStatus === "pending" ? "Saved. Team notification is pending; your reference remains valid." : "Saved for team review."}</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              href="/portal?invite=INV-INVESTOR-PORTFOLIO"
+              href="/login"
               data-magnetic
               className="inline-block px-5 py-3 rounded-xl font-bold text-xs"
               style={{ background: "#C9A84C", color: "#070E1A" }}
             >
-              📊 Open Institutional Investor &amp; Lender Dossier in Command Center →
+              Existing client sign in →
             </Link>
             <Link
               href="/"
@@ -190,16 +196,16 @@ export default function InvestorPage() {
           <div className="text-center lg:text-left max-w-3xl">
             <span className="tayco-eyebrow mb-4">
               <span className="tayco-live-dot" />
-              Institutional Real Estate · REITs · 9-State Capital &amp; Asset Managers
+              PROPERTY OWNERS · INVESTORS · MANAGERS
             </span>
             <h1 className="text-3xl sm:text-5xl font-black mt-2 mb-3 tracking-tight">
               Partner With TAYCO LLC{" "}
-              <em className="tayco-serif-em">Turnkey Capital Programs</em>
+              <em className="tayco-serif-em">Property Improvement</em>
             </h1>
             <p className="text-slate-300 text-sm sm:text-base max-w-2xl">
-              We deliver ground-up commercial builds, cap-ex renovations, tenant improvements, roofing, and certified restoration for institutional investors, REIT boards, and lenders across all{" "}
+              Plan commercial construction, property renovations, tenant improvements, roofing and restoration across{" "}
               <strong className="text-white">
-                9 States (WI · IL · IA · IN · MN · MI · MO · TX · ND)
+                {COMPANY.coverage}
               </strong>
               .
             </p>
@@ -221,13 +227,13 @@ export default function InvestorPage() {
               />
             </div>
             <span className="text-[11px] font-mono text-slate-300">
-              📞 (414) 293-8400 Milwaukee HQ · 📞 (701) 839-2277 North Dakota Ops
+              {COMPANY.phoneDisplay}
             </span>
           </div>
         </div>
       </div>
 
-      {/* ── EXECUTIVE RIBBON OF REAL PORTFOLIO & TAKEOFF PRO (:8085) METRICS ── */}
+      {/* Project services and resources */}
       <div className="max-w-6xl mx-auto px-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {PORTFOLIO_METRICS.map((m) => (
@@ -259,7 +265,7 @@ export default function InvestorPage() {
         </div>
       </div>
 
-      {/* ── DIRECT CONNECTION WITH MODULE 5 (MOD_INVESTOR_PORTAL) + TAKEOFF PRO MASTER DOSSIER ── */}
+      {/* Project services and resources */}
       <div className="max-w-6xl mx-auto px-4 mb-8">
         <div
           data-surface-mode="crystal"
@@ -274,26 +280,22 @@ export default function InvestorPage() {
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className="tayco-live-dot" />
               <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                DIRECT MODULE 5 (MOD_INVESTOR_PORTAL) &amp; TAKEOFF PRO (:8085) MASTER DOSSIER CONNECTION
+                A PRACTICAL START FOR YOUR PROPERTY PROGRAM
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-              Submitting this institutional profile registers your multi-property portfolio in{" "}
-              <strong className="text-white">Module 1 (MOD_CRM_BIDS)</strong>, links unit-level CSI-32 scopes to{" "}
-              <strong className="text-amber-300">Takeoff Pro v5.0 (:8085)</strong>, and provisions{" "}
-              <strong className="text-emerald-300">
-                Module 5 (MOD_INVESTOR_PORTAL — REIT Portfolio IRR, AIA G702/G703 Draw Schedules &amp; 14-Document Master Dossier)
-              </strong>
-              .
+              Tell us about your properties, repair priorities and target timing.
+              Our team will review your request and discuss the next steps with you.
+              Existing clients can sign in to their invited project workspace.
             </p>
           </div>
           <Link
-            href="/portal?invite=INV-INVESTOR-PORTFOLIO"
+            href="/login"
             data-magnetic
             className="relative z-10 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105"
             style={{ background: "#C9A84C", color: "#070E1A" }}
           >
-            📊 Open Institutional Investor &amp; Lender Dossier in Command Center →
+            Existing client sign in →
           </Link>
         </div>
       </div>
@@ -302,7 +304,7 @@ export default function InvestorPage() {
       <div className="max-w-4xl mx-auto px-4 pb-16">
         <div
           data-surface-mode="mineral"
-          className="tayco-living-card editorial-ivory-card p-8 bg-white"
+          className="tayco-living-card editorial-ivory-card p-5 sm:p-8 bg-white"
         >
           <div className="preview-orbits" aria-hidden="true" />
           <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-5">
@@ -320,59 +322,63 @@ export default function InvestorPage() {
             {/* Contact Info */}
             <div>
               <p className="text-xs font-mono font-bold uppercase tracking-widest text-amber-700 mb-3">
-                01 · Institutional &amp; Executive Contact Information
+                01 · Your contact details
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
+                  <label htmlFor="property-fullName" className="block text-sm font-semibold text-slate-800 mb-1">
                     Full Name *
                   </label>
                   <input
-                    name="fullName"
+                    id="property-fullName"
+                    name="fullName" autoComplete="name"
                     value={form.fullName}
                     onChange={handleChange}
                     required
-                    placeholder="Victoria Sterling"
+                    placeholder="Your name"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
-                    Company / REIT / Fund Name
+                  <label htmlFor="property-company" className="block text-sm font-semibold text-slate-800 mb-1">
+                    Company or organization
                   </label>
                   <input
-                    name="company"
+                    id="property-company"
+                    name="company" autoComplete="organization"
                     value={form.company}
                     onChange={handleChange}
-                    placeholder="Midwest Institutional Capital REIT"
+                    placeholder="Your company or organization"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
-                    Executive Email *
+                  <label htmlFor="property-email" className="block text-sm font-semibold text-slate-800 mb-1">
+                    Email *
                   </label>
                   <input
-                    name="email"
+                    id="property-email"
+                    name="email" autoComplete="email"
                     type="email"
                     value={form.email}
                     onChange={handleChange}
                     required
-                    placeholder="vsterling@midwestreit.com"
+                    placeholder="you@company.com"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
+                  <label htmlFor="property-phone" className="block text-sm font-semibold text-slate-800 mb-1">
                     Direct Phone *
                   </label>
                   <input
-                    name="phone"
+                    id="property-phone"
+                    name="phone" autoComplete="tel" inputMode="tel"
                     type="tel"
                     value={form.phone}
                     onChange={handleChange}
                     required
-                    placeholder="(414) 293-8400"
+                    placeholder="Your phone number"
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
                   />
                 </div>
@@ -381,14 +387,15 @@ export default function InvestorPage() {
 
             {/* Preferred Contact */}
             <div>
-              <label className="block text-sm font-semibold text-slate-800 mb-2">
-                Preferred Executive Communication Channel
-              </label>
+              <p className="block text-sm font-semibold text-slate-800 mb-2">
+                Preferred contact method
+              </p>
               <div className="flex gap-3 flex-wrap">
                 {["Call", "WhatsApp", "Email"].map((opt) => (
                   <button
                     key={opt}
                     type="button"
+                    aria-pressed={form.preferredContact === opt}
                     onClick={() => setForm((p) => ({ ...p, preferredContact: opt }))}
                     className={`px-5 py-2 rounded-xl text-sm font-semibold border-2 transition-all cursor-pointer ${
                       form.preferredContact === opt
@@ -406,14 +413,15 @@ export default function InvestorPage() {
             {/* Portfolio */}
             <div>
               <p className="text-xs font-mono font-bold uppercase tracking-widest text-amber-700 mb-3">
-                02 · Asset Portfolio &amp; Capital Deployment Velocity
+                02 · Your properties &amp; priorities
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
+                  <label htmlFor="property-properties" className="block text-sm font-semibold text-slate-800 mb-1">
                     Properties Under Management
                   </label>
                   <select
+                    id="property-properties"
                     name="properties"
                     value={form.properties}
                     onChange={handleChange}
@@ -426,10 +434,11 @@ export default function InvestorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-1">
-                    Active Cap-Ex / Rehab Projects Right Now?
+                  <label htmlFor="property-activeProjects" className="block text-sm font-semibold text-slate-800 mb-1">
+                    Are you planning work now?
                   </label>
                   <select
+                    id="property-activeProjects"
                     name="activeProjects"
                     value={form.activeProjects}
                     onChange={handleChange}
@@ -446,14 +455,15 @@ export default function InvestorPage() {
 
             {/* States */}
             <div>
-              <label className="block text-sm font-semibold text-slate-800 mb-2">
-                States Where You Hold Assets (All 9 TAYCO States Available)
-              </label>
+              <p className="block text-sm font-semibold text-slate-800 mb-2">
+                Where are your properties?
+              </p>
               <div className="flex flex-wrap gap-2">
                 {STATES_LIST.map((s) => (
                   <button
                     key={s}
                     type="button"
+                    aria-pressed={form.states.split(",").map(x => x.trim()).includes(s)}
                     onClick={() => {
                       const current = form.states
                         .split(",")
@@ -483,10 +493,10 @@ export default function InvestorPage() {
 
             {/* Work Needed */}
             <div>
-              <label className="block text-sm font-semibold text-slate-800 mb-2">
-                Construction &amp; Restoration Scopes Required{" "}
+              <p className="block text-sm font-semibold text-slate-800 mb-2">
+                What work do you need?{" "}
                 <span className="text-slate-400 font-normal">(select all that apply)</span>
-              </label>
+              </p>
               <div className="flex flex-wrap gap-2">
                 {WORK_TYPES.map((w) => {
                   const on = selectedWork.includes(w);
@@ -494,6 +504,7 @@ export default function InvestorPage() {
                     <button
                       key={w}
                       type="button"
+                      aria-pressed={on}
                       onClick={() => toggleWork(w)}
                       className={`px-3 py-2 rounded-xl text-xs font-semibold border-2 transition-all cursor-pointer ${
                         on
@@ -511,26 +522,28 @@ export default function InvestorPage() {
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-semibold text-slate-800 mb-1">
-                Portfolio Scope Notes &amp; Target Timelines{" "}
+              <label htmlFor="property-notes" className="block text-sm font-semibold text-slate-800 mb-1">
+                Project details &amp; timing{" "}
                 <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <textarea
-                name="notes"
+                    id="property-notes"
+                    name="notes"
                 value={form.notes}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Tell us about your portfolio, typical unit turn / cap-ex budget, AIA G702/G703 draw schedule requirements, or target timelines..."
+                placeholder="Tell us about the properties, work needed, priorities and target timing. Please do not include financial account details."
                 className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 resize-none"
               />
             </div>
 
             {errorMsg && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm">
+              <div role="alert" className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm">
                 {errorMsg}
               </div>
             )}
 
+            <p className="text-xs text-slate-600">We use these details to respond to your inquiry. <Link href="/privacy" className="underline">Privacy &amp; data protection</Link>. Please do not include payment or identity documents.</p>
             <button
               type="submit"
               data-magnetic
@@ -539,12 +552,12 @@ export default function InvestorPage() {
               style={{ background: "#C9A84C", color: "#070E1A" }}
             >
               {status === "sending"
-                ? "Syncing Portfolio to TAYCO Command Center..."
-                : "Submit Portfolio Profile — Sync With TAYCO CRM →"}
+                ? "Sending your inquiry..."
+                : "Send property inquiry →"}
             </button>
 
             <p className="text-center text-xs text-slate-500">
-              We respond within 24–48 hours. Directly integrated with TAYCO Module 5 (MOD_INVESTOR_PORTAL) &amp; Takeoff Pro v5.0 (:8085).
+              Your inquiry is reviewed by our team. We will contact you using the details you provide.
             </p>
           </form>
         </div>

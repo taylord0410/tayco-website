@@ -1,0 +1,14 @@
+import {readFileSync,mkdirSync,writeFileSync,existsSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+import {database} from '../lib/erp';
+const source=process.env.TAYCO_LEGACY_FILE||path.join(process.cwd(),'.tayco_erp_suite_state.json');
+if(!existsSync(source))throw new Error('Legacy state file not found. No migration performed.');
+const bytes=readFileSync(source);JSON.parse(bytes.toString('utf8'));
+const hash=createHash('sha256').update(bytes).digest('hex');
+const dir=path.join(process.cwd(),'.data','backups');mkdirSync(dir,{recursive:true,mode:0o700});
+const backup=path.join(dir,'legacy-'+hash+'.json');
+if(!existsSync(backup))writeFileSync(backup,bytes,{flag:'wx',mode:0o600});
+if(createHash('sha256').update(readFileSync(backup)).digest('hex')!==hash)throw new Error('Backup verification failed.');
+database().prepare('INSERT OR IGNORE INTO legacy_archive VALUES(?,?,?)').run(hash,bytes.toString('utf8'),new Date().toISOString());
+console.log(JSON.stringify({archived:true,hash,backupVerified:true,operationalRecordsCreated:0,note:'Original data preserved unchanged; review privately before importing into tenant/project records.'}));

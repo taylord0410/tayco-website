@@ -22,7 +22,7 @@ export default function RootLayout({
       <body>
         <EditorialLivingEngine />
         <Navbar />
-        {children}
+        <div id="main-content" tabIndex={-1}>{children}</div>
         <Footer />
       </body>
     </html>

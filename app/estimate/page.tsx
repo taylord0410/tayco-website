@@ -1,6 +1,8 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { COMPANY } from "@/lib/company";
 
 const PROJECT_TYPES = [
   "Commercial Project",
@@ -48,7 +50,7 @@ const CALCULATOR_DIVISIONS = [
   },
   {
     id: "Fire/Water Restoration",
-    label: "🔥 Certified Fire & Water Restoration",
+    label: "🔥 Fire & Water Restoration",
     projectTypeMatch: "Fire Damage Restoration",
     baseLowSqft: 70,
     baseHighSqft: 130,
@@ -60,7 +62,7 @@ const CALCULATOR_DIVISIONS = [
 
 const FINISH_TIERS = [
   { id: "standard", label: "Standard Commercial / Turnkey Grade (1.00x)", multiplier: 1.0 },
-  { id: "executive", label: "Executive / Hospitality Spec Grade (1.18x)", multiplier: 1.18 },
+  { id: "executive", label: "Hospitality Finish Grade (1.18x)", multiplier: 1.18 },
   { id: "industrial", label: "Heavy Industrial / Cold-Storage Spec (1.28x)", multiplier: 1.28 },
 ];
 
@@ -68,7 +70,7 @@ const STATE_MODIFIERS: Record<
   string,
   { name: string; costFactor: number; salesTaxPct: number; defaultCity: string }
 > = {
-  WI: { name: "Wisconsin (HQ)", costFactor: 1.0, salesTaxPct: 5.5, defaultCity: "Milwaukee, WI" },
+  WI: { name: "Wisconsin", costFactor: 1.0, salesTaxPct: 5.5, defaultCity: "Milwaukee, WI" },
   IL: { name: "Illinois", costFactor: 1.12, salesTaxPct: 8.5, defaultCity: "Chicago, IL" },
   IA: { name: "Iowa", costFactor: 0.94, salesTaxPct: 7.0, defaultCity: "Des Moines, IA" },
   IN: { name: "Indiana", costFactor: 0.96, salesTaxPct: 7.0, defaultCity: "Indianapolis, IN" },
@@ -76,19 +78,33 @@ const STATE_MODIFIERS: Record<
   MI: { name: "Michigan", costFactor: 0.98, salesTaxPct: 6.0, defaultCity: "Detroit, MI" },
   MO: { name: "Missouri", costFactor: 0.95, salesTaxPct: 7.5, defaultCity: "St. Louis, MO" },
   TX: { name: "Texas", costFactor: 0.93, salesTaxPct: 8.25, defaultCity: "Dallas, TX" },
-  ND: {
-    name: "North Dakota (MHA Nation / Bakken)",
-    costFactor: 1.04,
-    salesTaxPct: 6.5,
-    defaultCity: "New Town / Minot, ND",
-  },
 };
+
+/** Query context is reviewed explicitly; it never overwrites a visitor's draft. */
+function RequestedService({ onApply }: { onApply: (description: string, projectType: string) => void }) {
+  const searchParams = useSearchParams();
+  const trade = (searchParams.get("trade") || "").trim().slice(0, 120);
+  const division = searchParams.get("division") === "residential" ? "Residential" : "";
+  const rawSector = searchParams.get("sector");
+  const sector = rawSector === "residential" ? "Residential" : rawSector === "multifamily" ? "Multifamily" : rawSector === "commercial" ? "Commercial" : "";
+  if (!trade && !division && !sector) return null;
+  const description = [trade, division || sector].filter(Boolean).join(" · ");
+  const projectType = division === "Residential" || sector === "Residential" ? "Residential Renovation" : sector === "Commercial" ? "Commercial Project" : "";
+  return <aside className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-slate-700">
+    <p className="font-semibold text-[#0F2040]">Your selected service: {description}</p>
+    <p className="text-xs mt-1">Review the selection, then add it to your request. Your existing notes and project choice are kept.</p>
+    <button type="button" onClick={() => onApply(`Service requested: ${description}.`, projectType)} className="mt-3 px-4 py-2.5 rounded-lg text-xs font-bold bg-[#0F2040] text-white">Use selected service in my request →</button>
+  </aside>;
+}
 
 export default function EstimatePage() {
   const [lightAngle, setLightAngle] = useState(42);
   const [calcDivision, setCalcDivision] = useState(CALCULATOR_DIVISIONS[0].id);
-  const [calcState, setCalcState] = useState("ND");
-  const [calcSqft, setCalcSqft] = useState(5640);
+  const [calcState, setCalcState] = useState("WI");
+  const [calcArea, setCalcArea] = useState("2000");
+  const parsedArea = Number(calcArea);
+  const isAreaValid = calcArea.trim() !== "" && Number.isFinite(parsedArea) && Number.isInteger(parsedArea) && parsedArea >= 250 && parsedArea <= 250000;
+  const calcSqft = isAreaValid ? parsedArea : 0;
   const [calcTier, setCalcTier] = useState("standard");
 
   const selectedDiv =
@@ -123,28 +139,30 @@ export default function EstimatePage() {
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [savedCrmId, setSavedCrmId] = useState<string | null>(null);
+  const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [notificationStatus, setNotificationStatus] = useState("");
+  const requestRef = useRef<{ key: string; payload: string } | null>(null);
+  const previousIllustration = useRef("");
   const loadedAt = useRef<number | null>(null);
   useEffect(() => {
-    loadedAt.current = Date.now() - 4000;
+    loadedAt.current = Date.now();
   }, []);
 
+  const budgetSummaryText = isAreaValid ? `Budget planning illustration only — not a quote or agreed scope. ${selectedDiv.id}, ${selectedTierObj.label}, ${calcSqft.toLocaleString()} sq ft in ${calcState}. Illustrative range $${lowEstimateUsd.toLocaleString()}–$${highEstimateUsd.toLocaleString()}; assumptions require project review.` : "";
+
   function applyCalculatorToForm() {
-    const summaryText = `Preliminary CSI-32 Estimate (${selectedDiv.id} · ${selectedTierObj.label}) — ${calcSqft.toLocaleString()} sq ft in ${selectedStateInfo.defaultCity}. Estimated Turnkey Range: $${lowEstimateUsd.toLocaleString()} – $${highEstimateUsd.toLocaleString()} (GMP Target $${midpointUsd.toLocaleString()} | Material 54.8% $${estMaterialsUsd.toLocaleString()} · Field Labor 31.2% $${estLaborUsd.toLocaleString()} · Equipment 14.0% $${estEquipmentUsd.toLocaleString()} + ${selectedStateInfo.salesTaxPct}% State Tax $${estStateMaterialsTaxUsd.toLocaleString()} | Est. ${estManHours.toLocaleString()} WH-347 Man-Hours @ $32.63/hr | ~${estWeeks} weeks).`;
+    if (!isAreaValid) return;
+    const summaryText = budgetSummaryText;
+    const previousSummary = previousIllustration.current;
+    previousIllustration.current = summaryText;
     setForm((prev) => ({
       ...prev,
       projectType: selectedDiv.projectTypeMatch,
       projectLocation: prev.projectLocation || selectedStateInfo.defaultCity,
-      projectDetails: summaryText,
+      projectDetails: [previousSummary ? prev.projectDetails.replace(previousSummary, "").trim() : prev.projectDetails.trim(), summaryText].filter(Boolean).join("\n\n"),
     }));
   }
 
-  function loadSonOfAStarPreset() {
-    setCalcDivision("Commercial Ground-Up");
-    setCalcState("ND");
-    setCalcSqft(5640);
-    setCalcTier("standard");
-  }
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -154,22 +172,24 @@ export default function EstimatePage() {
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === "sending") return;
     setStatus("sending");
     setErrorMsg("");
     try {
+      const includedIllustration = isAreaValid && budgetSummaryText !== "" && form.projectDetails.includes(budgetSummaryText);
+      const payload = JSON.stringify({ ...form, ...(includedIllustration ? { sqft: calcSqft, budgetIllustrationUsd: midpointUsd } : {}), _loadedAt: loadedAt.current });
+      if (requestRef.current?.payload !== payload) requestRef.current = { key: crypto.randomUUID(), payload };
       const res = await fetch("/api/estimate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          sqft: calcSqft,
-          estimatedValueUsd: midpointUsd,
-          _loadedAt: loadedAt.current,
-        }),
+        headers: { "Content-Type": "application/json", "Idempotency-Key": requestRef.current.key },
+        body: payload,
       });
       if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setSavedCrmId(data.crmOpportunityId || "CRM-SYNCED");
+        const data = await res.json();
+        if (!data.success || !data.referenceId) throw new Error("Receipt unavailable");
+        setReferenceId(data.referenceId);
+        setNotificationStatus(data.notificationStatus || "pending");
+        requestRef.current = null;
         setStatus("success");
         setForm({
           fullName: "",
@@ -182,7 +202,7 @@ export default function EstimatePage() {
         });
       } else {
         const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.message || "Something went wrong. Please try again.");
+        setErrorMsg(data.error || data.message || "Something went wrong. Please try again.");
         setStatus("error");
       }
     } catch {
@@ -201,7 +221,7 @@ export default function EstimatePage() {
         } as React.CSSProperties
       }
     >
-      {/* ── EXECUTIVE LIVING EDITORIAL HEADER WITH ORBITAL SEAL & RAKING LIGHT ── */}
+      {/* Project services and resources */}
       <div
         className="py-12 border-b  relative overflow-hidden"
         style={{
@@ -215,27 +235,20 @@ export default function EstimatePage() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-3">
                 <span className="tayco-eyebrow">
                   <span className="tayco-live-dot" />
-                  ★ CSI-32 Parametric Estimator &amp; Takeoff Pro v5.0 Intake
+                  BUILD · RENOVATE · RESTORE
                 </span>
                 <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-400/15 text-amber-300 border border-amber-400/35">
-                  rust_critical_apu_exact_cents Calibrated
+                  FREE ESTIMATE REQUEST
                 </span>
               </div>
               <h1 className="text-3xl sm:text-5xl font-black text-white mt-2 mb-3 tracking-tight">
-                Calculate &amp; Request Your{" "}
-                <em className="tayco-serif-em">Turnkey Project Estimate</em>
+                Let’s plan your{" "}
+                <em className="tayco-serif-em">next project.</em>
               </h1>
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Simulate your commercial, industrial, or residential investment across all{" "}
-                <strong className="text-white">
-                  9 States (WI · IL · IA · IN · MN · MI · MO · TX · ND)
-                </strong>{" "}
-                powered by our{" "}
-                <strong style={{ color: "#C9A84C" }}>Takeoff Pro v5.0 (:8085)</strong> engine. Calibrated against the audited{" "}
-                <strong className="text-emerald-300">
-                  Son of a Star Phase 1 ($855,525.23 GMP / $151.69 per sq.ft.)
-                </strong>{" "}
-                benchmark.
+                Tell us what you want to build, renovate or restore. Share the location,
+                scope and priorities so our team can review your request.
+                Serving <strong className="text-white">{COMPANY.coverage}</strong>.
               </p>
 
               {/* Raking Light Interactive Control */}
@@ -252,7 +265,7 @@ export default function EstimatePage() {
                   aria-label="Raking Light Angle"
                 />
                 <span className="text-[11px] text-slate-400">
-                  Milwaukee HQ: (414) 293-8400 · ND Ops: (701) 839-2277
+                  {COMPANY.phoneDisplay}
                 </span>
               </div>
             </div>
@@ -263,7 +276,7 @@ export default function EstimatePage() {
                 <svg
                   viewBox="0 0 160 160"
                   className="w-32 h-32 orbital-caption"
-                  aria-label="TAYCO Takeoff Pro v5.0 Orbital Seal"
+                  aria-label="TAYCO construction seal"
                 >
                   <defs>
                     <path
@@ -278,19 +291,19 @@ export default function EstimatePage() {
                     letterSpacing="2.1"
                   >
                     <textPath href="#estimateOrbitalPath">
-                      • TAKEOFF PRO :8085 • CSI-32 EXACT CENTS • 9 STATES •
+                      • TAYCO LLC • CONSTRUCTION • RENOVATION •
                     </textPath>
                   </text>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-3">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300">
-                    GMP Audit
+                    Project
                   </span>
                   <span className="text-sm font-black text-white font-mono">
-                    $151.69
+                    TAYCO
                   </span>
                   <span className="text-[10px] font-mono text-emerald-300">
-                    / sq.ft. ND
+                    Your next step
                   </span>
                 </div>
               </div>
@@ -303,65 +316,18 @@ export default function EstimatePage() {
       <div className="tayco-telemetry-ribbon bg-slate-950 text-amber-300/90 text-[11px] font-mono py-2 px-4 border-b border-amber-400/25">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <span>
-            ⚡ ENGINE CALIBRATION: rust_critical_apu_exact_cents · 54.8% Materials · 31.2% Field Labor WH-347 ($32.63/hr) · 14.0% Equipment
+            Commercial construction · Residential renovations · Property restoration
           </span>
           <span>
-            BENCHMARK: Son of a Star Phase 1 (New Town, ND) — $855,525.23 GMP · 5,640 SF · 369 Audited BOQ Lines
+            Clear scope · Coordinated trades · Thoughtful finishes
           </span>
         </div>
       </div>
 
-      {/* ── LIVE CONNECTION BANNER WITH TAKEOFF PRO (:8085) ── */}
       <div className="max-w-6xl mx-auto px-4 pt-8">
-        <div
-          data-surface-mode="crystal"
-          className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-6 text-white flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5"
-        >
-          <div className="preview-orbits" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="relative z-10 space-y-2 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="tayco-live-dot" />
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
-                LIVE TAKEOFF PRO (:8085) &amp; COMMERCIAL CRM BRIDGE · EXACT-CENT APU ENGINE
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-              This parametric calculator executes the exact direct-cost ratio audited by the{" "}
-              <code className="text-amber-300 font-mono">rust_critical_apu_exact_cents</code> engine in{" "}
-              <strong className="text-white">Takeoff Pro v5.0 (:8085)</strong>:{" "}
-              <strong className="text-amber-300">54.8% Materials</strong> ·{" "}
-              <strong className="text-sky-300">31.2% WH-347 Field Labor ($32.63/hr Davis-Bacon loaded rate)</strong> ·{" "}
-              <strong className="text-emerald-300">14.0% Heavy Equipment</strong>, calibrated against{" "}
-              <strong className="text-white">
-                Son of a Star Phase 1 ($855,525.23 GMP / $151.69 per sq.ft.)
-              </strong>
-              . Every submitted request automatically creates a live record in{" "}
-              <strong className="text-white">Module 1 (MOD_CRM_BIDS)</strong> and stages blueprints for{" "}
-              <strong className="text-amber-300">Module 0 (MOD_TAKEOFF_PRO)</strong>.
-            </p>
-          </div>
-          <div className="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
-            <button
-              type="button"
-              data-magnetic
-              onClick={loadSonOfAStarPreset}
-              className="px-3.5 py-2 rounded-lg text-xs font-mono font-bold border border-emerald-400/50 bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/25 cursor-pointer"
-            >
-              🎯 Load Son of a Star ND Benchmark
-            </button>
-            <Link
-              href="/portal?tab=MOD_TAKEOFF_PRO"
-              data-magnetic
-              className="px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-transform hover:scale-105"
-              style={{ background: "#C9A84C", color: "#070E1A" }}
-            >
-              📐 Open Takeoff Pro (:8085) + CRM →
-            </Link>
-          </div>
+        <div data-surface-mode="crystal" className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-xl p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div><p className="tayco-eyebrow text-amber-300 mb-2">Start with what you know</p><p className="text-sm text-slate-200 max-w-3xl">Have drawings, photos or a target timeline? Describe them below. A written proposal follows a review of your scope, conditions, selections and scheduling.</p></div>
+          <a href={COMPANY.phoneHref} className="shrink-0 px-5 py-3 rounded-xl bg-[#C9A84C] text-[#070E1A] text-sm font-bold">{COMPANY.phoneDisplay}</a>
         </div>
       </div>
 
@@ -370,7 +336,7 @@ export default function EstimatePage() {
         <section
           id="tayco-instant-estimator"
           data-surface-mode="crystal"
-          className="tayco-living-card lg:col-span-5 p-6 sm:p-7 text-white"
+          className="tayco-living-card order-2 lg:order-1 lg:col-span-5 p-6 sm:p-7 text-white"
         >
           <div className="preview-orbits" aria-hidden="true">
             <i />
@@ -379,23 +345,23 @@ export default function EstimatePage() {
           </div>
           <div className="relative z-10">
             <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="tayco-eyebrow">📐 Takeoff Pro Parametric Engine</span>
+              <span className="tayco-eyebrow">Optional budget illustration</span>
               <span className="text-xs text-emerald-300 font-mono font-semibold">
-                9 States · CSI-32
+                PLANNING ONLY
               </span>
             </div>
 
             <h2 className="text-xl font-extrabold mb-1">
-              Instant Parametric Pre-Construction{" "}
+              Explore an illustrative{" "}
               <em className="tayco-serif-em">Estimator</em>
             </h2>
             <p className="text-xs text-slate-300 mb-5">
-              Select project division, state (including North Dakota MHA Nation / Bakken), area, and finish tier to compute turnkey GMP, WH-347 man-hours at $32.63/hr, and state material tax.
+              This illustration uses general assumptions, not TAYCO project pricing. It is not a quote, tax calculation or schedule commitment. Site conditions, permits, local requirements and selections can change the outcome. Request a reviewed estimate below.
             </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                <label htmlFor="calc-select-division" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                   Project Division &amp; Scope
                 </label>
                 <select
@@ -414,8 +380,8 @@ export default function EstimatePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Target State (9 TAYCO States)
+                  <label htmlFor="calc-select-state" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    Target state
                   </label>
                   <select
                     id="calc-select-state"
@@ -425,14 +391,14 @@ export default function EstimatePage() {
                   >
                     {Object.entries(STATE_MODIFIERS).map(([code, info]) => (
                       <option key={code} value={code}>
-                        {code} — {info.name} ({info.salesTaxPct}%)
+                        {code} — {info.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  <label htmlFor="calc-input-sqft" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                     Approximate Area (Sq Ft)
                   </label>
                   <input
@@ -440,16 +406,18 @@ export default function EstimatePage() {
                     type="number"
                     min={250}
                     max={250000}
-                    step={250}
-                    value={calcSqft}
-                    onChange={(e) => setCalcSqft(Math.max(250, Number(e.target.value) || 1000))}
+                    step={1}
+                    value={calcArea}
+                    onChange={(e) => setCalcArea(e.target.value)}
+                    aria-invalid={!isAreaValid}
+                    aria-describedby={!isAreaValid ? "calc-area-error" : undefined}
                     className="w-full rounded-lg px-3 py-2.5 text-sm font-bold text-slate-900 bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                <label htmlFor="calc-select-tier" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
                   Quality &amp; Finish Tier
                 </label>
                 <select
@@ -466,6 +434,7 @@ export default function EstimatePage() {
                 </select>
               </div>
 
+              {isAreaValid ? (
               <div
                 className="rounded-xl p-4 mt-4 border"
                 style={{
@@ -474,7 +443,7 @@ export default function EstimatePage() {
                 }}
               >
                 <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
-                  Estimated Turnkey Investment ({calcState} — {selectedStateInfo.defaultCity})
+                  Illustrative budget range ({calcState} — {selectedStateInfo.defaultCity})
                 </div>
                 <div
                   className="text-2xl sm:text-3xl font-black mt-1 font-mono"
@@ -483,7 +452,7 @@ export default function EstimatePage() {
                   ${lowEstimateUsd.toLocaleString()} – ${highEstimateUsd.toLocaleString()}
                 </div>
                 <div className="text-xs text-slate-300 mt-1">
-                  Target GMP Midpoint:{" "}
+                  Illustrative midpoint:{" "}
                   <strong className="text-white font-mono">
                     ${midpointUsd.toLocaleString()} USD
                   </strong>
@@ -492,9 +461,9 @@ export default function EstimatePage() {
                 {/* Visual Cost Breakdown Bar (54.8% Materials · 31.2% Field Labor · 14.0% Equipment) */}
                 <div className="mt-4 pt-3 border-t border-white/10">
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-300 mb-1.5">
-                    <span>CSI-32 APU Split (54.8 / 31.2 / 14.0)</span>
+                    <span>Illustrative cost allocation</span>
                     <span className="text-amber-300">
-                      +{selectedStateInfo.salesTaxPct}% {calcState} Tax
+                      Assumed allowance: {selectedStateInfo.salesTaxPct}%
                     </span>
                   </div>
                   <div className="w-full h-3 rounded-full overflow-hidden flex bg-slate-900 p-0.5 gap-0.5 border border-white/10">
@@ -506,7 +475,7 @@ export default function EstimatePage() {
                     <div
                       className="h-full transition-all duration-300"
                       style={{ width: "31.2%", background: "#38BDF8" }}
-                      title="WH-347 Field Labor 31.2%"
+                      title="Illustrative labor share 31.2%"
                     />
                     <div
                       className="h-full rounded-r-full transition-all duration-300"
@@ -532,44 +501,47 @@ export default function EstimatePage() {
 
                 <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-xs">
                   <div>
-                    <span className="text-slate-400 block">WH-347 Man-Hours</span>
+                    <span className="text-slate-400 block">Illustrative labor hours</span>
                     <strong className="text-white font-mono">
                       {estManHours.toLocaleString()} MH
                     </strong>
                   </div>
                   <div>
                     <span className="text-slate-400 block">
-                      Sales Tax ({selectedStateInfo.salesTaxPct}%)
+                      Assumed allowance ({selectedStateInfo.salesTaxPct}%)
                     </span>
                     <strong className="text-amber-300 font-mono">
                       ${estStateMaterialsTaxUsd.toLocaleString()}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 block">Estimated Schedule</span>
+                    <span className="text-slate-400 block">Illustrative duration</span>
                     <strong className="text-emerald-300 font-mono">~{estWeeks} weeks</strong>
                   </div>
                 </div>
               </div>
 
+              ) : <p id="calc-area-error" role="status" className="rounded-xl border border-amber-300/50 bg-amber-100/10 p-4 text-sm text-amber-100">Enter a whole area between 250 and 250,000 sq ft to see an illustration. You can request an estimate without using this optional calculator.</p>}
+
               <button
                 type="button"
                 id="btn-preload-estimate-form"
+                disabled={!isAreaValid}
                 data-magnetic
                 onClick={applyCalculatorToForm}
-                className="w-full py-3 rounded-xl font-extrabold text-sm transition-transform hover:scale-[1.01] shadow-md cursor-pointer"
+                className="w-full py-3 rounded-xl font-extrabold text-sm transition-transform hover:scale-[1.01] shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: "#C9A84C", color: "#070E1A" }}
               >
-                ⚡ Pre-Fill Estimate Form With CSI-32 Breakdown →
+                Add this illustration to my request →
               </button>
 
               <div className="pt-1 text-center">
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   className="text-xs font-bold underline hover:text-white"
                   style={{ color: "#C9A84C" }}
                 >
-                  Open in Multi-Tenant Command Center &amp; Takeoff Pro (:8085) →
+                  Existing client project sign in →
                 </Link>
               </div>
             </div>
@@ -577,7 +549,7 @@ export default function EstimatePage() {
         </section>
 
         {/* ── ESTIMATE REQUEST FORM ── */}
-        <div className="lg:col-span-7">
+        <div className="order-1 lg:order-2 lg:col-span-7">
           {status === "success" ? (
             <div
               data-surface-mode="mineral"
@@ -585,36 +557,37 @@ export default function EstimatePage() {
             >
               <div className="text-6xl mb-4">✅</div>
               <h2 className="text-2xl font-bold mb-2" style={{ color: "#0F2040" }}>
-                Estimate Request Registered in TAYCO CRM!
+                Estimate request received
               </h2>
               <p className="text-slate-600 mb-3 max-w-xl mx-auto">
-                Our Pre-Construction &amp; Estimating team at Milwaukee HQ{" "}
-                <strong>(414) 293-8400</strong> and North Dakota Operations{" "}
-                <strong>(701) 839-2277</strong> will contact you within 24 hours to review your scope and Takeoff Pro v5.0 (:8085) BOQ.
+                Your request has been saved for team review. Keep the reference below.
+                For questions, call <a href={COMPANY.phoneHref} className="font-semibold underline">{COMPANY.phoneDisplay}</a>.
+                A project estimate is confirmed only after a scope review.
               </p>
-              {savedCrmId && (
+              {referenceId && (
                 <div className="mb-6">
                   <p className="text-xs font-mono text-emerald-800 bg-emerald-50 inline-block px-4 py-1.5 rounded-full border border-emerald-300 font-bold">
-                    MOD_CRM_BIDS Opportunity Code: {savedCrmId}
+                    Request reference: {referenceId}
                   </p>
                 </div>
               )}
+              <p className="text-xs text-slate-600 mb-5" role="status">{notificationStatus === "pending" ? "Saved. Team notification is pending; your reference remains valid." : "Saved for team review."}</p>
               <div className="flex flex-wrap justify-center gap-3 mt-2">
                 <Link
-                  href="/portal?tab=MOD_CRM_BIDS"
+                  href="/login"
                   data-magnetic
                   className="text-xs sm:text-sm font-bold px-5 py-3 rounded-xl"
                   style={{ background: "#0F2040", color: "#C9A84C" }}
                 >
-                  🏛️ Open Module 1 (CRM &amp; Bid Pipeline) →
+                  Existing client sign in →
                 </Link>
                 <Link
-                  href="/portal?tab=MOD_TAKEOFF_PRO"
+                  href="/login"
                   data-magnetic
                   className="text-xs sm:text-sm font-extrabold px-5 py-3 rounded-xl"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  📐 Open Module 0 (Takeoff Pro Bridge :8085) →
+                  Team &amp; partner sign in →
                 </Link>
                 <Link
                   href="/"
@@ -628,22 +601,25 @@ export default function EstimatePage() {
             <form
               onSubmit={handleSubmit}
               data-surface-mode="mineral"
-              className="tayco-living-card editorial-ivory-card p-8 space-y-5 bg-white"
+              className="tayco-living-card editorial-ivory-card p-5 sm:p-8 space-y-5 bg-white"
             >
               <div className="preview-orbits" aria-hidden="true" />
               <div className="relative z-10 space-y-5">
+                <Suspense fallback={null}>
+                  <RequestedService onApply={(description, projectType) => setForm(prev => ({ ...prev, projectType: prev.projectType || projectType, projectDetails: prev.projectDetails.includes(description) ? prev.projectDetails : [prev.projectDetails.trim(), description].filter(Boolean).join("\n\n") }))} />
+                </Suspense>
                 <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
                     <span className="text-[11px] font-mono uppercase tracking-widest text-amber-700 font-bold">
-                      FORMAL PRE-CONSTRUCTION &amp; GMP PROPOSAL REQUEST
+                      TELL US ABOUT YOUR PROJECT
                     </span>
                     <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">
-                      Project Scope &amp; Executive Contact Information
+                      Project &amp; contact details
                     </h3>
                   </div>
                   <div className="text-xs font-mono text-slate-600">
-                    <div>📞 (414) 293-8400 · WI HQ</div>
-                    <div>📞 (701) 839-2277 · ND Ops</div>
+                    <div>{COMPANY.phoneDisplay}</div>
+                    <div>{COMPANY.email}</div>
                   </div>
                 </div>
 
@@ -659,35 +635,37 @@ export default function EstimatePage() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
-                    <label
+                    <label htmlFor="estimate-fullName"
                       className="block text-sm font-semibold mb-1"
                       style={{ color: "#0F2040" }}
                     >
                       Full Name <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <input
-                      name="fullName"
+                    id="estimate-fullName"
+                    name="fullName" autoComplete="name"
                       value={form.fullName}
                       onChange={handleChange}
                       required
-                      placeholder="Marcus Vance"
+                      placeholder="Your name"
                       className="w-full border-2 rounded-lg px-4 py-2.5 text-sm focus:outline-none bg-white"
                       style={{ borderColor: "#E2E8F0" }}
                     />
                   </div>
                   <div>
-                    <label
+                    <label htmlFor="estimate-phone"
                       className="block text-sm font-semibold mb-1"
                       style={{ color: "#0F2040" }}
                     >
                       Direct Phone Number <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <input
-                      name="phone"
+                    id="estimate-phone"
+                    name="phone" autoComplete="tel" inputMode="tel"
                       value={form.phone}
                       onChange={handleChange}
                       required
-                      placeholder="(414) 293-8400"
+                      placeholder="Your phone number"
                       className="w-full border-2 rounded-lg px-4 py-2.5 text-sm focus:outline-none bg-white"
                       style={{ borderColor: "#E2E8F0" }}
                     />
@@ -695,14 +673,15 @@ export default function EstimatePage() {
                 </div>
 
                 <div>
-                  <label
+                  <label htmlFor="estimate-email"
                     className="block text-sm font-semibold mb-1"
                     style={{ color: "#0F2040" }}
                   >
-                    Executive Email Address <span style={{ color: "#C9A84C" }}>*</span>
+                    Email Address <span style={{ color: "#C9A84C" }}>*</span>
                   </label>
                   <input
-                    name="email"
+                    id="estimate-email"
+                    name="email" autoComplete="email"
                     type="email"
                     value={form.email}
                     onChange={handleChange}
@@ -714,13 +693,14 @@ export default function EstimatePage() {
                 </div>
 
                 <div>
-                  <label
+                  <label htmlFor="estimate-projectType"
                     className="block text-sm font-semibold mb-1"
                     style={{ color: "#0F2040" }}
                   >
                     Project Type <span style={{ color: "#C9A84C" }}>*</span>
                   </label>
                   <select
+                    id="estimate-projectType"
                     name="projectType"
                     value={form.projectType}
                     onChange={handleChange}
@@ -738,32 +718,34 @@ export default function EstimatePage() {
                 </div>
 
                 <div>
-                  <label
+                  <label htmlFor="estimate-projectLocation"
                     className="block text-sm font-semibold mb-1"
                     style={{ color: "#0F2040" }}
                   >
-                    Project Location (9 States: WI · IL · IA · IN · MN · MI · MO · TX · ND){" "}
+                    Project Location (8 States: WI · IL · IA · IN · MN · MI · MO · TX){" "}
                     <span style={{ color: "#C9A84C" }}>*</span>
                   </label>
                   <input
+                    id="estimate-projectLocation"
                     name="projectLocation"
                     value={form.projectLocation}
                     onChange={handleChange}
                     required
-                    placeholder="City, State (e.g. Milwaukee, WI or New Town, ND)"
+                    placeholder="City and state (e.g. Milwaukee, WI)"
                     className="w-full border-2 rounded-lg px-4 py-2.5 text-sm focus:outline-none bg-white"
                     style={{ borderColor: "#E2E8F0" }}
                   />
                 </div>
 
                 <div>
-                  <label
+                  <label htmlFor="estimate-projectDetails"
                     className="block text-sm font-semibold mb-1"
                     style={{ color: "#0F2040" }}
                   >
-                    Project Details &amp; CSI-32 Scope Notes
+                    Project details &amp; priorities
                   </label>
                   <textarea
+                    id="estimate-projectDetails"
                     name="projectDetails"
                     value={form.projectDetails}
                     onChange={handleChange}
@@ -775,11 +757,12 @@ export default function EstimatePage() {
                 </div>
 
                 {status === "error" && (
-                  <div className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
+                  <div role="alert" className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
                     {errorMsg}
                   </div>
                 )}
 
+                <p className="text-xs text-slate-600">We use these details to review your project and contact you. <Link href="/privacy" className="underline">Privacy &amp; data protection</Link>. Do not include payment or identity documents.</p>
                 <button
                   type="submit"
                   data-magnetic
@@ -788,12 +771,12 @@ export default function EstimatePage() {
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
                   {status === "sending"
-                    ? "Syncing Estimate to TAYCO Command Center..."
-                    : "Submit Estimate Request & Sync to CRM →"}
+                    ? "Sending your request..."
+                    : "Send estimate request →"}
                 </button>
 
                 <p className="text-center text-xs text-slate-500">
-                  We respond within 24 hours. Automatically synced with TAYCO LLC Module 1 (MOD_CRM_BIDS) &amp; Module 0 (Takeoff Pro v5.0 :8085).
+                  We will review your request and contact you using the details provided. A request is not a construction agreement.
                 </p>
               </div>
             </form>

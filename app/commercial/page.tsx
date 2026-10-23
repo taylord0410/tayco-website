@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type CommercialTradeCategory =
   | "all"
@@ -16,8 +17,8 @@ interface CommercialTradeSpec {
   titlePlain: string;
   category: Exclude<CommercialTradeCategory, "all">;
   unitRate: string;
-  takeoffManHours: string;
-  sheetRef: string;
+  scheduleNote: string;
+  planningNote: string;
   accent: string;
   summary: string;
   deliverables: string[];
@@ -25,291 +26,268 @@ interface CommercialTradeSpec {
 
 const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   {
-    num: "01",
-    csiCode: "CSI 07 50 00",
-    titleNode: "01 · CSI 07 50 00 — Commercial Membrane & Standing Seam Roofing",
-    titlePlain: "Commercial Membrane & Standing Seam Roofing",
-    category: "structural_envelope",
-    unitRate: "$14.50–$28.00 / sq.ft.",
-    takeoffManHours: "1,120.0 MH Audited (:8085)",
-    sheetRef: "Sheets A-103 & A-301",
-    accent: "#1B3A6B",
-    summary:
-      "TPO, EPDM, 24-Gauge Standing Seam, R-38/R-49 Tapered Polyiso engineered for extreme Upper Midwest and North Dakota wind/snow uplift.",
-    deliverables: [
-      "60/80-Mil Mechanically Attached & Adhered TPO / EPDM",
-      "24-Gauge Kynar 500 Architectural Standing Seam Metal",
-      "R-38 to R-49 Tapered Polyiso Thermal Roof Assemblies",
-      "Ice & Water Shield High-Temp Eave & Valley Membranes",
-      "20-Year NDL Manufacturer Warranty & Infrared Moisture Scans",
-      "24/7 Emergency Commercial Storm Tarping & Hail Rebuild",
-    ],
+    "num": "01",
+    "csiCode": "Roofing",
+    "titleNode": "Roofing",
+    "titlePlain": "Roofing",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Roof repair and replacement planned around building use, condition and access.",
+    "deliverables": [
+      "Roof condition and leak review",
+      "Membrane, shingle and metal options",
+      "Drainage and flashing details",
+      "Insulation and ventilation review",
+      "Repair or replacement scope",
+      "Site access and protection"
+    ]
   },
   {
-    num: "02",
-    csiCode: "CSI 07 42 00",
-    titleNode:
-      "02 · CSI 07 42 00 — Commercial Cladding, Storefront & Thermal Envelope",
-    titlePlain: "Commercial Cladding, Storefront & Thermal Envelope",
-    category: "structural_envelope",
-    unitRate: "$22.00–$46.00 / sq.ft.",
-    takeoffManHours: "940.0 MH Audited (:8085)",
-    sheetRef: "Sheets A-201 & A-202",
-    accent: "#1B3A6B",
-    summary:
-      "Insulated Metal Panels, ACM, Kawneer Curtainwall, Continuous Insulation engineered for zero thermal bridging across 9 states.",
-    deliverables: [
-      "Insulated Metal Panels (IMP) & Architectural ACM Rainscreens",
-      "Kawneer Thermally Broken Aluminum Storefront & Curtainwall",
-      "James Hardie Commercial Artisan & Board-and-Batten Systems",
-      "Continuous Exterior Rigid Insulation (R-15 to R-25 CI)",
-      "Fluid-Applied Air & Vapor Barrier Membrane Assemblies",
-      "Commercial Sealant Joint Replacement & Facade Repositioning",
-    ],
+    "num": "02",
+    "csiCode": "Exterior",
+    "titleNode": "Siding, windows & exterior",
+    "titlePlain": "Siding, windows & exterior",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Improve the exterior with coordinated siding, window, door and weatherproofing work.",
+    "deliverables": [
+      "Siding repair and replacement",
+      "Window and door openings",
+      "Trim, soffit and fascia",
+      "Water-management detailing",
+      "Exterior finish selections",
+      "Coordination with occupied areas"
+    ]
   },
   {
-    num: "03",
-    csiCode: "CSI 05 12 00 & 06 18 00",
-    titleNode:
-      "03 · CSI 05 12 00 & 06 18 00 — Structural Steel, LVL Glulam & Metal Stud Framing",
-    titlePlain: "Structural Steel, LVL Glulam & Metal Stud Framing",
-    category: "structural_envelope",
-    unitRate: "$24.00–$52.00 / sq.ft.",
-    takeoffManHours: "1,840.0 MH Audited (:8085)",
-    sheetRef: "Sheets S-101 & S-201",
-    accent: "#C9A84C",
-    summary:
-      "Wide-Flange Bays, 1-3/4\"×14\" LVL Ridge Beams, 16-Ga Cold-Formed Framing, HDU8 Hold-Downs verified directly in Takeoff Pro (:8085).",
-    deliverables: [
-      "Structural Wide-Flange Steel Bays, Columns & Bar Joist Decking",
-      "16× 1-3/4\"×14\" Engineered LVL Ridge Beams & Glulam Trusses",
-      "16-Gauge & 18-Gauge Structural Cold-Formed Metal Stud Framing",
-      "Simpson Strong-Tie HDU8 Hold-Downs & Anchor Bolt Templates",
-      "5/8\" Structural ZIP System Wall & Roof Sheathing Diaphragms",
-      "Multi-Story Commercial Mezzanines & Load-Bearing Shear Walls",
-    ],
+    "num": "03",
+    "csiCode": "Framing",
+    "titleNode": "Framing & structural coordination",
+    "titlePlain": "Framing & structural coordination",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Coordinate the structure and layout for new construction, additions and interior changes.",
+    "deliverables": [
+      "Framing layout review",
+      "Wall and floor systems",
+      "Roof framing coordination",
+      "Openings and headers",
+      "Engineer coordination where required",
+      "Inspections and sequencing"
+    ]
   },
   {
-    num: "04",
-    csiCode: "CSI 09 60 00",
-    titleNode:
-      "04 · CSI 09 60 00 — Industrial Epoxy, Polished Concrete & Commercial LVT Flooring",
-    titlePlain: "Industrial Epoxy, Polished Concrete & Commercial LVT Flooring",
-    category: "interior_ti",
-    unitRate: "$8.50–$21.00 / sq.ft.",
-    takeoffManHours: "680.0 MH Audited (:8085)",
-    sheetRef: "Sheets A-101 & I-104",
-    accent: "#1B3A6B",
-    summary:
-      "FF50/FL35 Laser-Screeded Slabs, 100%-Solids Urethane Mortar, 20-Mil Commercial LVT built for logistics, medical, and hospitality traffic.",
-    deliverables: [
-      "FF50 / FL35 Laser-Screeded & Diamond-Polished Warehouse Slabs",
-      "100%-Solids Industrial Epoxy & Thermal-Shock Urethane Mortar",
-      "20-Mil & 28-Mil Commercial Luxury Vinyl Plank/Tile (LVP/LVT)",
-      "Large-Format Commercial Porcelain Tile & Quarry Kitchen Floors",
-      "ASTM F2170 Relative Humidity Testing & Moisture Mitigation",
-      "Cove Base, Stair Treads & ADA Tactile Warning Transitions",
-    ],
+    "num": "04",
+    "csiCode": "Flooring",
+    "titleNode": "Flooring",
+    "titlePlain": "Flooring",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Choose flooring suited to traffic, maintenance and the needs of your space.",
+    "deliverables": [
+      "Existing floor removal",
+      "Subfloor condition review",
+      "Tile, vinyl and wood options",
+      "Concrete and specialty finishes",
+      "Transitions and base details",
+      "Installation sequencing"
+    ]
   },
   {
-    num: "05",
-    csiCode: "CSI 09 29 00",
-    titleNode:
-      "05 · CSI 09 29 00 — 5/8\" Type-X Fire-Rated Drywall & Acoustic Assemblies",
-    titlePlain: "5/8\" Type-X Fire-Rated Drywall & Acoustic Assemblies",
-    category: "interior_ti",
-    unitRate: "$9.20–$18.50 / sq.ft.",
-    takeoffManHours: "920.0 MH Audited (:8085)",
-    sheetRef: "Sheets A-102 & A-401",
-    accent: "#1B3A6B",
-    summary:
-      "UL 1-Hr/2-Hr Shaftwall, STC 55+ Sound Isolation, Level-5 Skim Finish, Armstrong Ultima Grids executed by self-performing TAYCO crews.",
-    deliverables: [
-      "UL-Listed 1-Hour & 2-Hour Fire-Rated 5/8\" Type-X Gypsum Walls",
-      "STC 55+ Acoustic RC-1 Resilient Channel & Sound-Batt Partitions",
-      "GA-214 Level-4 & Level-5 Architectural Skim-Coat Finishes",
-      "Armstrong Ultima & Preludio Suspended Acoustic Ceiling Grids",
-      "Moisture & Mold-Resistant Fiberglass-Mat Gypsum Assemblies",
-      "UL Firestopping, Smoke Partitions & Shaftwall Enclosures",
-    ],
+    "num": "05",
+    "csiCode": "Interiors",
+    "titleNode": "Drywall, ceilings & painting",
+    "titlePlain": "Drywall, ceilings & painting",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Bring interior spaces together with coordinated walls, ceilings and finishes.",
+    "deliverables": [
+      "Partition layout",
+      "Drywall repair and installation",
+      "Ceiling systems",
+      "Surface preparation",
+      "Paint and finish selection",
+      "Final touch-ups and review"
+    ]
   },
   {
-    num: "06",
-    csiCode: "CSI 10 / 11 / 12",
-    titleNode:
-      "06 · CSI 10 / 11 / 12 — Turnkey Tenant Improvements (Medical, Retail & Hospitality)",
-    titlePlain: "Turnkey Tenant Improvements (Medical, Retail & Hospitality)",
-    category: "interior_ti",
-    unitRate: "$85.00–$165.00 / sq.ft.",
-    takeoffManHours: "1,460.0 MH Audited (:8085)",
-    sheetRef: "Sheets A-101 to E-201",
-    accent: "#C9A84C",
-    summary:
-      "Full MEP Coordination, ADA Restroom Cores, Custom Millwork, AIA G702/G703 Draw Control with single-point GC accountability.",
-    deliverables: [
-      "Medical, Dental, Surgical & Clinical Office Fit-Outs",
-      "Hospitality Cabins, Restaurants & Retail Flagship Build-Outs",
-      "Turnkey MEP Coordination (HVAC, 200A-800A Electrical, Plumbing)",
-      "ADA-Compliant Commercial Restroom Cores & Division 10 Specialties",
-      "Architectural Casework, Quartz Reception Counters & Trim",
-      "AIA G702/G703 Progress Billing & Fast-Track Certificate of Occupancy",
-    ],
+    "num": "06",
+    "csiCode": "Tenant improvements",
+    "titleNode": "Tenant improvements",
+    "titlePlain": "Tenant improvements",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Adapt an office, retail or business space to the needs of its next occupants.",
+    "deliverables": [
+      "Existing conditions and scope",
+      "Interior layout and finishes",
+      "Carpentry and cabinetry",
+      "Electrical and plumbing coordination",
+      "Occupied-space access planning",
+      "Walk-through and closeout"
+    ]
   },
   {
-    num: "07",
-    csiCode: "CSI 02 41 00",
-    titleNode: (
-      <>
-        07 · CSI 02 41 00 — Engineered Structural &amp; Selective Commercial Dem
-        {"o"}lition
-      </>
-    ),
-    titlePlain: "Engineered Structural & Selective Commercial Deconstruction",
-    category: "site_restoration",
-    unitRate: "$6.50–$16.00 / sq.ft.",
-    takeoffManHours: "410.0 MH Audited (:8085)",
-    sheetRef: "Sheets D-101 & C-102",
-    accent: "#1B3A6B",
-    summary:
-      "Saw-Cutting, Shoring, OSHA HEPA Containment, Concrete Crushing & Recycling for occupied hospitals, retail centers, and industrial plants.",
-    deliverables: [
-      "Selective Interior Commercial Strip-Out & White-Box Preparation",
-      "Engineered Structural Shoring, Bracing & Load-Bearing Modifications",
-      "Diamond Slab Saw-Cutting, Core Drilling & Trench Excavation",
-      "OSHA 30 Negative-Air HEPA Dust & Infection Control Containment",
-      "Structural Steel Shearing, Concrete Crushing & LEED Recycling",
-      "Utility Disconnect Verification & Turnkey Pad Readiness",
-    ],
+    "num": "07",
+    "csiCode": "Site preparation",
+    "titleNode": "Demolition & site preparation",
+    "titlePlain": "Demolition & site preparation",
+    "category": "site_restoration",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#C9A84C",
+    "summary": "Define removal and preparation work before the next phase of construction.",
+    "deliverables": [
+      "Removal scope review",
+      "Utility coordination",
+      "Protection of retained areas",
+      "Debris handling",
+      "Site access and logistics",
+      "Readiness for the next trade"
+    ]
   },
   {
-    num: "08",
-    csiCode: "CSI 31 / 32",
-    titleNode:
-      "08 · CSI 31 / 32 — Site Civil, 8.5' Frost-Bury Utilities & Concrete Paving",
-    titlePlain: "Site Civil, 8.5' Frost-Bury Utilities & Concrete Paving",
-    category: "site_restoration",
-    unitRate: "$18.00–$38.00 / sq.ft.",
-    takeoffManHours: "766.0 MH Audited (:8085)",
-    sheetRef: "Sheets C-500 & PR-5",
-    accent: "#1B3A6B",
-    summary:
-      "4000 PSI Reinforced Aprons, Sub-Zero Water/Sewer Trenching, E-One Lift Stations, ADA Ramps engineered for northern freeze-thaw cycles.",
-    deliverables: [
-      "8.5-Ft Arctic Frost-Bury HDPE Water & Sanitary Sewer Mains",
-      "E-One Duplex Grinder Pump Lift Stations & Force Main Tie-Ins",
-      "4000–5000 PSI Reinforced Concrete Loading Docks & Aprons",
-      "Heavy Timber Octagon Gazebos, Bollards & Site Furnishings",
-      "ADA-Compliant Concrete Sidewalks, Detectable Warnings & Curb Cuts",
-      "Subgrade Proof-Rolling, Engineered Fill & Stormwater Grading",
-    ],
+    "num": "08",
+    "csiCode": "Concrete",
+    "titleNode": "Concrete & foundations",
+    "titlePlain": "Concrete & foundations",
+    "category": "structural_envelope",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Coordinate foundations, slabs and exterior concrete within the overall project.",
+    "deliverables": [
+      "Foundation and slab scope",
+      "Site conditions and access",
+      "Forms and reinforcement coordination",
+      "Walkways, steps and patios",
+      "Concrete repair options",
+      "Finishing and curing plan"
+    ]
   },
   {
-    num: "09",
-    csiCode: "CSI 01 31 00",
-    titleNode:
-      "09 · CSI 01 31 00 — Multi-Site Commercial Rollouts & REIT CapEx Programs",
-    titlePlain: "Multi-Site Commercial Rollouts & REIT CapEx Programs",
-    category: "interior_ti",
-    unitRate: "$110.00–$245.00 / sq.ft.",
-    takeoffManHours: "6,536.0 MH Portfolio",
-    sheetRef: "Master 32-Sheet Set (:8085)",
-    accent: "#C9A84C",
-    summary:
-      "Single-Point Master GC Contract, 9-State Tax Optimization, Weekly Earned-Value Reporting across WI, IL, IA, IN, MN, MI, MO, TX, and ND.",
-    deliverables: [
-      "Single-Point Master General Contracting across 9 States",
-      "3-Bid Subcontractor Leveling Matrix with Guaranteed GMP Savings",
-      "24-Week S-Curve Earned Value Management (CPI / SPI Telemetry)",
-      "9-State Material vs. Labor Sales/Use Tax & Tribal TERO Compliance",
-      "Certified Davis-Bacon WH-347 Payroll & COI/W-9 Governance",
-      "Dedicated Module-Scoped Portal Access for Owners, CPAs & Lenders",
-    ],
+    "num": "09",
+    "csiCode": "Property programs",
+    "titleNode": "Property renovation programs",
+    "titlePlain": "Property renovation programs",
+    "category": "interior_ti",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#1B3A6B",
+    "summary": "Plan turnovers and improvements across one property or a portfolio.",
+    "deliverables": [
+      "Property-by-property scope",
+      "Priority and budget review",
+      "Trade and material coordination",
+      "Site scheduling",
+      "Change documentation",
+      "Handover and outstanding items"
+    ]
   },
   {
-    num: "10",
-    csiCode: "IICRC S500 / S520",
-    titleNode:
-      "10 · IICRC S500 / S520 — 24/7 Commercial Fire, Water & Storm Reconstruction",
-    titlePlain: "24/7 Commercial Fire, Water & Storm Reconstruction",
-    category: "site_restoration",
-    unitRate: "Rapid Mobilization",
-    takeoffManHours: "24/7 Field Dispatch",
-    sheetRef: "IICRC + Takeoff Pro Sync",
-    accent: "#F97316",
-    summary:
-      "Psychrometric Drying Logs, Xactimate + Takeoff Pro CSI-32 Reconciliation, Full Structural Rebuild for commercial losses.",
-    deliverables: [
-      "24/7 Rapid Commercial Water Extraction & Desiccant Dehumidification",
-      "IICRC S500 / S520 Certified Mold & Category-3 Remediation",
-      "Commercial Fire, Smoke, Char & Odor Structural Remediation",
-      "Daily Psychrometric Moisture Mapping & Thermal Imaging Logs",
-      "Direct Xactimate + Takeoff Pro (:8085) CSI-32 Carrier Reconciliation",
-      "Turnkey Code-Upgraded Commercial Reconstruction to Occupancy",
-    ],
-  },
+    "num": "10",
+    "csiCode": "Restoration",
+    "titleNode": "Fire & water reconstruction",
+    "titlePlain": "Fire & water reconstruction",
+    "category": "site_restoration",
+    "unitRate": "Estimate by project",
+    "scheduleNote": "Schedule agreed with you",
+    "planningNote": "Scope-specific planning",
+    "accent": "#F97316",
+    "summary": "Bring damage assessment, restoration planning and rebuilding into a coordinated scope.",
+    "deliverables": [
+      "Damage assessment",
+      "Fire, smoke and soot repairs",
+      "Water damage and drying coordination",
+      "Insurance documentation support",
+      "Reconstruction planning",
+      "Completion review"
+    ]
+  }
 ];
 
-const COMMERCIAL_LEDGER_PROJECTS = [
+const COMMERCIAL_PROJECT_STARTERS = [
   {
-    code: "PRJ-ND-001",
-    name: "Son of a Star 8-Cabin Casino Resort",
-    location: "New Town, ND (MHA Nation)",
-    status: "Active Execution · 60.2% Complete",
-    sqft: "5,640 sq.ft. (8 Cabins + 2 Gazebos)",
-    gmp: "$855,525.23",
-    takeoffLink: "32 ARCH-D Sheets · 87 Sub-Views (:8085)",
-    portalHref: "/portal?invite=INV-TAYCO-MASTER",
-    estimateHref: "/estimate?project=PRJ-ND-001",
-    badgeColor: "#10B981",
+    "code": "01",
+    "name": "New construction",
+    "location": "Ground-up & additions",
+    "status": "Planning",
+    "sqft": "Site & intended use",
+    "helpfulDetails": "Plans & requirements",
+    "discussion": "Share available drawings and site details",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
   },
   {
-    code: "PRJ-WI-002",
-    name: "Park Tower Mixed-Use Structural & TI",
-    location: "Milwaukee, WI",
-    status: "Active Execution · Pay App #2",
-    sqft: "14,200 sq.ft.",
-    gmp: "$389,192.50",
-    takeoffLink: "CSI 03 / 05 / 09 Structural Sync (:8085)",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-WI-002",
-    badgeColor: "#C9A84C",
+    "code": "02",
+    "name": "Tenant improvements",
+    "location": "Office, retail & business",
+    "status": "Renovation",
+    "sqft": "Layout & operating hours",
+    "helpfulDetails": "Current conditions",
+    "discussion": "Tell us about occupancy and target use",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
   },
   {
-    code: "PRJ-WI-003",
-    name: "Wisconsin Ave Medical TI",
-    location: "Madison, WI",
-    status: "GMP Locked · Pre-Construction",
-    sqft: "11,800 sq.ft.",
-    gmp: "$1,240,000.00",
-    takeoffLink: "CSI 09 / 10 / 22 / 26 Clinical Assembly",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-WI-003",
-    badgeColor: "#4A90D9",
+    "code": "03",
+    "name": "Property turnover",
+    "location": "Owners & property managers",
+    "status": "Property programs",
+    "sqft": "Unit count & priorities",
+    "helpfulDetails": "Repair scope",
+    "discussion": "Identify urgent repairs and access needs",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
   },
   {
-    code: "PRJ-IL-004",
-    name: "Chicago O'Hare Cold-Storage",
-    location: "Des Plaines, IL",
-    status: "3-Bid Leveling Complete",
-    sqft: "42,500 sq.ft.",
-    gmp: "$2,480,000.00",
-    takeoffLink: "CSI 03 FF50 Slab & CSI 07 R-49 Envelope",
-    portalHref: "/portal?invite=INV-CLIENT-CRM-TAKEOFF",
-    estimateHref: "/estimate?project=PRJ-IL-004",
-    badgeColor: "#10B981",
+    "code": "04",
+    "name": "Restoration",
+    "location": "Fire & water damage",
+    "status": "Recovery",
+    "sqft": "Damage & safe access",
+    "helpfulDetails": "Photos & documentation",
+    "discussion": "Discuss assessment and reconstruction",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
   },
   {
-    code: "PRJ-TX-005",
-    name: "Dallas 48-Unit Multi-Family Rehab",
-    location: "Dallas, TX",
-    status: "Phase II Field Mobilization",
-    sqft: "38,400 sq.ft.",
-    gmp: "$920,000.00",
-    takeoffLink: "CSI 06 / 07 / 08 / 09 CapEx Matrix",
-    portalHref: "/portal?invite=INV-INVESTOR-PORTFOLIO",
-    estimateHref: "/estimate?project=PRJ-TX-005",
-    badgeColor: "#F97316",
-  },
+    "code": "05",
+    "name": "Exterior improvements",
+    "location": "Roofing, siding & concrete",
+    "status": "Building envelope",
+    "sqft": "Condition & access",
+    "helpfulDetails": "Repair or replace",
+    "discussion": "Describe known issues and priorities",
+    "portalHref": "/login",
+    "estimateHref": "/estimate",
+    "badgeColor": "#C9A84C"
+  }
 ];
 
 export default function CommercialPage() {
@@ -335,7 +313,7 @@ export default function CommercialPage() {
         } as React.CSSProperties
       }
     >
-      {/* ── CABECERA EXECUTIVE COMMAND COMERCIAL (#070E1A -> #0F2040 -> #1B3A6B) ── */}
+      {/* Project services and resources */}
       <section
         id="commercial-executive-hero"
         className="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-8 border-b"
@@ -359,7 +337,7 @@ export default function CommercialPage() {
         />
 
         <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Top Executive Masthead Bar with Orbital Stamp + Raking Light Slider */}
+          {/* Project services and resources */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 mb-10 border-b border-white/15">
             <div className="flex items-center gap-5">
               {/* Rotating Orbital Editorial Stamp */}
@@ -376,7 +354,7 @@ export default function CommercialPage() {
                   </defs>
                   <text>
                     <textPath href="#commercial-orbit-path" startOffset="0%">
-                      TAYCO COMMERCIAL DIVISION · CSI-32 TURNKEY · 9 STATES ·
+                      TAYCO COMMERCIAL DIVISION · CONSTRUCTION &amp; RENOVATION ·
                     </textPath>
                   </text>
                 </svg>
@@ -392,7 +370,7 @@ export default function CommercialPage() {
                     className="tayco-live-dot"
                     style={{ color: "#10B981" }}
                   />
-                  TAYCO COMMERCIAL COMMAND · TAKEOFF PRO v5.0 (:8085) SYNCED
+                  COMMERCIAL CONSTRUCTION · ONE POINT OF CONTACT
                 </div>
                 <h1
                   className="font-black text-white tracking-tight"
@@ -443,16 +421,12 @@ export default function CommercialPage() {
             </div>
           </div>
 
-          {/* Executive Intro & Direct Actions */}
+          {/* Project services and resources */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
             <div className="lg:col-span-7">
               <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
-                TAYCO LLC delivers ground-up commercial construction, structural
-                steel and engineered LVL framing, R-49 thermal envelopes, and
-                turnkey medical/retail tenant improvements with a single point
-                of executive accountability. Every assembly is quantified in{" "}
-                <strong className="text-amber-300">Takeoff Pro (:8085)</strong>{" "}
-                and governed by AIA G702/G703 progress billing.
+                TAYCO LLC coordinates ground-up construction, commercial renovations and tenant improvements.
+                Talk to one team about the scope, schedule, trades and decisions that move your project forward.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 <Link
@@ -461,10 +435,10 @@ export default function CommercialPage() {
                   className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105 shadow-lg"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  🧮 Launch CSI-32 Commercial Estimator →
+                  Request a commercial estimate →
                 </Link>
                 <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
+                  href="/login"
                   data-magnetic
                   className="px-6 py-3.5 rounded-xl font-bold text-sm text-white border transition-colors hover:bg-white/10"
                   style={{
@@ -472,7 +446,7 @@ export default function CommercialPage() {
                     background: "rgba(15, 32, 64, 0.7)",
                   }}
                 >
-                  🏛️ Open Commercial Bid Pipeline (/portal) →
+                  Client project sign in →
                 </Link>
                 <Link
                   href="/residential"
@@ -494,58 +468,56 @@ export default function CommercialPage() {
                 }}
               >
                 <div className="flex items-center justify-between text-xs font-mono text-emerald-300 font-bold mb-2">
-                  <span>● LIVE TAKEOFF PRO (:8085) TELEMETRY</span>
-                  <span>21 RUST KERNELS</span>
+                  <span>YOUR PROJECT, COORDINATED</span>
+                  <span>PLANNING TO DELIVERY</span>
                 </div>
                 <div className="text-2xl font-black font-mono text-white">
-                  $5,884,717.73{" "}
+                  One team{" "}
                   <span className="text-xs font-normal text-amber-300">
-                    Active Commercial GMP
+                    for the work ahead
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                  Featuring PRJ-ND-001 Son of a Star ($855,525.23 GMP · 32
-                  ARCH-D Sheets · 87 Sub-Views) + 15 Subcontractor Bids Leveled
-                  (-$30,650.00 Net GMP Savings).
+                  From the first review through the final walk-through, bring your trades, requirements and next steps into one clear plan.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Cinta de Telemetría en Vivo con Takeoff Pro (:8085) */}
+          {/* Project services and resources */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              {
-                metric: "$5,884,717.73",
-                label: "Active Commercial GMP Pipeline",
-                sub: "5 Multi-State Contracts in Execution",
-                accent: "#C9A84C",
-              },
-              {
-                metric: "$855,525.23",
-                label: "Son of a Star ND Contract",
-                sub: "32 Sheets / 87 Sub-Views (:8085)",
-                accent: "#10B981",
-              },
-              {
-                metric: "6,536.0",
-                label: "Certified WH-347 Man-Hours",
-                sub: "103.1 Crew-Days · $213,299.26 Labor",
-                accent: "#4A90D9",
-              },
-              {
-                metric: "22+",
-                label: "In-House CSI Specialties",
-                sub: "Self-Performing Commercial Crews",
-                accent: "#F97316",
-              },
-              {
-                metric: "9 States",
-                label: "WI · IL · IA · IN · MN · MI · MO · TX · ND",
-                sub: "Includes MHA Nation 2.5% TERO",
-                accent: "#F3D37A",
-              },
-            ].map((item) => (
+  {
+    "metric": "Plan",
+    "label": "Scope & priorities",
+    "sub": "Start with drawings, photos or an idea",
+    "accent": "#C9A84C"
+  },
+  {
+    "metric": "Build",
+    "label": "Ground-up construction",
+    "sub": "Site, structure and coordinated trades",
+    "accent": "#10B981"
+  },
+  {
+    "metric": "Adapt",
+    "label": "Tenant improvements",
+    "sub": "Fit the space to your business",
+    "accent": "#4A90D9"
+  },
+  {
+    "metric": "Restore",
+    "label": "Property recovery",
+    "sub": "Fire & water reconstruction",
+    "accent": "#F97316"
+  },
+  {
+    "metric": "8 States",
+    "label": "Service coverage",
+    "sub": "Contact us about your location",
+    "accent": "#F3D37A"
+  }
+].map((item) => (
               <div
                 key={item.label}
                 data-response-kind="surface"
@@ -576,30 +548,30 @@ export default function CommercialPage() {
       {/* ── MARQUEE EDITORIAL CINÉTICO (.tayco-editorial-ticker) ── */}
       <div
         className="tayco-editorial-ticker"
-        aria-label="TAYCO Commercial CSI-32 Specialties"
+        aria-label="TAYCO commercial services"
       >
         <div>
-          <span className="gold">CSI 03 30 00 Laser-Screeded 4000 PSI Concrete</span>
+          <span className="gold">Concrete, foundations &amp; site improvements</span>
           <i aria-hidden="true">✳</i>
-          <span>CSI 05 12 00 Structural Steel &amp; 16× LVL Glulam</span>
+          <span>Framing, additions &amp; structural coordination</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">CSI 07 50 00 TPO / EPDM &amp; R-49 Standing Seam</span>
+          <span className="gold">Roofing, exterior &amp; building improvements</span>
           <i aria-hidden="true">✳</i>
-          <span>CSI 09 29 00 UL Fire-Rated Type-X Shaftwall</span>
+          <span>Drywall, painting &amp; interior finishes</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">CSI 31 23 16 8.5-Ft Arctic Frost-Bury Utilities</span>
+          <span className="gold">Site preparation &amp; restoration planning</span>
           <i aria-hidden="true">✳</i>
-          <span>CSI 03 30 00 Laser-Screeded 4000 PSI Concrete</span>
+          <span>Concrete, foundations &amp; site improvements</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">CSI 05 12 00 Structural Steel &amp; 16× LVL Glulam</span>
+          <span className="gold">Framing, additions &amp; structural coordination</span>
           <i aria-hidden="true">✳</i>
-          <span>CSI 07 50 00 TPO / EPDM &amp; R-49 Standing Seam</span>
+          <span>Roofing, exterior &amp; building improvements</span>
         </div>
       </div>
 
@@ -621,7 +593,7 @@ export default function CommercialPage() {
         </svg>
       </div>
 
-      {/* ── SECCIÓN 01 / CSI-32 COMMERCIAL TRADES & UNIT-PRICE ASSEMBLIES (#F4F2EA) ── */}
+      {/* Project services and resources */}
       <section
         id="services"
         className="section-editorial-ivory py-16 sm:py-24 px-4 sm:px-8"
@@ -636,13 +608,13 @@ export default function CommercialPage() {
               style={{ color: "#1B3A6B" }}
             >
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / CSI-32 COMMERCIAL TRADES &amp; UNIT-PRICE ASSEMBLIES
+              01 / COMMERCIAL SERVICES
             </span>
             <span
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#1B3A6B" }}
             >
-              22+ IN-HOUSE SPECIALTIES · AUDITED IN TAKEOFF PRO (:8085)
+              THE RIGHT SCOPE FOR YOUR SPACE
             </span>
           </div>
 
@@ -656,21 +628,20 @@ export default function CommercialPage() {
                   lineHeight: 1.04,
                 }}
               >
-                Self-performing commercial crews.{" "}
+                Every trade, coordinated.{" "}
                 <em
                   className="tayco-serif-em font-normal"
                   style={{ color: "#1B3A6B" }}
                 >
-                  Audited unit rates.
+                  One accountable team.
                 </em>
               </h2>
               <p
                 className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
                 style={{ color: "#334155" }}
               >
-                Filter our 10 core commercial CSI-32 assemblies below. Every
-                card exposes real unit-price benchmarks, Takeoff Pro man-hour
-                allocations, and 6 field deliverables.
+                Explore the work your project may need. Each service includes practical planning points
+                to help you prepare for a conversation with our team.
               </p>
             </div>
 
@@ -678,12 +649,12 @@ export default function CommercialPage() {
             <div
               className="flex flex-wrap gap-2"
               role="group"
-              aria-label="Filter Commercial CSI-32 Specialties"
+              aria-label="Filter commercial services"
             >
               {[
                 {
                   id: "all",
-                  label: "All 10 CSI Specialties",
+                  label: "All services",
                 },
                 {
                   id: "structural_envelope",
@@ -697,7 +668,7 @@ export default function CommercialPage() {
                   id: "site_restoration",
                   label: (
                     <>
-                      Site, Dem{"o"} &amp; IICRC Restoration
+                      Site &amp; restoration
                     </>
                   ),
                 },
@@ -815,9 +786,9 @@ export default function CommercialPage() {
                   style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
                 >
                   <div className="flex items-center gap-3 text-[11px] font-mono font-bold text-slate-700">
-                    <span>⏱️ {card.takeoffManHours}</span>
+                    <span>⏱️ {card.scheduleNote}</span>
                     <span>·</span>
-                    <span>📐 {card.sheetRef}</span>
+                    <span>📐 {card.planningNote}</span>
                   </div>
                   <Link
                     href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
@@ -825,7 +796,7 @@ export default function CommercialPage() {
                     className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
                     style={{ background: "#0F2040", color: "#F3D37A" }}
                   >
-                    Calculate CSI Assembly →
+                    Discuss this service →
                   </Link>
                 </div>
               </div>
@@ -852,7 +823,7 @@ export default function CommercialPage() {
         </svg>
       </div>
 
-      {/* ── SECCIÓN 02 / LIVE COMMERCIAL PROJECT LEDGER & TAKEOFF PRO (:8085) INTEGRATION ── */}
+      {/* Project services and resources */}
       <section
         id="projects"
         className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
@@ -862,10 +833,10 @@ export default function CommercialPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#10B981" }} />
-              02 / LIVE COMMERCIAL PROJECT LEDGER &amp; TAKEOFF PRO (:8085) INTEGRATION
+              02 / PLAN YOUR PROJECT
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
-              5 COMMERCIAL CONTRACTS · $5,884,717.73 COMBINED GMP
+              WHAT TO PREPARE FOR AN ESTIMATE
             </span>
           </div>
 
@@ -878,37 +849,36 @@ export default function CommercialPage() {
                   lineHeight: 1.05,
                 }}
               >
-                Executive Commercial Ledger{" "}
+                Different projects,{" "}
                 <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  &amp; Field Portfolio.
+                  a clear starting point.
                 </em>
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl">
-                Every commercial contract is synchronized with Takeoff Pro
-                (:8085) 2D/3D blueprints, 3-bid subcontractor leveling, and
-                certified Davis-Bacon WH-347 payroll logs.
+                Gather what you have: location, photos, plans and your priorities.
+                We will help identify what else is needed to define the work.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/portal?invite=INV-TAYCO-MASTER"
+                href="/login"
                 data-magnetic
                 className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider"
                 style={{ background: "#C9A84C", color: "#070E1A" }}
               >
-                Open Master Command Center →
+                Existing project sign in →
               </Link>
               <Link
                 href="/estimate"
                 data-magnetic
                 className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white border border-amber-400/50 hover:bg-white/10"
               >
-                Run New GMP Estimate →
+                Request an estimate →
               </Link>
             </div>
           </div>
 
-          {/* Executive Commercial Projects Table */}
+          {/* Project services and resources */}
           <div
             data-response-kind="surface"
             className="tayco-living-card rounded-2xl border overflow-hidden mb-16"
@@ -927,17 +897,17 @@ export default function CommercialPage() {
                       borderColor: "rgba(201, 168, 76, 0.25)",
                     }}
                   >
-                    <th className="py-3.5 px-4">Project Code</th>
-                    <th className="py-3.5 px-4">Commercial Contract &amp; Location</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4">Square Footage</th>
-                    <th className="py-3.5 px-4">Audited GMP</th>
-                    <th className="py-3.5 px-4">Takeoff Pro (:8085) Sync</th>
+                    <th className="py-3.5 px-4">Step</th>
+                    <th className="py-3.5 px-4">Project type &amp; focus</th>
+                    <th className="py-3.5 px-4">Service</th>
+                    <th className="py-3.5 px-4">Starting information</th>
+                    <th className="py-3.5 px-4">Helpful details</th>
+                    <th className="py-3.5 px-4">To discuss</th>
                     <th className="py-3.5 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 text-xs sm:text-sm">
-                  {COMMERCIAL_LEDGER_PROJECTS.map((proj) => (
+                  {COMMERCIAL_PROJECT_STARTERS.map((proj) => (
                     <tr
                       key={proj.code}
                       className="hover:bg-white/5 transition-colors"
@@ -967,10 +937,10 @@ export default function CommercialPage() {
                         {proj.sqft}
                       </td>
                       <td className="py-4 px-4 font-mono font-black text-amber-300 whitespace-nowrap">
-                        {proj.gmp}
+                        {proj.helpfulDetails}
                       </td>
                       <td className="py-4 px-4 font-mono text-xs text-sky-300">
-                        {proj.takeoffLink}
+                        {proj.discussion}
                       </td>
                       <td className="py-4 px-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-2">
@@ -979,7 +949,7 @@ export default function CommercialPage() {
                             className="px-3 py-1.5 rounded-lg text-xs font-black"
                             style={{ background: "#C9A84C", color: "#070E1A" }}
                           >
-                            /portal ↗
+                            Sign in ↗
                           </Link>
                           <Link
                             href={proj.estimateHref}
@@ -996,7 +966,7 @@ export default function CommercialPage() {
             </div>
           </div>
 
-          {/* Interactive CSI-32 Trade Photo Gallery */}
+          {/* Project services and resources */}
           <div className="pt-6">
             <div className="text-center mb-10">
               <div
@@ -1004,10 +974,10 @@ export default function CommercialPage() {
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                FIELD EXECUTION GALLERY BY CSI-32 TRADE
+                EXPLORE WORK BY TRADE
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Verified Field Craftsmanship Across{" "}
+                Materials &amp; craftsmanship for{" "}
                 <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
                   Every Sector.
                 </em>
@@ -1015,6 +985,17 @@ export default function CommercialPage() {
             </div>
             <TradeGallery />
           </div>
+        </div>
+      </section>
+      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          <p className="tayco-eyebrow mb-3 text-[#1B3A6B]">Where we work</p>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F2040]">A local conversation. <em className="tayco-serif-em font-normal">A coordinated team.</em></h2>
+          <p className="max-w-2xl text-sm sm:text-base text-slate-600 mt-4 mb-8">Tell us where your property is located. We will review the work, access and scheduling with you. Commercial projects outside these service areas can be discussed with our team.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {COMPANY_SERVICE_AREAS.map(area => <div key={area.code} className="tayco-living-card editorial-ivory-card p-5"><p className="tayco-eyebrow text-[#1B3A6B]">{area.code}</p><h3 className="font-bold text-[#0F2040] mt-2">{area.state}</h3><p className="text-sm text-slate-600 mt-2 leading-relaxed">{area.cities}</p></div>)}
+          </div>
+          <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
         </div>
       </section>
     </main>

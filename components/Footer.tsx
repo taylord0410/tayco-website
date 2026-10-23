@@ -1,228 +1,48 @@
 import Link from "next/link";
 import Image from "next/image";
+import { COMPANY, COMPANY_SERVICES } from "@/lib/company";
 
 export default function Footer() {
   return (
-    <footer
-      style={{
-        background: "linear-gradient(180deg, #070E1A 0%, #050A14 100%)",
-        borderTop: "1px solid rgba(201, 168, 76, 0.25)",
-      }}
-      className="text-slate-300"
-    >
+    <footer className="text-slate-300" style={{ background: "linear-gradient(180deg, #070E1A 0%, #050A14 100%)", borderTop: "1px solid rgba(201,168,76,.25)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          <div className="md:col-span-1">
-            <div className="flex items-center gap-3 mb-3">
-              <Image
-                src="/logo.jpeg"
-                alt="TAYCO LLC"
-                width={48}
-                height={48}
-                className="rounded-full ring-1 ring-amber-400/40"
-              />
-              <div>
-                <span
-                  className="font-bold text-xl tracking-tight block"
-                  style={{ color: "#C9A84C" }}
-                >
-                  TAYCO LLC
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
-                  General Contractor
-                </span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400 mb-2 leading-relaxed">
-              Full-Service Commercial, Industrial &amp; Residential Construction Across 9 States, directly connected to{" "}
-              <strong className="text-amber-300">Takeoff Pro v5.0 (:8085)</strong> and the{" "}
-              <strong className="text-white">6 Modules of TAYCO Executive Command</strong>.
-            </p>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/25 text-[11px] font-mono text-emerald-300 mb-2">
-              <span className="tayco-live-dot" />
-              <span>WI · IL · IA · IN · MN · MI · MO · TX · ND</span>
-            </div>
-            <p className="text-xs text-slate-400 mt-1">
-              Licensed, Bonded &amp; Insured · IICRC Certified Restoration Contractor
-            </p>
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9">
           <div>
-            <div className="tayco-eyebrow mb-3">Construction Divisions</div>
+            <Link href="/" className="inline-flex items-center gap-3 mb-4" aria-label="TAYCO home">
+              <Image src="/logo.jpeg" alt="" width={48} height={48} className="rounded-full ring-1 ring-amber-400/40" />
+              <span><span className="font-bold text-xl tracking-tight block text-[#C9A84C]">{COMPANY.name}</span><span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Construction Company</span></span>
+            </Link>
+            <p className="text-sm text-slate-400 leading-relaxed">Commercial construction, residential renovation and restoration. One team to help take your project from a clear scope to a finished space.</p>
+            <p className="mt-4 text-xs text-amber-200 leading-relaxed">{COMPANY.coverage}</p>
+            <p className="mt-3 text-xs text-slate-400">Licensed &amp; Insured · Certified Restoration Contractor</p>
+          </div>
+          <nav aria-label="Footer services">
+            <h2 className="tayco-eyebrow mb-4">Our services</h2>
+            <ul className="space-y-2 text-sm">{COMPANY_SERVICES.map(service => <li key={service.label}><Link href={service.href} className="inline-block py-1 text-slate-400 hover:text-white transition-colors">{service.label}</Link></li>)}</ul>
+          </nav>
+          <nav aria-label="Footer project resources">
+            <h2 className="tayco-eyebrow mb-4">Build with TAYCO</h2>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/commercial"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  Commercial Ground-Up &amp; TI
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/residential"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  Residential Remodeling &amp; Additions
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/commercial#services"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  24/7 Fire &amp; Water Restoration
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/commercial#services"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  Roofing, Glazing &amp; Building Envelope
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/commercial#services"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  MEP, HVAC, Electrical &amp; Plumbing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/investor"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  REIT &amp; Institutional Turnkey Programs
-                </Link>
-              </li>
+              <li><Link href="/estimate" className="inline-block py-1 text-amber-200 hover:text-white">Request a free estimate</Link></li>
+              <li><Link href="/investor" className="inline-block py-1 text-slate-400 hover:text-white">Owners &amp; property managers</Link></li>
+              <li><Link href="/vendor-application" className="inline-block py-1 text-slate-400 hover:text-white">Become a trade partner</Link></li>
+              <li><Link href="/login" className="inline-block py-1 text-slate-400 hover:text-white">Team, client &amp; supplier sign in</Link></li>
             </ul>
-          </div>
-
-          <div>
-            <div className="tayco-eyebrow mb-3">TAYCO Executive Command</div>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/portal"
-                  className="text-amber-300 hover:text-white font-semibold transition-colors"
-                >
-                  🏛️ Executive Command (6 Modules + Takeoff Pro :8085)
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/portal?invite=INV-CLIENT-CRM-TAKEOFF"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  📐 Client Access: Takeoff Pro v5.0 (:8085) + CRM
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/portal?invite=INV-CPA-FINANCE-TAX"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  📗 CPA Auditor: WH-347 + QuickBooks + 9-State Tax
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/portal?invite=INV-INVESTOR-PORTFOLIO"
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  📊 REIT Board: Portfolio IRR &amp; Master Dossier
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/portal?builder=1"
-                  className="text-emerald-300 hover:text-white transition-colors"
-                >
-                  🎟️ B2B Module Invitation Builder
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="tayco-eyebrow mb-3">Institutional Clients</div>
-            <ul className="space-y-2 text-sm text-slate-400">
-              <li>Commercial Property Owners</li>
-              <li>Institutional Investors &amp; REITs</li>
-              <li>Regional Banks &amp; Asset Lenders</li>
-              <li>National General Contractors</li>
-              <li>Multi-Family Property Managers</li>
-              <li>Retail &amp; Industrial Developers</li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="tayco-eyebrow mb-3">Executive Dispatch</div>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="tel:+14142938400"
-                  className="text-slate-300 hover:text-white transition-colors"
-                >
-                  📞 (414) 293-8400 (Milwaukee HQ)
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+17018392277"
-                  className="text-slate-300 hover:text-white transition-colors"
-                >
-                  📞 (701) 839-2277 (North Dakota Operations)
-                </a>
-              </li>
-              <li>
-                <a
-                  href="mailto:general@taycoturnkey.com"
-                  className="text-slate-300 hover:text-white transition-colors"
-                >
-                  ✉️ general@taycoturnkey.com
-                </a>
-              </li>
-              <li className="text-slate-400">📍 2829 W Wisconsin Ave, Milwaukee, WI 53208</li>
-              <li className="text-slate-400">🕐 Mon–Fri 7:00 AM–6:00 PM CST</li>
-            </ul>
-            <div className="mt-4 flex flex-col gap-2">
-              <Link
-                href="/portal"
-                data-magnetic
-                className="text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-lg text-center transition-colors"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
-              >
-                🏛️ Launch Command Center
-              </Link>
-              <Link
-                href="/estimate"
-                data-magnetic
-                className="text-white text-xs font-bold px-4 py-2 rounded-lg text-center border border-amber-400/50 hover:bg-white/5 transition-colors"
-              >
-                🧮 CSI-32 Instant Estimator
-              </Link>
-              <Link
-                href="/vendor-application"
-                data-magnetic
-                className="text-xs px-4 py-2 rounded-lg text-center border border-slate-600 text-slate-300 hover:border-white hover:text-white transition-colors"
-              >
-                🛠️ Subcontractor Onboarding (W-9/COI)
-              </Link>
-            </div>
+            <p className="text-xs text-slate-400 leading-relaxed mt-5">For property owners, investors, banks and lenders, general contractors, property managers and business owners.</p>
+          </nav>
+          <div id="contact">
+            <h2 className="tayco-eyebrow mb-4">Let’s talk about your project</h2>
+            <address className="not-italic text-sm space-y-3">
+              <p><a href={COMPANY.phoneHref} className="inline-block py-1 text-white hover:text-amber-200">{COMPANY.phoneDisplay}</a></p>
+              <p><a href={COMPANY.emailHref} className="inline-block py-1 break-all text-slate-300 hover:text-white">{COMPANY.email}</a></p>
+              <p className="text-slate-400">{COMPANY.hours}<br />{COMPANY.saturday}</p>
+            </address>
+            <Link href="/estimate" data-magnetic className="mt-5 inline-flex justify-center px-5 py-3 rounded-xl text-sm font-bold bg-[#C9A84C] text-[#070E1A]">Tell us what you’re planning →</Link>
           </div>
         </div>
-
-        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-slate-500 font-mono">
-          <p>
-            © {new Date().getFullYear()} TAYCO LLC — All Rights Reserved. Powered by Takeoff Pro v5.0 (:8085) &amp; the 6 Modules of TAYCO Executive Command across 9 States (WI · IL · IA · IN · MN · MI · MO · TX · ND).
-          </p>
-          <p>
-            Licensed &amp; Insured · CSI-32 MasterFormat · Davis-Bacon WH-347 &amp; AIA G702/G703 Compliant
-          </p>
+        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</p>
+          <Link href="/privacy" className="text-slate-400 hover:text-white">Privacy &amp; data protection</Link>
         </div>
       </div>
     </footer>
