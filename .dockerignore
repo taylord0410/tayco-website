@@ -5,3 +5,12 @@ node_modules
 README.md
 Dockerfile
 .dockerignore
+
+.git
+.env*
+.data
+.tayco_erp_suite_state.json
+**/*.sqlite*
+node_modules
+astro-portal/node_modules
+.next
