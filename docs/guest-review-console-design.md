@@ -128,6 +128,8 @@ Para guest existente: reclamar solo con sesión/contraseña de la misma cuenta g
 
 Ejemplo: enlace generado10:00, aceptado13:30, vence14:00. Volver a entrar13:50 deja diez minutos. El reloj no se reinicia al aceptar ni al recargar.
 
+La generación exige creationRequestId único por tenant/administrador y fingerprint del payload permitido, guardados con el grant original en la misma transacción. Repetir igual petición devuelve el mismo grant y createdAt/expiresAt; reutilizar la clave con payload distinto devuelve409. El token solo se entrega una vez y se conserva su hash, por lo que una respuesta perdida no permite recuperarlo desde ese hash. La respuesta de reintento informa link_not_recoverable y ofrece rotación explícita y auditada del token del MISMO grant, con el MISMO vencimiento y anulando el anterior. No se rota ni se crea otro grant automáticamente. Si ya fue aceptado, se informa accepted sin generar otra invitación. Si ya venció, cualquier renovación exige una nueva generación administrativa explícita.
+
 ```mermaid
 stateDiagram-v2
   [*] --> Issued: transacción crea invitación y grant
