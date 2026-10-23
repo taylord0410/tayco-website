@@ -1,0 +1,129 @@
+{
+ "version": "v1",
+ "titulo_seccion": "Obras a las que TAYCO fue invitada y no pudo ofertar",
+ "motivo_comun": "No pudo ofertar por falta de cobertura de seguro (declaración de TAYCO)",
+ "octubre": {
+  "totales_sin_autozone": {
+   "filas": 2,
+   "bajo_usd": 200000,
+   "alto_usd": 400000,
+   "rotulo": "valor estimado de la obra completa (EJEMPLO)"
+  },
+  "filas": [
+   {
+    "n": 1,
+    "nombre": "Obra de EJEMPLO A",
+    "tipo": "EJEMPLO",
+    "constructora": "Constructora de EJEMPLO",
+    "ubicacion": "Ciudad de EJEMPLO",
+    "direccion_exacta": "No indicada",
+    "tamano_sf": 1000,
+    "rotulo_tamano": "EJEMPLO",
+    "precio_bajo_usd": 100000,
+    "precio_alto_usd": 200000,
+    "rotulo_precio": "EJEMPLO, no es un dato real",
+    "fecha_limite": "1-oct-2026",
+    "fecha_expiracion": "31-oct-2026",
+    "rotulo_expiracion": "estimada, no confirmada",
+    "resultado": "No pudo ofertar",
+    "motivo": "Falta de cobertura de seguro (declaración de TAYCO)",
+    "documentos": [],
+    "publicar": true
+   },
+   {
+    "n": 2,
+    "nombre": "Obra de EJEMPLO B",
+    "tipo": "EJEMPLO",
+    "constructora": "Constructora de EJEMPLO",
+    "ubicacion": "Ciudad de EJEMPLO",
+    "direccion_exacta": "No indicada",
+    "tamano_sf": 1000,
+    "rotulo_tamano": "EJEMPLO",
+    "precio_bajo_usd": 100000,
+    "precio_alto_usd": 200000,
+    "rotulo_precio": "EJEMPLO, no es un dato real",
+    "fecha_limite": "1-oct-2026",
+    "fecha_expiracion": "31-oct-2026",
+    "rotulo_expiracion": "estimada, no confirmada",
+    "resultado": "No pudo ofertar",
+    "motivo": "Falta de cobertura de seguro (declaración de TAYCO)",
+    "documentos": [],
+    "publicar": true
+   }
+  ]
+ },
+ "sin_fecha_limite_en_el_documento": {
+  "nota": "se marcan aparte",
+  "totales": {
+   "filas": 1,
+   "bajo_usd": 100000,
+   "alto_usd": 200000,
+   "rotulo": "valor estimado de la obra completa (EJEMPLO)"
+  },
+  "filas": [
+   {
+    "n": 3,
+    "nombre": "Obra de EJEMPLO C",
+    "tipo": "EJEMPLO",
+    "constructora": "Constructora de EJEMPLO",
+    "ubicacion": "Ciudad de EJEMPLO",
+    "direccion_exacta": "No indicada",
+    "tamano_sf": 1000,
+    "rotulo_tamano": "EJEMPLO",
+    "precio_bajo_usd": 100000,
+    "precio_alto_usd": 200000,
+    "rotulo_precio": "EJEMPLO, no es un dato real",
+    "fecha_limite": "1-oct-2026",
+    "fecha_expiracion": "31-oct-2026",
+    "rotulo_expiracion": "estimada, no confirmada",
+    "resultado": "No pudo ofertar",
+    "motivo": "Falta de cobertura de seguro (declaración de TAYCO)",
+    "documentos": [],
+    "publicar": true
+   }
+  ]
+ },
+ "aun_vivo": {
+  "n": 4,
+  "nombre": "Obra de EJEMPLO D (aún viva)",
+  "tipo": "EJEMPLO",
+  "constructora": "Constructora de EJEMPLO",
+  "ubicacion": "Ciudad de EJEMPLO",
+  "direccion_exacta": "No indicada",
+  "tamano_sf": 1000,
+  "rotulo_tamano": "EJEMPLO",
+  "precio_bajo_usd": 100000,
+  "precio_alto_usd": 200000,
+  "rotulo_precio": "EJEMPLO, no es un dato real",
+  "fecha_limite": "1-oct-2026",
+  "fecha_expiracion": "31-oct-2026",
+  "rotulo_expiracion": "estimada, no confirmada",
+  "resultado": "No pudo ofertar",
+  "motivo": "Falta de cobertura de seguro (declaración de TAYCO)",
+  "documentos": [],
+  "publicar": true
+ },
+ "autozone_no_publicar": {
+  "n": 5,
+  "nombre": "AutoZone #11111 de EJEMPLO",
+  "tipo": "EJEMPLO",
+  "constructora": "Constructora de EJEMPLO",
+  "ubicacion": "Ciudad de EJEMPLO",
+  "direccion_exacta": "No indicada",
+  "tamano_sf": 1000,
+  "rotulo_tamano": "EJEMPLO",
+  "precio_bajo_usd": 100000,
+  "precio_alto_usd": 200000,
+  "rotulo_precio": "EJEMPLO, no es un dato real",
+  "fecha_limite": "1-oct-2026",
+  "fecha_expiracion": "31-oct-2026",
+  "rotulo_expiracion": "estimada, no confirmada",
+  "resultado": "No pudo ofertar",
+  "motivo": "Falta de cobertura de seguro (declaración de TAYCO)",
+  "documentos": [],
+  "publicar": false
+ },
+ "segundo_dano_operarios_bloqueados": {
+  "estado": "VACÍO: pendiente de datos."
+ }
+}
