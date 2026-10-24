@@ -9,12 +9,13 @@ import { guestModuleDefinitions, type GuestSection } from "@/lib/guest-sections"
 import PortalShell from "./PortalShell";
 import GuestModulePanel, { GuestMonthlyTotals, guestModuleCount } from "./GuestModulePanel";
 import WorkspaceDisplayControls, { useWorkspaceDisplay } from "./WorkspaceDisplayControls";
+import { EstimateCostRing } from "./WorkspaceVisuals";
 import "./workspace.css";
 import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import { useReviewInteractions } from "@/lib/use-review-interactions";
 
 export type GuestConsoleSection = GuestSection;
-const modules = guestModuleDefinitions;
+const modules = guestModuleDefinitions.filter(item => item.id !== "purchase_order" && item.id !== "invoice");
 const control = "inline-flex min-h-11 items-center justify-center rounded-lg border border-amber-200/30 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:opacity-60";
 const card = "rounded-xl border border-slate-600/70 bg-[#09172b]/70 p-4 sm:p-5";
 const text = (value: string | null | undefined) => value?.trim() || "Not provided";
@@ -45,6 +46,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   const [period, setPeriod] = useState(initial.period);
   const [section, setSection] = useState<GuestConsoleSection>(initialSection);
   const [projectId, setProjectId] = useState("");
+  const [selectedViewerDocId, setSelectedViewerDocId] = useState("");
   const [loading, setLoading] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState("");
@@ -141,7 +143,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   function openProject(id: string) { setProjectId(id); void record("project.open", { projectId: id }); }
   function documentCard(document: GuestConsoleDocument) {
     return <article key={document.id} className={card}><p className="text-xs text-amber-200">{text(document.projectName)}</p><h3 className="mt-2 font-semibold text-white">{text(document.name)}</h3><p className="mt-2 text-xs text-slate-400">{text(document.contentType)}</p>
-      {document.available && (document.viewerHref || document.downloadHref) ? <div className="mt-4 flex flex-wrap gap-2">{document.viewerHref && <Link className={control} href={document.viewerHref} onClick={()=>record("document.open",{documentId:document.id})}>Open viewer ↗</Link>}{document.downloadHref && <a className={control} href={document.downloadHref} onClick={()=>record("document.open",{documentId:document.id})}>Open document ↗</a>}</div> : <p className="mt-4 text-sm text-slate-300">Pending availability · TAYCO has not made this document available.</p>}
+      {document.available && (document.viewerHref || document.downloadHref) ? <div className="mt-4 flex flex-wrap gap-2">{document.viewerHref && <button type="button" className={control} onClick={() => { setSelectedViewerDocId(document.id); record("document.open", { documentId: document.id }); }}>View in embedded reader</button>}{document.viewerHref && <Link className={control} href={document.viewerHref} onClick={()=>record("document.open",{documentId:document.id})}>Open viewer ↗</Link>}{document.downloadHref && <a className={control} href={document.downloadHref} onClick={()=>record("document.open",{documentId:document.id})}>Open document ↗</a>}</div> : <p className="mt-4 text-sm text-slate-300">Pending availability · TAYCO has not made this document available.</p>}
     </article>;
   }
 
@@ -163,7 +165,50 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
       {closedMonth ? <Panel title="Month closed"><p className="text-sm text-slate-300">This reporting month is closed. General monthly totals remain available; detailed records are restricted to the current month.</p><button className={control + " mt-5"} type="button" onClick={() => navigate("summary")}>Open general totals</button></Panel> : denied ? <Panel title="Not authorized"><p className="text-sm text-slate-300">{section === "access" ? "Managing users, invitations and assignments requires administrator access. You can manage your own account and password." : "This account cannot open the requested information."}</p>{section === "access" && <Link href="/account" className={control + " mt-5"}>Open your account &amp; password</Link>}</Panel> : section === "summary" ? current ? details ? <GuestModulePanel data={presentationData} section="summary" projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/> : <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <div className="space-y-5"><Panel title={periodLabel(period)}>{summary ? <div className={card}><p className="text-xs uppercase tracking-widest text-slate-400">Approximate management estimate · USD</p><p className="mt-3 font-mono text-3xl font-semibold text-amber-100">{money(summary.lowUsd)} – {money(summary.highUsd)}</p><p className="mt-3 text-sm text-slate-300">General monthly totals</p></div> : <Empty>No general summary has been published for this month.</Empty>}<p className="mt-5 text-sm text-slate-300">This month is closed for detail. All modules remain in the navigation; opening a detailed module returns Month closed.</p></Panel><GuestMonthlyTotals data={presentationData} selectedPeriod={period} onMonthSelect={selectPeriod}/></div> : !details ? <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <>
         {section === "projects" && <Panel title="Projects">{data.projects.length ? <div className="grid gap-4 xl:grid-cols-2">{data.projects.map(project => <article key={project.id} className={card}><p className="text-xs capitalize text-amber-200">{text(project.status).replaceAll("_", " ")}</p><h3 className="mt-2 text-lg font-semibold text-white">{text(project.name)}</h3><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-xs text-slate-400">Progress</dt><dd className="mt-1">{project.progress === null ? "Not provided" : project.progress + "%"}</dd></div><div><dt className="text-xs text-slate-400">Location</dt><dd className="mt-1">{text(project.location)}</dd></div><div><dt className="text-xs text-slate-400">Commercial stage</dt><dd className="mt-1 capitalize">{text(project.commercialStage).replaceAll("_", " ")}</dd></div><div><dt className="text-xs text-slate-400">Documents</dt><dd className="mt-1">{project.documentCount}</dd></div></dl><button type="button" className={control + " mt-5"} onClick={() => openProject(project.id)} aria-expanded={projectId === project.id}>Open project details</button></article>)}</div> : <Empty>No projects are available for this month.</Empty>}{selectedProject && <section className="mt-6 border-t border-amber-200/20 pt-5"><h3 className="text-lg font-semibold text-amber-100">{selectedProject.name}</h3><div className="mt-4 flex flex-wrap gap-2"><button className={control} type="button" onClick={() => navigate("estimates", selectedProject.id)}>Review estimates</button><button className={control} type="button" onClick={() => navigate("plans", selectedProject.id)}>Review plans</button></div></section>}</Panel>}
         {(section === "estimates" || section === "plans" || section === "takeoff") && <Panel title={modules.find(item => item.id === section)!.label}><label htmlFor="guest-project-filter" className="text-xs text-slate-300">Project<select id="guest-project-filter" value={projectId} onChange={event => { setProjectId(event.target.value); if (event.target.value) void record("project.open", { projectId: event.target.value }); }} className="mb-5 mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white"><option value="">All current projects</option>{data.projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-          {section === "estimates" ? estimates.length ? <div className="grid gap-4 xl:grid-cols-2">{estimates.map(estimate => <article key={estimate.id} className={card}><p className="text-xs text-amber-200">{text(estimate.projectName)}</p><h3 className="mt-2 font-semibold text-white">{text(estimate.name)}</h3><p className="mt-3 text-2xl font-semibold text-amber-100">{money(estimate.amountUsd)}</p><dl className="mt-4 space-y-2 text-sm"><div><dt className="text-xs text-slate-400">Estimate date</dt><dd>{dateLabel(estimate.estimatedOn)}</dd></div><div><dt className="text-xs text-slate-400">Source</dt><dd>{text(estimate.sourceLabel)}</dd></div></dl></article>)}</div> : <Empty>No estimates are available for this selection.</Empty> : <>{section === "takeoff" && <p className="mb-5 text-sm leading-relaxed text-slate-300">Open an available project plan in the protected Takeoff viewer. Viewer access is read only.</p>}{documents.length ? <div className="grid gap-4 xl:grid-cols-2">{documents.map(documentCard)}</div> : <Empty>No plans or documents are available for this selection.</Empty>}</>}
+          {section === "estimates" ? <>
+            {estimates.length > 0 && (
+              <div className="mb-6 rounded-2xl border border-amber-200/20 bg-[#09172b]/60 p-4 sm:p-6">
+                <EstimateCostRing
+                  items={estimates.filter(e => typeof e.amountUsd === "number" && e.amountUsd > 0).map((e, idx) => ({
+                    code: e.sourceLabel || "EST-" + (idx + 1),
+                    label: e.projectName + " · " + e.name,
+                    amountUsd: e.amountUsd!,
+                  }))}
+                  total={estimates.reduce((acc, curr) => acc + (curr.amountUsd || 0), 0)}
+                  basis="Current period revisions"
+                  title="Estimates"
+                />
+              </div>
+            )}
+            {estimates.length ? <div className="grid gap-4 xl:grid-cols-2">{estimates.map(estimate => <article key={estimate.id} className={card}><p className="text-xs text-amber-200">{text(estimate.projectName)}</p><h3 className="mt-2 font-semibold text-white">{text(estimate.name)}</h3><p className="mt-3 text-2xl font-semibold text-amber-100">{money(estimate.amountUsd)}</p><dl className="mt-4 space-y-2 text-sm"><div><dt className="text-xs text-slate-400">Estimate date</dt><dd>{dateLabel(estimate.estimatedOn)}</dd></div><div><dt className="text-xs text-slate-400">Source</dt><dd>{text(estimate.sourceLabel)}</dd></div></dl></article>)}</div> : <Empty>No estimates are available for this selection.</Empty>}
+          </> : <>
+            {section === "takeoff" && <p className="mb-5 text-sm leading-relaxed text-slate-300">Open an available project plan in the protected Takeoff viewer. Viewer access is read only.</p>}
+            {(() => {
+              const activeViewerDoc = documents.find(d => d.id === selectedViewerDocId && Boolean(d.viewerHref)) || documents.find(d => Boolean(d.viewerHref));
+              return activeViewerDoc?.viewerHref ? (
+                <div className="mb-6 space-y-3 rounded-2xl border border-amber-200/30 bg-[#08172b] p-4 sm:p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/20 pb-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-amber-200">{activeViewerDoc.projectName}</p>
+                      <h3 className="mt-1 text-lg font-bold text-white">{activeViewerDoc.name}</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Link className={control} href={activeViewerDoc.viewerHref} onClick={() => record("document.open", { documentId: activeViewerDoc.id })}>
+                        Open standalone reader ↗
+                      </Link>
+                    </div>
+                  </div>
+                  <iframe
+                    title={activeViewerDoc.name + " · embedded project reader"}
+                    src={activeViewerDoc.viewerHref}
+                    className="h-[580px] w-full rounded-xl border border-amber-200/20 bg-[#0b192e]"
+                    loading="eager"
+                  />
+                </div>
+              ) : null;
+            })()}
+            {documents.length ? <div className="grid gap-4 xl:grid-cols-2">{documents.map(documentCard)}</div> : <Empty>No plans or documents are available for this selection.</Empty>}
+          </>}
         </Panel>}
         {!["projects", "estimates", "plans", "takeoff"].includes(section) && <GuestModulePanel data={presentationData} section={section} projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/>}
       </>}

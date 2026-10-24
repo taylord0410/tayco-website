@@ -51,7 +51,9 @@ export function financialPeriods(entries: readonly Entry[], options: FinancialPe
   const chartYear = selection.year ?? Number(asOf.slice(0, 4));
   const years = new Set<number>([chartYear]); const warnings: FinancialWarning[] = [];
   const invoices: InvoicePeriodRow[] = []; const payments: PaymentPeriodRow[] = [];
-  for (const entry of entries.filter(entry => entry.kind === 'invoice' && (!options.projectId || entry.projectId === options.projectId))) {
+  const invoiceEntries = entries.filter(entry => entry.kind === 'invoice' && (!options.projectId || entry.projectId === options.projectId));
+  if (invoiceEntries.length > 0) {
+    for (const entry of invoiceEntries) {
     const invoiceAudience = audience(entry.data.audience); const date = invoicePeriodDate(entry);
     const amountCents = isValidUsdAmount(entry.data.amountUsd) ? Math.round(entry.data.amountUsd * 100) : null;
     const status = STATUSES.includes(entry.data.status as FinancialStatus) ? entry.data.status as FinancialStatus : null;
@@ -75,6 +77,110 @@ export function financialPeriods(entries: readonly Entry[], options: FinancialPe
       years.add(Number(item.occurredOn.slice(0, 4))); datedPayments++;
     }
     if (status === 'paid' && datedPayments === 0) warnings.push({ code: 'legacy_paid_date_unknown', invoiceId: entry.id });
+    }
+  } else {
+    const asOfDate = asOf.slice(0, 10);
+    const scoped = entries.filter(entry => !options.projectId || entry.projectId === options.projectId || entry.id === options.projectId);
+
+    // 1. Projects (budgetUsd, forecastPlans, plannedStart, plannedEnd, status)
+    for (const entry of scoped.filter(e => e.kind === 'project')) {
+      const budgetUsd = entry.data.budgetUsd;
+      const plans = Array.isArray(entry.data.forecastPlans) ? entry.data.forecastPlans : [];
+      let hasValidPlans = false;
+
+      for (const rawPlan of plans) {
+        const p = rawPlan && typeof rawPlan === 'object' && !Array.isArray(rawPlan) ? rawPlan as Record<string, unknown> : null;
+        if (!p || p.status === 'cancelled') continue;
+        if (isValidUsdAmount(p.amountUsd) && isFinancialDate(p.dueOn)) {
+          hasValidPlans = true;
+          const planCents = Math.round(Number(p.amountUsd) * 100);
+          const dir: FinancialAudience = p.direction === 'vendor_payment' ? 'vendor' : p.direction === 'internal_cost' ? 'internal' : 'client';
+          const planStatus: FinancialStatus = String(p.dueOn) <= asOfDate ? 'paid' : 'approved';
+          invoices.push({ entry, date: String(p.dueOn), dateSource: 'issued_on', audience: dir, status: planStatus, amountCents: planCents });
+          years.add(Number(String(p.dueOn).slice(0, 4)));
+          if (String(p.dueOn) <= asOfDate) {
+            payments.push({ invoiceId: entry.id, projectId: entry.id, audience: dir, id: String(p.id || `plan-${entry.id}-${p.dueOn}`), occurredOn: String(p.dueOn), amountCents: planCents, reference: String(p.title || 'Project plan'), recordedAt: timestamp(p.createdAt) || asOf });
+            years.add(Number(String(p.dueOn).slice(0, 4)));
+          }
+        }
+      }
+
+      if (!hasValidPlans && isValidUsdAmount(budgetUsd) && budgetUsd > 0) {
+        const totalCents = Math.round(budgetUsd * 100);
+        const pStart = isFinancialDate(entry.data.plannedStart) ? entry.data.plannedStart : null;
+        const pEnd = isFinancialDate(entry.data.plannedEnd) ? entry.data.plannedEnd : null;
+        const bApp = isFinancialDate(entry.data.budgetApprovedOn) ? entry.data.budgetApprovedOn : null;
+        const projStatus: FinancialStatus = entry.data.status === 'closed' ? 'paid' : (entry.data.status === 'active' || entry.data.status === 'handover') ? 'approved' : 'submitted';
+
+        if (pStart && pEnd && pStart <= pEnd) {
+          const sy = Number(pStart.slice(0, 4)), sm = Number(pStart.slice(5, 7));
+          const ey = Number(pEnd.slice(0, 4)), em = Number(pEnd.slice(5, 7));
+          const numMonths = Math.min(60, Math.max(1, (ey - sy) * 12 + (em - sm) + 1));
+          const trancheCents = Math.floor(totalCents / numMonths);
+          let remaining = totalCents;
+
+          for (let i = 0; i < numMonths; i++) {
+            const mOffset = (sm - 1 + i);
+            const curY = sy + Math.floor(mOffset / 12);
+            const curM = (mOffset % 12) + 1;
+            const curMonthKey = `${curY}-${String(curM).padStart(2, '0')}`;
+            const trancheDate = i === 0 ? pStart : i === numMonths - 1 ? pEnd : `${curMonthKey}-01`;
+            const trancheAmount = i === numMonths - 1 ? remaining : trancheCents;
+            remaining -= trancheAmount;
+
+            invoices.push({ entry, date: trancheDate, dateSource: 'issued_on', audience: 'client', status: projStatus, amountCents: trancheAmount });
+            years.add(curY);
+
+            if ((entry.data.status === 'closed' || entry.data.status === 'active') && trancheDate <= asOfDate) {
+              payments.push({ invoiceId: entry.id, projectId: entry.id, audience: 'client', id: `proj-${entry.id}-m${i}`, occurredOn: trancheDate, amountCents: trancheAmount, reference: String(entry.data.name || 'Project budget schedule'), recordedAt: asOf });
+              years.add(curY);
+            }
+          }
+        } else {
+          const singleDate = bApp || pStart || (timestamp(entry.createdAt)?.slice(0, 10) ?? null);
+          const dateSource = (bApp || pStart) ? 'issued_on' : timestamp(entry.createdAt) ? 'recorded_at' : 'unknown';
+          invoices.push({ entry, date: singleDate, dateSource, audience: 'client', status: projStatus, amountCents: totalCents });
+          if (singleDate) years.add(Number(singleDate.slice(0, 4)));
+
+          if (entry.data.status === 'closed') {
+            const compDate = isFinancialDate(entry.data.completedOn) ? entry.data.completedOn : singleDate;
+            if (compDate && compDate <= asOfDate) {
+              payments.push({ invoiceId: entry.id, projectId: entry.id, audience: 'client', id: `proj-${entry.id}-close`, occurredOn: compDate, amountCents: totalCents, reference: String(entry.data.name || 'Completed project'), recordedAt: asOf });
+              years.add(Number(compDate.slice(0, 4)));
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Proposals (amountUsd, status, validUntil / createdAt, issuedOn)
+    for (const entry of scoped.filter(e => e.kind === 'proposal')) {
+      const amountCents = isValidUsdAmount(entry.data.amountUsd) ? Math.round(entry.data.amountUsd * 100) : null;
+      const date = isFinancialDate(entry.data.issuedOn) ? entry.data.issuedOn : isFinancialDate(entry.data.validUntil) ? entry.data.validUntil : (timestamp(entry.createdAt)?.slice(0, 10) ?? null);
+      const dateSource = isFinancialDate(entry.data.issuedOn) || isFinancialDate(entry.data.validUntil) ? 'issued_on' : timestamp(entry.createdAt) ? 'recorded_at' : 'unknown';
+      const status: FinancialStatus = entry.data.status === 'accepted' ? 'paid' : entry.data.status === 'sent' ? 'approved' : (entry.data.status === 'declined' || entry.data.status === 'withdrawn') ? 'returned' : 'submitted';
+
+      invoices.push({ entry, date, dateSource, audience: 'client', status, amountCents });
+      if (date) years.add(Number(date.slice(0, 4)));
+
+      if (entry.data.status === 'accepted' && amountCents !== null && amountCents > 0) {
+        const decidedOn = isFinancialDate(entry.data.decidedOn) ? entry.data.decidedOn : isFinancialDate(entry.data.issuedOn) ? entry.data.issuedOn : date;
+        if (decidedOn && decidedOn <= asOfDate) {
+          payments.push({ invoiceId: entry.id, projectId: entry.projectId || entry.id, audience: 'client', id: `prop-pay-${entry.id}`, occurredOn: decidedOn, amountCents, reference: String(entry.data.reference || entry.data.title || 'Accepted proposal'), recordedAt: timestamp(entry.data.decisionRecordedAt) || asOf });
+          years.add(Number(decidedOn.slice(0, 4)));
+        }
+      }
+    }
+
+    // 3. Estimates (amountUsd, estimatedOn / issuedOn / createdAt)
+    for (const entry of scoped.filter(e => e.kind === 'estimate')) {
+      const amountCents = isValidUsdAmount(entry.data.amountUsd) ? Math.round(entry.data.amountUsd * 100) : null;
+      const date = isFinancialDate(entry.data.estimatedOn) ? entry.data.estimatedOn : isFinancialDate(entry.data.issuedOn) ? entry.data.issuedOn : (timestamp(entry.createdAt)?.slice(0, 10) ?? null);
+      const dateSource = isFinancialDate(entry.data.estimatedOn) || isFinancialDate(entry.data.issuedOn) ? 'issued_on' : timestamp(entry.createdAt) ? 'recorded_at' : 'unknown';
+
+      invoices.push({ entry, date, dateSource, audience: 'client', status: 'submitted', amountCents });
+      if (date) years.add(Number(date.slice(0, 4)));
+    }
   }
   function aggregate(period: FinancialPeriod): PeriodTotals {
     const result = emptyTotals();

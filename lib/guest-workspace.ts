@@ -92,7 +92,7 @@ function projected(actor: Actor, now: Date) {
   for (const row of sourceProjects) {
     if (row.id !== row.project_id || !active(row, now) || projectPeriod(row, grants.get(row.id)?.period) !== current) continue;
     projects.push({ id: row.id, name: safeLabel(row.name) ?? 'Project', period: current,
-      status: typeof row.status === 'string' && ['planning','active','on_hold','paused','completed','cancelled'].includes(row.status) ? row.status : 'unknown',
+      status: typeof row.status === 'string' && ['planning','active','on_hold','paused','completed','cancelled','overdue','pending_company_info','awaiting_company_info','blocked','waiting','source_review','reference_only'].includes(row.status) ? row.status : 'unknown',
       progress: ['integer','real'].includes(String(row.progress_type)) && typeof row.progress === 'number' && Number.isFinite(row.progress) && row.progress >= 0 && row.progress <= 100 ? row.progress : null,
       location: safeLabel(row.location), commercialStage: typeof row.stage === 'string' && (COMMERCIAL_STAGE_CODES as readonly string[]).includes(row.stage) ? row.stage : null, documentCount: 0 });
   }

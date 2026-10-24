@@ -3,7 +3,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import type { Actor } from './auth';
 import { appendReviewAudit,installReviewAuditSchema,type ReviewAuditKind } from './review-audit';
 
-export const REVIEW_TTL_MS = 4 * 60 * 60 * 1000;
+export const REVIEW_TTL_MS = 3 * 60 * 60 * 1000;
 export type RecipientProfile={kind:'insurer-a';policySha256:string};
 export type ReviewAccess = { id: string; detailPeriod: string; createdAt: number; expiresAt: number; recipient?:RecipientProfile };
 /** Server display metadata only; never grants access or extends the stored deadline. */
@@ -22,14 +22,39 @@ function emit(db:DatabaseSync,actor:Actor,event:string,id:string,now:number){
   appendReviewAudit(db,{tenantId:actor.tenantId,reviewId:id,actorId:actor.id,actorRole:actor.role==='admin'?'admin':'guest'},{kind:kinds[event],surface:'authentication'},now);
 }
 
+export function ensureGrantSchema(db: DatabaseSync) {
+  const master = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='auth_review_grants'").get() as { sql?: string } | undefined;
+  if (master && master.sql && !master.sql.includes('10800000')) {
+    db.exec("DROP TRIGGER IF EXISTS auth_review_deadline_immutable; DROP TRIGGER IF EXISTS auth_review_recipient_immutable;");
+    db.exec(`CREATE TABLE auth_review_grants_new(
+      id TEXT PRIMARY KEY,invite_id TEXT UNIQUE NOT NULL,tenant_id TEXT NOT NULL,email TEXT NOT NULL,
+      user_id TEXT REFERENCES auth_users(id),detail_period TEXT NOT NULL,created_by TEXT NOT NULL,
+      creation_key TEXT NOT NULL,request_hash TEXT NOT NULL,created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL CHECK(expires_at=created_at+10800000 OR expires_at=created_at+14400000),accepted_at INTEGER,revoked_at INTEGER,
+      scope TEXT NOT NULL DEFAULT 'company_readonly' CHECK(scope='company_readonly'),policy_version INTEGER NOT NULL DEFAULT 1 CHECK(policy_version=1),
+      recipient_profile TEXT NOT NULL DEFAULT 'company' CHECK(recipient_profile IN ('company','insurer-a')),
+      recipient_policy_sha256 TEXT,
+      UNIQUE(tenant_id,created_by,creation_key));`);
+    const grantFields = db.prepare('PRAGMA table_info(auth_review_grants)').all() as { name: string }[];
+    const hasRecipient = grantFields.some(f => f.name === 'recipient_profile');
+    if (hasRecipient) {
+      db.exec("INSERT INTO auth_review_grants_new SELECT id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at,scope,policy_version,recipient_profile,recipient_policy_sha256 FROM auth_review_grants;");
+    } else {
+      db.exec("INSERT INTO auth_review_grants_new(id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at,scope,policy_version) SELECT id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at,scope,policy_version FROM auth_review_grants;");
+    }
+    db.exec("DROP TABLE auth_review_grants; ALTER TABLE auth_review_grants_new RENAME TO auth_review_grants;");
+  }
+}
+
 export function installReviewSchema(db: DatabaseSync) {
   db.exec('BEGIN IMMEDIATE');
   try{
+    ensureGrantSchema(db);
   db.exec(`CREATE TABLE IF NOT EXISTS auth_review_grants(
     id TEXT PRIMARY KEY,invite_id TEXT UNIQUE NOT NULL,tenant_id TEXT NOT NULL,email TEXT NOT NULL,
     user_id TEXT REFERENCES auth_users(id),detail_period TEXT NOT NULL,created_by TEXT NOT NULL,
     creation_key TEXT NOT NULL,request_hash TEXT NOT NULL,created_at INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL CHECK(expires_at=created_at+14400000),accepted_at INTEGER,revoked_at INTEGER,
+    expires_at INTEGER NOT NULL CHECK(expires_at=created_at+10800000 OR expires_at=created_at+14400000),accepted_at INTEGER,revoked_at INTEGER,
     scope TEXT NOT NULL DEFAULT 'company_readonly' CHECK(scope='company_readonly'),policy_version INTEGER NOT NULL DEFAULT 1 CHECK(policy_version=1),
     UNIQUE(tenant_id,created_by,creation_key));
     CREATE TABLE IF NOT EXISTS auth_review_rotations(grant_id TEXT NOT NULL,request_key TEXT NOT NULL,

@@ -25,10 +25,18 @@ export function buildBusinessOverview(entries: Entry[], assignees: Assignee[], o
     const next=sum+Math.round(e.data.amountUsd*100);if(!Number.isSafeInteger(next))throw new Error('Proposal totals exceed the supported reporting range.');return next;
   },0)/100;
   const counts=proposalStates.map(status=>{const rows=proposals.filter(e=>e.data.status===status);return {status,label:title(status),count:rows.length,amountUsd:cents(rows)};});
-  const issued=proposals.filter(e=>inMonth(e.data.issuedOn)&&e.data.status!=='draft');
-  const accepted=proposals.filter(e=>e.data.status==='accepted'&&inMonth(e.data.decidedOn));
+  const proposalIssueDate = (e: Entry) => {
+    if (e.data.issuedOn !== undefined && e.data.issuedOn !== null && e.data.issuedOn !== '') return date(e.data.issuedOn);
+    return date(e.data.validUntil) || date(e.createdAt?.slice(0, 10));
+  };
+  const proposalDecisionDate = (e: Entry) => {
+    if (e.data.decidedOn !== undefined && e.data.decidedOn !== null && e.data.decidedOn !== '') return date(e.data.decidedOn);
+    return !e.data.issuedOn ? proposalIssueDate(e) : null;
+  };
+  const issued=proposals.filter(e=>inMonth(proposalIssueDate(e))&&e.data.status!=='draft');
+  const accepted=proposals.filter(e=>e.data.status==='accepted'&&inMonth(proposalDecisionDate(e)));
   const pending=proposals.filter(e=>e.data.status==='draft'||e.data.status==='sent');
-  const undatedCount=proposals.filter(e=>!date(e.data.issuedOn)||(e.data.status==='accepted'&&!date(e.data.decidedOn))).length;
+  const undatedCount=proposals.filter(e=>!proposalIssueDate(e)||(e.data.status==='accepted'&&!proposalDecisionDate(e))).length;
   if(undatedCount)notes.add('Undated proposals remain in current-state counts but are excluded from dated activity.');
   if(proposals.some(e=>!proposalStates.includes(text(e.data.status))))notes.add('Some proposal states need review and are excluded from the named state totals.');
   const people=new Map<string,Person>(),known=new Map(assignees.map(a=>[a.id,a]));
@@ -46,7 +54,7 @@ export function buildBusinessOverview(entries: Entry[], assignees: Assignee[], o
       if(!p.projectIds.includes(e.id))p.projectIds.push(e.id);
       const responsibility=text(m.responsibility);if(responsibility&&!p.responsibilities.includes(responsibility))p.responsibilities.push(responsibility);
     }
-    return {id:e.id,name:text(e.data.name,'Project'),status:text(e.data.status,'unknown'),progress:typeof e.data.progress==='number'&&Number.isFinite(e.data.progress)&&e.data.progress>=0&&e.data.progress<=100?e.data.progress:null,nextAction:text(e.data.nextAction),plannedStart:date(e.data.plannedStart),plannedEnd:date(e.data.plannedEnd),teamMemberCount:new Set(active.map(m=>text(m.memberId)).filter(Boolean)).size};
+    return {id:e.id,name:text(e.data.name,'Project'),status:text(e.data.status,'unknown'),progress:typeof e.data.progress==='number'&&Number.isFinite(e.data.progress)&&e.data.progress>=0&&e.data.progress<=100?e.data.progress:null,nextAction:text(e.data.nextAction),plannedStart:date(e.data.plannedStart),plannedEnd:date(e.data.plannedEnd),teamMemberCount:new Set(active.map(m=>text(m.memberId)).filter(Boolean)).size,budgetUsd:isValidUsdAmount(e.data.budgetUsd)?e.data.budgetUsd:null};
   });
   const projectCounts=[...projectStates,'unknown'].map(status=>({status,label:title(status),count:projects.filter(p=>status==='unknown'?!projectStates.includes(p.status):p.status===status).length}));
   let workHours=0,unknownSubmitters=0,undatedWorkLogs=0;

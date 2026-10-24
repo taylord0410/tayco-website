@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  distDir: process.env.NEXT_DIST_DIR || ".next", output: "standalone",
   // Runtime databases, source packages and review evidence are private mounted data.
   outputFileTracingExcludes: { "/*": ["./.data/**/*"] },
   devIndicators: false,

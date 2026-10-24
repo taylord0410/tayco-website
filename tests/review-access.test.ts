@@ -49,13 +49,13 @@ test('guest generation and retries retain exact four-hour origin; lost links req
 test('late acceptance, login, cookie refresh and claim replay never extend access',async()=>{
  await fixture(async f=>{
   const start=f.now(),invite=f.invite();
-  f.at(start+3.5*3600_000);
+  f.at(start+REVIEW_TTL_MS-0.5*3600_000);
   const first=await acceptInvitation(invite.token,'guest@example.test',password);
   assert.equal(first.expiresAt,start+REVIEW_TTL_MS);
   const actor=await requireActor(request(first.cookie));assert.equal(actor.review?.expiresAt,invite.expiresAt);
   assert.match(sessionCookie(first.cookie,false,first.expiresAt),/Max-Age=1800;/);
   const db=f.db();let originalHash:string;try{originalHash=String(db.prepare("SELECT password_hash FROM auth_users WHERE email='guest@example.test'").get()!.password_hash);}finally{db.close();}
-  f.at(start+3.75*3600_000);
+  f.at(start+REVIEW_TTL_MS-0.25*3600_000);
   const replay=await acceptInvitation(invite.token,'guest@example.test',password),login=await signIn('guest@example.test',password);
   assert.equal(replay.expiresAt,invite.expiresAt);assert.equal(login.expiresAt,invite.expiresAt);assert.equal(login.actor.review?.id,actor.review?.id);
   const check=f.db();try{assert.equal(check.prepare("SELECT password_hash FROM auth_users WHERE email='guest@example.test'").get()!.password_hash,originalHash!);assert.equal(check.prepare('SELECT count(*) AS n FROM auth_users').get()!.n,2);const rows=check.prepare("SELECT expires_at FROM auth_sessions WHERE user_id=?").all(actor.id);assert.ok(rows.length>=3);assert.ok(rows.every(s=>s.expires_at===invite.expiresAt));}finally{check.close();}

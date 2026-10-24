@@ -18,7 +18,7 @@ export default function TakeoffProjectReader({ source, projectName,review,privac
   const selectedDocument=new URL(source,"http://tayco.local").searchParams.get("document");
   const publish=useCallback((reader=true)=>{
     const remaining=guestAnalyticsRemainingMs(review?.id),enabled=reader&&!expired&&remaining>0&&guestAnalyticsAllowed(review?.id);
-    frame.current?.contentWindow?.postMessage({type:"tayco-review-viewer-control",taxonomyVersion:2,enabled,remainingMs:enabled?Math.min(remaining,14400000):0},window.location.origin);
+    frame.current?.contentWindow?.postMessage({type:"tayco-review-viewer-control",taxonomyVersion:2,enabled,remainingMs:enabled?Math.min(remaining,10800000):0},window.location.origin);
   },[review?.id,expired]);
   useEffect(()=>{
     if(!review||expired)return;
