@@ -139,3 +139,15 @@ Implementation order: private store/recovery first; authenticated HTTP adapter s
 ## Deployment assumption
 
 The proposed file/SQL protocol assumes that cooperating application processes share the same private filesystem and metadata database. It is not cross-host storage consensus. T60 must verify the actual volume and replica topology before deployment; separate replicas with independent disks cannot share an upload merely because their URLs match. Local process-concurrency tests do not certify that remote topology.
+
+## T82 core implementation boundary
+
+The internal store uses real Request authentication and an exact persisted administrator session. It adds no HTTP route, UI, CLI, source admission or download capability. `TAYCO_SOURCE_UPLOAD_ROOT` is an explicit private absolute operator path; its binding is retained in each reservation. Changing that path requires reconciliation rather than migrating an upload silently.
+
+Cancellation commits a `cancelling` intent before deleting its own unfinished part. A later SQL failure therefore cannot reopen a file that has already been removed. The intent is recoverable after the durable lease expires; status never claims that a failed cancellation succeeded. Sealed prepared bytes left after a failed finish are held for verified finish recovery or operator reconciliation; cancellation cannot remove them. Expired retained bytes continue consuming accounted storage.
+
+Chunk effects run synchronously within a short SQLite write transaction, which serializes writers sharing that database. Full hashing uses a renewable durable lease, 64 KiB reads and no open SQL transaction during asynchronous IO. Lease checks within a final SQL transaction do not start a nested renewal transaction. An expired lease cannot authorize the prior worker to commit.
+
+A duplicate committed chunk is compared with both its recorded digest and actual bytes. A stored finish replay streams and verifies the sealed file before returning the original receipt. Status is a bounded metadata/size observation; it does not recompute the full digest. Unfinished states explicitly report `not_verified`. A stored receipt means size and SHA-256 verification only; source registration and release remain separate.
+
+Focused tests use newly created synthetic auth/ERP databases and persisted sign-ins, including separate OS processes sharing the synthetic database and private directory. They do not copy production data, create real invitations, change the OS clock or certify power-loss recovery. HTTP delivery and operator CLI behavior remain T83/T84.
