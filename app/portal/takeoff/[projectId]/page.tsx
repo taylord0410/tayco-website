@@ -11,7 +11,10 @@ export const dynamic = "force-dynamic";
 
 export default async function ProjectViewerPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const actor = await getActor(new Request("http://tayco.local/portal/takeoff", { headers: await headers() }));
+  let actor; let authenticationError="";
+  try{actor=await getActor(new Request("http://tayco.local/portal/takeoff",{headers:await headers()}));}
+  catch(error){if(error instanceof AuthError)authenticationError=error.message;else throw error;}
+  if(authenticationError)return <main className="min-h-screen bg-[#070e1a] p-7 text-slate-100"><h1 className="text-3xl font-bold">Review access unavailable</h1><p role="alert" className="mt-4">{authenticationError}</p><Link className="mt-6 inline-block underline" href="/account">Account and access</Link></main>;
   if (!actor) redirect("/login");
   let name = "", source = "", unavailable = false, denied = false;
   try {

@@ -21,6 +21,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ workspace }, { headers: privateHeaders });
   } catch (error) {
     const known = error instanceof AuthError || error instanceof ErpError || error instanceof MonthlyManagementEstimateError;
-    return NextResponse.json({ error: known ? error.message : "The review workspace is temporarily unavailable." }, { status: known ? error.status : 503, headers: privateHeaders });
+    return NextResponse.json({ error: known ? error.message : "The review workspace is temporarily unavailable.", ...(error instanceof AuthError&&error.reasonCode?{reasonCode:error.reasonCode}:{}) }, { status: known ? error.status : 503, headers: privateHeaders });
   }
 }

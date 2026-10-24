@@ -9,4 +9,4 @@ export async function readAuthBody(request: Request): Promise<Record<string, unk
   catch (error) { if (error instanceof AuthError) throw error; throw new AuthError('Send a valid form.', 400); }
 }
 export function authJson(data: unknown, status = 200) { return NextResponse.json(data, { status, headers: { 'Cache-Control': 'no-store, private', 'Pragma': 'no-cache' } }); }
-export function authFailure(error: unknown) { return authJson({ error: error instanceof AuthError ? error.message : 'Account access is temporarily unavailable. Please try again.' }, error instanceof AuthError ? error.status : 503); }
+export function authFailure(error: unknown) { return authJson({ error: error instanceof AuthError ? error.message : 'Account access is temporarily unavailable. Please try again.', ...(error instanceof AuthError && error.reasonCode ? {reasonCode:error.reasonCode}: {}) }, error instanceof AuthError ? error.status : 503); }

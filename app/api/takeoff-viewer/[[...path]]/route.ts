@@ -4,7 +4,7 @@ import { handleViewerRequest, viewerFailure } from '@/lib/takeoff-viewer-gateway
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 async function dispatch(request: Request) {
-  try { return await handleViewerRequest(request, await requireActor(request)); }
+  try { return await handleViewerRequest(request, await requireActor(request),()=>requireActor(request)); }
   catch (error) { return viewerFailure(error, request.method === 'HEAD'); }
 }
 export const GET = dispatch;

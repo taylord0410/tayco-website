@@ -257,6 +257,7 @@ export function guestProjectReviews(actor: Actor, now = new Date()): GuestProjec
   assertActor(actor);
   if (actor.role !== 'guest') return [];
   try {
+    if(actor.review&&actor.review.detailPeriod!==currentReportingPeriod(now))return [];
     const policy = policies(actor);
     return usableGuestGrants(actor, policy, undefined, now).map(({ grant, project, documentIds }) => {
       const commercialStage = typeof project.commercial_stage === 'string' && (COMMERCIAL_STAGE_CODES as readonly string[]).includes(project.commercial_stage) ? project.commercial_stage : null;
@@ -282,6 +283,7 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
   assertActor(actor);
   if (projectId !== undefined && (typeof projectId !== 'string' || !erpId.test(projectId))) throw actor.role === 'guest' ? guestDenied() : denied();
   try {
+    if(actor.role==='guest'&&actor.review&&actor.review.detailPeriod!==currentReportingPeriod(now))throw guestDenied();
     const policy = policies(actor.role === 'guest' ? actor : undefined, projectId);
     if (actor.role === 'guest') {
       const grants = usableGuestGrants(actor, policy, projectId, now);

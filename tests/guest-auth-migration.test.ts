@@ -44,7 +44,7 @@ async function fixture(run: (filename: string, token: string, hash: string) => P
     db.exec(legacySchema);
     for (const role of ['admin', 'staff', 'client', 'vendor']) {
       db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(`old-${role}`, `${role}@example.test`, hash, role, 'tayco_llc', role === 'admin' || role === 'staff' ? '[]' : '["project-one"]', role === 'vendor' ? 'vendor-one' : null, 1234);
-      db.prepare('INSERT INTO auth_sessions VALUES(?,?,?,?)').run(digest(role === 'admin' ? token : `old-session-${role}`), `old-${role}`, Date.now() + 3600_000, 1234);
+      db.prepare('INSERT INTO auth_sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').run(digest(role === 'admin' ? token : `old-session-${role}`), `old-${role}`, Date.now() + 3600_000, 1234);
       db.prepare('INSERT INTO fixture_links VALUES(?,?)').run(`old-${role}`, role);
     }
     db.prepare('INSERT INTO auth_invites VALUES(?,?,?,?,?,?,?,?,NULL,NULL,?,?)').run('old-invite', digest('L'.repeat(43)), 'pending@example.test', 'client', 'tayco_llc', '["project-one"]', null, Date.now() + 3600_000, admin.id, 1234);
@@ -77,8 +77,10 @@ test('legacy migration preserves all roles, password hashes, existing sessions, 
     for (let repeat = 0; repeat < 3; repeat++) assert.equal(listAccounts(admin).length, 4);
     inspect(filename, db => {
       assert.deepEqual(db.prepare('SELECT * FROM auth_users ORDER BY id').all(), before.users);
-      assert.deepEqual(db.prepare('SELECT * FROM auth_sessions ORDER BY token_hash').all(), before.sessions);
-      assert.deepEqual(db.prepare('SELECT * FROM auth_invites').all(), before.invites);
+      assert.deepEqual(db.prepare('SELECT token_hash,user_id,expires_at,created_at FROM auth_sessions ORDER BY token_hash').all(), before.sessions);
+      assert.ok(db.prepare('SELECT review_grant_id FROM auth_sessions').all().every(row=>row.review_grant_id===null));
+      assert.deepEqual(db.prepare('SELECT id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at FROM auth_invites').all(), before.invites);
+      assert.ok(db.prepare('SELECT review_grant_id FROM auth_invites').all().every(row=>row.review_grant_id===null));
       assert.equal(db.prepare('SELECT password_hash FROM auth_users WHERE id=?').get(admin.id)!.password_hash, hash);
       assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
       for (const name of ['auth_sessions', 'auth_invites', 'fixture_links']) {
@@ -87,7 +89,7 @@ test('legacy migration preserves all roles, password hashes, existing sessions, 
       assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name='fixture_users_role'").get());
       assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name='fixture_users_updated'").get());
       assert.equal(db.prepare("SELECT event FROM auth_audit WHERE id='old-audit'").get()!.event, 'fixture.previous');
-      assert.throws(() => db.prepare('INSERT INTO auth_sessions VALUES(?,?,?,?)').run('bad-fk', 'missing-user', Date.now() + 1000, 0), /FOREIGN KEY/);
+      assert.throws(() => db.prepare('INSERT INTO auth_sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').run('bad-fk', 'missing-user', Date.now() + 1000, 0), /FOREIGN KEY/);
     });
     assert.equal((await signIn(admin.email, password)).actor.id, admin.id);
     const accepted = await acceptInvitation('L'.repeat(43), 'pending@example.test', password);
@@ -121,7 +123,7 @@ test('failed foreign-key verification rolls back the complete legacy rebuild and
   await fixture(async (filename, _token, hash) => {
     inspect(filename, db => {
       db.exec('PRAGMA foreign_keys=OFF');
-      db.prepare('INSERT INTO auth_sessions VALUES(?,?,?,?)').run('orphan-session', 'missing-user', Date.now() + 1000, 0);
+      db.prepare('INSERT INTO auth_sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').run('orphan-session', 'missing-user', Date.now() + 1000, 0);
     });
     assert.throws(() => listAccounts(admin), /foreign-key check/);
     assert.doesNotMatch(schema(filename), /'guest'/);
@@ -173,6 +175,9 @@ test('guest invitation, account updates, password and logout enforce empty assig
     // Existing client accounts may be changed to the same restricted role by the ordinary admin flow.
     account = listAccounts(admin).find(row => row.id === 'old-client')!;
     updateAccountAccess(admin, { id: account.id, role: 'guest', projectIds: [], disabled: false, accessVersion: account.accessVersion });
+    await assert.rejects(signIn('client@example.test', password), fails(403));
+    const review=createInvitation(admin,{email:'client@example.test',role:'guest',tenantId:admin.tenantId,projectIds:[]});
+    await acceptInvitation(review.token,'client@example.test',password);
     assert.equal((await signIn('client@example.test', password)).actor.role, 'guest');
     assert.deepEqual(inspect(filename, db => db.prepare('PRAGMA foreign_key_check').all()), []);
   });

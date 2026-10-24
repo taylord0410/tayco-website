@@ -15,7 +15,7 @@ export type GuestConsoleProject = { id: string; name: string; period: string; st
 export type GuestConsoleEstimate = { id: string; projectId: string; projectName: string; name: string; amountUsd: number | null; currency: 'USD'; estimatedOn: string | null; sourceLabel: string | null };
 export type GuestConsoleDocument = { id: string; projectId: string; projectName: string; name: string; contentType: string; available: boolean; viewerHref: string | null; downloadHref: string | null };
 export type GuestConsoleData = {
-  actor: { id: string; email: string; role: 'guest' }; currentPeriod: string; period: string; asOf: string; detailAllowed: boolean;
+  actor: { id: string; email: string; role: 'guest' }; review?: Actor['review']; currentPeriod: string; period: string; asOf: string; detailAllowed: boolean;
   historicalSummary: GuestMonthlyEstimateSummary; projects: GuestConsoleProject[]; estimates: GuestConsoleEstimate[]; documents: GuestConsoleDocument[]; moduleRecords: GuestModuleRecord[];
 };
 type Options = { period?: string; section?: GuestSection; now?: Date };
@@ -132,14 +132,15 @@ function projected(actor: Actor, now: Date) {
 export function guestConsoleSnapshot(actor: Actor, options: Options = {}): GuestConsoleData {
   assertGuest(actor);
   if (!options || typeof options !== 'object' || Array.isArray(options) || Object.keys(options).some(key => !['period','section','now'].includes(key))) throw new ErpError(422, 'Choose a valid guest console selection.');
-  const now = options.now ?? new Date(), currentPeriod = currentReportingPeriod(now), period = options.period ?? currentPeriod, section = options.section ?? 'summary';
+  const now = options.now ?? new Date(), currentPeriod = currentReportingPeriod(now), period = options.period ?? actor.review?.detailPeriod ?? currentPeriod, section = options.section ?? 'summary';
   if (!isGuestReportingPeriod(period) || !isGuestSection(section)) throw new ErpError(422, 'Choose a valid guest console selection.');
+  if(actor.review && (actor.review.expiresAt<=now.getTime() || period>actor.review.detailPeriod))throw new ErpError(403,'Not authorized outside this review period or deadline.');
   if (period > currentPeriod) throw new ErpError(403, 'Not authorized for future reporting periods.');
   const detailAllowed = period === currentPeriod;
   if (!detailAllowed && section !== 'summary') requireGuestPeriod(period, now);
   const historicalSummary = guestMonthlyEstimateSummary(actor, detailAllowed ? undefined : { year: Number(period.slice(0, 4)) }, now);
   const detail = detailAllowed ? projected(actor, now) : { projects: [], estimates: [], documents: [] };
-  return { actor: { id: actor.id, email: actor.email, role: 'guest' }, currentPeriod, period, asOf: now.toISOString(), detailAllowed, historicalSummary, projects: detail.projects, estimates: detail.estimates, documents: detail.documents, moduleRecords: detailAllowed ? guestModuleProjection(actor, detail.projects, now) : [] };
+  return { actor: { id: actor.id, email: actor.email, role: 'guest' }, ...(actor.review?{review:actor.review}:{}), currentPeriod, period, asOf: now.toISOString(), detailAllowed, historicalSummary, projects: detail.projects, estimates: detail.estimates, documents: detail.documents, moduleRecords: detailAllowed ? guestModuleProjection(actor, detail.projects, now) : [] };
 }
 
 /** SERVER ONLY: raw storage metadata is loaded only after exact current-period authorization. Never serialize this Entry. */
@@ -147,6 +148,7 @@ export function guestConsoleDocument(actor: Actor, id: string, now = new Date())
   assertGuest(actor);
   if (typeof id !== 'string' || !idPattern.test(id)) throw new ErpError(403, 'Not authorized for this project document.');
   currentReportingPeriod(now);
+  if(actor.review)requireGuestPeriod(actor.review.detailPeriod,now);
   const authorized = projected(actor, now).documentRows.get(id);
   if (!authorized) throw new ErpError(403, 'Not authorized for this project document.');
   const row = database().prepare("SELECT * FROM records WHERE tenant_id=? AND kind='document' AND id=? AND project_id=? AND length(payload)<=1048576 AND json_valid(payload)").get(actor.tenantId, id, authorized.project_id) as { id: string; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string } | undefined;

@@ -18,7 +18,7 @@ export function viewerFailure(error: unknown, head = false) {
   const message = error instanceof AuthError || error instanceof TakeoffViewerAccessError ? error.message : 'The drawing viewer is temporarily unavailable.';
   const headers = viewerResponseHeaders(); headers.set('Content-Type', 'application/json');
   if (status === 405) headers.set('Allow', 'GET, HEAD');
-  return new Response(head ? null : JSON.stringify({ error: message }), { status, headers });
+  return new Response(head ? null : JSON.stringify({ error: message, ...(error instanceof AuthError&&error.reasonCode?{reasonCode:error.reasonCode}:{}) }), { status, headers });
 }
 const fail = (status: number, message: string): never => { throw new TakeoffViewerAccessError(status, message); };
 function upstreamOrigin() {
@@ -133,18 +133,18 @@ function filterJson(value: unknown, route: Route, scope: ViewerScope): JsonObjec
   }
   return result;
 }
-async function readJson(response: Response) {
+async function readJson(response: Response, recheck:()=>Promise<void>) {
   if (!response.headers.get('content-type')?.toLowerCase().startsWith('application/json')) fail(502, 'The viewer returned an invalid document response.');
   if (Number(response.headers.get('content-length')) > MAX_JSON_BYTES) fail(502, 'The viewer document response is too large.');
   const reader = response.body?.getReader();
   if (!reader) fail(502, 'The viewer returned an empty document response.');
   const chunks: Uint8Array[] = []; let bytes = 0;
   try {
-    for (;;) { const { done, value } = await reader!.read(); if (done) break; bytes += value.byteLength; if (bytes > MAX_JSON_BYTES) fail(502, 'The viewer document response is too large.'); chunks.push(value); }
+    for (;;) { await recheck(); const { done, value } = await reader!.read(); await recheck(); if (done) break; bytes += value.byteLength; if (bytes > MAX_JSON_BYTES) fail(502, 'The viewer document response is too large.'); chunks.push(value); }
     try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return fail(502, 'The viewer returned invalid document JSON.'); }
   } finally { await reader!.cancel().catch(() => {}); }
 }
-export async function handleViewerRequest(request: Request, actor: Actor): Promise<Response> {
+export async function handleViewerRequest(request: Request, actor: Actor, reauthenticate?:()=>Promise<Actor>): Promise<Response> {
   const head = request.method === 'HEAD';
   let cleanup: (() => void) | undefined;
   try {
@@ -152,6 +152,9 @@ export async function handleViewerRequest(request: Request, actor: Actor): Promi
     if (!['GET', 'HEAD'].includes(request.method)) fail(405, 'Only document reads are supported.');
     const scope = viewerScope(actor);
     const route = routeFor(request, scope);
+    let currentScope=scope;
+    const recheck=async()=>{const fresh=reauthenticate?await reauthenticate():actor;if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)fail(403,'Document access changed.');currentScope=viewerScope(fresh);routeFor(request,currentScope);if(currentScope.bundleId!==scope.bundleId||currentScope.manifestSha256!==scope.manifestSha256)fail(403,'Document publication changed.');};
+    await recheck();
     const origin = upstreamOrigin();
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
@@ -165,12 +168,13 @@ export async function handleViewerRequest(request: Request, actor: Actor): Promi
     const headers = new Headers({ 'Accept-Encoding': 'identity' });
     if (!json && route.kind !== 'shell') for (const name of ['Range', 'If-Range', 'If-None-Match', 'If-Modified-Since']) { const value = request.headers.get(name); if (value && value.length < 1000 && !/[\r\n]/.test(value)) headers.set(name, value); }
     const upstream = await fetch(origin + route.pathname + route.search, { method: json ? 'GET' : request.method, headers, redirect: 'manual', cache: 'no-store', signal: controller.signal });
+    await recheck();
     if (upstream.headers.get('X-Takeoff-Bundle-Id') !== scope.bundleId || upstream.headers.get('X-Takeoff-Manifest-Sha256') !== scope.manifestSha256) fail(502, 'The viewer publication does not match the authorized bundle.');
     if (upstream.status >= 300 && upstream.status < 400 && upstream.status !== 304) fail(502, 'The viewer attempted an unsupported redirect or response.');
     const output = viewerResponseHeaders();
     if (json) {
       if (upstream.status !== 200) fail(upstream.status === 404 ? 404 : 502, 'The viewer document is unavailable.');
-      const filtered = filterJson(await readJson(upstream), route, scope);
+      const filtered = filterJson(await readJson(upstream,recheck), route, currentScope);
       output.set('Content-Type', 'application/json');
       const body = JSON.stringify(filtered); output.set('Content-Length', String(Buffer.byteLength(body)));
       cleanup(); cleanup = undefined;
@@ -192,14 +196,14 @@ export async function handleViewerRequest(request: Request, actor: Actor): Promi
     }
     output.set('Content-Type', media);
     if (head || [304, 416].includes(upstream.status) || !upstream.body) {
-      await upstream.body?.cancel(); cleanup(); cleanup = undefined;
+      await upstream.body?.cancel(); await recheck(); cleanup(); cleanup = undefined;
       return new Response(null, { status: upstream.status, headers: output });
     }
     const reader = upstream.body.getReader(), finish = cleanup; cleanup = undefined;
     const body = new ReadableStream<Uint8Array>({
-      async pull(target) { try { arm(); const chunk = await reader.read(); if (chunk.done) { finish(); target.close(); } else target.enqueue(chunk.value); } catch { finish(); target.error(new Error('The drawing transfer was interrupted.')); } },
+      async pull(target) { try { arm(); await recheck(); const chunk = await reader.read(); await recheck(); if (chunk.done) { finish(); target.close(); } else target.enqueue(chunk.value); } catch { finish(); await reader.cancel().catch(()=>{}); target.error(new Error('The drawing transfer was interrupted.')); } },
       async cancel() { finish(); await reader.cancel().catch(() => {}); },
-    });
+    },{highWaterMark:0});
     return new Response(body, { status: upstream.status, headers: output });
   } catch (error) { cleanup?.(); return viewerFailure(error, head); }
 }

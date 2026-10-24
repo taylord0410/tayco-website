@@ -12,8 +12,8 @@ import { handleViewerRequest } from '../lib/takeoff-viewer-gateway';
 import { GET, HEAD, POST } from '../app/api/takeoff-viewer/[[...path]]/route';
 
 const prefix = '/api/takeoff-viewer';
-type Mode = 'ok' | 'redirect' | 'malformed' | 'oversize' | 'bundle' | 'link' | 'otherlink' | 'missingpin' | 'pin' | 'docx' | 'failure';
-type Fixture = { actor: Actor; projectId: string; filename: string; seen: { path: string; method: string; headers: IncomingHttpHeaders }[]; state: { mode: Mode; pdfDone: boolean }; cookie: string };
+type Mode = 'ok' | 'redirect' | 'malformed' | 'oversize' | 'bundle' | 'link' | 'otherlink' | 'missingpin' | 'pin' | 'docx' | 'failure' | 'holdpdf' | 'holdheaders';
+type Fixture = { actor: Actor; projectId: string; filename: string; seen: { path: string; method: string; headers: IncomingHttpHeaders }[]; state: { mode: Mode; pdfDone: boolean;releasePdf?:()=>void;waitingForHeaders?:()=>void }; cookie: string };
 const req = (tail = '/', init?: ConstructorParameters<typeof NextRequest>[1]) => new NextRequest('https://tayco.test' + prefix + tail, init);
 const doc = (id: string, context = 'ctx-a') => ({ id, title: 'Fixture drawing', kind: 'drawing_pdf', page_count: 2, source_name: 'fixture.pdf', revisions: [{ document_id: 'doc-private', source: 'SECRET REVISION' }], finance: { budgetUsd: 999999, source: 'SECRET FINANCE' }, raw_source_path: '/internal/source-private.pdf', project_key: context, source_sha256: 'c'.repeat(64), metadata: { related_documents: ['doc-private'], secret: 'SECRET META' }, references: ['SECRET REFERENCE'], declared_scale: { status: 'unverified_text_candidates', candidates: [{ text: '1/4 in = 1 ft (candidate only)', page: 1, document_id: 'doc-private' }], calibration_applied: false, private_metadata: 'SECRET SCALE' }, ocr_status: null, index_status: 'indexed', calibration_status: null,
   index: { label: 'Authorized extract', pages: [{ page_number: 1, title: 'Fixture sheet', text_available: true, sheet_marks_candidates: ['A-101', 'S-201'], private_metadata: 'SECRET PAGE', document_id: 'doc-private', asset_url: 'https://outside.test/secret' }], text: 'Authorized document extract', related_documents: ['doc-private'] },
@@ -45,7 +45,7 @@ async function fixture(run: (value: Fixture) => Promise<void>) {
   const raw = JSON.stringify(relations);
   process.env.TAYCO_TAKEOFF_RELATIONS_PATH = path.join(folder, 'relations.json'); writeFileSync(process.env.TAYCO_TAKEOFF_RELATIONS_PATH, raw);
   process.env.TAYCO_TAKEOFF_MAPPING_PATH = path.join(folder, 'mapping.json'); writeFileSync(process.env.TAYCO_TAKEOFF_MAPPING_PATH, JSON.stringify({ schemaVersion: 'tayco-takeoff-viewer-access/v1', bundleId: relations.bundleId, relationsSha256: createHash('sha256').update(raw).digest('hex'), mappings: [{ tenantId: actor.tenantId, projectId: project.id, contextKey: 'ctx-a', documents: [{ viewerDocumentId: 'doc-a', erpDocumentId: document.id }, { viewerDocumentId: 'doc-b', erpDocumentId: secondDocument.id }] }] }));
-  const seen: Fixture['seen'] = [], state = { mode: 'ok' as Mode, pdfDone: false };
+  const seen: Fixture['seen'] = [], state:Fixture['state'] = { mode: 'ok' as Mode, pdfDone: false };
   const server = createServer((request, response) => {
     seen.push({ path: request.url!, method: request.method!, headers: request.headers });
     if (state.mode !== 'missingpin') { response.setHeader('X-Takeoff-Bundle-Id', relations.bundleId); response.setHeader('X-Takeoff-Manifest-Sha256', state.mode === 'pin' ? 'e'.repeat(64) : relations.manifestSha256); }
@@ -72,8 +72,10 @@ async function fixture(run: (value: Fixture) => Promise<void>) {
       if (request.headers.range) { response.writeHead(206, { 'Content-Range': 'bytes 1-3/' + content.length, 'Content-Length': 3 }); response.end(request.method === 'HEAD' ? undefined : content.subarray(1, 4)); return; }
       response.setHeader('Content-Length', content.length);
       if (request.method === 'HEAD') { response.end(); return; }
+      if(state.mode==='holdheaders'){state.releasePdf=()=>response.end(content);state.waitingForHeaders?.();return;}
       state.pdfDone = false; response.write(content.subarray(0, 4));
-      setTimeout(() => { state.pdfDone = true; response.end(content.subarray(4)); }, 100);
+      const finish=()=>{state.pdfDone=true;response.end(content.subarray(4));};
+      if(state.mode==='holdpdf')state.releasePdf=finish;else setTimeout(finish,100);
       return;
     }
     response.setHeader('Content-Type', tail.endsWith('.css') ? 'text/css' : tail.includes('/static/') ? 'text/javascript' : 'text/html');
@@ -249,4 +251,52 @@ test('upstream origin is configuration-only and rejects credentials, paths and u
     }
     assert.equal(seen.length, 0);
   });
+});
+
+
+test('revocation while the upstream read waits prevents the next chunk through the actual route',async()=>{
+ await fixture(async({actor,state,cookie})=>{
+  state.mode='holdpdf';
+  const headers={cookie:sessionCookie(cookie).split(';')[0]};
+  const response=await GET(req('/api/v1/assets/asset-shared',{headers}));assert.equal(response.status,200);
+  const reader=response.body!.getReader();
+  assert.equal(Buffer.from((await reader.read()).value!).toString(),'%PDF');
+  const next=reader.read();
+  await new Promise<void>(resolve=>setImmediate(resolve));
+  revokeUserSessionsPrivately(actor.email);
+  state.releasePdf!();
+  await assert.rejects(next,/interrupted/);
+ });
+});
+test('guest absolute deadline reached during a pending PDF read cuts the stream',async()=>{
+ await fixture(async({actor,state,projectId})=>{
+  const originalNow=Date.now;
+  try{
+   const invitation=createInvitation(actor,{email:'slow-review@example.test',role:'guest',tenantId:actor.tenantId,projectIds:[]});
+   const cookie=(await acceptInvitation(invitation.token,'slow-review@example.test','Isolated-review-password-2026!')).cookie;
+   const headers={cookie:sessionCookie(cookie).split(';')[0]},guest=await requireActor(req('/',{headers}));
+   const mappingPath=process.env.TAYCO_TAKEOFF_MAPPING_PATH!,mapping=JSON.parse(readFileSync(mappingPath,'utf8'));
+   mapping.schemaVersion='tayco-takeoff-viewer-access/v2';
+   mapping.guestReviews=[{tenantId:actor.tenantId,guestId:guest.id,projectId,period:new Date().toISOString().slice(0,7),viewerDocumentIds:['doc-a']}];
+   writeFileSync(mappingPath,JSON.stringify(mapping));
+   state.mode='holdpdf';
+   const response=await GET(req('/api/v1/assets/asset-shared',{headers}));assert.equal(response.status,200);
+   const reader=response.body!.getReader();assert.equal(Buffer.from((await reader.read()).value!).toString(),'%PDF');
+   const next=reader.read();await new Promise<void>(resolve=>setImmediate(resolve));
+   Date.now=()=>invitation.expiresAt+1;
+   state.releasePdf!();await assert.rejects(next,/interrupted/);
+   assert.equal((await HEAD(req('/api/v1/assets/asset-shared',{method:'HEAD',headers}))).status,401);
+  }finally{Date.now=originalNow;state.releasePdf?.();}
+ });
+});
+
+
+test('revocation while waiting for provider headers denies the response before any source bytes',async()=>{
+ await fixture(async({actor,state,cookie})=>{
+  state.mode='holdheaders';
+  let ready!:()=>void;const waiting=new Promise<void>(resolve=>{ready=resolve;});state.waitingForHeaders=ready;
+  const pending=GET(req('/api/v1/assets/asset-shared',{headers:{cookie:sessionCookie(cookie).split(';')[0]}}));
+  await waiting;revokeUserSessionsPrivately(actor.email);state.releasePdf!();
+  const response=await pending;assert.equal(response.status,401);protectedHeaders(response);assert.equal((await response.text()).includes('%PDF'),false);
+ });
 });

@@ -3,12 +3,13 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
+import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, type ReviewAccess } from './review-grants';
 
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
-export interface Actor { id: string; email: string; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string }
+export interface Actor { id: string; email: string; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string; review?: ReviewAccess }
 type UserRow = { id: string; email: string; password_hash: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; disabled: number };
-type InviteRow = { id: string; token_hash: string; email: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; expires_at: number; revoked_at: number | null; accepted_at: number | null };
-export class AuthError extends Error { constructor(message: string, public status = 401) { super(message); this.name = 'AuthError'; } }
+type InviteRow = { id: string; token_hash: string; email: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; expires_at: number; revoked_at: number | null; accepted_at: number | null; review_grant_id: string | null };
+export class AuthError extends Error { constructor(message: string, public status = 401, public reasonCode?: string) { super(message); this.name = 'AuthError'; } }
 export const SESSION_COOKIE = 'tayco_session';
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
 // OWASP's 32 MiB configuration balances password cost and the small site's memory budget.
@@ -58,10 +59,11 @@ function database() {
       CREATE TABLE IF NOT EXISTS auth_rate_limits(bucket TEXT PRIMARY KEY,window_start INTEGER NOT NULL,hits INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS auth_audit(id TEXT PRIMARY KEY,actor_id TEXT,event TEXT NOT NULL,subject_id TEXT,created_at INTEGER NOT NULL);`);
     migrateGuestRole(db);
+    installReviewSchema(db);
     return db;
   } catch (error) { db.close(); throw error; }
 }
-function withDb<T>(fn: (db: DatabaseSync) => T): T { const db = database(); try { return fn(db); } finally { db.close(); } }
+function withDb<T>(fn: (db: DatabaseSync) => T): T { const db = database(); try { return fn(db); } catch (error) { if (error instanceof ReviewGrantError) throw new AuthError(error.message,error.status,error.reasonCode); throw error; } finally { db.close(); } }
 function audit(db: DatabaseSync, actor: string | null, event: string, subject: string | null = null) { db.prepare('INSERT INTO auth_audit VALUES(?,?,?,?,?)').run(randomUUID(), actor, event, subject, Date.now()); }
 function actorOf(user: UserRow): Actor {
   try {
@@ -91,17 +93,42 @@ async function verifyPassword(password: string, encoded: string) { const [algori
 // Unknown accounts still perform the same expensive password operation.
 const DUMMY_HASH = `scrypt$32768$8$3$00000000000000000000000000000000$${'0'.repeat(128)}`;
 
-export async function createSession(userId: string) {
-  const password = secret(); const token = randomBytes(32).toString('base64url');
-  const value = await sealData({ token }, { password, ttl: SESSION_TTL_SECONDS });
-  withDb(db => { const user = db.prepare('SELECT disabled FROM auth_users WHERE id=?').get(userId) as { disabled: number } | undefined; if (!user || user.disabled) throw new AuthError('Account unavailable.'); const now = Date.now(); db.prepare('DELETE FROM auth_sessions WHERE expires_at<=?').run(now); db.prepare('INSERT INTO auth_sessions VALUES(?,?,?,?)').run(digest(token), userId, now + SESSION_TTL_SECONDS * 1000, now); audit(db, userId, 'session.created'); });
+export async function createSession(userId: string, selectedReviewId?: string, expectedPasswordHash?: string) {
+  const password=secret(), token=randomBytes(32).toString('base64url');
+  const selected=withDb(db=>{
+    const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
+    if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
+    const actor=actorOf(user),grantId=actor.role==='guest'?(selectedReviewId??latestClaimedReview(db,userId)):undefined;
+    const review=actor.role==='guest'?reviewForSession(db,actor,grantId):undefined;
+    return {grantId,expiresAt:Math.min(Date.now()+SESSION_TTL_SECONDS*1000,review?.expiresAt??Infinity)};
+  });
+  const value=await sealData({token},{password,ttl:Math.max(1,Math.ceil((selected.expiresAt-Date.now())/1000))});
+  withDb(db=>{
+    db.exec('BEGIN IMMEDIATE');
+    try{
+      const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
+      if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
+      if(user.role==='guest')reviewForSession(db,actorOf(user),selected.grantId);
+      else if(selected.grantId)throw new AuthError('Account access changed. Please sign in again.',403);
+      const now=Date.now();if(selected.expiresAt<=now)throw new AuthError('This review access has ended.',403,'review_expired');
+      db.prepare('DELETE FROM auth_sessions WHERE expires_at<=?').run(now);
+      db.prepare('INSERT INTO auth_sessions(token_hash,user_id,expires_at,created_at,review_grant_id) VALUES(?,?,?,?,?)').run(digest(token),userId,selected.expiresAt,now,selected.grantId??null);
+      audit(db,userId,'session.created');db.exec('COMMIT');
+    }catch(error){db.exec('ROLLBACK');throw error;}
+  });
   return value;
 }
 function cookieValue(request: Request) { return request.headers.get('cookie')?.split(';').map(c => c.trim()).find(c => c.startsWith(`${SESSION_COOKIE}=`))?.slice(SESSION_COOKIE.length + 1); }
 async function sessionToken(request: Request) { const value = cookieValue(request); if (!value) return null; try { const payload = await unsealData<{ token?: string }>(decodeURIComponent(value), { password: secret(), ttl: SESSION_TTL_SECONDS }); return typeof payload.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(payload.token) ? payload.token : null; } catch (e) { if (e instanceof AuthError) throw e; return null; } }
 export async function getActor(request: Request): Promise<Actor | null> {
-  const token = await sessionToken(request); if (!token) return null;
-  return withDb(db => { const user = db.prepare('SELECT u.* FROM auth_users u JOIN auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(digest(token), Date.now()) as UserRow | undefined; return user ? actorOf(user) : null; });
+  const token=await sessionToken(request);if(!token)return null;
+  return withDb(db=>{
+    const user=db.prepare('SELECT u.*,s.review_grant_id AS session_review_grant_id FROM auth_users u JOIN auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(digest(token),Date.now()) as (UserRow & {session_review_grant_id:string|null})|undefined;
+    if(!user)return null;
+    const actor=actorOf(user);
+    if(actor.role==='guest')actor.review=reviewForSession(db,actor,user.session_review_grant_id);
+    return actor;
+  });
 }
 export async function requireActor(request: Request): Promise<Actor> { const actor = await getActor(request); if (!actor) throw new AuthError('Please sign in to continue.', 401); return actor; }
 export async function signIn(emailInput: unknown, password: unknown) {
@@ -111,10 +138,16 @@ export async function signIn(emailInput: unknown, password: unknown) {
   const user = withDb(db => db.prepare('SELECT * FROM auth_users WHERE email=?').get(email) as UserRow | undefined);
   const valid = await verifyPassword(password, user?.password_hash || DUMMY_HASH);
   if (!user || user.disabled || !valid) throw new AuthError('Email or password is incorrect.');
-  return { actor: actorOf(user), cookie: await createSession(user.id) };
+  const cookie=await createSession(user.id,undefined,user.password_hash);
+  const actor=await getActor(new Request('http://tayco.local',{headers:{cookie:SESSION_COOKIE+'='+encodeURIComponent(cookie)}}));
+  if(!actor)throw new AuthError('Please sign in again.');
+  return { actor, cookie, expiresAt:actor.review?.expiresAt };
 }
 export async function signOut(request: Request) { const token = await sessionToken(request); if (token) withDb(db => { db.prepare('DELETE FROM auth_sessions WHERE token_hash=?').run(digest(token)); }); }
-export function sessionCookie(value: string, clear = false) { return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${clear ? 0 : SESSION_TTL_SECONDS}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
+export function sessionCookie(value: string, clear = false, expiresAt?:number) {
+  const seconds=clear?0:expiresAt===undefined?SESSION_TTL_SECONDS:Math.max(0,Math.min(SESSION_TTL_SECONDS,Math.floor((expiresAt-Date.now())/1000)));
+  return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${clear?'; Expires=Thu, 01 Jan 1970 00:00:00 GMT':expiresAt!==undefined?'; Expires='+new Date(expiresAt).toUTCString():''}${process.env.NODE_ENV==='production'?'; Secure':''}`;
+}
 
 function validateScope(scope: { role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string }) {
   if (!['admin','staff','client','vendor','guest'].includes(scope.role) || !/^[a-zA-Z0-9_-]{1,100}$/.test(scope.tenantId)) throw new AuthError('Choose a valid role and company.', 400);
@@ -149,14 +182,21 @@ export async function provisionAdditionalAdminPrivately(emailInput: unknown, pas
     } catch (error) { db.exec('ROLLBACK'); throw error; }
   });
 }
-export function createInvitation(actor: Actor, input: { email: unknown; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string; expiresInHours?: number }) {
+export function createInvitation(actor: Actor, input: { email: unknown; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string; expiresInHours?: number; creationRequestId?: string }) {
   requireRole(actor, ['admin']); validateScope(input); if (input.tenantId !== actor.tenantId || input.role === 'admin') throw new AuthError('This invitation is outside your account permissions.', 403);
-  const email = normalizeEmail(input.email); const hours = input.expiresInHours ?? 48; if (!Number.isFinite(hours) || hours < 1 || hours > 168) throw new AuthError('Invitation expiry must be between 1 and 168 hours.', 400);
+  const email = normalizeEmail(input.email);
+  if(input.role==='guest'){
+    if(input.expiresInHours!==undefined&&input.expiresInHours!==4)throw new AuthError('Guest reviews expire four hours after generation.',400);
+    return withDb(db=>createReviewInvitation(db,actor,email,input.creationRequestId??randomUUID()));
+  }
+  const hours = input.expiresInHours ?? 48; if (!Number.isFinite(hours) || hours < 1 || hours > 168) throw new AuthError('Invitation expiry must be between 1 and 168 hours.', 400);
   const token = randomBytes(32).toString('base64url'); const id = randomUUID(); const now = Date.now();
-  withDb(db => { db.prepare('INSERT INTO auth_invites VALUES(?,?,?,?,?,?,?,?,NULL,NULL,?,?)').run(id, digest(token), email, input.role, actor.tenantId, JSON.stringify([...new Set(input.projectIds)]), input.vendorId || null, now + hours * 3600_000, actor.id, now); audit(db, actor.id, 'invitation.created', id); });
+  withDb(db => { db.prepare('INSERT INTO auth_invites(id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at) VALUES(?,?,?,?,?,?,?,?,NULL,NULL,?,?)').run(id, digest(token), email, input.role, actor.tenantId, JSON.stringify([...new Set(input.projectIds)]), input.vendorId || null, now + hours * 3600_000, actor.id, now); audit(db, actor.id, 'invitation.created', id); });
   return { id, token, expiresAt: now + hours * 3600_000, path: `/login#invite=${token}` };
 }
-export function listInvitations(actor: Actor) { requireRole(actor, ['admin']); return withDb(db => db.prepare('SELECT id,email,role,project_ids AS projectIds,vendor_id AS vendorId,expires_at AS expiresAt,revoked_at AS revokedAt,accepted_at AS acceptedAt,created_at AS createdAt FROM auth_invites WHERE tenant_id=? ORDER BY created_at DESC LIMIT 100').all(actor.tenantId)); }
+export function listInvitations(actor:Actor){requireRole(actor,['admin']);return withDb(db=>db.prepare('SELECT i.id,i.email,i.role,i.project_ids AS projectIds,i.vendor_id AS vendorId,i.expires_at AS expiresAt,i.revoked_at AS revokedAt,i.accepted_at AS acceptedAt,i.created_at AS createdAt,i.review_grant_id AS reviewGrantId,g.detail_period AS detailPeriod FROM auth_invites i LEFT JOIN auth_review_grants g ON g.id=i.review_grant_id WHERE i.tenant_id=? ORDER BY i.created_at DESC LIMIT 100').all(actor.tenantId));}
+export function rotateInvitation(actor:Actor,id:string,requestKey:string){requireRole(actor,['admin']);return withDb(db=>rotateReviewInvitation(db,actor,id,requestKey));}
+
 export function listAccounts(actor: Actor) {
   requireRole(actor, ['admin']);
   return withDb(db => (db.prepare('SELECT * FROM auth_users WHERE tenant_id=? ORDER BY email').all(actor.tenantId) as UserRow[]).map(row => ({ ...actorOf(row), accessVersion: accessVersion(row), disabled: Boolean(row.disabled), editable: row.id !== actor.id && row.role !== 'admin' })));
@@ -192,12 +232,55 @@ export function updateAccountAccess(actor: Actor, input: { id: string; role: Aut
     audit(db, actor.id, 'account.access_updated', input.id); db.exec('COMMIT');
   } catch (error) { db.exec('ROLLBACK'); throw error; } });
 }
-export function revokeInvitation(actor: Actor, id: string) { requireRole(actor, ['admin']); withDb(db => { const result = db.prepare('UPDATE auth_invites SET revoked_at=? WHERE id=? AND tenant_id=? AND accepted_at IS NULL').run(Date.now(), id, actor.tenantId); if (!result.changes) throw new AuthError('Invitation not found or already used.', 404); audit(db, actor.id, 'invitation.revoked', id); }); }
-export async function acceptInvitation(token: unknown, emailInput: unknown, password: unknown) {
-  secret(); rateLimit('invite:global', 60); if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(token)) throw new AuthError('This invitation is invalid or no longer available.', 400);
-  const email = normalizeEmail(emailInput); validatePassword(password); const hash = await hashPassword(password); const now = Date.now();
-  const id = withDb(db => { db.exec('BEGIN IMMEDIATE'); try { const invite = db.prepare('SELECT * FROM auth_invites WHERE token_hash=?').get(digest(token)) as InviteRow | undefined; if (!invite || invite.email !== email || invite.revoked_at || invite.accepted_at || invite.expires_at <= now) throw new AuthError('This invitation is invalid or no longer available.', 400); let projectIds: string[]; try { projectIds = JSON.parse(invite.project_ids); } catch { throw new AuthError('This invitation has invalid account assignments.', 400); } validateScope({ role: invite.role, tenantId: invite.tenant_id, projectIds, ...(invite.vendor_id !== null ? { vendorId: invite.vendor_id } : {}) }); if (invite.role === 'admin') throw new AuthError('This invitation is outside your account permissions.', 403); if (db.prepare('SELECT id FROM auth_users WHERE email=?').get(email)) throw new AuthError('An account already exists. Sign in or contact TAYCO for help.', 409); const userId = randomUUID(); db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(userId, email, hash, invite.role, invite.tenant_id, invite.project_ids, invite.vendor_id, now); db.prepare('UPDATE auth_invites SET accepted_at=? WHERE id=?').run(now, invite.id); audit(db, userId, 'invitation.accepted', invite.id); db.exec('COMMIT'); return userId; } catch (e) { db.exec('ROLLBACK'); throw e; } });
-  return { cookie: await createSession(id) };
+export function revokeInvitation(actor:Actor,id:string){
+  requireRole(actor,['admin']);withDb(db=>{
+    const invite=db.prepare('SELECT review_grant_id FROM auth_invites WHERE id=? AND tenant_id=?').get(id,actor.tenantId) as {review_grant_id:string|null}|undefined;
+    if(invite?.review_grant_id){revokeReviewInvitation(db,actor,id);return;}
+    const result=db.prepare('UPDATE auth_invites SET revoked_at=? WHERE id=? AND tenant_id=? AND accepted_at IS NULL').run(Date.now(),id,actor.tenantId);
+    if(!result.changes)throw new AuthError('Invitation not found or already used.',404);audit(db,actor.id,'invitation.revoked',id);
+  });
+}
+export async function acceptInvitation(token:unknown,emailInput:unknown,password:unknown){
+  secret();rateLimit('invite:global',60);
+  if(typeof token!=='string'||! /^[A-Za-z0-9_-]{43}$/.test(token))throw new AuthError('This invitation is invalid or no longer available.',400);
+  const email=normalizeEmail(emailInput);validatePassword(password);
+  const preview=withDb(db=>db.prepare('SELECT * FROM auth_invites WHERE token_hash=?').get(digest(token)) as InviteRow|undefined);
+  const existing=preview?.role==='guest'?withDb(db=>db.prepare('SELECT * FROM auth_users WHERE email=?').get(email) as UserRow|undefined):undefined;
+  if(existing&&(existing.disabled||existing.role!=='guest'||existing.tenant_id!==preview?.tenant_id))throw new AuthError('This review cannot be claimed by this account.',403);
+  if(existing&&!await verifyPassword(password,existing.password_hash))throw new AuthError('Email or password is incorrect.');
+  const hash=existing?undefined:await hashPassword(password);
+  const claimed=withDb(db=>{
+    db.exec('BEGIN IMMEDIATE');
+    try{
+      const now=Date.now(),invite=db.prepare('SELECT * FROM auth_invites WHERE token_hash=?').get(digest(token)) as InviteRow|undefined;
+      if(!invite||invite.email!==email||invite.revoked_at!==null||invite.expires_at<=now)throw new AuthError('This invitation is invalid or no longer available.',400);
+      let projectIds:string[];try{projectIds=JSON.parse(invite.project_ids);}catch{throw new AuthError('This invitation has invalid account assignments.',400);}
+      validateScope({role:invite.role,tenantId:invite.tenant_id,projectIds,...(invite.vendor_id!==null?{vendorId:invite.vendor_id}:{})});
+      if(invite.role==='admin')throw new AuthError('This invitation is outside your account permissions.',403);
+      let user=db.prepare('SELECT * FROM auth_users WHERE email=?').get(email) as UserRow|undefined;
+      if(invite.role==='guest'){
+        if(!invite.review_grant_id)throw new AuthError('Request a new review invitation from TAYCO.',403,'review_required');
+        if(user){
+          if(!existing||user.id!==existing.id||user.password_hash!==existing.password_hash||user.disabled||user.role!=='guest'||user.tenant_id!==invite.tenant_id)throw new AuthError('This review cannot be claimed by this account.',403);
+        }else{
+          if(existing||!hash||invite.accepted_at!==null)throw new AuthError('This account changed. Please retry.',409);
+          const userId=randomUUID();db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(userId,email,hash,'guest',invite.tenant_id,'[]',null,now);
+          user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow;
+        }
+        claimReviewGrant(db,invite.review_grant_id,invite.id,actorOf(user),now);
+        db.prepare('UPDATE auth_invites SET accepted_at=COALESCE(accepted_at,?) WHERE id=?').run(now,invite.id);
+        db.exec('COMMIT');return {userId:user.id,grantId:invite.review_grant_id};
+      }
+      if(invite.accepted_at!==null)throw new AuthError('This invitation is invalid or no longer available.',400);
+      if(user)throw new AuthError('An account already exists. Sign in or contact TAYCO for help.',409);
+      const userId=randomUUID();db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(userId,email,hash!,invite.role,invite.tenant_id,invite.project_ids,invite.vendor_id,now);
+      db.prepare('UPDATE auth_invites SET accepted_at=? WHERE id=?').run(now,invite.id);audit(db,userId,'invitation.accepted',invite.id);db.exec('COMMIT');return {userId,grantId:undefined};
+    }catch(error){db.exec('ROLLBACK');throw error;}
+  });
+  const cookie=await createSession(claimed.userId,claimed.grantId);
+  const actor=await getActor(new Request('http://tayco.local',{headers:{cookie:SESSION_COOKIE+'='+encodeURIComponent(cookie)}}));
+  if(!actor)throw new AuthError('Please sign in again.');
+  return {cookie,expiresAt:actor.review?.expiresAt};
 }
 async function replacePassword(emailInput: unknown, password: string, actorId: string | null, event: string) {
   const email = normalizeEmail(emailInput); const hash = await hashPassword(password);

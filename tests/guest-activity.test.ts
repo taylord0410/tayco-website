@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { type Actor, AuthError, createSession, provisionAdmin, sessionCookie } from '../lib/auth';
+import { type Actor, AuthError, createSession, provisionAdmin, sessionCookie, createInvitation,acceptInvitation,requireActor } from '../lib/auth';
 import { GUEST_ACTIVITY_ELEMENTS, GuestActivityError, guestActivityReport, recordGuestActivity } from '../lib/guest-activity';
 import { GET, POST } from '../app/api/guest-activity/route';
 import { database as erpDatabase, execute, registerDocument } from '../lib/erp';
@@ -40,7 +40,7 @@ async function sessions() {
   const db = new DatabaseSync(process.env.TAYCO_AUTH_DB_PATH!);
   const actors: Record<string, Actor> = { admin: { ...admin, id: adminId } };
   try {
-    for (const role of ['guest', 'staff', 'client', 'vendor'] as const) {
+    for (const role of ['staff', 'client', 'vendor'] as const) {
       const actor: Actor = { ...guest, id: `fixture-${role}`, role, email: `${role}@example.test`, ...(role === 'vendor' ? { vendorId: 'vendor-one' } : {}) };
       db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(actor.id, actor.email, 'unused-fixture-hash', role, actor.tenantId, '[]', actor.vendorId ?? null, Date.now());
       actors[role] = actor;
@@ -49,8 +49,11 @@ async function sessions() {
     db.prepare('INSERT INTO auth_users VALUES(?,?,?,?,?,?,?,0,?)').run(otherAdmin.id, otherAdmin.email, 'unused-fixture-hash', 'admin', otherAdmin.tenantId, '[]', null, Date.now());
     actors.otherAdmin = otherAdmin;
   } finally { db.close(); }
-  const cookies: Record<string, string> = {};
-  for (const [role, actor] of Object.entries(actors)) cookies[role] = await createSession(actor.id);
+  const invitation=createInvitation(actors.admin,{email:guest.email,role:'guest',tenantId:guest.tenantId,projectIds:[]});
+  const accepted=await acceptInvitation(invitation.token,guest.email,'Activity-fixture-guest-password!');
+  actors.guest=await requireActor(new Request('https://tayco.test',{headers:{cookie:sessionCookie(accepted.cookie).split(';')[0]}}));
+  const cookies: Record<string,string>={guest:accepted.cookie};
+  for (const [role,actor] of Object.entries(actors))if(role!=='guest')cookies[role]=await createSession(actor.id);
   return { actors, cookies };
 }
 function post(cookie: string | undefined, body: unknown, options: { origin?: string | null; contentType?: string } = {}) {

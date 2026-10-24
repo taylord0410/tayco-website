@@ -292,7 +292,7 @@ API y GUI son requeridas. No se promete un MCP público o CLI de cliente; el ope
 
 El ledger soul_ledger es la fuente del progreso. Esta lista describe dependencias y contratos, no declara futuros bloques completos. Antes de despliegue, compartir con PRAXIS y ARTEMIS el alcance exacto y evidencias; conservar una sola ruta de integración.
 
-## 12. Diferencias concretas con el código actual
+## 12. Diagnóstico anterior a T63 (base de diseño)
 
 - `lib/auth.ts`: invitación48h por defecto, aceptación crea cuenta permanente y sesión8h; el login vuelve a crear8h. `revokeInvitation` solo cubre no aceptadas. La API de creación no pasa actualmente expiresInHours. Cambiar el número a4 sin el ReviewGrant no cumple el contrato.
 - `app/portal/page.tsx`, `lib/guest-workspace.ts` y resumen histórico exigen autenticar/filtrar, pero todavía no tienen una autorización de revisión absoluta de cuatro horas.
@@ -303,3 +303,16 @@ El ledger soul_ledger es la fuente del progreso. Esta lista describe dependencia
 - Las tarjetas de registros son contenido pasivo: no existe hoy un botón de apertura individual para cada estimado/propuesta. Su exposición necesita un evento específico, no inventar un clic.
 - El wrapper del visor comprueba su shell. Los controles internos de página/zoom/pan/búsqueda necesitan instrumentación del visor y pruebas independientes; shell_ready no equivale a document_completed.
 - Las preferencias del sistema visual son locales y no son analítica. En la nueva instalación, los tres eventos cliente existentes también deben pasar por la política de consentimiento aplicable; no se dejan activos a escondidas bajo el banner.
+
+
+## 13. T63 implementado y verificado localmente — 2026-10-24
+
+La revisión guest tiene un origen y un vencimiento inmutables: exactamente cuatro horas desde la generación. Aceptar tarde, volver a iniciar sesión, refrescar o reintentar una solicitud no amplía ese plazo. La referencia de generación deduplica el mismo intento; reemplazar explícitamente un enlace perdido rota su token dentro de la misma revisión y conserva el vencimiento. Una generación nueva es una revisión distinta, nunca una renovación implícita.
+
+La reclamación de una cuenta guest existente verifica su contraseña y conserva identidad, credenciales y empresa. Cada sesión queda vinculada al grant reclamado y limitada por su vencimiento. Las sesiones anteriores no migran a una revisión posterior. Revocar una revisión aceptada elimina sus sesiones; una nueva autenticación no evita la revocación. Los guests antiguos sin grant requieren una revisión nueva; las cuentas administrativas conservan su política anterior.
+
+Los guards de API, RSC y documentos vuelven a resolver la autorización vigente. El gateway revalida antes y después de esperar al proveedor y de cada lectura del stream; corta la entrega cuando expira o se revoca el acceso. Al cruzar un mes UTC, el grant conserva su mes de origen: pasa a resumen histórico y no habilita detalle del mes nuevo. La consola muestra la hora UTC y retira su contenido al vencer; el estado administrativo utiliza la hora servida por el backend.
+
+Verificación local: 446 pruebas backend en 45 archivos, ocho casos específicos de ciclo de vida, guards de streaming con revocación/vencimiento mientras esperan datos, migración de roles y fixtures, TypeScript, ESLint de archivos afectados y build de producción. Recorrido nativo con cuentas sintéticas aisladas: aceptación a las 3.5 horas con el mismo vencimiento, rechazo de login posterior, revocación de una revisión aceptada y limpieza de la consola. Escritorio y móvil de 390 px comprobados. No se modificó el reloj del sistema ni se añadió un control de reloj a la aplicación.
+
+Este cierre corresponde a T63 local. T64 (auditoría ampliada), T65 (aviso y preferencias de cookies), la allowlist documental específica del destinatario y la validación de publicación continúan pendientes. No se emitieron invitaciones reales ni se desplegó este cambio. El contrato de perfil aseguradora continúa sujeto a sus restricciones propias.

@@ -47,7 +47,7 @@ export default async function PortalPage({ searchParams }: { searchParams?: Prom
   } catch (error) {
     if (error instanceof ErpError && [403, 422].includes(error.status)) accessError = error.message;
     else if (!(error instanceof AuthError)) throw error;
-    else accessError = error.status === 403 ? "Not authorized." : "Account access is temporarily unavailable.";
+    else accessError = error.reasonCode?.startsWith("review_") ? error.message : error.status === 403 ? "Not authorized." : "Account access is temporarily unavailable.";
   }
   if (guestInitial) return <GuestConsole initial={guestInitial} initialSection={guestSection} />;
   if (initial) return <PortalClient initial={initial} />;
