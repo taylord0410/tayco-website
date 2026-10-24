@@ -83,7 +83,8 @@ export function assertSameOrigin(request: Request) {
   const origin = request.headers.get('origin');
   let expected: string;
   try { expected = new URL(process.env.TAYCO_APP_URL || (process.env.NODE_ENV === 'production' ? '' : request.url)).origin; } catch { throw new AuthError('Account access is not configured.', 503); }
-  if (!origin || origin !== expected || request.headers.get('sec-fetch-site') === 'cross-site') throw new AuthError('Please reload this page and try again.', 403);
+  const extra = (process.env.TAYCO_EXTRA_ORIGINS || '').split(',').map(v => v.trim()).filter(Boolean);
+  if (!origin || (origin !== expected && !extra.includes(origin)) || request.headers.get('sec-fetch-site') === 'cross-site') throw new AuthError('Please reload this page and try again.', 403);
 }
 export function requireRole(actor: Actor, roles: AuthRole[]) { if (!roles.includes(actor.role)) throw new AuthError('You do not have permission to perform this action.', 403); }
 export function requireProject(actor: Actor, projectId: string, tenantId: string) { if (actor.role === 'guest' || actor.tenantId !== tenantId || (!['admin', 'staff'].includes(actor.role) && !actor.projectIds.includes(projectId))) throw new AuthError('You do not have access to this project.', 403); }
@@ -205,7 +206,7 @@ export async function signOut(request: Request) {
 }
 export function sessionCookie(value: string, clear = false, expiresAt?:number) {
   const seconds=clear?0:expiresAt===undefined?SESSION_TTL_SECONDS:Math.max(0,Math.min(SESSION_TTL_SECONDS,Math.floor((expiresAt-Date.now())/1000)));
-  return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${clear?'; Expires=Thu, 01 Jan 1970 00:00:00 GMT':expiresAt!==undefined?'; Expires='+new Date(expiresAt).toUTCString():''}${process.env.NODE_ENV==='production'?'; Secure':''}`;
+  return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${clear?'; Expires=Thu, 01 Jan 1970 00:00:00 GMT':expiresAt!==undefined?'; Expires='+new Date(expiresAt).toUTCString():''}${process.env.NODE_ENV==='production'&&process.env.TAYCO_COOKIE_INSECURE!=='1'?'; Secure':''}`;
 }
 
 function validateScope(scope: { role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string }) {
