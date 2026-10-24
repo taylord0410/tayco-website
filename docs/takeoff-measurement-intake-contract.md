@@ -1,6 +1,6 @@
 # Takeoff measurements → TAYCO: consumer contract
 
-Status: proposed handoff for the producer's M02 schema, not an implemented endpoint. Raw calibration/measurement/BOQ reception still needs an adapter, tests and UI projection.
+Status: M02 producer/consumer format agreed and independently probed on 2026-10-24. This is not an implemented endpoint. Raw calibration/measurement/BOQ reception still needs an adapter, persistence tests and UI projection.
 
 ## Existing receiving path
 
@@ -36,7 +36,7 @@ No local absolute paths, secrets, document binaries or private customer details 
 ## States and arithmetic
 
 - A printed scale is a candidate until its dimension/evidence and applicable region are checked. A calibration copied from another page or region does not become confirmed automatically.
-- Preserve pending, conflicting, rejected and superseded evidence for review. Pending quantity or price is null, never zero.
+- Preserve pending, conflicting, rejected and superseded evidence for review. Pending/conflicting measurement quantity is null, never zero. A candidate may retain a provisional quantity with an explicit reason, but cannot contribute to an included BOQ line. A separately sourced candidate price is provisional and cannot produce a final total.
 - Counts may not require a length calibration, but still need a traceable object/geometry selection and deduplication scope.
 - Length requires a matching regional calibration; area and volume require dimensionally valid transforms and explicit additional dimensions.
 - Preserve source and normalized units with a declared conversion. Do not add unlike dimensions or currencies.
@@ -74,8 +74,22 @@ Same identity/revision and same digest returns the existing receipt. A changed p
 7. Administrator import and authorized console reading work; anonymous, other tenant/project and ungranted guest cannot retrieve source details.
 8. Console visibly separates pending measurements, verified quantities, price evidence and independent estimate revisions.
 
-## Immediate producer handoff
+## Agreed producer handoff
 
-Deliver the candidate M02 schema and two synthetic examples (one confirmed, one pending/conflicting), then a private artifact inventory keyed by context/document/page/SHA. TAYCO will adapt that agreed format instead of requiring raw measurement geometry to masquerade as an aggregate estimate snapshot.
+The received contract is `takeoff_measurement_package.m02`. The producer supplies a closed JSON Schema, an offline Python semantic validator, two synthetic examples and tests. Actual source measurements arrive as a separate pinned package. Synthetic examples must never be imported as real project evidence.
+
+| Reviewed artifact | SHA-256 |
+| --- | --- |
+| Handoff manifest | `76949bde5fe03f999d3f9b4ffb1a496a75bb4732fd8da73d9bce1652c5cd3dab` |
+| Semantic validator | `c02eb07c1f3cacdfdc9d38a770bc83c5076a7c03ef1c48a28bc877055d1c7be8` |
+| JSON Schema | `4076bee8feea286cd953f21d4d8f06dcb57811494854e882f145f0033131c57f` |
+
+All seven manifest entries were checked for SHA-256 and byte length. Source was inspected before offline execution; schema references are internal. Seven independent synthetic probes passed: baseline accepted; pending/conflicting non-null quantities rejected; candidate provisional quantity accepted with a reason; invalid generation time rejected; numeric quantity accepted without changing its payload identity; candidate measurement excluded from included BOQ quantities. The producer separately reports 34 passing tests; those are not represented here as an independently rerun suite.
+
+Generation time must be a valid RFC3339 timestamp with a timezone. The payload digest is SHA-256 of the original JSON object without `payloadDigest`, serialized with the producer's sorted-key compact UTF-8 canonicalization; numbers and decimal strings remain distinct. Decimal arithmetic must not mutate the source object and invalidate its digest. The adapter must reuse that implementation or establish byte-compatible behavior with probes rather than assume JavaScript serialization is interchangeable.
+
+Structural limits include 25 MiB canonical payload, 64 contexts, 128 documents per context and 1,024 pages per document, with bounded nested lists and strings in the pinned schema. The receiver must also bound the original input bytes before parsing and verify actual artifact containment, bytes and hashes. Successful semantic validation alone does not verify an artifact exists, authorize publication, approve pricing, establish real-world measurements or grant guest access.
+
+TAYCO will adapt this agreed format rather than require raw geometry to masquerade as an aggregate estimate snapshot. Receipt replay/conflict handling, transaction rollback, exact existing-project mapping and authorized console projection remain implementation work under T69.
 
 This contract does not authorize a Railway deployment, publish real quantities or supply a general TAYCO rate card.
