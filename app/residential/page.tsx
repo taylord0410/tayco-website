@@ -837,17 +837,17 @@ export default function ResidentialPage() {
           </div>
 
           {/* TradeGallery Integration */}
-          <div id="projects" className="pt-4">
+          <div id="trade-catalog" className="pt-4">
             <div className="text-center mb-10">
               <div
                 className="tayco-eyebrow justify-center mb-2"
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                RESIDENTIAL, MULTIFAMILY &amp; COMMERCIAL FIELD PORTFOLIO
+                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Explore Our Work by{" "}
+                Types of work we perform by{" "}
                 <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
                   Trade.
                 </em>

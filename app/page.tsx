@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
+import TradeGallery from "@/components/TradeGallery";
 
 type ServiceFilter = "all" | "commercial" | "residential" | "partners";
 
@@ -664,7 +665,7 @@ export default function Home() {
               style={{ color: "#1B3A6B" }}
             >
               <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / WHAT WE CAN BUILD TOGETHER
+              01 / TYPES OF WORK WE PERFORM
             </span>
             <span
               className="text-[11px] font-mono uppercase tracking-widest"
@@ -1113,6 +1114,25 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div id="types-of-work" className="mt-16 pt-12 border-t border-white/10">
+            <div className="text-center mb-10">
+              <div
+                className="tayco-eyebrow justify-center mb-2"
+                style={{ color: "#F3D37A" }}
+              >
+                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                Types of work we perform{" "}
+                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                  by Trade.
+                </em>
+              </h2>
+            </div>
+            <TradeGallery />
           </div>
         </div>
       </section>

@@ -119,6 +119,11 @@ export default function TradeGallery() {
 
   return (
     <div className="space-y-8">
+      <div className="text-center">
+        <p className="text-xs font-mono uppercase tracking-widest text-amber-300/90">
+          Types of work we perform · Illustrative trade &amp; material catalog
+        </p>
+      </div>
       {/* Project services and resources */}
       <div
         className="flex flex-wrap justify-center gap-2.5"

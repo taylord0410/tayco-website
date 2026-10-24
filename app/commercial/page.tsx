@@ -974,10 +974,10 @@ export default function CommercialPage() {
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                EXPLORE WORK BY TRADE
+                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Materials &amp; craftsmanship for{" "}
+                Types of work we perform across{" "}
                 <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
                   Every Sector.
                 </em>
