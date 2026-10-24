@@ -27,6 +27,7 @@ type Row = {
     version: number;
 };
 type Context = {
+    signal: AbortSignal;
     actor: Actor;
     root: string;
     rootHash: string;
@@ -36,7 +37,8 @@ const SHA = /^[a-f0-9]{64}$/, UPLOAD = /^su_[a-f0-9]{32}$/, UUID = /^[a-f0-9]{8}
 const hash = (value: string | Uint8Array) => createHash('sha256').update(value).digest('hex');
 const fail = (status: number, message: string): never => { throw new SourceUploadError(status, message); };
 const conflict = (): never => fail(409, 'This upload needs reconciliation or has conflicting bytes.');
-function fresh(c: Context) { const actor = revalidateRequestActor(c.actor); requireRole(actor, ['admin']); return actor; }
+function fresh(c: Context) { if (c.signal.aborted)
+    return fail(408, 'Upload request ended before confirmation. Inspect status before retrying.'); const actor = revalidateRequestActor(c.actor); requireRole(actor, ['admin']); return actor; }
 function secureDirectory(directory: string, create = false) {
     const absolute = path.resolve(directory), parsed = path.parse(absolute);
     let current = parsed.root;
@@ -71,7 +73,7 @@ async function context(request: Request): Promise<Context> {
     const configured = process.env.TAYCO_SOURCE_UPLOAD_ROOT;
     if (!configured || !path.isAbsolute(configured))
         return fail(503, 'Private upload storage is unavailable.');
-    const root = secureDirectory(configured, true), c = { actor, root, rootHash: hash(root), db: install() };
+    const root = secureDirectory(configured, true), c = { actor, signal: request.signal, root, rootHash: hash(root), db: install() };
     fresh(c);
     return c;
 }

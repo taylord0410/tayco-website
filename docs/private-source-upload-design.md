@@ -151,3 +151,17 @@ Chunk effects run synchronously within a short SQLite write transaction, which s
 A duplicate committed chunk is compared with both its recorded digest and actual bytes. A stored finish replay streams and verifies the sealed file before returning the original receipt. Status is a bounded metadata/size observation; it does not recompute the full digest. Unfinished states explicitly report `not_verified`. A stored receipt means size and SHA-256 verification only; source registration and release remain separate.
 
 Focused tests use newly created synthetic auth/ERP databases and persisted sign-ins, including separate OS processes sharing the synthetic database and private directory. They do not copy production data, create real invitations, change the OS clock or certify power-loss recovery. HTTP delivery and operator CLI behavior remain T83/T84.
+
+## T83 HTTP adapter contract
+
+The existing Next Node runtime exposes only the PU-1 transport operations. Reservation accepts closed JSON (`requestKey`, `expectedBytes`, `sha256`, `mediaType`) up to 4096 bytes. PATCH accepts `application/octet-stream`, canonical decimal `Upload-Offset` and lowercase SHA-256 `Upload-Chunk-SHA256`, with at most 1 MiB of actual bytes. Query parameters are rejected. Finish and cancellation require an empty body. Status GET/HEAD return owned metadata only; there is no binary GET or admission operation.
+
+Each supported request authenticates the current persisted administrator; mutations require the configured exact Origin and reject cross-site Fetch Metadata. Owner/tenant and persisted session guards remain in T82. A bounded internal Request carries the operation abort signal into core IO and final transaction checks. Response cancellation or a lost ACK does not assert rollback of a previously committed effect: inspect owned status before retrying.
+
+The adapter counts actual bytes, checks any supplied Content-Length against both the limit and the completed body, and rejects non-identity Content-Encoding. It never waits indefinitely for an underlying stream's cancellation promise. A cooperative 60-second operation deadline and caller abort terminate pending reads; synchronous OS stalls are not preempted. Dynamic route-parameter rejection is observed immediately so an early private error cannot become an unhandled promise while authentication awaits.
+
+Rate budgets use the existing persisted AUTH rate limiter's 15-minute window: control 600 per actor / 2400 per tenant, chunks 4096 / 16384. Retry-After is a bounded conservative interval. Local in-flight admission allows four requests per actor and eight per tenant and releases on every outcome; that memory bound is per application process, not distributed consensus. Durable storage quotas and leases continue sharing SQL across cooperating processes.
+
+Success and failure use closed JSON and private/no-store, Cookie variance, nosniff and same-origin resource headers. Errors never echo exceptions, filesystem paths, cookies, payload bytes or Location; unknown faults become generic 503. Stored metadata does not enable the existing document reader to serve an unregistered upload, including when its SHA is known.
+
+Handler probes use fresh synthetic persistent accounts/DBs and a four MiB synthetic transfer. These are not CLI/network, Railway/proxy, full file-limit throughput or power-loss certification. T84 owns the operator client and larger local end-to-end transfer; T60 owns deployment topology and actual remote transfer.
