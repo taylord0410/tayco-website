@@ -133,6 +133,7 @@ function filterJson(value: unknown, route: Route, scope: ViewerScope): JsonObjec
   else {
     const index = object(row.index), clean: JsonObject = {};
     for (const key of ['label', 'text', 'caveat']) if (index[key] !== undefined && index[key] !== null) clean[key] = string(index[key], 2_000_000);
+    if (clean.label === 'Índice / extractos candidatos') clean.label = 'Candidate index excerpts';
     for (const key of ['text_is_candidate_extraction', 'full_text_or_OCR_claimed', 'pagination_inferred']) if (index[key] !== undefined) { if (typeof index[key] !== 'boolean') fail(502, 'The viewer returned an invalid document index.'); clean[key] = index[key]; }
     for (const key of ['pages', 'paragraphs']) if (index[key] !== undefined) clean[key] = boundedContent(list(index[key]));
     result.index = clean;
