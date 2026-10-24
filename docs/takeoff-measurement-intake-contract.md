@@ -9,6 +9,7 @@ Status: proposed handoff for the producer's M02 schema, not an implemented endpo
 - The existing source schemas are `takeoff_active_scenario.v1` and `takeoff_apu_procurement.v1`, plus the report's structured financial payload and CSI table.
 - ERP actions `restore_estimate_project` and `import_project_estimate` preserve versioned aggregate estimates. They are not a raw geometry, calibration or measured-quantity API.
 - Estimate and source-document registration remain different operations. The imported Takeoff bundle is already pinned; a new measurement package must reference it rather than mutate it.
+- The legacy estimate recovery matches `sourceProjectSlug`; document registration instead records `sourceContextKey` and exact bundle pins. Running legacy recovery blindly against a document-registered project can create a separate container. The adapter must resolve the existing TAYCO project through the exact source mapping and reject ambiguous bindings; it must not call project recovery merely because a measurement arrived.
 
 Atlas12 owns producer extraction/calibration artifacts and its M02 schema. Atlas7 owns the TAYCO adapter, authorization, idempotent persistence and console projection. Agree the schema before creating another competing format.
 
