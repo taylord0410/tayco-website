@@ -31,11 +31,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const readMotion = () => {
-      const systemReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       try {
-        setMotionPaused(systemReduced || localStorage.getItem("tayco-motion-paused") === "1");
+        setMotionPaused(localStorage.getItem("tayco-motion-paused") === "1");
       } catch {
-        setMotionPaused(systemReduced);
+        setMotionPaused(false);
       }
     };
     readMotion();

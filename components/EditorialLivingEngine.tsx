@@ -25,13 +25,16 @@ export default function EditorialLivingEngine() {
     } catch {
       // Motion remains available when preference storage is unavailable.
     }
-    let paused = userPaused || motionPreference.matches;
+    let paused = userPaused;
+    let liteMode = !userPaused && motionPreference.matches;
 
     const applyMotionState = () => {
-      paused = userPaused || motionPreference.matches;
-      document.body.dataset.motion = paused ? "reduced" : "full";
+      paused = userPaused;
+      liteMode = !userPaused && motionPreference.matches;
+      document.body.dataset.motion = userPaused || motionPreference.matches ? "reduced" : "full";
+      document.body.dataset.motionTier = userPaused ? "paused" : liteMode ? "lite" : "full";
       window.dispatchEvent(
-        new CustomEvent("tayco:motion-state", { detail: { paused } })
+        new CustomEvent("tayco:motion-state", { detail: { paused: userPaused } })
       );
     };
 
@@ -156,11 +159,12 @@ export default function EditorialLivingEngine() {
       }
 
       if (field) {
+        const factor = liteMode ? 0.45 : 1;
         const normX = (pointerX / Math.max(1, window.innerWidth)) * 2 - 1;
         const normY = (pointerY / Math.max(1, window.innerHeight)) * 2 - 1;
-        const drift = Math.sin(progress * Math.PI * 2) * 6;
-        field.style.setProperty("--pointer-x", `${(normX * 2.8).toFixed(2)}%`);
-        field.style.setProperty("--pointer-y", `${(normY * 2.8).toFixed(2)}%`);
+        const drift = Math.sin(progress * Math.PI * 2) * (6 * factor);
+        field.style.setProperty("--pointer-x", `${(normX * 2.8 * factor).toFixed(2)}%`);
+        field.style.setProperty("--pointer-y", `${(normY * 2.8 * factor).toFixed(2)}%`);
         field.style.setProperty("--scroll-drift", `${drift.toFixed(2)}%`);
       }
 
@@ -169,6 +173,7 @@ export default function EditorialLivingEngine() {
           const r = hoveredSurface.getBoundingClientRect();
           surfaceRect = { left: r.left, top: r.top, width: r.width, height: r.height };
         }
+        const tiltDeg = liteMode ? 1.8 : 4;
         const relX = Math.max(
           -0.5,
           Math.min(0.5, (pointerX - surfaceRect.left) / Math.max(1, surfaceRect.width) - 0.5)
@@ -179,8 +184,8 @@ export default function EditorialLivingEngine() {
         );
         const px = (relX * 100 + 50).toFixed(1) + "%";
         const py = (relY * 100 + 50).toFixed(1) + "%";
-        const rx = (-relY * 4).toFixed(2) + "deg";
-        const ry = (relX * 4).toFixed(2) + "deg";
+        const rx = (-relY * tiltDeg).toFixed(2) + "deg";
+        const ry = (relX * tiltDeg).toFixed(2) + "deg";
 
         hoveredSurface.style.setProperty("--response-px", px);
         hoveredSurface.style.setProperty("--response-py", py);
@@ -193,6 +198,7 @@ export default function EditorialLivingEngine() {
           const r = hoveredMagnetic.getBoundingClientRect();
           magneticRect = { left: r.left, top: r.top, width: r.width, height: r.height };
         }
+        const magPx = liteMode ? 3.5 : 7;
         const relX = Math.max(
           -0.5,
           Math.min(0.5, (pointerX - magneticRect.left) / Math.max(1, magneticRect.width) - 0.5)
@@ -201,8 +207,8 @@ export default function EditorialLivingEngine() {
           -0.5,
           Math.min(0.5, (pointerY - magneticRect.top) / Math.max(1, magneticRect.height) - 0.5)
         );
-        hoveredMagnetic.style.setProperty("--mag-x", `${(relX * 7).toFixed(2)}px`);
-        hoveredMagnetic.style.setProperty("--mag-y", `${(relY * 7).toFixed(2)}px`);
+        hoveredMagnetic.style.setProperty("--mag-x", `${(relX * magPx).toFixed(2)}px`);
+        hoveredMagnetic.style.setProperty("--mag-y", `${(relY * magPx).toFixed(2)}px`);
       }
     };
 
