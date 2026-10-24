@@ -27,3 +27,17 @@ Run independent probes with the reviewed contract installed:
     TAYCO_M02_CONTRACT_ROOT=<reviewed-M02-integration-folder> python -B -m unittest discover -s tests -p test_m02_preflight.py -v
 
 Set that environment variable using the host's normal environment mechanism. Probes generate their own PDFs and source manifest, and check numeric digest preservation, negative crop origin, wrong transform/rotation/dimensions/page, artifact changes/path escapes, contract tampering, source binding, pending quantities, nominal calibration and redacted CLI errors. The real symbolic-link probe reports an explicit skip on hosts that cannot create links; a separate guard probe still exercises the rejection branch. No private PDF or real source metadata is stored in these test fixtures.
+
+## Private preparation for the receiver
+
+A separate local operator command can retain the verified package and its evidence:
+
+    python -B scripts/prepare_m02.py --package <private-package.json> --contract-root <reviewed-M02-integration-folder> --bundle-root <original-source-bundle> --manifest-sha256 <trusted-original-manifest-SHA256> --archive-root <private-absolute-directory>
+
+This archive root must be an operator-controlled private directory, outside publicly served files. The command does not authenticate a TAYCO user; it is a local file operation, not an HTTP import endpoint. T69 must authenticate an administrator before invoking it and revalidate that exact session before committing ERP reception.
+
+Preparation checks the source, captures its original JSON bytes, copies only referenced evidence into a new staging directory, flushes each file and revalidates the staged package before renaming it to its original-file SHA-256. It does not copy source PDFs, databases or secrets. Existing content is verified rather than overwritten or repaired. Concurrent cooperating writers converge on one verified directory. Caught pre-publication faults clean up only the newly owned staging directory; a process crash can leave staging debris, which is never treated as a complete archive. Filesystem power-loss recovery has not been certified. A failure after rename can leave a valid archive; retry verifies it and returns the existing result.
+
+The archive keeps `received-package.json` byte-for-byte, with evidence at its original relative references. That filename is reserved; conflicting or case-fold-colliding references fail closed. A projection converts quantity and rate numbers to strings after validating the original digest. Large integer counts therefore do not round through JavaScript Number. Candidate quantities and separate provisional price evidence retain their producer states; no total or approval is calculated. This internal projection does not replace or redefine the M02 producer format.
+
+The resulting archive key and receipt are preparation evidence. They do not create ERP receipts or measurements and do not prove transaction replay, an existing-project binding, current authorization, visual measurement review or distribution rights. All actual R3/TMAD packages remain unimported until the receiving transaction and console are separately exercised.
