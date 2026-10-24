@@ -38,6 +38,27 @@ export function selectedReviewDocumentUrl(project: Opportunity, url: string | nu
   return url && openedAsOf === asOf && project.documents.some(document => reviewDocumentHref(document) === url) ? url : null;
 }
 
+
+/** Choose only a supplied, available document; portfolio size never grants access. */
+export function firstReviewDocumentHref(project: Opportunity): string | null {
+  return project.documents.map(reviewDocumentHref).find((href): href is string => href !== null) ?? null;
+}
+
+export function ReviewOpportunityLauncher({ rows, onOpen }: {
+  rows: Opportunity[]; onOpen: (id: string) => void;
+}) {
+  return <article className={card} aria-label="Opportunity drawing shortcuts">
+    <h2 className="text-xl font-bold">Opportunity files</h2>
+    <p className="mt-2 text-sm text-slate-300">Choose an opportunity to open its available drawing or review its reported source status.</p>
+    <div className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+      {rows.map(row => <button key={row.id} type="button" className={control + " flex flex-col gap-2"} onClick={() => onOpen(row.id)}>
+        <span className="font-semibold text-white">{row.name}</span>
+        <span className="text-xs text-slate-300">{firstReviewDocumentHref(row) ? "View drawing →" : "Review source status →"}</span>
+      </button>)}
+    </div>
+  </article>;
+}
+
 export function ReviewSourceDocuments({ project, visibleDocumentUrl, onOpen }: {
   project: Opportunity; visibleDocumentUrl: string | null; onOpen: (href: string) => void;
 }) {
@@ -78,7 +99,15 @@ export default function ProfileAReviewConsole({ data, review }: {
   const project = data.rows.find(row => row.id === selected) ?? data.rows[0];
   const visibleDocumentUrl = selectedReviewDocumentUrl(project, documentUrl, openedAsOf, data.recipientCoverage?.asOf);
   const dated = data.rows.filter(row => row.reportedDeadline).sort((a, b) => a.reportedDeadline!.localeCompare(b.reportedDeadline!));
-  const open = (id: string) => { record("opportunity.open", { opportunityId: id }); setSelected(id); setSection("projects"); setDocumentUrl(null); };
+  const open = (id: string) => {
+    const row = data.rows.find(row => row.id === id);
+    if (!row) return;
+    record("opportunity.open", { opportunityId: id });
+    setSelected(id); setSection("projects");
+    const href = firstReviewDocumentHref(row);
+    setOpenedAsOf(data.recipientCoverage?.asOf); setDocumentUrl(href);
+    if (href) record("viewer.document.select", { documentId: new URL(href, "http://tayco.local").searchParams.get("document")! });
+  };
   const openDocument = (href: string) => {
     if (!project.documents.some(document => reviewDocumentHref(document) === href)) return;
     const documentId = new URL(href, "http://tayco.local").searchParams.get("document");
@@ -91,7 +120,7 @@ export default function ProfileAReviewConsole({ data, review }: {
       <p className="mt-4 text-xs uppercase tracking-[.2em] text-amber-200 lg:mt-7">Review workspace</p>
       <nav aria-label="Review sections" className="mt-3 grid grid-cols-3 gap-2 lg:mt-4 lg:grid-cols-1 lg:gap-3">{(["summary", "timeline", "projects"] as const).map(key =>
         <button key={key} type="button" className={control + (section === key ? " bg-amber-200/15" : "")} aria-current={section === key ? "page" : undefined}
-          onClick={() => { record("review.section.select", { reviewSection: key }); setSection(key); setDocumentUrl(null); }}>
+          onClick={() => { record("review.section.select", { reviewSection: key }); setSection(key); if (key === "projects") open(project.id); else setDocumentUrl(null); }}>
           {key === "summary" ? "Executive summary" : key === "timeline" ? "Reported chronology" : "Opportunity files"}
         </button>)}</nav>
       <Link className={control + " mt-4 block lg:mt-7"} href={review ? "/account" : "/portal"} onClick={() => record("account.open")}>{review ? "Account and access" : "Return to administration"}</Link></>}
@@ -111,8 +140,9 @@ export default function ProfileAReviewConsole({ data, review }: {
           {data.linkedDocumentCount} received files have links in this administrative preview. {data.receivedDocumentCount} of {data.documentCount} listed files are reported received; {data.documentCount - data.receivedDocumentCount} remain pending in source metadata. This metadata does not establish physical absence or recipient authorization.
         </p>}
         <p className="mt-3 leading-relaxed text-slate-300">{data.liveCount} opportunities are reported as still open. These records do not establish awarded work, completed projects or financial results.</p>
-        <button className={control + " mt-5"} type="button" onClick={() => { record("review.section.select", { reviewSection: "projects" }); setSection("projects"); }}>Review opportunity files</button>
+        <button className={control + " mt-5"} type="button" onClick={() => { record("review.section.select", { reviewSection: "projects" }); open(project.id); }}>Review opportunity files</button>
       </article>
+      <ReviewOpportunityLauncher rows={data.rows} onOpen={open} />
     </section>}
     {section === "timeline" && <section className={card} aria-label="Reported chronology"><h2 className="text-xl font-bold">Reported chronology</h2>
       <p className="mt-2 text-sm text-slate-300">Source-reported dates are unconfirmed; no award or company-information state is inferred.</p>

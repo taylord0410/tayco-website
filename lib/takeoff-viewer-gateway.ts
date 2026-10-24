@@ -180,7 +180,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     if (!['GET', 'HEAD'].includes(request.method)) fail(405, 'Only document reads are supported.');
     const scope = viewerScope(actor);
     const route = routeFor(request, scope);
-    if (route.kind === 'asset' && (request.headers.get('sec-fetch-mode')?.toLowerCase() === 'navigate' || ['document', 'iframe', 'embed', 'object'].includes(request.headers.get('sec-fetch-dest')?.toLowerCase() || ''))) fail(403, 'Direct PDF download is disabled. View drawings inside the protected canvas reader.');
+    if (route.kind === 'asset' && (request.headers.get('sec-fetch-mode')?.toLowerCase() === 'navigate' || ['document', 'iframe', 'embed', 'object'].includes(request.headers.get('sec-fetch-dest')?.toLowerCase() || ''))) fail(403, 'Direct asset navigation is unavailable. Use the authenticated document reader.');
     let currentScope=scope;
     const recheck=async()=>{const fresh=reauthenticate?await reauthenticate():actor;if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)fail(403,'Document access changed.');currentScope=viewerScope(fresh);routeFor(request,currentScope);if(currentScope.bundleId!==scope.bundleId||currentScope.manifestSha256!==scope.manifestSha256||currentScope.relationsId!==scope.relationsId||currentScope.relationsSha256!==scope.relationsSha256||JSON.stringify(currentScope)!==JSON.stringify(scope))fail(403,'Document publication changed.');};
     await recheck();

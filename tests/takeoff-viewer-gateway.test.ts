@@ -331,3 +331,26 @@ test('authenticated shell rewriting and control bridge remain bounded, protected
   state.mode='shelloversize';const oversized=await GET(req('/viewer/',{headers}));assert.equal(oversized.status,502);assert.equal((await oversized.text()).includes('xxxx'),false);
  });
 });
+
+test('peer direct-navigation restriction composes with persisted auth and preserves canvas fetch Range/HEAD', async () => {
+  await fixture(async ({ cookie, seen }) => {
+    const asset='/api/v1/assets/asset-shared';
+    for (const headers of [
+      {'sec-fetch-mode':'navigate'}, {'sec-fetch-dest':'document'}, {'sec-fetch-dest':'iframe'},
+      {'sec-fetch-dest':'embed'}, {'sec-fetch-dest':'object'},
+    ] as Record<string,string>[]) {
+      for (const method of ['GET','HEAD']) {
+        const response=await (method==='HEAD'?HEAD:GET)(req(asset,{method,headers:{cookie:sessionCookie(cookie).split(';')[0],...headers}}));
+        assert.equal(response.status,403);protectedHeaders(response);
+        if(method==='HEAD')assert.equal(await response.text(),'');
+      }
+    }
+    assert.equal(seen.length,0);
+    const headers={cookie:sessionCookie(cookie).split(';')[0],'sec-fetch-mode':'same-origin','sec-fetch-dest':'empty'};
+    const response=await GET(req(asset,{headers:{...headers,Range:'bytes=1-3'}}));
+    assert.equal(response.status,206);assert.equal(await response.text(),'PDF');protectedHeaders(response);
+    const head=await HEAD(req(asset,{method:'HEAD',headers}));
+    assert.equal(head.status,200);assert.equal(await head.text(),'');protectedHeaders(head);
+    assert.equal(seen.length,2);
+  });
+});
