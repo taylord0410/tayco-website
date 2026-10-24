@@ -1,5 +1,6 @@
 import { VIEWER_REVIEW_BRIDGE_JS,VIEWER_REVIEW_BRIDGE_PATH,injectViewerReviewBridge } from './viewer-interaction-bridge';
 import { auditedGuestDocumentStream } from './review-access-audit';
+import {insurerPolicy} from './insurer-review-policy';
 import { AuthError, type Actor } from './auth';
 import { noteReviewAuditFailure } from './review-request-audit';
 import { ReviewAuditError } from './review-audit';
@@ -138,6 +139,18 @@ function filterJson(value: unknown, route: Route, scope: ViewerScope): JsonObjec
   }
   return result;
 }
+
+/** Recipient reviews expose selected source PDFs, not upstream estimates or processing text. */
+function filterRecipientJson(row:JsonObject,route:Route,actor:Actor):JsonObject{
+ const policy=insurerPolicy(actor);
+ if(route.kind==='catalog')return {bundle_id:row.bundle_id,projects:(row.projects as JsonObject[]).map(p=>({...p,display_name:'Approved source documents',identity_status:'resolved',metadata:{}}))};
+ if(route.kind==='project')return {...row,display_name:'Approved source documents',identity_status:'resolved',metadata:{},documents:(row.documents as JsonObject[]).map(d=>({id:d.id,title:'Approved source document',kind:'drawing_pdf',page_count:d.page_count,source_name:'Approved source document.pdf',revisions:[]}))};
+ const pin=policy.documents.find(d=>d.viewerDocumentId===row.id);
+ if(!pin||row.source_sha256!==pin.sourceSha256||row.asset_media_type!=='application/pdf')fail(502,'The approved document identity does not match.');
+ return {id:row.id,title:'Approved source document',kind:'drawing_pdf',page_count:row.page_count,source_name:'Approved source document.pdf',revisions:[],project_key:row.project_key,metadata:{},references:[],
+  source_sha256:row.source_sha256,asset_media_type:'application/pdf',asset_url:row.asset_url,ocr_status:null,index_status:null,calibration_status:null,declared_scale:null,measurements:[],boq:[],paragraphs:[],index:null};
+}
+
 async function readJson(response: Response, recheck:()=>Promise<void>) {
   if (!response.headers.get('content-type')?.toLowerCase().startsWith('application/json')) fail(502, 'The viewer returned an invalid document response.');
   if (Number(response.headers.get('content-length')) > MAX_JSON_BYTES) fail(502, 'The viewer document response is too large.');
@@ -189,7 +202,9 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     const output = viewerResponseHeaders();
     if (json) {
       if (upstream.status !== 200) fail(upstream.status === 404 ? 404 : 502, 'The viewer document is unavailable.');
-      const filtered = filterJson(await readJson(upstream,recheck), route, currentScope);
+      const clean = filterJson(await readJson(upstream,recheck), route, currentScope);
+      const filtered=actor.review?.recipient?filterRecipientJson(clean,route,actor):clean;
+      await recheck();
       output.set('Content-Type', 'application/json');
       const body = JSON.stringify(filtered); output.set('Content-Length', String(Buffer.byteLength(body)));
       cleanup(); cleanup = undefined;
@@ -211,6 +226,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     if (route.kind === 'static') media = route.pathname.endsWith('.css') ? 'text/css' : /\.m?js$/.test(route.pathname) ? 'text/javascript' : route.pathname.endsWith('.wasm') ? 'application/wasm' : 'application/octet-stream';
     else {
       const supplied = upstream.headers.get('Content-Type')?.split(';')[0].toLowerCase() || '';
+      if(actor.review?.recipient&&[200,206].includes(upstream.status)&&supplied!=='application/pdf')fail(502,'The approved document is unavailable.');
       media = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(supplied) ? supplied : 'application/octet-stream';
       output.set('Content-Disposition', media === 'application/octet-stream' ? 'attachment' : 'inline');
     }

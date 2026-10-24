@@ -19,6 +19,7 @@ async function ProjectViewerPage({ params }: { params: Promise<{ projectId: stri
   catch(error){if(error instanceof AuthError){noteReviewAuditFailure(error,error.status);authenticationError=error.message;}else throw error;}
   if(authenticationError)return <main className="min-h-screen bg-[#070e1a] p-7 text-slate-100"><h1 className="text-3xl font-bold">Review access unavailable</h1><p role="alert" className="mt-4">{authenticationError}</p><Link className="mt-6 inline-block underline" href="/account">Account and access</Link></main>;
   if (!actor) redirect("/login");
+  if(actor.review?.recipient){noteReviewAuditFailure(undefined,403);return <main className="min-h-screen p-7 bg-[#070e1a] text-slate-100"><h1>Not authorized</h1><p>Use the documents selected for your recipient review.</p><Link href="/portal/review">Return to review</Link></main>;}
   let name = "", source = "", unavailable = false, denied = false;
   try {
     if (actor.role === "guest") {

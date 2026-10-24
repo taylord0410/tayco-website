@@ -88,6 +88,7 @@ function validateInput(value: unknown, now: number): GuestActivityInput {
 
 export function recordGuestActivity(actor: Actor, value: unknown): { duplicate: boolean } {
   requireRole(actor, ['guest']);
+  if(actor.review?.recipient)throw new GuestActivityError('Use the recipient review interaction contract.',403);
   const now = Date.now();
   const input = validateInput(value, now);
   if (input.elementId === 'project.open') {

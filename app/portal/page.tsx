@@ -1,3 +1,7 @@
+import {insurerReviewData} from "@/lib/insurer-review";
+import {reviewDisplayDeadline} from "@/lib/review-grants";
+import ProfileAReviewConsole from "@/components/workspace/ProfileAReviewConsole";
+import ReviewDeadlineBoundary from "@/components/workspace/ReviewDeadlineBoundary";
 import { withGuestRenderAudit,noteReviewAuditFailure } from "@/lib/review-request-audit";
 import { auditGuestFailure } from "@/lib/review-access-audit";
 import Link from "next/link";
@@ -18,6 +22,7 @@ export const metadata = { title: "Workspace | TAYCO", robots: { index: false, fo
 type Search = Record<string, string | string[] | undefined>;
 
 async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } = {}) {
+  let recipientInitial:{data:ReturnType<typeof insurerReviewData>;review:ReturnType<typeof reviewDisplayDeadline>}|undefined;
   let initial: DashboardData | undefined;
   let guestInitial: GuestConsoleData | undefined;
   let guestSection: GuestConsoleSection = "summary";
@@ -27,7 +32,8 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
       throw new AuthError("Account access is being prepared. Please contact TAYCO for assistance.", 503);
     const actor = await getActor(new Request("http://tayco.local/portal", { headers: await headers() }));
     if (!actor) redirect("/login?next=/portal");
-    if (actor.role === "guest") {
+    if(actor.review?.recipient){recipientInitial={data:insurerReviewData(actor),review:reviewDisplayDeadline(actor)};}
+    else if (actor.role === "guest") {
       const query = await searchParams ?? {};
       if (Object.keys(query).some(key => !["period", "section"].includes(key)) ||
           Array.isArray(query.period) || Array.isArray(query.section) ||
@@ -49,12 +55,13 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
       initial = { ...current, audit: current.audit.map(entry => ({ ...entry })), delivery: current.delivery.map(entry => ({ ...entry })) } as DashboardData;
     }
   } catch (error) {
-    initial=undefined;guestInitial=undefined;
+    recipientInitial=undefined;initial=undefined;guestInitial=undefined;
     if(error instanceof ErpError||error instanceof AuthError)noteReviewAuditFailure(error,error.status);
     if (error instanceof ErpError && [403, 422].includes(error.status)) accessError = error.message;
     else if (!(error instanceof AuthError)) throw error;
     else accessError = error.reasonCode?.startsWith("review_") ? error.message : error.status === 403 ? "Not authorized." : "Account access is temporarily unavailable.";
   }
+  if(recipientInitial)return <ReviewDeadlineBoundary review={recipientInitial.review}><ProfileAReviewConsole data={recipientInitial.data} review={recipientInitial.review}/></ReviewDeadlineBoundary>;
   if (guestInitial) return <GuestConsole initial={guestInitial} initialSection={guestSection} />;
   if (initial) return <PortalClient initial={initial} />;
   return <main className="min-h-screen bg-[#070e1a] px-5 py-16 text-slate-100">

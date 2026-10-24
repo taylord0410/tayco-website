@@ -7,6 +7,7 @@ import { installGuestPrivacy,assertGuestAnalytics,GuestPrivacyError } from './gu
 import { guestConsoleDocument,guestConsoleSnapshot } from './guest-workspace';
 import { viewerScope } from './takeoff-viewer-access';
 import { parseReviewInteraction,ReviewInteractionError,type ReviewInteractionInput } from './review-interaction-contract';
+import {insurerReviewData} from './insurer-review';
 export { ReviewInteractionError } from './review-interaction-contract';
 function days(){
  const x=process.env.TAYCO_GUEST_ACTIVITY_RETENTION_DAYS;
@@ -41,6 +42,11 @@ function prune(db:DatabaseSync,tenant:string,now:number,retention:number){
  db.prepare('DELETE FROM review_interaction_rate WHERE created_at<=?').run(now-60000);
 }
 function scope(actor:Actor,input:ReviewInteractionInput){
+ if(actor.review?.recipient){
+  if(!['review.visit','account.open','session.signout','review.section.select','opportunity.open'].includes(input.elementId)&&!input.elementId.startsWith('viewer.'))throw new ReviewInteractionError('This control is outside the recipient review.',403);
+  if(input.elementId==='opportunity.open'&&!insurerReviewData(actor).rows.some(r=>r.id===input.opportunityId))throw new ReviewInteractionError('This opportunity is unavailable.',403);
+ }
+ if(!actor.review?.recipient&&['review.section.select','opportunity.open'].includes(input.elementId))throw new ReviewInteractionError('This control requires the recipient review.',403);
  if(input.elementId==='project.open'&&!guestConsoleSnapshot(actor,{section:'projects'}).projects.some(p=>p.id===input.projectId))throw new ReviewInteractionError('This project is unavailable for review.',403);
  if(input.elementId==='document.open'){
   try{guestConsoleDocument(actor,input.documentId!);}catch{throw new ReviewInteractionError('This document is unavailable for review.',403);}

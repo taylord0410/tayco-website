@@ -6,9 +6,9 @@ import {useReviewInteractions} from "@/lib/use-review-interactions";
 import {guestAnalyticsAllowed,guestAnalyticsRemainingMs,subscribeGuestPrivacy} from "@/lib/guest-privacy-client";
 import {readViewerInteraction} from "@/lib/viewer-interaction-bridge";
 
-type Props = { source: string; projectName: string;review?:{id:string;expiresAt:number;asOf:number} };
+type Props = { source: string; projectName: string;privacyNotice?:boolean;review?:{id:string;expiresAt:number;asOf:number} };
 const button = "inline-flex min-h-11 items-center justify-center rounded-lg border border-amber-200/30 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-amber-200";
-export default function TakeoffProjectReader({ source, projectName,review }: Props) {
+export default function TakeoffProjectReader({ source, projectName,review,privacyNotice=true }: Props) {
   const [reload, setReload] = useState(0);
   const [opened, setOpened] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -38,7 +38,7 @@ export default function TakeoffProjectReader({ source, projectName,review }: Pro
   useEffect(()=>{if(!ready)return;visit.current||=crypto.randomUUID();record("review.visit",{},visit.current);},[ready,record]);
   if(expired)return <section role="alert" className="rounded-xl border border-amber-200/30 p-6 text-slate-100"><h2 className="text-xl font-bold">Review access has ended</h2><p className="mt-3">The private reader has been removed. Signing in or refreshing does not renew this review.</p><a href="/account" className={button+" mt-4"}>Account and access</a></section>;
   return <section className="min-w-0 overflow-hidden rounded-2xl border border-amber-200/20 bg-[#0b192e]" aria-label="Protected project reader">
-    {review&&<div className="px-4"><GuestPrivacyNotice onReady={setReady}/></div>}
+    {review&&privacyNotice&&<div className="px-4"><GuestPrivacyNotice onReady={setReady}/></div>}
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/15 p-4"><div className="min-w-0"><h2 className="font-bold text-white">Project reader</h2><p role="status" className="mt-1 text-xs leading-relaxed text-slate-400">{failed ? "The reader window could not be opened. Retry or return to the workspace." : opened ? "Reader window opened. Document loading and available content are shown inside the reader." : "Opening the private reader…"}</p></div><div className="flex flex-wrap gap-2"><button className={button} type="button" onClick={() => { if(selectedDocument)record("viewer.reload",{documentId:selectedDocument});publish(false);setOpened(false); setFailed(false); setReload(value => value + 1); }}>Reload reader</button><a className={button} href={source} onClick={()=>{if(selectedDocument)record("viewer.new_tab",{documentId:selectedDocument});}} target="_blank" rel="noopener noreferrer">Open reader in a new tab ↗</a></div></div>
     {failed && <div role="alert" className="m-4 rounded-xl border border-amber-200/25 bg-amber-200/5 p-5 text-sm leading-relaxed text-slate-200">The private reader is unavailable or your document access changed. Reload the reader to try again, or return to the workspace. No alternative public document link is used.</div>}
     <iframe ref={frame} key={reload} title={projectName + " · approved project plans"} src={source} loading="eager" referrerPolicy="same-origin" className={(failed ? "hidden" : "block") + " h-[78svh] min-h-[32rem] w-full border-0 bg-[#0b192e] sm:h-[82svh]"} onLoad={event => {

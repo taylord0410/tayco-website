@@ -5,7 +5,7 @@ import { isFinancialDate } from './financial-periods';
 import { isValidUsdAmount } from './financial-values';
 import { COMMERCIAL_STAGE_CODES } from './commercial-stages';
 import { guestMonthlyEstimateSummary, type GuestMonthlyEstimateSummary } from './monthly-management-estimates';
-import { guestProjectReviews, viewerScope } from './takeoff-viewer-access';
+import { guestProjectReviews, viewerScope,insurerReadableDocument } from './takeoff-viewer-access';
 import { currentReportingPeriod, isGuestReportingPeriod, requireGuestPeriod } from './guest-period';
 import { isGuestSection, type GuestSection } from './guest-sections';
 import { guestModuleProjection, type GuestModuleRecord } from './guest-module-projection';
@@ -28,6 +28,7 @@ const common = {
   source: '$.source', source_project: '$.sourceProjectSlug', source_bundle: '$.sourceBundleId', source_context: '$.sourceContextKey',
 };
 function assertGuest(actor: Actor) {
+  if(actor?.review?.recipient)throw new ErpError(403,'Not authorized for company console data.');
   if (!actor || actor.role !== 'guest' || typeof actor.id !== 'string' || !idPattern.test(actor.id) ||
     typeof actor.tenantId !== 'string' || !idPattern.test(actor.tenantId) || typeof actor.email !== 'string' || !actor.email.trim() || actor.email.length > 254 ||
     /[\u0000-\u001f\u007f-\u009f]/.test(actor.email) || !Array.isArray(actor.projectIds) || actor.projectIds.length !== 0 || actor.vendorId !== undefined)
@@ -145,6 +146,7 @@ export function guestConsoleSnapshot(actor: Actor, options: Options = {}): Guest
 
 /** SERVER ONLY: raw storage metadata is loaded only after exact current-period authorization. Never serialize this Entry. */
 export function guestConsoleDocument(actor: Actor, id: string, now = new Date()): Entry {
+  if(actor?.review?.recipient)return insurerReadableDocument(actor,id,now);
   assertGuest(actor);
   if (typeof id !== 'string' || !idPattern.test(id)) throw new ErpError(403, 'Not authorized for this project document.');
   currentReportingPeriod(now);

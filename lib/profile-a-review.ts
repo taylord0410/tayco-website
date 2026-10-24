@@ -40,12 +40,16 @@ function date(value: unknown): string | null {
 export function buildProfileAReview(actor: Pick<Actor, 'role' | 'tenantId'>, bytes: Buffer,
   expectedSha256: string, links: readonly ReviewDocumentLink[] = []): ProfileAReview {
   assertProfileAAdministrator(actor);
+  return parseProfileAReviewSource(actor.tenantId,bytes,expectedSha256,links);
+}
+/** Pure closed source parser. Does not authorize any account or resource. */
+export function parseProfileAReviewSource(tenantId:string,bytes:Buffer,expectedSha256:string,links:readonly ReviewDocumentLink[]=[]):ProfileAReview {
   if (bytes.length < 1 || bytes.length > 1024 * 1024 || !sha.test(expectedSha256) ||
       createHash('sha256').update(bytes).digest('hex') !== expectedSha256) throw bad();
   let decoded: unknown;
   try { decoded = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); } catch { throw bad(); }
   const source = object(decoded, ['schemaVersion', 'tenantId', 'period', 'rows']);
-  if (source.schemaVersion !== 'tayco-profile-a-review/v1' || source.tenantId !== actor.tenantId ||
+  if (source.schemaVersion !== 'tayco-profile-a-review/v1' || source.tenantId !== tenantId ||
       typeof source.period !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(source.period)) throw bad();
   const bySha = new Map<string, ReviewDocumentLink[]>();
   for (const link of links) {

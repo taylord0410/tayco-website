@@ -1,6 +1,7 @@
 import { isGuestSection,type GuestSection } from './guest-sections';
 export const REVIEW_INTERACTION_VERSION=2 as const;
 export const REVIEW_INTERACTION_LABELS={
+ 'review.section.select':'Review section selected','opportunity.open':'Reported opportunity selected','viewer.close':'Reader closed',
  'review.visit':'Review interface opened','account.open':'Account link selected','session.signout':'Sign out selected',
  'module.select':'Module selected','month.select':'Month selected','year.select':'Year selected','review.refresh':'Refresh selected',
  'project.open':'Project selected','document.open':'Document link selected','menu.toggle':'Module menu toggled',
@@ -11,7 +12,7 @@ export const REVIEW_INTERACTION_LABELS={
  'viewer.catalog.toggle':'Reader catalog toggled','viewer.catalog.open':'Reader catalog selected',
 } as const;
 export type ReviewInteractionElement=keyof typeof REVIEW_INTERACTION_LABELS;
-export type ReviewInteractionInput={taxonomyVersion:2;eventId:string;elementId:ReviewInteractionElement;section?:GuestSection;period?:string;year?:number;projectId?:string;documentId?:string;pageNumber?:number};
+export type ReviewInteractionInput={taxonomyVersion:2;eventId:string;elementId:ReviewInteractionElement;section?:GuestSection;period?:string;year?:number;projectId?:string;documentId?:string;pageNumber?:number;reviewSection?:'summary'|'timeline'|'projects';opportunityId?:string};
 export class ReviewInteractionError extends Error{constructor(message:string,public status=400){super(message);}}
 const opaque=(v:unknown):v is string=>typeof v==='string'&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,199}$/.test(v);
 export function parseReviewInteraction(value:unknown,now=Date.now()):ReviewInteractionInput{
@@ -22,6 +23,8 @@ export function parseReviewInteraction(value:unknown,now=Date.now()):ReviewInter
  const out:ReviewInteractionInput={taxonomyVersion:2,eventId:x.eventId.toLowerCase(),elementId:x.elementId as ReviewInteractionElement};
  const fields=['taxonomyVersion','eventId','elementId'];
  const need=(key:string,valid:boolean)=>{if(!valid)throw new ReviewInteractionError('This interaction needs valid, permitted metadata.');fields.push(key);};
+ if(out.elementId==='review.section.select'){need('reviewSection',['summary','timeline','projects'].includes(String(x.reviewSection)));out.reviewSection=x.reviewSection as ReviewInteractionInput['reviewSection'];}
+ if(out.elementId==='opportunity.open'){need('opportunityId',opaque(x.opportunityId));out.opportunityId=x.opportunityId as string;}
  if(out.elementId==='module.select'){need('section',isGuestSection(x.section));out.section=x.section as GuestSection;}
  if(out.elementId==='month.select'){
   need('period',typeof x.period==='string'&&/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(x.period)&&x.period<=new Date(now).toISOString().slice(0,7));out.period=x.period as string;

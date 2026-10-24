@@ -166,6 +166,7 @@ function selectedNumber(value: unknown, min: number, max: number): number | unde
  */
 export function guestMonthlyEstimateSummary(actor: Actor, selection?: GuestMonthlyEstimateSelection, now = new Date()): GuestMonthlyEstimateSummary {
   access(actor, ['admin', 'staff', 'guest']);
+  if(actor.review?.recipient)throw new MonthlyManagementEstimateError(403,'Not authorized for company financial summaries.');
   if (!(now instanceof Date) || !Number.isFinite(now.getTime())) throw new MonthlyManagementEstimateError(422, 'A valid server reporting clock is required.');
   const query = selection === undefined ? {} : object(selection, ['year', 'month']);
   const explicitYear = selectedNumber(query.year, 1900, 9999), month = selectedNumber(query.month, 1, 12);

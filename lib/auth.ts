@@ -7,6 +7,7 @@ import { appendReviewAudit,ReviewAuditError } from './review-audit';
 import { rememberReviewAuditContext } from './review-request-audit';
 import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, type ReviewAccess } from './review-grants';
 
+import {insurerPolicy,insurerRouteAllowed,parseInsurerPolicy,readInsurerFile,readInsurerSource,InsurerReviewError} from './insurer-review-policy';
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
 export interface Actor { id: string; email: string; role: AuthRole; tenantId: string; projectIds: string[]; vendorId?: string; review?: ReviewAccess }
 type UserRow = { id: string; email: string; password_hash: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; disabled: number };
@@ -154,6 +155,7 @@ function actorForSessionHash(tokenHash:string):Actor|null{
     if(actor.role==='guest'&&user.session_review_grant_id)rememberReviewAuditContext({tenantId:actor.tenantId,reviewId:user.session_review_grant_id,actorId:actor.id,actorRole:'guest'},async()=>{revalidate();});
     if(actor.role==='guest'){
       actor.review=reviewForSession(db,actor,user.session_review_grant_id);
+      if(actor.review.recipient){try{insurerPolicy(actor);}catch(error){throw new AuthError('This recipient review is unavailable.',error instanceof InsurerReviewError?error.status:503);}}
       guestRequestBindings.set(actor,revalidate);
     }
     return actor;
@@ -162,7 +164,7 @@ function actorForSessionHash(tokenHash:string):Actor|null{
 export async function getActor(request:Request):Promise<Actor|null>{
   const token=await sessionToken(request);return token?actorForSessionHash(digest(token)):null;
 }
-export async function requireActor(request: Request): Promise<Actor> { const actor = await getActor(request); if (!actor) throw new AuthError('Please sign in to continue.', 401); return actor; }
+export async function requireActor(request: Request): Promise<Actor> { const actor = await getActor(request); if (!actor) throw new AuthError('Please sign in to continue.', 401); if(!insurerRouteAllowed(actor,request))throw new AuthError('Not authorized for this recipient review.',403); return actor; }
 export async function signIn(emailInput: unknown, password: unknown) {
   secret(); const email = normalizeEmail(emailInput);
   rateLimit('login:global', 120); rateLimit(`login:${digest(email)}`, 8);
@@ -239,6 +241,15 @@ export function createInvitation(actor: Actor, input: { email: unknown; role: Au
   const token = randomBytes(32).toString('base64url'); const id = randomUUID(); const now = Date.now();
   withDb(db => { db.prepare('INSERT INTO auth_invites(id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at) VALUES(?,?,?,?,?,?,?,?,NULL,NULL,?,?)').run(id, digest(token), email, input.role, actor.tenantId, JSON.stringify([...new Set(input.projectIds)]), input.vendorId || null, now + hours * 3600_000, actor.id, now); audit(db, actor.id, 'invitation.created', id); });
   return { id, token, expiresAt: now + hours * 3600_000, path: `/login#invite=${token}` };
+}
+/** Private operator preparation only; no HTTP issuance path is enabled by the local insurer preview.
+ * Uses the same four-hour lifecycle but pins a narrower, immutable recipient policy at creation. */
+export function createInsurerReviewInvitationPrivately(actor:Actor,emailInput:unknown,requestKey:string,policySha256:string){
+ requireRole(actor,['admin']);const email=normalizeEmail(emailInput);
+ try{
+  const policy=parseInsurerPolicy(readInsurerFile(process.env.TAYCO_INSURER_REVIEW_POLICY),policySha256,actor.tenantId,new Date().toISOString().slice(0,7));readInsurerSource(policy);
+ }catch(error){throw new AuthError('This recipient policy needs operator review.',error instanceof InsurerReviewError?error.status:503);}
+ return withDb(db=>createReviewInvitation(db,actor,email,requestKey,Date.now(),{kind:'insurer-a',policySha256}));
 }
 export function listInvitations(actor:Actor){requireRole(actor,['admin']);return withDb(db=>db.prepare('SELECT i.id,i.email,i.role,i.project_ids AS projectIds,i.vendor_id AS vendorId,i.expires_at AS expiresAt,i.revoked_at AS revokedAt,i.accepted_at AS acceptedAt,i.created_at AS createdAt,i.review_grant_id AS reviewGrantId,g.detail_period AS detailPeriod FROM auth_invites i LEFT JOIN auth_review_grants g ON g.id=i.review_grant_id WHERE i.tenant_id=? ORDER BY i.created_at DESC LIMIT 100').all(actor.tenantId));}
 export function rotateInvitation(actor:Actor,id:string,requestKey:string){requireRole(actor,['admin']);return withDb(db=>rotateReviewInvitation(db,actor,id,requestKey));}

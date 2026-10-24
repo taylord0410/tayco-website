@@ -5,6 +5,7 @@ import type { Actor } from './auth';
 import { database, documentForActor, ErpError, snapshot, type Entry } from './erp';
 import { COMMERCIAL_STAGE_CODES } from './commercial-stages';
 import { currentReportingPeriod } from './guest-period';
+import {insurerPolicy,InsurerReviewError} from './insurer-review-policy';
 import { isFinancialDate } from './financial-periods';
 
 export const VIEWER_PREFIX = '/api/takeoff-viewer';
@@ -255,7 +256,7 @@ function projectName(value: unknown) {
 /** Approved guest cards only. An unavailable publication does not interrupt the monthly review. */
 export function guestProjectReviews(actor: Actor, now = new Date()): GuestProjectReview[] {
   assertActor(actor);
-  if (actor.role !== 'guest') return [];
+  if (actor.role !== 'guest'||actor.review?.recipient) return [];
   try {
     if(actor.review&&actor.review.detailPeriod!==currentReportingPeriod(now))return [];
     const policy = policies(actor);
@@ -284,6 +285,7 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
   if (projectId !== undefined && (typeof projectId !== 'string' || !erpId.test(projectId))) throw actor.role === 'guest' ? guestDenied() : denied();
   try {
     if(actor.role==='guest'&&actor.review&&actor.review.detailPeriod!==currentReportingPeriod(now))throw guestDenied();
+    if(actor.role==='guest'&&actor.review?.recipient)return insurerViewerScope(actor,projectId,now);
     const policy = policies(actor.role === 'guest' ? actor : undefined, projectId);
     if (actor.role === 'guest') {
       const grants = usableGuestGrants(actor, policy, projectId, now);
@@ -313,4 +315,46 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
       contexts: [...contexts].sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => ({ key, documentIds: [...values].sort() })), documentIds: [...documentIds].sort(), assetIds: [...assetIds].sort(),
       documents: [...documentIds].sort().map(id => ({ id, contextKey: documents.get(id)!.contextKeys[0], assetIds: [...documents.get(id)!.assetIds].sort() })) };
   } catch (error) { if (error instanceof TakeoffViewerAccessError) throw error; throw unavailable(); }
+}
+
+/** Exact recipient-policy intersection. Never evaluates the company-wide guest grants or a staff snapshot. */
+function insurerApprovedDocuments(actor:Actor,projectId:string|undefined,now:Date){
+ let recipient:ReturnType<typeof insurerPolicy>;
+ try{recipient=insurerPolicy(actor,now.getTime());}catch(error){throw error instanceof InsurerReviewError?new TakeoffViewerAccessError(error.status,'This recipient review is unavailable.'):unavailable();}
+ const policy=policies();
+ if(policy.relations.bundleId!==recipient.bundleId||policy.relations.relationsId!==recipient.relationsId||policy.relations.manifestSha256!==recipient.manifestSha256)throw guestDenied();
+ const safe="CASE WHEN json_valid(payload) THEN payload ELSE '{}' END",v=(field:string)=>`json_extract(${safe},'$.${field}')`;
+ const guards=['reviewPeriod','reportingPeriod','period','deletedAt','purgedAt','revokedAt','expiresAt','purgeState','status'];
+ const aliases=['review_period','reporting_period','period','deleted_at','purged_at','revoked_at','expires_at','purge_state','status'];
+ const guardSql=guards.map((field,i)=>v(field)+' AS '+aliases[i]).join(',');
+ const db=database();
+ const projectQuery=db.prepare(`SELECT ${guardSql},${v('name')} AS name FROM records WHERE id=? AND project_id=id AND tenant_id=? AND kind='project' AND length(payload)<=1048576 AND json_valid(payload) AND json_type(${safe})='object'`);
+ const documentQuery=db.prepare(`SELECT id,owner_id,version,created_at,updated_at,${guardSql},${['type','storage','sourceSha256','viewerDocumentId','contextKey','bundleId','manifestSha256','relationsId'].map(f=>v(f)+' AS '+f).join(',')} FROM records WHERE id=? AND project_id=? AND tenant_id=? AND kind='document' AND length(payload)<=1048576 AND json_valid(payload) AND json_type(${safe})='object'`);
+ const approved: {identity:typeof recipient.documents[number];entry:Entry}[]=[];
+ for(const identity of recipient.documents){
+  if(projectId!==undefined&&identity.projectId!==projectId)continue;
+  const mapped=policy.config.mappings.some(m=>m.tenantId===actor.tenantId&&m.projectId===identity.projectId&&m.contextKey===identity.contextKey&&m.documents.some(d=>d.viewerDocumentId===identity.viewerDocumentId&&d.erpDocumentId===identity.erpDocumentId));
+  const relation=policy.documents.get(identity.viewerDocumentId);
+  if(!mapped||!relation||relation.contextKeys[0]!==identity.contextKey||identity.assetIds.some(id=>!relation.assetIds.includes(id)))continue;
+  const project=projectQuery.get(identity.projectId,actor.tenantId) as (GuestGuardRow&{name:unknown})|undefined;
+  if(!project||!guestResourceActive(project,now)||!explicitGuestPeriodMatches(project,recipient.period)||String(project.name).toLowerCase().replace(/[^a-z0-9]/g,'').includes('autozone'))continue;
+  const doc=documentQuery.get(identity.erpDocumentId,identity.projectId,actor.tenantId) as (GuestGuardRow&Record<string,unknown>)|undefined;
+  if(!doc||!guestResourceActive(doc,now)||!explicitGuestPeriodMatches(doc,recipient.period)||doc.type!=='project'||doc.storage!=='takeoff_viewer'||
+   doc.sourceSha256!==identity.sourceSha256||doc.viewerDocumentId!==identity.viewerDocumentId||doc.contextKey!==identity.contextKey||doc.bundleId!==recipient.bundleId||
+   doc.manifestSha256!==recipient.manifestSha256||doc.relationsId!==recipient.relationsId)continue;
+  approved.push({identity,entry:{id:identity.erpDocumentId,kind:'document',tenantId:actor.tenantId,projectId:identity.projectId,ownerId:String(doc.owner_id),version:Number(doc.version),
+   createdAt:String(doc.created_at),updatedAt:String(doc.updated_at),data:{type:'project',storage:'takeoff_viewer',viewerDocumentId:identity.viewerDocumentId,contextKey:identity.contextKey,bundleId:recipient.bundleId,manifestSha256:recipient.manifestSha256,relationsId:recipient.relationsId}}});
+ }
+ return {policy,approved};
+}
+function insurerViewerScope(actor:Actor,projectId:string|undefined,now:Date):ViewerScope{
+ const {policy,approved}=insurerApprovedDocuments(actor,projectId,now);if(!approved.length)throw guestDenied();
+ const scope=permittedScope(policy,approved.map(d=>d.identity.viewerDocumentId));
+ scope.documents=scope.documents.map(d=>({...d,assetIds:approved.find(a=>a.identity.viewerDocumentId===d.id)!.identity.assetIds.slice().sort()}));scope.assetIds=[...new Set(scope.documents.flatMap(d=>d.assetIds))].sort();return scope;
+}
+/** Minimal server redirect metadata only; insurer access never returns a raw blob or record payload. */
+export function insurerReadableDocument(actor:Actor,documentId:string,now=new Date()):Entry{
+ assertActor(actor);if(actor.role!=='guest'||!actor.review?.recipient||!erpId.test(documentId))throw guestDenied();
+ const entry=insurerApprovedDocuments(actor,undefined,now).approved.find(d=>d.identity.erpDocumentId===documentId)?.entry;
+ if(!entry)throw guestDenied();return entry;
 }

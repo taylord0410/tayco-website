@@ -4,7 +4,8 @@ import type { Actor } from './auth';
 import { appendReviewAudit,installReviewAuditSchema,type ReviewAuditKind } from './review-audit';
 
 export const REVIEW_TTL_MS = 4 * 60 * 60 * 1000;
-export type ReviewAccess = { id: string; detailPeriod: string; createdAt: number; expiresAt: number };
+export type RecipientProfile={kind:'insurer-a';policySha256:string};
+export type ReviewAccess = { id: string; detailPeriod: string; createdAt: number; expiresAt: number; recipient?:RecipientProfile };
 /** Server display metadata only; never grants access or extends the stored deadline. */
 export function reviewDisplayDeadline(actor:Actor,now=Date.now()){
  return actor.role==='guest'&&actor.review?{id:actor.review.id,expiresAt:actor.review.expiresAt,asOf:now}:undefined;
@@ -12,7 +13,7 @@ export function reviewDisplayDeadline(actor:Actor,now=Date.now()){
 export class ReviewGrantError extends Error {
   constructor(message: string, public status = 403, public reasonCode = 'review_required') { super(message); }
 }
-type Grant = { id:string; invite_id:string; tenant_id:string; email:string; user_id:string|null; detail_period:string; created_at:number; expires_at:number; accepted_at:number|null; revoked_at:number|null; request_hash:string;scope:string;policy_version:number };
+type Grant = { id:string; invite_id:string; tenant_id:string; email:string; user_id:string|null; detail_period:string; created_at:number; expires_at:number; accepted_at:number|null; revoked_at:number|null; request_hash:string;scope:string;policy_version:number;recipient_profile:string;recipient_policy_sha256:string|null };
 const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
 const key=(value:string)=>{if(typeof value!=='string'||! /^[A-Za-z0-9_-]{16,100}$/.test(value))throw new ReviewGrantError('A valid request reference is required.',400,'invalid_request');return value;};
 function emit(db:DatabaseSync,actor:Actor,event:string,id:string,now:number){
@@ -40,22 +41,28 @@ export function installReviewSchema(db: DatabaseSync) {
     const fields=db.prepare('PRAGMA table_info('+table+')').all();
     if(!fields.some(f=>f.name==='review_grant_id'))db.exec('ALTER TABLE '+table+' ADD COLUMN review_grant_id TEXT');
   }
+  const grantFields=db.prepare('PRAGMA table_info(auth_review_grants)').all();
+  if(!grantFields.some(f=>f.name==='recipient_profile'))db.exec("ALTER TABLE auth_review_grants ADD COLUMN recipient_profile TEXT NOT NULL DEFAULT 'company' CHECK(recipient_profile IN ('company','insurer-a'))");
+  if(!grantFields.some(f=>f.name==='recipient_policy_sha256'))db.exec("ALTER TABLE auth_review_grants ADD COLUMN recipient_policy_sha256 TEXT");
+  db.exec("CREATE TRIGGER IF NOT EXISTS auth_review_recipient_immutable BEFORE UPDATE OF recipient_profile,recipient_policy_sha256 ON auth_review_grants BEGIN SELECT RAISE(ABORT,'Review recipient policy is immutable'); END;");
   installReviewAuditSchema(db);
   db.exec('COMMIT');
   }catch(error){db.exec('ROLLBACK');throw error;}
 }
 function active(grant:Grant|undefined,now:number) {
   if(!grant)throw new ReviewGrantError('Review access is required. Contact TAYCO.');
+  if(!['company','insurer-a'].includes(grant.recipient_profile)||(grant.recipient_profile==='company'?grant.recipient_policy_sha256!==null:typeof grant.recipient_policy_sha256!=='string'||!/^[a-f0-9]{64}$/.test(grant.recipient_policy_sha256)))throw new ReviewGrantError('This review recipient policy is unavailable.');
   if(grant.scope!=='company_readonly'||grant.policy_version!==1)throw new ReviewGrantError('This review policy is unavailable. Contact TAYCO.');
   if(grant.revoked_at!==null)throw new ReviewGrantError('This review access has been revoked.',403,'review_revoked');
   if(grant.expires_at<=now)throw new ReviewGrantError('This review access has ended. Request a new review from TAYCO.',403,'review_expired');
   return grant;
 }
-function access(g:Grant):ReviewAccess{return {id:g.id,detailPeriod:g.detail_period,createdAt:g.created_at,expiresAt:g.expires_at};}
+function access(g:Grant):ReviewAccess{return {id:g.id,detailPeriod:g.detail_period,createdAt:g.created_at,expiresAt:g.expires_at,...(g.recipient_profile==='insurer-a'?{recipient:{kind:'insurer-a' as const,policySha256:g.recipient_policy_sha256!}}:{})};}
 function transaction<T>(db:DatabaseSync,run:()=>T):T{db.exec('BEGIN IMMEDIATE');try{const result=run();db.exec('COMMIT');return result;}catch(e){db.exec('ROLLBACK');throw e;}}
-export function createReviewInvitation(db:DatabaseSync,actor:Actor,email:string,requestKey:string,now=Date.now()) {
+export function createReviewInvitation(db:DatabaseSync,actor:Actor,email:string,requestKey:string,now=Date.now(),recipient?:RecipientProfile) {
+  if(recipient&&(Object.keys(recipient).some(k=>!['kind','policySha256'].includes(k))||recipient.kind!=='insurer-a'||!/^[a-f0-9]{64}$/.test(recipient.policySha256)))throw new ReviewGrantError('Choose a valid recipient policy.',400);
   if(actor.role!=='admin')throw new ReviewGrantError('Not authorized.',403);
-  const creationKey=key(requestKey),fingerprint=digest(JSON.stringify({email,tenantId:actor.tenantId,role:'guest',scope:'company_readonly',policyVersion:1}));
+  const creationKey=key(requestKey),fingerprint=digest(JSON.stringify({email,tenantId:actor.tenantId,role:'guest',scope:'company_readonly',policyVersion:1,...(recipient?{recipient}:{})}));
   return transaction(db,()=>{
     const previous=db.prepare('SELECT * FROM auth_review_grants WHERE tenant_id=? AND created_by=? AND creation_key=?').get(actor.tenantId,actor.id,creationKey) as Grant|undefined;
     if(previous){
@@ -64,7 +71,7 @@ export function createReviewInvitation(db:DatabaseSync,actor:Actor,email:string,
       return {id:previous.invite_id,reviewGrantId:previous.id,expiresAt:previous.expires_at,createdAt:previous.created_at,detailPeriod:previous.detail_period,linkState:state};
     }
     const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
-    db.prepare('INSERT INTO auth_review_grants(id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at) VALUES(?,?,?,?,NULL,?,?,?,?,?,?,NULL,NULL)').run(grantId,id,actor.tenantId,email,period,actor.id,creationKey,fingerprint,now,expiresAt);
+    db.prepare('INSERT INTO auth_review_grants(id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at,recipient_profile,recipient_policy_sha256) VALUES(?,?,?,?,NULL,?,?,?,?,?,?,NULL,NULL,?,?)').run(grantId,id,actor.tenantId,email,period,actor.id,creationKey,fingerprint,now,expiresAt,recipient?.kind??'company',recipient?.policySha256??null);
     db.prepare("INSERT INTO auth_invites(id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at,review_grant_id) VALUES(?,?,?,'guest',?,'[]',NULL,?,NULL,NULL,?,?,?)").run(id,digest(token),email,actor.tenantId,expiresAt,actor.id,now,grantId);
     emit(db,actor,'review.created',grantId,now);
     return {id,token,path:'/login#invite='+token,reviewGrantId:grantId,expiresAt,createdAt:now,detailPeriod:period,linkState:'issued'};
