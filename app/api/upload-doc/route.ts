@@ -1,3 +1,4 @@
+import {withGuestRequestAudit} from '@/lib/review-request-audit';
 import {put} from '@vercel/blob';
 import {randomUUID} from 'node:crypto';
 import {mkdirSync,writeFileSync,unlinkSync} from 'node:fs';
@@ -7,7 +8,7 @@ import {requireActor,assertSameOrigin,AuthError} from '@/lib/auth';
 import {registerDocument,validateDocumentProject,ErpError} from '@/lib/erp';
 export const runtime='nodejs';
 const MAX=10*1024*1024;
-export async function POST(request:NextRequest){
+async function handlePOST(request:NextRequest){
  let journal:string|undefined;
  try{
   const actor=await requireActor(request);assertSameOrigin(request);
@@ -37,3 +38,5 @@ export async function POST(request:NextRequest){
   console.error('TAYCO document upload failed');return NextResponse.json({success:false,error:'The document was not confirmed as received. Please retry.'},{status:503});
  }
 }
+
+export const POST=withGuestRequestAudit('document',handlePOST);

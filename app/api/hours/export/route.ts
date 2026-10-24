@@ -1,3 +1,4 @@
+import {withGuestRequestAudit} from '@/lib/review-request-audit';
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthError, requireActor } from '@/lib/auth';
 import { ErpError, snapshot } from '@/lib/erp';
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const privateHeaders = { 'Cache-Control': 'private, no-store', 'Pragma': 'no-cache', 'X-Content-Type-Options': 'nosniff' };
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const actor = await requireActor(request);
     if (!['admin', 'staff', 'vendor'].includes(actor.role)) throw new AuthError('Work-log exports are available to the TAYCO team and the submitting supplier only.', 403);
@@ -30,3 +31,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'The work-log export is unavailable. Try again later.' }, { status: 503, headers: privateHeaders });
   }
 }
+
+export const GET=withGuestRequestAudit('workspace',handleGET);

@@ -1,11 +1,12 @@
+import {withGuestRequestAudit} from '@/lib/review-request-audit';
 import { requireActor, assertSameOrigin, requireRole, AuthError } from '@/lib/auth';
 import { authJson, readAuthBody } from '@/lib/auth-http';
 import { documentMaintenance, mutateDocumentLifecycle, purgeDocument, scanDocumentExpiry } from '@/lib/document-lifecycle';
 import { ErpError } from '@/lib/erp';
 export const runtime = 'nodejs';
 function failure(error: unknown) { return authJson({ error: error instanceof ErpError || error instanceof AuthError ? error.message : 'Document maintenance is temporarily unavailable.' }, error instanceof ErpError || error instanceof AuthError ? error.status : 503); }
-export async function GET(request: Request) { try { const actor = await requireActor(request); requireRole(actor, ['admin', 'staff', 'client', 'vendor']); return authJson(documentMaintenance(actor)); } catch (error) { return failure(error); } }
-export async function POST(request: Request) {
+async function handleGET(request: Request) { try { const actor = await requireActor(request); requireRole(actor, ['admin', 'staff', 'client', 'vendor']); return authJson(documentMaintenance(actor)); } catch (error) { return failure(error); } }
+async function handlePOST(request: Request) {
   try {
     const actor = await requireActor(request); requireRole(actor, ['admin', 'staff', 'client', 'vendor']); assertSameOrigin(request); const body = await readAuthBody(request);
     if (body.action === 'scan_expiry') return authJson(scanDocumentExpiry(actor));
@@ -19,3 +20,7 @@ export async function POST(request: Request) {
     return authJson({ document, ...documentMaintenance(actor) });
   } catch (error) { return failure(error); }
 }
+
+export const GET=withGuestRequestAudit('document',handleGET);
+
+export const POST=withGuestRequestAudit('document',handlePOST);

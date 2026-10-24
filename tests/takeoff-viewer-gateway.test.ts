@@ -1,3 +1,4 @@
+import { reviewAuditReport } from '../lib/review-audit';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
@@ -12,7 +13,7 @@ import { handleViewerRequest } from '../lib/takeoff-viewer-gateway';
 import { GET, HEAD, POST } from '../app/api/takeoff-viewer/[[...path]]/route';
 
 const prefix = '/api/takeoff-viewer';
-type Mode = 'ok' | 'redirect' | 'malformed' | 'oversize' | 'bundle' | 'link' | 'otherlink' | 'missingpin' | 'pin' | 'docx' | 'failure' | 'holdpdf' | 'holdheaders';
+type Mode = 'ok' | 'redirect' | 'malformed' | 'oversize' | 'bundle' | 'link' | 'otherlink' | 'missingpin' | 'pin' | 'docx' | 'failure' | 'holdpdf' | 'holdheaders' | 'shelloversize';
 type Fixture = { actor: Actor; projectId: string; filename: string; seen: { path: string; method: string; headers: IncomingHttpHeaders }[]; state: { mode: Mode; pdfDone: boolean;releasePdf?:()=>void;waitingForHeaders?:()=>void }; cookie: string };
 const req = (tail = '/', init?: ConstructorParameters<typeof NextRequest>[1]) => new NextRequest('https://tayco.test' + prefix + tail, init);
 const doc = (id: string, context = 'ctx-a') => ({ id, title: 'Fixture drawing', kind: 'drawing_pdf', page_count: 2, source_name: 'fixture.pdf', revisions: [{ document_id: 'doc-private', source: 'SECRET REVISION' }], finance: { budgetUsd: 999999, source: 'SECRET FINANCE' }, raw_source_path: '/internal/source-private.pdf', project_key: context, source_sha256: 'c'.repeat(64), metadata: { related_documents: ['doc-private'], secret: 'SECRET META' }, references: ['SECRET REFERENCE'], declared_scale: { status: 'unverified_text_candidates', candidates: [{ text: '1/4 in = 1 ft (candidate only)', page: 1, document_id: 'doc-private' }], calibration_applied: false, private_metadata: 'SECRET SCALE' }, ocr_status: null, index_status: 'indexed', calibration_status: null,
@@ -78,6 +79,7 @@ async function fixture(run: (value: Fixture) => Promise<void>) {
       if(state.mode==='holdpdf')state.releasePdf=finish;else setTimeout(finish,100);
       return;
     }
+    if(state.mode==='shelloversize'){response.setHeader('Content-Type','text/html');response.end('x'.repeat(512*1024+1));return;}
     response.setHeader('Content-Type', tail.endsWith('.css') ? 'text/css' : tail.includes('/static/') ? 'text/javascript' : 'text/html');
     response.end(request.method === 'HEAD' ? undefined : tail.includes('/static/') ? '/* fixture static */' : '<html><body>Fixture viewer</body></html>');
   });
@@ -224,15 +226,22 @@ test('explicit v2 guest review grants only approved October documents through fr
     const text = await detail.text(), approved = JSON.parse(text);
     assert.equal(approved.id, 'doc-a'); assert.equal(approved.asset_url, prefix + '/api/v1/assets/asset-shared');
     for (const secret of ['doc-private', 'doc-b', 'ctx-secret', 'SECRET', 'raw_source_path', 'source-private', 'finance', 'budgetUsd', '999999', 'related_documents']) assert.equal(text.includes(secret), false, secret);
+    const beforeBridge=seen.length,bridge=await GET(req('/static/viewer-review-events.js',{headers}));
+    assert.equal(bridge.status,200);assert.match(await bridge.text(),/postMessage/);assert.equal(seen.length,beforeBridge);
     const head = await HEAD(req('/api/v1/assets/asset-shared', { method: 'HEAD', headers }));
     assert.equal(head.status, 200); assert.equal(await head.text(), ''); protectedHeaders(head);
     const partial = await GET(req('/api/v1/assets/asset-shared', { headers: { ...headers, Range: 'bytes=1-3' } }));
     assert.equal(partial.status, 206); assert.equal(await partial.text(), 'PDF'); protectedHeaders(partial);
+    const transport=reviewAuditReport(actor).events.filter(e=>e.kind.startsWith('document.'));
+    assert.equal(transport.length,2); // HEAD and JSON metadata never complete a PDF transport.
+    assert.equal(transport.find(e=>e.kind==='document.completed')!.bytesSent,3);
+    assert.equal(transport.every(e=>e.resourceKind==='asset'&&e.resourceId==='asset-shared'&&e.responseKind==='range'),true);
     const previousCalls = seen.length;
     for (const tail of ['/api/v1/documents/doc-private', '/api/v1/documents/doc-b', '/api/v1/documents/doc-secret', '/api/v1/projects/ctx-secret', '/api/v1/assets/asset-other-allowed', '/api/v1/assets/asset-secret', '/api/v1/assets/asset-source-private', '/api/v1/source']) {
       const denied = await GET(req(tail, { headers })); assert.equal(denied.status, 404, tail); protectedHeaders(denied);
     }
     assert.equal(seen.length, previousCalls);
+    assert.equal(reviewAuditReport(actor).events.filter(e=>e.kind==='access.denied').every(e=>!('resourceId'in e)),true);
     const otherInvitation = createInvitation(actor, { email: 'unapproved-review@example.test', role: 'guest', tenantId: actor.tenantId, projectIds: [] });
     const otherCookie = (await acceptInvitation(otherInvitation.token, 'unapproved-review@example.test', 'Isolated-review-password-2026!')).cookie;
     const outsider = await GET(req('/api/v1/projects', { headers: { cookie: sessionCookie(otherCookie).split(';')[0] } }));
@@ -298,5 +307,21 @@ test('revocation while waiting for provider headers denies the response before a
   const pending=GET(req('/api/v1/assets/asset-shared',{headers:{cookie:sessionCookie(cookie).split(';')[0]}}));
   await waiting;revokeUserSessionsPrivately(actor.email);state.releasePdf!();
   const response=await pending;assert.equal(response.status,401);protectedHeaders(response);assert.equal((await response.text()).includes('%PDF'),false);
+ });
+});
+
+test('authenticated shell rewriting and control bridge remain bounded, protected and same-origin',async()=>{
+ await fixture(async({cookie,seen,state,actor})=>{
+  const headers={cookie:sessionCookie(cookie).split(';')[0]};
+  const shell=await GET(req('/viewer/',{headers}));assert.equal(shell.status,200);protectedHeaders(shell);
+  const html=await shell.text();assert.match(html,/<script src="\/api\/takeoff-viewer\/static\/viewer-review-events\.js" defer><\/script>/);
+  assert.equal(Number(shell.headers.get('content-length')),Buffer.byteLength(html));
+  const head=await HEAD(req('/viewer/',{method:'HEAD',headers}));assert.equal(head.status,200);assert.equal(await head.text(),'');assert.equal(head.headers.get('content-length'),shell.headers.get('content-length'));
+  const before=seen.length,script=await GET(req('/static/viewer-review-events.js',{headers}));assert.equal(script.status,200);protectedHeaders(script);assert.match(await script.text(),/tayco-review-viewer-control/);assert.equal(seen.length,before);
+  assert.equal((await GET(req('/static/viewer-review-events.js'))).status,401);assert.equal((await GET(req('/static/viewer-review-events.js?extra=private',{headers}))).status,400);assert.equal(seen.length,before);
+  const invitation=createInvitation(actor,{email:'bridge-unapproved@example.test',role:'guest',tenantId:actor.tenantId,projectIds:[]});
+  const guestCookie=(await acceptInvitation(invitation.token,'bridge-unapproved@example.test','Isolated-review-password-2026!')).cookie;
+  assert.equal((await GET(req('/static/viewer-review-events.js',{headers:{cookie:sessionCookie(guestCookie).split(';')[0]}}))).status,403);assert.equal(seen.length,before);
+  state.mode='shelloversize';const oversized=await GET(req('/viewer/',{headers}));assert.equal(oversized.status,502);assert.equal((await oversized.text()).includes('xxxx'),false);
  });
 });

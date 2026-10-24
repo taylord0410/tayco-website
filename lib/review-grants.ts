@@ -1,16 +1,25 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import type { Actor } from './auth';
+import { appendReviewAudit,installReviewAuditSchema,type ReviewAuditKind } from './review-audit';
 
 export const REVIEW_TTL_MS = 4 * 60 * 60 * 1000;
 export type ReviewAccess = { id: string; detailPeriod: string; createdAt: number; expiresAt: number };
+/** Server display metadata only; never grants access or extends the stored deadline. */
+export function reviewDisplayDeadline(actor:Actor,now=Date.now()){
+ return actor.role==='guest'&&actor.review?{id:actor.review.id,expiresAt:actor.review.expiresAt,asOf:now}:undefined;
+}
 export class ReviewGrantError extends Error {
   constructor(message: string, public status = 403, public reasonCode = 'review_required') { super(message); }
 }
 type Grant = { id:string; invite_id:string; tenant_id:string; email:string; user_id:string|null; detail_period:string; created_at:number; expires_at:number; accepted_at:number|null; revoked_at:number|null; request_hash:string;scope:string;policy_version:number };
 const digest=(s:string)=>createHash('sha256').update(s).digest('hex');
 const key=(value:string)=>{if(typeof value!=='string'||! /^[A-Za-z0-9_-]{16,100}$/.test(value))throw new ReviewGrantError('A valid request reference is required.',400,'invalid_request');return value;};
-const emit=(db:DatabaseSync,actor:string,event:string,id:string,now:number)=>db.prepare('INSERT INTO auth_audit VALUES(?,?,?,?,?)').run(randomUUID(),actor,event,id,now);
+function emit(db:DatabaseSync,actor:Actor,event:string,id:string,now:number){
+  db.prepare('INSERT INTO auth_audit VALUES(?,?,?,?,?)').run(randomUUID(),actor.id,event,id,now);
+  const kinds:Record<string,ReviewAuditKind>={'review.created':'review.created','review.token_rotated':'review.token_rotated','review.revoked':'review.revoked','review.accepted':'review.claimed'};
+  appendReviewAudit(db,{tenantId:actor.tenantId,reviewId:id,actorId:actor.id,actorRole:actor.role==='admin'?'admin':'guest'},{kind:kinds[event],surface:'authentication'},now);
+}
 
 export function installReviewSchema(db: DatabaseSync) {
   db.exec('BEGIN IMMEDIATE');
@@ -31,6 +40,7 @@ export function installReviewSchema(db: DatabaseSync) {
     const fields=db.prepare('PRAGMA table_info('+table+')').all();
     if(!fields.some(f=>f.name==='review_grant_id'))db.exec('ALTER TABLE '+table+' ADD COLUMN review_grant_id TEXT');
   }
+  installReviewAuditSchema(db);
   db.exec('COMMIT');
   }catch(error){db.exec('ROLLBACK');throw error;}
 }
@@ -56,7 +66,7 @@ export function createReviewInvitation(db:DatabaseSync,actor:Actor,email:string,
     const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
     db.prepare('INSERT INTO auth_review_grants(id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at) VALUES(?,?,?,?,NULL,?,?,?,?,?,?,NULL,NULL)').run(grantId,id,actor.tenantId,email,period,actor.id,creationKey,fingerprint,now,expiresAt);
     db.prepare("INSERT INTO auth_invites(id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at,review_grant_id) VALUES(?,?,?,'guest',?,'[]',NULL,?,NULL,NULL,?,?,?)").run(id,digest(token),email,actor.tenantId,expiresAt,actor.id,now,grantId);
-    emit(db,actor.id,'review.created',grantId,now);
+    emit(db,actor,'review.created',grantId,now);
     return {id,token,path:'/login#invite='+token,reviewGrantId:grantId,expiresAt,createdAt:now,detailPeriod:period,linkState:'issued'};
   });
 }
@@ -71,7 +81,7 @@ export function rotateReviewInvitation(db:DatabaseSync,actor:Actor,inviteId:stri
     const changed=db.prepare('UPDATE auth_invites SET token_hash=? WHERE id=? AND tenant_id=? AND accepted_at IS NULL AND revoked_at IS NULL').run(digest(token),inviteId,actor.tenantId);
     if(changed.changes!==1)throw new ReviewGrantError('This invitation changed. Reload before replacing its link.',409,'request_conflict');
     db.prepare('INSERT INTO auth_review_rotations VALUES(?,?,?)').run(g.id,requestKey,now);
-    emit(db,actor.id,'review.token_rotated',g.id,now);
+    emit(db,actor,'review.token_rotated',g.id,now);
     return {id:inviteId,token,path:'/login#invite='+token,reviewGrantId:g.id,createdAt:g.created_at,expiresAt:g.expires_at,detailPeriod:g.detail_period,linkState:'issued'};
   });
 }
@@ -84,7 +94,7 @@ export function revokeReviewInvitation(db:DatabaseSync,actor:Actor,inviteId:stri
       db.prepare('UPDATE auth_review_grants SET revoked_at=? WHERE id=?').run(now,g.id);
       db.prepare('UPDATE auth_invites SET revoked_at=? WHERE id=?').run(now,inviteId);
       db.prepare('DELETE FROM auth_sessions WHERE review_grant_id=?').run(g.id);
-      emit(db,actor.id,'review.revoked',g.id,now);
+      emit(db,actor,'review.revoked',g.id,now);
     }
   });
 }
@@ -92,7 +102,7 @@ export function revokeReviewInvitation(db:DatabaseSync,actor:Actor,inviteId:stri
 export function claimReviewGrant(db:DatabaseSync,grantId:string,inviteId:string,actor:Actor,now=Date.now()){
   const g=active(db.prepare('SELECT * FROM auth_review_grants WHERE id=? AND invite_id=?').get(grantId,inviteId) as Grant|undefined,now);
   if(actor.role!=='guest'||actor.tenantId!==g.tenant_id||actor.email!==g.email||(g.user_id!==null&&g.user_id!==actor.id))throw new ReviewGrantError('This review is not assigned to this account.',403,'review_identity');
-  if(g.accepted_at===null){db.prepare('UPDATE auth_review_grants SET user_id=?,accepted_at=? WHERE id=? AND user_id IS NULL AND accepted_at IS NULL').run(actor.id,now,g.id);emit(db,actor.id,'review.accepted',g.id,now);}
+  if(g.accepted_at===null){db.prepare('UPDATE auth_review_grants SET user_id=?,accepted_at=? WHERE id=? AND user_id IS NULL AND accepted_at IS NULL').run(actor.id,now,g.id);emit(db,actor,'review.accepted',g.id,now);}
   return access(g);
 }
 export function reviewForSession(db:DatabaseSync,actor:Actor,grantId:string|null|undefined,now=Date.now()):ReviewAccess{

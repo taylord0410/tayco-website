@@ -1,4 +1,8 @@
+import { VIEWER_REVIEW_BRIDGE_JS,VIEWER_REVIEW_BRIDGE_PATH,injectViewerReviewBridge } from './viewer-interaction-bridge';
+import { auditedGuestDocumentStream } from './review-access-audit';
 import { AuthError, type Actor } from './auth';
+import { noteReviewAuditFailure } from './review-request-audit';
+import { ReviewAuditError } from './review-audit';
 import { VIEWER_PREFIX, TakeoffViewerAccessError, viewerScope, type ViewerScope } from './takeoff-viewer-access';
 
 const MAX_JSON_BYTES = 4 * 1024 * 1024;
@@ -14,7 +18,8 @@ export function viewerResponseHeaders() {
   });
 }
 export function viewerFailure(error: unknown, head = false) {
-  const status = error instanceof AuthError || error instanceof TakeoffViewerAccessError ? error.status : 502;
+  const status = error instanceof AuthError || error instanceof TakeoffViewerAccessError ? error.status : error instanceof ReviewAuditError?503:502;
+  noteReviewAuditFailure(error,status);
   const message = error instanceof AuthError || error instanceof TakeoffViewerAccessError ? error.message : 'The drawing viewer is temporarily unavailable.';
   const headers = viewerResponseHeaders(); headers.set('Content-Type', 'application/json');
   if (status === 405) headers.set('Allow', 'GET, HEAD');
@@ -39,7 +44,7 @@ function routeFor(request: Request, scope: ViewerScope): Route {
   if (tail.includes('%') || tail.includes('\\') || tail.includes('//') || tail.split('/').some(segment => segment === '.' || segment === '..')) fail(400, 'Invalid viewer resource.');
   let kind: Route['kind']; let id: string | undefined;
   if (['/', '/viewer', '/viewer/'].includes(tail)) kind = 'shell';
-  else if (/^\/static\/(viewer\.(css|js)|i18n\.js)$/.test(tail) || /^\/static\/pdfjs\/(build\/pdf(?:\.worker)?\.mjs|LICENSE)$/.test(tail)
+  else if (/^\/static\/(viewer\.(css|js)|i18n\.js|viewer-review-events\.js)$/.test(tail) || /^\/static\/pdfjs\/(build\/pdf(?:\.worker)?\.mjs|LICENSE)$/.test(tail)
     || /^\/static\/pdfjs\/(cmaps|standard_fonts|wasm)\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*(?:\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)*$/.test(tail)) kind = 'static';
   else if (tail === '/api/v1/projects') kind = 'catalog';
   else {
@@ -144,6 +149,15 @@ async function readJson(response: Response, recheck:()=>Promise<void>) {
     try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return fail(502, 'The viewer returned invalid document JSON.'); }
   } finally { await reader!.cancel().catch(() => {}); }
 }
+async function readShell(response:Response,recheck:()=>Promise<void>){
+ if(Number(response.headers.get('content-length'))>512*1024)fail(502,'The viewer shell is unavailable.');
+ const reader=response.body?.getReader();if(!reader)fail(502,'The viewer shell is unavailable.');
+ const chunks:Uint8Array[]=[];let bytes=0;
+ try{
+  for(;;){await recheck();const chunk=await reader!.read();await recheck();if(chunk.done)break;bytes+=chunk.value.byteLength;if(bytes>512*1024)fail(502,'The viewer shell is unavailable.');chunks.push(chunk.value);}
+  return injectViewerReviewBridge(new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks)));
+ }finally{await reader!.cancel().catch(()=>{});}
+}
 export async function handleViewerRequest(request: Request, actor: Actor, reauthenticate?:()=>Promise<Actor>): Promise<Response> {
   const head = request.method === 'HEAD';
   let cleanup: (() => void) | undefined;
@@ -155,6 +169,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     let currentScope=scope;
     const recheck=async()=>{const fresh=reauthenticate?await reauthenticate():actor;if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)fail(403,'Document access changed.');currentScope=viewerScope(fresh);routeFor(request,currentScope);if(currentScope.bundleId!==scope.bundleId||currentScope.manifestSha256!==scope.manifestSha256)fail(403,'Document publication changed.');};
     await recheck();
+    if(route.pathname===VIEWER_REVIEW_BRIDGE_PATH){const output=viewerResponseHeaders();output.set('Content-Type','text/javascript; charset=utf-8');return new Response(head?null:VIEWER_REVIEW_BRIDGE_JS,{headers:output});}
     const origin = upstreamOrigin();
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
@@ -167,7 +182,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     const json = ['catalog', 'project', 'document'].includes(route.kind);
     const headers = new Headers({ 'Accept-Encoding': 'identity' });
     if (!json && route.kind !== 'shell') for (const name of ['Range', 'If-Range', 'If-None-Match', 'If-Modified-Since']) { const value = request.headers.get(name); if (value && value.length < 1000 && !/[\r\n]/.test(value)) headers.set(name, value); }
-    const upstream = await fetch(origin + route.pathname + route.search, { method: json ? 'GET' : request.method, headers, redirect: 'manual', cache: 'no-store', signal: controller.signal });
+    const upstream = await fetch(origin + route.pathname + route.search, { method: json || route.kind==='shell' ? 'GET' : request.method, headers, redirect: 'manual', cache: 'no-store', signal: controller.signal });
     await recheck();
     if (upstream.headers.get('X-Takeoff-Bundle-Id') !== scope.bundleId || upstream.headers.get('X-Takeoff-Manifest-Sha256') !== scope.manifestSha256) fail(502, 'The viewer publication does not match the authorized bundle.');
     if (upstream.status >= 300 && upstream.status < 400 && upstream.status !== 304) fail(502, 'The viewer attempted an unsupported redirect or response.');
@@ -180,6 +195,12 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
       cleanup(); cleanup = undefined;
       return new Response(head ? null : body, { headers: output });
     }
+    if(route.kind==='shell'){
+      if(upstream.status!==200||!upstream.headers.get('content-type')?.toLowerCase().startsWith('text/html'))fail(502,'The viewer shell is unavailable.');
+      const body=await readShell(upstream,recheck);await recheck();
+      output.set('Content-Type','text/html; charset=utf-8');output.set('Content-Length',String(Buffer.byteLength(body)));
+      cleanup();cleanup=undefined;return new Response(head?null:body,{headers:output});
+    }
     if (![200, 206, 304, 404, 416].includes(upstream.status)) fail(502, 'The viewer resource is unavailable.');
     if (upstream.status === 404) fail(404, 'Viewer resource not found.');
     for (const name of ['Accept-Ranges', 'Content-Range', 'ETag', 'Last-Modified', 'Content-Length']) {
@@ -187,8 +208,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
       if (value && value.length < 1000 && !/[\r\n]/.test(value)) output.set(name, value);
     }
     let media: string;
-    if (route.kind === 'shell') media = 'text/html; charset=utf-8';
-    else if (route.kind === 'static') media = route.pathname.endsWith('.css') ? 'text/css' : /\.m?js$/.test(route.pathname) ? 'text/javascript' : route.pathname.endsWith('.wasm') ? 'application/wasm' : 'application/octet-stream';
+    if (route.kind === 'static') media = route.pathname.endsWith('.css') ? 'text/css' : /\.m?js$/.test(route.pathname) ? 'text/javascript' : route.pathname.endsWith('.wasm') ? 'application/wasm' : 'application/octet-stream';
     else {
       const supplied = upstream.headers.get('Content-Type')?.split(';')[0].toLowerCase() || '';
       media = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(supplied) ? supplied : 'application/octet-stream';
@@ -199,7 +219,15 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
       await upstream.body?.cancel(); await recheck(); cleanup(); cleanup = undefined;
       return new Response(null, { status: upstream.status, headers: output });
     }
-    const reader = upstream.body.getReader(), finish = cleanup; cleanup = undefined;
+    const finish = cleanup; cleanup = undefined;
+    if(route.kind==='asset'){
+      const body=auditedGuestDocumentStream(upstream.body,actor,'viewer',{kind:'asset',id:route.id!},
+        {statusCode:upstream.status as 200|206,responseKind:upstream.status===206?'range':'full',
+          recheck:async()=>{arm();await recheck();},signal:request.signal,onFinish:finish});
+      try{await recheck();}catch(error){await body.cancel().catch(()=>{});throw error;}
+      return new Response(body,{status:upstream.status,headers:output});
+    }
+    const reader = upstream.body.getReader();
     const body = new ReadableStream<Uint8Array>({
       async pull(target) { try { arm(); await recheck(); const chunk = await reader.read(); await recheck(); if (chunk.done) { finish(); target.close(); } else target.enqueue(chunk.value); } catch { finish(); await reader.cancel().catch(()=>{}); target.error(new Error('The drawing transfer was interrupted.')); } },
       async cancel() { finish(); await reader.cancel().catch(() => {}); },

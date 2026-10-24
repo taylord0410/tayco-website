@@ -3,6 +3,8 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
+import { appendReviewAudit,ReviewAuditError } from './review-audit';
+import { rememberReviewAuditContext } from './review-request-audit';
 import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, type ReviewAccess } from './review-grants';
 
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
@@ -63,7 +65,7 @@ function database() {
     return db;
   } catch (error) { db.close(); throw error; }
 }
-function withDb<T>(fn: (db: DatabaseSync) => T): T { const db = database(); try { return fn(db); } catch (error) { if (error instanceof ReviewGrantError) throw new AuthError(error.message,error.status,error.reasonCode); throw error; } finally { db.close(); } }
+function withDb<T>(fn: (db: DatabaseSync) => T): T { const db = database(); try { return fn(db); } catch (error) { if(error instanceof ReviewAuditError)throw new AuthError(error.message,error.status); if (error instanceof ReviewGrantError) throw new AuthError(error.message,error.status,error.reasonCode); throw error; } finally { db.close(); } }
 function audit(db: DatabaseSync, actor: string | null, event: string, subject: string | null = null) { db.prepare('INSERT INTO auth_audit VALUES(?,?,?,?,?)').run(randomUUID(), actor, event, subject, Date.now()); }
 function actorOf(user: UserRow): Actor {
   try {
@@ -99,7 +101,15 @@ export async function createSession(userId: string, selectedReviewId?: string, e
     const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
     if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
     const actor=actorOf(user),grantId=actor.role==='guest'?(selectedReviewId??latestClaimedReview(db,userId)):undefined;
-    const review=actor.role==='guest'?reviewForSession(db,actor,grantId):undefined;
+    let review:ReviewAccess|undefined;
+    try{review=actor.role==='guest'?reviewForSession(db,actor,grantId):undefined;}
+    catch(error){
+      if(actor.role==='guest'&&grantId&&error instanceof ReviewGrantError){
+        const expired=error.reasonCode==='review_expired',reason=expired?'expired':error.reasonCode==='review_revoked'?'revoked':'not_authorized';
+        appendReviewAudit(db,{tenantId:actor.tenantId,reviewId:grantId,actorId:actor.id,actorRole:'guest'},{kind:expired?'review.expired_observed':'access.denied',surface:'authentication',statusCode:403,reason});
+      }
+      throw error;
+    }
     return {grantId,expiresAt:Math.min(Date.now()+SESSION_TTL_SECONDS*1000,review?.expiresAt??Infinity)};
   });
   const value=await sealData({token},{password,ttl:Math.max(1,Math.ceil((selected.expiresAt-Date.now())/1000))});
@@ -113,22 +123,44 @@ export async function createSession(userId: string, selectedReviewId?: string, e
       const now=Date.now();if(selected.expiresAt<=now)throw new AuthError('This review access has ended.',403,'review_expired');
       db.prepare('DELETE FROM auth_sessions WHERE expires_at<=?').run(now);
       db.prepare('INSERT INTO auth_sessions(token_hash,user_id,expires_at,created_at,review_grant_id) VALUES(?,?,?,?,?)').run(digest(token),userId,selected.expiresAt,now,selected.grantId??null);
-      audit(db,userId,'session.created');db.exec('COMMIT');
+      audit(db,userId,'session.created');
+      if(user.role==='guest'&&selected.grantId)appendReviewAudit(db,{tenantId:user.tenant_id,reviewId:selected.grantId,actorId:userId,actorRole:'guest'},{kind:'auth.session_started',surface:'authentication'});
+      db.exec('COMMIT');
     }catch(error){db.exec('ROLLBACK');throw error;}
   });
   return value;
 }
 function cookieValue(request: Request) { return request.headers.get('cookie')?.split(';').map(c => c.trim()).find(c => c.startsWith(`${SESSION_COOKIE}=`))?.slice(SESSION_COOKIE.length + 1); }
 async function sessionToken(request: Request) { const value = cookieValue(request); if (!value) return null; try { const payload = await unsealData<{ token?: string }>(decodeURIComponent(value), { password: secret(), ttl: SESSION_TTL_SECONDS }); return typeof payload.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(payload.token) ? payload.token : null; } catch (e) { if (e instanceof AuthError) throw e; return null; } }
-export async function getActor(request: Request): Promise<Actor | null> {
-  const token=await sessionToken(request);if(!token)return null;
+const guestRequestBindings=new WeakMap<Actor,()=>Actor>();
+/** Rechecks the exact persisted session that produced this server Actor. The capability
+ * is memory-only and cannot be supplied by a client DTO or another cookie. */
+export function revalidateGuestRequestActor(actor:Actor):Actor{
+  requireRole(actor,['guest']);const bound=guestRequestBindings.get(actor);
+  if(!bound)throw new AuthError('An authenticated review request is required.',403);
+  return bound();
+}
+function actorForSessionHash(tokenHash:string):Actor|null{
   return withDb(db=>{
-    const user=db.prepare('SELECT u.*,s.review_grant_id AS session_review_grant_id FROM auth_users u JOIN auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(digest(token),Date.now()) as (UserRow & {session_review_grant_id:string|null})|undefined;
+    const user=db.prepare('SELECT u.*,s.review_grant_id AS session_review_grant_id FROM auth_users u JOIN auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(tokenHash,Date.now()) as (UserRow & {session_review_grant_id:string|null})|undefined;
     if(!user)return null;
     const actor=actorOf(user);
-    if(actor.role==='guest')actor.review=reviewForSession(db,actor,user.session_review_grant_id);
+    const revalidate=()=>{
+      const fresh=actorForSessionHash(tokenHash);
+      if(!fresh)throw new AuthError('Please sign in to continue.',401);
+      if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!=='guest'||fresh.review?.id!==user.session_review_grant_id)throw new AuthError('Review access changed.',403);
+      return fresh;
+    };
+    if(actor.role==='guest'&&user.session_review_grant_id)rememberReviewAuditContext({tenantId:actor.tenantId,reviewId:user.session_review_grant_id,actorId:actor.id,actorRole:'guest'},async()=>{revalidate();});
+    if(actor.role==='guest'){
+      actor.review=reviewForSession(db,actor,user.session_review_grant_id);
+      guestRequestBindings.set(actor,revalidate);
+    }
     return actor;
   });
+}
+export async function getActor(request:Request):Promise<Actor|null>{
+  const token=await sessionToken(request);return token?actorForSessionHash(digest(token)):null;
 }
 export async function requireActor(request: Request): Promise<Actor> { const actor = await getActor(request); if (!actor) throw new AuthError('Please sign in to continue.', 401); return actor; }
 export async function signIn(emailInput: unknown, password: unknown) {
@@ -143,7 +175,21 @@ export async function signIn(emailInput: unknown, password: unknown) {
   if(!actor)throw new AuthError('Please sign in again.');
   return { actor, cookie, expiresAt:actor.review?.expiresAt };
 }
-export async function signOut(request: Request) { const token = await sessionToken(request); if (token) withDb(db => { db.prepare('DELETE FROM auth_sessions WHERE token_hash=?').run(digest(token)); }); }
+export async function signOut(request: Request) {
+  const token=await sessionToken(request);if(!token)return;
+  withDb(db=>{
+    db.exec('BEGIN IMMEDIATE');
+    try{
+      const row=db.prepare('SELECT s.user_id,s.review_grant_id,u.role,u.tenant_id FROM auth_sessions s JOIN auth_users u ON u.id=s.user_id WHERE s.token_hash=?').get(digest(token)) as {user_id:string;review_grant_id:string|null;role:string;tenant_id:string}|undefined;
+      if(row){
+        if(row.role==='guest'&&row.review_grant_id)appendReviewAudit(db,{tenantId:row.tenant_id,reviewId:row.review_grant_id,actorId:row.user_id,actorRole:'guest'},{kind:'auth.signout',surface:'authentication'});
+        db.prepare('DELETE FROM auth_sessions WHERE token_hash=?').run(digest(token));
+        audit(db,row.user_id,'session.signed_out');
+      }
+      db.exec('COMMIT');
+    }catch(error){db.exec('ROLLBACK');throw error;}
+  });
+}
 export function sessionCookie(value: string, clear = false, expiresAt?:number) {
   const seconds=clear?0:expiresAt===undefined?SESSION_TTL_SECONDS:Math.max(0,Math.min(SESSION_TTL_SECONDS,Math.floor((expiresAt-Date.now())/1000)));
   return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${clear?'; Expires=Thu, 01 Jan 1970 00:00:00 GMT':expiresAt!==undefined?'; Expires='+new Date(expiresAt).toUTCString():''}${process.env.NODE_ENV==='production'?'; Secure':''}`;

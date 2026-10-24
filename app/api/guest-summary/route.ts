@@ -1,3 +1,4 @@
+import { withGuestRequestAudit,noteReviewAuditFailure } from '@/lib/review-request-audit';
 import { NextRequest, NextResponse } from "next/server";
 import { AuthError, requireActor } from "@/lib/auth";
 import { guestMonthlyEstimateSummary, MonthlyManagementEstimateError } from "@/lib/monthly-management-estimates";
@@ -5,7 +6,7 @@ import { guestMonthlyEstimateSummary, MonthlyManagementEstimateError } from "@/l
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const actor = await requireActor(request);
     const query = request.nextUrl.searchParams;
@@ -15,9 +16,12 @@ export async function GET(request: NextRequest) {
     const summary = guestMonthlyEstimateSummary(actor, { year: query.get("year") ?? undefined, month: query.get("month") ?? undefined });
     return NextResponse.json({ success: true, summary }, { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } });
   } catch (error) {
+    noteReviewAuditFailure(error, error instanceof AuthError || error instanceof MonthlyManagementEstimateError ? error.status : 503);
     const known = error instanceof AuthError || error instanceof MonthlyManagementEstimateError;
     return NextResponse.json({ success: false, error: known ? error.message : "Monthly summaries are temporarily unavailable." }, {
       status: known ? error.status : 503, headers: { "Cache-Control": "no-store" },
     });
   }
 }
+
+export const GET=withGuestRequestAudit('summary',handleGET);

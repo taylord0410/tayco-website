@@ -1,5 +1,6 @@
 "use client";
 
+import ReviewAuditPanel from "./ReviewAuditPanel";
 import { useEffect, useId, useRef, useState } from "react";
 import type { GuestActivityElement, GuestActivityReport } from "../lib/guest-activity";
 
@@ -113,12 +114,12 @@ export default function GuestActivityPanel() {
   const clicks = report?.counts.filter(row => row.elementId !== "review.visit")
     .reduce((sum, row) => sum + row.count, 0) ?? 0;
 
-  return <section aria-labelledby={headingId} className="min-w-0 space-y-5 border-t border-[#173252]/10 pt-6 text-[#173252]">
+  return <><ReviewAuditPanel/><section aria-labelledby={headingId} className="min-w-0 space-y-5 border-t border-[#173252]/10 pt-6 text-[#173252]">
     <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
       <div className="min-w-0 flex-1 basis-52">
         <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#946020]">Administrator review</p>
-        <h2 id={headingId} className="text-xl font-semibold">Guest review activity</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">Recorded visits and selected controls in the private monthly review.</p>
+        <h2 id={headingId} className="text-xl font-semibold">Earlier monthly review controls</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600">This earlier monthly control report is separate from the review-specific audit above.</p>
       </div>
       <button type="button" className={button} disabled={loading} onClick={() => void refresh()}>
         {loading && report ? "Refreshing…" : "Refresh report"}
@@ -191,5 +192,5 @@ export default function GuestActivityPanel() {
         </details>
       </>}
     </div>}
-  </section>;
+  </section></>;
 }

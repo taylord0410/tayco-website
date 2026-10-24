@@ -1,3 +1,5 @@
+import {auditedGuestDocumentStream} from '@/lib/review-access-audit';
+import { withGuestRequestAudit,noteReviewAuditFailure } from '@/lib/review-request-audit';
 import {get} from '@vercel/blob';
 import {NextRequest,NextResponse} from 'next/server';
 import {requireActor,AuthError} from '@/lib/auth';
@@ -8,7 +10,7 @@ import {VIEWER_PREFIX,TakeoffViewerAccessError,viewerScope} from '@/lib/takeoff-
 export const runtime='nodejs';
 const privateHeaders={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'};
 const sourceId=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(value);
-export async function GET(request:NextRequest,context:{params:Promise<{id:string}>}){
+async function handleGET(request:NextRequest,context:{params:Promise<{id:string}>}){
  try{
   const actor=await requireActor(request),{id}=await context.params;
   const readable=async()=>{const fresh=await requireActor(request);return fresh.role==='guest'?guestConsoleDocument(fresh,id):getReadableDocument(fresh,id);};
@@ -31,10 +33,12 @@ export async function GET(request:NextRequest,context:{params:Promise<{id:string
    const result=await get(entry.data.blobPath,{access:'private'});
   if(!result||result.statusCode!==200)throw new ErpError(404,'Document unavailable. Contact TAYCO.');
   try{await readable();}catch(error){await result.stream.cancel().catch(()=>{});throw error;}
-  const reader=result.stream.getReader();
-  const guarded=new ReadableStream<Uint8Array>({async pull(controller){try{await readable();const chunk=await reader.read();await readable();if(chunk.done)controller.close();else controller.enqueue(chunk.value);}catch(error){await reader.cancel().catch(()=>{});controller.error(error);}},cancel(reason){return reader.cancel(reason);}});
+  const guarded=auditedGuestDocumentStream(result.stream,actor,'document',{kind:'document',id},
+   {statusCode:200,responseKind:'full',recheck:async()=>{await readable();},signal:request.signal});
+  try{await readable();}catch(error){await guarded.cancel().catch(()=>{});throw error;}
   return new Response(guarded,{headers:{'Content-Type':'application/octet-stream','Content-Disposition':'attachment; filename="tayco-document"','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }catch(error){
+  noteReviewAuditFailure(error,error instanceof AuthError||error instanceof ErpError||error instanceof TakeoffViewerAccessError?error.status:503);
   if(error instanceof TakeoffViewerAccessError){
    const status=[403,404,503].includes(error.status)?error.status:503;
    return NextResponse.json({error:status===503?'The protected document reader is unavailable.':'Document unavailable. Contact TAYCO.'},{status,headers:privateHeaders});
@@ -43,3 +47,5 @@ export async function GET(request:NextRequest,context:{params:Promise<{id:string
   return NextResponse.json({error:'Unable to retrieve the document.'},{status:503,headers:privateHeaders});
  }
 }
+
+export const GET=withGuestRequestAudit('document',handleGET);

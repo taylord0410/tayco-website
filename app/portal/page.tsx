@@ -1,3 +1,5 @@
+import { withGuestRenderAudit,noteReviewAuditFailure } from "@/lib/review-request-audit";
+import { auditGuestFailure } from "@/lib/review-access-audit";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Workspace | TAYCO", robots: { index: false, follow: false } };
 type Search = Record<string, string | string[] | undefined>;
 
-export default async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } = {}) {
+async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } = {}) {
   let initial: DashboardData | undefined;
   let guestInitial: GuestConsoleData | undefined;
   let guestSection: GuestConsoleSection = "summary";
@@ -36,8 +38,10 @@ export default async function PortalPage({ searchParams }: { searchParams?: Prom
         guestInitial = guestConsoleSnapshot(actor, { period: query.period, section: guestSection });
       } catch (error) {
         // Preserve the console and its denial panel on historical detail deep links.
-        if (error instanceof ErpError && error.status === 403 && isGuestReportingPeriod(query.period) && query.period < currentReportingPeriod())
+        if (error instanceof ErpError && error.status === 403 && isGuestReportingPeriod(query.period) && query.period < currentReportingPeriod()) {
+          const logged=auditGuestFailure(actor,"portal",error,403);if(logged!==error)throw logged;
           guestInitial = guestConsoleSnapshot(actor, { period: query.period, section: "summary" });
+        }
         else throw error;
       }
     } else {
@@ -45,6 +49,8 @@ export default async function PortalPage({ searchParams }: { searchParams?: Prom
       initial = { ...current, audit: current.audit.map(entry => ({ ...entry })), delivery: current.delivery.map(entry => ({ ...entry })) } as DashboardData;
     }
   } catch (error) {
+    initial=undefined;guestInitial=undefined;
+    if(error instanceof ErpError||error instanceof AuthError)noteReviewAuditFailure(error,error.status);
     if (error instanceof ErpError && [403, 422].includes(error.status)) accessError = error.message;
     else if (!(error instanceof AuthError)) throw error;
     else accessError = error.reasonCode?.startsWith("review_") ? error.message : error.status === 403 ? "Not authorized." : "Account access is temporarily unavailable.";
@@ -62,4 +68,7 @@ export default async function PortalPage({ searchParams }: { searchParams?: Prom
       </div>
     </div>
   </main>;
+}
+export default function AuditedPortalPage(props:Parameters<typeof PortalPage>[0]={}){
+  return withGuestRenderAudit("portal",()=>PortalPage(props));
 }

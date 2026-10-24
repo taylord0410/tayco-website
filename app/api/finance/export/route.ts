@@ -1,3 +1,4 @@
+import {withGuestRequestAudit} from '@/lib/review-request-audit';
 import {NextRequest,NextResponse} from 'next/server';
 import {AuthError,requireActor} from '@/lib/auth';
 import {ErpError} from '@/lib/erp';
@@ -5,7 +6,7 @@ import {financeExport} from '@/lib/finance-export';
 import {parseFinancialPeriod} from '@/lib/financial-periods';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-export async function GET(request:NextRequest) {
+async function handleGET(request:NextRequest) {
  try {
   const actor=await requireActor(request);
   const csv=financeExport(actor,request.nextUrl.searchParams.get('projectId')||undefined,parseFinancialPeriod(request.nextUrl.searchParams.get('year'),request.nextUrl.searchParams.get('month')));
@@ -17,3 +18,5 @@ export async function GET(request:NextRequest) {
  }
 }
 
+
+export const GET=withGuestRequestAudit('workspace',handleGET);

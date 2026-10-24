@@ -1,3 +1,4 @@
+import {withGuestRequestAudit} from '@/lib/review-request-audit';
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthError, requireActor, assertSameOrigin } from '@/lib/auth';
 import { ErpError, execute, snapshot } from '@/lib/erp';
@@ -9,14 +10,14 @@ function failure(error:unknown) {
  console.error('TAYCO operation failed',{type:error instanceof Error?error.name:'unknown'});
  return NextResponse.json({success:false,error:'Unable to complete this request. Your information has not been confirmed as saved.'},{status:503});
 }
-export async function GET(request:NextRequest) {
+async function handleGET(request:NextRequest) {
  try {
   const actor=await requireActor(request);
   if(request.nextUrl.searchParams.has('invite')||request.nextUrl.searchParams.has('tenant'))throw new ErpError(400,'Use your assigned account and project access.');
   return NextResponse.json({success:true,...snapshot(actor)},{headers:{'Cache-Control':'private, no-store'}});
  }catch(error){return failure(error);}
 }
-export async function POST(request:NextRequest) {
+async function handlePOST(request:NextRequest) {
  try {
   const actor=await requireActor(request);assertSameOrigin(request);
   const body=await readJson(request);
@@ -24,3 +25,7 @@ export async function POST(request:NextRequest) {
   return NextResponse.json({success:true,result,...snapshot(actor)},{headers:{'Cache-Control':'private, no-store'}});
  }catch(error){return failure(error);}
 }
+
+export const GET=withGuestRequestAudit('workspace',handleGET);
+
+export const POST=withGuestRequestAudit('workspace',handlePOST);
