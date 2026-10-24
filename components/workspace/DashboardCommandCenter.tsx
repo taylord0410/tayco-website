@@ -3,6 +3,8 @@ import { useState } from "react";
 import type { Entry } from "@/lib/erp";
 import { financialPeriods } from "@/lib/financial-periods";
 import { dashboardAgenda, type DashboardAgendaItem } from "@/lib/dashboard-agenda";
+import { CORPORATE_CERTIFICATIONS_STATUS } from "@/lib/verified-bidding-opportunities";
+import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 
 type Props = { entries: Entry[]; asOf: string; projectId: string; onNavigate: (view: string, projectId?: string, reportingMonth?: string) => void };
 const money = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
@@ -58,6 +60,33 @@ export default function DashboardCommandCenter({ entries, asOf, projectId, onNav
       <section className="dcc-card dcc-followups" id="dcc-saved-followups"><header className="dcc-card-header"><div><p className="dcc-eyebrow">Next actions</p><h3>Follow-ups</h3></div><span className="dcc-source-label">{agenda.followups.length} saved</span></header>{agenda.followups.length ? <ul className="dcc-followup-list">{agenda.followups.slice(0, showAllFollowups ? undefined : 5).map(item => <li key={item.id}><button type="button" onClick={() => onNavigate(item.view, item.projectId || undefined)}><span className="dcc-followup-dot" aria-hidden="true" /><span><strong>{item.title}</strong><small>{item.detail}</small><small>{item.priority} priority{item.dueDate ? " · " + shortDate(item.dueDate) + (item.overdue ? " · Overdue" : "") : ""}</small></span><span className="dcc-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="dcc-empty">No next actions or reviews are waiting in this view.</p>}{agenda.followups.length > 5 && <button type="button" className="dcc-text-link" aria-expanded={showAllFollowups} onClick={() => setShowAllFollowups(value => !value)}>{showAllFollowups ? "Show fewer follow-ups" : "View all follow-ups (" + agenda.followups.length + ")"}</button>}<p className="dcc-note">{agenda.followups.length > 5 && !showAllFollowups ? "Showing 5 of " + agenda.followups.length + ". " : ""}Open a source record to review or update its action.</p></section>
       <section className="dcc-card dcc-calendar"><header className="dcc-card-header"><div><p className="dcc-eyebrow">Next month</p><h3>{monthName(agenda.nextMonth)}</h3></div><span className="dcc-source-label">{agenda.calendarItems.length} dates</span></header><div className="dcc-calendar-grid" aria-label={monthName(agenda.nextMonth) + " source calendar"}>{["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(day => <span key={day} className="dcc-weekday">{day}</span>)}{calendarDays.map((day, index) => { const date = day ? agenda.nextMonth + "-" + String(day).padStart(2, "0") : ""; const sources = agenda.calendarItems.filter(item => item.date === date); return day ? sources.length ? <button type="button" key={date} className="dcc-calendar-day has-events" title={sources.map(item => item.title).join("; ")} aria-pressed={calendarDate === date} aria-label={shortDate(date) + ": " + sources.length + " dated source" + (sources.length === 1 ? "" : "s") + ". Show all sources for this day."} onClick={() => setCalendarDate(current => current === date ? "" : date)}>{day}<i aria-hidden="true" /></button> : <span key={date} className="dcc-calendar-day">{day}</span> : <span key={"empty-" + index} className="dcc-calendar-day is-empty" />; })}</div>{calendarDate && <p className="dcc-note">Sources for {shortDate(calendarDate)} · select the date again to return to the month.</p>}{calendarSources.length ? <ul className="dcc-calendar-items">{calendarSources.map(item => <li key={item.id}><button type="button" onClick={() => openItem(item)}><time dateTime={item.date}>{shortDate(item.date)}</time><span>{item.title}</span></button></li>)}</ul> : <p className="dcc-empty">{calendarDate ? "No dated items remain for this selected day." : "No dated items recorded for next month."}</p>}</section>
     </div>
+    <section className="dcc-card dcc-certifications-card" data-testid="corporate-certifications-panel">
+      <header className="dcc-card-header">
+        <div>
+          <p className="dcc-eyebrow">Corporate standing · Pending company verification</p>
+          <h3>Certifications &amp; Programs</h3>
+        </div>
+        <button type="button" onClick={() => onNavigate("compliance")}>Review compliance &amp; certifications ↗</button>
+      </header>
+      <div className="dcc-certifications-grid">
+        {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
+          const isActive = cert.status === "Active intake";
+          return (
+            <div key={cert.id} className="dcc-cert-item" data-tone={isActive ? "emerald" : "amber"}>
+              <div className="dcc-cert-top">
+                <strong>{cert.code} · {cert.label}</strong>
+                <span className="dcc-badge" data-tone={isActive ? "emerald" : "amber"}>
+                  {cert.status}
+                </span>
+              </div>
+              <p className="dcc-cert-category">{cert.category}</p>
+              <p className="dcc-cert-status">{cert.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+    <VerifiedOpportunitiesTable defaultLimit={10} />
     <p className="dcc-snapshot">Recorded snapshot · {asOf.slice(0, 10)} UTC · {projectId ? "Selected project" : "Authorized company portfolio"}</p>
   </div>;
 }

@@ -1,0 +1,283 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  VERIFIED_OCTOBER_2026_OPPORTUNITIES,
+  type VerifiedBiddingOpportunity,
+} from "@/lib/verified-bidding-opportunities";
+import TakeoffProjectReader from "./TakeoffProjectReader";
+
+function formatDeadline(iso: string | null): string {
+  if (!iso) return "Pending company info";
+  const parsed = Date.parse(iso + "T12:00:00Z");
+  if (!Number.isFinite(parsed)) return iso;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(parsed));
+}
+
+export function VerifiedOpportunitiesTable({
+  defaultLimit = 10,
+}: {
+  defaultLimit?: number;
+}) {
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "Overdue" | "Pending company information"
+  >("all");
+  const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(defaultLimit >= 42);
+  const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
+
+  const counts = useMemo(() => {
+    const overdue = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+      (item) => item.status === "Overdue"
+    ).length;
+    const pending = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+      (item) => item.status === "Pending company information"
+    ).length;
+    const withDrawings = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((item) =>
+      Boolean(item.viewerHref)
+    ).length;
+    return {
+      total: VERIFIED_OCTOBER_2026_OPPORTUNITIES.length,
+      overdue,
+      pending,
+      withDrawings,
+    };
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((item) => {
+      if (statusFilter !== "all" && item.status !== statusFilter) {
+        return false;
+      }
+      if (!q) return true;
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.location.toLowerCase().includes(q) ||
+        item.contractor.toLowerCase().includes(q) ||
+        (item.reportedDeadline ?? "").toLowerCase().includes(q) ||
+        String(item.number).includes(q)
+      );
+    });
+  }, [statusFilter, search]);
+
+  const displayed = useMemo(() => {
+    if (showAll || search.trim().length > 0 || statusFilter !== "all") {
+      return filtered;
+    }
+    return filtered.slice(0, defaultLimit);
+  }, [filtered, showAll, search, statusFilter, defaultLimit]);
+
+  const activeItem: VerifiedBiddingOpportunity | null = useMemo(() => {
+    if (activeViewerId === null) return null;
+    return (
+      VERIFIED_OCTOBER_2026_OPPORTUNITIES.find(
+        (item) => item.id === activeViewerId
+      ) ?? null
+    );
+  }, [activeViewerId]);
+
+  return (
+    <section
+      className="dcc-card dcc-opportunities-card"
+      data-testid="verified-opportunities-panel"
+    >
+      <div className="dcc-card-head dcc-opportunities-head">
+        <div>
+          <p className="dcc-kicker">
+            NEW OPPORTUNITIES · OCTOBER 2026 CORPORATE INTAKE
+          </p>
+          <h3 className="dcc-section-title">
+            New Opportunities — October 2026 ({counts.total} Verified Bidding
+            Opportunities)
+          </h3>
+          <p className="dcc-row-meta">
+            All {counts.total} verified commercial and institutional bidding
+            packages (#2–#19, #21–#43). {counts.withDrawings} packages include
+            protected PDF drawing sheets ready for in-place inspection; zero
+            invented or sample pricing is displayed prior to quote completion.
+          </p>
+        </div>
+
+        <div className="dcc-opportunities-controls">
+          <div
+            className="dcc-opportunities-pills"
+            role="group"
+            aria-label="Filter bidding opportunities"
+          >
+            <button
+              type="button"
+              onClick={() => setStatusFilter("all")}
+              className={`dcc-filter-pill ${
+                statusFilter === "all" ? "is-active" : ""
+              }`}
+            >
+              All ({counts.total})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Overdue")}
+              className={`dcc-filter-pill ${
+                statusFilter === "Overdue" ? "is-active" : ""
+              }`}
+            >
+              Overdue · Oct 2026 ({counts.overdue})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Pending company information")}
+              className={`dcc-filter-pill ${
+                statusFilter === "Pending company information"
+                  ? "is-active"
+                  : ""
+              }`}
+            >
+              Pending company info ({counts.pending})
+            </button>
+          </div>
+
+          <div className="dcc-opportunities-search-row">
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search project, contractor, state or #ID..."
+              aria-label="Search verified bidding opportunities"
+              className="dcc-opportunities-search"
+            />
+            {statusFilter === "all" && !search.trim() && (
+              <button
+                type="button"
+                onClick={() => setShowAll((prev) => !prev)}
+                className="dcc-action-btn"
+              >
+                {showAll
+                  ? `Show top ${defaultLimit}`
+                  : `Show all ${counts.total} opportunities`}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {activeItem && activeItem.viewerHref && (
+        <div
+          className="dcc-opportunities-viewer-drawer"
+          data-testid="verified-opportunity-viewer-drawer"
+        >
+          <div className="dcc-opportunities-viewer-bar">
+            <div>
+              <span className="dcc-badge" data-tone="amber">
+                Opportunity #{activeItem.number} · Protected Drawing Sheet
+              </span>
+              <h4 className="dcc-row-title" style={{ marginTop: "0.35rem" }}>
+                {activeItem.name}
+              </h4>
+              <p className="dcc-row-meta">
+                {activeItem.location} · Contractor: {activeItem.contractor} ·{" "}
+                {activeItem.documentName}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveViewerId(null)}
+              className="dcc-action-btn"
+            >
+              Close drawing viewer ✕
+            </button>
+          </div>
+          <TakeoffProjectReader
+            source={activeItem.viewerHref}
+            projectName={activeItem.name}
+            privacyNotice={false}
+          />
+        </div>
+      )}
+
+      <div className="dcc-opportunities-table-wrap">
+        <table className="dcc-opportunities-table">
+          <thead>
+            <tr>
+              <th>Project / Location &amp; Contractor</th>
+              <th>Reported Deadline</th>
+              <th>Drawings</th>
+              <th>Estimated Price</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayed.map((row) => {
+              const isViewerOpen = activeViewerId === row.id;
+              const isOverdue = row.status === "Overdue";
+              return (
+                <tr key={row.id} data-opportunity-id={row.number}>
+                  <td>
+                    <div className="dcc-opp-project-cell">
+                      <span className="dcc-opp-id">#{row.number}</span>
+                      <div>
+                        <p className="dcc-row-title">{row.name}</p>
+                        <p className="dcc-row-meta">
+                          {row.location} ·{" "}
+                          <strong className="text-stone-300">
+                            {row.contractor}
+                          </strong>
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="dcc-opp-deadline">
+                      {formatDeadline(row.reportedDeadline)}
+                    </span>
+                    {row.reportedDeadline && (
+                      <span className="dcc-opp-submeta">
+                        {row.reportedDeadline}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    {row.viewerHref ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveViewerId(isViewerOpen ? null : row.id)
+                        }
+                        className={`dcc-opp-drawing-btn ${
+                          isViewerOpen ? "is-open" : ""
+                        }`}
+                      >
+                        {isViewerOpen ? "Hide drawings" : "View drawings"}
+                      </button>
+                    ) : (
+                      <span className="dcc-badge" data-tone="slate">
+                        Drawings pending
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <span className="dcc-opp-price">
+                      {row.estimatedPrice}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className="dcc-badge"
+                      data-tone={isOverdue ? "rose" : "amber"}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}

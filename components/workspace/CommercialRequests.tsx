@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import type { Entry } from "@/lib/erp";
 import { isValidUsdAmount } from "@/lib/financial-values";
 import type { WorkspaceForm } from "./ProjectOverview";
+import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 
 const stages = ["new", "reviewing", "waiting", "quoted", "accepted", "closed"];
 const title = (value: string) => value.slice(0, 1).toUpperCase() + value.slice(1).replaceAll("_", " ");
@@ -43,6 +44,9 @@ export default function CommercialRequests({ entries, projectId, assignees, rend
         </article>;
       })}
       {rows.length === 0 && <p className="rounded-xl border border-dashed border-slate-600 p-5 text-sm text-slate-400">No accessible commercial requests match this selection.</p>}
+    </div>
+    <div className="pt-4">
+      <VerifiedOpportunitiesTable defaultLimit={42} />
     </div>
   </section>;
 }
