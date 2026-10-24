@@ -12,6 +12,7 @@ export default function TakeoffProjectReader({ source, projectName,review,privac
   const [reload, setReload] = useState(0);
   const [opened, setOpened] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [expired,setExpired]=useState(false),[ready,setReady]=useState<string|null>(null);
   const frame=useRef<HTMLIFrameElement>(null),visit=useRef<string|null>(null);
   const record=useReviewInteractions(review?.id);
@@ -37,17 +38,36 @@ export default function TakeoffProjectReader({ source, projectName,review,privac
   },[record,publish,expired]);
   useEffect(()=>{if(!ready)return;visit.current||=crypto.randomUUID();record("review.visit",{},visit.current);},[ready,record]);
   if(expired)return <section role="alert" className="rounded-xl border border-amber-200/30 p-6 text-slate-100"><h2 className="text-xl font-bold">Review access has ended</h2><p className="mt-3">The private reader has been removed. Signing in or refreshing does not renew this review.</p><a href="/account" className={button+" mt-4"}>Account and access</a></section>;
-  return <section className="min-w-0 overflow-hidden rounded-2xl border border-amber-200/20 bg-[#0b192e]" aria-label="Protected project reader">
+  return <section className="min-w-0 overflow-hidden rounded-2xl border border-amber-200/20 bg-[#0b192e] select-none" aria-label="Protected project reader" onContextMenu={e => e.preventDefault()}>
     {review&&privacyNotice&&<div className="px-4"><GuestPrivacyNotice onReady={setReady}/></div>}
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/15 p-4"><div className="min-w-0"><h2 className="font-bold text-white">Project reader</h2><p role="status" className="mt-1 text-xs leading-relaxed text-slate-400">{failed ? "The reader window could not be opened. Retry or return to the workspace." : opened ? "Reader window opened. Document loading and available content are shown inside the reader." : "Opening the private reader…"}</p></div><div className="flex flex-wrap gap-2"><button className={button} type="button" onClick={() => { if(selectedDocument)record("viewer.reload",{documentId:selectedDocument});publish(false);setOpened(false); setFailed(false); setReload(value => value + 1); }}>Reload reader</button><a className={button} href={source} onClick={()=>{if(selectedDocument)record("viewer.new_tab",{documentId:selectedDocument});}} target="_blank" rel="noopener noreferrer">Open reader in a new tab ↗</a></div></div>
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/15 p-4"><div className="min-w-0"><h2 className="font-bold text-white">Project reader · {projectName}</h2><p role="status" className="mt-1 text-xs leading-relaxed text-slate-400">{failed ? "The reader window could not be opened. Retry or return to the workspace." : opened ? "Protected canvas reader active. Pages are rendered in-browser as view-only canvas; direct file download is disabled." : "Opening the private canvas reader…"}</p></div><div className="flex flex-wrap items-center gap-2"><span className="inline-flex min-h-11 items-center rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200">View-only · Download disabled</span><button className={button} type="button" onClick={() => setExpanded(v => !v)}>{expanded ? "Standard height" : "Expand reader"}</button><button className={button} type="button" onClick={() => { if(selectedDocument)record("viewer.reload",{documentId:selectedDocument});publish(false);setOpened(false); setFailed(false); setReload(value => value + 1); }}>Reload reader</button></div></div>
     {failed && <div role="alert" className="m-4 rounded-xl border border-amber-200/25 bg-amber-200/5 p-5 text-sm leading-relaxed text-slate-200">The private reader is unavailable or your document access changed. Reload the reader to try again, or return to the workspace. No alternative public document link is used.</div>}
-    <iframe ref={frame} key={reload} title={projectName + " · approved project plans"} src={source} loading="eager" referrerPolicy="same-origin" className={(failed ? "hidden" : "block") + " h-[78svh] min-h-[32rem] w-full border-0 bg-[#0b192e] sm:h-[82svh]"} onLoad={event => {
-      try {
-        const document = event.currentTarget.contentDocument;
-        const isReader = document?.contentType === "text/html" && Boolean(document.querySelector("#mainContent"));
-        setOpened(isReader); setFailed(!isReader);publish(isReader);
-      } catch { setOpened(false); setFailed(true); }
-    }} onError={() => { setFailed(true); setOpened(false); }} />
-    <p className="border-t border-amber-200/15 px-4 py-3 text-xs leading-relaxed text-slate-400">Read-only access. Each document request is authorized separately. Source availability, OCR, calibration and quantities are reported by the reader; opening this window does not certify that processing is complete.</p>
+    <div className="relative">
+      <iframe ref={frame} key={reload} title={projectName + " · approved project plans"} src={source} loading="eager" referrerPolicy="same-origin" className={(failed ? "hidden" : "block") + (expanded ? " h-[92svh] min-h-[44rem]" : " h-[78svh] min-h-[32rem] sm:h-[82svh]") + " w-full border-0 bg-[#0b192e]"} onLoad={event => {
+        try {
+          const document = event.currentTarget.contentDocument;
+          const isReader = document?.contentType === "text/html" && Boolean(document.querySelector("#mainContent"));
+          if (document?.head && !document.querySelector("#tayco-no-dl")) {
+            const style = document.createElement("style");
+            style.id = "tayco-no-dl";
+            style.textContent = '.actions a.button.primary,a[href*="/assets/"],#openPdfLink{display:none!important;pointer-events:none!important}';
+            document.head.appendChild(style);
+          }
+          for (const el of document?.querySelectorAll('.actions a.button.primary,a[href*="/assets/"],#openPdfLink') ?? []) {
+            el.removeAttribute("href");
+            (el as HTMLElement).style.display = "none";
+          }
+          setOpened(isReader); setFailed(!isReader);publish(isReader);
+        } catch { setOpened(false); setFailed(true); }
+      }} onError={() => { setFailed(true); setOpened(false); }} />
+      {opened && !failed && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+          <span className="-rotate-12 select-none text-center text-lg font-bold tracking-[0.28em] text-slate-500/15 sm:text-2xl">
+            TAYCO PROTECTED 3-HOUR REVIEW · VIEW ONLY · NO DOWNLOAD
+          </span>
+        </div>
+      )}
+    </div>
+    <p className="border-t border-amber-200/15 px-4 py-3 text-xs leading-relaxed text-slate-400">Read-only canvas access (3-hour session). Direct PDF download and external saving are disabled; each page inspection is logged in the administrator audit database.</p>
   </section>;
 }
