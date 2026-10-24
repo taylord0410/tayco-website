@@ -1,12 +1,20 @@
 "use client";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const SURFACE_SELECTOR =
-  '[data-response-kind="surface"], .tayco-living-card, [data-living-card]';
+  '[data-response-kind="surface"], .tayco-living-card, [data-living-card], [data-tilt]';
 const MAGNETIC_SELECTOR = "[data-magnetic]";
 
 export default function EditorialLivingEngine() {
+  const pathname = usePathname();
+  const isExcludedRoute = Boolean(
+    pathname && (pathname.startsWith("/portal") || pathname.startsWith("/account"))
+  );
+
   useEffect(() => {
+    if (isExcludedRoute) return;
+
     const controller = new AbortController();
     const { signal } = controller;
 
@@ -32,8 +40,16 @@ export default function EditorialLivingEngine() {
     let rafId = 0;
     let pointerX = 0;
     let pointerY = 0;
+    let pendingPointerX = 0;
+    let pendingPointerY = 0;
+    let pendingTarget: Element | null = null;
+    let hasPendingPointer = false;
+
     let hoveredSurface: HTMLElement | null = null;
     let hoveredMagnetic: HTMLElement | null = null;
+
+    let surfaceRect: { left: number; top: number; width: number; height: number } | null = null;
+    let magneticRect: { left: number; top: number; width: number; height: number } | null = null;
 
     const ensureWashLayer = (surface: HTMLElement) => {
       let wash = surface.querySelector<HTMLElement>(":scope > .response-wash");
@@ -48,19 +64,75 @@ export default function EditorialLivingEngine() {
 
     const resetSurface = (el: HTMLElement | null) => {
       if (!el) return;
+      // Re-enable smooth transition for return to neutral position
+      el.style.transition =
+        "transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s, border-color 0.35s";
       el.style.setProperty("--response-rx", "0deg");
       el.style.setProperty("--response-ry", "0deg");
       delete el.dataset.responseHover;
+      surfaceRect = null;
     };
 
     const resetMagnetic = (el: HTMLElement | null) => {
       if (!el) return;
+      el.style.transition =
+        "translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s, border-color 0.3s";
       el.style.setProperty("--mag-x", "0px");
       el.style.setProperty("--mag-y", "0px");
+      delete el.dataset.magneticActive;
+      magneticRect = null;
+    };
+
+    const invalidateRects = () => {
+      surfaceRect = null;
+      magneticRect = null;
     };
 
     const updateFrame = () => {
       rafId = 0;
+      if (document.hidden || document.visibilityState === "hidden") return;
+
+      if (hasPendingPointer) {
+        pointerX = pendingPointerX;
+        pointerY = pendingPointerY;
+        const target = pendingTarget;
+        hasPendingPointer = false;
+
+        // Operational records and forms keep fixed hit targets.
+        const nextSurface = target && !target.closest(".workspace-shell")
+          ? target.closest<HTMLElement>(SURFACE_SELECTOR)
+          : null;
+        const nextMagnetic = target
+          ? target.closest<HTMLElement>(MAGNETIC_SELECTOR)
+          : null;
+
+        if (nextSurface !== hoveredSurface) {
+          resetSurface(hoveredSurface);
+          hoveredSurface = nextSurface;
+          surfaceRect = null;
+          if (hoveredSurface && !paused) {
+            hoveredSurface.dataset.responseHover = "true";
+            // Disable transform transition while tracking to avoid fighting JS updates
+            hoveredSurface.style.transition = "box-shadow 0.35s, border-color 0.35s";
+            ensureWashLayer(hoveredSurface);
+            const r = hoveredSurface.getBoundingClientRect();
+            surfaceRect = { left: r.left, top: r.top, width: r.width, height: r.height };
+          }
+        }
+
+        if (nextMagnetic !== hoveredMagnetic) {
+          resetMagnetic(hoveredMagnetic);
+          hoveredMagnetic = nextMagnetic;
+          magneticRect = null;
+          if (hoveredMagnetic && !paused) {
+            hoveredMagnetic.dataset.magneticActive = "true";
+            hoveredMagnetic.style.transition = "box-shadow 0.3s, border-color 0.3s";
+            const r = hoveredMagnetic.getBoundingClientRect();
+            magneticRect = { left: r.left, top: r.top, width: r.width, height: r.height };
+          }
+        }
+      }
+
       const field = document.querySelector<HTMLElement>("[data-atmosphere-field]");
       const thread = document.querySelector<HTMLElement>("[data-reading-thread]");
 
@@ -74,7 +146,7 @@ export default function EditorialLivingEngine() {
         thread.style.setProperty("--reading-progress", progress.toFixed(4));
       }
 
-      if (paused || document.hidden) {
+      if (paused) {
         if (field) {
           field.style.setProperty("--pointer-x", "0%");
           field.style.setProperty("--pointer-y", "0%");
@@ -93,15 +165,17 @@ export default function EditorialLivingEngine() {
       }
 
       if (hoveredSurface) {
-        ensureWashLayer(hoveredSurface);
-        const rect = hoveredSurface.getBoundingClientRect();
+        if (!surfaceRect) {
+          const r = hoveredSurface.getBoundingClientRect();
+          surfaceRect = { left: r.left, top: r.top, width: r.width, height: r.height };
+        }
         const relX = Math.max(
           -0.5,
-          Math.min(0.5, (pointerX - rect.left) / Math.max(1, rect.width) - 0.5)
+          Math.min(0.5, (pointerX - surfaceRect.left) / Math.max(1, surfaceRect.width) - 0.5)
         );
         const relY = Math.max(
           -0.5,
-          Math.min(0.5, (pointerY - rect.top) / Math.max(1, rect.height) - 0.5)
+          Math.min(0.5, (pointerY - surfaceRect.top) / Math.max(1, surfaceRect.height) - 0.5)
         );
         const px = (relX * 100 + 50).toFixed(1) + "%";
         const py = (relY * 100 + 50).toFixed(1) + "%";
@@ -115,14 +189,17 @@ export default function EditorialLivingEngine() {
       }
 
       if (hoveredMagnetic) {
-        const rect = hoveredMagnetic.getBoundingClientRect();
+        if (!magneticRect) {
+          const r = hoveredMagnetic.getBoundingClientRect();
+          magneticRect = { left: r.left, top: r.top, width: r.width, height: r.height };
+        }
         const relX = Math.max(
           -0.5,
-          Math.min(0.5, (pointerX - rect.left) / Math.max(1, rect.width) - 0.5)
+          Math.min(0.5, (pointerX - magneticRect.left) / Math.max(1, magneticRect.width) - 0.5)
         );
         const relY = Math.max(
           -0.5,
-          Math.min(0.5, (pointerY - rect.top) / Math.max(1, rect.height) - 0.5)
+          Math.min(0.5, (pointerY - magneticRect.top) / Math.max(1, magneticRect.height) - 0.5)
         );
         hoveredMagnetic.style.setProperty("--mag-x", `${(relX * 7).toFixed(2)}px`);
         hoveredMagnetic.style.setProperty("--mag-y", `${(relY * 7).toFixed(2)}px`);
@@ -130,54 +207,49 @@ export default function EditorialLivingEngine() {
     };
 
     const scheduleFrame = () => {
-      if (!rafId && !document.hidden) {
+      if (!rafId && !document.hidden && document.visibilityState !== "hidden") {
         rafId = window.requestAnimationFrame(updateFrame);
       }
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (paused || document.hidden || e.pointerType === "touch") return;
-      pointerX = e.clientX;
-      pointerY = e.clientY;
-
-      const target = e.target instanceof Element ? e.target : null;
-      // Operational records and forms keep fixed hit targets. Their CSS hover/focus
-      // feedback must not tilt panels or append unmanaged nodes into React's tree.
-      const nextSurface = target && !target.closest('.workspace-shell')
-        ? target.closest<HTMLElement>(SURFACE_SELECTOR)
-        : null;
-      const nextMagnetic = target
-        ? target.closest<HTMLElement>(MAGNETIC_SELECTOR)
-        : null;
-
-      if (nextSurface !== hoveredSurface) {
-        resetSurface(hoveredSurface);
-        hoveredSurface = nextSurface;
-        if (hoveredSurface && !paused) {
-          hoveredSurface.dataset.responseHover = "true";
-          ensureWashLayer(hoveredSurface);
-        }
+      if (
+        paused ||
+        document.hidden ||
+        document.visibilityState === "hidden" ||
+        e.pointerType === "touch"
+      ) {
+        return;
       }
-
-      if (nextMagnetic !== hoveredMagnetic) {
-        resetMagnetic(hoveredMagnetic);
-        hoveredMagnetic = nextMagnetic;
-      }
-
+      pendingPointerX = e.clientX;
+      pendingPointerY = e.clientY;
+      pendingTarget = e.target instanceof Element ? e.target : null;
+      hasPendingPointer = true;
       scheduleFrame();
     };
 
     const handlePointerDown = (e: PointerEvent) => {
-      if (paused || document.hidden || e.button !== 0) return;
+      if (
+        paused ||
+        document.hidden ||
+        document.visibilityState === "hidden" ||
+        e.button !== 0
+      ) {
+        return;
+      }
       const target = e.target instanceof Element ? e.target : null;
       if (!target) return;
-      if (target.closest('.workspace-shell')) return;
+      if (target.closest(".workspace-shell")) return;
 
       const surface = target.closest<HTMLElement>(SURFACE_SELECTOR);
       if (!surface) return;
 
       const wash = ensureWashLayer(surface);
-      const rect = surface.getBoundingClientRect();
+      if (!surfaceRect || hoveredSurface !== surface) {
+        const r = surface.getBoundingClientRect();
+        surfaceRect = { left: r.left, top: r.top, width: r.width, height: r.height };
+      }
+      const rect = surfaceRect;
       const px = Math.max(
         0,
         Math.min(100, ((e.clientX - rect.left) / Math.max(1, rect.width)) * 100)
@@ -213,10 +285,14 @@ export default function EditorialLivingEngine() {
     };
 
     const handlePointerLeaveDocument = () => {
+      hasPendingPointer = false;
+      pendingTarget = null;
       resetSurface(hoveredSurface);
       resetMagnetic(hoveredMagnetic);
       hoveredSurface = null;
       hoveredMagnetic = null;
+      surfaceRect = null;
+      magneticRect = null;
     };
 
     const handleToggleMotion = (e: Event) => {
@@ -247,9 +323,11 @@ export default function EditorialLivingEngine() {
       }
       scheduleFrame();
     };
+
     const handleVisibility = () => {
-      document.body.dataset.visibility = document.hidden ? "hidden" : "visible";
-      if (document.hidden) {
+      const isHidden = document.hidden || document.visibilityState === "hidden";
+      document.body.dataset.visibility = isHidden ? "hidden" : "visible";
+      if (isHidden) {
         if (rafId) window.cancelAnimationFrame(rafId);
         rafId = 0;
         handlePointerLeaveDocument();
@@ -257,12 +335,19 @@ export default function EditorialLivingEngine() {
         scheduleFrame();
       }
     };
-    document.body.dataset.visibility = document.hidden ? "hidden" : "visible";
+
+    const handleScrollOrResize = () => {
+      invalidateRects();
+      scheduleFrame();
+    };
+
+    document.body.dataset.visibility =
+      document.hidden || document.visibilityState === "hidden" ? "hidden" : "visible";
     motionPreference.addEventListener("change", handleSystemMotion);
     document.addEventListener("visibilitychange", handleVisibility, { signal });
 
-    window.addEventListener("scroll", scheduleFrame, { signal, passive: true });
-    window.addEventListener("resize", scheduleFrame, { signal, passive: true });
+    window.addEventListener("scroll", handleScrollOrResize, { signal, passive: true });
+    window.addEventListener("resize", handleScrollOrResize, { signal, passive: true });
     document.addEventListener("pointermove", handlePointerMove, {
       signal,
       passive: true,
@@ -286,7 +371,11 @@ export default function EditorialLivingEngine() {
       resetSurface(hoveredSurface);
       resetMagnetic(hoveredMagnetic);
     };
-  }, []);
+  }, [isExcludedRoute]);
+
+  if (isExcludedRoute) {
+    return null;
+  }
 
   return (
     <>

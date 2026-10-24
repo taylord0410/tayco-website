@@ -67,25 +67,44 @@ body {
     calc(var(--pointer-y, 0%) + var(--scroll-drift, 0%)),
     0
   );
-  transition: transform 0.25s ease-out;
+  will-change: transform;
+}
+
+.living-orb,
+.ambient-lobe {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.living-orb {
+  background: radial-gradient(
+    circle,
+    rgba(201, 168, 76, 0.32) 0%,
+    rgba(201, 168, 76, 0.16) 35%,
+    rgba(27, 58, 107, 0.1) 58%,
+    transparent 72%
+  );
+  filter: blur(20px);
 }
 
 .ambient-lobe {
-  position: absolute;
   width: 110vmax;
   height: 90vmax;
   max-width: 960px;
   max-height: 760px;
-  border-radius: 50%;
-  pointer-events: none;
 }
+
 
 .ambient-lobe.a {
   --haze: rgba(201, 168, 76, 0.28);
   top: -28%;
   right: -25%;
-  background: radial-gradient(ellipse, var(--haze) 0%, transparent 63%);
+  background: radial-gradient(ellipse, var(--haze) 0%, rgba(201, 168, 76, 0.12) 36%, transparent 63%);
   opacity: 0.55;
+  filter: blur(20px);
   animation: ambient-breathe 19s ease-in-out infinite alternate;
 }
 
@@ -93,8 +112,9 @@ body {
   --haze-secondary: rgba(27, 58, 107, 0.45);
   bottom: -75%;
   left: -30%;
-  background: radial-gradient(ellipse, var(--haze-secondary) 0%, transparent 66%);
+  background: radial-gradient(ellipse, var(--haze-secondary) 0%, rgba(27, 58, 107, 0.2) 38%, transparent 66%);
   opacity: 0.65;
+  filter: blur(20px);
   animation: ambient-tide 27s ease-in-out infinite alternate;
 }
 
@@ -170,7 +190,8 @@ body {
    ============================================================================ */
 
 [data-response-kind="surface"],
-.tayco-bento-card {
+.tayco-bento-card,
+[data-tilt] {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -187,10 +208,20 @@ body {
     border-color 0.35s;
 }
 
+
+
+/* Remove transform transition collision while actively tracking or hovering with tilt */
 [data-response-kind="surface"]:hover,
-.tayco-bento-card:hover {
-  box-shadow: 0 24px 52px -24px rgba(8, 18, 31, 0.55);
-  border-color: rgba(201, 168, 76, 0.58);
+.tayco-bento-card:hover,
+[data-tilt]:hover,
+[data-response-kind="surface"][data-response-hover="true"],
+.tayco-bento-card[data-response-hover="true"],
+[data-tilt][data-response-hover="true"] {
+  transition: box-shadow 0.35s, border-color 0.35s;
+}
+
+[data-magnetic][data-magnetic-active="true"] {
+  transition: box-shadow 0.3s, border-color 0.3s;
 }
 
 .response-wash {
@@ -228,6 +259,25 @@ body {
   }
 }
 
+@keyframes shineSweep {
+  to {
+    --shine: 360deg;
+  }
+}
+
+.shine-sweep,
+[data-shine] {
+  animation: shineSweep 12s linear infinite;
+  animation-play-state: paused;
+}
+
+.shine-sweep:hover,
+.shine-sweep:focus-visible,
+[data-shine]:hover,
+[data-shine]:focus-visible {
+  animation-play-state: running;
+}
+
 [data-response-kind="surface"]::after,
 .tayco-bento-card::after {
   content: "";
@@ -256,7 +306,9 @@ body {
 }
 
 [data-response-kind="surface"]:hover::after,
-.tayco-bento-card:hover::after {
+[data-response-kind="surface"]:focus-visible::after,
+.tayco-bento-card:hover::after,
+.tayco-bento-card:focus-visible::after {
   opacity: 1;
   animation-play-state: running;
 }
@@ -559,10 +611,14 @@ body {
    6. BACKWARD-COMPATIBLE CLASSES & PAUSED MOTION OVERRIDES
    ============================================================================ */
 
-[data-surface-mode="crystal"] {
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  background: rgba(15, 32, 64, 0.76);
+[data-surface-mode="crystal"],
+.editorial-glass,
+.living-card,
+.tayco-living-card,
+.metric-pill {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(15, 32, 64, 0.94);
 }
 
 [data-surface-mode="mineral"] {
@@ -683,7 +739,9 @@ html {
   inset: 0 0 auto;
   z-index: 50;
   color: #f1f5f9;
-  background: rgba(15, 32, 64, 0.97);
+  background: rgba(15, 32, 64, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(201, 168, 76, 0.34);
   box-shadow: 0 8px 32px rgba(7, 14, 26, 0.24);
 }

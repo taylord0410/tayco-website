@@ -266,20 +266,36 @@ export default function Home() {
       <div
         className="relative flex-1 flex flex-col md:flex-row overflow-hidden"
         style={{ minHeight: "76svh" }}
+        onPointerMove={(e) => {
+          if (typeof window !== "undefined" && window.innerWidth >= 768) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            if (rect.width > 0) {
+              const ratio = (e.clientX - rect.left) / rect.width;
+              // Pointer hysteresis deadband around center to prevent layout oscillation
+              if (ratio < 0.46) {
+                if (hovered !== "commercial") setHovered("commercial");
+              } else if (ratio > 0.54) {
+                if (hovered !== "residential") setHovered("residential");
+              }
+            }
+          }
+        }}
+        onPointerLeave={() => setHovered(null)}
       >
         {/* ── COMMERCIAL (LEFT / TOP) ── */}
         <Link
           href="/commercial"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12"
+          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 min-w-0"
           style={{
             flex: commercialFlex,
             background:
               "linear-gradient(145deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)",
-            transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1)",
+            transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
             minHeight: "50%",
+            willChange: "flex",
           }}
-          onMouseEnter={() => setHovered("commercial")}
-          onMouseLeave={() => setHovered(null)}
+          onFocus={() => setHovered("commercial")}
+          onBlur={() => setHovered(null)}
         >
           <div className="preview-orbits" aria-hidden="true">
             <i />
@@ -305,7 +321,7 @@ export default function Home() {
             style={{ background: "#C9A84C" }}
           />
 
-          <div className="relative z-10 text-center px-6 sm:px-12 max-w-md">
+          <div className="relative z-10 text-center px-6 sm:px-12 w-full max-w-md shrink-0">
             <div
               className="tayco-eyebrow mb-4 mx-auto justify-center"
               style={{ color: "#F3D37A" }}
@@ -399,16 +415,17 @@ export default function Home() {
         {/* ── RESIDENTIAL (RIGHT / BOTTOM) ── */}
         <Link
           href="/residential"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12"
+          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 min-w-0"
           style={{
             flex: residentialFlex,
             background:
               "linear-gradient(145deg, #0F2040 0%, #1B3A6B 60%, #234B88 100%)",
-            transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1)",
+            transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
             minHeight: "50%",
+            willChange: "flex",
           }}
-          onMouseEnter={() => setHovered("residential")}
-          onMouseLeave={() => setHovered(null)}
+          onFocus={() => setHovered("residential")}
+          onBlur={() => setHovered(null)}
         >
           <div className="preview-orbits" aria-hidden="true">
             <i />
@@ -420,7 +437,7 @@ export default function Home() {
             className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5"
             style={{ background: "#F97316" }}
           />
-          <div className="relative z-10 text-center px-6 sm:px-12 max-w-md">
+          <div className="relative z-10 text-center px-6 sm:px-12 w-full max-w-md shrink-0">
             <div
               className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] mb-4"
               style={{
