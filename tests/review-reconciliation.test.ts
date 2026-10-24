@@ -75,7 +75,7 @@ test("peer shell link suppression is idempotent and preserves source text and ca
   assert.equal(injectViewerReviewBridge(rewritten),rewritten);
 });
 
-for (const size of [23,33,34]) {
+for (const size of [23,33,34,42,43]) {
   test("actual console keeps exactly the supplied "+size+" rows without static batch enrichment",async()=>{
     const {default:Console}=await load();
     const rows=Array.from({length:size},(_,i)=>{
