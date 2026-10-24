@@ -1,3 +1,4 @@
+import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -26,7 +27,7 @@ test('guest reporting period validates detail and UTC boundaries', () => {
 
 test('guest console uses whitelisted current-period projections and fails closed', async t => {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-guest-workspace-'));
-  const names = ['TAYCO_ERP_DB_PATH', 'TAYCO_TAKEOFF_RELATIONS_PATH', 'TAYCO_TAKEOFF_MAPPING_PATH'];
+  const names = ['TAYCO_ERP_DB_PATH', 'TAYCO_TAKEOFF_RELATIONS_PATH', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_MANIFEST_PATH'];
   const old = Object.fromEntries(names.map(name => [name, process.env[name]]));
   process.env.TAYCO_ERP_DB_PATH = path.join(folder, 'erp.sqlite');
   process.env.TAYCO_TAKEOFF_RELATIONS_PATH = path.join(folder, 'missing-relations.json');
@@ -136,7 +137,8 @@ test('guest console uses whitelisted current-period projections and fails closed
         contexts: [{ contextKey: 'context-one', displayName: 'Imported project', identityStatus: 'resolved', documentIds: ['viewer-one'] }],
         documents: [{ documentId: 'viewer-one', contextKeys: ['context-one'], assetIds: ['asset-one'], kind: 'drawing_pdf' }],
         assets: [{ assetId: 'asset-one', documentIds: ['viewer-one'] }] };
-      const bytes = JSON.stringify(relations);
+      const cohort = syntheticViewerCohort(folder,relations); process.env.TAYCO_TAKEOFF_MANIFEST_PATH=cohort.manifestPath;
+      const bytes = cohort.rawRelations;
       process.env.TAYCO_TAKEOFF_RELATIONS_PATH = path.join(folder, 'relations.json');
       process.env.TAYCO_TAKEOFF_MAPPING_PATH = path.join(folder, 'mapping.json');
       writeFileSync(process.env.TAYCO_TAKEOFF_RELATIONS_PATH, bytes);
@@ -144,7 +146,7 @@ test('guest console uses whitelisted current-period projections and fails closed
         mappings: [{ tenantId: guest.tenantId, projectId: 'unknown-import', contextKey: 'context-one', documents: [{ viewerDocumentId: 'viewer-one', erpDocumentId: 'viewer-doc' }] }],
         guestReviews: [{ tenantId: guest.tenantId, guestId: guest.id, projectId: 'unknown-import', period: '2026-10', viewerDocumentIds: ['viewer-one'] }] };
       writeFileSync(process.env.TAYCO_TAKEOFF_MAPPING_PATH, JSON.stringify(config));
-      doc('viewer-doc', 'unknown-import', { storage: 'takeoff_viewer', viewerDocumentId: 'viewer-one', blobPath: null });
+      doc('viewer-doc', 'unknown-import', { ...cohort.delivery('viewer-one'), blobPath: null });
       const data = guestConsoleSnapshot(guest, { now });
       assert.ok(data.projects.some(p => p.id === 'unknown-import'));
       assert.equal(data.documents.find(d => d.id === 'viewer-doc')?.viewerHref, '/portal/takeoff/unknown-import');

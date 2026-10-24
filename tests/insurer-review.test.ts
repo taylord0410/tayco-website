@@ -1,3 +1,4 @@
+import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,randomUUID} from 'node:crypto';
@@ -33,13 +34,14 @@ async function makeFixture(){
  const folder=mkdtempSync(path.join(tmpdir(),'tayco-recipient-')),old={...process.env},period=new Date().toISOString().slice(0,7);
  const env={TAYCO_AUTH_DB_PATH:path.join(folder,'auth.sqlite'),TAYCO_ERP_DB_PATH:path.join(folder,'erp.sqlite'),TAYCO_SESSION_SECRET:'synthetic-recipient-secret-'.repeat(3),
  TAYCO_TAKEOFF_MAPPING_PATH:path.join(folder,'mapping.json'),TAYCO_TAKEOFF_RELATIONS_PATH:path.join(folder,'relations.json'),TAYCO_TAKEOFF_VIEWER_INTERNAL_URL:'http://127.0.0.1:9998',TAYCO_APP_URL:'https://tayco.test',
- TAYCO_PROFILE_A_REVIEW_SOURCE:path.join(folder,'source.json'),TAYCO_INSURER_REVIEW_POLICY:path.join(folder,'recipient.json')};Object.assign(process.env,env);
+ TAYCO_TAKEOFF_MANIFEST_PATH:path.join(folder,'manifest.json'),TAYCO_PROFILE_A_REVIEW_SOURCE:path.join(folder,'source.json'),TAYCO_INSURER_REVIEW_POLICY:path.join(folder,'recipient.json')};Object.assign(process.env,env);
  await provisionAdmin('admin@example.test',password);const admin=(await signIn('admin@example.test',password)).actor;
  const docSha=hash('synthetic approved drawing'),relations={schemaVersion:'takeoff-viewer-relations/v1',bundleId:'fixture-recipient-bundle',relationsId:'relations-'+'a'.repeat(64),manifestSha256:'b'.repeat(64),
  contexts:[{contextKey:'ctx-a',displayName:'Private context canary',identityStatus:'resolved',documentIds:['viewer-one','viewer-private']}],
  documents:[{documentId:'viewer-one',contextKeys:['ctx-a'],assetIds:['asset-one','shared-asset'],kind:'drawing_pdf'},{documentId:'viewer-private',contextKeys:['ctx-a'],assetIds:['asset-private','shared-asset'],kind:'drawing_pdf'}],
  assets:[{assetId:'asset-one',documentIds:['viewer-one']},{assetId:'asset-private',documentIds:['viewer-private']},{assetId:'shared-asset',documentIds:['viewer-one','viewer-private']}]};
- const relBytes=JSON.stringify(relations);writeFileSync(env.TAYCO_TAKEOFF_RELATIONS_PATH,relBytes);
+ const cohort=syntheticViewerCohort(folder,relations,{'viewer-one':docSha,'viewer-private':hash('private')});
+ const relBytes=cohort.rawRelations;writeFileSync(env.TAYCO_TAKEOFF_RELATIONS_PATH,relBytes);
  const mapping={schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:relations.bundleId,relationsSha256:hash(relBytes),mappings:[{tenantId:admin.tenantId,projectId:'project-one',contextKey:'ctx-a',documents:[{viewerDocumentId:'viewer-one',erpDocumentId:'erp-one'},{viewerDocumentId:'viewer-private',erpDocumentId:'erp-private'}]}],guestReviews:[] as unknown[]};writeFileSync(env.TAYCO_TAKEOFF_MAPPING_PATH,JSON.stringify(mapping));
  const source={schemaVersion:'tayco-profile-a-review/v1',tenantId:admin.tenantId,period,rows:[
  {id:'reported-one',name:'Synthetic approved opportunity',location:'Fixture City',contractor:null,section:'dated',reportedDeadline:period+'-09',documents:[{name:'Approved drawing.pdf',state:'received',sha256:docSha}]},
@@ -49,7 +51,7 @@ async function makeFixture(){
  opportunityIds:['reported-one'],documents:[{projectId:'project-one',erpDocumentId:'erp-one',viewerDocumentId:'viewer-one',contextKey:'ctx-a',sourceSha256:docSha,assetIds:['asset-one','shared-asset']}]};
  const pin=hash(JSON.stringify(policy));writeFileSync(env.TAYCO_INSURER_REVIEW_POLICY,JSON.stringify(policy));
  const put=(id:string,kind:string,project:string,data:Record<string,unknown>)=>database().prepare('INSERT INTO records VALUES(?,?,?,?,?,?,1,?,?)').run(id,kind,admin.tenantId,project,admin.id,JSON.stringify(data),new Date().toISOString(),new Date().toISOString());
- const approved={name:'Private ERP label',type:'project',storage:'takeoff_viewer',viewerDocumentId:'viewer-one',contextKey:'ctx-a',sourceSha256:docSha,bundleId:relations.bundleId,manifestSha256:relations.manifestSha256,relationsId:relations.relationsId,amountUsd:89371,internalSecret:'FINANCIAL_INTERNAL_CANARY'};
+ const approved={...cohort.delivery('viewer-one'),name:'Private ERP label',type:'project',storage:'takeoff_viewer',viewerDocumentId:'viewer-one',contextKey:'ctx-a',sourceSha256:docSha,bundleId:relations.bundleId,manifestSha256:relations.manifestSha256,relationsId:relations.relationsId,amountUsd:89371,internalSecret:'FINANCIAL_INTERNAL_CANARY'};
  put('project-one','project','project-one',{name:'Private reference collection',reviewPeriod:period,status:'source_review',amountUsd:89371});put('erp-one','document','project-one',approved);
  put('erp-private','document','project-one',{...approved,name:'PRIVATE_DOCUMENT_CANARY',viewerDocumentId:'viewer-private',sourceSha256:hash('private')});
  put('erp-blob','document','project-one',{name:'PRIVATE_BLOB_CANARY',type:'project',blobPath:'private/blob-canary.pdf'});put('project-other','project','project-other',{name:'AutoZone OTHER_PROJECT_CANARY'});
@@ -177,4 +179,23 @@ test('recipient source receipt, withholding and current authorization are indepe
  assert.equal(data.rows[0].documents[0].recipientAccess,'authorization_unavailable');assert.equal(data.rows[0].documents[1].recipientAccess,'not_selected');
  const serialized=JSON.stringify(data);for(const forbidden of ['erp-one','viewer-one',f.folder,'sourceSha256',f.pin,'registered'])assert.ok(!serialized.includes(forbidden),forbidden);
  assert.equal(readFileSync(f.env.TAYCO_PROFILE_A_REVIEW_SOURCE,'utf8'),sourceBytes);
+}));
+
+
+test('recipient consumer requires current relation digest, kind and media independently of the immutable policy',async t=>fixture(async f=>{
+ const originalFetch=globalThis.fetch;let requests=0;
+ globalThis.fetch=async()=>{requests++;throw new Error('Forbidden provider call');};
+ try{
+  assert.deepEqual(viewerScope(f.actor).documentIds,['viewer-one']);
+  for(const field of ['relationsSha256','sourceKind','contentType'])for(const missing of [false,true]){
+   await t.test(field+(missing?' missing':' changed'),async()=>{
+    const changed:Record<string,unknown>={...f.approved};
+    if(missing)delete changed[field];else changed[field]=field==='relationsSha256'?'f'.repeat(64):'wrong-value';
+    f.update('erp-one',changed);
+    assert.equal((await gatewayRoute(f.req('/api/takeoff-viewer/api/v1/assets/asset-one'))).status,403);
+    assert.equal(requests,0);
+   });
+  }
+  f.update('erp-one',f.approved);assert.deepEqual(viewerScope(f.actor).documentIds,['viewer-one']);
+ }finally{globalThis.fetch=originalFetch;}
 }));

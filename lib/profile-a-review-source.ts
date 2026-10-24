@@ -1,6 +1,5 @@
 import { closeSync, fstatSync, lstatSync, openSync, readSync } from 'node:fs';
 import type { Actor } from './auth';
-import { snapshot } from './erp';
 import { viewerScope, TakeoffViewerAccessError } from './takeoff-viewer-access';
 import { assertProfileAAdministrator, buildProfileAReview, ProfileAReviewError, type ReviewDocumentLink } from './profile-a-review';
 
@@ -26,13 +25,10 @@ export function profileAReviewSource(actor: Actor) {
   const links: ReviewDocumentLink[] = [];
   try {
     const scope = viewerScope(actor);
-    const allowed = new Map(scope.documents.map(doc => [doc.id, doc]));
-    for (const entry of snapshot(actor).entries) {
-      const doc = allowed.get(String(entry.data.viewerDocumentId ?? ''));
-      if (entry.kind === 'document' && entry.tenantId === actor.tenantId && doc &&
-          entry.data.storage === 'takeoff_viewer' && typeof entry.data.sourceSha256 === 'string')
-        links.push({ sha256: entry.data.sourceSha256, contextKey: doc.contextKey, viewerDocumentId: doc.id });
-    }
+    // Use the source pins already intersected with current ERP delivery. A second
+    // snapshot could mix newly staged rows with a previously authorized scope.
+    for (const document of scope.documents)
+      links.push({ sha256: document.sourceSha256, contextKey: document.contextKey, viewerDocumentId: document.id });
   } catch (error) { if (!(error instanceof TakeoffViewerAccessError)) throw error; }
   return buildProfileAReview(actor, bytes, expectedSha256, links);
 }

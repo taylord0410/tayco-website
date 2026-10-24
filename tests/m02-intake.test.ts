@@ -14,7 +14,7 @@ import {GET} from '../app/api/measurements/route';
 
 test('M02 reception binds real sessions and existing sources without creating financial/project records',{skip:!process.env.TAYCO_M02_CONTRACT_ROOT},async t=>{
  const root=mkdtempSync(path.join(tmpdir(),'tayco-m02-reception-'));
- const keys=['TAYCO_AUTH_DB_PATH','TAYCO_ERP_DB_PATH','TAYCO_SESSION_SECRET','TAYCO_APP_URL','TAYCO_M02_INTAKE_ROOT','TAYCO_M02_BUNDLE_ROOT','TAYCO_M02_SOURCE_MANIFEST_SHA256','TAYCO_M02_ARCHIVE_ROOT','TAYCO_TAKEOFF_RELATIONS_PATH','TAYCO_TAKEOFF_MAPPING_PATH'];
+ const keys=['TAYCO_AUTH_DB_PATH','TAYCO_ERP_DB_PATH','TAYCO_SESSION_SECRET','TAYCO_APP_URL','TAYCO_M02_INTAKE_ROOT','TAYCO_M02_BUNDLE_ROOT','TAYCO_M02_SOURCE_MANIFEST_SHA256','TAYCO_M02_ARCHIVE_ROOT','TAYCO_TAKEOFF_RELATIONS_PATH','TAYCO_TAKEOFF_MAPPING_PATH','TAYCO_TAKEOFF_MANIFEST_PATH'];
  const old=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
  let fixtureDb:DatabaseSync|undefined;
  const py=(code:string,extra:string[]=[])=>{
@@ -26,7 +26,7 @@ test('M02 reception binds real sessions and existing sources without creating fi
   const packageFile=path.join(root,'producer/package.json'),original=readFileSync(packageFile);
   const source=JSON.parse(readFileSync(path.join(root,'bundle/manifest.json'),'utf8'));
   const sourceManifestSha=createHash('sha256').update(readFileSync(path.join(root,'bundle/manifest.json'))).digest('hex');
-  const delivery={...source,bundle_id:'synthetic-current-delivery'};
+  const delivery={...source,bundle_id:'synthetic-current-delivery',projects:[{key:'synthetic-context',display_name:'Synthetic source',identity_status:'resolved',document_ids:['synthetic-doc']}],documents:source.documents.map((doc:Record<string,unknown>)=>({...doc,kind:'drawing_pdf'}))};
   cpSync(path.join(root,'bundle'),path.join(root,'delivery-bundle'),{recursive:true});
   writeFileSync(path.join(root,'delivery-bundle/manifest.json'),JSON.stringify(delivery));
   const deliverySha=createHash('sha256').update(JSON.stringify(delivery)).digest('hex');
@@ -35,7 +35,7 @@ test('M02 reception binds real sessions and existing sources without creating fi
   writeFileSync(path.join(root,'relations.json'),relationsRaw);
   const mapping={schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:delivery.bundle_id,relationsSha256:relationsSha,mappings:[{tenantId:'tayco_llc',projectId:'existing-project',contextKey:'synthetic-context',documents:[{viewerDocumentId:'synthetic-doc',erpDocumentId:'existing-document'}]}],guestReviews:[]};
   writeFileSync(path.join(root,'mapping.json'),JSON.stringify(mapping));
-  Object.assign(process.env,{TAYCO_AUTH_DB_PATH:path.join(root,'auth.sqlite'),TAYCO_ERP_DB_PATH:path.join(root,'erp.sqlite'),TAYCO_SESSION_SECRET:randomBytes(48).toString('hex'),TAYCO_APP_URL:'https://tayco.test',TAYCO_M02_INTAKE_ROOT:path.join(root,'producer'),TAYCO_M02_BUNDLE_ROOT:path.join(root,'bundle'),TAYCO_M02_SOURCE_MANIFEST_SHA256:sourceManifestSha,TAYCO_M02_ARCHIVE_ROOT:path.join(root,'archive'),TAYCO_TAKEOFF_RELATIONS_PATH:path.join(root,'relations.json'),TAYCO_TAKEOFF_MAPPING_PATH:path.join(root,'mapping.json')});
+  Object.assign(process.env,{TAYCO_AUTH_DB_PATH:path.join(root,'auth.sqlite'),TAYCO_ERP_DB_PATH:path.join(root,'erp.sqlite'),TAYCO_SESSION_SECRET:randomBytes(48).toString('hex'),TAYCO_APP_URL:'https://tayco.test',TAYCO_M02_INTAKE_ROOT:path.join(root,'producer'),TAYCO_M02_BUNDLE_ROOT:path.join(root,'bundle'),TAYCO_M02_SOURCE_MANIFEST_SHA256:sourceManifestSha,TAYCO_M02_ARCHIVE_ROOT:path.join(root,'archive'),TAYCO_TAKEOFF_MANIFEST_PATH:path.join(root,'delivery-bundle/manifest.json'),TAYCO_TAKEOFF_RELATIONS_PATH:path.join(root,'relations.json'),TAYCO_TAKEOFF_MAPPING_PATH:path.join(root,'mapping.json')});
   const password='Synthetic-measurement-reception-only!';await provisionAdmin('m02-admin@example.test',password);
   const login=await signIn('m02-admin@example.test',password);
   const request=(cookie=login.cookie)=>new Request('https://tayco.test/api/measurements?projectId=existing-project',{headers:{cookie:SESSION_COOKIE+'='+encodeURIComponent(cookie)}});

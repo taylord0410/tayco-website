@@ -1,3 +1,4 @@
+import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import { reviewAuditReport } from '../lib/review-audit';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -31,7 +32,7 @@ function protectedHeaders(response: Response) {
 }
 async function fixture(run: (value: Fixture) => Promise<void>) {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-viewer-gateway-'));
-  const keys = ['TAYCO_AUTH_DB_PATH', 'TAYCO_ERP_DB_PATH', 'TAYCO_SESSION_SECRET', 'TAYCO_TAKEOFF_RELATIONS_PATH', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_VIEWER_INTERNAL_URL'] as const;
+  const keys = ['TAYCO_AUTH_DB_PATH', 'TAYCO_ERP_DB_PATH', 'TAYCO_SESSION_SECRET', 'TAYCO_TAKEOFF_RELATIONS_PATH', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_VIEWER_INTERNAL_URL', 'TAYCO_TAKEOFF_MANIFEST_PATH'] as const;
   const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   process.env.TAYCO_AUTH_DB_PATH = path.join(folder, 'auth.sqlite'); process.env.TAYCO_ERP_DB_PATH = path.join(folder, 'erp.sqlite'); process.env.TAYCO_SESSION_SECRET = 'fixture-only-secret-'.repeat(4);
   const adminId = await provisionAdmin('fixture-admin@example.test', 'Isolated-viewer-password-2026!');
@@ -43,7 +44,12 @@ async function fixture(run: (value: Fixture) => Promise<void>) {
     contexts: [{ contextKey: 'ctx-a', displayName: 'Fixture project', identityStatus: 'resolved', documentIds: ['doc-a', 'doc-b', 'doc-private'] }, { contextKey: 'ctx-secret', displayName: 'SECRET PROJECT', identityStatus: 'resolved', documentIds: ['doc-secret'] }],
     documents: [{ documentId: 'doc-b', contextKeys: ['ctx-a'], assetIds: ['asset-other-allowed'], kind: 'drawing_pdf' }, { documentId: 'doc-a', contextKeys: ['ctx-a'], assetIds: ['asset-shared'], kind: 'drawing_pdf' }, { documentId: 'doc-private', contextKeys: ['ctx-a'], assetIds: ['asset-shared'], kind: 'drawing_pdf' }, { documentId: 'doc-secret', contextKeys: ['ctx-secret'], assetIds: ['asset-secret'], kind: 'drawing_pdf' }],
     assets: [{ assetId: 'asset-other-allowed', documentIds: ['doc-b'] }, { assetId: 'asset-shared', documentIds: ['doc-a', 'doc-private'] }, { assetId: 'asset-secret', documentIds: ['doc-secret'] }] };
-  const raw = JSON.stringify(relations);
+  const cohort = syntheticViewerCohort(folder, relations);
+  process.env.TAYCO_TAKEOFF_MANIFEST_PATH = cohort.manifestPath;
+  for (const [entry, viewerId] of [[document, 'doc-a'], [secondDocument, 'doc-b']] as const) {
+    database().prepare('UPDATE records SET payload=? WHERE id=?').run(JSON.stringify({...entry.data,...cohort.delivery(viewerId)}),entry.id);
+  }
+  const raw = cohort.rawRelations;
   process.env.TAYCO_TAKEOFF_RELATIONS_PATH = path.join(folder, 'relations.json'); writeFileSync(process.env.TAYCO_TAKEOFF_RELATIONS_PATH, raw);
   process.env.TAYCO_TAKEOFF_MAPPING_PATH = path.join(folder, 'mapping.json'); writeFileSync(process.env.TAYCO_TAKEOFF_MAPPING_PATH, JSON.stringify({ schemaVersion: 'tayco-takeoff-viewer-access/v1', bundleId: relations.bundleId, relationsSha256: createHash('sha256').update(raw).digest('hex'), mappings: [{ tenantId: actor.tenantId, projectId: project.id, contextKey: 'ctx-a', documents: [{ viewerDocumentId: 'doc-a', erpDocumentId: document.id }, { viewerDocumentId: 'doc-b', erpDocumentId: secondDocument.id }] }] }));
   const seen: Fixture['seen'] = [], state:Fixture['state'] = { mode: 'ok' as Mode, pdfDone: false };

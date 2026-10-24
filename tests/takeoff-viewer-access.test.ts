@@ -1,3 +1,4 @@
+import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -63,10 +64,13 @@ function createFixture() {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-takeoff-access-'));
   const erpFile = path.join(folder, 'erp.sqlite'), authFile = path.join(folder, 'auth.sqlite');
   const relationsFile = path.join(folder, 'relations.json'), mappingFile = path.join(folder, 'mapping.json');
-  const previous = { erp: process.env.TAYCO_ERP_DB_PATH, auth: process.env.TAYCO_AUTH_DB_PATH, relations: process.env.TAYCO_TAKEOFF_RELATIONS_PATH, mapping: process.env.TAYCO_TAKEOFF_MAPPING_PATH };
+  const previous = { erp: process.env.TAYCO_ERP_DB_PATH, auth: process.env.TAYCO_AUTH_DB_PATH, relations: process.env.TAYCO_TAKEOFF_RELATIONS_PATH, mapping: process.env.TAYCO_TAKEOFF_MAPPING_PATH, manifest: process.env.TAYCO_TAKEOFF_MANIFEST_PATH };
   process.env.TAYCO_ERP_DB_PATH = erpFile; process.env.TAYCO_AUTH_DB_PATH = authFile;
   process.env.TAYCO_TAKEOFF_RELATIONS_PATH = relationsFile; process.env.TAYCO_TAKEOFF_MAPPING_PATH = mappingFile;
   const relations = relationsFixture();
+  const cohort = syntheticViewerCohort(folder, relations);
+  process.env.TAYCO_TAKEOFF_MANIFEST_PATH = cohort.manifestPath;
+  const deliveryByERP = new Map(mappingFixture().mappings.flatMap(mapping => mapping.documents.map(doc => [doc.erpDocumentId, cohort.delivery(doc.viewerDocumentId)] as const)));
   const publish = (value: unknown = relations, mapping: unknown = mappingFixture()) => {
     const bytes = JSON.stringify(value) + '\n';
     writeFileSync(relationsFile, bytes);
@@ -76,9 +80,9 @@ function createFixture() {
   publish();
   const put = (id: string, kind: 'project' | 'document', tenant: string, project: string, owner: string, data: Record<string, unknown> = {}) => {
     const at = '2026-10-23T00:00:00.000Z';
-    database().prepare('INSERT INTO records VALUES(?,?,?,?,?,?,1,?,?)').run(id, kind, tenant, project, owner, JSON.stringify(data), at, at);
+    database().prepare('INSERT INTO records VALUES(?,?,?,?,?,?,1,?,?)').run(id, kind, tenant, project, owner, JSON.stringify({ ...deliveryByERP.get(id), ...data }), at, at);
   };
-  const data = (id: string, next: Record<string, unknown>) => database().prepare('UPDATE records SET payload=? WHERE id=?').run(JSON.stringify(next), id);
+  const data = (id: string, next: Record<string, unknown>) => database().prepare('UPDATE records SET payload=? WHERE id=?').run(JSON.stringify({ ...deliveryByERP.get(id), ...next }), id);
   return { folder, erpFile, authFile, relationsFile, mappingFile, relations, publish, put, data,
     seed() {
       put('project-a', 'project', 'company-a', 'project-a', admin.id, { name: 'Private ERP project A' });
@@ -92,7 +96,7 @@ function createFixture() {
     },
     cleanup() {
       if (existsSync(erpFile)) database().close();
-      for (const [key, value] of Object.entries({ TAYCO_ERP_DB_PATH: previous.erp, TAYCO_AUTH_DB_PATH: previous.auth, TAYCO_TAKEOFF_RELATIONS_PATH: previous.relations, TAYCO_TAKEOFF_MAPPING_PATH: previous.mapping })) {
+      for (const [key, value] of Object.entries({ TAYCO_ERP_DB_PATH: previous.erp, TAYCO_AUTH_DB_PATH: previous.auth, TAYCO_TAKEOFF_RELATIONS_PATH: previous.relations, TAYCO_TAKEOFF_MAPPING_PATH: previous.mapping, TAYCO_TAKEOFF_MANIFEST_PATH: previous.manifest })) {
         if (value === undefined) delete process.env[key]; else process.env[key] = value;
       }
       rmSync(folder, { recursive: true, force: true });
@@ -130,7 +134,7 @@ test('internal scope is explicit, company-scoped and contains only plain permitt
   assert.deepEqual(result.documentIds, ['viewer-client', 'viewer-client-owner', 'viewer-internal', 'viewer-vendor']);
   assert.deepEqual(result.contexts, [{ key: 'ctx-a', documentIds: result.documentIds }]);
   assert.deepEqual(result.assetIds, ['asset-client', 'asset-owner', 'asset-shared', 'asset-vendor']);
-  assert.deepEqual(Object.keys(result).sort(), ['bundleId', 'relationsId', 'manifestSha256', 'contexts', 'documentIds', 'assetIds', 'documents'].sort());
+  assert.deepEqual(Object.keys(result).sort(), ['bundleId', 'relationsId', 'manifestSha256', 'relationsSha256', 'contexts', 'documentIds', 'assetIds', 'documents'].sort());
   assert.equal(Object.getPrototypeOf(result), Object.prototype); assert.equal(Object.getPrototypeOf(result.contexts[0]), Object.prototype);
   const serialized = JSON.stringify(result);
   for (const forbidden of [f.folder, 'blobPath', 'Private ERP', 'Company A fixture', 'ctx-b', 'viewer-b', 'ctx-unresolved', 'erp-client']) assert.ok(!serialized.includes(forbidden), forbidden);
@@ -142,7 +146,7 @@ test('client scope requires existing assigned project and explicit client visibi
   const result = viewerScope(client);
   assert.deepEqual(result.documentIds, ['viewer-client']);
   assert.deepEqual(result.contexts, [{ key: 'ctx-a', documentIds: ['viewer-client'] }]);
-  assert.deepEqual(result.documents, [{ id: 'viewer-client', contextKey: 'ctx-a', assetIds: ['asset-client', 'asset-shared'] }]);
+  assert.deepEqual(result.documents, [{ id: 'viewer-client', contextKey: 'ctx-a', assetIds: ['asset-client', 'asset-shared'], sourceSha256: 'c'.repeat(64) }]);
   assert.deepEqual(result.assetIds, ['asset-client', 'asset-shared']);
   assert.ok(!result.documentIds.includes('viewer-client-owner'), 'owning an internal ERP document does not bypass client visibility');
   assert.throws(() => viewerScope({ ...client, projectIds: [] }), fails(404));
@@ -288,7 +292,7 @@ test('v2 guest grant is exact and exposes only explicitly selected project-categ
   const result = viewerScope(guest, 'project-a');
   assert.deepEqual(result.documentIds, ['viewer-client']);
   assert.deepEqual(result.contexts, [{ key: 'ctx-a', documentIds: ['viewer-client'] }]);
-  assert.deepEqual(result.documents, [{ id: 'viewer-client', contextKey: 'ctx-a', assetIds: ['asset-client', 'asset-shared'] }]);
+  assert.deepEqual(result.documents, [{ id: 'viewer-client', contextKey: 'ctx-a', assetIds: ['asset-client', 'asset-shared'], sourceSha256: 'c'.repeat(64) }]);
   assert.deepEqual(result.assetIds, ['asset-client', 'asset-shared']);
   assert.ok(!JSON.stringify(result).includes('PRIVATE_SOURCE')); assert.ok(!JSON.stringify(result).includes('viewer-internal'));
   assert.throws(() => viewerScope({ ...guest, id: 'another-guest' }), fails(403));

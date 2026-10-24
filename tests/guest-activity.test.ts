@@ -1,3 +1,4 @@
+import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
@@ -20,7 +21,7 @@ const fails = (status: number) => (error: unknown) => (error instanceof GuestAct
 
 async function fixture(run: (filename: string, folder: string) => Promise<void>) {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-guest-activity-'));
-  const keys = ['TAYCO_ERP_DB_PATH', 'TAYCO_AUTH_DB_PATH', 'TAYCO_APP_URL', 'TAYCO_SESSION_SECRET', 'TAYCO_GUEST_ACTIVITY_RETENTION_DAYS', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_RELATIONS_PATH'] as const;
+  const keys = ['TAYCO_ERP_DB_PATH', 'TAYCO_AUTH_DB_PATH', 'TAYCO_APP_URL', 'TAYCO_SESSION_SECRET', 'TAYCO_GUEST_ACTIVITY_RETENTION_DAYS', 'TAYCO_TAKEOFF_MAPPING_PATH', 'TAYCO_TAKEOFF_RELATIONS_PATH', 'TAYCO_TAKEOFF_MANIFEST_PATH'] as const;
   const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   const filename = path.join(folder, 'activity', 'erp.sqlite');
   process.env.TAYCO_ERP_DB_PATH = filename;
@@ -344,7 +345,9 @@ test('an actual v2 grant authorizes project selection, scoped deduplication and 
         documents:projects.map((_,index)=>({documentId:'viewer-'+index,contextKeys:['context-'+index],assetIds:['asset-'+index],kind:'drawing_pdf'})),
         assets:projects.map((_,index)=>({assetId:'asset-'+index,documentIds:['viewer-'+index]})),
       };
-      const relationsBytes=JSON.stringify(relations)+'\n';
+      const cohort=syntheticViewerCohort(folder,relations);process.env.TAYCO_TAKEOFF_MANIFEST_PATH=cohort.manifestPath;
+      for(let index=0;index<docs.length;index++)erpDatabase().prepare('UPDATE records SET payload=? WHERE id=?').run(JSON.stringify({...docs[index].data,...cohort.delivery('viewer-'+index)}),docs[index].id);
+      const relationsBytes=cohort.rawRelations;
       const relationsPath=path.join(folder,'relations.json'),mappingPath=path.join(folder,'mapping.json');
       writeFileSync(relationsPath,relationsBytes);
       process.env.TAYCO_TAKEOFF_RELATIONS_PATH=relationsPath;

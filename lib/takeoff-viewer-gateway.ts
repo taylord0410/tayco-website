@@ -118,7 +118,7 @@ function filterJson(value: unknown, route: Route, scope: ViewerScope): JsonObjec
   if (row.id !== route.id || !scope.contexts.some(context => context.key === row.project_key && context.documentIds.includes(route.id!))) fail(502, 'The viewer returned a different document.');
   const result: JsonObject = { ...descriptor(row), project_key: row.project_key, metadata: {}, references: [],
     source_sha256: string(row.source_sha256, 64), asset_media_type: string(row.asset_media_type, 150) };
-  if (!/^[a-f0-9]{64}$/i.test(result.source_sha256 as string)) fail(502, 'The viewer returned an invalid document digest.');
+  if (!/^[a-f0-9]{64}$/i.test(result.source_sha256 as string) || result.source_sha256 !== scope.documents.find(document => document.id === route.id)?.sourceSha256) fail(502, 'The viewer returned an invalid document digest.');
   const asset = string(row.asset_url, 500);
   const documentScope = scope.documents.find(document => document.id === route.id && document.contextKey === row.project_key);
   if (!documentScope || !documentScope.assetIds.some(id => asset === VIEWER_PREFIX + '/api/v1/assets/' + id)) fail(502, 'The viewer returned an unauthorized asset link.');
@@ -182,7 +182,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     const route = routeFor(request, scope);
     if (route.kind === 'asset' && (request.headers.get('sec-fetch-mode')?.toLowerCase() === 'navigate' || ['document', 'iframe', 'embed', 'object'].includes(request.headers.get('sec-fetch-dest')?.toLowerCase() || ''))) fail(403, 'Direct PDF download is disabled. View drawings inside the protected canvas reader.');
     let currentScope=scope;
-    const recheck=async()=>{const fresh=reauthenticate?await reauthenticate():actor;if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)fail(403,'Document access changed.');currentScope=viewerScope(fresh);routeFor(request,currentScope);if(currentScope.bundleId!==scope.bundleId||currentScope.manifestSha256!==scope.manifestSha256)fail(403,'Document publication changed.');};
+    const recheck=async()=>{const fresh=reauthenticate?await reauthenticate():actor;if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)fail(403,'Document access changed.');currentScope=viewerScope(fresh);routeFor(request,currentScope);if(currentScope.bundleId!==scope.bundleId||currentScope.manifestSha256!==scope.manifestSha256||currentScope.relationsId!==scope.relationsId||currentScope.relationsSha256!==scope.relationsSha256||JSON.stringify(currentScope)!==JSON.stringify(scope))fail(403,'Document publication changed.');};
     await recheck();
     if(route.pathname===VIEWER_REVIEW_BRIDGE_PATH){const output=viewerResponseHeaders();output.set('Content-Type','text/javascript; charset=utf-8');return new Response(head?null:VIEWER_REVIEW_BRIDGE_JS,{headers:output});}
     const origin = upstreamOrigin();

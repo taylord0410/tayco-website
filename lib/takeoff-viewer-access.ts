@@ -19,9 +19,9 @@ export type ViewerRelations = {
   assets: { assetId: string; documentIds: string[] }[];
 };
 export type ViewerScope = {
-  bundleId: string; relationsId: string; manifestSha256: string;
+  bundleId: string; relationsId: string; manifestSha256: string; relationsSha256: string;
   contexts: { key: string; documentIds: string[] }[]; documentIds: string[]; assetIds: string[];
-  documents: { id: string; contextKey: string; assetIds: string[] }[];
+  documents: { id: string; contextKey: string; assetIds: string[]; sourceSha256: string }[];
 };
 type Mapping = { tenantId: string; projectId: string; contextKey: string; documents: { viewerDocumentId: string; erpDocumentId: string }[] };
 type GuestReviewGrant = { tenantId: string; guestId: string; projectId: string; period: string; viewerDocumentIds: string[] };
@@ -156,6 +156,59 @@ function parseConfig(value: unknown): AccessConfig {
   unique(guestReviews, grant => JSON.stringify([grant.tenantId, grant.guestId, grant.projectId, grant.period]));
   return { schemaVersion: version, bundleId: id(row.bundleId), relationsSha256: id(row.relationsSha256, sha256), mappings, guestReviews };
 }
+
+type DeliverySource = { sourceSha256: string; contentType: string; kind: string };
+/** The existing v1 manifest supplies the source identity missing from relations.
+ * This is metadata binding, not a physical-asset hash or an authorization grant. */
+function deliverySources(relations: ViewerRelations): Map<string, DeliverySource> {
+  const filename = process.env.TAYCO_TAKEOFF_MANIFEST_PATH;
+  if (!filename) throw unavailable();
+  const bytes = readPolicyFile(filename, 10 * 1024 * 1024);
+  if (createHash('sha256').update(bytes).digest('hex') !== relations.manifestSha256) throw unavailable();
+  const record = (value: unknown): Record<string, unknown> => {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) throw unavailable();
+    return value as Record<string, unknown>;
+  };
+  const manifest = record(json(bytes));
+  if (manifest.schema_version !== 'takeoff-viewer-bundle/v1' || manifest.bundle_id !== relations.bundleId) throw unavailable();
+  const equal = (a: string[], b: string[]) => { const left = [...a].sort(), right = [...b].sort(); return left.length === right.length && left.every((id, i) => id === right[i]); };
+  const projects = unique(list(manifest.projects, CONTEXT_LIMIT).map(value => {
+    const row = record(value);
+    return { key: id(row.key), displayName: row.display_name, identityStatus: row.identity_status, documentIds: ids(row.document_ids, DOCUMENT_LIMIT) };
+  }), row => row.key);
+  if (!equal([...projects.keys()], relations.contexts.map(row => row.contextKey))) throw unavailable();
+  for (const context of relations.contexts) {
+    const project = projects.get(context.contextKey)!;
+    if (project.displayName !== context.displayName || project.identityStatus !== context.identityStatus || !equal(project.documentIds, context.documentIds)) throw unavailable();
+  }
+  const assets = unique(list(manifest.assets, ASSET_LIMIT).map(value => {
+    const row = record(value), media = row.media_type, path = row.path;
+    if (typeof media !== 'string' || !['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'application/json', 'text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(media) ||
+        typeof path !== 'string' || !path || path.length > 500 || /^[\\/]/.test(path) || /[\\%?#:\u0000-\u001f]/.test(path) ||
+        path.split('/').some(part => !part || part === '.' || part === '..') || !Number.isSafeInteger(row.size_bytes) || Number(row.size_bytes) < 0) throw unavailable();
+    return { id: id(row.id), sha256: id(row.sha256, sha256), media };
+  }), row => row.id);
+  const documents = unique(list(manifest.documents, DOCUMENT_LIMIT).map(value => {
+    const row = record(value), primary = id(row.asset_id);
+    const assetIds = [primary, ...(row.index_asset_id == null ? [] : [id(row.index_asset_id)])];
+    if (new Set(assetIds).size !== assetIds.length || assetIds.some(asset => !assets.has(asset)) || !kinds.has(String(row.kind))) throw unavailable();
+    return { id: id(row.id), contextKey: id(row.project_key), sourceSha256: id(row.source_sha256, sha256), kind: String(row.kind), contentType: assets.get(primary)!.media, assetIds };
+  }), row => row.id);
+  if (!equal([...documents.keys()], relations.documents.map(row => row.documentId))) throw unavailable();
+  for (const relation of relations.documents) {
+    const document = documents.get(relation.documentId)!;
+    if (document.contextKey !== relation.contextKeys[0] || document.kind !== relation.kind || !equal(document.assetIds, relation.assetIds)) throw unavailable();
+  }
+  return documents;
+}
+function deliveryMatches(data: Record<string, unknown>, viewerDocumentId: string, contextKey: string, policy: GuestPolicy) {
+  const source = policy.sources.get(viewerDocumentId);
+  return Boolean(source && data.storage === 'takeoff_viewer' && data.viewerDocumentId === viewerDocumentId && data.contextKey === contextKey &&
+    data.bundleId === policy.relations.bundleId && data.manifestSha256 === policy.relations.manifestSha256 &&
+    data.relationsId === policy.relations.relationsId && data.relationsSha256 === policy.config.relationsSha256 &&
+    data.sourceSha256 === source.sourceSha256 && data.contentType === source.contentType && data.sourceKind === source.kind);
+}
+
 function policies(guest?: Actor, projectId?: string) {
   const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH, relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH;
   if (!mappingPath || !relationsPath) throw guest ? guestDenied() : unavailable();
@@ -173,7 +226,7 @@ function policies(guest?: Actor, projectId?: string) {
     if (!context || context.identityStatus !== 'resolved') throw unavailable();
     for (const document of mapping.documents) if (documents.get(document.viewerDocumentId)?.contextKeys[0] !== mapping.contextKey) throw unavailable();
   }
-  return { config, relations, documents };
+  return { config, relations, documents, sources: deliverySources(relations) };
 }
 function intact(entry: Entry): boolean {
   return Boolean(entry.data && typeof entry.data === 'object' && !Array.isArray(entry.data) && !entry.data.deletedAt && !entry.data.purgedAt);
@@ -222,7 +275,8 @@ function usableGuestGrants(actor: Actor, policy: GuestPolicy, projectId: string 
     ${value('$.commercialProgress.reportedCompletedStages')} AS completed_stages,${guards}
     FROM records WHERE id=? AND tenant_id=? AND kind='project' AND project_id=id AND length(payload)<=1048576
     AND json_valid(payload) AND json_type(${safe})='object'`);
-  const documentQuery = db.prepare(`SELECT id,${value('$.type')} AS document_type,${guards}
+  const deliveryFields = ['storage','viewerDocumentId','contextKey','bundleId','manifestSha256','relationsId','relationsSha256','sourceSha256','contentType','sourceKind'];
+  const documentQuery = db.prepare(`SELECT id,${value('$.type')} AS document_type,${deliveryFields.map(field => value('$.'+field)+' AS '+field).join(',')},${guards}
     FROM records WHERE id=? AND tenant_id=? AND project_id=? AND kind='document' AND length(payload)<=1048576
     AND json_valid(payload) AND json_type(${safe})='object'`);
   return grants.flatMap(grant => {
@@ -231,9 +285,12 @@ function usableGuestGrants(actor: Actor, policy: GuestPolicy, projectId: string 
     const mapped = new Map(policy.config.mappings.filter(mapping => mapping.tenantId === actor.tenantId && mapping.projectId === grant.projectId).flatMap(mapping => mapping.documents.map(document => [document.viewerDocumentId, document.erpDocumentId] as const)));
     const documentIds = grant.viewerDocumentIds.filter(documentId => {
       const erpDocumentId = mapped.get(documentId); if (!erpDocumentId) return false;
-      const document = documentQuery.get(erpDocumentId, actor.tenantId, grant.projectId) as GuestGuardRow & { document_type: unknown } | undefined;
+      const document = documentQuery.get(erpDocumentId, actor.tenantId, grant.projectId) as GuestGuardRow & Record<string, unknown> | undefined;
       // The exact document approval supplies the business period when an import declares none.
-      return Boolean(document && document.document_type === 'project' && guestResourceActive(document, now) && explicitGuestPeriodMatches(document, currentPeriod));
+      if (!document || document.document_type !== 'project' || !guestResourceActive(document, now) || !explicitGuestPeriodMatches(document, currentPeriod)) return false;
+      const contextKey = policy.documents.get(documentId)!.contextKeys[0];
+      if (!deliveryMatches(document, documentId, contextKey, policy)) throw guestDenied();
+      return true;
     });
     return documentIds.length ? [{ grant, project, documentIds }] : [];
   });
@@ -244,9 +301,9 @@ function permittedScope(policy: GuestPolicy, allowed: Iterable<string>): ViewerS
     const document = policy.documents.get(id)!;
     const key = document.contextKeys[0], context = contexts.get(key) ?? []; context.push(id); contexts.set(key, context);
     for (const assetId of document.assetIds) assetIds.add(assetId);
-    return { id, contextKey: key, assetIds: [...document.assetIds].sort() };
+    return { id, contextKey: key, assetIds: [...document.assetIds].sort(), sourceSha256: policy.sources.get(id)!.sourceSha256 };
   });
-  return { bundleId: policy.relations.bundleId, relationsId: policy.relations.relationsId, manifestSha256: policy.relations.manifestSha256,
+  return { bundleId: policy.relations.bundleId, relationsId: policy.relations.relationsId, manifestSha256: policy.relations.manifestSha256, relationsSha256: policy.config.relationsSha256,
     contexts: [...contexts].sort(([a], [b]) => a.localeCompare(b)).map(([key, ids]) => ({ key, documentIds: ids })), documentIds, assetIds: [...assetIds].sort(), documents };
 }
 function projectName(value: unknown) {
@@ -305,15 +362,16 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
         catch (error) { if (error instanceof ErpError && [403, 404].includes(error.status)) continue; throw error; }
         if (document.kind !== 'document' || document.id !== mapped.erpDocumentId || document.tenantId !== actor.tenantId || document.projectId !== mapping.projectId || !intact(document) ||
           (actor.role === 'client' && document.data.visibility !== 'client') || (actor.role === 'vendor' && document.ownerId !== actor.id)) continue;
+        if (!deliveryMatches(document.data, mapped.viewerDocumentId, mapping.contextKey, policy)) throw denied();
         documentIds.add(mapped.viewerDocumentId);
         const visible = contexts.get(mapping.contextKey) ?? new Set<string>(); visible.add(mapped.viewerDocumentId); contexts.set(mapping.contextKey, visible);
         for (const assetId of documents.get(mapped.viewerDocumentId)!.assetIds) assetIds.add(assetId);
       }
     }
     if (!documentIds.size) throw denied();
-    return { bundleId: relations.bundleId, relationsId: relations.relationsId, manifestSha256: relations.manifestSha256,
+    return { bundleId: relations.bundleId, relationsId: relations.relationsId, manifestSha256: relations.manifestSha256, relationsSha256: config.relationsSha256,
       contexts: [...contexts].sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => ({ key, documentIds: [...values].sort() })), documentIds: [...documentIds].sort(), assetIds: [...assetIds].sort(),
-      documents: [...documentIds].sort().map(id => ({ id, contextKey: documents.get(id)!.contextKeys[0], assetIds: [...documents.get(id)!.assetIds].sort() })) };
+      documents: [...documentIds].sort().map(id => ({ id, contextKey: documents.get(id)!.contextKeys[0], assetIds: [...documents.get(id)!.assetIds].sort(), sourceSha256: policy.sources.get(id)!.sourceSha256 })) };
   } catch (error) { if (error instanceof TakeoffViewerAccessError) throw error; throw unavailable(); }
 }
 
@@ -329,7 +387,7 @@ function insurerApprovedDocuments(actor:Actor,projectId:string|undefined,now:Dat
  const guardSql=guards.map((field,i)=>v(field)+' AS '+aliases[i]).join(',');
  const db=database();
  const projectQuery=db.prepare(`SELECT ${guardSql},${v('name')} AS name FROM records WHERE id=? AND project_id=id AND tenant_id=? AND kind='project' AND length(payload)<=1048576 AND json_valid(payload) AND json_type(${safe})='object'`);
- const documentQuery=db.prepare(`SELECT id,owner_id,version,created_at,updated_at,${guardSql},${['type','storage','sourceSha256','viewerDocumentId','contextKey','bundleId','manifestSha256','relationsId'].map(f=>v(f)+' AS '+f).join(',')} FROM records WHERE id=? AND project_id=? AND tenant_id=? AND kind='document' AND length(payload)<=1048576 AND json_valid(payload) AND json_type(${safe})='object'`);
+ const documentQuery=db.prepare(`SELECT id,owner_id,version,created_at,updated_at,${guardSql},${['type','storage','sourceSha256','viewerDocumentId','contextKey','bundleId','manifestSha256','relationsId','relationsSha256','contentType','sourceKind'].map(f=>v(f)+' AS '+f).join(',')} FROM records WHERE id=? AND project_id=? AND tenant_id=? AND kind='document' AND length(payload)<=1048576 AND json_valid(payload) AND json_type(${safe})='object'`);
  const approved: {identity:typeof recipient.documents[number];entry:Entry}[]=[];
  for(const identity of recipient.documents){
   if(projectId!==undefined&&identity.projectId!==projectId)continue;
@@ -342,6 +400,7 @@ function insurerApprovedDocuments(actor:Actor,projectId:string|undefined,now:Dat
   if(!doc||!guestResourceActive(doc,now)||!explicitGuestPeriodMatches(doc,recipient.period)||doc.type!=='project'||doc.storage!=='takeoff_viewer'||
    doc.sourceSha256!==identity.sourceSha256||doc.viewerDocumentId!==identity.viewerDocumentId||doc.contextKey!==identity.contextKey||doc.bundleId!==recipient.bundleId||
    doc.manifestSha256!==recipient.manifestSha256||doc.relationsId!==recipient.relationsId)continue;
+  if (!deliveryMatches(doc, identity.viewerDocumentId, identity.contextKey, policy)) throw guestDenied();
   approved.push({identity,entry:{id:identity.erpDocumentId,kind:'document',tenantId:actor.tenantId,projectId:identity.projectId,ownerId:String(doc.owner_id),version:Number(doc.version),
    createdAt:String(doc.created_at),updatedAt:String(doc.updated_at),data:{type:'project',storage:'takeoff_viewer',viewerDocumentId:identity.viewerDocumentId,contextKey:identity.contextKey,bundleId:recipient.bundleId,manifestSha256:recipient.manifestSha256,relationsId:recipient.relationsId}}});
  }

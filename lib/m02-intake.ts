@@ -4,7 +4,7 @@ import { lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { requireActor, requireRole, revalidateRequestActor, type Actor } from './auth';
 import { database, type Entry } from './erp';
-import { viewerScope } from './takeoff-viewer-access';
+import { viewerScope, TakeoffViewerAccessError } from './takeoff-viewer-access';
 import {decodeM02UTF8,m02TextCorrections,applyM02TextCorrections,type M02TextCorrection} from './m02-text-codec';
 
 export class M02IntakeError extends Error {
@@ -86,7 +86,8 @@ function row(id:string,tenant:string):Entry{
  return {id:item.id,kind:item.kind,tenantId:item.tenant_id,projectId:item.project_id,ownerId:item.owner_id,version:item.version,createdAt:item.created_at,updatedAt:item.updated_at,data};
 }
 function bindingsFor(actor:Actor,prepared:Pick<Prepared,'documents'|'receipt'>):Binding[]{
- const scope=viewerScope(actor);
+ let scope:ReturnType<typeof viewerScope>;
+ try{scope=viewerScope(actor);}catch(error){if(error instanceof TakeoffViewerAccessError)return changed();throw error;}
  const relationsPath=process.env.TAYCO_TAKEOFF_RELATIONS_PATH;
  if(!relationsPath||lstatSync(relationsPath).isSymbolicLink()||statSync(relationsPath).size>5*1024*1024)return changed();
  const relationsSha=createHash('sha256').update(readFileSync(relationsPath)).digest('hex');

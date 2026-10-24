@@ -73,10 +73,10 @@ test('source extension: readonly plan, atomic staged receipt, exact history and 
  assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM records WHERE kind='project'").get()!.n,1);
  const after=f.snapshot(),replay=await commitSourceExtension(f.request(),f.input,plan.planHash);
  assert.deepEqual(replay,{...r,created:0,rebound:0});assert.equal(f.snapshot(),after);
- // The new planner rejects the mixed cohort. The pre-existing admin reader still
- // resolves its old two-document mapping: this mechanism does not retrofit its guard.
+ // Staging does not activate mapping/upstream. Both the planner and the consumer
+ // now reject this mixed delivery cohort; the original receipt remains replayable.
  await assert.rejects(planSourceExtension(f.request(),f.input),conflict);
- assert.deepEqual(viewerScope(f.actor,'refs').documentIds.sort(),['doc1','doc2']);
+ assert.throws(()=>viewerScope(f.actor,'refs'),(error:unknown)=>error instanceof Error&&'status'in error&&error.status===404);
  assert.deepEqual(keys.slice(4).map(k=>process.env[k]),sourcePins);
  const data=JSON.parse((f.db.prepare("SELECT payload FROM records WHERE id='old1'").get() as {payload:string}).payload);
  assert.equal(data.name,'Original — intact 1');assert.equal(data.visibility,'client');assert.equal(data.other.financialValue,null);
