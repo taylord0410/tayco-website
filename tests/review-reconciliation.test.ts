@@ -74,3 +74,27 @@ test("peer shell link suppression is idempotent and preserves source text and ca
   assert.match(rewritten,/pageNumber/);assert.match(rewritten,/SYNTHETIC source text/);
   assert.equal(injectViewerReviewBridge(rewritten),rewritten);
 });
+
+for (const size of [23,33,34]) {
+  test("actual console keeps exactly the supplied "+size+" rows without static batch enrichment",async()=>{
+    const {default:Console}=await load();
+    const rows=Array.from({length:size},(_,i)=>{
+      const value=row();value.id="reported-opportunity-"+(i+1);
+      value.name="SYNTHETIC supplied row "+i;value.documents[0].name="SYNTHETIC supplied source "+i;
+      if(i%3===0){value.documents[0].state="pending";value.documents[0].viewerHref=null;}
+      return value;
+    });
+    const received=rows.filter(r=>r.documents[0].state==="received").length;
+    const data:ProfileAReview={period:"2026-10",sourceLabel:"SYNTHETIC explicit DTO",opportunityCount:size,
+      reportedDatedCount:0,undatedCount:size,liveCount:0,documentCount:size,receivedDocumentCount:received,
+      linkedDocumentCount:received,rows};
+    const before=JSON.stringify(data);
+    const markup=renderToStaticMarkup(createElement(Console,{data}));
+    assert.match(markup,new RegExp(size+" reported opportunities and "+size+" listed source documents"));
+    assert.equal(markup.split("View drawing →").length-1,received);
+    assert.equal(markup.split("Review source status →").length-1,size-received);
+    assert.match(markup,new RegExp("SYNTHETIC supplied row "+(size-1)));
+    assert.doesNotMatch(markup,/US.Bank|Hamilton Main|Fairmont|LOTES_123|doc_lotes123_|IDOT Maintenance|Overdue|100%|3h window/);
+    assert.equal(JSON.stringify(data),before);
+  });
+}

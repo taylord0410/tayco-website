@@ -151,11 +151,13 @@ test('M02 reception binds real sessions and existing sources without creating fi
    mutate('package','synthetic-lock-case');
    const archiveKey=createHash('sha256').update(readFileSync(packageFile)).digest('hex');
    const worker=new Worker(`const {workerData,parentPort}=require('node:worker_threads');const {DatabaseSync}=require('node:sqlite');const fs=require('node:fs');const erp=new DatabaseSync(workerData.erp);erp.exec('PRAGMA busy_timeout=5000;BEGIN IMMEDIATE');parentPort.postMessage('locked');const started=Date.now();const timer=setInterval(()=>{if(fs.existsSync(workerData.target)||Date.now()-started>15000){clearInterval(timer);setTimeout(()=>{const auth=new DatabaseSync(workerData.auth);auth.exec('DELETE FROM auth_sessions');auth.close();erp.exec('COMMIT');erp.close();parentPort.postMessage('revoked');},200);}},10);`,{eval:true,workerData:{erp:process.env.TAYCO_ERP_DB_PATH,auth:process.env.TAYCO_AUTH_DB_PATH,target:path.join(root,'archive',archiveKey,'received-package.json')}});
+   // Retain completion before awaited preparation: the worker may exit before reception rejects.
+   const completion=new Promise<{code:number;error?:Error}>(resolve=>{worker.once('exit',code=>resolve({code}));worker.once('error',error=>resolve({code:-1,error}));});
    const message=()=>new Promise(resolve=>worker.once('message',resolve));
    assert.equal(await message(),'locked');
    const before=Number(db.prepare('SELECT count(*) AS n FROM takeoff_measurement_receipts').get()!.n);
    await assert.rejects(receiveM02(request(),packageFile),e=>e instanceof AuthError&&e.status===401);
-   await new Promise<void>((resolve,reject)=>{worker.once('exit',code=>code===0?resolve():reject(new Error('worker failed')));worker.once('error',reject);});
+   const finished=await completion;assert.equal(finished.error,undefined);assert.equal(finished.code,0);
    assert.equal(Number(db.prepare('SELECT count(*) AS n FROM takeoff_measurement_receipts').get()!.n),before);
   });
  }finally{
