@@ -69,3 +69,13 @@ Focused regression command:
 ```sh
 node --import tsx --test tests/takeoff-source-registration.test.ts tests/takeoff-registration-route.test.ts tests/takeoff-viewer-access.test.ts tests/takeoff-viewer-gateway.test.ts
 ```
+
+## Immutable local source extensions
+
+Later received PDFs can be added through a new immutable bundle while preserving the previous manifest, resource bytes, document identities and ERP records. Keep the previous exact mappings, validate inheritance against the prior manifest, and register only the added sources through the existing administrator planner/commit contract. A received-document collection is a reference container, not evidence of another operating project.
+
+Preserve conflicting source labels as review caveats. A PDF containing photographs remains a reference document; a matching checksum proves file identity but does not independently establish its association with a reported business opportunity. Structural page inventory does not claim OCR, calibrated measurements or complete drawing coverage.
+
+The local extension was exercised with dry-run, transactional registration and receipt replay; previous records remained unchanged. Authenticated metadata, GET Range and HEAD succeeded for the added PDFs, anonymous binary requests returned 401, and cache policy remained private/no-store. The administrative profile resolved its received-file links and a newly registered PDF rendered through native desktop and mobile navigation. The focused registration, route, access, gateway and profile suite passed 64 tests.
+
+This evidence covers local administrative source delivery. It does not certify an insurer-specific allowlist, a four-hour grant, expanded audit/privacy controls, a cloud release, or manual review of every PDF page. Private lineage, runtime receipts and screenshots stay in the ignored local review area.
