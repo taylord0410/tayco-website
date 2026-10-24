@@ -92,4 +92,6 @@ Structural limits include 25 MiB canonical payload, 64 contexts, 128 documents p
 
 TAYCO will adapt this agreed format rather than require raw geometry to masquerade as an aggregate estimate snapshot. Receipt replay/conflict handling, transaction rollback, exact existing-project mapping and authorized console projection remain implementation work under T69.
 
+A separate read-only integrity preflight now reuses the reviewed producer validator and checks actual artifact bytes and PDF page frames. See [M02 integrity preflight](m02-integrity-preflight.md). The current README-only handoff manifest is `a7587f0e3b737ed28d96162dd1133f89a136bceb0cf2f96562de935fb0912e4b`; validator and schema pins above are unchanged. The earlier manifest in the table records the original format agreement. Neither preflight nor producer-reported inclusion states complete reception, independent quantity review or persistence under T69.
+
 This contract does not authorize a Railway deployment, publish real quantities or supply a general TAYCO rate card.
