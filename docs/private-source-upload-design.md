@@ -165,3 +165,9 @@ Rate budgets use the existing persisted AUTH rate limiter's 15-minute window: co
 Success and failure use closed JSON and private/no-store, Cookie variance, nosniff and same-origin resource headers. Errors never echo exceptions, filesystem paths, cookies, payload bytes or Location; unknown faults become generic 503. Stored metadata does not enable the existing document reader to serve an unregistered upload, including when its SHA is known.
 
 Handler probes use fresh synthetic persistent accounts/DBs and a four MiB synthetic transfer. These are not CLI/network, Railway/proxy, full file-limit throughput or power-loss certification. T84 owns the operator client and larger local end-to-end transfer; T60 owns deployment topology and actual remote transfer.
+
+## Local implementation map (2026-10-24)
+
+PU-1 now has a private store in lib/private-source-upload.ts (T82), authenticated same-origin Next handlers under app/api/source-uploads (T83), and an operator client/CLI in lib/private-source-upload-client.ts and scripts/upload-private-source.ts (T84). See [operator usage and limits](private-source-upload-operator.md). The CLI keeps immutable private identity/reservation/receipt records and obtains committed offset from current server status; it does not persist an authoritative local offset.
+
+Evidence is layered: parser peers, actual Request/Response handlers, and the opt-in production Next socket test have different scopes. Final local results belong to .data/private-upload-operator-20261024/ready-checks.json. Neither the design nor local socket success establishes Railway transfer, volume persistence, replica consistency, PDF validity, source admission or distribution rights. T60 remains the separate cloud/release lane; finish still means stored/not_registered.
