@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Runtime databases, source packages and review evidence are private mounted data.
+  outputFileTracingExcludes: { "/*": ["./.data/**/*"] },
   devIndicators: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   turbopack: {

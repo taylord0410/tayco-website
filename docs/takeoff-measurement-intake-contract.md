@@ -1,6 +1,6 @@
 # Takeoff measurements → TAYCO: consumer contract
 
-Status: M02 producer/consumer format agreed and independently probed on 2026-10-24. This is not an implemented endpoint. Raw calibration/measurement/BOQ reception still needs an adapter, persistence tests and UI projection.
+Status: M02 producer/consumer format agreed and independently probed on 2026-10-24. Local private operator reception, transactional receipts and an administrator/staff review in the existing Takeoff console are implemented; see [M02 reception](m02-reception.md). There is no public HTTP write endpoint. Real producer quantities, recipient selection and publication remain separate review decisions.
 
 ## Existing receiving path
 
@@ -90,7 +90,7 @@ Generation time must be a valid RFC3339 timestamp with a timezone. The payload d
 
 Structural limits include 25 MiB canonical payload, 64 contexts, 128 documents per context and 1,024 pages per document, with bounded nested lists and strings in the pinned schema. The receiver must also bound the original input bytes before parsing and verify actual artifact containment, bytes and hashes. Successful semantic validation alone does not verify an artifact exists, authorize publication, approve pricing, establish real-world measurements or grant guest access.
 
-TAYCO will adapt this agreed format rather than require raw geometry to masquerade as an aggregate estimate snapshot. Receipt replay/conflict handling, transaction rollback, exact existing-project mapping and authorized console projection remain implementation work under T69.
+TAYCO receives this agreed format without making raw geometry masquerade as an aggregate estimate snapshot. The local receiver preserves exact existing-project mapping, replay/conflict handling, transaction rollback, explicit revision lineage and authorized console projection. Imported producer states remain producer reported; receipt is not independent approval of a measurement, rate, installed APU or contract.
 
 A separate read-only integrity preflight now reuses the reviewed producer validator and checks actual artifact bytes and PDF page frames. See [M02 integrity preflight](m02-integrity-preflight.md). The current README-only handoff manifest is `a7587f0e3b737ed28d96162dd1133f89a136bceb0cf2f96562de935fb0912e4b`; validator and schema pins above are unchanged. The earlier manifest in the table records the original format agreement. Neither preflight nor producer-reported inclusion states complete reception, independent quantity review or persistence under T69.
 

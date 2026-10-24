@@ -262,6 +262,9 @@ def inspect_package(package_path, contract_root, bundle_root, manifest_sha):
         "sourceBundleId": manifest["bundle_id"], "sourceManifestSha256": manifest_sha,
         "artifactCount": len(package["artifactManifest"]), "artifactBytes": artifact_total,
         "documentCount": count, "pageCount": pages,
+        "documents": [{"contextKey": context["contextKey"], "documentId": doc["documentId"],
+                       "pdfSha256": doc["pdfSha256"], "documentRevision": doc["documentRevision"]}
+                      for context in package["contexts"] for doc in context["documents"]],
         "producerReportedMeasurementStates": dict(statuses),
         "producerReportedBoqStates": dict(inclusion),
         "result": "integrity_and_pdf_frame_verified",

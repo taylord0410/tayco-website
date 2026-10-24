@@ -134,6 +134,14 @@ export async function createSession(userId: string, selectedReviewId?: string, e
 function cookieValue(request: Request) { return request.headers.get('cookie')?.split(';').map(c => c.trim()).find(c => c.startsWith(`${SESSION_COOKIE}=`))?.slice(SESSION_COOKIE.length + 1); }
 async function sessionToken(request: Request) { const value = cookieValue(request); if (!value) return null; try { const payload = await unsealData<{ token?: string }>(decodeURIComponent(value), { password: secret(), ttl: SESSION_TTL_SECONDS }); return typeof payload.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(payload.token) ? payload.token : null; } catch (e) { if (e instanceof AuthError) throw e; return null; } }
 const guestRequestBindings=new WeakMap<Actor,()=>Actor>();
+const requestActorBindings=new WeakMap<Actor,()=>Actor>();
+/** Synchronous check of the exact persisted session after server IO or SQL locks.
+ * Only Actor objects returned by authentication carry this memory-only capability. */
+export function revalidateRequestActor(actor:Actor):Actor{
+ const bound=requestActorBindings.get(actor);
+ if(!bound)throw new AuthError('An authenticated request is required.',403);
+ return bound();
+}
 /** Rechecks the exact persisted session that produced this server Actor. The capability
  * is memory-only and cannot be supplied by a client DTO or another cookie. */
 export function revalidateGuestRequestActor(actor:Actor):Actor{
@@ -146,10 +154,12 @@ function actorForSessionHash(tokenHash:string):Actor|null{
     const user=db.prepare('SELECT u.*,s.review_grant_id AS session_review_grant_id FROM auth_users u JOIN auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled=0').get(tokenHash,Date.now()) as (UserRow & {session_review_grant_id:string|null})|undefined;
     if(!user)return null;
     const actor=actorOf(user);
+    const identity=(value:Actor)=>JSON.stringify([value.id,value.tenantId,value.role,value.email,value.projectIds,value.vendorId??null]);
+    const expectedIdentity=identity(actor);
     const revalidate=()=>{
       const fresh=actorForSessionHash(tokenHash);
       if(!fresh)throw new AuthError('Please sign in to continue.',401);
-      if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!=='guest'||fresh.review?.id!==user.session_review_grant_id)throw new AuthError('Review access changed.',403);
+      if(identity(actor)!==expectedIdentity||identity(fresh)!==expectedIdentity||(actor.role==='guest'&&fresh.review?.id!==user.session_review_grant_id))throw new AuthError('Account access changed.',403);
       return fresh;
     };
     if(actor.role==='guest'&&user.session_review_grant_id)rememberReviewAuditContext({tenantId:actor.tenantId,reviewId:user.session_review_grant_id,actorId:actor.id,actorRole:'guest'},async()=>{revalidate();});
@@ -158,6 +168,7 @@ function actorForSessionHash(tokenHash:string):Actor|null{
       if(actor.review.recipient){try{insurerPolicy(actor);}catch(error){throw new AuthError('This recipient review is unavailable.',error instanceof InsurerReviewError?error.status:503);}}
       guestRequestBindings.set(actor,revalidate);
     }
+    requestActorBindings.set(actor,revalidate);
     return actor;
   });
 }
