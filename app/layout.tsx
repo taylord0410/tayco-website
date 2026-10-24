@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     "Full-service construction company in Wisconsin and Illinois. Residential & commercial general construction and remodeling, fire and water damage restoration. Licensed & insured.",
   keywords:
     "construction company Wisconsin, construction company Illinois, general contractor Wisconsin, general contractor Illinois, general construction and remodeling, fire and water damage restoration, water damage restoration Milwaukee, fire damage restoration, REO property contractor, property turnover contractor",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({

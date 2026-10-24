@@ -113,9 +113,63 @@ const REAL_PORTFOLIO_ENRICHMENT: Record<string, { name?: string; location?: stri
     viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_dad385680491c284",
   },
   "reported-opportunity-34": {
+    name: "Crunch Fitness — Melrose Park Takeover",
+    location: "1334 Winston Plaza, Melrose Park, IL 60160",
+    contractor: "Atticus Franchise Group / pb2 Architecture + Engineering",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cf_melrose_park_il&document=doc_cf_melrose_8c89250d32080e77",
+  },
+  "reported-opportunity-35": {
+    name: "Cuba Township Building Addition",
+    location: "28000 W. Cuba Rd., Barrington, IL 60010",
+    contractor: "Allen+Pepa Architects",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cuba_township_25_023&document=doc_cuba_towns_15ce947a3388439f",
+  },
+  "reported-opportunity-36": {
+    name: "The Goddard School — Burr Ridge",
+    location: "7660 S. County Line Rd., Burr Ridge, IL 60527",
+    contractor: "Goddard Systems / Burr Ridge Development",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=goddard_burr_ridge&document=doc_goddard_bu_5ab42a7310b91c9d",
+  },
+  "reported-opportunity-37": {
+    name: "Handel's Homemade Ice Cream — Zionsville",
+    location: "3715 Marketplace Dr., Zionsville, IN 46077",
+    contractor: "Tedrow Design Group",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=handel_zionsville_in&document=doc_handel_zio_8c71b8247afe46e7",
+  },
+  "reported-opportunity-38": {
+    name: "Mendocino Farms — Naperville Plaza",
+    location: "S. Washington St. & W. Gartner Rd., Naperville, IL",
+    contractor: "NORR Architects & Engineers",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=mendocino_farms_naperville_il&document=doc_mendocino__dc2d01b357522e10",
+  },
+  "reported-opportunity-39": {
+    name: "Millis Transfer — Richfield Demo & Maintenance Facility",
+    location: "33001 W. Holy Hill Rd., Richfield, WI 53076",
+    contractor: "IC Construction Company (ICCC)",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=millis_transfer_richfield_2026_045&document=doc_millis_tra_fbbb873f35fd6364",
+  },
+  "reported-opportunity-40": {
+    name: "First Watch Restaurant — Bourbonnais",
+    location: "1604 N. Route 50, Suite A-2, Bourbonnais, IL 60914",
+    contractor: "Capitol Construction Solutions",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_d54caa5a46d15449",
+  },
+  "reported-opportunity-41": {
+    name: "Willowbrae Academy (Structural Calculations Only)",
+    location: "4777 N. Milwaukee Ave., Chicago, IL",
+    contractor: "Johnson Wilbur Adams, Inc.",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_3bab8a61f3578be7",
+  },
+  "reported-opportunity-42": {
     name: "IDOT Maintenance Facility",
     location: "Illinois (IDOT District Facility)",
     contractor: "Staalsen Construction",
+  },
+  "reported-opportunity-43": {
+    name: "Maurices #1801 — Oshkosh Retail Center",
+    location: "1941 S. Koeller St., Oshkosh, WI 54902",
+    contractor: "Todd Cooper Architect LLC (TCA)",
+    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_76db82644184cd9c",
   },
 };
 
@@ -203,12 +257,93 @@ const LOTES_123_FALLBACK_ROWS: ProfileAReview["rows"] = [
   },
   {
     id: "reported-opportunity-34",
+    name: "Crunch Fitness — Melrose Park Takeover",
+    location: "1334 Winston Plaza, Melrose Park, IL 60160",
+    contractor: "Atticus Franchise Group / pb2 Architecture + Engineering",
+    section: "dated",
+    reportedDeadline: "2026-10-19",
+    documents: [{ name: "CF Melrose Park,IL Rev 2 ECS.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cf_melrose_park_il&document=doc_cf_melrose_8c89250d32080e77" }],
+  },
+  {
+    id: "reported-opportunity-35",
+    name: "Cuba Township Building Addition",
+    location: "28000 W. Cuba Rd., Barrington, IL 60010",
+    contractor: "Allen+Pepa Architects",
+    section: "dated",
+    reportedDeadline: "2026-10-09",
+    documents: [{ name: "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cuba_township_25_023&document=doc_cuba_towns_15ce947a3388439f" }],
+  },
+  {
+    id: "reported-opportunity-36",
+    name: "The Goddard School — Burr Ridge",
+    location: "7660 S. County Line Rd., Burr Ridge, IL 60527",
+    contractor: "Goddard Systems / Burr Ridge Development",
+    section: "dated",
+    reportedDeadline: "2026-09-29",
+    documents: [{ name: "Goddard Burr Ridge - Full Set 2026 09291.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=goddard_burr_ridge&document=doc_goddard_bu_5ab42a7310b91c9d" }],
+  },
+  {
+    id: "reported-opportunity-37",
+    name: "Handel's Homemade Ice Cream — Zionsville",
+    location: "3715 Marketplace Dr., Zionsville, IN 46077",
+    contractor: "Tedrow Design Group",
+    section: "dated",
+    reportedDeadline: "2026-09-15",
+    documents: [{ name: "handel_s ice cream - zionsville, in 9-15-26.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=handel_zionsville_in&document=doc_handel_zio_8c71b8247afe46e7" }],
+  },
+  {
+    id: "reported-opportunity-38",
+    name: "Mendocino Farms — Naperville Plaza",
+    location: "S. Washington St. & W. Gartner Rd., Naperville, IL",
+    contractor: "NORR Architects & Engineers",
+    section: "dated",
+    reportedDeadline: "2026-09-15",
+    documents: [{ name: "Mendocino Frarms- Naperville, IL Combined (2).pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=mendocino_farms_naperville_il&document=doc_mendocino__dc2d01b357522e10" }],
+  },
+  {
+    id: "reported-opportunity-39",
+    name: "Millis Transfer — Richfield Demo & Maintenance Facility",
+    location: "33001 W. Holy Hill Rd., Richfield, WI 53076",
+    contractor: "IC Construction Company (ICCC)",
+    section: "dated",
+    reportedDeadline: "2026-10-10",
+    documents: [{ name: "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=millis_transfer_richfield_2026_045&document=doc_millis_tra_fbbb873f35fd6364" }],
+  },
+  {
+    id: "reported-opportunity-40",
+    name: "First Watch Restaurant — Bourbonnais",
+    location: "1604 N. Route 50, Suite A-2, Bourbonnais, IL 60914",
+    contractor: "Capitol Construction Solutions",
+    section: "dated",
+    reportedDeadline: "2026-08-18",
+    documents: [{ name: "First Watch Bourbonnais - Permit Set.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_d54caa5a46d15449" }],
+  },
+  {
+    id: "reported-opportunity-41",
+    name: "Willowbrae Academy (Structural Calculations Only)",
+    location: "4777 N. Milwaukee Ave., Chicago, IL",
+    contractor: "Johnson Wilbur Adams, Inc.",
+    section: "dated",
+    reportedDeadline: "2026-09-02",
+    documents: [{ name: "Willowbrae Academy - Structural Calculations.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_3bab8a61f3578be7" }],
+  },
+  {
+    id: "reported-opportunity-42",
     name: "IDOT Maintenance Facility",
     location: "Illinois (IDOT District Facility)",
     contractor: "Staalsen Construction",
     section: "undated",
     reportedDeadline: null,
     documents: [{ name: "IDOT Maintenance Facility — Drawings pending from client", state: "pending", viewerHref: null }],
+  },
+  {
+    id: "reported-opportunity-43",
+    name: "Maurices #1801 — Oshkosh Retail Center",
+    location: "1941 S. Koeller St., Oshkosh, WI 54902",
+    contractor: "Todd Cooper Architect LLC (TCA)",
+    section: "dated",
+    reportedDeadline: "2026-09-25",
+    documents: [{ name: "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_76db82644184cd9c" }],
   },
 ];
 
@@ -221,7 +356,7 @@ function normalizePortfolio(raw: ProfileAReview): { data: ProfileAReview; isReal
   const rows = combinedRows.map(row => {
     const extra = REAL_PORTFOLIO_ENRICHMENT[row.id];
     const documents = row.documents.map(doc => {
-      const isPendingNoPdf = doc.state === "pending" && !doc.viewerHref && !extra?.viewerHref && row.id === "reported-opportunity-34";
+      const isPendingNoPdf = doc.state === "pending" && !doc.viewerHref && !extra?.viewerHref && row.id === "reported-opportunity-42";
       if (isPendingNoPdf) {
         return {
           ...doc,

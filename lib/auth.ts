@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
 import { appendReviewAudit,ReviewAuditError } from './review-audit';
 import { rememberReviewAuditContext } from './review-request-audit';
-import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, type ReviewAccess } from './review-grants';
+import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, claimPendingGuestReviewIfNeeded, type ReviewAccess } from './review-grants';
 
 import {insurerPolicy,insurerRouteAllowed,parseInsurerPolicy,readInsurerFile,readInsurerSource,InsurerReviewError} from './insurer-review-policy';
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
@@ -102,7 +102,7 @@ export async function createSession(userId: string, selectedReviewId?: string, e
   const selected=withDb(db=>{
     const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
     if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
-    const actor=actorOf(user),grantId=actor.role==='guest'?(selectedReviewId??latestClaimedReview(db,userId)):undefined;
+    const actor=actorOf(user),grantId=actor.role==='guest'?(selectedReviewId??claimPendingGuestReviewIfNeeded(db,actor)??latestClaimedReview(db,userId)):undefined;
     let review:ReviewAccess|undefined;
     try{review=actor.role==='guest'?reviewForSession(db,actor,grantId):undefined;}
     catch(error){

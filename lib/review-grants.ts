@@ -70,6 +70,16 @@ export function installReviewSchema(db: DatabaseSync) {
   if(!grantFields.some(f=>f.name==='recipient_profile'))db.exec("ALTER TABLE auth_review_grants ADD COLUMN recipient_profile TEXT NOT NULL DEFAULT 'company' CHECK(recipient_profile IN ('company','insurer-a'))");
   if(!grantFields.some(f=>f.name==='recipient_policy_sha256'))db.exec("ALTER TABLE auth_review_grants ADD COLUMN recipient_policy_sha256 TEXT");
   db.exec("CREATE TRIGGER IF NOT EXISTS auth_review_recipient_immutable BEFORE UPDATE OF recipient_profile,recipient_policy_sha256 ON auth_review_grants BEGIN SELECT RAISE(ABORT,'Review recipient policy is immutable'); END;");
+  db.exec(`CREATE TABLE IF NOT EXISTS auth_pending_guest_reviews(
+    email TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    recipient_profile TEXT NOT NULL DEFAULT 'insurer-a',
+    recipient_policy_sha256 TEXT,
+    created_at INTEGER NOT NULL,
+    claimed_grant_id TEXT,
+    claimed_at INTEGER
+  );`);
   installReviewAuditSchema(db);
   db.exec('COMMIT');
   }catch(error){db.exec('ROLLBACK');throw error;}
@@ -145,4 +155,25 @@ export function reviewForSession(db:DatabaseSync,actor:Actor,grantId:string|null
 }
 export function latestClaimedReview(db:DatabaseSync,userId:string):string|undefined{
   return (db.prepare('SELECT id FROM auth_review_grants WHERE user_id=? AND accepted_at IS NOT NULL ORDER BY accepted_at DESC,created_at DESC,id DESC LIMIT 1').get(userId) as {id:string}|undefined)?.id;
+}
+export function claimPendingGuestReviewIfNeeded(db:DatabaseSync,actor:Actor,now=Date.now()):string|undefined{
+  if(actor.role!=='guest')return undefined;
+  const pending=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as {email:string;tenant_id:string;created_by:string;recipient_profile:string;recipient_policy_sha256:string|null;created_at:number;claimed_grant_id:string|null;claimed_at:number|null}|undefined;
+  if(!pending)return undefined;
+  if(pending.claimed_grant_id)return pending.claimed_grant_id;
+  return transaction(db,()=>{
+    const fresh=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as typeof pending;
+    if(!fresh)return undefined;
+    if(fresh.claimed_grant_id)return fresh.claimed_grant_id;
+    const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
+    const creationKey='pending_claim_'+grantId.replace(/-/g,'').slice(0,24);
+    const recipient=fresh.recipient_profile==='insurer-a'&&fresh.recipient_policy_sha256?{kind:'insurer-a' as const,policySha256:fresh.recipient_policy_sha256}:undefined;
+    const fingerprint=digest(JSON.stringify({email:actor.email,tenantId:actor.tenantId,role:'guest',scope:'company_readonly',policyVersion:1,...(recipient?{recipient}:{})}));
+    db.prepare('INSERT INTO auth_review_grants(id,invite_id,tenant_id,email,user_id,detail_period,created_by,creation_key,request_hash,created_at,expires_at,accepted_at,revoked_at,recipient_profile,recipient_policy_sha256) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?)').run(grantId,id,actor.tenantId,actor.email,actor.id,period,fresh.created_by,creationKey,fingerprint,now,expiresAt,now,fresh.recipient_profile,fresh.recipient_policy_sha256);
+    db.prepare("INSERT INTO auth_invites(id,token_hash,email,role,tenant_id,project_ids,vendor_id,expires_at,revoked_at,accepted_at,created_by,created_at,review_grant_id) VALUES(?,?,?,'guest',?,'[]',NULL,?,NULL,?,?,?,?)").run(id,digest(token),actor.email,actor.tenantId,expiresAt,now,fresh.created_by,now,grantId);
+    db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=?,claimed_at=? WHERE email=? AND tenant_id=? AND claimed_grant_id IS NULL').run(grantId,now,actor.email,actor.tenantId);
+    emit(db,{id:fresh.created_by,email:actor.email,role:'admin',tenantId:actor.tenantId,projectIds:[]},'review.created',grantId,now);
+    emit(db,actor,'review.accepted',grantId,now);
+    return grantId;
+  });
 }
