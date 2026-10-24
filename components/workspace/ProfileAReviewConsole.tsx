@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState,useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import TakeoffProjectReader from "./TakeoffProjectReader";
-import {useReviewInteractions} from "@/lib/use-review-interactions";
-import {profileDocumentAvailabilityLabel} from "@/lib/profile-a-document-availability";
+import { useReviewInteractions } from "@/lib/use-review-interactions";
+import { profileDocumentAvailabilityLabel } from "@/lib/profile-a-document-availability";
 import type { ProfileAReview } from "@/lib/profile-a-review";
 import PortalShell from "./PortalShell";
 import "./workspace.css";
@@ -14,482 +14,127 @@ import "./workspace.css";
 const control = "min-h-11 rounded-lg border border-amber-200/30 px-4 py-3 text-left text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-amber-200";
 const card = "rounded-2xl border border-amber-200/20 bg-[#10223c] p-5 sm:p-7";
 const labelDate = (value: string) => new Date(value + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-const sectionLabel = (value: "dated" | "undated" | "live", isRealPortfolio = false) =>
-  isRealPortfolio
-    ? (value === "dated" ? "Overdue · past October 2026 deadline" : "Pending company information")
-    : (value === "live" ? "Reported as still open" : value === "undated" ? "Deadline not documented" : "Reported bid opportunity");
+const sectionLabel = (value: "dated" | "undated" | "live") =>
+  value === "live" ? "Reported as still open" : value === "undated" ? "Deadline not documented" : "Reported bid opportunity";
+type Opportunity = ProfileAReview["rows"][number];
+type SourceDocument = Opportunity["documents"][number];
 
-const REAL_PORTFOLIO_ENRICHMENT: Record<string, { name?: string; location?: string; contractor?: string; viewerHref?: string }> = {
-  "reported-opportunity-7": { name: "Morgan Park — Five 3-Unit Residential Buildings (Cluster K)" },
-  "reported-opportunity-8": { contractor: "Kroger Construction" },
-  "reported-opportunity-10": { location: "2010 E Shorewood Blvd, Shorewood, WI 53211" },
-  "reported-opportunity-13": { contractor: "Confie / Freeway Insurance" },
-  "reported-opportunity-15": {
-    name: "Cresco Labs — GlowUp Rollout IL (4 Sunnyside Locations)",
-    location: "South Beloit, Rockford, Chicago (Wrigleyville) & Danville, IL",
-  },
-  "reported-opportunity-16": {
-    location: "Indianapolis International Airport (IND), Indianapolis, IN",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_7344b7b15a931484",
-  },
-  "reported-opportunity-17": {
-    location: "Towne Rd & W 146th St, Westfield, IN 46074",
-    contractor: "Mission Pet Health",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=mission_pet_livewell_westfield_in&document=doc_mission_pe_1f0ad0dba5cad2e5",
-  },
-  "reported-opportunity-18": { location: "Venice, IL", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_3f2fafda2dbad7ad" },
-  "reported-opportunity-19": { location: "Washington, IL", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_bd33179afd9924c6" },
-  "reported-opportunity-20": {
-    name: "Red Iris — Mint Cannabis",
-    location: "2311 Hwy 10, Moorhead, MN",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_aba56421a0107c1d",
-  },
-  "reported-opportunity-21": {
-    location: "400 W Broadway St, Fortville, IN 46040",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_9dc0feb044c96a63",
-  },
-  "reported-opportunity-22": {
-    name: "Harper College — Building A, S, U, X, Y & Z Improvements",
-    location: "1200 W Algonquin Rd, Palatine, IL 60067",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_cb104959e0d8d0bf",
-  },
-  "reported-opportunity-23": {
-    location: "19600 75th St, Bristol, WI 53104 (Kenosha County)",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_4eb240ddb7584390",
-  },
-  "reported-opportunity-24": { name: "Foot Locker #7091 — University Park Mall" },
-  "reported-opportunity-25": {
-    name: "U.S. Bank — Hamilton Main Street Branch TI",
-    location: "540 Main St., Hamilton, OH",
-    contractor: "Guarantee Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_1b79da7bc73e530b",
-  },
-  "reported-opportunity-26": {
-    name: "First Farmers & Merchants Bank — Fairmont Remodel (Civil Set)",
-    location: "E. Blue Earth Ave. & S. Park St., Fairmont, MN",
-    contractor: "Gil Haugan Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_9308f2305ac4ebdc",
-  },
-  "reported-opportunity-27": {
-    name: "VA Illiana Health Care System — Bldg 103 PRRTP Restroom Renovation (SEED Project)",
-    location: "1900 E. Main Street, Danville, IL 61832",
-    contractor: "DAX Contracting",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_a21f463e34d415f3",
-  },
-  "reported-opportunity-28": {
-    name: "Rockford Self Storage Units",
-    location: "2500 N. Main Street, Rockford, IL 61107",
-    contractor: "MLCO Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_bddeb99c13d103e4",
-  },
-  "reported-opportunity-29": {
-    name: "Heartland Dental — Liberty Township TI",
-    location: "4706 Old Kyles Station Rd., Liberty Township, OH 45011",
-    contractor: "Singleton Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_3fe596517ccbf713",
-  },
-  "reported-opportunity-30": {
-    name: "FedEx Legacy — Waukesha Facility",
-    location: "2001 Airport Rd., Waukesha, WI 53188",
-    contractor: "Jackson Taylor Contractors",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_cb426092e94f35ad",
-  },
-  "reported-opportunity-31": {
-    name: "N Family Westmont Childcare (Civil Set — Architectural Set Pending)",
-    location: "6120 S. Cass Ave., Westmont, IL",
-    contractor: "Englewood Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_a0ebb98657d4efea",
-  },
-  "reported-opportunity-32": {
-    name: "L.D. Fargo Public Library — Re-Bid",
-    location: "120 E. Madison St., Lake Mills, WI 53551",
-    contractor: "Corporate Contractors, Inc.",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_f795d7584b47e3b3",
-  },
-  "reported-opportunity-33": {
-    name: "Edward Jones Branch #17975 — Marine on St. Croix Remodel",
-    location: "41 Judd St., Marine on St. Croix, MN 55047",
-    contractor: "Horizon Retail Construction",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_dad385680491c284",
-  },
-  "reported-opportunity-34": {
-    name: "Crunch Fitness — Melrose Park Takeover",
-    location: "1334 Winston Plaza, Melrose Park, IL 60160",
-    contractor: "Atticus Franchise Group / pb2 Architecture + Engineering",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cf_melrose_park_il&document=doc_cf_melrose_8c89250d32080e77",
-  },
-  "reported-opportunity-35": {
-    name: "Cuba Township Building Addition",
-    location: "28000 W. Cuba Rd., Barrington, IL 60010",
-    contractor: "Allen+Pepa Architects",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cuba_township_25_023&document=doc_cuba_towns_15ce947a3388439f",
-  },
-  "reported-opportunity-36": {
-    name: "The Goddard School — Burr Ridge",
-    location: "7660 S. County Line Rd., Burr Ridge, IL 60527",
-    contractor: "Goddard Systems / Burr Ridge Development",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=goddard_burr_ridge&document=doc_goddard_bu_5ab42a7310b91c9d",
-  },
-  "reported-opportunity-37": {
-    name: "Handel's Homemade Ice Cream — Zionsville",
-    location: "3715 Marketplace Dr., Zionsville, IN 46077",
-    contractor: "Tedrow Design Group",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=handel_zionsville_in&document=doc_handel_zio_8c71b8247afe46e7",
-  },
-  "reported-opportunity-38": {
-    name: "Mendocino Farms — Naperville Plaza",
-    location: "S. Washington St. & W. Gartner Rd., Naperville, IL",
-    contractor: "NORR Architects & Engineers",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=mendocino_farms_naperville_il&document=doc_mendocino__dc2d01b357522e10",
-  },
-  "reported-opportunity-39": {
-    name: "Millis Transfer — Richfield Demo & Maintenance Facility",
-    location: "33001 W. Holy Hill Rd., Richfield, WI 53076",
-    contractor: "IC Construction Company (ICCC)",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=millis_transfer_richfield_2026_045&document=doc_millis_tra_fbbb873f35fd6364",
-  },
-  "reported-opportunity-40": {
-    name: "First Watch Restaurant — Bourbonnais",
-    location: "1604 N. Route 50, Suite A-2, Bourbonnais, IL 60914",
-    contractor: "Capitol Construction Solutions",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_d54caa5a46d15449",
-  },
-  "reported-opportunity-41": {
-    name: "Willowbrae Academy (Structural Calculations Only)",
-    location: "4777 N. Milwaukee Ave., Chicago, IL",
-    contractor: "Johnson Wilbur Adams, Inc.",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_3bab8a61f3578be7",
-  },
-  "reported-opportunity-42": {
-    name: "IDOT Maintenance Facility",
-    location: "Illinois (IDOT District Facility)",
-    contractor: "Staalsen Construction",
-  },
-  "reported-opportunity-43": {
-    name: "Maurices #1801 — Oshkosh Retail Center",
-    location: "1941 S. Koeller St., Oshkosh, WI 54902",
-    contractor: "Todd Cooper Architect LLC (TCA)",
-    viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_76db82644184cd9c",
-  },
-};
-
-const LOTES_123_FALLBACK_ROWS: ProfileAReview["rows"] = [
-  {
-    id: "reported-opportunity-25",
-    name: "U.S. Bank — Hamilton Main Street Branch TI",
-    location: "540 Main St., Hamilton, OH",
-    contractor: "Guarantee Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-22",
-    documents: [{ name: "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_1b79da7bc73e530b" }],
-  },
-  {
-    id: "reported-opportunity-26",
-    name: "First Farmers & Merchants Bank — Fairmont Remodel (Civil Set)",
-    location: "E. Blue Earth Ave. & S. Park St., Fairmont, MN",
-    contractor: "Gil Haugan Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-22",
-    documents: [{ name: "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_9308f2305ac4ebdc" }],
-  },
-  {
-    id: "reported-opportunity-27",
-    name: "VA Illiana Health Care System — Bldg 103 PRRTP Restroom Renovation (SEED Project)",
-    location: "1900 E. Main Street, Danville, IL 61832",
-    contractor: "DAX Contracting",
-    section: "dated",
-    reportedDeadline: "2026-10-22",
-    documents: [{ name: "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_a21f463e34d415f3" }],
-  },
-  {
-    id: "reported-opportunity-28",
-    name: "Rockford Self Storage Units",
-    location: "2500 N. Main Street, Rockford, IL 61107",
-    contractor: "MLCO Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-21",
-    documents: [{ name: "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_bddeb99c13d103e4" }],
-  },
-  {
-    id: "reported-opportunity-29",
-    name: "Heartland Dental — Liberty Township TI",
-    location: "4706 Old Kyles Station Rd., Liberty Township, OH 45011",
-    contractor: "Singleton Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-21",
-    documents: [{ name: "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_3fe596517ccbf713" }],
-  },
-  {
-    id: "reported-opportunity-30",
-    name: "FedEx Legacy — Waukesha Facility",
-    location: "2001 Airport Rd., Waukesha, WI 53188",
-    contractor: "Jackson Taylor Contractors",
-    section: "dated",
-    reportedDeadline: "2026-10-23",
-    documents: [{ name: "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_cb426092e94f35ad" }],
-  },
-  {
-    id: "reported-opportunity-31",
-    name: "N Family Westmont Childcare (Civil Set — Architectural Set Pending)",
-    location: "6120 S. Cass Ave., Westmont, IL",
-    contractor: "Englewood Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-22",
-    documents: [{ name: "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_a0ebb98657d4efea" }],
-  },
-  {
-    id: "reported-opportunity-32",
-    name: "L.D. Fargo Public Library — Re-Bid",
-    location: "120 E. Madison St., Lake Mills, WI 53551",
-    contractor: "Corporate Contractors, Inc.",
-    section: "dated",
-    reportedDeadline: "2026-10-23",
-    documents: [{ name: "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_f795d7584b47e3b3" }],
-  },
-  {
-    id: "reported-opportunity-33",
-    name: "Edward Jones Branch #17975 — Marine on St. Croix Remodel",
-    location: "41 Judd St., Marine on St. Croix, MN 55047",
-    contractor: "Horizon Retail Construction",
-    section: "dated",
-    reportedDeadline: "2026-10-21",
-    documents: [{ name: "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes123_dad385680491c284" }],
-  },
-  {
-    id: "reported-opportunity-34",
-    name: "Crunch Fitness — Melrose Park Takeover",
-    location: "1334 Winston Plaza, Melrose Park, IL 60160",
-    contractor: "Atticus Franchise Group / pb2 Architecture + Engineering",
-    section: "dated",
-    reportedDeadline: "2026-10-19",
-    documents: [{ name: "CF Melrose Park,IL Rev 2 ECS.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cf_melrose_park_il&document=doc_cf_melrose_8c89250d32080e77" }],
-  },
-  {
-    id: "reported-opportunity-35",
-    name: "Cuba Township Building Addition",
-    location: "28000 W. Cuba Rd., Barrington, IL 60010",
-    contractor: "Allen+Pepa Architects",
-    section: "dated",
-    reportedDeadline: "2026-10-09",
-    documents: [{ name: "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=cuba_township_25_023&document=doc_cuba_towns_15ce947a3388439f" }],
-  },
-  {
-    id: "reported-opportunity-36",
-    name: "The Goddard School — Burr Ridge",
-    location: "7660 S. County Line Rd., Burr Ridge, IL 60527",
-    contractor: "Goddard Systems / Burr Ridge Development",
-    section: "dated",
-    reportedDeadline: "2026-09-29",
-    documents: [{ name: "Goddard Burr Ridge - Full Set 2026 09291.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=goddard_burr_ridge&document=doc_goddard_bu_5ab42a7310b91c9d" }],
-  },
-  {
-    id: "reported-opportunity-37",
-    name: "Handel's Homemade Ice Cream — Zionsville",
-    location: "3715 Marketplace Dr., Zionsville, IN 46077",
-    contractor: "Tedrow Design Group",
-    section: "dated",
-    reportedDeadline: "2026-09-15",
-    documents: [{ name: "handel_s ice cream - zionsville, in 9-15-26.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=handel_zionsville_in&document=doc_handel_zio_8c71b8247afe46e7" }],
-  },
-  {
-    id: "reported-opportunity-38",
-    name: "Mendocino Farms — Naperville Plaza",
-    location: "S. Washington St. & W. Gartner Rd., Naperville, IL",
-    contractor: "NORR Architects & Engineers",
-    section: "dated",
-    reportedDeadline: "2026-09-15",
-    documents: [{ name: "Mendocino Frarms- Naperville, IL Combined (2).pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=mendocino_farms_naperville_il&document=doc_mendocino__dc2d01b357522e10" }],
-  },
-  {
-    id: "reported-opportunity-39",
-    name: "Millis Transfer — Richfield Demo & Maintenance Facility",
-    location: "33001 W. Holy Hill Rd., Richfield, WI 53076",
-    contractor: "IC Construction Company (ICCC)",
-    section: "dated",
-    reportedDeadline: "2026-10-10",
-    documents: [{ name: "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=millis_transfer_richfield_2026_045&document=doc_millis_tra_fbbb873f35fd6364" }],
-  },
-  {
-    id: "reported-opportunity-40",
-    name: "First Watch Restaurant — Bourbonnais",
-    location: "1604 N. Route 50, Suite A-2, Bourbonnais, IL 60914",
-    contractor: "Capitol Construction Solutions",
-    section: "dated",
-    reportedDeadline: "2026-08-18",
-    documents: [{ name: "First Watch Bourbonnais - Permit Set.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_d54caa5a46d15449" }],
-  },
-  {
-    id: "reported-opportunity-41",
-    name: "Willowbrae Academy (Structural Calculations Only)",
-    location: "4777 N. Milwaukee Ave., Chicago, IL",
-    contractor: "Johnson Wilbur Adams, Inc.",
-    section: "dated",
-    reportedDeadline: "2026-09-02",
-    documents: [{ name: "Willowbrae Academy - Structural Calculations.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_3bab8a61f3578be7" }],
-  },
-  {
-    id: "reported-opportunity-42",
-    name: "IDOT Maintenance Facility",
-    location: "Illinois (IDOT District Facility)",
-    contractor: "Staalsen Construction",
-    section: "undated",
-    reportedDeadline: null,
-    documents: [{ name: "IDOT Maintenance Facility — Drawings pending from client", state: "pending", viewerHref: null }],
-  },
-  {
-    id: "reported-opportunity-43",
-    name: "Maurices #1801 — Oshkosh Retail Center",
-    location: "1941 S. Koeller St., Oshkosh, WI 54902",
-    contractor: "Todd Cooper Architect LLC (TCA)",
-    section: "dated",
-    reportedDeadline: "2026-09-25",
-    documents: [{ name: "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf", state: "received", viewerHref: "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_lotes123_20261024&document=doc_lotes4_76db82644184cd9c" }],
-  },
-];
-
-function normalizePortfolio(raw: ProfileAReview): { data: ProfileAReview; isRealPortfolio: boolean } {
-  if (raw.rows.length < 20) return { data: raw, isRealPortfolio: false };
-  const existingIds = new Set(raw.rows.map(r => r.id));
-  const combinedRows = !raw.recipientCoverage
-    ? [...raw.rows, ...LOTES_123_FALLBACK_ROWS.filter(r => !existingIds.has(r.id))]
-    : raw.rows;
-  const rows = combinedRows.map(row => {
-    const extra = REAL_PORTFOLIO_ENRICHMENT[row.id];
-    const documents = row.documents.map(doc => {
-      const isPendingNoPdf = doc.state === "pending" && !doc.viewerHref && !extra?.viewerHref && row.id === "reported-opportunity-42";
-      if (isPendingNoPdf) {
-        return {
-          ...doc,
-          state: "pending" as const,
-          viewerHref: null,
-          ...(doc.recipientAccess ? { recipientAccess: "source_pending" as const } : {}),
-        };
-      }
-      const href = doc.viewerHref ?? extra?.viewerHref ?? "/api/takeoff-viewer/viewer?embed=1";
-      return {
-        ...doc,
-        state: "received" as const,
-        viewerHref: href,
-        ...(doc.recipientAccess ? { recipientAccess: "available" as const } : {}),
-      };
-    });
-    return {
-      ...row,
-      name: extra?.name ?? row.name,
-      location: extra?.location ?? row.location ?? "Midwest Regional Portfolio",
-      contractor: row.contractor ?? extra?.contractor ?? "TAYCO Commercial Bidding",
-      documents,
-    };
-  });
-  const allDocs = rows.flatMap(r => r.documents);
-  const receivedDocs = allDocs.filter(d => d.state === "received").length;
-  const linkedDocs = allDocs.filter(d => d.viewerHref !== null).length;
-  return {
-    isRealPortfolio: true,
-    data: {
-      ...raw,
-      rows,
-      opportunityCount: rows.length,
-      reportedDatedCount: rows.filter(r => r.section === "dated").length,
-      undatedCount: rows.filter(r => r.section === "undated").length,
-      liveCount: rows.filter(r => r.section === "live").length,
-      documentCount: allDocs.length,
-      receivedDocumentCount: receivedDocs,
-      linkedDocumentCount: linkedDocs,
-    },
-  };
+/** Presentation only: accept a specific supplied link, never infer a document or grant. */
+export function reviewDocumentHref(document: SourceDocument): string | null {
+  if (document.state !== "received" || (document.recipientAccess !== undefined && document.recipientAccess !== "available") ||
+      !document.viewerHref?.startsWith("/api/takeoff-viewer/viewer?")) return null;
+  try {
+    const url = new URL(document.viewerHref, "http://tayco.local");
+    const id = /^[A-Za-z0-9_-]{1,200}$/;
+    if (url.origin !== "http://tayco.local" || url.pathname !== "/api/takeoff-viewer/viewer" || url.hash ||
+        !id.test(url.searchParams.get("project") ?? "") || !id.test(url.searchParams.get("document") ?? "") ||
+        url.searchParams.getAll("project").length !== 1 || url.searchParams.getAll("document").length !== 1) return null;
+    return document.viewerHref;
+  } catch { return null; }
 }
 
-export default function ProfileAReviewConsole({ data: rawData, review }: { data: ProfileAReview; review?: { id: string; expiresAt: number; asOf: number } }) {
-  const { data, isRealPortfolio } = normalizePortfolio(rawData);
-  const record=useReviewInteractions(review?.id),[ready,setReady]=useState<string|null>(null),visit=useRef<string|null>(null);
-  useEffect(()=>{if(ready){visit.current||=crypto.randomUUID();record("review.visit",{},visit.current);}},[ready,record]);
+/** A changed availability snapshot, selection or access state withdraws the displayed source. */
+export function selectedReviewDocumentUrl(project: Opportunity, url: string | null, openedAsOf: string | undefined, asOf: string | undefined) {
+  return url && openedAsOf === asOf && project.documents.some(document => reviewDocumentHref(document) === url) ? url : null;
+}
+
+export function ReviewSourceDocuments({ project, visibleDocumentUrl, onOpen }: {
+  project: Opportunity; visibleDocumentUrl: string | null; onOpen: (href: string) => void;
+}) {
+  return <article className={card}>
+    <p className="text-xs uppercase tracking-widest text-amber-200">{sectionLabel(project.section)}</p>
+    <h2 className="mt-3 text-2xl font-bold">{project.name}</h2>
+    <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+      <div><dt className="text-sm text-slate-400">Location reported</dt><dd className="mt-1">{project.location ?? "Not documented"}</dd></div>
+      <div><dt className="text-sm text-slate-400">Contractor reported</dt><dd className="mt-1">{project.contractor ?? "Not documented"}</dd></div>
+      <div><dt className="text-sm text-slate-400">Reported deadline</dt><dd className="mt-1">{project.reportedDeadline ? labelDate(project.reportedDeadline) : "Not documented"}</dd></div>
+      <div><dt className="text-sm text-slate-400">Source classification</dt><dd className="mt-1">{sectionLabel(project.section)}</dd></div>
+    </dl>
+    <h3 className="mt-7 text-lg font-bold">Source documents ({project.documents.length} listed)</h3>
+    <ul className="mt-4 space-y-3">{project.documents.map((document, index) => {
+      const href = reviewDocumentHref(document);
+      return <li key={index} className="min-w-0 rounded-xl border border-slate-600 p-4">
+        <p className="break-words font-semibold">{document.name}</p>
+        <p className="mt-2 text-sm text-slate-300">Source metadata: {document.state === "received" ? "Received" : "Pending"}</p>
+        <p className="mt-2 text-sm text-slate-300">{profileDocumentAvailabilityLabel(document)}</p>
+        {href && <button type="button" className={control + " mt-3"} onClick={() => onOpen(href)}>
+          {visibleDocumentUrl === href ? "Viewing protected document" : "Open protected document"}
+        </button>}
+      </li>;
+    })}</ul>
+  </article>;
+}
+
+export default function ProfileAReviewConsole({ data, review }: {
+  data: ProfileAReview; review?: { id: string; expiresAt: number; asOf: number };
+}) {
+  // The authorized DTO remains the sole source of counts, states, names and links.
+  const record = useReviewInteractions(review?.id), [ready, setReady] = useState<string | null>(null), visit = useRef<string | null>(null);
+  useEffect(() => { if (ready) { visit.current ||= crypto.randomUUID(); record("review.visit", {}, visit.current); } }, [ready, record]);
   const [section, setSection] = useState<"summary" | "timeline" | "projects">("summary");
   const [selected, setSelected] = useState(data.rows[0].id);
-  const [documentUrl, setDocumentUrl] = useState<string | null>(data.rows[0]?.documents.find(d => d.viewerHref)?.viewerHref ?? null);
-  const [openedAsOf,setOpenedAsOf]=useState<string|undefined>(data.recipientCoverage?.asOf);
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
+  const [openedAsOf, setOpenedAsOf] = useState<string | undefined>(undefined);
   const project = data.rows.find(row => row.id === selected) ?? data.rows[0];
-  const visibleDocumentUrl=documentUrl&&openedAsOf===data.recipientCoverage?.asOf&&project.documents.some(d=>d.viewerHref===documentUrl)?documentUrl:null;
+  const visibleDocumentUrl = selectedReviewDocumentUrl(project, documentUrl, openedAsOf, data.recipientCoverage?.asOf);
   const dated = data.rows.filter(row => row.reportedDeadline).sort((a, b) => a.reportedDeadline!.localeCompare(b.reportedDeadline!));
-  const open = (id: string) => {
-    record("opportunity.open",{opportunityId:id});
-    setSelected(id);
-    setSection("projects");
-    const targetRow = data.rows.find(r => r.id === id);
-    const firstHref = targetRow?.documents.find(d => d.viewerHref)?.viewerHref ?? null;
+  const open = (id: string) => { record("opportunity.open", { opportunityId: id }); setSelected(id); setSection("projects"); setDocumentUrl(null); };
+  const openDocument = (href: string) => {
+    if (!project.documents.some(document => reviewDocumentHref(document) === href)) return;
+    const documentId = new URL(href, "http://tayco.local").searchParams.get("document");
+    if (documentId) record("viewer.document.select", { documentId });
     setOpenedAsOf(data.recipientCoverage?.asOf);
-    setDocumentUrl(firstHref);
-    if (firstHref) {
-      const docId = new URL(firstHref, "http://tayco.local").searchParams.get("document");
-      if (docId) record("viewer.document.select", { documentId: docId });
-    }
+    setDocumentUrl(href);
   };
-  const previewExpiresIso = review ? new Date(review.expiresAt).toISOString() : "2026-10-24T18:30:00.000Z";
   return <PortalShell className="min-h-screen bg-[#070e1a] text-slate-100" data-testid="profile-a-review"
     sidebar={<><Image src="/logo.jpeg" alt="TAYCO" width={196} height={62} priority className="h-14 w-auto max-w-full lg:h-auto lg:w-[196px]" />
       <p className="mt-4 text-xs uppercase tracking-[.2em] text-amber-200 lg:mt-7">Review workspace</p>
-      <nav aria-label="Review sections" className="mt-3 grid grid-cols-3 gap-2 lg:mt-4 lg:grid-cols-1 lg:gap-3">{(["summary", "timeline", "projects"] as const).map(key => <button key={key} type="button" className={control + (section === key ? " bg-amber-200/15" : "")} aria-current={section === key ? "page" : undefined} onClick={() => { record("review.section.select",{reviewSection:key});setSection(key); if (key === "projects" && !documentUrl) { const firstHref = project.documents.find(d => d.viewerHref)?.viewerHref ?? null; setOpenedAsOf(data.recipientCoverage?.asOf); setDocumentUrl(firstHref); } }}>{key === "summary" ? "Executive summary" : key === "timeline" ? "Reported chronology" : "Opportunity files"}</button>)}</nav>
-      <Link className={control + " mt-4 block lg:mt-7"} href={review?"/account":"/portal"} onClick={()=>record("account.open")}>{review?"Account and access":"Return to administration"}</Link></>}
-    header={<><div><p className="text-xs uppercase tracking-[.2em] text-amber-200">TAYCO · {data.period}</p><h1 className="mt-2 text-3xl font-bold">Opportunity review</h1><p className="mt-2 text-sm text-slate-300">{data.sourceLabel}</p></div><span className="rounded-lg border border-amber-200/30 px-4 py-3 text-sm text-amber-100">{review?"Recipient review · read only (3h window)":"Recipient & Administrative review · read only (3h window)"}</span></>}>
-    {review ? (
-      <><GuestPrivacyNotice onReady={setReady}/><p className="my-3 text-sm text-amber-100">Access ends {previewExpiresIso} UTC (3-hour review session). Signing in or refreshing does not extend this review.</p></>
-    ) : isRealPortfolio ? (
-      <>
-        <section data-testid="guest-privacy" className="my-4 min-w-0 rounded-xl border border-amber-200/30 bg-[#10213a] p-4 text-slate-100">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Privacy &amp; activity (3-hour session policy)</h2>
-            <span className="rounded-lg border border-amber-300/40 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-200">3-Hour Guest Access Active</span>
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-slate-200">
-            TAYCO uses essential session cookies (3-hour validity) to secure this private three-hour review and maintain audit activity logs for administrators. Security events and review movements (sections, opportunities, documents and pages inspected) are recorded in the administrator database log.
-          </p>
-          <p className="mt-2 text-xs text-slate-300">Notice 2026-10-24-v2 · Cookie &amp; 3-hour session disclosure active · Current month scope: {data.period}.</p>
-        </section>
-        <p className="my-3 text-sm text-amber-100">Access ends {previewExpiresIso} UTC (strict 3-hour guest session). Signing in or refreshing does not extend this review.</p>
-      </>
-    ) : null}
-    <p className="my-5 rounded-xl border border-slate-600 bg-[#0b1b31] p-4 text-sm leading-relaxed text-slate-300">This review organizes the {data.opportunityCount} reported opportunities and {data.documentCount} verified source documents for {data.period}. All projects are in either Overdue status (past October 2026 deadline) or Pending company information status. Drawings are rendered in a protected view-only canvas (direct download disabled). No financial amounts or internal credentials are exposed.</p>
+      <nav aria-label="Review sections" className="mt-3 grid grid-cols-3 gap-2 lg:mt-4 lg:grid-cols-1 lg:gap-3">{(["summary", "timeline", "projects"] as const).map(key =>
+        <button key={key} type="button" className={control + (section === key ? " bg-amber-200/15" : "")} aria-current={section === key ? "page" : undefined}
+          onClick={() => { record("review.section.select", { reviewSection: key }); setSection(key); setDocumentUrl(null); }}>
+          {key === "summary" ? "Executive summary" : key === "timeline" ? "Reported chronology" : "Opportunity files"}
+        </button>)}</nav>
+      <Link className={control + " mt-4 block lg:mt-7"} href={review ? "/account" : "/portal"} onClick={() => record("account.open")}>{review ? "Account and access" : "Return to administration"}</Link></>}
+    header={<><div><p className="text-xs uppercase tracking-[.2em] text-amber-200">TAYCO · {data.period}</p><h1 className="mt-2 text-3xl font-bold">Opportunity review</h1><p className="mt-2 text-sm text-slate-300">{data.sourceLabel}</p></div>
+      <span className="rounded-lg border border-amber-200/30 px-4 py-3 text-sm text-amber-100">{review ? "Recipient review · read only" : "Administrative preview · read only"}</span></>}>
+    {review && <><GuestPrivacyNotice onReady={setReady} /><p className="my-3 text-sm text-amber-100">Access ends {new Date(review.expiresAt).toISOString()} UTC. Signing in or refreshing does not extend this review.</p></>}
+    <p className="my-5 rounded-xl border border-slate-600 bg-[#0b1b31] p-4 text-sm leading-relaxed text-slate-300">This review organizes {data.opportunityCount} reported opportunities and {data.documentCount} listed source documents for {data.period}. Reported deadlines and business associations remain unconfirmed. Source receipt metadata and recipient access are separate. No invitation or recipient access is created by this preview.</p>
     {section === "summary" && <section aria-label="Executive summary" className="space-y-5">
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">{(isRealPortfolio ? [
-        ["Reported opportunities", data.opportunityCount],
-        ["Overdue (past Oct deadline)", data.reportedDatedCount],
-        ["Pending company information", data.undatedCount + data.liveCount],
-        ["Source files received", data.receivedDocumentCount],
-      ] : [
-        ["Reported opportunities", data.opportunityCount],
-        ["Dated source records", data.reportedDatedCount],
-        ["Deadlines not documented", data.undatedCount],
-        ["Source files received", data.receivedDocumentCount],
-      ]).map(([label, value]) => <article key={label} className={card}><p className="text-sm text-slate-300">{label}</p><strong className="mt-3 block text-4xl text-white">{value}</strong></article>)}</div>
-      <article className={card}><h2 className="text-xl font-bold">Source coverage &amp; project states</h2>{data.recipientCoverage?<p className="mt-3 leading-relaxed text-slate-300" data-testid="recipient-document-coverage">{data.receivedDocumentCount} files are reported received. {data.recipientCoverage.availableDocumentCount} are available for this review; {data.recipientCoverage.notSelectedDocumentCount} are not selected; {data.recipientCoverage.unavailableDocumentCount} have access currently unavailable. {data.recipientCoverage.pendingSourceDocumentCount} listed files remain pending at source. Selection and access do not change source receipt status. Availability checked {data.recipientCoverage.asOf}.</p>:<p className="mt-3 leading-relaxed text-slate-300">{data.linkedDocumentCount} of {data.documentCount} verified PDF source files (100% SHA-256 verified) are connected to the authenticated Takeoff drawing viewer. 0 listed files remain pending at source.</p>}<p className="mt-3 leading-relaxed text-slate-300">{isRealPortfolio ? `${data.reportedDatedCount} opportunities are in Overdue status (October 2026 submission window elapsed) and ${data.undatedCount + data.liveCount} opportunities are in Pending company information status (awaiting company & insurance package). Zero dollar amounts are displayed.` : `${data.liveCount} opportunity is reported as still open. These records do not establish awarded work, completed projects or financial results.`}</p><div className="mt-5 flex flex-wrap gap-3"><button className={control} type="button" onClick={() => {record("review.section.select",{reviewSection:"projects"});setSection("projects");const firstHref=project.documents.find(d=>d.viewerHref)?.viewerHref??null;setOpenedAsOf(data.recipientCoverage?.asOf);setDocumentUrl(firstHref);}}>Open drawing viewer ({project.name})</button><button className={control} type="button" onClick={() => {record("review.section.select",{reviewSection:"timeline"});setSection("timeline");}}>Browse all {data.opportunityCount} opportunities by chronology</button></div></article>
-      {isRealPortfolio && (
-        <article className={card}>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-xl font-bold">1-Click drawing access (all {data.opportunityCount} opportunities)</h2>
-            <span className="rounded border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-200">View-only canvas · Download disabled</span>
-          </div>
-          <p className="mt-2 text-sm text-slate-300">Select any opportunity below to immediately open its verified drawing set in the protected canvas reader.</p>
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-            {data.rows.map(row => (
-              <button key={row.id} type="button" className={control + " flex flex-col justify-between gap-2"} onClick={() => open(row.id)}>
-                <span className="font-semibold text-white">{row.name}</span>
-                <span className="flex w-full items-center justify-between text-xs text-slate-300">
-                  <span>{row.reportedDeadline ? `Overdue (${labelDate(row.reportedDeadline)})` : "Pending company info"}</span>
-                  <span className="text-amber-200">{row.documents.some(d => d.viewerHref) ? "View drawing →" : "Drawings pending →"}</span>
-                </span>
-              </button>
-            ))}
-          </div>
-        </article>
-      )}
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">{[
+        ["Reported opportunities", data.opportunityCount], ["Dated source records", data.reportedDatedCount],
+        ["Deadlines not documented", data.undatedCount], ["Source files reported received", data.receivedDocumentCount],
+      ].map(([label, value]) => <article key={label} className={card}><p className="text-sm text-slate-300">{label}</p><strong className="mt-3 block text-4xl text-white">{value}</strong></article>)}</div>
+      <article className={card}><h2 className="text-xl font-bold">Source coverage</h2>
+        {data.recipientCoverage ? <p className="mt-3 leading-relaxed text-slate-300" data-testid="recipient-document-coverage">
+          {data.receivedDocumentCount} files are reported received. {data.recipientCoverage.availableDocumentCount} are available for this review; {data.recipientCoverage.notSelectedDocumentCount} are not selected; {data.recipientCoverage.unavailableDocumentCount} have access currently unavailable. {data.recipientCoverage.pendingSourceDocumentCount} listed files remain pending in source metadata. Selection and access do not change source receipt status. Availability checked {data.recipientCoverage.asOf}.
+        </p> : <p className="mt-3 leading-relaxed text-slate-300">
+          {data.linkedDocumentCount} received files have links in this administrative preview. {data.receivedDocumentCount} of {data.documentCount} listed files are reported received; {data.documentCount - data.receivedDocumentCount} remain pending in source metadata. This metadata does not establish physical absence or recipient authorization.
+        </p>}
+        <p className="mt-3 leading-relaxed text-slate-300">{data.liveCount} opportunities are reported as still open. These records do not establish awarded work, completed projects or financial results.</p>
+        <button className={control + " mt-5"} type="button" onClick={() => { record("review.section.select", { reviewSection: "projects" }); setSection("projects"); }}>Review opportunity files</button>
+      </article>
     </section>}
-    {section === "timeline" && <section className={card} aria-label="Reported chronology"><h2 className="text-xl font-bold">Reported chronology &amp; status matrix</h2><p className="mt-2 text-sm text-slate-300">Click any of the {data.opportunityCount} opportunities below to open its dossier and drawing directly in the protected canvas viewer.</p><h3 className="mt-5 text-sm font-bold uppercase tracking-wider text-amber-200">Overdue · Past October 2026 Deadline ({dated.length} opportunities)</h3><ol className="mt-3 space-y-3">{dated.map(row => <li key={row.id}><button type="button" className={control + " flex w-full flex-wrap items-center justify-between gap-3"} onClick={() => open(row.id)}><span>{row.name} <span className="text-xs text-slate-400">({row.location})</span></span><span className="flex items-center gap-2"><span className="rounded bg-rose-500/20 px-2.5 py-1 text-xs font-semibold text-rose-200">{labelDate(row.reportedDeadline!)} · Overdue</span><span className="text-xs text-amber-200">{row.documents.some(d => d.viewerHref) ? "View drawing →" : "Drawings pending →"}</span></span></button></li>)}</ol><h3 className="mt-7 text-sm font-bold uppercase tracking-wider text-amber-200">Pending Company Information ({data.rows.filter(row => !row.reportedDeadline).length} opportunities)</h3><ul className="mt-3 space-y-2">{data.rows.filter(row => !row.reportedDeadline).map(row => <li key={row.id}><button type="button" className={control + " flex w-full flex-wrap items-center justify-between gap-3"} onClick={() => open(row.id)}><span>{row.name} <span className="text-xs text-slate-400">({row.location})</span></span><span className="flex items-center gap-2"><span className="rounded bg-amber-500/20 px-2.5 py-1 text-xs font-semibold text-amber-200">Pending company information</span><span className="text-xs text-amber-200">{row.documents.some(d => d.viewerHref) ? "View drawing →" : "Drawings pending →"}</span></span></button></li>)}</ul></section>}
+    {section === "timeline" && <section className={card} aria-label="Reported chronology"><h2 className="text-xl font-bold">Reported chronology</h2>
+      <p className="mt-2 text-sm text-slate-300">Source-reported dates are unconfirmed; no award or company-information state is inferred.</p>
+      <h3 className="mt-5 text-sm font-bold uppercase tracking-wider text-amber-200">Reported deadlines ({dated.length} opportunities)</h3>
+      <ol className="mt-3 space-y-3">{dated.map(row => <li key={row.id}><button type="button" className={control + " flex w-full flex-wrap items-center justify-between gap-3"} onClick={() => open(row.id)}>
+        <span>{row.name} <span className="text-xs text-slate-400">({row.location ?? "Location not documented"})</span></span><span>{labelDate(row.reportedDeadline!)}</span>
+      </button></li>)}</ol>
+      <h3 className="mt-7 text-sm font-bold uppercase tracking-wider text-amber-200">Without a documented deadline ({data.rows.filter(row => !row.reportedDeadline).length} opportunities)</h3>
+      <ul className="mt-3 space-y-2">{data.rows.filter(row => !row.reportedDeadline).map(row => <li key={row.id}><button type="button" className={control + " flex w-full flex-wrap items-center justify-between gap-3"} onClick={() => open(row.id)}>
+        <span>{row.name} <span className="text-xs text-slate-400">({row.location ?? "Location not documented"})</span></span><span>{sectionLabel(row.section)}</span>
+      </button></li>)}</ul>
+    </section>}
     {section === "projects" && <section aria-label="Opportunity files" className="space-y-5">
-      <div className={card}><label htmlFor="review-opportunity" className="block text-sm font-semibold text-amber-100">Opportunity ({data.rows.length} verified records — selecting an opportunity opens its drawing automatically)</label><select id="review-opportunity" className="mt-3 min-h-12 w-full min-w-0 rounded-lg border border-slate-500 bg-[#10223c] p-3 text-white" value={selected} onChange={event => open(event.target.value)}>{data.rows.map(row => <option key={row.id} value={row.id}>{row.name} — {row.reportedDeadline ? `Overdue (${row.reportedDeadline})` : "Pending company information"}</option>)}</select></div>
-      <article className={card}><p className="text-xs uppercase tracking-widest text-amber-200">{sectionLabel(project.section, isRealPortfolio)}</p><h2 className="mt-3 text-2xl font-bold">{project.name}</h2>
-        <dl className="mt-5 grid gap-4 sm:grid-cols-2"><div><dt className="text-sm text-slate-400">Location reported</dt><dd className="mt-1">{project.location ?? "Midwest Regional"}</dd></div><div><dt className="text-sm text-slate-400">Contractor reported</dt><dd className="mt-1">{project.contractor ?? "General Contractor"}</dd></div><div><dt className="text-sm text-slate-400">Reported deadline</dt><dd className="mt-1">{project.reportedDeadline ? labelDate(project.reportedDeadline) + " · Overdue" : "Pending company information"}</dd></div><div><dt className="text-sm text-slate-400">Current state</dt><dd className="mt-1">{project.reportedDeadline ? "Overdue — October 2026 submission window closed" : "Pending company information — awaiting company & insurance documentation"}</dd></div></dl>
-        <h3 className="mt-7 text-lg font-bold">Source documents ({project.documents.some(d => d.state === "pending") ? "Drawings pending from client" : `${project.documents.length} verified PDF · view-only canvas`})</h3><ul className="mt-4 space-y-3">{project.documents.map((doc, index) => <li key={index} className="min-w-0 rounded-xl border border-slate-600 p-4"><p className="break-words font-semibold">{doc.name}</p><p className="mt-2 text-sm text-slate-300">{isRealPortfolio ? (doc.state === "pending" ? "Drawings pending from client · awaiting drawing package" : "Received · SHA-256 verified · View-only canvas reader (download disabled)") : profileDocumentAvailabilityLabel(doc)}</p>{doc.viewerHref && <button type="button" className={control + " mt-3"} onClick={() => {const documentId=new URL(doc.viewerHref!,"http://tayco.local").searchParams.get("document");if(documentId)record("viewer.document.select",{documentId});setOpenedAsOf(data.recipientCoverage?.asOf);setDocumentUrl(doc.viewerHref);}}>{visibleDocumentUrl === doc.viewerHref ? "Viewing in canvas reader below" : "View in protected canvas reader"}</button>}</li>)}</ul>
-      </article>{visibleDocumentUrl && <section className={card}><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold">Protected drawing viewer (View-only · No download)</h3><button type="button" className={control} onClick={() => {const documentId=documentUrl?new URL(documentUrl,"http://tayco.local").searchParams.get("document"):null;if(documentId)record("viewer.close",{documentId});setDocumentUrl(null);}}>Close viewer</button></div><TakeoffProjectReader source={visibleDocumentUrl} projectName={project.name} review={review} privacyNotice={false}/></section>}
+      <div className={card}><label htmlFor="review-opportunity" className="block text-sm font-semibold text-amber-100">Opportunity ({data.rows.length} reported records)</label>
+        <select id="review-opportunity" className="mt-3 min-h-12 w-full min-w-0 rounded-lg border border-slate-500 bg-[#10223c] p-3 text-white" value={selected} onChange={event => open(event.target.value)}>
+          {data.rows.map(row => <option key={row.id} value={row.id}>{row.name} — {row.reportedDeadline ?? sectionLabel(row.section)}</option>)}
+        </select>
+      </div>
+      <ReviewSourceDocuments project={project} visibleDocumentUrl={visibleDocumentUrl} onOpen={openDocument} />
+      {visibleDocumentUrl && <section className={card}><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold">Protected drawing viewer</h3>
+        <button type="button" className={control} onClick={() => { const documentId = new URL(visibleDocumentUrl, "http://tayco.local").searchParams.get("document"); if (documentId) record("viewer.close", { documentId }); setDocumentUrl(null); }}>Close viewer</button>
+      </div><TakeoffProjectReader source={visibleDocumentUrl} projectName={project.name} review={review} privacyNotice={false} /></section>}
     </section>}
   </PortalShell>;
 }
