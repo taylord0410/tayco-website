@@ -27,6 +27,7 @@ export default function MeasurementReview({projectId}:{projectId:string}){
    {state.value.receipts.length===0?<p className="text-sm text-slate-300">No measurement package has been received for this project. Missing quantities and prices are not zero.</p>:state.value.receipts.map(receipt=><details key={receipt.id} open={receipt.current} className="min-w-0 rounded-lg border border-slate-700 p-3">
     <summary className="min-h-11 cursor-pointer break-words text-sm font-semibold text-white">{receipt.packageId} · {receipt.revision} · {receipt.current?"Current received revision":"Earlier revision — retained for review"}</summary>
     <p className="my-3 text-xs text-slate-400">Received {receipt.receivedAt} · {receipt.measurementCount} measurements · {receipt.boqLineCount} source BOQ lines. No automatic sum across revisions.</p>
+    {receipt.textIntegrity.state==="restored_from_source_utf8"&&<p className="mb-3 text-xs text-slate-300">Source text restored · original receipt retained. Quantities and prices are unchanged.</p>}
     <div className="grid min-w-0 gap-3 lg:grid-cols-2">{receipt.measurements.map(item=><article key={item.stableId} className="min-w-0 rounded-lg bg-slate-900 p-4">
      <h3 className="break-words text-sm font-semibold">{item.measurementId}</h3>
      <p className="mt-2 text-amber-200">Quantity: {item.quantity===null?"Pending — not zero":item.quantity+" "+item.unit}</p>

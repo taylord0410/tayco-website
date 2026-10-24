@@ -5,6 +5,7 @@ import path from 'node:path';
 import { requireActor, requireRole, revalidateRequestActor, type Actor } from './auth';
 import { database, type Entry } from './erp';
 import { viewerScope } from './takeoff-viewer-access';
+import {decodeM02UTF8,m02TextCorrections,applyM02TextCorrections,type M02TextCorrection} from './m02-text-codec';
 
 export class M02IntakeError extends Error {
  constructor(public status:number,message:string){super(message);this.name='M02IntakeError';}
@@ -60,10 +61,10 @@ async function runPreparation(packagePath:string,archive:boolean):Promise<string
  const file=realpathSync(/* turbopackIgnore: true */ packagePath),relative=path.relative(intake,file);
  if(relative.startsWith('..')||path.isAbsolute(relative)||!statSync(file).isFile())return bad();
  const manifest=process.env.TAYCO_M02_SOURCE_MANIFEST_SHA256;if(!manifest||!SHA.test(manifest))return bad();
- const args=['-B',path.join(process.cwd(),'scripts',archive?'prepare_m02.py':'inspect_m02.py'),'--package',file,
+ const args=['-X','utf8','-B',path.join(process.cwd(),'scripts',archive?'prepare_m02.py':'inspect_m02.py'),'--package',file,
   '--contract-root',configured('TAYCO_M02_CONTRACT_ROOT'),'--bundle-root',configured('TAYCO_M02_BUNDLE_ROOT'),
   '--manifest-sha256',manifest,...(archive?['--archive-root',configured('TAYCO_M02_ARCHIVE_ROOT')]:[])];
- const raw=await new Promise<string>((resolve,reject)=>execFile(/* turbopackIgnore: true */ process.env.TAYCO_M02_PYTHON||'python',args,{windowsHide:true,timeout:60000,maxBuffer:16*1024*1024,encoding:'utf8'},(error,stdout)=>error?reject(new M02IntakeError(503,'Measurement preparation did not complete. No ERP receipt was confirmed.')):resolve(stdout)));
+ const raw=await new Promise<string>((resolve,reject)=>execFile(/* turbopackIgnore: true */ process.env.TAYCO_M02_PYTHON||'python',args,{windowsHide:true,timeout:60000,maxBuffer:16*1024*1024,encoding:null,env:{...process.env,PYTHONUTF8:'1',PYTHONIOENCODING:'utf-8:strict'}},(error,stdout)=>{if(error){reject(new M02IntakeError(503,'Measurement preparation did not complete. No ERP receipt was confirmed.'));return;}try{resolve(decodeM02UTF8(stdout));}catch{reject(new M02IntakeError(503,'Measurement preparation returned invalid UTF-8. No ERP receipt was confirmed.'));}}));
  return raw;
 }
 function operationPlanHash(actor:Actor,receipt:Prepared['receipt'],bindings:Binding[],supersedes?:string){return hash(JSON.stringify([actor.tenantId,actor.id,receipt.packageId,receipt.revision,receipt.payloadDigest,receipt.packageSha256,bindings,supersedes??null]));}
@@ -162,7 +163,8 @@ export async function measurementReview(request:Request,projectId:string){
  SELECT 1 FROM takeoff_measurement_bindings b WHERE b.receipt_id=r.id AND b.tenant_id=? AND b.project_id=?) ORDER BY r.received_at DESC,r.id LIMIT 21`).all(fresh.tenantId,fresh.tenantId,projectId) as ReceiptRow[];
  const receipts=rows.slice(0,20).map(receipt=>{
   if(receipt.projection.length>16*1024*1024)return bad();
-  const prepared=preparedOf(receipt.projection);
+  const textOverlay=readTextOverlay(db,receipt);
+  const prepared=textOverlay.prepared;
   const projectBindings=(JSON.parse(receipt.bindings) as Binding[]).filter(b=>b.projectId===projectId);
   const documents=prepared.documents.filter(d=>projectBindings.some(b=>b.contextKey===d.contextKey&&b.viewerDocumentId===d.documentId));
   const actual=bindingsFor(fresh,{documents,receipt:prepared.receipt});
@@ -171,8 +173,85 @@ export async function measurementReview(request:Request,projectId:string){
   const measurementIds=new Set(measurements.map(m=>m.stableId));
   const lines=prepared.boqLines.filter(line=>line.measurementRefs.length>0&&line.measurementRefs.every(ref=>measurementIds.has(ref.stableId)));
   const current=!db.prepare('SELECT id FROM takeoff_measurement_receipts WHERE supersedes_id=? AND tenant_id=?').get(receipt.id,fresh.tenantId);
-  return {id:receipt.id,packageId:receipt.package_id,revision:receipt.revision,receivedAt:receipt.received_at,current,supersedesId:receipt.supersedes_id,summary:JSON.parse(receipt.summary),measurements:measurements.slice(0,200).map(m=>({...m,documentHref:'/api/documents/'+encodeURIComponent(projectBindings.find(b=>b.contextKey===m.contextKey&&b.viewerDocumentId===m.documentId)!.erpDocumentId)})),measurementCount:measurements.length,boqLines:lines.slice(0,200),boqLineCount:lines.length,partial:measurements.length>200||lines.length>200};
+  return {id:receipt.id,packageId:receipt.package_id,revision:receipt.revision,receivedAt:receipt.received_at,current,supersedesId:receipt.supersedes_id,summary:JSON.parse(receipt.summary),textIntegrity:textOverlay.integrity,measurements:measurements.slice(0,200).map(m=>({...m,documentHref:'/api/documents/'+encodeURIComponent(projectBindings.find(b=>b.contextKey===m.contextKey&&b.viewerDocumentId===m.documentId)!.erpDocumentId)})),measurementCount:measurements.length,boqLines:lines.slice(0,200),boqLineCount:lines.length,partial:measurements.length>200||lines.length>200};
  });
  exactActor(actor,['admin','staff']);
  return {projectId,name:String(project.data.name??'Project'),asOf:new Date().toISOString(),receipts,partial:rows.length>20,reviewBasis:'Producer reported quantities and price evidence; not independent approval, an approved estimate or a contract.'};
+}
+
+type TextOverlayRow={receipt_id:string;tenant_id:string;source_sha:string;original_sha:string;correction_sha:string;corrections:string;actor_id:string;created_at:string};
+function installTextOverlays(db:ReturnType<typeof database>){
+ db.exec("CREATE TABLE IF NOT EXISTS takeoff_measurement_text_overlays(receipt_id TEXT PRIMARY KEY REFERENCES takeoff_measurement_receipts(id),tenant_id TEXT NOT NULL,source_sha TEXT NOT NULL,original_sha TEXT NOT NULL,correction_sha TEXT NOT NULL,corrections TEXT NOT NULL,actor_id TEXT NOT NULL,created_at TEXT NOT NULL)");
+}
+function existingTextOverlay(db:ReturnType<typeof database>,id:string){
+ if(!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='takeoff_measurement_text_overlays'").get())return undefined;
+ return db.prepare('SELECT * FROM takeoff_measurement_text_overlays WHERE receipt_id=?').get(id) as TextOverlayRow|undefined;
+}
+function readTextOverlay(db:ReturnType<typeof database>,receipt:ReceiptRow):{prepared:Prepared;integrity:{state:'as_received'|'restored_from_source_utf8';correctedFields:number}}{
+ const original=preparedOf(receipt.projection),overlay=existingTextOverlay(db,receipt.id);
+ if(!overlay)return {prepared:original,integrity:{state:'as_received',correctedFields:0}};
+ try{
+  if(overlay.tenant_id!==receipt.tenant_id||overlay.source_sha!==receipt.package_sha||overlay.original_sha!==hash(receipt.projection)||overlay.corrections.length>1024*1024||hash(overlay.corrections)!==overlay.correction_sha)return bad();
+  const corrections=JSON.parse(overlay.corrections) as M02TextCorrection[];
+  if(!corrections.length)return bad();
+  return {prepared:preparedOf(JSON.stringify(applyM02TextCorrections(original,corrections))),integrity:{state:'restored_from_source_utf8',correctedFields:corrections.length}};
+ }catch{return bad();}
+}
+function correctionReceipt(actor:Actor,id:string):ReceiptRow{
+ if(!/^m02r_[a-f0-9]{64}$/.test(id))throw new M02IntakeError(422,'Select an exact measurement receipt.');
+ const db=database();
+ const found=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='takeoff_measurement_receipts'").get()?
+  db.prepare('SELECT * FROM takeoff_measurement_receipts WHERE id=? AND tenant_id=?').get(id,actor.tenantId) as ReceiptRow|undefined:undefined;
+ if(!found)throw new M02IntakeError(404,'Measurement receipt unavailable.');
+ if(found.projection.length>16*1024*1024||!SHA.test(found.package_sha)||found.archive_key!==found.package_sha)return bad();
+ return found;
+}
+async function textCorrectionPlan(request:Request,id:string,packagePath:string){
+ const actor=await requireActor(request);requireRole(actor,['admin']);exactActor(actor,['admin']);
+ const original=correctionReceipt(actor,id),before=preparedOf(original.projection);
+ const inspection=await planM02(request,packagePath);const fresh=exactActor(actor,['admin']);
+ if(inspection.packageSha256!==original.package_sha||inspection.payloadDigest!==original.payload_digest||inspection.packageId!==original.package_id||inspection.revision!==original.revision||JSON.stringify(inspection.bindings)!==original.bindings)return changed();
+ const archiveRoot=configured('TAYCO_M02_ARCHIVE_ROOT'),archive=path.join(/* turbopackIgnore: true */ archiveRoot,original.archive_key);
+ try{
+  if(lstatSync(/* turbopackIgnore: true */ archiveRoot).isSymbolicLink()||lstatSync(/* turbopackIgnore: true */ archive).isSymbolicLink()||!statSync(/* turbopackIgnore: true */ archive).isDirectory()||path.relative(realpathSync(/* turbopackIgnore: true */ archiveRoot),realpathSync(/* turbopackIgnore: true */ archive))!==original.archive_key)return bad();
+ }catch{return bad();}
+ // Existing-only preparation revalidates exact raw bytes, artifacts and the locked source PDF.
+ const after=preparedOf(await runPreparation(packagePath,true));exactActor(actor,['admin']);
+ if(after.archiveState!=='existing_verified'||after.receipt.packageSha256!==original.package_sha||after.archiveKey!==original.archive_key||JSON.stringify(bindingsFor(fresh,after))!==original.bindings)return changed();
+ let changes:M02TextCorrection[];try{changes=m02TextCorrections(before,after);}catch{throw new M02IntakeError(409,'The source differs beyond recoverable legacy text. Review independently.');}
+ const correctionJSON=JSON.stringify(changes),originalSHA=hash(original.projection),correctionSHA=hash(correctionJSON);
+ const planHash=hash(JSON.stringify(['m02-source-text/v1',fresh.tenantId,fresh.id,id,original.package_sha,originalSHA,correctionSHA,inspection.bindings]));
+ exactActor(actor,['admin']);
+ return {actor,original,after,changes,correctionJSON,originalSHA,correctionSHA,planHash};
+}
+/** Private operator inspection; no public route accepts patches, file paths or correction JSON. */
+export async function planM02TextCorrection(request:Request,id:string,packagePath:string){
+ const plan=await textCorrectionPlan(request,id,packagePath);
+ return {mode:'text_correction_inspection' as const,receiptId:id,planHash:plan.planHash,packageSha256:plan.original.package_sha,originalProjectionSha256:plan.originalSHA,correctionDigest:plan.correctionSHA,correctionCount:plan.changes.length,changes:plan.changes,originalReceiptWillRemainUnchanged:true,quantityOrPriceChanges:0};
+}
+/** Append-only source-text correction; receipt rows, archives and decisions remain untouched. */
+export async function applyM02TextCorrection(request:Request,id:string,packagePath:string,expectedPlanHash:string){
+ const authorized=await requireActor(request);requireRole(authorized,['admin']);exactActor(authorized,['admin']);
+ if(typeof expectedPlanHash!=='string'||!SHA.test(expectedPlanHash))throw new M02IntakeError(422,'Review an exact text correction plan first.');
+ const plan=await textCorrectionPlan(request,id,packagePath);
+ if(plan.planHash!==expectedPlanHash)return changed();
+ if(!plan.changes.length)throw new M02IntakeError(422,'No recoverable legacy text correction is required.');
+ exactActor(plan.actor,['admin']);const db=database();installTextOverlays(db);db.exec('BEGIN IMMEDIATE');
+ try{
+  const fresh=exactActor(plan.actor,['admin']),original=correctionReceipt(fresh,id);
+  if(hash(original.projection)!==plan.originalSHA||original.package_sha!==plan.original.package_sha||original.bindings!==plan.original.bindings||JSON.stringify(bindingsFor(fresh,plan.after))!==original.bindings)return changed();
+  const existing=existingTextOverlay(db,id);
+  if(existing){
+   if(existing.tenant_id!==fresh.tenantId||existing.source_sha!==original.package_sha||existing.original_sha!==plan.originalSHA||existing.correction_sha!==plan.correctionSHA||existing.corrections!==plan.correctionJSON)throw new M02IntakeError(409,'This receipt already has a different text correction.');
+   readTextOverlay(db,original);exactActor(plan.actor,['admin']);if(JSON.stringify(bindingsFor(fresh,plan.after))!==original.bindings)return changed();db.exec('COMMIT');
+   return {receiptId:id,replayed:true,created:0,correctedFields:plan.changes.length,correctedAt:existing.created_at,originalReceiptUnchanged:true};
+  }
+  const at=new Date().toISOString();
+  db.prepare('INSERT INTO takeoff_measurement_text_overlays VALUES(?,?,?,?,?,?,?,?)').run(id,fresh.tenantId,original.package_sha,plan.originalSHA,plan.correctionSHA,plan.correctionJSON,fresh.id,at);
+  db.prepare('INSERT INTO audit VALUES(?,?,?,?,?,?)').run(randomUUID(),fresh.tenantId,fresh.id,'measurement.text_corrected',id,at);
+  exactActor(plan.actor,['admin']);
+  if(hash(correctionReceipt(fresh,id).projection)!==plan.originalSHA||JSON.stringify(bindingsFor(fresh,plan.after))!==original.bindings)return changed();
+  readTextOverlay(db,original);exactActor(plan.actor,['admin']);if(JSON.stringify(bindingsFor(fresh,plan.after))!==original.bindings)return changed();db.exec('COMMIT');
+  return {receiptId:id,replayed:false,created:1,correctedFields:plan.changes.length,correctedAt:at,originalReceiptUnchanged:true};
+ }catch(error){db.exec('ROLLBACK');throw error;}
 }

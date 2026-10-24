@@ -62,3 +62,17 @@ The receiver probes require the reviewed contract root in TAYCO_M02_CONTRACT_ROO
 Local verification exercises real synthetic reception and console rendering at desktop 1440 and mobile 390: verified/candidate/pending/conflicting producer states, null quantities, separate provisional price evidence, revision labels, evidence expansion and a protected source PDF canvas. A guest receives 403; revoking the synthetic source and refreshing returns 409 and removes quantities and the reader. This proves the local mechanism, not real R3/TMAD receipt, independent quantity review, recipient selection, distribution rights, deployment or publication.
 
 Build artifact inspection found that default runtime database paths were being traced into the generated standalone output. The generated copies were removed without touching originals. The standalone configuration now excludes private .data contents for every route; final artifact checks require zero private trace references and zero private standalone files. Operator input filesystem access is explicitly runtime-only. These checks do not alter runtime database locations or copy a database for backup.
+
+## UTF-8 boundary and source-text recovery
+
+Python preparation explicitly runs in UTF-8 mode with UTF-8 strict stdout, regardless of the host locale. Node captures bytes and rejects invalid UTF-8 rather than silently replacing characters. This applies to inspection and new receipt preparation.
+
+A private operator can inspect a historical text correction using node --import tsx scripts/correct-m02-text.ts --receipt=<exact-receipt-id> --package=<absolute-original-package>.
+
+Use the existing private M02 environment and administrator credentials in environment variables. The default operation is inspection. Application additionally requires --apply --plan-sha256=<exact-reviewed-plan>. Do not put credentials in arguments or output.
+
+Recovery requires the original hash-locked source and an already verified private archive, current document bindings, and the exact persisted administrator session after preparation and SQL locks. It permits only BOQ descriptions and measurement assumptions whose original bytes reproduce the witnessed legacy Windows-1252-to-UTF-8 loss. Any unrelated difference in quantities, prices, IDs, roles, evidence or structure conflicts. Unicode that could not have traversed that legacy encoding is not guessed.
+
+The operator appends a bounded text overlay and measurement.text_corrected audit entry in one ERP transaction. It retains the original receipt row, raw archive, reception time and decisions. Repeating the identical correction returns the original correction timestamp and creates zero rows. A different correction conflicts. The team projection verifies the original projection hash, source identity, patch digest and original field hashes before applying the overlay; a corrupt overlay fails closed. The console identifies restored text. There is no public correction endpoint and no client-supplied patch API.
+
+This recovery restores source text only. It does not approve quantities, physical scope, procurement models, prices, BOQ inclusion or distribution rights. The original producer states and pending prices remain in force.
