@@ -17,3 +17,9 @@ The entire displayed projection, including opportunity labels and iframe, retire
 Privacy preferences and bounded interaction queues are shared with the existing review contract. Selected sections and opportunities have closed semantic identifiers; only authorized opportunity/document IDs can enter optional activity. Unknown or rejected consent emits no optional events. Essential server audit remains separate.
 
 Verification uses synthetic accounts and sources, canaries in unselected and internal records, negative API/gateway paths, immutable binding and tamper cases, consent controls and native desktop/mobile PDF rendering. Runtime fixtures and screenshots stay outside Git. The actual insurer recipient, approved production document set, deployment and external delivery still require their separate review.
+
+## Receipt and recipient availability
+
+Source receipt remains `received` or `pending`. The recipient DTO reports a separate closed access state: `available`, `not_selected`, `authorization_unavailable`, or `source_pending`. A received file withheld by policy is not called unregistered; a selected file whose current record or delivery authorization fails remains received with access unavailable. The response does not inspect unselected records to invent registration counts or disclose their internal identities.
+
+Coverage counts partition the selected source document slots by these states and include a server observation time. They do not count registrations. Only current authorized viewer links are returned. A refreshed projection removes an older open reader when its availability observation or permitted link changes. Administrative preview wording remains a connection observation, without inferring a registration failure from a missing link. These labels do not grant access or change the immutable deadline.

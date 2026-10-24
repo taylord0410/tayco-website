@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type { Actor } from './auth';
+import type {RecipientDocumentAccess,RecipientDocumentCoverage} from './profile-a-document-availability';
 
 export class ProfileAReviewError extends Error {
   constructor(public status: number, message: string) { super(message); this.name = 'ProfileAReviewError'; }
@@ -7,10 +8,10 @@ export class ProfileAReviewError extends Error {
 export type ReviewDocumentLink = { sha256: string; contextKey: string; viewerDocumentId: string };
 export type ProfileAReview = {
   period: string; sourceLabel: string; opportunityCount: number; reportedDatedCount: number; undatedCount: number;
-  liveCount: number; documentCount: number; receivedDocumentCount: number; linkedDocumentCount: number;
+  liveCount: number; documentCount: number; receivedDocumentCount: number; linkedDocumentCount: number;recipientCoverage?:RecipientDocumentCoverage;
   rows: { id: string; name: string; location: string | null; contractor: string | null;
     section: 'dated' | 'undated' | 'live'; reportedDeadline: string | null;
-    documents: { name: string; state: 'received' | 'pending'; viewerHref: string | null }[] }[];
+    documents: { name: string; state: 'received' | 'pending'; viewerHref: string | null;recipientAccess?:RecipientDocumentAccess }[] }[];
 };
 const bad = () => new ProfileAReviewError(503, 'The review source is not available.');
 export function assertProfileAAdministrator(actor: Pick<Actor, 'role' | 'tenantId'>) {

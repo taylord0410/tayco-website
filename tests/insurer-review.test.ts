@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,randomUUID} from 'node:crypto';
-import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
@@ -150,4 +150,31 @@ test('new issuance rejects financial labels, excluded brand and extra policy fie
  }
  const bytes=Buffer.from(JSON.stringify({...f.policy,grantAllDocuments:true}));assert.throws(()=>parseInsurerPolicy(bytes,hash(bytes),f.actor.tenantId,f.policy.period));
  const after=new DatabaseSync(f.env.TAYCO_AUTH_DB_PATH);try{assert.equal(after.prepare('SELECT count(*) AS n FROM auth_review_grants').get()!.n,count);}finally{after.close();}
+}));
+
+test('recipient source receipt, withholding and current authorization are independent states',async()=>fixture(async f=>{
+ const source=structuredClone(f.source);
+ const received=source.rows[0].documents as {name:string;state:string;sha256:string|null}[];
+ received.push({name:'Received retained fixture.pdf',state:'received',sha256:hash('retained document not in policy')});
+ // Select the metadata row carrying the already-pending source too. Never mutate a pending source into received.
+ const sourceBytes=JSON.stringify(source);writeFileSync(f.env.TAYCO_PROFILE_A_REVIEW_SOURCE,sourceBytes);
+ const policy={...f.policy,sourceSha256:hash(sourceBytes),opportunityIds:['reported-one','unselected-opportunity']};
+ const policyBytes=JSON.stringify(policy);writeFileSync(f.env.TAYCO_INSURER_REVIEW_POLICY,policyBytes);
+ const invitation=createInsurerReviewInvitationPrivately(f.admin,'states@example.test','recipient-states-request-0001',hash(policyBytes));
+ const accepted=await acceptInvitation(invitation.token!,'states@example.test',password);
+ const request=new NextRequest('https://tayco.test/api/insurer-review',{headers:{cookie:'tayco_session='+encodeURIComponent(accepted.cookie)}});
+ const actor=(await getActor(request))!;let data=insurerReviewData(actor);
+ assert.equal(data.receivedDocumentCount,2);assert.equal(data.documentCount,3);assert.equal(data.linkedDocumentCount,1);
+ assert.deepEqual(data.rows.flatMap(r=>r.documents).map(d=>({state:d.state,recipientAccess:d.recipientAccess})),[
+  {state:'received',recipientAccess:'available'},{state:'received',recipientAccess:'not_selected'},{state:'pending',recipientAccess:'source_pending'}]);
+ assert.deepEqual({...data.recipientCoverage,asOf:'server-time'},{asOf:'server-time',availableDocumentCount:1,notSelectedDocumentCount:1,unavailableDocumentCount:0,pendingSourceDocumentCount:1});
+ for(const value of [{...f.approved,revokedAt:new Date().toISOString()},{...f.approved,bundleId:'different-delivery'}]){
+  f.update('erp-one',value);data=insurerReviewData(actor);
+  assert.equal(data.rows[0].documents[0].state,'received');assert.equal(data.rows[0].documents[0].recipientAccess,'authorization_unavailable');assert.equal(data.rows[0].documents[0].viewerHref,null);
+  assert.equal(data.recipientCoverage!.unavailableDocumentCount,1);assert.equal(data.recipientCoverage!.notSelectedDocumentCount,1);assert.equal(data.receivedDocumentCount,2);
+ }
+ database().prepare('DELETE FROM records WHERE id=?').run('erp-one');data=insurerReviewData(actor);
+ assert.equal(data.rows[0].documents[0].recipientAccess,'authorization_unavailable');assert.equal(data.rows[0].documents[1].recipientAccess,'not_selected');
+ const serialized=JSON.stringify(data);for(const forbidden of ['erp-one','viewer-one',f.folder,'sourceSha256',f.pin,'registered'])assert.ok(!serialized.includes(forbidden),forbidden);
+ assert.equal(readFileSync(f.env.TAYCO_PROFILE_A_REVIEW_SOURCE,'utf8'),sourceBytes);
 }));
