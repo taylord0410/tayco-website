@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import GuestPrivacyNotice from "./GuestPrivacyNotice";
+import { guestAnalyticsAllowed } from "@/lib/guest-privacy-client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import type { GuestActivityElement } from "@/lib/guest-activity";
@@ -16,6 +18,7 @@ const control = "inline-flex min-h-11 items-center justify-center rounded-xl bor
 
 export default function GuestMonthlyReview({ initial, initialProjects = [] }: { initial: Summary; initialProjects?: GuestProjectReview[] }) {
   const router = useRouter();
+  const [privacyReviewId,setPrivacyReviewId]=useState<string|null>(null);
   const [summary, setSummary] = useState(initial);
   const [selected, setSelected] = useState(initial.months.at(-1)?.period || "");
   const [busy, setBusy] = useState(false);
@@ -25,18 +28,18 @@ export default function GuestMonthlyReview({ initial, initialProjects = [] }: { 
   const activityPending = useRef(0);
   const visitId = useRef<string | null>(null);
   const record = useCallback(async (elementId: GuestActivityElement, metadata: { period?: string; year?: number; projectId?: string } = {}, eventId?: string) => {
-    if (activityPending.current >= 20) return false;
+    if (!guestAnalyticsAllowed(privacyReviewId) || activityPending.current >= 20) return false;
     activityPending.current++;
     try {
       const body = JSON.stringify({ eventId: eventId || crypto.randomUUID(), elementId, ...metadata });
-      const send = () => fetch("/api/guest-activity", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(8000), body });
+      const send = () => {if(!guestAnalyticsAllowed(privacyReviewId))return Promise.resolve(new Response(null,{status:403}));return fetch("/api/guest-activity", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(8000), body });};
       let response: Response;
       try { response = await send(); } catch { response = await send(); }
       if (response.status >= 500) response = await send();
       return response.ok;
     } catch { return false; }
     finally { activityPending.current--; }
-  }, []);
+  }, [privacyReviewId]);
   useEffect(() => {
     visitId.current ||= crypto.randomUUID();
     void record("review.visit", {}, visitId.current);
@@ -88,6 +91,7 @@ export default function GuestMonthlyReview({ initial, initialProjects = [] }: { 
             <button data-ui-event="session.signout" className={control} onClick={logout} disabled={busy}>Sign out</button>
           </nav>
         </header>
+        <GuestPrivacyNotice onReady={setPrivacyReviewId}/>
         <section className="py-8 sm:py-12" aria-labelledby="guest-review-title">
           <p className="text-xs font-semibold uppercase tracking-[.2em] text-amber-200">Completed months · summary access</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-6">

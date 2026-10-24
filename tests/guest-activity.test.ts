@@ -9,12 +9,14 @@ import { type Actor, AuthError, createSession, provisionAdmin, sessionCookie, cr
 import { GUEST_ACTIVITY_ELEMENTS, GuestActivityError, guestActivityReport, recordGuestActivity } from '../lib/guest-activity';
 import { GET, POST } from '../app/api/guest-activity/route';
 import { database as erpDatabase, execute, registerDocument } from '../lib/erp';
+import { saveGuestPrivacy, GuestPrivacyError } from '../lib/guest-privacy';
+import { GUEST_PRIVACY_VERSION } from '../lib/guest-privacy-contract';
 import { guestProjectReviews } from '../lib/takeoff-viewer-access';
 
-const guest: Actor = { id: 'guest-one', email: 'guest@example.test', role: 'guest', tenantId: 'company-one', projectIds: [] };
+const guest: Actor = { review:{id:'synthetic-activity-review',createdAt:0,expiresAt:9999999999999,get detailPeriod(){return new Date(Date.now()).toISOString().slice(0,7);}},  id: 'guest-one', email: 'guest@example.test', role: 'guest', tenantId: 'company-one', projectIds: [] };
 const admin: Actor = { ...guest, id: 'admin-one', email: 'admin@example.test', role: 'admin' };
 const event = (elementId: string = 'review.visit', extra: Record<string, unknown> = {}) => ({ eventId: randomUUID(), elementId, ...extra });
-const fails = (status: number) => (error: unknown) => (error instanceof GuestActivityError || error instanceof AuthError) && error.status === status;
+const fails = (status: number) => (error: unknown) => (error instanceof GuestActivityError || error instanceof GuestPrivacyError || error instanceof AuthError) && error.status === status;
 
 async function fixture(run: (filename: string, folder: string) => Promise<void>) {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-guest-activity-'));
@@ -34,6 +36,7 @@ async function fixture(run: (filename: string, folder: string) => Promise<void>)
     rmSync(folder, { recursive: true, force: true });
   }
 }
+function consent(actor:Actor=guest){saveGuestPrivacy(actor,{version:GUEST_PRIVACY_VERSION,optionalAnalytics:true});}
 function inspect<T>(filename: string, fn: (db: DatabaseSync) => T) { const db = new DatabaseSync(filename); try { return fn(db); } finally { db.close(); } }
 async function sessions() {
   const adminId = await provisionAdmin('admin@example.test', 'Activity-fixture-admin-password!', admin.tenantId);
@@ -113,6 +116,7 @@ test('HTTP schema, origin and body bounds reject spoofed or arbitrary telemetry'
 test('allowed activity is server-scoped, deduplicated, conflict checked and admin-company isolated', async () => {
   await fixture(async filename => {
     const { cookies, actors } = await sessions();
+    consent(actors.guest);
     const visit = event();
     const first = await POST(post(cookies.guest, visit));
     assert.equal(first.status, 200);
@@ -122,6 +126,7 @@ test('allowed activity is server-scoped, deduplicated, conflict checked and admi
     assert.equal((await POST(post(cookies.guest, { ...visit, elementId: 'summary.retry' }))).status, 409);
     for (const elementId of GUEST_ACTIVITY_ELEMENTS.filter(id => !['year.select', 'month.select', 'review.visit', 'project.open'].includes(id))) assert.equal((await POST(post(cookies.guest, event(elementId)))).status, 200);
     // The same event ID belongs independently to a different actor and a different company.
+    consent({ ...guest, id: 'another-guest' });consent({ ...guest, id: 'other-company-guest', tenantId: 'company-two' });
     recordGuestActivity({ ...guest, id: 'another-guest' }, visit);
     recordGuestActivity({ ...guest, id: 'other-company-guest', tenantId: 'company-two' }, visit);
     const response = await GET(get(cookies.admin));
@@ -150,7 +155,7 @@ test('allowed activity is server-scoped, deduplicated, conflict checked and admi
 
 test('UTC current and previous months are accepted while future months remain denied', async t => {
   await fixture(async () => {
-    t.mock.method(Date, 'now', () => Date.parse('2026-01-01T00:00:00Z'));
+    t.mock.method(Date, 'now', () => Date.parse('2026-01-01T00:00:00Z'));consent();
     assert.deepEqual(recordGuestActivity(guest, event('month.select', { period: '2025-12' })), { duplicate: false });
     assert.deepEqual(recordGuestActivity(guest, event('month.select', { period: '2026-01' })), { duplicate: false });
     assert.deepEqual(recordGuestActivity(guest, event('year.select', { year: 2026 })), { duplicate: false });
@@ -168,11 +173,13 @@ test('rolling per-actor rate rejects only new events and recovers after one minu
     let now = Date.parse('2026-10-23T12:00:00Z');
     t.mock.method(Date, 'now', () => now);
     const first = event();
+    consent();
     recordGuestActivity(guest, first);
     for (let index = 1; index < 120; index++) recordGuestActivity(guest, event());
     assert.deepEqual(recordGuestActivity(guest, first), { duplicate: true });
     assert.throws(() => recordGuestActivity(guest, event()), fails(429));
     assert.throws(() => recordGuestActivity(guest, { ...first, elementId: 'summary.retry' }), fails(409));
+    consent({ ...guest, id: 'second-guest' });
     assert.deepEqual(recordGuestActivity({ ...guest, id: 'second-guest' }, event()), { duplicate: false });
     now += 59_999;
     assert.throws(() => recordGuestActivity(guest, event()), fails(429));
@@ -185,6 +192,7 @@ test('rolling per-actor rate rejects only new events and recovers after one minu
 test('HTTP rate errors keep their typed status', async () => {
   await fixture(async () => {
     const { cookies, actors } = await sessions();
+    consent(actors.guest);
     const first = event();
     recordGuestActivity(actors.guest, first);
     for (let index = 1; index < 120; index++) recordGuestActivity(actors.guest, event());
@@ -200,6 +208,7 @@ test('retention and per-company caps bound reports and prune during ordinary wri
     t.mock.method(Date, 'now', () => serverClock);
     process.env.TAYCO_GUEST_ACTIVITY_RETENTION_DAYS = '1';
     const first = event();
+    consent();
     recordGuestActivity(guest, first);
     serverClock = now;
     const oldestId = randomUUID();
@@ -245,6 +254,7 @@ test('retention configuration validates its supported bounds before storage', as
       assert.throws(() => guestActivityReport(admin), fails(503));
       assert.equal(existsSync(filename), false);
     }
+    consent();
     for (const days of ['1', '365']) {
       process.env.TAYCO_GUEST_ACTIVITY_RETENTION_DAYS = days;
       recordGuestActivity(guest, event());
@@ -289,6 +299,7 @@ test('manual current console projects authorize bounded activity while historica
       seed('revoked-current', '2026-01', guest.tenantId, 'revoked');
       seed('unpublished-import', null, guest.tenantId, 'active', 'takeoff');
       assert.deepEqual(guestProjectReviews(guest), []);
+      consent();consent({ ...guest, id: 'another-company-guest' });
       const selection = event('project.open', { projectId: 'manual-current' });
       assert.deepEqual(recordGuestActivity(guest, selection), { duplicate: false });
       assert.deepEqual(recordGuestActivity(guest, selection), { duplicate: true });
@@ -357,6 +368,7 @@ test('an actual v2 grant authorizes project selection, scoped deduplication and 
       assert.equal((await POST(post(cookies.guest,deniedProject))).status,403);
       inspect(filename,db=>assert.equal(db.prepare("SELECT name FROM sqlite_schema WHERE name='guest_activity'").get(),undefined));
 
+      consent(actors.guest);
       const selection=event('project.open',{projectId:projects[0].id});
       assert.deepEqual(await (await POST(post(cookies.guest,selection))).json(),{success:true,duplicate:false});
       assert.deepEqual(await (await POST(post(cookies.guest,selection))).json(),{success:true,duplicate:true});
@@ -405,6 +417,7 @@ test('adding project metadata migrates legacy activity rows without inventing pr
     const report=guestActivityReport(admin);
     assert.equal(report.totalEvents,1);
     assert.equal(Object.hasOwn(report.events[0],'projectId'),false);
+    consent();
     assert.deepEqual(recordGuestActivity(guest,legacy),{duplicate:true});
     inspect(filename,db=>{
       assert.equal(db.prepare('SELECT project_id FROM guest_activity').get()!.project_id,null);

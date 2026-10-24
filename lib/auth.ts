@@ -85,7 +85,7 @@ export function assertSameOrigin(request: Request) {
 export function requireRole(actor: Actor, roles: AuthRole[]) { if (!roles.includes(actor.role)) throw new AuthError('You do not have permission to perform this action.', 403); }
 export function requireProject(actor: Actor, projectId: string, tenantId: string) { if (actor.role === 'guest' || actor.tenantId !== tenantId || (!['admin', 'staff'].includes(actor.role) && !actor.projectIds.includes(projectId))) throw new AuthError('You do not have access to this project.', 403); }
 export function canAccessProject(actor: Actor, projectId: string, tenantId: string) { try { requireProject(actor, projectId, tenantId); return true; } catch { return false; } }
-function rateLimit(bucket: string, max: number, windowMs = 15 * 60_000) {
+export function rateLimit(bucket: string, max: number, windowMs = 15 * 60_000) {
   withDb(db => { const now = Date.now(); db.exec('BEGIN IMMEDIATE'); try { db.prepare('DELETE FROM auth_rate_limits WHERE window_start < ?').run(now - windowMs); const row = db.prepare('SELECT hits FROM auth_rate_limits WHERE bucket=?').get(bucket) as { hits: number } | undefined; if (row && row.hits >= max) throw new AuthError('Too many attempts. Please try again in 15 minutes.', 429); db.prepare('INSERT INTO auth_rate_limits VALUES(?,?,1) ON CONFLICT(bucket) DO UPDATE SET hits=hits+1').run(bucket, now); db.exec('COMMIT'); } catch (error) { db.exec('ROLLBACK'); throw error; } });
 }
 async function hashPassword(password: string) { validatePassword(password); const salt = randomBytes(16).toString('hex'); const hash = await passwordKey(password, salt); return `scrypt$32768$8$3$${salt}$${hash.toString('hex')}`; }

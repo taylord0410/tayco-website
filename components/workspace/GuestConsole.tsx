@@ -10,6 +10,8 @@ import PortalShell from "./PortalShell";
 import GuestModulePanel, { GuestMonthlyTotals, guestModuleCount } from "./GuestModulePanel";
 import WorkspaceDisplayControls, { useWorkspaceDisplay } from "./WorkspaceDisplayControls";
 import "./workspace.css";
+import GuestPrivacyNotice from "../GuestPrivacyNotice";
+import { guestAnalyticsAllowed } from "@/lib/guest-privacy-client";
 
 export type GuestConsoleSection = GuestSection;
 const modules = guestModuleDefinitions;
@@ -37,6 +39,7 @@ function Empty({ children }: { children: ReactNode }) {
 export default function GuestConsole({ initial, initialSection = "summary" }: { initial: GuestConsoleData; initialSection?: GuestConsoleSection }) {
   const router = useRouter();
   const [data, setData] = useState(initial);
+  const [privacyReady,setPrivacyReady]=useState<string|null>(null);
   const [history, setHistory] = useState(initial.historicalSummary.months);
   const [display, setDisplay] = useWorkspaceDisplay();
   const [period, setPeriod] = useState(initial.period);
@@ -59,20 +62,20 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   const activityPending = useRef(0);
 
   const record = useCallback(async (elementId: "review.visit" | "month.select" | "project.open", metadata: { period?: string; projectId?: string } = {}, eventId?: string) => {
-    if (activityPending.current >= 20) return;
+    if (!guestAnalyticsAllowed(initial.review?.id) || activityPending.current >= 20) return;
     activityPending.current++;
     const body = JSON.stringify({ eventId: eventId || crypto.randomUUID(), elementId, ...metadata });
-    const send = () => fetch("/api/guest-activity", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(8000), body });
+    const send = () => { if(!guestAnalyticsAllowed(initial.review?.id))return Promise.resolve(new Response(null,{status:403}));return fetch("/api/guest-activity", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(8000), body }); };
     try { const response = await send(); if (response.status >= 500) await send(); }
     catch { try { await send(); } catch { /* Activity failure cannot block reading. */ } }
     finally { activityPending.current--; }
-  }, []);
+  }, [initial.review?.id]);
 
   useEffect(() => {
     visitId.current ||= crypto.randomUUID();
     void record("review.visit", {}, visitId.current);
-    return () => { pending.current?.abort(); logoutPending.current?.abort(); };
-  }, [record]);
+  }, [record,privacyReady]);
+  useEffect(()=>()=>{pending.current?.abort();logoutPending.current?.abort();},[]);
   useEffect(() => {
     if (!mobileOpen) return;
     const key = (event: KeyboardEvent) => { if (event.key === "Escape") { setMobileOpen(false); toggleRef.current?.focus(); } };
@@ -150,7 +153,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </article>;
   }
 
-  if(accessEnded||(data.review&&serverNow>=data.review.expiresAt))return <main className="min-h-screen bg-[#070e1a] p-7 text-slate-100"><h1 className="text-3xl font-bold">Review access has ended</h1><p className="mt-4">Request a new review from TAYCO. Signing in or refreshing does not renew this review.</p><button className={control+" mt-6"} onClick={()=>void logout()} disabled={signingOut}>Sign out</button></main>;
+  if(accessEnded||(data.review&&serverNow>=data.review.expiresAt))return <main className="min-h-screen bg-[#070e1a] p-7 text-slate-100"><h1 className="text-3xl font-bold">Review access has ended</h1><p className="mt-4">Request a new review from TAYCO. Signing in or refreshing does not renew this review.</p><Link className={control} href="/privacy">Privacy &amp; activity notice</Link><button className={control+" mt-6"} onClick={()=>void logout()} disabled={signingOut}>Sign out</button></main>;
   return <PortalShell data-guest-console data-guest-review data-role={data.actor.role} className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-current-module={section === "summary" ? "executive" : section} data-atmosphere={display.atmosphere} data-density={display.density} style={{ "--workspace-light-angle": display.lightAngle + "deg" } as CSSProperties} sidebarRef={sidebarRef} sidebar={<>
     <div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><Image src="/logo.jpeg" alt="TAYCO LLC · General Contractor" width={64} height={64} className="h-14 w-14 shrink-0 rounded-xl border border-amber-200/40 bg-[#f3efe2] object-cover shadow-lg"/><div><p className="text-xs font-bold uppercase tracking-widest text-amber-100">Executive command</p><p className="mt-1 text-[11px] text-slate-400">Guest · Read only</p></div></div><button ref={toggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-controls="tayco-portal-module-tabs" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>{mobileOpen ? "Close modules" : "Open modules"}</button></div>
     <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileOpen ? "block" : "hidden") + " mt-6 space-y-5 lg:block"}>{[...new Set(modules.map(item => item.group))].map(group => <div key={group}><p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200/70">{group}</p><div className="space-y-1">{modules.filter(item => item.group === group).map(item => <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-amber-200/55 bg-gradient-to-r from-amber-200/20 to-amber-200/5 text-amber-100" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}><span>{item.label}</span>{details && item.id !== "access" && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}</button>)}</div></div>)}</nav>
@@ -159,8 +162,9 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">Guest workspace · Read only</p><h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">{section === "summary" ? "Executive dashboard" : modules.find(item => item.id === section)?.label}</h1><p className="mt-2 break-all text-xs text-slate-400">Signed in as {data.actor.email}</p></div>
     <div className="flex flex-wrap gap-2"><WorkspaceDisplayControls value={display} onChange={setDisplay}/><button type="button" className={control} onClick={() => void load(period, section)} disabled={loading || signingOut}>{loading ? "Refreshing…" : "Refresh"}</button><Link href="/account" className={control}>Account &amp; password</Link><button type="button" className={control} onClick={() => void logout()} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button></div>
   </>}>
+    <GuestPrivacyNotice onReady={setPrivacyReady}/>
     {data.review&&<p className="mt-4 rounded-xl border border-amber-200/30 p-3 text-sm text-amber-100">Review ends {new Date(data.review.expiresAt).toLocaleString('en-US',{timeZone:'UTC'})+' UTC'} · {Math.max(0,Math.ceil((data.review.expiresAt-serverNow)/60000))} min remaining. This deadline does not extend.</p>}
-    <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><label className="text-xs font-semibold text-slate-300" htmlFor="guest-reporting-month">Reporting month<select id="guest-reporting-month" value={period} onChange={event => selectPeriod(event.target.value)} className="mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-amber-200">{months.map(month => <option key={month} value={month}>{periodLabel(month)}{month === data.currentPeriod ? " · Current" : ""}</option>)}</select></label><p className="text-xs text-slate-400">As of {dateLabel(data.asOf)} · UTC</p></div><p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">TAYCO records visits, month selections and project opens for this private review. Typed information and document contents are not collected by this activity log.</p>
+    <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><label className="text-xs font-semibold text-slate-300" htmlFor="guest-reporting-month">Reporting month<select id="guest-reporting-month" value={period} onChange={event => selectPeriod(event.target.value)} className="mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-amber-200">{months.map(month => <option key={month} value={month}>{periodLabel(month)}{month === data.currentPeriod ? " · Current" : ""}</option>)}</select></label><p className="text-xs text-slate-400">As of {dateLabel(data.asOf)} · UTC</p></div><p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">Optional review activity is collected only when enabled in your privacy preferences. Typed information and document contents are not collected by this activity log.</p>
     {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error}{!denied && <p className="mt-1 text-xs">Previously loaded information may be out of date. Use Refresh to try again.</p>}</div>}
     <div ref={moduleRef} tabIndex={-1} aria-busy={loading} className="mt-6 min-w-0 focus:outline-none" data-testid="guest-module">
       <p role="status" aria-live="polite" className="sr-only">{loading ? "Loading workspace" : modules.find(item => item.id === section)?.label}</p>

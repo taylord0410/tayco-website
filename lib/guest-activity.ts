@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { type Actor, requireRole } from './auth';
+import { installGuestPrivacy, assertGuestAnalytics } from './guest-privacy';
 import { guestConsoleSnapshot } from './guest-workspace';
 
 export const GUEST_ACTIVITY_ELEMENTS = ['review.visit', 'account.open', 'session.signout', 'year.select', 'month.select', 'summary.retry', 'project.open'] as const;
@@ -57,6 +58,7 @@ function database() {
         db.exec('COMMIT');
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }
+    installGuestPrivacy(db);
     return db;
   } catch (error) { db.close(); throw error; }
 }
@@ -98,6 +100,7 @@ export function recordGuestActivity(actor: Actor, value: unknown): { duplicate: 
   return withDb(db => {
     db.exec('BEGIN IMMEDIATE');
     try {
+      assertGuestAnalytics(db,actor,Date.now());
       db.prepare('DELETE FROM guest_activity WHERE created_at<?').run(now - days * 86_400_000);
       db.prepare('DELETE FROM guest_activity_rate_events WHERE created_at<=?').run(now - RATE_WINDOW_MS);
       const previous = db.prepare('SELECT element_id,period,selected_year,project_id FROM guest_activity WHERE tenant_id=? AND actor_id=? AND event_id=?').get(actor.tenantId, actor.id, input.eventId);

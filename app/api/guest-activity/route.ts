@@ -2,8 +2,10 @@ import { AuthError, assertSameOrigin, requireActor, requireRole } from '@/lib/au
 import { authFailure, authJson, readAuthBody } from '@/lib/auth-http';
 import { GuestActivityError, guestActivityReport, recordGuestActivity } from '@/lib/guest-activity';
 
+import { GuestPrivacyError } from '@/lib/guest-privacy';
+
 export const runtime = 'nodejs';
-function failure(error: unknown) { return authFailure(error instanceof GuestActivityError ? new AuthError(error.message, error.status) : error); }
+function failure(error: unknown) { return authFailure(error instanceof GuestActivityError || error instanceof GuestPrivacyError ? new AuthError(error.message, error.status) : error); }
 
 export async function POST(request: Request) {
   try {
