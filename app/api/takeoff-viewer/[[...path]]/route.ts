@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 async function dispatch(request: Request) {
   try {
     const bridgeSig = request.headers.get(VIEWER_BRIDGE_HEADER);
-    const localUpstream = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL;
+    const localUpstream = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL || process.env.TAKEOFF_VIEWER_UPSTREAM || (!process.env.RAILWAY_ENVIRONMENT ? 'http://127.0.0.1:3023' : undefined);
     if (bridgeSig && localUpstream && /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/i.test(localUpstream)) {
       const url = new URL(request.url);
       if (bridgeSig === viewerBridgeSignature(url.pathname, url.search)) {

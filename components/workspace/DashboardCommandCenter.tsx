@@ -2,13 +2,8 @@
 import { useState } from "react";
 import type { Entry } from "@/lib/erp";
 import type { GuestConsoleData } from "@/lib/guest-workspace";
-import { financialPeriods } from "@/lib/financial-periods";
-import { dashboardAgenda, type DashboardAgendaItem } from "@/lib/dashboard-agenda";
-import {
-  CORPORATE_11_MODULES,
-  CORPORATE_CERTIFICATIONS_STATUS,
-  VERIFIED_OCTOBER_2026_OPPORTUNITIES,
-} from "@/lib/verified-bidding-opportunities";
+import { dashboardAgenda } from "@/lib/dashboard-agenda";
+import { CORPORATE_CERTIFICATIONS_STATUS } from "@/lib/verified-bidding-opportunities";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 
 type Props = {
@@ -27,12 +22,6 @@ const money = (cents: number) =>
     maximumFractionDigits: 0,
   }).format(cents / 100);
 
-const moneyExact = (cents: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
-
 const monthName = (month: string, short = false) =>
   new Intl.DateTimeFormat("en-US", {
     month: short ? "short" : "long",
@@ -40,114 +29,24 @@ const monthName = (month: string, short = false) =>
     timeZone: "UTC",
   }).format(new Date(month + "-01T12:00:00Z"));
 
-const shortDate = (date: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(date + "T12:00:00Z"));
-
 const DEFAULT_2026_MONTHLY_SERIES: readonly {
   key: string;
   issuedCents: number;
-  paymentCents: number;
-  vendorCents: number;
-  payrollCents: number;
   opps: number;
 }[] = [
-  { key: "2026-01", issuedCents: 18500000, paymentCents: 18500000, vendorCents: 12400000, payrollCents: 2450000, opps: 14 },
-  { key: "2026-02", issuedCents: 21000000, paymentCents: 21000000, vendorCents: 14100000, payrollCents: 2680000, opps: 16 },
-  { key: "2026-03", issuedCents: 24800000, paymentCents: 24800000, vendorCents: 16600000, payrollCents: 2940000, opps: 19 },
-  { key: "2026-04", issuedCents: 27500000, paymentCents: 27500000, vendorCents: 18400000, payrollCents: 3120000, opps: 21 },
-  { key: "2026-05", issuedCents: 31200000, paymentCents: 31200000, vendorCents: 20900000, payrollCents: 3450000, opps: 24 },
-  { key: "2026-06", issuedCents: 34000000, paymentCents: 34000000, vendorCents: 22800000, payrollCents: 3690000, opps: 27 },
-  { key: "2026-07", issuedCents: 36800000, paymentCents: 35000000, vendorCents: 24600000, payrollCents: 3980000, opps: 31 },
-  { key: "2026-08", issuedCents: 39500000, paymentCents: 38000000, vendorCents: 26400000, payrollCents: 4210000, opps: 35 },
-  { key: "2026-09", issuedCents: 43200000, paymentCents: 41500000, vendorCents: 28900000, payrollCents: 4560000, opps: 38 },
-  { key: "2026-10", issuedCents: 48540000, paymentCents: 39740000, vendorCents: 31890000, payrollCents: 4925000, opps: 42 },
-  { key: "2026-11", issuedCents: 16000000, paymentCents: 0, vendorCents: 10500000, payrollCents: 1800000, opps: 18 },
-  { key: "2026-12", issuedCents: 14000000, paymentCents: 0, vendorCents: 9200000, payrollCents: 1600000, opps: 12 },
+  { key: "2026-01", issuedCents: 42500000, opps: 14 },
+  { key: "2026-02", issuedCents: 65768000, opps: 16 },
+  { key: "2026-03", issuedCents: 71978900, opps: 19 },
+  { key: "2026-04", issuedCents: 70078900, opps: 21 },
+  { key: "2026-05", issuedCents: 82567900, opps: 24 },
+  { key: "2026-06", issuedCents: 92157800, opps: 27 },
+  { key: "2026-07", issuedCents: 90879200, opps: 31 },
+  { key: "2026-08", issuedCents: 94078900, opps: 35 },
+  { key: "2026-09", issuedCents: 93848900, opps: 38 },
+  { key: "2026-10", issuedCents: 2178900, opps: 42 },
+  { key: "2026-11", issuedCents: 0, opps: 0 },
+  { key: "2026-12", issuedCents: 0, opps: 0 },
 ];
-
-const MODULE_ICONS: Record<string, React.ReactNode> = {
-  executive: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-    </svg>
-  ),
-  project: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
-  invoice: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <line x1="10" y1="9" x2="8" y2="9" />
-    </svg>
-  ),
-  financial_dashboard: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="18" y1="20" x2="18" y2="10" />
-      <line x1="12" y1="20" x2="12" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="14" />
-    </svg>
-  ),
-  team: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  ),
-  lead: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="12" r="6" />
-      <circle cx="12" cy="12" r="2" />
-    </svg>
-  ),
-  hours: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  ),
-  compliance: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  ),
-  document: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polygon points="3 21 21 21 21 3 3 21" />
-      <path d="m15 15 3 3" />
-      <path d="m11 11 3 3" />
-      <path d="m7 7 3 3" />
-    </svg>
-  ),
-  corporate_meetings: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  ),
-  dossier: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-    </svg>
-  ),
-};
 
 const renderCertIcon = (certId: string) => {
   if (certId === "sam_gov" || certId === "federal_programs") {
@@ -220,73 +119,26 @@ export default function DashboardCommandCenter({
 }: Props) {
   const currentMonthKey = "2026-10";
   const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
-  const [agendaTab, setAgendaTab] = useState<"upcoming" | "overdue">("upcoming");
-  const [calendarDate, setCalendarDate] = useState("");
-  const [showAllFollowups, setShowAllFollowups] = useState(false);
 
   let agenda: ReturnType<typeof dashboardAgenda> | null = null;
-  let yearReport: ReturnType<typeof financialPeriods> | null = null;
 
   if (!isGuest && entries.length > 0) {
     try {
       agenda = dashboardAgenda(entries, { asOf, projectId: projectId || undefined });
-      yearReport = financialPeriods(agenda.scopedEntries, {
-        year: Number(selectedMonth.slice(0, 4)),
-        month: null,
-        asOf,
-      });
     } catch {
       agenda = null;
-      yearReport = null;
     }
   }
 
-  const monthSeries = DEFAULT_2026_MONTHLY_SERIES.map((fallback) => {
-    const reported = yearReport?.months.find((m) => m.key === fallback.key);
-    const issuedCents =
-      reported && reported.byAudience.client.issuedCents > 0
-        ? reported.byAudience.client.issuedCents
-        : fallback.issuedCents;
-    const paymentCents =
-      reported && reported.byAudience.client.paymentCents > 0
-        ? reported.byAudience.client.paymentCents
-        : fallback.paymentCents;
-    const vendorCents =
-      reported && reported.byAudience.vendor.issuedCents > 0
-        ? reported.byAudience.vendor.issuedCents
-        : fallback.vendorCents;
-    return {
-      ...fallback,
-      issuedCents,
-      paymentCents,
-      vendorCents,
-    };
-  });
-
+  const monthSeries = DEFAULT_2026_MONTHLY_SERIES;
   const maxBar = Math.max(1, ...monthSeries.map((m) => m.issuedCents));
   const selectedSeries =
     monthSeries.find((m) => m.key === selectedMonth) ?? monthSeries[9];
-  const isPastMonthForGuest = isGuest && selectedMonth < currentMonthKey;
-  const isFutureMonth = selectedMonth > currentMonthKey;
-
-  const grossProfitCents =
-    selectedSeries.issuedCents -
-    selectedSeries.vendorCents -
-    selectedSeries.payrollCents;
-  const grossMarginPct =
-    selectedSeries.issuedCents > 0
-      ? ((grossProfitCents / selectedSeries.issuedCents) * 100).toFixed(2)
-      : "0.00";
 
   const ytdCents = monthSeries
     .filter((m) => m.key <= currentMonthKey)
     .reduce((sum, m) => sum + m.issuedCents, 0);
 
-  const activeProjectsCount = isGuest
-    ? guestData?.projects.filter((p) => p.status === "active").length || 15
-    : agenda?.activeProjects || 15;
-
-  const upcomingCount = isGuest ? 18 : agenda?.upcoming.length || 18;
   const followupsCount = isGuest
     ? guestData?.moduleRecords.filter((r) => r.kind === "followup").length || 12
     : agenda?.followups.length || 12;
@@ -311,37 +163,19 @@ export default function DashboardCommandCenter({
     }
   };
 
-  const openItem = (item: DashboardAgendaItem) =>
-    triggerNavigate(item.view, item.projectId || undefined);
-
-  const nextMonthKey = "2026-11";
-  const calendarYear = 2026;
-  const calendarMonth = 11;
-  const firstDay = new Date(Date.UTC(calendarYear, calendarMonth - 1, 1)).getUTCDay();
-  const daysInMonth = new Date(Date.UTC(calendarYear, calendarMonth, 0)).getUTCDate();
-  const calendarDays = Array.from({ length: firstDay + daysInMonth }, (_, index) =>
-    index < firstDay ? null : index - firstDay + 1
-  );
-
-  const calendarSources = calendarDate
-    ? (agenda?.calendarItems ?? []).filter((item) => item.date === calendarDate)
-    : (agenda?.calendarItems ?? []).slice(0, 4);
-
   return (
     <div className="dcc-dashboard" data-testid="dashboard-command-center">
-      {/* Reference Mockup 2-Column Layout: Left (Monthly Activity 2026 + Month Detail) | Right (Certifications & Programs + 11 Modules) */}
+      {/* 2-Column Split: Left (Monthly Activity + Month Detail / Portfolio Status) | Right (Certifications + Monthly Income Ledger) */}
       <div className="dcc-console-split">
         <div className="dcc-console-main-col">
-          {/* Card 1: Monthly Activity 2026 Bar Chart (Matching Reference Image 1:1) */}
+          {/* Card 1: Monthly Activity 2026 Bar Chart */}
           <section className="dcc-card dcc-monthly-activity-card">
             <header className="dcc-card-header">
               <div>
                 <h3>Monthly Activity 2026</h3>
                 <p className="dcc-card-subtitle">
-                  Revenue, opportunities &amp; projects ·{" "}
-                  {selectedMonth === currentMonthKey
-                    ? "October 2026 ($485,400)"
-                    : monthName(selectedMonth)}
+                  Corporate Income · {monthName(selectedMonth)} (
+                  {money(selectedSeries.issuedCents)}) · YTD 2026: {money(ytdCents)}
                 </p>
               </div>
               {!isGuest && (
@@ -362,10 +196,10 @@ export default function DashboardCommandCenter({
               {monthSeries.map((m) => {
                 const isOct = m.key === currentMonthKey;
                 const isSelected = m.key === selectedMonth;
-                const heightPct = Math.max(
-                  18,
-                  Math.round((m.issuedCents / maxBar) * 100)
-                );
+                const heightPct =
+                  m.issuedCents > 0
+                    ? Math.max(14, Math.round((m.issuedCents / maxBar) * 100))
+                    : 6;
                 return (
                   <button
                     type="button"
@@ -379,9 +213,9 @@ export default function DashboardCommandCenter({
                     )}, ${m.opps} opportunities. Select month.`}
                     onClick={() => selectMonthPill(m.key)}
                   >
-                    {isOct && (
+                    {isSelected && (
                       <span className="dcc-oct-callout" aria-hidden="true">
-                        Oct 2026 · {money(m.issuedCents)}
+                        {monthName(m.key, true)} 2026 · {money(m.issuedCents)}
                       </span>
                     )}
                     <span className="dcc-bar-pair" aria-hidden="true">
@@ -408,7 +242,6 @@ export default function DashboardCommandCenter({
                 {monthSeries.map((m) => {
                   const isOct = m.key === currentMonthKey;
                   const isSelected = m.key === selectedMonth;
-                  const isLockedGuest = isGuest && m.key < currentMonthKey;
                   return (
                     <button
                       type="button"
@@ -417,135 +250,52 @@ export default function DashboardCommandCenter({
                       aria-pressed={isSelected}
                       className={`dcc-month-pill ${
                         isSelected ? "is-active" : ""
-                      } ${isOct ? "is-current" : ""} ${
-                        isLockedGuest ? "is-locked-for-guest" : ""
-                      }`}
+                      } ${isOct ? "is-current" : ""}`}
                     >
                       {monthName(m.key, true)}
-                      {isLockedGuest && (
-                        <span className="dcc-pill-lock" aria-hidden="true">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                        </span>
-                      )}
                     </button>
                   );
                 })}
               </div>
             </div>
-            {isGuest && isPastMonthForGuest && (
-              <div
-                role="alert"
-                className="dcc-guest-restriction-banner"
-                data-testid="guest-past-month-restriction"
-                style={{ marginTop: "0.85rem" }}
-              >
-                <div className="dcc-restriction-body">
-                  <h4>
-                    Past Months&apos; Reports ({monthName(selectedMonth)}) — Restricted to Administrators
-                  </h4>
-                  <p>
-                    Historical months and gross profit details cannot be viewed as a guest user.
-                  </p>
-                  <button
-                    type="button"
-                    className="dcc-open-month-btn"
-                    onClick={() => setSelectedMonth(currentMonthKey)}
-                  >
-                    Return to October 2026 →
-                  </button>
-                </div>
-              </div>
-            )}
           </section>
 
-          {/* Card 2: Month Detail: October 2026 (Notes, Next Month Follow-ups, Gross Profit Details / Guest Lock) */}
-          {!isGuest && (
+          {/* Card 2: Month Detail (Admin) OR Portfolio Project Status & Bidding Intake (Guest) */}
+          {!isGuest ? (
             <section
               className="dcc-card dcc-month-detail-card"
               data-testid="corporate-month-detail-panel"
             >
-            <header className="dcc-card-header">
-              <div className="dcc-month-detail-title-row">
-                <span className="dcc-month-detail-cal-icon" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                </span>
-                <h3>
-                  Month Detail:{" "}
-                  <span className="dcc-gold-text">
-                    {monthName(selectedMonth)}
-                  </span>
-                </h3>
-              </div>
-              <div className="dcc-detail-badges">
-                {selectedMonth === currentMonthKey ? (
-                  <span className="dcc-badge" data-tone="emerald">
-                    Current Month · Enabled for Admin &amp; Guest
-                  </span>
-                ) : isPastMonthForGuest ? (
-                  <span className="dcc-badge" data-tone="amber">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: "-1px", marginRight: 4 }}>
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              <header className="dcc-card-header">
+                <div className="dcc-month-detail-title-row">
+                  <span className="dcc-month-detail-cal-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    Restricted for Guest Users
                   </span>
-                ) : (
-                  <span className="dcc-badge" data-tone="slate">
-                    Historical / Planning Record
-                  </span>
-                )}
-              </div>
-            </header>
+                  <h3>
+                    Month Detail:{" "}
+                    <span className="dcc-gold-text">
+                      {monthName(selectedMonth)}
+                    </span>
+                  </h3>
+                </div>
+                <div className="dcc-detail-badges">
+                  {selectedMonth === currentMonthKey ? (
+                    <span className="dcc-badge" data-tone="emerald">
+                      Current Month
+                    </span>
+                  ) : (
+                    <span className="dcc-badge" data-tone="slate">
+                      Historical / Planning Record
+                    </span>
+                  )}
+                </div>
+              </header>
 
-            {isPastMonthForGuest ? (
-              <div
-                role="alert"
-                className="dcc-guest-restriction-banner"
-                data-testid="guest-past-month-restriction"
-              >
-                <div className="dcc-restriction-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <div className="dcc-restriction-body">
-                  <h4>
-                    Past Months&apos; Detailed Reports — Cannot be viewed as a guest user
-                    (No se puede ver como usuario invitado)
-                  </h4>
-                  <p>
-                    Detailed operational reports for previous months (
-                    <strong>{monthName(selectedMonth)}</strong>) and gross profit
-                    details (<em>detalles de ganancia en bruto</em>) are restricted to
-                    TAYCO Administrators and cannot be viewed as a guest user.
-                  </p>
-                  <p className="dcc-restriction-sub">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <strong>Enabled for Guest Reviewer:</strong> Current month (
-                    <strong>October 2026</strong>) operational data, 11 corporate
-                    modules, and all 42 project plans &amp; architectural drawings.
-                  </p>
-                  <button
-                    type="button"
-                    className="dcc-open-month-btn"
-                    onClick={() => setSelectedMonth(currentMonthKey)}
-                  >
-                    Return to Current Month (October 2026) →
-                  </button>
-                </div>
-              </div>
-            ) : (
               <div className="dcc-month-detail-grid">
                 {/* Sub-panel 1: Monthly Notes */}
                 <div className="dcc-detail-box">
@@ -613,7 +363,7 @@ export default function DashboardCommandCenter({
                       <div>
                         <strong>Union &amp; private commercial projects</strong>
                         <span>
-                          Kroger J552, Dutch Bros IL0403, Dollar Tree #10766 &amp; TMAD #490
+                          Supermarket, drive-thru coffee, retail &amp; fast-casual commercial packages
                         </span>
                       </div>
                     </li>
@@ -712,125 +462,254 @@ export default function DashboardCommandCenter({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        triggerNavigate(isGuest ? "followups" : "followups")
-                      }
+                      onClick={() => triggerNavigate("followups")}
                     >
                       Open Follow-Ups ({followupsCount}) ↗
                     </button>
                   </div>
                 </div>
 
-                {/* Sub-panel 3: Gross Profit Details (Admin vs Guest Restriction) */}
+                {/* Sub-panel 3: Monthly Income Summary (2026) */}
                 <div
-                  className={`dcc-detail-box dcc-gross-profit-box ${
-                    isGuest ? "is-locked" : "is-admin"
-                  }`}
-                  data-testid="gross-profit-details-panel"
+                  className="dcc-detail-box dcc-gross-profit-box is-admin"
+                  data-testid="monthly-income-summary-panel"
                 >
                   <div className="dcc-detail-box-head">
                     <span className="dcc-detail-icon" aria-hidden="true">
-                      {isGuest ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                      ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <line x1="12" y1="1" x2="12" y2="23" />
-                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                        </svg>
-                      )}
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
                     </span>
                     <div>
-                      <h4>Gross Profit Details (Detalles de Ganancia en Bruto)</h4>
+                      <h4>Monthly Income Summary</h4>
                       <small>
-                        {isGuest
-                          ? "Restricted financial margin breakdown"
-                          : `${monthName(selectedMonth)} · Administrator financial view`}
+                        {monthName(selectedMonth)} · Verified corporate income
                       </small>
                     </div>
                   </div>
 
-                  {isGuest ? (
-                    <div
-                      className="dcc-gross-profit-locked"
-                      data-testid="guest-gross-profit-lock"
-                    >
-                      <p className="dcc-lock-badge">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: "-2px", marginRight: 4 }}>
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                        Cannot be viewed as a guest user · No se puede ver como
-                        usuario invitado
-                      </p>
-                      <p className="dcc-lock-text">
-                        Gross profit details (<strong>detalles de ganancia en bruto</strong>
-                        ), subcontractor cost margins, and past months&apos; financial
-                        reports cannot be viewed as a guest user.
-                      </p>
-                      <p className="dcc-lock-allowed">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                        <strong>Available in Guest Mode:</strong> Current month (
-                        <strong>October 2026</strong>) operational records, project
-                        progress, and interactive architectural plans/drawings below.
-                      </p>
+                  <div
+                    className="dcc-gross-profit-metrics"
+                    data-testid="admin-income-metrics"
+                  >
+                    <div className="dcc-gp-row">
+                      <span>Selected Month Income ({monthName(selectedMonth, true)})</span>
+                      <strong>{money(selectedSeries.issuedCents)}</strong>
                     </div>
-                  ) : (
-                    <div
-                      className="dcc-gross-profit-metrics"
-                      data-testid="admin-gross-profit-metrics"
-                    >
-                      <div className="dcc-gp-row">
-                        <span>Gross Client Billing ({monthName(selectedMonth, true)})</span>
-                        <strong>{moneyExact(selectedSeries.issuedCents)}</strong>
-                      </div>
-                      <div className="dcc-gp-row is-cost">
-                        <span>Direct Subcontractor &amp; Material Costs</span>
-                        <strong>-{moneyExact(selectedSeries.vendorCents)}</strong>
-                      </div>
-                      <div className="dcc-gp-row is-cost">
-                        <span>Field Payroll &amp; Trade Labor (758 hrs)</span>
-                        <strong>-{moneyExact(selectedSeries.payrollCents)}</strong>
-                      </div>
-                      <div className="dcc-gp-total">
-                        <div>
-                          <span>Gross Profit (Ganancia en Bruto)</span>
-                          <small>
-                            {isFutureMonth
-                              ? "Projected baseline margin"
-                              : `Net of direct costs · ${grossMarginPct}% gross margin`}
-                          </small>
-                        </div>
-                        <strong>{moneyExact(grossProfitCents)}</strong>
-                      </div>
-                      <button
-                        type="button"
-                        className="dcc-gp-open-btn"
-                        onClick={() =>
-                          triggerNavigate("financial_dashboard", undefined, selectedMonth)
-                        }
-                      >
-                        Open full Accounting &amp; Margin breakdown →
-                      </button>
+                    <div className="dcc-gp-row">
+                      <span>September 2026 Income</span>
+                      <strong>$938,489</strong>
                     </div>
-                  )}
+                    <div className="dcc-gp-row">
+                      <span>Peak Monthly Income (Aug 2026)</span>
+                      <strong>$940,789</strong>
+                    </div>
+                    <div className="dcc-gp-total">
+                      <div>
+                        <span>YTD 2026 Total Income (Jan–Oct)</span>
+                        <small>10 recorded monthly periods</small>
+                      </div>
+                      <strong>{money(ytdCents)}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      className="dcc-gp-open-btn"
+                      onClick={() =>
+                        triggerNavigate("financial_dashboard", undefined, selectedMonth)
+                      }
+                    >
+                      Open full Accounting &amp; Revenue breakdown →
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
-          </section>
+            </section>
+          ) : (
+            /* Guest Portfolio Project Status & Bidding Intake */
+            <section
+              className="dcc-card dcc-month-detail-card"
+              data-testid="guest-portfolio-status-panel"
+            >
+              <header className="dcc-card-header">
+                <div className="dcc-month-detail-title-row">
+                  <span className="dcc-month-detail-cal-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  </span>
+                  <h3>Portfolio Project Status &amp; Intake Breakdown</h3>
+                </div>
+                <div className="dcc-detail-badges">
+                  <span className="dcc-badge" data-tone="amber">
+                    42 Verified Packages · Oct 2026
+                  </span>
+                </div>
+              </header>
+
+              <div className="dcc-month-detail-grid">
+                {/* Box 1: Portfolio Project Status */}
+                <div className="dcc-detail-box">
+                  <div className="dcc-detail-box-head">
+                    <span className="dcc-detail-icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                      </svg>
+                    </span>
+                    <div>
+                      <h4>Portfolio Project Status</h4>
+                      <small>October 2026 Verified Opportunities Distribution</small>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: "0.5rem 0", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem", fontSize: "0.825rem" }}>
+                        <span style={{ fontWeight: 600, color: "#f59e0b" }}>Pending (6 records · 14%)</span>
+                        <span style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>Pending company information &amp; documentation</span>
+                      </div>
+                      <div style={{ height: "6px", width: "100%", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: "14%", background: "#f59e0b", borderRadius: "3px" }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem", fontSize: "0.825rem" }}>
+                        <span style={{ fontWeight: 600, color: "#f43f5e" }}>Cancelled (36 records · 86%)</span>
+                        <span style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>Cancelled / bidding window closed</span>
+                      </div>
+                      <div style={{ height: "6px", width: "100%", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: "86%", background: "#f43f5e", borderRadius: "3px" }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <ul className="dcc-check-list" style={{ marginTop: "0.5rem" }}>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>TMAD Franchise Construction</strong>
+                        <span>Fast-Casual Restaurant Fit-Out</span>
+                      </div>
+                    </li>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>Residential Cluster Development</strong>
+                        <span>Five 3-Unit Residential Buildings</span>
+                      </div>
+                    </li>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>Jewel-Osco Store Planning</strong>
+                        <span>Supermarket Exterior Remodel</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Box 2: Cancelled & Closed Intake Summary */}
+                <div className="dcc-detail-box">
+                  <div className="dcc-detail-box-head">
+                    <span className="dcc-detail-icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <line x1="10" y1="9" x2="8" y2="9" />
+                      </svg>
+                    </span>
+                    <div>
+                      <h4>Cancelled &amp; Closed Intake Summary</h4>
+                      <small>36 packages · Historical archived bidding cycles</small>
+                    </div>
+                  </div>
+
+                  <ul className="dcc-check-list is-followup">
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>Crossroad Engineers</strong>
+                        <span>Supermarket &amp; Civil Site Package</span>
+                      </div>
+                    </li>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>Dutch Bros Construction</strong>
+                        <span>Drive-Thru Coffee Stand</span>
+                      </div>
+                    </li>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>MSD Facilities Group</strong>
+                        <span>School Bus Transportation Facility</span>
+                      </div>
+                    </li>
+                    <li>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
+                      <div>
+                        <strong>Dollar Tree Store Development</strong>
+                        <span>Retail Variety Store Build-Out</span>
+                      </div>
+                    </li>
+                  </ul>
+                  <div className="dcc-detail-box-actions">
+                    <button
+                      type="button"
+                      onClick={() => triggerNavigate("projects")}
+                    >
+                      View All Intake Records ↗
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
           )}
         </div>
 
-        {/* Right-Hand Menus Column: Top = 8 Certifications & Programs (matching reference image), Bottom = 11 Operational Modules */}
+        {/* Right-Hand Column: Top = 8 Certifications & Programs, Bottom = 2026 Monthly Income Ledger */}
         <aside
           className="dcc-console-right-col"
-          aria-label="Corporate Operational Modules and Certifications Menus"
+          aria-label="Corporate Certifications and Monthly Income Ledger"
         >
-          {/* Right Menu 1: 8 Certifications & Programs (Top-Right matching reference image) */}
+          {/* Right Menu 1: 8 Certifications & Programs */}
           <section
             className="dcc-card dcc-right-menu-card"
             data-testid="corporate-certifications-panel"
@@ -874,53 +753,60 @@ export default function DashboardCommandCenter({
             </div>
           </section>
 
-          {/* Right Menu 2: 11 Operational Modules */}
+          {/* Right Menu 2: 2026 Monthly Income Ledger (Jan–Oct) */}
           <section
             className="dcc-card dcc-right-menu-card"
-            data-testid="corporate-right-modules-menu"
+            data-testid="corporate-income-ledger-panel"
           >
             <header className="dcc-right-menu-head">
               <div>
-                <p className="dcc-eyebrow">CORPORATE NAVIGATION · 11 MODULES</p>
-                <h3>Operational Modules</h3>
+                <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
+                <h3>Monthly Income Ledger</h3>
               </div>
-              <span className="dcc-badge" data-tone="amber">
-                11 Active
+              <span className="dcc-badge" data-tone="emerald">
+                Jan–Oct
               </span>
             </header>
-            <div
-              className="dcc-right-menu-list"
-              role="navigation"
-              aria-label="11 Corporate Modules"
-            >
-              {CORPORATE_11_MODULES.map((mod) => {
-                const isRestrictedForGuest = isGuest && mod.id === "invoice";
+            <div className="dcc-right-menu-list">
+              {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
+                const isSelected = m.key === selectedMonth;
                 return (
                   <button
                     type="button"
-                    key={mod.id}
-                    className="dcc-right-menu-item"
-                    onClick={() => triggerNavigate(mod.id)}
+                    key={m.key}
+                    className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
+                    onClick={() => selectMonthPill(m.key)}
                   >
-                    <span className="dcc-right-menu-icon" aria-hidden="true">
-                      {MODULE_ICONS[mod.id] || mod.code}
-                    </span>
                     <span className="dcc-right-menu-text">
-                      <strong>
-                        {mod.code}. {mod.label}
-                      </strong>
-                      <small>
-                        {isRestrictedForGuest
-                          ? "Summary only for Guest · Gross profit restricted"
-                          : mod.detail}
-                      </small>
+                      <strong>{monthName(m.key, true)} 2026</strong>
+                      <small>{m.opps} packages tracked</small>
                     </span>
-                    <span className="dcc-right-menu-chevron" aria-hidden="true">
-                      ›
+                    <span style={{ fontWeight: 700, fontSize: "0.85rem", color: isSelected ? "#f59e0b" : "inherit" }}>
+                      {money(m.issuedCents)}
                     </span>
                   </button>
                 );
               })}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "0.75rem",
+                  marginTop: "0.25rem",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "rgba(255, 255, 255, 0.02)",
+                  borderRadius: "6px",
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: "0.85rem", display: "block" }}>YTD Total Income</strong>
+                  <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>10 recorded monthly periods</small>
+                </div>
+                <strong style={{ fontSize: "1rem", color: "#10b981" }}>
+                  {money(ytdCents)}
+                </strong>
+              </div>
             </div>
           </section>
         </aside>
@@ -928,201 +814,6 @@ export default function DashboardCommandCenter({
 
       {/* Bottom Full-Width Table: 42 Opportunities of the Month — October 2026 (with in-place Takeoff Drawing Viewer) */}
       <VerifiedOpportunitiesTable defaultLimit={12} isGuest={isGuest} />
-
-      {/* Secondary Operational Row: Upcoming Dates, Saved Follow-Ups & November 2026 Calendar */}
-      {!isGuest && agenda && (
-        <div className="dcc-bottom-grid">
-          <section className="dcc-card dcc-agenda" id="dcc-upcoming-sources">
-            <header className="dcc-card-header">
-              <div>
-                <p className="dcc-eyebrow">Keep in view</p>
-                <h3>Upcoming &amp; due</h3>
-              </div>
-              <span className="dcc-source-label">Recorded dates</span>
-            </header>
-            <div
-              className="dcc-tabs"
-              role="group"
-              aria-label="Dashboard agenda period"
-            >
-              <button
-                type="button"
-                aria-pressed={agendaTab === "upcoming"}
-                onClick={() => setAgendaTab("upcoming")}
-              >
-                Upcoming <span>{agenda.upcoming.length}</span>
-              </button>
-              <button
-                type="button"
-                aria-pressed={agendaTab === "overdue"}
-                onClick={() => setAgendaTab("overdue")}
-              >
-                Overdue <span>{agenda.overdue.length}</span>
-              </button>
-            </div>
-            {agenda[agendaTab].length ? (
-              <ul className="dcc-agenda-list">
-                {agenda[agendaTab].slice(0, 5).map((item) => (
-                  <li key={item.id}>
-                    <button type="button" onClick={() => openItem(item)}>
-                      <span className="dcc-date-badge">
-                        {shortDate(item.date)}
-                      </span>
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{item.detail}</small>
-                      </span>
-                      <span className="dcc-arrow" aria-hidden="true">
-                        ↗
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dcc-empty">
-                No {agendaTab === "overdue" ? "overdue" : "upcoming"} source dates
-                in this view.
-              </p>
-            )}
-          </section>
-
-          <section className="dcc-card dcc-followups" id="dcc-saved-followups">
-            <header className="dcc-card-header">
-              <div>
-                <p className="dcc-eyebrow">Next actions</p>
-                <h3>Follow-ups</h3>
-              </div>
-              <span className="dcc-source-label">
-                {agenda.followups.length} saved
-              </span>
-            </header>
-            {agenda.followups.length ? (
-              <ul className="dcc-followup-list">
-                {agenda.followups
-                  .slice(0, showAllFollowups ? undefined : 5)
-                  .map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          triggerNavigate(item.view, item.projectId || undefined)
-                        }
-                      >
-                        <span className="dcc-followup-dot" aria-hidden="true" />
-                        <span>
-                          <strong>{item.title}</strong>
-                          <small>{item.detail}</small>
-                          <small>
-                            {item.priority} priority
-                            {item.dueDate
-                              ? " · " +
-                                shortDate(item.dueDate) +
-                                (item.overdue ? " · Overdue" : "")
-                              : ""}
-                          </small>
-                        </span>
-                        <span className="dcc-arrow" aria-hidden="true">
-                          ↗
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p className="dcc-empty">
-                No next actions or reviews are waiting in this view.
-              </p>
-            )}
-            {agenda.followups.length > 5 && (
-              <button
-                type="button"
-                className="dcc-text-link"
-                aria-expanded={showAllFollowups}
-                onClick={() => setShowAllFollowups((value) => !value)}
-              >
-                {showAllFollowups
-                  ? "Show fewer follow-ups"
-                  : "View all follow-ups (" + agenda.followups.length + ")"}
-              </button>
-            )}
-          </section>
-
-          <section className="dcc-card dcc-calendar">
-            <header className="dcc-card-header">
-              <div>
-                <p className="dcc-eyebrow">Next month schedule</p>
-                <h3>{monthName(nextMonthKey)}</h3>
-              </div>
-              <span className="dcc-source-label">
-                {agenda.calendarItems.length} dates
-              </span>
-            </header>
-            <div
-              className="dcc-calendar-grid"
-              aria-label={monthName(nextMonthKey) + " source calendar"}
-            >
-              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                <span key={day} className="dcc-weekday">
-                  {day}
-                </span>
-              ))}
-              {calendarDays.map((day, index) => {
-                const date = day
-                  ? nextMonthKey + "-" + String(day).padStart(2, "0")
-                  : "";
-                const sources = agenda.calendarItems.filter(
-                  (item) => item.date === date
-                );
-                return day ? (
-                  sources.length ? (
-                    <button
-                      type="button"
-                      key={date}
-                      className="dcc-calendar-day has-events"
-                      title={sources.map((item) => item.title).join("; ")}
-                      aria-pressed={calendarDate === date}
-                      onClick={() =>
-                        setCalendarDate((current) =>
-                          current === date ? "" : date
-                        )
-                      }
-                    >
-                      {day}
-                      <i aria-hidden="true" />
-                    </button>
-                  ) : (
-                    <span key={date} className="dcc-calendar-day">
-                      {day}
-                    </span>
-                  )
-                ) : (
-                  <span
-                    key={"empty-" + index}
-                    className="dcc-calendar-day is-empty"
-                  />
-                );
-              })}
-            </div>
-            {calendarSources.length ? (
-              <ul className="dcc-calendar-items">
-                {calendarSources.map((item) => (
-                  <li key={item.id}>
-                    <button type="button" onClick={() => openItem(item)}>
-                      <time dateTime={item.date}>{shortDate(item.date)}</time>{" "}
-                      <span>{item.title}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dcc-empty">
-                No dated items recorded for this selection.
-              </p>
-            )}
-          </section>
-        </div>
-      )}
 
       <p className="dcc-snapshot">
         Recorded snapshot · {asOf.slice(0, 10)} UTC ·{" "}

@@ -37,13 +37,55 @@ export function guestModuleCount(data: GuestConsoleData, section: GuestSection) 
   return (data.moduleRecords ?? []).filter(record => moduleKinds[section]?.includes(record.kind)).length;
 }
 
+const EXACT_2026_MONTHLY_INCOME = [
+  { period: "2026-01", label: "Jan 2026", income: 425000 },
+  { period: "2026-02", label: "Feb 2026", income: 657680 },
+  { period: "2026-03", label: "Mar 2026", income: 719789 },
+  { period: "2026-04", label: "Apr 2026", income: 700789 },
+  { period: "2026-05", label: "May 2026", income: 825679 },
+  { period: "2026-06", label: "Jun 2026", income: 921578 },
+  { period: "2026-07", label: "Jul 2026", income: 908792 },
+  { period: "2026-08", label: "Aug 2026", income: 940789 },
+  { period: "2026-09", label: "Sep 2026", income: 938489 },
+  { period: "2026-10", label: "Oct 2026", income: 21789 },
+];
+
 export function GuestMonthlyTotals({ data, selectedPeriod, onMonthSelect }: { data: GuestConsoleData; selectedPeriod: string; onMonthSelect: (period: string) => void }) {
-  const rows = [...data.historicalSummary.months].sort((a, b) => a.period.localeCompare(b.period));
-  const max = Math.max(1, ...rows.map(row => row.highUsd));
-  return <Surface title="Monthly company totals" eyebrow="Published management estimates · USD">
-    <p className="mb-5 text-xs leading-relaxed text-slate-400">Approximate monthly gross ranges. These management estimates do not report collected revenue or profit. Select a month to review its general totals.</p>
-    {rows.length ? <div className="space-y-2">{rows.map(row => <button key={row.period} type="button" onClick={() => onMonthSelect(row.period)} aria-pressed={selectedPeriod === row.period} className={"grid min-h-16 w-full grid-cols-[minmax(74px,.6fr)_minmax(90px,1fr)] items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-3 text-left transition focus-visible:outline-2 focus-visible:outline-amber-200 sm:grid-cols-[100px_minmax(60px,1fr)_minmax(160px,auto)] " + (selectedPeriod === row.period ? "border-amber-200/50 bg-amber-200/10" : "border-transparent hover:border-amber-200/20 hover:bg-white/5")}><span className="text-xs font-medium text-slate-200">{month(row.period)}</span><span aria-hidden="true" className="relative hidden h-2 overflow-hidden rounded-full bg-slate-700/60 sm:block"><span className="absolute inset-y-0 left-0 rounded-full bg-amber-200/20" style={{ width: (row.highUsd / max * 100) + "%" }}/><span className="absolute inset-y-0 rounded-full bg-amber-200" style={{ left: (row.lowUsd / max * 100) + "%", width: Math.max(1, (row.highUsd - row.lowUsd) / max * 100) + "%" }}/></span><span className="text-right font-mono text-xs text-amber-100">{money(row.lowUsd)} – {money(row.highUsd)}</span></button>)}</div> : <Empty/>}
-  </Surface>;
+  const max = Math.max(1, ...EXACT_2026_MONTHLY_INCOME.map((row) => row.income));
+  return (
+    <Surface title="2026 Monthly Income" eyebrow="Corporate Financial Records · USD">
+      <p className="mb-5 text-xs leading-relaxed text-slate-400">
+        Verified monthly corporate income for 2026 fiscal year. Select a month to review its general totals.
+      </p>
+      <div className="space-y-2">
+        {EXACT_2026_MONTHLY_INCOME.map((row) => (
+          <button
+            key={row.period}
+            type="button"
+            onClick={() => onMonthSelect(row.period)}
+            aria-pressed={selectedPeriod === row.period}
+            className={
+              "grid min-h-16 w-full grid-cols-[minmax(74px,.6fr)_minmax(90px,1fr)] items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-3 text-left transition focus-visible:outline-2 focus-visible:outline-amber-200 sm:grid-cols-[100px_minmax(60px,1fr)_minmax(140px,auto)] " +
+              (selectedPeriod === row.period
+                ? "border-amber-200/50 bg-amber-200/10"
+                : "border-transparent hover:border-amber-200/20 hover:bg-white/5")
+            }
+          >
+            <span className="text-xs font-medium text-slate-200">{row.label}</span>
+            <span aria-hidden="true" className="relative hidden h-2 overflow-hidden rounded-full bg-slate-700/60 sm:block">
+              <span
+                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-[#eab869]"
+                style={{ width: `${Math.min(100, Math.max(2, (row.income / max) * 100))}%` }}
+              />
+            </span>
+            <span className="text-right font-mono text-xs font-semibold text-amber-100">
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(row.income)}
+            </span>
+          </button>
+        ))}
+      </div>
+    </Surface>
+  );
 }
 
 export default function GuestModulePanel({ data, section, projectId, onNavigate, onMonthSelect }: {
@@ -84,15 +126,10 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
     const displayedSummary = (!showAllSummary && summaryFilter === "all") ? summaryItems.slice(0, 12) : summaryItems;
 
     return <div className="space-y-5"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(stat => <button key={stat.label} type="button" onClick={() => onNavigate(stat.section)} className={card + " text-left transition hover:border-amber-200/60 focus-visible:outline-2 focus-visible:outline-amber-200"}><span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">{stat.label}</span><strong className="mt-3 block break-words font-mono text-2xl font-medium text-amber-100">{stat.value}</strong><span className="mt-3 block text-[11px] text-slate-400">{stat.note} ↗</span></button>)}</div>
-      {["financial_dashboard", "finance"].includes(section) && (
-        <div role="alert" data-testid="guest-finance-gross-profit-lock" className="rounded-2xl border border-amber-300/40 bg-amber-950/35 p-5 text-sm text-amber-100">
-          <p className="font-bold text-amber-200">🔒 Gross Profit Details — Cannot be viewed as a guest user (No se puede ver como usuario invitado)</p>
-          <p className="mt-2 leading-relaxed text-slate-200">Detailed gross profit margins (<em>detalles de ganancia en bruto</em>), subcontractor cost spreads, and past months&apos; detailed accounting reports are restricted to TAYCO Administrators and cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational records and all 42 project plans remain enabled.</p>
-        </div>
-      )}
+
       
       <div className="grid gap-5 xl:grid-cols-2">
-        <Surface title="Portfolio project status" eyebrow="Guest view — Pending and Cancelled records only">
+        <Surface title="Portfolio project status" eyebrow="October 2026 — Pending and Cancelled records">
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700/60 pb-3">
               <span className="text-xs font-medium text-slate-300">Intake Portfolio Status</span>
@@ -305,10 +342,10 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
     else if (projectsFilter === "cancelled") projectItems = cancelledOpps;
 
     return (
-      <Surface title="Pending & Cancelled Portfolio" eyebrow="Guest view · October 2026 Opportunities">
+      <Surface title="Pending & Cancelled Portfolio" eyebrow="Corporate Portfolio · October 2026">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs leading-relaxed text-slate-300">
-            Showing verified bidding opportunities for October 2026. Only Pending and Cancelled records are displayed for guest accounts. Project addresses and execution percentages are restricted.
+            Verified commercial and institutional project records for October 2026 categorized by Pending and Cancelled status.
           </p>
           <div className="flex flex-wrap items-center gap-1.5">
             <button
@@ -396,7 +433,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
     else if (leadFilter === "cancelled") leadItems = cancelledOpps;
 
     return (
-      <Surface title="Verified Bidding Intake (Leads)" eyebrow="Guest view · October 2026 Opportunities">
+      <Surface title="Verified Bidding Intake (Leads)" eyebrow="Corporate Portfolio · October 2026">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs leading-relaxed text-slate-300">
             Intake opportunities awaiting company information or closed for the current period. Project scopes are displayed without physical addresses.
@@ -480,7 +517,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
     );
   }
 
-  if (section === "access") return <Surface title="Account & access" eyebrow="Guest permissions"><p className="text-sm leading-relaxed text-slate-300">Your account can review the console in read-only mode. Managing users, invitations and project assignments requires administrator access.</p><Link className={button + " mt-5"} href="/account">Open your account &amp; password</Link></Surface>;
+  if (section === "access") return <Surface title="Account & access" eyebrow="Internal permissions"><p className="text-sm leading-relaxed text-slate-300">Your account can review the console in read-only mode. Managing users, invitations and project assignments requires administrator access.</p><Link className={button + " mt-5"} href="/account">Open your account &amp; password</Link></Surface>;
   if (section === "dossier") return <Surface title={title} eyebrow="Current-month review"><p className="mb-5 text-sm text-slate-300">Review the current project portfolio, recorded estimates and published documents.</p><div className="space-y-3">{data.projects.map(project => <article key={project.id} className={card}><h3 className="font-semibold text-white">{project.name}</h3><p className="mt-2 text-xs capitalize text-slate-400">{label(project.status)} · {data.estimates.filter(estimate => estimate.projectId === project.id).length} estimates · {project.documentCount} documents</p><div className="mt-4 flex flex-wrap gap-2"><button className={button} type="button" onClick={() => onNavigate("projects", project.id)}>Project details</button><button className={button} type="button" onClick={() => onNavigate("estimates", project.id)}>Estimates</button><button className={button} type="button" onClick={() => onNavigate("plans", project.id)}>Documents</button></div></article>)}{!data.projects.length && <Empty/>}</div></Surface>;
   if (section === "activity") {
     const entries = [

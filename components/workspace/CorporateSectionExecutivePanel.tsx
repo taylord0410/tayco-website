@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  CORPORATE_11_MODULES,
   CORPORATE_CERTIFICATIONS_STATUS,
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
 } from "@/lib/verified-bidding-opportunities";
@@ -61,45 +60,32 @@ const CANONICAL_SECTION_MAP: Record<string, string> = {
   reports: "dossier",
 };
 
-const GUEST_NAV_MAP: Record<string, string> = {
-  executive: "summary",
-  project: "projects",
-  invoice: "invoice",
-  financial_dashboard: "financial_dashboard",
-  team: "team",
-  lead: "lead",
-  hours: "hours",
-  compliance: "compliance",
-  document: "plans",
-  corporate_meetings: "corporate_meetings",
-  dossier: "dossier",
-};
+export const CORPORATE_2026_MONTHLY_INCOME = [
+  { month: "January 2026", quarter: "Q1 2026", income: "$425,000", amount: 425000, status: "Reconciled" },
+  { month: "February 2026", quarter: "Q1 2026", income: "$657,680", amount: 657680, status: "Reconciled" },
+  { month: "March 2026", quarter: "Q1 2026", income: "$719,789", amount: 719789, status: "Reconciled" },
+  { month: "April 2026", quarter: "Q2 2026", income: "$700,789", amount: 700789, status: "Reconciled" },
+  { month: "May 2026", quarter: "Q2 2026", income: "$825,679", amount: 825679, status: "Reconciled" },
+  { month: "June 2026", quarter: "Q2 2026", income: "$921,578", amount: 921578, status: "Reconciled" },
+  { month: "July 2026", quarter: "Q3 2026", income: "$908,792", amount: 908792, status: "Reconciled" },
+  { month: "August 2026", quarter: "Q3 2026", income: "$940,789", amount: 940789, status: "Reconciled" },
+  { month: "September 2026", quarter: "Q3 2026", income: "$938,489", amount: 938489, status: "Reconciled" },
+  { month: "October 2026", quarter: "Q4 2026", income: "$21,789", amount: 21789, status: "In Progress" },
+] as const;
+
+export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
 
 export default function CorporateSectionExecutivePanel({
   activeTab,
   isGuest = false,
-  period,
-  onNavigate,
 }: {
   activeTab: string;
   isGuest?: boolean;
   period?: string;
-  onNavigate: (view: string, projectId?: string) => void;
+  onNavigate?: (view: string, projectId?: string) => void;
 }) {
   const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
   const canonical = CANONICAL_SECTION_MAP[activeTab] || activeTab;
-
-  const activeModuleMeta =
-    CORPORATE_11_MODULES.find((m) => m.id === canonical) ||
-    CORPORATE_11_MODULES[0];
-
-  const handleModuleSwitch = (moduleId: string) => {
-    if (isGuest) {
-      onNavigate(GUEST_NAV_MAP[moduleId] || moduleId);
-    } else {
-      onNavigate(moduleId);
-    }
-  };
 
   const activeDrawingOpp = activeViewerId
     ? VERIFIED_OCTOBER_2026_OPPORTUNITIES.find((o) => o.id === activeViewerId) ??
@@ -111,33 +97,6 @@ export default function CorporateSectionExecutivePanel({
       className="dcc-section-executive-wrap"
       data-testid={`corporate-section-executive-${canonical}`}
     >
-      {/* 11-Section Quick Navigation Strip inside the Corporate Console */}
-      <nav
-        aria-label="Monthly Corporate Evaluation Modules"
-        data-testid="corporate-11-modules-bar"
-        className="dcc-card dcc-section-nav-strip"
-      >
-        <div className="dcc-section-nav-pills">
-          {CORPORATE_11_MODULES.map((mod) => {
-            const isCurrent = canonical === mod.id;
-            return (
-              <button
-                key={mod.id}
-                type="button"
-                onClick={() => handleModuleSwitch(mod.id)}
-                aria-current={isCurrent ? "page" : undefined}
-                className={`dcc-section-nav-pill ${
-                  isCurrent ? "is-active" : ""
-                }`}
-              >
-                <span className="dcc-section-nav-code">{mod.code}</span>
-                <span>{mod.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
       {/* Section-Specific Executive Content */}
       {canonical === "project" && (
         <section className="dcc-card dcc-section-hero-card">
@@ -297,71 +256,45 @@ export default function CorporateSectionExecutivePanel({
           <header className="dcc-card-header">
             <div>
               <p className="dcc-eyebrow">
-                MODULE 03 · CLIENT &amp; SUPPLIER INVOICES · OCTOBER 2026
+                MODULE 03 · CORPORATE MONTHLY INCOME &amp; BILLING · OCTOBER 2026
               </p>
-              <h3>Billing — Progress Applications &amp; Trade Invoices</h3>
+              <h3>Billing — Verified Monthly Income &amp; Applications</h3>
             </div>
-            <span className="dcc-badge" data-tone="amber">
-              October 2026 · $485,400.00 Billed
+            <span className="dcc-badge" data-tone="emerald">
+              October 2026 · $21,789 Current Income
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">October 2026 Client Billing</span>
-              <strong className="dcc-kpi-value">$485,400.00</strong>
+              <span className="dcc-kpi-label">October 2026 Income</span>
+              <strong className="dcc-kpi-value">$21,789</strong>
               <span className="dcc-kpi-note">
-                AIA G702/G703 progress applications
+                Current month in progress
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">October 2026 Collections</span>
-              <strong className="dcc-kpi-value">$388,320.00</strong>
+              <span className="dcc-kpi-label">September 2026 Income</span>
+              <strong className="dcc-kpi-value">$938,489</strong>
               <span className="dcc-kpi-note">
-                Recorded client receipts · Oct 2026
+                Completed monthly period
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Retainage &amp; Open AR</span>
-              <strong className="dcc-kpi-value">$97,080.00</strong>
+              <span className="dcc-kpi-label">August 2026 Income</span>
+              <strong className="dcc-kpi-value">$940,789</strong>
               <span className="dcc-kpi-note">
-                Scheduled 30-day commercial settlement
+                Peak 2026 monthly income
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Gross Profit Margin</span>
-              <strong className="dcc-kpi-value">
-                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Restricted</span> : "$117,250.00"}
-              </strong>
+              <span className="dcc-kpi-label">YTD 2026 Total Income</span>
+              <strong className="dcc-kpi-value">$7,060,374</strong>
               <span className="dcc-kpi-note">
-                {isGuest
-                  ? "Cannot be viewed as a guest user"
-                  : "24.15% net of direct vendor & payroll costs"}
+                Cumulative Jan–Oct 2026 income
               </span>
             </div>
           </div>
-
-          {isGuest && (
-            <div
-              className="dcc-guest-restriction-banner"
-              style={{ marginTop: "1rem" }}
-            >
-              <div className="dcc-restriction-icon" aria-hidden="true">
-                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
-              </div>
-              <div className="dcc-restriction-body">
-                <h4>
-                  Gross Profit &amp; Supplier Margin Details — Cannot be viewed
-                  as a guest user (No se puede ver como usuario invitado)
-                </h4>
-                <p>
-                  Detailed subcontractor cost margins and gross profit
-                  breakdowns (<em>detalles de ganancia en bruto</em>) are
-                  restricted to TAYCO Administrators.
-                </p>
-              </div>
-            </div>
-          )}
         </section>
       )}
 
@@ -370,79 +303,88 @@ export default function CorporateSectionExecutivePanel({
           <header className="dcc-card-header">
             <div>
               <p className="dcc-eyebrow">
-                MODULE 04 · MONTHLY FINANCIAL DETAIL · OCTOBER 2026
+                MODULE 04 · MONTHLY FINANCIAL DETAIL · 2026 RECONCILED
               </p>
               <h3>
-                Accounting — Revenue, Direct Costs &amp; Gross Profit Details
+                Accounting — 2026 Corporate Monthly Income
               </h3>
             </div>
-            <span
-              className="dcc-badge"
-              data-tone={isGuest ? "amber" : "emerald"}
-            >
-              {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-3 w-3 text-amber-300" /> Gross Profit Restricted for Guest</span> : "Administrator Full Financial View"}
+            <span className="dcc-badge" data-tone="emerald">
+              YTD 2026 Income · $7,060,374
             </span>
           </header>
 
-          {isGuest ? (
-            <div
-              className="dcc-guest-restriction-banner"
-              style={{ marginTop: "0.75rem" }}
-              data-testid="accounting-guest-gp-lock"
-            >
-              <div className="dcc-restriction-icon" aria-hidden="true">
-                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
-              </div>
-              <div className="dcc-restriction-body">
-                <h4>
-                  Gross Profit Details (Detalles de Ganancia en Bruto) — Cannot
-                  be viewed as a guest user (No se puede ver como usuario
-                  invitado)
-                </h4>
-                <p>
-                  Subcontractor cost margins, net profitability, and past
-                  months&apos; accounting ledgers cannot be viewed as a guest
-                  user. Current month (<strong>October 2026</strong>) top-line
-                  activity and project drawings remain enabled.
-                </p>
-              </div>
+          <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
+            <div className="dcc-kpi">
+              <span className="dcc-kpi-label">October 2026</span>
+              <strong className="dcc-kpi-value">$21,789</strong>
+              <span className="dcc-kpi-note">
+                Current month in progress
+              </span>
             </div>
-          ) : (
-            <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
-              <div className="dcc-kpi">
-                <span className="dcc-kpi-label">Gross Client Billing (Oct)</span>
-                <strong className="dcc-kpi-value">$485,400.00</strong>
-                <span className="dcc-kpi-note">
-                  YTD 2026: $3,250,400.00 across 10 months
-                </span>
-              </div>
-              <div className="dcc-kpi">
-                <span className="dcc-kpi-label">
-                  Direct Subcontractor &amp; Material Costs
-                </span>
-                <strong className="dcc-kpi-value">-$318,900.00</strong>
-                <span className="dcc-kpi-note">
-                  Committed trade partner &amp; material buyouts
-                </span>
-              </div>
-              <div className="dcc-kpi">
-                <span className="dcc-kpi-label">Field Payroll &amp; Labor</span>
-                <strong className="dcc-kpi-value">-$49,250.00</strong>
-                <span className="dcc-kpi-note">
-                  758.0 verified field hours · WH-347 compliant
-                </span>
-              </div>
-              <div className="dcc-kpi">
-                <span className="dcc-kpi-label">
-                  Gross Profit (Ganancia en Bruto)
-                </span>
-                <strong className="dcc-kpi-value">$117,250.00</strong>
-                <span className="dcc-kpi-note">
-                  24.15% Verified Gross Margin · Oct 2026
-                </span>
-              </div>
+            <div className="dcc-kpi">
+              <span className="dcc-kpi-label">Q3 2026 (Jul–Sep)</span>
+              <strong className="dcc-kpi-value">$2,788,070</strong>
+              <span className="dcc-kpi-note">
+                Q3 completed corporate income
+              </span>
             </div>
-          )}
+            <div className="dcc-kpi">
+              <span className="dcc-kpi-label">Q2 2026 (Apr–Jun)</span>
+              <strong className="dcc-kpi-value">$2,448,046</strong>
+              <span className="dcc-kpi-note">
+                Q2 completed corporate income
+              </span>
+            </div>
+            <div className="dcc-kpi">
+              <span className="dcc-kpi-label">YTD 2026 (Jan–Oct)</span>
+              <strong className="dcc-kpi-value">$7,060,374</strong>
+              <span className="dcc-kpi-note">
+                10-month verified income
+              </span>
+            </div>
+          </div>
+
+          <div className="dcc-opportunities-table-wrap" style={{ marginTop: "1rem" }}>
+            <table className="dcc-opportunities-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Quarter</th>
+                  <th>Corporate Monthly Income</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CORPORATE_2026_MONTHLY_INCOME.map((item) => (
+                  <tr key={item.month}>
+                    <td>
+                      <strong className="dcc-row-title">{item.month}</strong>
+                    </td>
+                    <td>
+                      <span className="dcc-row-meta">{item.quarter}</span>
+                    </td>
+                    <td>
+                      <strong
+                        className="dcc-row-title"
+                        style={{ fontFamily: "var(--font-mono, monospace)" }}
+                      >
+                        {item.income}
+                      </strong>
+                    </td>
+                    <td>
+                      <span
+                        className="dcc-badge"
+                        data-tone={item.status === "In Progress" ? "amber" : "emerald"}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
 
@@ -451,7 +393,7 @@ export default function CorporateSectionExecutivePanel({
           <header className="dcc-card-header">
             <div>
               <p className="dcc-eyebrow">
-                MODULE 05 · WORK TEAMS &amp; B2B ACCESS · OCTOBER 2026
+                MODULE 05 · WORK TEAMS &amp; ACCESS · OCTOBER 2026
               </p>
               <h3>
                 Administration — Corporate Governance, Project Teams &amp; Access
@@ -467,14 +409,14 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">Administrator Accounts</span>
               <strong className="dcc-kpi-value">Full Command</strong>
               <span className="dcc-kpi-note">
-                All 12 months · Gross profit · 42 plan sets
+                All 12 months · Governance &amp; project teams
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Guest Reviewer Policy</span>
-              <strong className="dcc-kpi-value">3-Hour Window</strong>
+              <span className="dcc-kpi-label">Corporate Governance</span>
+              <strong className="dcc-kpi-value">Internal System</strong>
               <span className="dcc-kpi-note">
-                Oct 2026 + Plans enabled · Past months &amp; GP locked
+                Authorized personnel &amp; project leads
               </span>
             </div>
             <div className="dcc-kpi">
@@ -488,7 +430,7 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">Document Protection</span>
               <strong className="dcc-kpi-value">Watermarked</strong>
               <span className="dcc-kpi-note">
-                Read-only Takeoff canvas · Download controls hidden
+                Read-only Takeoff canvas · Protected plan sets
               </span>
             </div>
           </div>
@@ -538,14 +480,10 @@ export default function CorporateSectionExecutivePanel({
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">October Field Payroll</span>
-              <strong className="dcc-kpi-value">
-                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Restricted</span> : "$49,250.00"}
-              </strong>
+              <span className="dcc-kpi-label">Certified Payroll Logs</span>
+              <strong className="dcc-kpi-value">12 Active</strong>
               <span className="dcc-kpi-note">
-                {isGuest
-                  ? "Labor cost margins restricted for Guest"
-                  : "Reconciled against October project ledgers"}
+                Reconciled against October field schedules
               </span>
             </div>
           </div>
@@ -641,125 +579,96 @@ export default function CorporateSectionExecutivePanel({
               <p className="dcc-eyebrow">
                 MODULE 10 · CORPORATE AGENDA &amp; FOLLOW-UPS · OCT / NOV 2026
               </p>
-              <h3>Meetings — Monthly Notes &amp; Next Month Follow-Up</h3>
+              <h3>Meetings — Corporate Review Schedule &amp; Bidding Calendar</h3>
             </div>
-            <span
-              className="dcc-badge"
-              data-tone={isGuest ? "amber" : "emerald"}
-            >
-              {isGuest ? (
-                <span className="inline-flex items-center gap-1">
-                  <CorporateIcon name="lock" className="h-3 w-3 text-amber-300" /> Restricted for Guest
-                </span>
-              ) : (
-                "November 2026 Follow-Ups Scheduled"
-              )}
+            <span className="dcc-badge" data-tone="emerald">
+              October &amp; November 2026 Scheduled
             </span>
           </header>
 
-          {isGuest ? (
-            <div
-              className="dcc-guest-restriction-banner"
-              style={{ marginTop: "0.85rem" }}
-              data-testid="meetings-guest-restriction"
-            >
-              <div className="dcc-restriction-icon" aria-hidden="true">
-                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
-              </div>
-              <div className="dcc-restriction-body">
-                <h4>
-                  Monthly Notes &amp; Next Month Follow-Ups — Restricted to Administrators
-                </h4>
-                <p>
-                  Internal corporate meetings, monthly notes, and scheduled follow-ups are restricted to TAYCO Administrators and cannot be viewed as a guest user.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="dcc-month-detail-grid" style={{ marginTop: "0.85rem" }}>
-              <div className="dcc-detail-box">
-                <div className="dcc-detail-box-head">
-                  <span className="dcc-detail-icon" aria-hidden="true">
-                    <CorporateIcon name="lock" className="h-4 w-4 text-amber-300" />
-                  </span>
-                  <div>
-                    <h4>Monthly Notes (internal use)</h4>
-                    <small>October 2026 executive highlights</small>
-                  </div>
+          <div className="dcc-month-detail-grid" style={{ marginTop: "0.85rem" }}>
+            <div className="dcc-detail-box">
+              <div className="dcc-detail-box-head">
+                <span className="dcc-detail-icon" aria-hidden="true">
+                  <CorporateIcon name="calendar" className="h-4 w-4 text-emerald-400" />
+                </span>
+                <div>
+                  <h4>October 2026 Bid Package Reviews</h4>
+                  <small>Active opportunity intake &amp; subcontractor reviews</small>
                 </div>
-                <ul className="dcc-check-list">
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>New opportunities (42 active packages)</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>SAM.gov approval</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Federal and state programs</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Union and private projects</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Approved certifications</strong>
-                    </div>
-                  </li>
-                </ul>
               </div>
+              <ul className="dcc-check-list">
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>New opportunities (42 active packages)</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>SAM.gov approval &amp; registration</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Federal and state contracting programs</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Union and private enterprise projects</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Approved certifications &amp; diversity compliance</strong>
+                  </div>
+                </li>
+              </ul>
+            </div>
 
-              <div className="dcc-detail-box">
-                <div className="dcc-detail-box-head">
-                  <span className="dcc-detail-icon" aria-hidden="true">
-                    <CorporateIcon name="calendar" className="h-4 w-4 text-amber-300" />
-                  </span>
-                  <div>
-                    <h4>Next Month Follow-Up (November 2026)</h4>
-                    <small>Priority corporate actions</small>
-                  </div>
+            <div className="dcc-detail-box">
+              <div className="dcc-detail-box-head">
+                <span className="dcc-detail-icon" aria-hidden="true">
+                  <CorporateIcon name="calendar" className="h-4 w-4 text-amber-300" />
+                </span>
+                <div>
+                  <h4>Upcoming Subcontractor Coordination</h4>
+                  <small>November 2026 priority corporate actions</small>
                 </div>
-                <ul className="dcc-check-list is-followup">
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Corporate meeting – opportunity review</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Follow up on pending proposals</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Review certification status</strong>
-                    </div>
-                  </li>
-                  <li>
-                    <i aria-hidden="true">•</i>
-                    <div>
-                      <strong>Prepare documentation for new projects</strong>
-                    </div>
-                  </li>
-                </ul>
               </div>
+              <ul className="dcc-check-list is-followup">
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Corporate meeting – opportunity review</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Follow up on pending proposals</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Review certification status</strong>
+                  </div>
+                </li>
+                <li>
+                  <i aria-hidden="true">•</i>
+                  <div>
+                    <strong>Prepare documentation for new projects</strong>
+                  </div>
+                </li>
+              </ul>
             </div>
-          )}
+          </div>
         </section>
       )}
 
@@ -776,8 +685,7 @@ export default function CorporateSectionExecutivePanel({
               </h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              October 2026 Active ·{" "}
-              {isGuest ? "Past Months Restricted" : "All 12 Months Enabled"}
+              October 2026 Active · 10 Months Verified
             </span>
           </header>
 
@@ -786,38 +694,28 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">Active Evaluation Period</span>
               <strong className="dcc-kpi-value">October 2026</strong>
               <span className="dcc-kpi-note">
-                42 verified opportunities · 20 active projects
+                $21,789 current month income
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Historical Months (Jan–Sep)</span>
-              <strong className="dcc-kpi-value">
-                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Locked</span> : "9 Months"}
-              </strong>
+              <strong className="dcc-kpi-value">9 Months</strong>
               <span className="dcc-kpi-note">
-                {isGuest
-                  ? "Cannot be viewed as a guest user"
-                  : "$2,765,000.00 cumulative Jan–Sep billing"}
+                $7,038,595 cumulative Jan–Sep income
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Gross Profit Report</span>
-              <strong className="dcc-kpi-value">
-                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Locked</span> : "$117,250.00"}
-              </strong>
+              <span className="dcc-kpi-label">YTD 2026 Corporate Income</span>
+              <strong className="dcc-kpi-value">$7,060,374</strong>
               <span className="dcc-kpi-note">
-                {isGuest
-                  ? "Cannot be viewed as a guest user"
-                  : "October 2026 verified gross profit (24.15%)"}
+                Jan–Oct 2026 verified income
               </span>
             </div>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Module Coverage</span>
-              <strong className="dcc-kpi-value">
-                {activeModuleMeta.code} / 11
-              </strong>
+              <span className="dcc-kpi-label">Verified Plan Sets</span>
+              <strong className="dcc-kpi-value">41 Drawings</strong>
               <span className="dcc-kpi-note">
-                Full corporate evaluation dossier synchronized
+                Connected to interactive Takeoff Reader
               </span>
             </div>
           </div>

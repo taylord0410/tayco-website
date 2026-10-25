@@ -23,6 +23,24 @@ function Source({ children }: { children: ReactNode }) { return <span className=
 export default function ExecutiveConsole({ data, projectId, onNavigate, estimates = [] }: { data: ConsoleData; projectId: string; onNavigate: (view: string, projectId?: string, reportingMonth?: string) => void; estimates?: ProjectEstimate[] }) {
  const [display, setDisplay] = useWorkspaceDisplay(), [selectedStatus, setSelectedStatus] = useState(""), [estimateId, setEstimateId] = useState(""), [costView, setCostView] = useState<"csi" | "tiers">("csi");
  const team = ["admin", "staff"].includes(data.actor.role), vendor = data.actor.role === "vendor";
+  if (team) {
+    return (
+      <div
+        className="workspace-console"
+        data-testid="executive-console"
+        data-atmosphere={display.atmosphere}
+        data-density={display.density}
+        style={{ "--workspace-light-angle": display.lightAngle + "deg" } as CSSProperties}
+      >
+        <DashboardCommandCenter
+          entries={data.entries}
+          asOf={data.updatedAt}
+          projectId={projectId}
+          onNavigate={onNavigate}
+        />
+      </div>
+    );
+  }
  const scoped = data.entries.filter(entry => !projectId || entry.projectId === projectId), projects = scoped.filter(entry => entry.kind === "project"), leads = data.entries.filter(entry => entry.kind === "lead");
  const openChanges = scoped.filter(entry => entry.kind === "change" && !["accepted", "declined"].includes(text(entry.data, "status")));
  const reviews = scoped.filter(entry => (entry.kind === "document" && entry.data.status === "pending_review") || (entry.kind === "hours" && entry.data.status === "submitted"));

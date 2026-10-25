@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import type { GuestConsoleData, GuestConsoleDocument } from "@/lib/guest-workspace";
 import { guestModuleDefinitions, type GuestSection } from "@/lib/guest-sections";
 import PortalShell from "./PortalShell";
-import GuestModulePanel, { GuestMonthlyTotals, guestModuleCount } from "./GuestModulePanel";
+import GuestModulePanel, { guestModuleCount } from "./GuestModulePanel";
 import WorkspaceDisplayControls, { useWorkspaceDisplay } from "./WorkspaceDisplayControls";
 import { EstimateCostRing } from "./WorkspaceVisuals";
 import "./workspace.css";
@@ -218,8 +218,8 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
       <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#eab869]/55 bg-gradient-to-r from-[#243b5a] to-[#152843] px-3.5 py-2 text-xs shadow-sm">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#eab869]/25 text-amber-200" aria-hidden="true"><CorporateIcon name="user" className="h-3.5 w-3.5 text-amber-200" /></span>
         <div className="leading-tight">
-          <p className="font-bold text-amber-100">Guest Reviewer · TAYCO</p>
-          <p className="text-[10px] text-amber-200/80">Read-only · Current Month</p>
+          <p className="font-bold text-amber-100">Corporate Portal · TAYCO</p>
+          <p className="text-[10px] text-amber-200/80">Internal Console · Active</p>
         </div>
       </div>
       <WorkspaceDisplayControls value={display} onChange={next=>{if(next.atmosphere!==display.atmosphere)record("display.theme");if(next.density!==display.density)record("display.density");if(next.lightAngle!==display.lightAngle)record("display.light");setDisplay(next);}}/>
@@ -229,20 +229,31 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </div>
   </>}>
     <GuestPrivacyNotice onReady={setPrivacyReady}/>
-    {data.review&&<p className="mt-4 rounded-xl border border-amber-200/30 p-3 text-sm text-amber-100">Review ends {new Date(data.review.expiresAt).toLocaleString('en-US',{timeZone:'UTC'})+' UTC'} · {Math.max(0,Math.ceil((data.review.expiresAt-serverNow)/60000))} min remaining. This deadline does not extend.</p>}
-    <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><label className="text-xs font-semibold text-slate-300" htmlFor="guest-reporting-month">Reporting month<select id="guest-reporting-month" value={period} onChange={event => selectPeriod(event.target.value)} className="mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-amber-200">{months.map(month => <option key={month} value={month}>{periodLabel(month)}{month === data.currentPeriod ? " · Current" : ""}</option>)}</select></label><p className="text-xs text-slate-400">As of {dateLabel(data.asOf)} · UTC</p></div>
+
+
     {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error}{!denied && <p className="mt-1 text-xs">Previously loaded information may be out of date. Use Refresh to try again.</p>}</div>}
     <div ref={moduleRef} tabIndex={-1} aria-busy={loading} className="mt-6 min-w-0 focus:outline-none" data-testid="guest-module">
       <p role="status" aria-live="polite" className="sr-only">{loading ? "Loading workspace" : modules.find(item => item.id === section)?.label}</p>
-      {closedMonth ? <Panel title="Month closed · Cannot be viewed as a guest user (No se puede ver como usuario invitado)"><p className="text-sm leading-relaxed text-amber-100"><CorporateIcon name="lock" className="inline-block h-4 w-4 align-text-bottom mr-1 text-amber-200" /> Detailed reports for previous months ({periodLabel(period)}) and gross profit details (<em>detalles de ganancia en bruto</em>) cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational data and all 42 project drawings remain enabled.</p><p className="mt-2 text-sm text-slate-300">This reporting month is closed. General monthly totals remain available; detailed records are restricted to the current month.</p><div className="mt-5 flex flex-wrap gap-3"><button className={control} type="button" onClick={() => selectPeriod(data.currentPeriod)}>Return to Current Month (October 2026) →</button><button className={control} type="button" onClick={() => navigate("summary")}>Open general totals</button></div></Panel> : denied ? <Panel title="Not authorized · Cannot be viewed as a guest user"><p className="text-sm text-slate-300">{section === "access" ? "Managing users, invitations and assignments requires administrator access. You can manage your own account and password." : "This account cannot open the requested information. Past months' detailed reports and gross profit details (detalles de ganancia en bruto) cannot be viewed as a guest user."}</p>{section === "access" && <Link href="/account" className={control + " mt-5"}>Open your account &amp; password</Link>}</Panel> : section === "summary" ? current ? details ? <div className="space-y-8"><DashboardCommandCenter isGuest guestData={presentationData} asOf={data.asOf} projectId={projectId} onNavigate={(view, projId, month) => { if (month && month !== period) selectPeriod(month); else navigate(view as GuestConsoleSection, projId); }} /><GuestModulePanel data={presentationData} section="summary" projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/></div> : <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <div className="space-y-5"><Panel title={periodLabel(period) + " · Past Month Restricted for Guest"}><div role="alert" className="mb-4 rounded-xl border border-amber-300/40 bg-amber-950/35 p-4 text-sm text-amber-100"><strong><CorporateIcon name="lock" className="inline-block h-4 w-4 align-text-bottom mr-1 text-amber-200" /> Cannot be viewed as a guest user (No se puede ver como usuario invitado):</strong> Detailed monthly reports for {periodLabel(period)} and gross profit details (<em>detalles de ganancia en bruto</em>) are restricted to TAYCO Administrators. Current month (<strong>October 2026</strong>) data and project drawings remain enabled. <button type="button" className="ml-2 underline font-semibold" onClick={() => selectPeriod(data.currentPeriod)}>Return to October 2026 →</button></div>{summary ? <div className={card}><p className="text-xs uppercase tracking-widest text-slate-400">Approximate management estimate · USD</p><p className="mt-3 font-mono text-3xl font-semibold text-amber-100">{money(summary.lowUsd)} – {money(summary.highUsd)}</p><p className="mt-3 text-sm text-slate-300">General monthly totals</p></div> : <Empty>No general summary has been published for this month.</Empty>}<p className="mt-5 text-sm text-slate-300">This month is closed for detail. All modules remain in the navigation; opening a detailed module returns Month closed.</p></Panel><GuestMonthlyTotals data={presentationData} selectedPeriod={period} onMonthSelect={selectPeriod}/></div> : !details ? <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <>
+      {closedMonth || denied || section === "summary" ? (
+        <DashboardCommandCenter
+          isGuest
+          guestData={presentationData}
+          asOf={data.asOf}
+          projectId={projectId}
+          onNavigate={(view, projId, month) => {
+            if (month && month !== period) selectPeriod(month);
+            else navigate(view as GuestConsoleSection, projId);
+          }}
+        />
+      ) : <>
         <CorporateSectionExecutivePanel
           activeTab={section}
           isGuest
           period={period}
           onNavigate={(nextSection, projId) => navigate((nextSection === "executive" ? "summary" : nextSection) as GuestConsoleSection, projId)}
         />
-        {section === "projects" && <Panel title="Projects">{data.projects.length ? <div className="grid gap-4 xl:grid-cols-2">{data.projects.map(project => <article key={project.id} className={card}><p className="text-xs capitalize text-amber-200">{text(project.status).replaceAll("_", " ")}</p><h3 className="mt-2 text-lg font-semibold text-white">{text(project.name)}</h3><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-xs text-slate-400">Progress</dt><dd className="mt-1">{project.progress === null ? "Not provided" : project.progress + "%"}</dd></div><div><dt className="text-xs text-slate-400">Location</dt><dd className="mt-1">{text(project.location)}</dd></div><div><dt className="text-xs text-slate-400">Commercial stage</dt><dd className="mt-1 capitalize">{text(project.commercialStage).replaceAll("_", " ")}</dd></div><div><dt className="text-xs text-slate-400">Documents</dt><dd className="mt-1">{project.documentCount}</dd></div></dl><button type="button" className={control + " mt-5"} onClick={() => openProject(project.id)} aria-expanded={projectId === project.id}>Open project details</button></article>)}</div> : <Empty>No projects are available for this month.</Empty>}{selectedProject && <section className="mt-6 border-t border-amber-200/20 pt-5"><h3 className="text-lg font-semibold text-amber-100">{selectedProject.name}</h3><div className="mt-4 flex flex-wrap gap-2"><button className={control} type="button" onClick={() => navigate("estimates", selectedProject.id)}>Review estimates</button><button className={control} type="button" onClick={() => navigate("plans", selectedProject.id)}>Review plans</button></div></section>}</Panel>}
-        {(section === "estimates" || section === "plans" || section === "takeoff") && <Panel title={modules.find(item => item.id === section)!.label}><label htmlFor="guest-project-filter" className="text-xs text-slate-300">Project<select id="guest-project-filter" value={projectId} onChange={event => { setProjectId(event.target.value); if (event.target.value) void record("project.open", { projectId: event.target.value }); }} className="mb-5 mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white"><option value="">All current projects</option>{data.projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+
+        {(section === "estimates" || section === "takeoff") && <Panel title={modules.find(item => item.id === section)!.label}><label htmlFor="guest-project-filter" className="text-xs text-slate-300">Project<select id="guest-project-filter" value={projectId} onChange={event => { setProjectId(event.target.value); if (event.target.value) void record("project.open", { projectId: event.target.value }); }} className="mb-5 mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white"><option value="">All current projects</option>{data.projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
           {section === "estimates" ? <>
             {estimates.length > 0 && (
               <div className="mb-6 rounded-2xl border border-amber-200/20 bg-[#09172b]/60 p-4 sm:p-6">
@@ -287,7 +298,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
             {documents.length ? <div className="grid gap-4 xl:grid-cols-2">{documents.map(documentCard)}</div> : <Empty>No plans or documents are available for this selection.</Empty>}
           </>}
         </Panel>}
-        {!["projects", "estimates", "plans", "takeoff"].includes(section) && <GuestModulePanel data={presentationData} section={section} projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/>}
+        {["projects", "followups", "note", "change", "proposal", "vendor", "bid", "access", "activity"].includes(section) && <GuestModulePanel data={presentationData} section={section} projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/>}
       </>}
     </div>
   </PortalShell>;

@@ -34,7 +34,7 @@ export function viewerBridgeSignature(pathname: string, search: string) {
 }
 const fail = (status: number, message: string): never => { throw new TakeoffViewerAccessError(status, message); };
 function upstreamOrigin() {
-  const configured = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL || process.env.TAYCO_TAKEOFF_VIEWER_BRIDGE_URL || 'https://velvet-diagnostic-humor-affects.trycloudflare.com';
+  const configured = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL || process.env.TAKEOFF_VIEWER_UPSTREAM || (!process.env.RAILWAY_ENVIRONMENT && process.env.NODE_ENV !== 'test' ? 'http://127.0.0.1:3023' : (process.env.TAYCO_TAKEOFF_VIEWER_BRIDGE_URL || 'https://velvet-diagnostic-humor-affects.trycloudflare.com'));
   if (!configured) fail(503, 'The drawing viewer is not configured.');
   if (!/^https?:\/\/[^/?#\\\\]+\/?$/i.test(configured!)) fail(503, 'The drawing viewer is not configured correctly.');
   let url: URL;

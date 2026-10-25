@@ -80,7 +80,7 @@ export function VerifiedOpportunitiesTable({
         <div>
           <p className="dcc-kicker dcc-eyebrow">
             {isGuest
-              ? "GUEST REVIEW · PENDING & CANCELLED OPPORTUNITIES · OCTOBER 2026"
+              ? "OCTOBER 2026 CORPORATE INTAKE · PENDING & CANCELLED OPPORTUNITIES"
               : "NEW OPPORTUNITIES · OCTOBER 2026 CORPORATE INTAKE"}
           </p>
           <h3 className="dcc-section-title">
@@ -108,9 +108,7 @@ export function VerifiedOpportunitiesTable({
                 statusFilter === "all" ? "is-active" : ""
               }`}
             >
-              {isGuest
-                ? `All Pending & Cancelled (${counts.total})`
-                : `All (${counts.total})`}
+              All ({counts.total})
             </button>
             <button
               type="button"
