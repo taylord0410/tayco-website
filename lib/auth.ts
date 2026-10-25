@@ -67,8 +67,10 @@ function openAuthDatabaseFile(): DatabaseSync {
 function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
   if ((!process.env.RAILWAY_ENVIRONMENT && process.env.NODE_ENV === 'test') || railwayAccountsSeeded) return;
   railwayAccountsSeeded = true;
-  const adminHash = process.env.TAYCO_ADMIN_PASSWORD_HASH || 'scrypt$32768$8$3$51f8fedc629c5b5ef178953ede3a765e$c82e93e0d01171859e713069445bea28c670075c366a3f26ae919eb6ab75722c59a926c61d3ab2739787d819f0fabf233a315bd7626f11f8afb1e1f87d466fc3';
-  const guestHash = process.env.TAYCO_GUEST_PASSWORD_HASH || 'scrypt$32768$8$3$69882d276a01a9f73ea0878d16739e65$2c69916edf519399e5b4c5de079da06f18134f56a6682ced30d4edfa6473207303113d15ce508c8a0d15ff75767043a53d8038fc536d139167c7abdb6b969eb9';
+  const defaultAdminHash = 'scrypt$32768$8$3$51f8fedc629c5b5ef178953ede3a765e$c82e93e0d01171859e713069445bea28c670075c366a3f26ae919eb6ab75722c59a926c61d3ab2739787d819f0fabf233a315bd7626f11f8afb1e1f87d466fc3';
+  const defaultGuestHash = 'scrypt$32768$8$3$69882d276a01a9f73ea0878d16739e65$30016f979e7e2f63a964a35e8b0621f5f051e24b6b2ceedf4abde8145cd4dc4535124a22fb7f8815332ea8b39cadf84bcdd4110c3abfdfbe59978eceae623f04';
+  const adminHash = (process.env.TAYCO_ADMIN_PASSWORD_HASH && !process.env.TAYCO_ADMIN_PASSWORD_HASH.endsWith('051738b5be8371c0a3419c5303ff04fc99d83aa197fb7a1b0492cb3570e4971c7c152e5ccca326c88cb3d7efcb288db8c28d76efee736fa1341763d4a715de4d')) ? process.env.TAYCO_ADMIN_PASSWORD_HASH : defaultAdminHash;
+  const guestHash = (process.env.TAYCO_GUEST_PASSWORD_HASH && !process.env.TAYCO_GUEST_PASSWORD_HASH.endsWith('2c69916edf519399e5b4c5de079da06f18134f56a6682ced30d4edfa6473207303113d15ce508c8a0d15ff75767043a53d8038fc536d139167c7abdb6b969eb9')) ? process.env.TAYCO_GUEST_PASSWORD_HASH : defaultGuestHash;
   const now = Date.now();
   if (adminHash && adminHash.startsWith('scrypt')) {
     for (const [id, email] of [['695937b9-780c-4046-b087-0e40687f0d4e', 'randolfjoan@gmail.com'], ['7ea71ecf-b8cf-4373-9562-696c77d2b0a8', 'admin@taycoturnkey.com']]) {
@@ -80,10 +82,12 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       ).run(id, email, adminHash, now);
       if (existing && existing.password_hash !== adminHash) {
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existing.id);
+        db.prepare('DELETE FROM auth_rate_limits').run();
       }
     }
   }
   if (guestHash && guestHash.startsWith('scrypt')) {
+    const existingGuest = db.prepare("SELECT id, password_hash FROM auth_users WHERE email='taylord@taycoturnkey.com'").get() as { id: string; password_hash: string } | undefined;
     db.prepare(
       `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
        VALUES('0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com', ?, 'guest', 'tayco_llc', '[]', NULL, 0, ?)
@@ -94,6 +98,11 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
        VALUES('taylord@taycoturnkey.com', 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
        ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
     ).run(now);
+    if (existingGuest && existingGuest.password_hash !== guestHash) {
+      db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
+      db.prepare("UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email='taylord@taycoturnkey.com'").run();
+      db.prepare('DELETE FROM auth_rate_limits').run();
+    }
   }
 }
 function database() {
