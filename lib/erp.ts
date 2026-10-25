@@ -17,10 +17,20 @@ type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owne
 export class ErpError extends Error { constructor(public status: number, message: string) { super(message); } }
 const connections = new Map<string, DatabaseSync>();
 export function database() {
-  const file = process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), '.data', 'tayco-erp.sqlite');
+  let file = process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), '.data', 'tayco-erp.sqlite');
   if (connections.has(file)) return connections.get(file)!;
-  mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  const db = new DatabaseSync(file);
+  let db: DatabaseSync;
+  try {
+    mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    db = new DatabaseSync(file);
+  } catch (error) {
+    if (!process.env.RAILWAY_ENVIRONMENT) throw error;
+    file = '/tmp/tayco-data/tayco-erp.sqlite';
+    if (connections.has(file)) return connections.get(file)!;
+    mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    process.env.TAYCO_ERP_DB_PATH = file;
+    db = new DatabaseSync(file);
+  }
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
     CREATE TABLE IF NOT EXISTS records(id TEXT PRIMARY KEY,kind TEXT NOT NULL,tenant_id TEXT NOT NULL,project_id TEXT NOT NULL DEFAULT '',owner_id TEXT NOT NULL DEFAULT '',payload TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS scoped_records ON records(tenant_id,kind,project_id);

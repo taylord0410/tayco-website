@@ -50,10 +50,59 @@ function migrateGuestRole(db: DatabaseSync) {
     throw error;
   } finally { db.exec('PRAGMA foreign_keys=ON'); }
 }
+let railwayAccountsSeeded = false;
+function openAuthDatabaseFile(): DatabaseSync {
+  const preferred = process.env.TAYCO_AUTH_DB_PATH || path.join(process.cwd(), '.data', 'tayco-auth.sqlite');
+  try {
+    mkdirSync(path.dirname(preferred), { recursive: true, mode: 0o700 });
+    return new DatabaseSync(preferred);
+  } catch (error) {
+    if (!process.env.RAILWAY_ENVIRONMENT) throw error;
+    const fallback = path.join('/tmp', 'tayco-data', 'tayco-auth.sqlite');
+    mkdirSync(path.dirname(fallback), { recursive: true, mode: 0o700 });
+    process.env.TAYCO_AUTH_DB_PATH = fallback;
+    return new DatabaseSync(fallback);
+  }
+}
+function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
+  if (!process.env.RAILWAY_ENVIRONMENT || railwayAccountsSeeded) return;
+  railwayAccountsSeeded = true;
+  const adminHash = process.env.TAYCO_ADMIN_PASSWORD_HASH;
+  const guestHash = process.env.TAYCO_GUEST_PASSWORD_HASH;
+  const now = Date.now();
+  if (adminHash && adminHash.startsWith('scrypt')) {
+    for (const [id, email] of [['user-admin-randolf', 'randolfjoan@gmail.com'], ['user-admin-tayco', 'admin@taycoturnkey.com']]) {
+      const existing = db.prepare('SELECT id, password_hash FROM auth_users WHERE email=?').get(email) as { id: string; password_hash: string } | undefined;
+      db.prepare(
+        `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
+         VALUES(?, ?, ?, 'admin', 'tayco', '[]', NULL, 0, ?)
+         ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='admin', disabled=0`
+      ).run(id, email, adminHash, now);
+      if (existing && existing.password_hash !== adminHash) {
+        db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existing.id);
+      }
+    }
+  }
+  if (guestHash && guestHash.startsWith('scrypt')) {
+    db.prepare(
+      `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
+       VALUES('user-guest-taylord', 'taylord@taycoturnkey.com', ?, 'guest', 'tayco', '[]', 'insurer-a', 0, ?)
+       ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', vendor_id='insurer-a', disabled=0`
+    ).run(guestHash, now);
+    if (!process.env.TAYCO_INSURER_REVIEW_POLICY) {
+      const hasClaimed = db.prepare('SELECT id FROM auth_review_grants WHERE lower(recipient_email)=? AND revoked_at IS NULL AND expires_at > ? LIMIT 1').get('taylord@taycoturnkey.com', now);
+      const hasPending = db.prepare('SELECT id FROM auth_pending_guest_reviews WHERE lower(recipient_email)=? AND claimed_at IS NULL AND revoked_at IS NULL LIMIT 1').get('taylord@taycoturnkey.com');
+      if (!hasClaimed && !hasPending) {
+        db.prepare(
+          `INSERT OR IGNORE INTO auth_pending_guest_reviews(id, recipient_email, tenant_id, mode, recipient_profile, duration_ms, created_by, created_at)
+           VALUES('pending-taylord-prod-3h', 'taylord@taycoturnkey.com', 'tayco', 'company', NULL, 10800000, 'user-admin-randolf', ?)`
+        ).run(now);
+      }
+    }
+  }
+}
 function database() {
-  const filename = process.env.TAYCO_AUTH_DB_PATH || path.join(process.cwd(), '.data', 'tayco-auth.sqlite');
-  mkdirSync(path.dirname(filename), { recursive: true, mode: 0o700 });
-  const db = new DatabaseSync(filename);
+  const db = openAuthDatabaseFile();
   try {
     db.exec(`PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
       CREATE TABLE IF NOT EXISTS auth_users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('admin','staff','client','vendor','guest')),tenant_id TEXT NOT NULL,project_ids TEXT NOT NULL,vendor_id TEXT,disabled INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL);
@@ -63,6 +112,7 @@ function database() {
       CREATE TABLE IF NOT EXISTS auth_audit(id TEXT PRIMARY KEY,actor_id TEXT,event TEXT NOT NULL,subject_id TEXT,created_at INTEGER NOT NULL);`);
     migrateGuestRole(db);
     installReviewSchema(db);
+    seedRailwayAccountsIfNeeded(db);
     return db;
   } catch (error) { db.close(); throw error; }
 }

@@ -98,7 +98,7 @@ export default function Navbar() {
       <a className="tayco-skip-link" href="#main-content">Skip to content</a>
       <div className="tayco-nav-bar">
         <Link href="/" className="tayco-brand" aria-label="TAYCO home" onClick={() => setOpen(false)}>
-          <Image src="/logo.jpeg" alt="" width={40} height={40} className="tayco-brand-mark" />
+          <Image src="/logo.png" alt="" width={42} height={42} className="tayco-brand-mark" />
           <span className="tayco-brand-name">
             <strong>{COMPANY.name}</strong>
             <span>Construction &amp; restoration</span>

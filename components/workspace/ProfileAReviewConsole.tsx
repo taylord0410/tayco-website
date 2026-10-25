@@ -116,7 +116,7 @@ export default function ProfileAReviewConsole({ data, review }: {
     setDocumentUrl(href);
   };
   return <PortalShell className="min-h-screen bg-[#070e1a] text-slate-100" data-testid="profile-a-review"
-    sidebar={<><Image src="/logo.jpeg" alt="TAYCO" width={196} height={62} priority className="h-14 w-auto max-w-full lg:h-auto lg:w-[196px]" />
+    sidebar={<><div className="inline-flex items-center justify-center rounded-xl border border-[#C9A84C]/35 bg-[#070E1A] p-2 shadow-lg"><Image src="/logo.png" alt="TAYCO" width={196} height={62} priority className="h-14 w-auto max-w-full object-contain lg:h-16 lg:w-auto" /></div>
       <p className="mt-4 text-xs uppercase tracking-[.2em] text-amber-200 lg:mt-7">Review workspace</p>
       <nav aria-label="Review sections" className="mt-3 grid grid-cols-3 gap-2 lg:mt-4 lg:grid-cols-1 lg:gap-3">{(["summary", "timeline", "projects"] as const).map(key =>
         <button key={key} type="button" className={control + (section === key ? " bg-amber-200/15" : "")} aria-current={section === key ? "page" : undefined}
