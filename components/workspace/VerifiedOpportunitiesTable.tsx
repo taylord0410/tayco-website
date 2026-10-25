@@ -7,22 +7,12 @@ import {
 } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
 
-function formatDeadline(iso: string | null): string {
-  if (!iso) return "Pending company info";
-  const parsed = Date.parse(iso + "T12:00:00Z");
-  if (!Number.isFinite(parsed)) return iso;
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(parsed));
-}
-
 export function VerifiedOpportunitiesTable({
-  defaultLimit = 10,
+  defaultLimit = 12,
+  isGuest = false,
 }: {
   defaultLimit?: number;
+  isGuest?: boolean;
 }) {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "Overdue" | "Pending company information"
@@ -58,7 +48,6 @@ export function VerifiedOpportunitiesTable({
       if (!q) return true;
       return (
         item.name.toLowerCase().includes(q) ||
-        item.location.toLowerCase().includes(q) ||
         item.contractor.toLowerCase().includes(q) ||
         (item.reportedDeadline ?? "").toLowerCase().includes(q) ||
         String(item.number).includes(q)
@@ -89,8 +78,10 @@ export function VerifiedOpportunitiesTable({
     >
       <div className="dcc-card-head dcc-opportunities-head">
         <div>
-          <p className="dcc-kicker">
-            NEW OPPORTUNITIES · OCTOBER 2026 CORPORATE INTAKE
+          <p className="dcc-kicker dcc-eyebrow">
+            {isGuest
+              ? "GUEST REVIEW · PENDING & CANCELLED OPPORTUNITIES · OCTOBER 2026"
+              : "NEW OPPORTUNITIES · OCTOBER 2026 CORPORATE INTAKE"}
           </p>
           <h3 className="dcc-section-title">
             New Opportunities — October 2026 ({counts.total} Verified Bidding
@@ -117,16 +108,9 @@ export function VerifiedOpportunitiesTable({
                 statusFilter === "all" ? "is-active" : ""
               }`}
             >
-              All ({counts.total})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("Overdue")}
-              className={`dcc-filter-pill ${
-                statusFilter === "Overdue" ? "is-active" : ""
-              }`}
-            >
-              Overdue · Oct 2026 ({counts.overdue})
+              {isGuest
+                ? `All Pending & Cancelled (${counts.total})`
+                : `All (${counts.total})`}
             </button>
             <button
               type="button"
@@ -137,7 +121,20 @@ export function VerifiedOpportunitiesTable({
                   : ""
               }`}
             >
-              Pending company info ({counts.pending})
+              {isGuest
+                ? `Pending (${counts.pending})`
+                : `Pending Info (${counts.pending})`}
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Overdue")}
+              className={`dcc-filter-pill ${
+                statusFilter === "Overdue" ? "is-active" : ""
+              }`}
+            >
+              {isGuest
+                ? `Cancelled (${counts.overdue})`
+                : `Overdue (${counts.overdue})`}
             </button>
           </div>
 
@@ -146,7 +143,7 @@ export function VerifiedOpportunitiesTable({
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search project, contractor, state or #ID..."
+              placeholder="Search project, contractor, deadline or #ID..."
               aria-label="Search verified bidding opportunities"
               className="dcc-opportunities-search"
             />
@@ -179,8 +176,7 @@ export function VerifiedOpportunitiesTable({
                 {activeItem.name}
               </h4>
               <p className="dcc-row-meta">
-                {activeItem.location} · Contractor: {activeItem.contractor} ·{" "}
-                {activeItem.documentName}
+                General Contractor: {activeItem.contractor} · ({activeItem.planFilesCount ?? 1} plan files)
               </p>
             </div>
             <button
@@ -203,10 +199,10 @@ export function VerifiedOpportunitiesTable({
         <table className="dcc-opportunities-table">
           <thead>
             <tr>
-              <th>Project / Location &amp; Contractor</th>
-              <th>Reported Deadline</th>
-              <th>Drawings</th>
-              <th>Estimated Price</th>
+              <th>General Contractor</th>
+              <th>Project</th>
+              <th>Deadline</th>
+              <th>Plans / Drawings</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -220,30 +216,25 @@ export function VerifiedOpportunitiesTable({
                     <div className="dcc-opp-project-cell">
                       <span className="dcc-opp-id">#{row.number}</span>
                       <div>
-                        <p className="dcc-row-title">{row.name}</p>
-                        <p className="dcc-row-meta">
-                          {row.location} ·{" "}
-                          <strong className="text-stone-300">
-                            {row.contractor}
-                          </strong>
-                        </p>
+                        <p className="dcc-row-title">{row.contractor}</p>
                       </div>
                     </div>
                   </td>
                   <td>
+                    <div>
+                      <p className="dcc-row-title">{row.name}</p>
+                    </div>
+                  </td>
+                  <td>
                     <span className="dcc-opp-deadline">
-                      {formatDeadline(row.reportedDeadline)}
+                      {row.reportedDeadline || "Pending date"}
                     </span>
-                    {row.reportedDeadline && (
-                      <span className="dcc-opp-submeta">
-                        {row.reportedDeadline}
-                      </span>
-                    )}
                   </td>
                   <td>
                     {row.viewerHref ? (
                       <button
                         type="button"
+                        data-testid={`open-drawing-${row.number}`}
                         onClick={() =>
                           setActiveViewerId(isViewerOpen ? null : row.id)
                         }
@@ -251,7 +242,7 @@ export function VerifiedOpportunitiesTable({
                           isViewerOpen ? "is-open" : ""
                         }`}
                       >
-                        {isViewerOpen ? "Hide drawings" : "View drawings"}
+                        {isViewerOpen ? "Hide plans" : "View plans"}
                       </button>
                     ) : (
                       <span className="dcc-badge" data-tone="slate">
@@ -260,16 +251,17 @@ export function VerifiedOpportunitiesTable({
                     )}
                   </td>
                   <td>
-                    <span className="dcc-opp-price">
-                      {row.estimatedPrice}
-                    </span>
-                  </td>
-                  <td>
                     <span
                       className="dcc-badge"
                       data-tone={isOverdue ? "rose" : "amber"}
                     >
-                      {row.status}
+                      {row.status === "Pending company information"
+                        ? isGuest
+                          ? "Pending"
+                          : "Pending company information"
+                        : isGuest
+                        ? "Cancelled"
+                        : "Overdue"}
                     </span>
                   </td>
                 </tr>

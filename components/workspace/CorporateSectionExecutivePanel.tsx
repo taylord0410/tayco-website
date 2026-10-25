@@ -195,8 +195,7 @@ export default function CorporateSectionExecutivePanel({
                     {activeDrawingOpp.name}
                   </h4>
                   <p className="dcc-row-meta">
-                    {activeDrawingOpp.location} · Contractor:{" "}
-                    {activeDrawingOpp.contractor}
+                    General Contractor: {activeDrawingOpp.contractor}
                   </p>
                 </div>
                 <button
@@ -219,8 +218,8 @@ export default function CorporateSectionExecutivePanel({
             <table className="dcc-opportunities-table">
               <thead>
                 <tr>
+                  <th>General Contractor</th>
                   <th>Project</th>
-                  <th>Location &amp; General Contractor</th>
                   <th>Schedule Deadline</th>
                   <th>Plans</th>
                   <th>Status</th>
@@ -235,18 +234,16 @@ export default function CorporateSectionExecutivePanel({
                         <div className="dcc-opp-project-cell">
                           <span className="dcc-opp-id">#{item.number}</span>
                           <div>
-                            <p className="dcc-row-title">{item.name}</p>
-                            <p className="dcc-row-meta">{item.documentName}</p>
+                            <p className="dcc-row-title">{item.contractor}</p>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <p className="dcc-row-title">{item.location}</p>
-                        <p className="dcc-row-meta">{item.contractor}</p>
+                        <p className="dcc-row-title">{item.name}</p>
                       </td>
                       <td>
                         <span className="dcc-opp-deadline">
-                          {item.reportedDeadline || "Oct 2026 Active"}
+                          {item.reportedDeadline || "Oct 2026"}
                         </span>
                       </td>
                       <td>
@@ -267,9 +264,24 @@ export default function CorporateSectionExecutivePanel({
                         )}
                       </td>
                       <td>
-                        <span className="dcc-badge" data-tone="emerald">
-                          Active Portfolio
-                        </span>
+                        {isGuest ? (
+                          <span
+                            className="dcc-badge"
+                            data-tone={
+                              item.status === "Pending company information"
+                                ? "amber"
+                                : "rose"
+                            }
+                          >
+                            {item.status === "Pending company information"
+                              ? "Pending"
+                              : "Cancelled"}
+                          </span>
+                        ) : (
+                          <span className="dcc-badge" data-tone="emerald">
+                            Active Portfolio
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -485,7 +497,7 @@ export default function CorporateSectionExecutivePanel({
 
       {canonical === "lead" && (
         <div style={{ display: "grid", gap: "1rem" }}>
-          <VerifiedOpportunitiesTable defaultLimit={42} />
+          <VerifiedOpportunitiesTable defaultLimit={42} isGuest={isGuest} />
         </div>
       )}
 
@@ -618,7 +630,7 @@ export default function CorporateSectionExecutivePanel({
               </span>
             </header>
           </section>
-          <VerifiedOpportunitiesTable defaultLimit={15} />
+          <VerifiedOpportunitiesTable defaultLimit={15} isGuest={isGuest} />
         </div>
       )}
 
@@ -631,94 +643,123 @@ export default function CorporateSectionExecutivePanel({
               </p>
               <h3>Meetings — Monthly Notes &amp; Next Month Follow-Up</h3>
             </div>
-            <span className="dcc-badge" data-tone="amber">
-              November 2026 Follow-Ups Scheduled
+            <span
+              className="dcc-badge"
+              data-tone={isGuest ? "amber" : "emerald"}
+            >
+              {isGuest ? (
+                <span className="inline-flex items-center gap-1">
+                  <CorporateIcon name="lock" className="h-3 w-3 text-amber-300" /> Restricted for Guest
+                </span>
+              ) : (
+                "November 2026 Follow-Ups Scheduled"
+              )}
             </span>
           </header>
 
-          <div className="dcc-month-detail-grid" style={{ marginTop: "0.85rem" }}>
-            <div className="dcc-detail-box">
-              <div className="dcc-detail-box-head">
-                <span className="dcc-detail-icon" aria-hidden="true">
-                  <CorporateIcon name="lock" className="h-4 w-4 text-amber-300" />
-                </span>
-                <div>
-                  <h4>Monthly Notes (internal use)</h4>
-                  <small>October 2026 executive highlights</small>
-                </div>
+          {isGuest ? (
+            <div
+              className="dcc-guest-restriction-banner"
+              style={{ marginTop: "0.85rem" }}
+              data-testid="meetings-guest-restriction"
+            >
+              <div className="dcc-restriction-icon" aria-hidden="true">
+                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
               </div>
-              <ul className="dcc-check-list">
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>New opportunities (42 active packages)</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>SAM.gov approval</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Federal and state programs</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Union and private projects</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Approved certifications</strong>
-                  </div>
-                </li>
-              </ul>
+              <div className="dcc-restriction-body">
+                <h4>
+                  Monthly Notes &amp; Next Month Follow-Ups — Restricted to Administrators
+                </h4>
+                <p>
+                  Internal corporate meetings, monthly notes, and scheduled follow-ups are restricted to TAYCO Administrators and cannot be viewed as a guest user.
+                </p>
+              </div>
             </div>
+          ) : (
+            <div className="dcc-month-detail-grid" style={{ marginTop: "0.85rem" }}>
+              <div className="dcc-detail-box">
+                <div className="dcc-detail-box-head">
+                  <span className="dcc-detail-icon" aria-hidden="true">
+                    <CorporateIcon name="lock" className="h-4 w-4 text-amber-300" />
+                  </span>
+                  <div>
+                    <h4>Monthly Notes (internal use)</h4>
+                    <small>October 2026 executive highlights</small>
+                  </div>
+                </div>
+                <ul className="dcc-check-list">
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>New opportunities (42 active packages)</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>SAM.gov approval</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Federal and state programs</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Union and private projects</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Approved certifications</strong>
+                    </div>
+                  </li>
+                </ul>
+              </div>
 
-            <div className="dcc-detail-box">
-              <div className="dcc-detail-box-head">
-                <span className="dcc-detail-icon" aria-hidden="true">
-                  <CorporateIcon name="calendar" className="h-4 w-4 text-amber-300" />
-                </span>
-                <div>
-                  <h4>Next Month Follow-Up (November 2026)</h4>
-                  <small>Priority corporate actions</small>
+              <div className="dcc-detail-box">
+                <div className="dcc-detail-box-head">
+                  <span className="dcc-detail-icon" aria-hidden="true">
+                    <CorporateIcon name="calendar" className="h-4 w-4 text-amber-300" />
+                  </span>
+                  <div>
+                    <h4>Next Month Follow-Up (November 2026)</h4>
+                    <small>Priority corporate actions</small>
+                  </div>
                 </div>
+                <ul className="dcc-check-list is-followup">
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Corporate meeting – opportunity review</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Follow up on pending proposals</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Review certification status</strong>
+                    </div>
+                  </li>
+                  <li>
+                    <i aria-hidden="true">•</i>
+                    <div>
+                      <strong>Prepare documentation for new projects</strong>
+                    </div>
+                  </li>
+                </ul>
               </div>
-              <ul className="dcc-check-list is-followup">
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Corporate meeting – opportunity review</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Follow up on pending proposals</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Review certification status</strong>
-                  </div>
-                </li>
-                <li>
-                  <i aria-hidden="true">•</i>
-                  <div>
-                    <strong>Prepare documentation for new projects</strong>
-                  </div>
-                </li>
-              </ul>
             </div>
-          </div>
+          )}
         </section>
       )}
 

@@ -344,13 +344,15 @@ export default function DashboardCommandCenter({
                     : monthName(selectedMonth)}
                 </p>
               </div>
-              <button
-                type="button"
-                className="dcc-open-month-btn"
-                onClick={() => openMonthDetail(selectedMonth)}
-              >
-                Open month detail →
-              </button>
+              {!isGuest && (
+                <button
+                  type="button"
+                  className="dcc-open-month-btn"
+                  onClick={() => openMonthDetail(selectedMonth)}
+                >
+                  Open month detail →
+                </button>
+              )}
             </header>
 
             <div
@@ -433,13 +435,38 @@ export default function DashboardCommandCenter({
                 })}
               </div>
             </div>
+            {isGuest && isPastMonthForGuest && (
+              <div
+                role="alert"
+                className="dcc-guest-restriction-banner"
+                data-testid="guest-past-month-restriction"
+                style={{ marginTop: "0.85rem" }}
+              >
+                <div className="dcc-restriction-body">
+                  <h4>
+                    Past Months&apos; Reports ({monthName(selectedMonth)}) — Restricted to Administrators
+                  </h4>
+                  <p>
+                    Historical months and gross profit details cannot be viewed as a guest user.
+                  </p>
+                  <button
+                    type="button"
+                    className="dcc-open-month-btn"
+                    onClick={() => setSelectedMonth(currentMonthKey)}
+                  >
+                    Return to October 2026 →
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* Card 2: Month Detail: October 2026 (Notes, Next Month Follow-ups, Gross Profit Details / Guest Lock) */}
-          <section
-            className="dcc-card dcc-month-detail-card"
-            data-testid="corporate-month-detail-panel"
-          >
+          {!isGuest && (
+            <section
+              className="dcc-card dcc-month-detail-card"
+              data-testid="corporate-month-detail-panel"
+            >
             <header className="dcc-card-header">
               <div className="dcc-month-detail-title-row">
                 <span className="dcc-month-detail-cal-icon" aria-hidden="true">
@@ -795,6 +822,7 @@ export default function DashboardCommandCenter({
               </div>
             )}
           </section>
+          )}
         </div>
 
         {/* Right-Hand Menus Column: Top = 8 Certifications & Programs (matching reference image), Bottom = 11 Operational Modules */}
@@ -899,7 +927,7 @@ export default function DashboardCommandCenter({
       </div>
 
       {/* Bottom Full-Width Table: 42 Opportunities of the Month — October 2026 (with in-place Takeoff Drawing Viewer) */}
-      <VerifiedOpportunitiesTable defaultLimit={12} />
+      <VerifiedOpportunitiesTable defaultLimit={12} isGuest={isGuest} />
 
       {/* Secondary Operational Row: Upcoming Dates, Saved Follow-Ups & November 2026 Calendar */}
       {!isGuest && agenda && (
