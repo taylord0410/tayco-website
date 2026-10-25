@@ -61,16 +61,16 @@ const CANONICAL_SECTION_MAP: Record<string, string> = {
 };
 
 export const CORPORATE_2026_MONTHLY_INCOME = [
-  { month: "January 2026", quarter: "Q1 2026", income: "$425,000", amount: 425000, status: "Reconciled" },
-  { month: "February 2026", quarter: "Q1 2026", income: "$657,680", amount: 657680, status: "Reconciled" },
-  { month: "March 2026", quarter: "Q1 2026", income: "$719,789", amount: 719789, status: "Reconciled" },
-  { month: "April 2026", quarter: "Q2 2026", income: "$700,789", amount: 700789, status: "Reconciled" },
-  { month: "May 2026", quarter: "Q2 2026", income: "$825,679", amount: 825679, status: "Reconciled" },
-  { month: "June 2026", quarter: "Q2 2026", income: "$921,578", amount: 921578, status: "Reconciled" },
-  { month: "July 2026", quarter: "Q3 2026", income: "$908,792", amount: 908792, status: "Reconciled" },
-  { month: "August 2026", quarter: "Q3 2026", income: "$940,789", amount: 940789, status: "Reconciled" },
-  { month: "September 2026", quarter: "Q3 2026", income: "$938,489", amount: 938489, status: "Reconciled" },
-  { month: "October 2026", quarter: "Q4 2026", income: "$21,789", amount: 21789, status: "In Progress" },
+  { month: "January 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2601-001 – TPRJ-2601-007 (7)", states: "5 WI · 1 IL · 1 IN", income: "$425,000", amount: 425000, status: "Reconciled" },
+  { month: "February 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2602-008 – TPRJ-2602-015 (8)", states: "5 WI · 2 IL · 1 IA", income: "$657,680", amount: 657680, status: "Reconciled" },
+  { month: "March 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2603-016 – TPRJ-2603-023 (8)", states: "5 WI · 2 IL · 1 IN", income: "$719,789", amount: 719789, status: "Reconciled" },
+  { month: "April 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2604-024 – TPRJ-2604-031 (8)", states: "5 WI · 2 IL · 1 MO", income: "$700,789", amount: 700789, status: "Reconciled" },
+  { month: "May 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2605-032 – TPRJ-2605-040 (9)", states: "6 WI · 2 IL · 1 IN", income: "$825,679", amount: 825679, status: "Reconciled" },
+  { month: "June 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2606-041 – TPRJ-2606-049 (9)", states: "6 WI · 2 IL · 1 IA", income: "$921,578", amount: 921578, status: "Reconciled" },
+  { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-050 – TPRJ-2607-058 (9)", states: "5 WI · 3 IL · 1 MO", income: "$908,792", amount: 908792, status: "Reconciled" },
+  { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-059 – TPRJ-2608-067 (9)", states: "6 WI · 2 IL · 1 IN", income: "$940,789", amount: 940789, status: "Reconciled" },
+  { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-068 – TPRJ-2609-076 (9)", states: "6 WI · 2 IL · 1 IA", income: "$938,489", amount: 938489, status: "Reconciled" },
+  { month: "October 2026", quarter: "Q4 2026", tprjRange: "TPRJ-2610-077 – TPRJ-2610-080 (4)", states: "3 WI · 1 IL", income: "$21,789", amount: 21789, status: "In Progress" },
 ] as const;
 
 export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
@@ -351,6 +351,8 @@ export default function CorporateSectionExecutivePanel({
                 <tr>
                   <th>Month</th>
                   <th>Quarter</th>
+                  <th>TPRJ Micro-Projects Series</th>
+                  <th>Jurisdictions (WI Majority)</th>
                   <th>Corporate Monthly Income</th>
                   <th>Status</th>
                 </tr>
@@ -363,6 +365,17 @@ export default function CorporateSectionExecutivePanel({
                     </td>
                     <td>
                       <span className="dcc-row-meta">{item.quarter}</span>
+                    </td>
+                    <td>
+                      <span
+                        className="dcc-row-meta"
+                        style={{ fontFamily: "var(--font-mono, monospace)", color: "#f3d37a" }}
+                      >
+                        {item.tprjRange}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="dcc-row-meta">{item.states}</span>
                     </td>
                     <td>
                       <strong
