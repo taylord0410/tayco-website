@@ -183,13 +183,13 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
             <CorporateIcon name={item.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
             <span className="truncate">{item.label}</span>
           </span>
-          {details && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}
+          
         </button>
       ))}
       <details className="mt-4 rounded-xl border border-slate-700/60 bg-[#07111f]/60 p-2">
-        <summary className="cursor-pointer px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/75">Additional Modules ({modules.length})</summary>
+        <summary className="cursor-pointer px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/75">Additional Modules</summary>
         <div className="mt-2 space-y-3">
-          {[...new Set(modules.map(item => item.group))].map(group => <div key={group}><p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-200/60">{group}</p><div className="space-y-1">{modules.filter(item => item.group === group).map(item => <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-9 w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs font-semibold transition " + (section === item.id ? "border-amber-200/55 bg-amber-200/15 text-amber-100" : "border-transparent text-slate-300 hover:bg-white/5")}><span>{item.label}</span>{details && item.id !== "access" && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}</button>)}</div></div>)}
+          {[...new Set(modules.map(item => item.group))].map(group => <div key={group}><p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-200/60">{group}</p><div className="space-y-1">{modules.filter(item => item.group === group).map(item => <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-9 w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs font-semibold transition " + (section === item.id ? "border-amber-200/55 bg-amber-200/15 text-amber-100" : "border-transparent text-slate-300 hover:bg-white/5")}><span>{item.label}</span></button>)}</div></div>)}
         </div>
       </details>
     </nav>
