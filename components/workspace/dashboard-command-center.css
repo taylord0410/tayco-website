@@ -136,7 +136,7 @@
 /* Top 4 KPIs */
 .dcc-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 12px;
 }
 
@@ -1056,6 +1056,8 @@
 .dcc-opportunities-table-wrap {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
   background: rgba(7, 17, 31, 0.75);
@@ -1401,18 +1403,25 @@
   box-shadow: 0 4px 14px rgba(201, 168, 76, 0.32);
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 1280px) {
   .dcc-console-split {
     grid-template-columns: minmax(0, 1fr);
   }
+  .dcc-console-right-col {
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    align-items: start;
+  }
   .dcc-bottom-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 960px) {
   .dcc-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dcc-card {
+    padding: 18px;
   }
   .dcc-month-detail-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1420,11 +1429,63 @@
   .dcc-bottom-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-@media (max-width: 560px) {
-  .dcc-chart,
   .dcc-month-pills {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .dcc-opportunities-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 680px) {
+  .dcc-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .dcc-exec-banner {
+    padding: 12px 14px;
+  }
+  .dcc-chart {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    grid-template-columns: repeat(12, minmax(42px, 1fr));
+  }
+  .dcc-month-pills {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .dcc-gp-row,
+  .dcc-gp-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .dcc-gp-amount {
+    align-self: flex-end;
+  }
+  .dcc-opportunities-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dcc-opportunities-search {
+    width: 100%;
+    min-width: 0;
+  }
+  .dcc-opportunities-viewer-drawer {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 460px) {
+  .dcc-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dcc-kpi {
+    min-height: 98px;
+    padding: 14px 16px 14px 20px;
+  }
+  .dcc-month-pills {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

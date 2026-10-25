@@ -469,8 +469,8 @@ export default function TakeoffProjectReader({
             (fullscreen
               ? "h-full min-h-[calc(100dvh-105px)] "
               : expanded
-              ? "h-[92svh] min-h-[48rem] "
-              : "h-[82svh] min-h-[38rem] ") +
+              ? "h-[88svh] min-h-[34rem] sm:min-h-[46rem] "
+              : "h-[clamp(440px,76svh,680px)] ") +
             "w-full border-0 bg-[#06101e]"
           }
           onLoad={(event) => {
