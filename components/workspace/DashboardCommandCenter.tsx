@@ -216,122 +216,29 @@ export default function DashboardCommandCenter({
 
   return (
     <div className="dcc-dashboard" data-testid="dashboard-command-center">
-      {/* Executive Header Strip matching reference mockup */}
-      <section className="dcc-exec-banner">
-        <div className="dcc-exec-banner-left">
-          <div className="dcc-exec-emblem" aria-hidden="true">
-            <span>TC</span>
-          </div>
-          <div>
-            <p className="dcc-exec-kicker">
-              TAYCO CONSTRUCTION GROUP · CORPORATE EVALUATION CONSOLE
-            </p>
-            <h2 className="dcc-exec-title">
-              Monthly Corporate Panel{" "}
-              <span>— Monthly evaluation &amp; operational command</span>
-            </h2>
-          </div>
-        </div>
-        <div className="dcc-exec-badges">
-          <span className="dcc-exec-pill dcc-exec-pill-lock">
-            <i aria-hidden="true">🔒</i> Private Access · Username &amp; password required
-          </span>
-          <span
-            className="dcc-exec-pill dcc-exec-pill-role"
-            data-role={isGuest ? "guest" : "admin"}
-          >
-            <i aria-hidden="true">{isGuest ? "👁" : "🛡"}</i>{" "}
-            {isGuest ? "Guest Reviewer · TAYCO (Read-Only)" : "Administrator · TAYCO"}
-          </span>
-        </div>
-      </section>
-
-      {/* Top 4 Executive KPIs */}
-      <div className="dcc-kpis">
-        <button
-          type="button"
-          className="dcc-kpi"
-          onClick={() => triggerNavigate("financial_dashboard", undefined, currentMonthKey)}
-        >
-          <span className="dcc-kpi-label">
-            {isGuest ? "Current Month Activity · Oct 2026" : "Client Billing · Year to Date (2026)"}
-          </span>
-          <strong className="dcc-kpi-value">
-            {isGuest ? money(selectedSeries.issuedCents) : money(ytdCents)}
-          </strong>
-          <span className="dcc-kpi-note">
-            {isGuest
-              ? "October 2026 active volume · Past months restricted"
-              : `Oct 2026: ${money(monthSeries[9].issuedCents)} · 10-month cumulative`}
-          </span>
-        </button>
-        <button
-          type="button"
-          className="dcc-kpi"
-          onClick={() => triggerNavigate("project")}
-        >
-          <span className="dcc-kpi-label">Active Portfolio Projects</span>
-          <strong className="dcc-kpi-value">{activeProjectsCount} Active</strong>
-          <span className="dcc-kpi-note">
-            20 total projects · {VERIFIED_OCTOBER_2026_OPPORTUNITIES.length} Oct bidding packages
-          </span>
-        </button>
-        <button
-          type="button"
-          className="dcc-kpi"
-          onClick={() => triggerNavigate("document")}
-        >
-          <span className="dcc-kpi-label">Protected Project Drawings</span>
-          <strong className="dcc-kpi-value">41 Plan Sets</strong>
-          <span className="dcc-kpi-note">
-            60 Takeoff Viewer sheets · Interactive PDF reader ready
-          </span>
-        </button>
-        <button
-          type="button"
-          className="dcc-kpi"
-          onClick={() => triggerNavigate("corporate_meetings")}
-        >
-          <span className="dcc-kpi-label">Follow-Ups &amp; Deadlines</span>
-          <strong className="dcc-kpi-value">{followupsCount} Active</strong>
-          <span className="dcc-kpi-note">
-            {upcomingCount} upcoming dates · Nov 2026 corporate agenda
-          </span>
-        </button>
-      </div>
-
-      {/* Reference Mockup 2-Column Layout: Left (Chart + Month Detail) | Right (11 Modules + 8 Certifications Menus) */}
+      {/* Reference Mockup 2-Column Layout: Left (Monthly Activity 2026 + Month Detail) | Right (Certifications & Programs + 11 Modules) */}
       <div className="dcc-console-split">
         <div className="dcc-console-main-col">
-          {/* Card 1: Monthly Activity 2026 Bar Chart */}
+          {/* Card 1: Monthly Activity 2026 Bar Chart (Matching Reference Image 1:1) */}
           <section className="dcc-card dcc-monthly-activity-card">
             <header className="dcc-card-header">
               <div>
-                <p className="dcc-eyebrow">CORPORATE PERFORMANCE · 2026</p>
-                <h3>Monthly Activity 2026 — Revenue, opportunities &amp; projects</h3>
+                <h3>Monthly Activity 2026</h3>
+                <p className="dcc-card-subtitle">
+                  Revenue, opportunities &amp; projects ·{" "}
+                  {selectedMonth === currentMonthKey
+                    ? "October 2026 ($485,400)"
+                    : monthName(selectedMonth)}
+                </p>
               </div>
-              <span className="dcc-source-label">
-                {selectedMonth === currentMonthKey
-                  ? "October 2026 · Current Active Period"
-                  : `${monthName(selectedMonth)} · ${
-                      isGuest && selectedMonth < currentMonthKey
-                        ? "Restricted Historical Period"
-                        : "Selected Period"
-                    }`}
-              </span>
+              <button
+                type="button"
+                className="dcc-open-month-btn"
+                onClick={() => openMonthDetail(selectedMonth)}
+              >
+                Open month detail →
+              </button>
             </header>
-
-            <div className="dcc-chart-legend">
-              <span>
-                <i className="dcc-legend-dot is-gold" /> Current month (October 2026 · 42 opportunities)
-              </span>
-              <span>
-                <i className="dcc-legend-dot is-navy" /> Completed monthly activity
-              </span>
-              <span>
-                <i className="dcc-legend-dot is-emerald" /> Recorded collections / payments
-              </span>
-            </div>
 
             <div
               className="dcc-chart"
@@ -340,10 +247,9 @@ export default function DashboardCommandCenter({
               {monthSeries.map((m) => {
                 const isOct = m.key === currentMonthKey;
                 const isSelected = m.key === selectedMonth;
-                const heightPct = Math.max(12, Math.round((m.issuedCents / maxBar) * 100));
-                const payHeightPct = Math.max(
-                  4,
-                  Math.round((m.paymentCents / maxBar) * 100)
+                const heightPct = Math.max(
+                  18,
+                  Math.round((m.issuedCents / maxBar) * 100)
                 );
                 return (
                   <button
@@ -360,7 +266,7 @@ export default function DashboardCommandCenter({
                   >
                     {isOct && (
                       <span className="dcc-oct-callout" aria-hidden="true">
-                        Oct · {money(m.issuedCents)}
+                        Oct 2026 · {money(m.issuedCents)}
                       </span>
                     )}
                     <span className="dcc-bar-pair" aria-hidden="true">
@@ -368,20 +274,22 @@ export default function DashboardCommandCenter({
                         className={`dcc-issued-bar ${isOct ? "is-oct-bar" : ""}`}
                         style={{ height: `${heightPct}%` }}
                       />
-                      <i
-                        className="dcc-payment-bar"
-                        style={{ height: `${payHeightPct}%` }}
-                      />
                     </span>
-                    <span className="dcc-month-label">{monthName(m.key, true)}</span>
+                    <span className="dcc-month-label">
+                      {monthName(m.key, true)}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
-            {/* 12 Month Selector Pills + Open Month Detail CTA */}
+            {/* 12 Month Segmented Selector Strip (Jan..Dec) */}
             <div className="dcc-month-pills-bar">
-              <div className="dcc-month-pills" role="group" aria-label="Select month">
+              <div
+                className="dcc-month-pills"
+                role="group"
+                aria-label="Select month"
+              >
                 {monthSeries.map((m) => {
                   const isOct = m.key === currentMonthKey;
                   const isSelected = m.key === selectedMonth;
@@ -392,8 +300,10 @@ export default function DashboardCommandCenter({
                       key={m.key}
                       onClick={() => selectMonthPill(m.key)}
                       aria-pressed={isSelected}
-                      className={`dcc-month-pill ${isSelected ? "is-active" : ""} ${
-                        isOct ? "is-current" : ""
+                      className={`dcc-month-pill ${
+                        isSelected ? "is-active" : ""
+                      } ${isOct ? "is-current" : ""} ${
+                        isLockedGuest ? "is-locked-for-guest" : ""
                       }`}
                     >
                       {monthName(m.key, true)}
@@ -406,13 +316,6 @@ export default function DashboardCommandCenter({
                   );
                 })}
               </div>
-              <button
-                type="button"
-                className="dcc-open-month-btn"
-                onClick={() => openMonthDetail(selectedMonth)}
-              >
-                Open month detail →
-              </button>
             </div>
           </section>
 
@@ -422,11 +325,16 @@ export default function DashboardCommandCenter({
             data-testid="corporate-month-detail-panel"
           >
             <header className="dcc-card-header">
-              <div>
-                <p className="dcc-eyebrow">
-                  MONTHLY EVALUATION · {monthName(selectedMonth).toUpperCase()}
-                </p>
-                <h3>Month Detail: {monthName(selectedMonth)}</h3>
+              <div className="dcc-month-detail-title-row">
+                <span className="dcc-month-detail-cal-icon" aria-hidden="true">
+                  📅
+                </span>
+                <h3>
+                  Month Detail:{" "}
+                  <span className="dcc-gold-text">
+                    {monthName(selectedMonth)}
+                  </span>
+                </h3>
               </div>
               <div className="dcc-detail-badges">
                 {selectedMonth === currentMonthKey ? (
@@ -695,12 +603,68 @@ export default function DashboardCommandCenter({
           </section>
         </div>
 
-        {/* Right-Hand Menus Column ("el texto abajo son para los menus a la derecha") */}
+        {/* Right-Hand Menus Column: Top = 8 Certifications & Programs (matching reference image), Bottom = 11 Operational Modules */}
         <aside
           className="dcc-console-right-col"
           aria-label="Corporate Operational Modules and Certifications Menus"
         >
-          {/* Right Menu 1: 11 Operational Modules */}
+          {/* Right Menu 1: 8 Certifications & Programs (Top-Right matching reference image) */}
+          <section
+            className="dcc-card dcc-right-menu-card"
+            data-testid="corporate-certifications-panel"
+          >
+            <header className="dcc-right-menu-head">
+              <div>
+                <h3>Certifications &amp; Programs</h3>
+              </div>
+              <button
+                type="button"
+                className="dcc-mini-link"
+                onClick={() => triggerNavigate("compliance")}
+              >
+                Open ↗
+              </button>
+            </header>
+            <div className="dcc-right-menu-list">
+              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
+                const certIcon =
+                  cert.id === "sam_gov" || cert.id === "federal_programs"
+                    ? "🏛"
+                    : cert.id === "esbe"
+                    ? "📄"
+                    : cert.id === "state_programs"
+                    ? "🛡"
+                    : cert.id === "union_private"
+                    ? "⛑"
+                    : "👥";
+                return (
+                  <button
+                    type="button"
+                    key={cert.id}
+                    className="dcc-right-menu-item is-cert"
+                    onClick={() =>
+                      triggerNavigate(
+                        cert.id === "union_private" ? "lead" : "compliance"
+                      )
+                    }
+                  >
+                    <span className="dcc-right-menu-icon" aria-hidden="true">
+                      {certIcon}
+                    </span>
+                    <span className="dcc-right-menu-text">
+                      <strong>{cert.code}</strong>
+                      <small>{cert.label}</small>
+                    </span>
+                    <span className="dcc-right-menu-chevron" aria-hidden="true">
+                      ›
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Right Menu 2: 11 Operational Modules */}
           <section
             className="dcc-card dcc-right-menu-card"
             data-testid="corporate-right-modules-menu"
@@ -714,7 +678,11 @@ export default function DashboardCommandCenter({
                 11 Active
               </span>
             </header>
-            <div className="dcc-right-menu-list" role="navigation" aria-label="11 Corporate Modules">
+            <div
+              className="dcc-right-menu-list"
+              role="navigation"
+              aria-label="11 Corporate Modules"
+            >
               {CORPORATE_11_MODULES.map((mod) => {
                 const isRestrictedForGuest = isGuest && mod.id === "invoice";
                 return (
@@ -736,62 +704,6 @@ export default function DashboardCommandCenter({
                           ? "Summary only for Guest · Gross profit restricted"
                           : mod.detail}
                       </small>
-                    </span>
-                    <span className="dcc-right-menu-chevron" aria-hidden="true">
-                      ›
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Right Menu 2: 8 Certifications & Programs */}
-          <section
-            className="dcc-card dcc-right-menu-card"
-            data-testid="corporate-certifications-panel"
-          >
-            <header className="dcc-right-menu-head">
-              <div>
-                <p className="dcc-eyebrow">PROGRAMS &amp; REGISTRATIONS</p>
-                <h3>Certifications &amp; Programs</h3>
-              </div>
-              <button
-                type="button"
-                className="dcc-mini-link"
-                onClick={() => triggerNavigate("compliance")}
-              >
-                Open ↗
-              </button>
-            </header>
-            <div className="dcc-right-menu-list">
-              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
-                const isActive = cert.status === "Active intake";
-                return (
-                  <button
-                    type="button"
-                    key={cert.id}
-                    className="dcc-right-menu-item is-cert"
-                    onClick={() =>
-                      triggerNavigate(
-                        cert.id === "union_private" ? "lead" : "compliance"
-                      )
-                    }
-                  >
-                    <span
-                      className="dcc-right-menu-dot"
-                      data-tone={isActive ? "emerald" : "amber"}
-                      aria-hidden="true"
-                    />
-                    <span className="dcc-right-menu-text">
-                      <strong>{cert.code}</strong>
-                      <small>{cert.label}</small>
-                    </span>
-                    <span
-                      className="dcc-badge"
-                      data-tone={isActive ? "emerald" : "amber"}
-                    >
-                      {isActive ? "42 Active" : "Review"}
                     </span>
                     <span className="dcc-right-menu-chevron" aria-hidden="true">
                       ›

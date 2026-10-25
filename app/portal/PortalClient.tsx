@@ -33,6 +33,7 @@ import InvoicePaymentControls from "@/components/workspace/InvoicePaymentControl
 import { CORPORATE_11_MODULES } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
 import { VerifiedOpportunitiesTable } from "@/components/workspace/VerifiedOpportunitiesTable";
+import CorporateSectionExecutivePanel from "@/components/workspace/CorporateSectionExecutivePanel";
 
 export type DashboardData = {
   actor: { id: string; email: string; role: AuthRole };
@@ -85,7 +86,8 @@ function CommercialRecordControl({entry,command,pending}:{entry:Entry;command:Co
 }
 
 function Panel({ title, subtitle, children, featured=false }: { title: string; subtitle?: string; children: ReactNode; featured?:boolean }) {
-  return <section className={"workspace-panel rounded-2xl border border-amber-200/20 bg-[#0f2040] p-5 shadow-xl sm:p-7 "+(featured?"workspace-panel-canvas":"")}><h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>{subtitle && <p className="mt-2 text-sm leading-relaxed text-slate-300">{subtitle}</p>}<div className="mt-5">{children}</div></section>;
+  if (featured) return <section className="workspace-panel-canvas">{children}</section>;
+  return <section className="workspace-panel rounded-2xl border border-amber-200/20 bg-[#0f2040] p-5 shadow-xl sm:p-7"><h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>{subtitle && <p className="mt-2 text-sm leading-relaxed text-slate-300">{subtitle}</p>}<div className="mt-5">{children}</div></section>;
 }
 function Empty({ children }: { children: ReactNode }) {
   return <p className="rounded-xl border border-dashed border-slate-600 bg-[#09172b]/60 px-5 py-7 text-sm leading-relaxed text-slate-300">{children}</p>;
@@ -468,72 +470,133 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
 
   const renderOperationsForm=(props:import("@/components/workspace/ProjectOverview").WorkspaceForm)=><CommandForm key={props.action+String(props.fixed?.id||"")} {...props} command={command}/>;
   const moduleId:Record<string,string>={executive:"executive",financial_dashboard:"financial-dashboard",corporate_meetings:"corporate-meetings",followups:"followups",proposal:"proposals",team:"project-teams",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
-  return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><PortalShell className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties} sidebarRef={sidebarRef} sidebar={<>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3"><Image src="/logo.png" alt="TAYCO LLC · General Contractor" width={64} height={64} className="h-14 w-14 shrink-0 rounded-xl border border-[#C9A84C]/45 bg-[#070E1A] p-1.5 object-contain shadow-lg" /><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-amber-100">Executive command</p><p className="mt-1 text-[11px] text-slate-400">{roleName}</p></div></div>
-          <button ref={modulesToggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-expanded={mobileModulesOpen} aria-controls="tayco-portal-module-tabs" onClick={()=>setMobileModulesOpen(!mobileModulesOpen)}>{mobileModulesOpen?"Close modules":"Open modules"}</button>
-        </div>
-        <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileModulesOpen?"block":"hidden")+" mt-6 space-y-5 lg:block"}>
-          {[...new Set(tabs.map(item=>item.group))].map(group=><div key={group}><p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200/70">{group}</p><div className="space-y-1">{tabs.filter(item=>item.group===group).map(item=><button type="button" key={item.id} onClick={()=>navigate(item.id)} aria-current={tab===item.id?"page":undefined} className={"flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 "+(tab===item.id?"border-amber-200/55 bg-gradient-to-r from-amber-200/20 to-amber-200/5 text-amber-100":"border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}><span className="min-w-0">{item.label}</span>{["project","document","lead","hours","bid","compliance"].includes(item.id)&&<span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-amber-100">{data.entries.filter(entry=>String(entry.kind)===item.id).length}</span>}</button>)}</div></div>)}
-          {admin&&<div className="border-t border-amber-200/20 pt-4"><Link data-testid="module-access" href="/account" className="flex min-h-11 items-center rounded-xl border border-amber-200/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-200/10">B2B access &amp; invitations ↗</Link></div>}
-        </nav>
-        {team&&<div className="mt-5 hidden rounded-xl border border-amber-200/25 bg-[#102541] p-4 lg:block"><p className="text-[10px] font-semibold uppercase tracking-widest text-amber-200">Estimating bridge</p><p className="mt-2 text-sm font-semibold text-white">{data.integrations.takeoff==="not_configured"?"Not connected":label(data.integrations.takeoff)}</p><p className="mt-2 text-xs leading-relaxed text-slate-400">Project source records remain available.</p><button className="mt-3 min-h-11 text-xs font-semibold text-[#fb923c] underline underline-offset-4" onClick={()=>navigate("takeoff")}>Open bridge context ↗</button></div>}
-      </>} header={<>
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">{roleName}</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">{team&&tab==="executive"?"Executive dashboard":<>Your projects. <em className="font-serif font-normal text-amber-200">Connected.</em></>}</h1>
-          <p className="workspace-page-description mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">{team ? "Manage project progress, incoming requests and reviews from one workspace." : "Follow assigned projects, review updates and keep your next steps in view."}</p>
-          <p className="mt-2 break-all text-xs text-slate-400">Signed in as {data.actor.email} · {team ? "Company workspace" : "Only records assigned or shared with your account"}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {tab!=="executive"&&<WorkspaceDisplayControls value={display} onChange={setDisplay}/>}
-          <button className={secondaryClass} type="button" onClick={() => void refresh().catch(() => {})} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button>
-          <Link className={buttonClass} href="/account">Account &amp; access</Link>
-        </div>
-      </>}>
-      {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error} {expired && <Link className="underline" href="/login?next=/portal">Sign in again</Link>}<p className="mt-1 text-xs">Previously loaded information remains visible and may be out of date.</p></div>}
-      {team && (
-        <nav aria-label="Monthly Corporate Evaluation Modules" data-testid="corporate-11-modules-bar" className="mt-5 rounded-xl border border-amber-200/25 bg-[#0a192f]/90 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200">Monthly Corporate Evaluation · 11 Operational Modules</span>
-            <span className="text-[11px] text-slate-400">October 2026 · 42 Verified Bidding Opportunities</span>
+  const sidebarIcons: Record<string, string> = { executive: "🏠", project: "📁", invoice: "🧾", financial_dashboard: "📊", team: "👥", lead: "🎯", hours: "⏱", compliance: "🛡", document: "📄", corporate_meetings: "📅", dossier: "📑" };
+  const primaryIds = new Set(CORPORATE_11_MODULES.map(m => m.id));
+  const secondaryTabs = tabs.filter(item => !primaryIds.has(item.id as typeof CORPORATE_11_MODULES[number]["id"]));
+  return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><PortalShell className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties} sidebarRef={sidebarRef} sidebar={<div className="flex min-h-full flex-col justify-between gap-6">
+        <div>
+          <div className="flex items-center justify-between gap-3 lg:flex-col lg:items-center lg:text-center">
+            <div className="flex items-center gap-3 lg:flex-col lg:gap-2">
+              <Image src="/logo.png" alt="TAYCO Construction Group" width={88} height={88} className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_4px_12px_rgba(234,184,105,0.35)]" />
+              <div>
+                <p className="font-serif text-xl font-bold tracking-[0.14em] text-[#eab869]">TAYCO</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#eab869]/80">Construction Group</p>
+              </div>
+            </div>
+            <button ref={modulesToggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-expanded={mobileModulesOpen} aria-controls="tayco-portal-module-tabs" onClick={()=>setMobileModulesOpen(!mobileModulesOpen)}>{mobileModulesOpen?"Close modules":"Open modules"}</button>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileModulesOpen?"block":"hidden")+" mt-6 space-y-1.5 lg:block"}>
             {CORPORATE_11_MODULES.map((mod) => {
               const active = tab === mod.id;
               return (
                 <button
-                  key={mod.id}
                   type="button"
+                  key={mod.id}
                   onClick={() => navigate(mod.id)}
                   aria-current={active ? "page" : undefined}
                   className={
-                    "min-h-9 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition " +
+                    "flex min-h-11 w-full items-center justify-between gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " +
                     (active
-                      ? "border-amber-200/70 bg-amber-200/20 text-amber-100"
-                      : "border-slate-700/80 bg-[#0f223d]/70 text-slate-300 hover:border-amber-200/35 hover:text-white")
+                      ? "border-l-[3px] border-amber-300/45 border-l-[#eab869] bg-gradient-to-r from-[#eab869]/30 to-[#eab869]/10 text-[#f3cb7a] shadow-[0_6px_18px_rgba(0,0,0,0.28)]"
+                      : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5 hover:text-white")
                   }
                 >
-                  {mod.label}
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span className="text-sm text-[#eab869]" aria-hidden="true">{sidebarIcons[mod.id] || "•"}</span>
+                    <span className="truncate">{mod.label}</span>
+                  </span>
+                  {["project","document","lead","hours","compliance"].includes(mod.id) && (
+                    <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-amber-100">
+                      {mod.id === "lead" ? 42 : data.entries.filter(entry=>String(entry.kind)===mod.id).length}
+                    </span>
+                  )}
                 </button>
               );
             })}
+            {secondaryTabs.length > 0 && (
+              <details className="mt-4 rounded-xl border border-slate-700/70 bg-[#071326]/70 p-2">
+                <summary className="cursor-pointer px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-amber-100">
+                  Additional ERP Records ({secondaryTabs.length})
+                </summary>
+                <div className="mt-2 space-y-1">
+                  {secondaryTabs.map(item => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => navigate(item.id)}
+                      aria-current={tab === item.id ? "page" : undefined}
+                      className={"flex min-h-10 w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition " + (tab === item.id ? "border-amber-200/55 bg-amber-200/15 text-amber-100" : "border-transparent text-slate-300 hover:bg-white/5")}
+                    >
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </details>
+            )}
+            {admin&&<div className="border-t border-amber-200/20 pt-3"><Link data-testid="module-access" href="/account" className="flex min-h-11 items-center rounded-xl border border-amber-200/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-200/10">B2B access &amp; invitations ↗</Link></div>}
+          </nav>
+        </div>
+        <div className="mt-4 rounded-xl border border-[#eab869]/30 bg-[#081528]/90 p-3.5 shadow-inner">
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#eab869]/45 bg-[#eab869]/15 text-sm text-[#eab869]" aria-hidden="true">🔒</span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#eab869]">Internal System</p>
+              <p className="mt-0.5 text-[11px] text-slate-300">Restricted access</p>
+              <p className="text-[10px] text-slate-400">Authorized personnel only</p>
+            </div>
           </div>
-        </nav>
+        </div>
+      </div>} header={<div className="flex w-full flex-wrap items-center justify-between gap-4 border-b border-slate-700/70 pb-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Monthly Corporate Panel</h1>
+          <p className="mt-1 text-xs text-slate-300 sm:text-sm">
+            Monthly evaluation · <span className="font-semibold text-[#eab869]">TAYCO Construction Group</span>
+            {" · "}
+            <span className="text-slate-400">
+              {CORPORATE_11_MODULES.find(m => m.id === tab)?.label || tabs.find(t => t.id === tab)?.label || "Dashboard"}
+            </span>
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2.5 rounded-xl border border-slate-700/80 bg-[#0b1930]/90 px-3.5 py-2">
+            <span className="text-base text-[#eab869]" aria-hidden="true">🔒</span>
+            <div className="leading-tight">
+              <p className="text-xs font-bold text-white">Private Access</p>
+              <p className="text-[11px] text-slate-400">Username &amp; password required</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#eab869]/35 bg-[#0b1930]/90 px-3.5 py-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700/70 text-sm text-[#eab869]" aria-hidden="true">👤</span>
+            <div className="leading-tight">
+              <p className="text-xs font-bold text-white">{admin ? "Administrator" : roleName}</p>
+              <p className="text-[11px] text-[#eab869]">TAYCO · {data.actor.email}</p>
+            </div>
+          </div>
+          <button className={secondaryClass} type="button" onClick={() => void refresh().catch(() => {})} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button>
+          <Link className={buttonClass} href="/account">Account &amp; access</Link>
+        </div>
+      </div>}>
+      {error && <div role="alert" className="mt-4 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error} {expired && <Link className="underline" href="/login?next=/portal">Sign in again</Link>}<p className="mt-1 text-xs">Previously loaded information remains visible and may be out of date.</p></div>}
+      {tab !== "executive" && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          {!["lead","vendor","activity","corporate_meetings","followups"].includes(tab)?<label className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-300" htmlFor="portal-project-filter">Project<select id="portal-project-filter" className="min-h-11 max-w-full rounded-lg border border-slate-600 bg-[#0f2040] px-3 text-sm text-white" value={projectId} onChange={(event) => setProjectId(event.target.value)}><option value="">All assigned projects</option>{projects.map((entry) => <option key={entry.id} value={entry.id}>{value(entry.data, "name")}</option>)}</select></label>:<p className="text-xs text-slate-400">{team?"Company workspace":"Your linked company"} · no project filter</p>}
+          <p role="status" className="text-xs text-slate-400">Last refreshed {timestamp(data.updatedAt)}</p>
+        </div>
       )}
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        {!["lead","vendor","activity","corporate_meetings","followups"].includes(tab)?<label className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-300" htmlFor="portal-project-filter">Project<select id="portal-project-filter" className="min-h-11 max-w-full rounded-lg border border-slate-600 bg-[#0f2040] px-3 text-sm text-white" value={projectId} onChange={(event) => setProjectId(event.target.value)}><option value="">All assigned projects</option>{projects.map((entry) => <option key={entry.id} value={entry.id}>{value(entry.data, "name")}</option>)}</select></label>:<p className="text-xs text-slate-400">{team?"Company workspace":"Your linked company"} · no project filter</p>}
-        <p role="status" className="text-xs text-slate-400">Last refreshed {timestamp(data.updatedAt)}</p>
-      </div>
-      {pendingView && <section data-testid="pending-command-recovery" className="mt-5 rounded-xl border border-amber-200/50 bg-[#142748] p-4" aria-busy={pendingView.phase === "busy"}>
+      {pendingView && <section data-testid="pending-command-recovery" className="mt-4 rounded-xl border border-amber-200/50 bg-[#142748] p-4" aria-busy={pendingView.phase === "busy"}>
         <h2 className="font-semibold text-amber-100">{pendingView.phase === "busy" ? "Saving request…" : "A saved request needs confirmation"}</h2>
         <p className="mt-2 text-sm text-slate-200">{label(pendingView.action)} · request {pendingView.key}</p>
         <p className="mt-2 text-sm text-slate-300">Other saves are held until this request is confirmed. You can change modules; keep this workspace open to retain its request reference.</p>
         {pendingView.error && <p role="alert" className="mt-2 text-sm text-red-100">{pendingView.error}</p>}
         {pendingView.phase === "uncertain" && <button type="button" className={buttonClass + " mt-3"} onClick={() => { const request = pendingCommand.current; if (request) void command(request.body, request.key).catch(() => {}); }}>Retry retained request</button>}
       </section>}
-      <div ref={currentModuleRef} tabIndex={-1} role="region" aria-label={tabs.find(item=>item.id===tab)?.label||"Workspace module"} className="mt-5 min-w-0 outline-none" aria-busy={refreshing} data-testid={"module-"+(moduleId[tab]||tab)}>
-        <Panel featured={tab==="executive"} title={tabs.find((item) => item.id === tab)?.label || "Workspace"} subtitle={tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
+      <div ref={currentModuleRef} tabIndex={-1} role="region" aria-label={tabs.find(item=>item.id===tab)?.label||"Workspace module"} className="mt-4 min-w-0 outline-none" aria-busy={refreshing} data-testid={"module-"+(moduleId[tab]||tab)}>
+        {tab !== "executive" && team && (
+          <div className="mb-5">
+            <CorporateSectionExecutivePanel activeTab={tab} isGuest={false} onNavigate={(v) => navigate(v)} />
+          </div>
+        )}
+        <Panel featured={tab==="executive"} title={tab === "executive" ? "Monthly Corporate Overview" : (CORPORATE_11_MODULES.find((item) => item.id === tab)?.label || tabs.find((item) => item.id === tab)?.label || "Workspace")} subtitle={tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
           {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "budgetSource", label: "Approval source (required when budget is entered)", required: false }, { name: "budgetApprovedOn", label: "Approval date (required when budget is entered)", type: "date", required: false }, { name: "nextAction", label: "Next action (optional)", required: false, placeholder: "Record the actual next step for this project", type: "textarea" }, ...projectClassificationFields()]} />}
           {tab === "project" && <ProjectClassificationFilters projects={scopedRecords} value={projectClassificationFilter} onChange={setProjectClassificationFilter} />}
           {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[assigneeField(),{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}

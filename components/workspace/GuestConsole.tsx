@@ -13,6 +13,7 @@ import { EstimateCostRing } from "./WorkspaceVisuals";
 import "./workspace.css";
 import "./dashboard-command-center.css";
 import DashboardCommandCenter from "./DashboardCommandCenter";
+import CorporateSectionExecutivePanel from "./CorporateSectionExecutivePanel";
 import TakeoffProjectReader from "./TakeoffProjectReader";
 import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import { useReviewInteractions } from "@/lib/use-review-interactions";
@@ -152,12 +153,79 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
 
   if(accessEnded||(data.review&&serverNow>=data.review.expiresAt))return <main className="min-h-screen bg-[#070e1a] p-7 text-slate-100"><h1 className="text-3xl font-bold">Review access has ended</h1><p className="mt-4">Request a new review from TAYCO. Signing in or refreshing does not renew this review.</p><Link className={control} href="/privacy">Privacy &amp; activity notice</Link><button className={control+" mt-6"} onClick={()=>void logout()} disabled={signingOut}>Sign out</button></main>;
   return <PortalShell data-guest-console data-guest-review data-role={data.actor.role} className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-current-module={section === "summary" ? "executive" : section} data-atmosphere={display.atmosphere} data-density={display.density} style={{ "--workspace-light-angle": display.lightAngle + "deg" } as CSSProperties} sidebarRef={sidebarRef} sidebar={<>
-    <div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><Image src="/logo.png" alt="TAYCO LLC · General Contractor" width={64} height={64} className="h-14 w-14 shrink-0 rounded-xl border border-[#C9A84C]/45 bg-[#070E1A] p-1.5 object-contain shadow-lg"/><div><p className="text-xs font-bold uppercase tracking-widest text-amber-100">Executive command</p><p className="mt-1 text-[11px] text-slate-400">Guest · Read only</p></div></div><button ref={toggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-controls="tayco-portal-module-tabs" aria-expanded={mobileOpen} onClick={() => {record("menu.toggle");setMobileOpen(!mobileOpen);}}>{mobileOpen ? "Close modules" : "Open modules"}</button></div>
-    <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileOpen ? "block" : "hidden") + " mt-6 space-y-5 lg:block"}>{[...new Set(modules.map(item => item.group))].map(group => <div key={group}><p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200/70">{group}</p><div className="space-y-1">{modules.filter(item => item.group === group).map(item => <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-amber-200/55 bg-gradient-to-r from-amber-200/20 to-amber-200/5 text-amber-100" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}><span>{item.label}</span>{details && item.id !== "access" && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}</button>)}</div></div>)}</nav>
-    <div className="mt-5 hidden rounded-xl border border-amber-200/25 bg-[#102541] p-4 text-xs leading-relaxed text-slate-300 lg:block">All workspace modules · Read only.<br/>Current month: record details.<br/>Past months: general totals.</div>
+    <div className="flex flex-col items-center border-b border-amber-200/20 pb-5 text-center">
+      <div className="flex w-full items-center justify-end lg:hidden">
+        <button ref={toggleRef} type="button" className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100" aria-controls="tayco-portal-module-tabs" aria-expanded={mobileOpen} onClick={() => {record("menu.toggle");setMobileOpen(!mobileOpen);}}>{mobileOpen ? "Close" : "Menu"}</button>
+      </div>
+      <div className="relative flex h-24 w-28 items-center justify-center rounded-2xl border border-[#C9A84C]/55 bg-gradient-to-b from-[#132847] to-[#081221] p-2 shadow-[0_10px_28px_rgba(0,0,0,0.65)]">
+        <Image src="/logo.png" alt="TAYCO Construction Group" width={110} height={90} className="h-20 w-auto object-contain drop-shadow-[0_4px_12px_rgba(201,168,76,0.45)]"/>
+      </div>
+      <p className="mt-2.5 text-lg font-extrabold tracking-[0.14em] text-[#eab869]">TAYCO</p>
+      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-100/80">Construction Group</p>
+    </div>
+    <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileOpen ? "block" : "hidden") + " mt-4 space-y-1.5 lg:block"}>
+      {[
+        { id: "summary" as GuestConsoleSection, label: "Dashboard", icon: "📊" },
+        { id: "projects" as GuestConsoleSection, label: "Projects", icon: "🏗️" },
+        { id: "invoice" as GuestConsoleSection, label: "Billing", icon: "🧾" },
+        { id: "financial_dashboard" as GuestConsoleSection, label: "Accounting", icon: "💼" },
+        { id: "team" as GuestConsoleSection, label: "Administration", icon: "🏛️" },
+        { id: "lead" as GuestConsoleSection, label: "New Opportunities", icon: "🎯" },
+        { id: "hours" as GuestConsoleSection, label: "Payroll", icon: "💳" },
+        { id: "compliance" as GuestConsoleSection, label: "Compliance", icon: "🛡️" },
+        { id: "plans" as GuestConsoleSection, label: "Documents", icon: "📁" },
+        { id: "corporate_meetings" as GuestConsoleSection, label: "Meetings", icon: "📅" },
+        { id: "dossier" as GuestConsoleSection, label: "Corporate Reports", icon: "📈" },
+      ].map(item => (
+        <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-10 w-full items-center justify-between gap-2.5 rounded-lg border px-3 py-2 text-left text-[13px] font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-l-[3px] border-amber-300/60 border-l-[#eab869] bg-gradient-to-r from-[#c9a84c]/30 via-[#c9a84c]/15 to-transparent text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}>
+          <span className="flex items-center gap-2.5 truncate">
+            <span className="text-sm opacity-90" aria-hidden="true">{item.icon}</span>
+            <span className="truncate">{item.label}</span>
+          </span>
+          {details && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}
+        </button>
+      ))}
+      <details className="mt-4 rounded-xl border border-slate-700/60 bg-[#07111f]/60 p-2">
+        <summary className="cursor-pointer px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/75">Additional Modules ({modules.length})</summary>
+        <div className="mt-2 space-y-3">
+          {[...new Set(modules.map(item => item.group))].map(group => <div key={group}><p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-200/60">{group}</p><div className="space-y-1">{modules.filter(item => item.group === group).map(item => <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-9 w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs font-semibold transition " + (section === item.id ? "border-amber-200/55 bg-amber-200/15 text-amber-100" : "border-transparent text-slate-300 hover:bg-white/5")}><span>{item.label}</span>{details && item.id !== "access" && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}</button>)}</div></div>)}
+        </div>
+      </details>
+    </nav>
+    <div className="mt-6 rounded-xl border border-[#C9A84C]/35 bg-gradient-to-b from-[#0e2038] to-[#081322] p-3.5 text-center shadow-inner">
+      <p className="flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#eab869]">
+        <span aria-hidden="true">🔒</span> INTERNAL SYSTEM
+      </p>
+      <p className="mt-1 text-[11px] leading-snug text-slate-300">Restricted access<br/>Authorized personnel only</p>
+    </div>
   </>} header={<>
-    <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">Guest workspace · Read only</p><h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">{section === "summary" ? "Executive dashboard" : modules.find(item => item.id === section)?.label}</h1><p className="mt-2 break-all text-xs text-slate-400">Signed in as {data.actor.email}</p></div>
-    <div className="flex flex-wrap gap-2"><WorkspaceDisplayControls value={display} onChange={next=>{if(next.atmosphere!==display.atmosphere)record("display.theme");if(next.density!==display.density)record("display.density");if(next.lightAngle!==display.lightAngle)record("display.light");setDisplay(next);}}/><button type="button" className={control} onClick={() => {record("review.refresh");void load(period, section);}} disabled={loading || signingOut}>{loading ? "Refreshing…" : "Refresh"}</button><Link href="/account" className={control} onClick={()=>record("account.open")}>Account &amp; password</Link><button type="button" className={control} onClick={() => void logout()} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button></div>
+    <div className="min-w-0">
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Monthly Corporate Panel</h1>
+        <span className="text-xs font-medium text-slate-300 sm:text-sm">Monthly evaluation · <strong className="font-semibold text-amber-200">TAYCO Construction Group</strong></span>
+      </div>
+      <p className="mt-1 text-[11px] text-slate-400">Active view: <span className="font-semibold text-amber-100">{section === "summary" ? "Dashboard" : modules.find(item => item.id === section)?.label}</span> · Signed in as {data.actor.email}</p>
+    </div>
+    <div className="flex flex-wrap items-center gap-2.5">
+      <div className="inline-flex items-center gap-2.5 rounded-xl border border-amber-200/30 bg-[#0d1f38] px-3.5 py-2 text-xs shadow-sm">
+        <span className="text-base text-amber-300" aria-hidden="true">🔒</span>
+        <div className="leading-tight">
+          <p className="font-bold text-white">Private Access</p>
+          <p className="text-[10px] text-slate-300">Username &amp; password required</p>
+        </div>
+      </div>
+      <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#eab869]/55 bg-gradient-to-r from-[#243b5a] to-[#152843] px-3.5 py-2 text-xs shadow-sm">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#eab869]/25 text-amber-200" aria-hidden="true">👤</span>
+        <div className="leading-tight">
+          <p className="font-bold text-amber-100">Guest Reviewer · TAYCO</p>
+          <p className="text-[10px] text-amber-200/80">Read-only · Current Month</p>
+        </div>
+      </div>
+      <WorkspaceDisplayControls value={display} onChange={next=>{if(next.atmosphere!==display.atmosphere)record("display.theme");if(next.density!==display.density)record("display.density");if(next.lightAngle!==display.lightAngle)record("display.light");setDisplay(next);}}/>
+      <button type="button" className="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200/30 bg-[#0c1d34] px-3 py-1.5 text-xs font-semibold text-amber-100 hover:bg-amber-200/10 disabled:opacity-60" onClick={() => {record("review.refresh");void load(period, section);}} disabled={loading || signingOut}>{loading ? "Refreshing…" : "Refresh"}</button>
+      <Link href="/account" className="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200/30 bg-[#0c1d34] px-3 py-1.5 text-xs font-semibold text-amber-100 hover:bg-amber-200/10" onClick={()=>record("account.open")}>Account</Link>
+      <button type="button" className="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200/30 bg-[#0c1d34] px-3 py-1.5 text-xs font-semibold text-amber-100 hover:bg-amber-200/10 disabled:opacity-60" onClick={() => void logout()} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button>
+    </div>
   </>}>
     <GuestPrivacyNotice onReady={setPrivacyReady}/>
     {data.review&&<p className="mt-4 rounded-xl border border-amber-200/30 p-3 text-sm text-amber-100">Review ends {new Date(data.review.expiresAt).toLocaleString('en-US',{timeZone:'UTC'})+' UTC'} · {Math.max(0,Math.ceil((data.review.expiresAt-serverNow)/60000))} min remaining. This deadline does not extend.</p>}
@@ -166,6 +234,12 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     <div ref={moduleRef} tabIndex={-1} aria-busy={loading} className="mt-6 min-w-0 focus:outline-none" data-testid="guest-module">
       <p role="status" aria-live="polite" className="sr-only">{loading ? "Loading workspace" : modules.find(item => item.id === section)?.label}</p>
       {closedMonth ? <Panel title="Month closed · Cannot be viewed as a guest user (No se puede ver como usuario invitado)"><p className="text-sm leading-relaxed text-amber-100">🔒 Detailed reports for previous months ({periodLabel(period)}) and gross profit details (<em>detalles de ganancia en bruto</em>) cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational data and all 42 project drawings remain enabled.</p><p className="mt-2 text-sm text-slate-300">This reporting month is closed. General monthly totals remain available; detailed records are restricted to the current month.</p><div className="mt-5 flex flex-wrap gap-3"><button className={control} type="button" onClick={() => selectPeriod(data.currentPeriod)}>Return to Current Month (October 2026) →</button><button className={control} type="button" onClick={() => navigate("summary")}>Open general totals</button></div></Panel> : denied ? <Panel title="Not authorized · Cannot be viewed as a guest user"><p className="text-sm text-slate-300">{section === "access" ? "Managing users, invitations and assignments requires administrator access. You can manage your own account and password." : "This account cannot open the requested information. Past months' detailed reports and gross profit details (detalles de ganancia en bruto) cannot be viewed as a guest user."}</p>{section === "access" && <Link href="/account" className={control + " mt-5"}>Open your account &amp; password</Link>}</Panel> : section === "summary" ? current ? details ? <div className="space-y-8"><DashboardCommandCenter isGuest guestData={presentationData} asOf={data.asOf} projectId={projectId} onNavigate={(view, projId, month) => { if (month && month !== period) selectPeriod(month); else navigate(view as GuestConsoleSection, projId); }} /><GuestModulePanel data={presentationData} section="summary" projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/></div> : <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <div className="space-y-5"><Panel title={periodLabel(period) + " · Past Month Restricted for Guest"}><div role="alert" className="mb-4 rounded-xl border border-amber-300/40 bg-amber-950/35 p-4 text-sm text-amber-100"><strong>🔒 Cannot be viewed as a guest user (No se puede ver como usuario invitado):</strong> Detailed monthly reports for {periodLabel(period)} and gross profit details (<em>detalles de ganancia en bruto</em>) are restricted to TAYCO Administrators. Current month (<strong>October 2026</strong>) data and project drawings remain enabled. <button type="button" className="ml-2 underline font-semibold" onClick={() => selectPeriod(data.currentPeriod)}>Return to October 2026 →</button></div>{summary ? <div className={card}><p className="text-xs uppercase tracking-widest text-slate-400">Approximate management estimate · USD</p><p className="mt-3 font-mono text-3xl font-semibold text-amber-100">{money(summary.lowUsd)} – {money(summary.highUsd)}</p><p className="mt-3 text-sm text-slate-300">General monthly totals</p></div> : <Empty>No general summary has been published for this month.</Empty>}<p className="mt-5 text-sm text-slate-300">This month is closed for detail. All modules remain in the navigation; opening a detailed module returns Month closed.</p></Panel><GuestMonthlyTotals data={presentationData} selectedPeriod={period} onMonthSelect={selectPeriod}/></div> : !details ? <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <>
+        <CorporateSectionExecutivePanel
+          activeTab={section}
+          isGuest
+          period={period}
+          onNavigate={(nextSection, projId) => navigate((nextSection === "executive" ? "summary" : nextSection) as GuestConsoleSection, projId)}
+        />
         {section === "projects" && <Panel title="Projects">{data.projects.length ? <div className="grid gap-4 xl:grid-cols-2">{data.projects.map(project => <article key={project.id} className={card}><p className="text-xs capitalize text-amber-200">{text(project.status).replaceAll("_", " ")}</p><h3 className="mt-2 text-lg font-semibold text-white">{text(project.name)}</h3><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-xs text-slate-400">Progress</dt><dd className="mt-1">{project.progress === null ? "Not provided" : project.progress + "%"}</dd></div><div><dt className="text-xs text-slate-400">Location</dt><dd className="mt-1">{text(project.location)}</dd></div><div><dt className="text-xs text-slate-400">Commercial stage</dt><dd className="mt-1 capitalize">{text(project.commercialStage).replaceAll("_", " ")}</dd></div><div><dt className="text-xs text-slate-400">Documents</dt><dd className="mt-1">{project.documentCount}</dd></div></dl><button type="button" className={control + " mt-5"} onClick={() => openProject(project.id)} aria-expanded={projectId === project.id}>Open project details</button></article>)}</div> : <Empty>No projects are available for this month.</Empty>}{selectedProject && <section className="mt-6 border-t border-amber-200/20 pt-5"><h3 className="text-lg font-semibold text-amber-100">{selectedProject.name}</h3><div className="mt-4 flex flex-wrap gap-2"><button className={control} type="button" onClick={() => navigate("estimates", selectedProject.id)}>Review estimates</button><button className={control} type="button" onClick={() => navigate("plans", selectedProject.id)}>Review plans</button></div></section>}</Panel>}
         {(section === "estimates" || section === "plans" || section === "takeoff") && <Panel title={modules.find(item => item.id === section)!.label}><label htmlFor="guest-project-filter" className="text-xs text-slate-300">Project<select id="guest-project-filter" value={projectId} onChange={event => { setProjectId(event.target.value); if (event.target.value) void record("project.open", { projectId: event.target.value }); }} className="mb-5 mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white"><option value="">All current projects</option>{data.projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
           {section === "estimates" ? <>
