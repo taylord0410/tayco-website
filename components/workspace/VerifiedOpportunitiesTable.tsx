@@ -20,7 +20,7 @@ const sanitizeGuestText = (text: string): string =>
     .replace(/\b(Wisconsin|Illinois|Indiana|Iowa|Missouri|Ohio|Minnesota)\b/gi, "Regional");
 
 export function VerifiedOpportunitiesTable({
-  defaultLimit = 24,
+  defaultLimit = 48,
   isGuest = false,
 }: {
   defaultLimit?: number;
