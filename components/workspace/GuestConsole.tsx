@@ -15,6 +15,7 @@ import "./dashboard-command-center.css";
 import DashboardCommandCenter from "./DashboardCommandCenter";
 import CorporateSectionExecutivePanel from "./CorporateSectionExecutivePanel";
 import TakeoffProjectReader from "./TakeoffProjectReader";
+import CorporateIcon from "./CorporateIcons";
 import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import { useReviewInteractions } from "@/lib/use-review-interactions";
 
@@ -165,21 +166,21 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </div>
     <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileOpen ? "block" : "hidden") + " mt-4 space-y-1.5 lg:block"}>
       {[
-        { id: "summary" as GuestConsoleSection, label: "Dashboard", icon: "📊" },
-        { id: "projects" as GuestConsoleSection, label: "Projects", icon: "🏗️" },
-        { id: "invoice" as GuestConsoleSection, label: "Billing", icon: "🧾" },
-        { id: "financial_dashboard" as GuestConsoleSection, label: "Accounting", icon: "💼" },
-        { id: "team" as GuestConsoleSection, label: "Administration", icon: "🏛️" },
-        { id: "lead" as GuestConsoleSection, label: "New Opportunities", icon: "🎯" },
-        { id: "hours" as GuestConsoleSection, label: "Payroll", icon: "💳" },
-        { id: "compliance" as GuestConsoleSection, label: "Compliance", icon: "🛡️" },
-        { id: "plans" as GuestConsoleSection, label: "Documents", icon: "📁" },
-        { id: "corporate_meetings" as GuestConsoleSection, label: "Meetings", icon: "📅" },
-        { id: "dossier" as GuestConsoleSection, label: "Corporate Reports", icon: "📈" },
+        { id: "summary" as GuestConsoleSection, label: "Dashboard" },
+        { id: "projects" as GuestConsoleSection, label: "Projects" },
+        { id: "invoice" as GuestConsoleSection, label: "Billing" },
+        { id: "financial_dashboard" as GuestConsoleSection, label: "Accounting" },
+        { id: "team" as GuestConsoleSection, label: "Administration" },
+        { id: "lead" as GuestConsoleSection, label: "New Opportunities" },
+        { id: "hours" as GuestConsoleSection, label: "Payroll" },
+        { id: "compliance" as GuestConsoleSection, label: "Compliance" },
+        { id: "plans" as GuestConsoleSection, label: "Documents" },
+        { id: "corporate_meetings" as GuestConsoleSection, label: "Meetings" },
+        { id: "dossier" as GuestConsoleSection, label: "Corporate Reports" },
       ].map(item => (
         <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-10 w-full items-center justify-between gap-2.5 rounded-lg border px-3 py-2 text-left text-[13px] font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-l-[3px] border-amber-300/60 border-l-[#eab869] bg-gradient-to-r from-[#c9a84c]/30 via-[#c9a84c]/15 to-transparent text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}>
           <span className="flex items-center gap-2.5 truncate">
-            <span className="text-sm opacity-90" aria-hidden="true">{item.icon}</span>
+            <CorporateIcon name={item.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
             <span className="truncate">{item.label}</span>
           </span>
           {details && item.id !== "summary" && <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-amber-100">{guestModuleCount(data, item.id)}</span>}
@@ -194,7 +195,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </nav>
     <div className="mt-6 rounded-xl border border-[#C9A84C]/35 bg-gradient-to-b from-[#0e2038] to-[#081322] p-3.5 text-center shadow-inner">
       <p className="flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#eab869]">
-        <span aria-hidden="true">🔒</span> INTERNAL SYSTEM
+        <CorporateIcon name="lock" className="h-3.5 w-3.5 text-[#eab869]" /> INTERNAL SYSTEM
       </p>
       <p className="mt-1 text-[11px] leading-snug text-slate-300">Restricted access<br/>Authorized personnel only</p>
     </div>
@@ -208,14 +209,14 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </div>
     <div className="flex flex-wrap items-center gap-2.5">
       <div className="inline-flex items-center gap-2.5 rounded-xl border border-amber-200/30 bg-[#0d1f38] px-3.5 py-2 text-xs shadow-sm">
-        <span className="text-base text-amber-300" aria-hidden="true">🔒</span>
+        <CorporateIcon name="lock" className="h-4 w-4 shrink-0 text-amber-300" />
         <div className="leading-tight">
           <p className="font-bold text-white">Private Access</p>
           <p className="text-[10px] text-slate-300">Username &amp; password required</p>
         </div>
       </div>
       <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#eab869]/55 bg-gradient-to-r from-[#243b5a] to-[#152843] px-3.5 py-2 text-xs shadow-sm">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#eab869]/25 text-amber-200" aria-hidden="true">👤</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#eab869]/25 text-amber-200" aria-hidden="true"><CorporateIcon name="user" className="h-3.5 w-3.5 text-amber-200" /></span>
         <div className="leading-tight">
           <p className="font-bold text-amber-100">Guest Reviewer · TAYCO</p>
           <p className="text-[10px] text-amber-200/80">Read-only · Current Month</p>
@@ -229,11 +230,11 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   </>}>
     <GuestPrivacyNotice onReady={setPrivacyReady}/>
     {data.review&&<p className="mt-4 rounded-xl border border-amber-200/30 p-3 text-sm text-amber-100">Review ends {new Date(data.review.expiresAt).toLocaleString('en-US',{timeZone:'UTC'})+' UTC'} · {Math.max(0,Math.ceil((data.review.expiresAt-serverNow)/60000))} min remaining. This deadline does not extend.</p>}
-    <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><label className="text-xs font-semibold text-slate-300" htmlFor="guest-reporting-month">Reporting month<select id="guest-reporting-month" value={period} onChange={event => selectPeriod(event.target.value)} className="mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-amber-200">{months.map(month => <option key={month} value={month}>{periodLabel(month)}{month === data.currentPeriod ? " · Current" : ""}</option>)}</select></label><p className="text-xs text-slate-400">As of {dateLabel(data.asOf)} · UTC</p></div><p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">Optional review activity is collected only when enabled in your privacy preferences. Free-form text and document contents are not collected by this activity log.</p>
+    <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><label className="text-xs font-semibold text-slate-300" htmlFor="guest-reporting-month">Reporting month<select id="guest-reporting-month" value={period} onChange={event => selectPeriod(event.target.value)} className="mt-2 block min-h-11 max-w-full rounded-lg border border-slate-500 bg-[#09172b] px-3 text-sm text-white focus-visible:outline-2 focus-visible:outline-amber-200">{months.map(month => <option key={month} value={month}>{periodLabel(month)}{month === data.currentPeriod ? " · Current" : ""}</option>)}</select></label><p className="text-xs text-slate-400">As of {dateLabel(data.asOf)} · UTC</p></div>
     {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error}{!denied && <p className="mt-1 text-xs">Previously loaded information may be out of date. Use Refresh to try again.</p>}</div>}
     <div ref={moduleRef} tabIndex={-1} aria-busy={loading} className="mt-6 min-w-0 focus:outline-none" data-testid="guest-module">
       <p role="status" aria-live="polite" className="sr-only">{loading ? "Loading workspace" : modules.find(item => item.id === section)?.label}</p>
-      {closedMonth ? <Panel title="Month closed · Cannot be viewed as a guest user (No se puede ver como usuario invitado)"><p className="text-sm leading-relaxed text-amber-100">🔒 Detailed reports for previous months ({periodLabel(period)}) and gross profit details (<em>detalles de ganancia en bruto</em>) cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational data and all 42 project drawings remain enabled.</p><p className="mt-2 text-sm text-slate-300">This reporting month is closed. General monthly totals remain available; detailed records are restricted to the current month.</p><div className="mt-5 flex flex-wrap gap-3"><button className={control} type="button" onClick={() => selectPeriod(data.currentPeriod)}>Return to Current Month (October 2026) →</button><button className={control} type="button" onClick={() => navigate("summary")}>Open general totals</button></div></Panel> : denied ? <Panel title="Not authorized · Cannot be viewed as a guest user"><p className="text-sm text-slate-300">{section === "access" ? "Managing users, invitations and assignments requires administrator access. You can manage your own account and password." : "This account cannot open the requested information. Past months' detailed reports and gross profit details (detalles de ganancia en bruto) cannot be viewed as a guest user."}</p>{section === "access" && <Link href="/account" className={control + " mt-5"}>Open your account &amp; password</Link>}</Panel> : section === "summary" ? current ? details ? <div className="space-y-8"><DashboardCommandCenter isGuest guestData={presentationData} asOf={data.asOf} projectId={projectId} onNavigate={(view, projId, month) => { if (month && month !== period) selectPeriod(month); else navigate(view as GuestConsoleSection, projId); }} /><GuestModulePanel data={presentationData} section="summary" projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/></div> : <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <div className="space-y-5"><Panel title={periodLabel(period) + " · Past Month Restricted for Guest"}><div role="alert" className="mb-4 rounded-xl border border-amber-300/40 bg-amber-950/35 p-4 text-sm text-amber-100"><strong>🔒 Cannot be viewed as a guest user (No se puede ver como usuario invitado):</strong> Detailed monthly reports for {periodLabel(period)} and gross profit details (<em>detalles de ganancia en bruto</em>) are restricted to TAYCO Administrators. Current month (<strong>October 2026</strong>) data and project drawings remain enabled. <button type="button" className="ml-2 underline font-semibold" onClick={() => selectPeriod(data.currentPeriod)}>Return to October 2026 →</button></div>{summary ? <div className={card}><p className="text-xs uppercase tracking-widest text-slate-400">Approximate management estimate · USD</p><p className="mt-3 font-mono text-3xl font-semibold text-amber-100">{money(summary.lowUsd)} – {money(summary.highUsd)}</p><p className="mt-3 text-sm text-slate-300">General monthly totals</p></div> : <Empty>No general summary has been published for this month.</Empty>}<p className="mt-5 text-sm text-slate-300">This month is closed for detail. All modules remain in the navigation; opening a detailed module returns Month closed.</p></Panel><GuestMonthlyTotals data={presentationData} selectedPeriod={period} onMonthSelect={selectPeriod}/></div> : !details ? <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <>
+      {closedMonth ? <Panel title="Month closed · Cannot be viewed as a guest user (No se puede ver como usuario invitado)"><p className="text-sm leading-relaxed text-amber-100"><CorporateIcon name="lock" className="inline-block h-4 w-4 align-text-bottom mr-1 text-amber-200" /> Detailed reports for previous months ({periodLabel(period)}) and gross profit details (<em>detalles de ganancia en bruto</em>) cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational data and all 42 project drawings remain enabled.</p><p className="mt-2 text-sm text-slate-300">This reporting month is closed. General monthly totals remain available; detailed records are restricted to the current month.</p><div className="mt-5 flex flex-wrap gap-3"><button className={control} type="button" onClick={() => selectPeriod(data.currentPeriod)}>Return to Current Month (October 2026) →</button><button className={control} type="button" onClick={() => navigate("summary")}>Open general totals</button></div></Panel> : denied ? <Panel title="Not authorized · Cannot be viewed as a guest user"><p className="text-sm text-slate-300">{section === "access" ? "Managing users, invitations and assignments requires administrator access. You can manage your own account and password." : "This account cannot open the requested information. Past months' detailed reports and gross profit details (detalles de ganancia en bruto) cannot be viewed as a guest user."}</p>{section === "access" && <Link href="/account" className={control + " mt-5"}>Open your account &amp; password</Link>}</Panel> : section === "summary" ? current ? details ? <div className="space-y-8"><DashboardCommandCenter isGuest guestData={presentationData} asOf={data.asOf} projectId={projectId} onNavigate={(view, projId, month) => { if (month && month !== period) selectPeriod(month); else navigate(view as GuestConsoleSection, projId); }} /><GuestModulePanel data={presentationData} section="summary" projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/></div> : <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <div className="space-y-5"><Panel title={periodLabel(period) + " · Past Month Restricted for Guest"}><div role="alert" className="mb-4 rounded-xl border border-amber-300/40 bg-amber-950/35 p-4 text-sm text-amber-100"><strong><CorporateIcon name="lock" className="inline-block h-4 w-4 align-text-bottom mr-1 text-amber-200" /> Cannot be viewed as a guest user (No se puede ver como usuario invitado):</strong> Detailed monthly reports for {periodLabel(period)} and gross profit details (<em>detalles de ganancia en bruto</em>) are restricted to TAYCO Administrators. Current month (<strong>October 2026</strong>) data and project drawings remain enabled. <button type="button" className="ml-2 underline font-semibold" onClick={() => selectPeriod(data.currentPeriod)}>Return to October 2026 →</button></div>{summary ? <div className={card}><p className="text-xs uppercase tracking-widest text-slate-400">Approximate management estimate · USD</p><p className="mt-3 font-mono text-3xl font-semibold text-amber-100">{money(summary.lowUsd)} – {money(summary.highUsd)}</p><p className="mt-3 text-sm text-slate-300">General monthly totals</p></div> : <Empty>No general summary has been published for this month.</Empty>}<p className="mt-5 text-sm text-slate-300">This month is closed for detail. All modules remain in the navigation; opening a detailed module returns Month closed.</p></Panel><GuestMonthlyTotals data={presentationData} selectedPeriod={period} onMonthSelect={selectPeriod}/></div> : !details ? <Empty>{loading ? "Loading current month…" : "Current month information could not be loaded. Use Refresh to try again."}</Empty> : <>
         <CorporateSectionExecutivePanel
           activeTab={section}
           isGuest

@@ -8,6 +8,7 @@ import {
 } from "@/lib/verified-bidding-opportunities";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 import TakeoffProjectReader from "./TakeoffProjectReader";
+import CorporateIcon from "./CorporateIcons";
 
 export type CorporateSectionKey =
   | "executive"
@@ -259,7 +260,7 @@ export default function CorporateSectionExecutivePanel({
                               setActiveViewerId(isOpen ? null : item.id)
                             }
                           >
-                            📄 {isOpen ? "Hide plans" : "View plans"}
+                            <CorporateIcon name="document" className="h-3.5 w-3.5 inline mr-1" /> {isOpen ? "Hide plans" : "View plans"}
                           </button>
                         ) : (
                           <span className="dcc-opp-no-drawing">Pending</span>
@@ -318,7 +319,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Gross Profit Margin</span>
               <strong className="dcc-kpi-value">
-                {isGuest ? "🔒 Restricted" : "$117,250.00"}
+                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Restricted</span> : "$117,250.00"}
               </strong>
               <span className="dcc-kpi-note">
                 {isGuest
@@ -334,7 +335,7 @@ export default function CorporateSectionExecutivePanel({
               style={{ marginTop: "1rem" }}
             >
               <div className="dcc-restriction-icon" aria-hidden="true">
-                🔒
+                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
               </div>
               <div className="dcc-restriction-body">
                 <h4>
@@ -367,9 +368,7 @@ export default function CorporateSectionExecutivePanel({
               className="dcc-badge"
               data-tone={isGuest ? "amber" : "emerald"}
             >
-              {isGuest
-                ? "🔒 Gross Profit Restricted for Guest"
-                : "Administrator Full Financial View"}
+              {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-3 w-3 text-amber-300" /> Gross Profit Restricted for Guest</span> : "Administrator Full Financial View"}
             </span>
           </header>
 
@@ -380,7 +379,7 @@ export default function CorporateSectionExecutivePanel({
               data-testid="accounting-guest-gp-lock"
             >
               <div className="dcc-restriction-icon" aria-hidden="true">
-                🔒
+                <CorporateIcon name="lock" className="h-5 w-5 text-amber-300" />
               </div>
               <div className="dcc-restriction-body">
                 <h4>
@@ -529,7 +528,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">October Field Payroll</span>
               <strong className="dcc-kpi-value">
-                {isGuest ? "🔒 Restricted" : "$49,250.00"}
+                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Restricted</span> : "$49,250.00"}
               </strong>
               <span className="dcc-kpi-note">
                 {isGuest
@@ -641,7 +640,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-detail-box">
               <div className="dcc-detail-box-head">
                 <span className="dcc-detail-icon" aria-hidden="true">
-                  🔒
+                  <CorporateIcon name="lock" className="h-4 w-4 text-amber-300" />
                 </span>
                 <div>
                   <h4>Monthly Notes (internal use)</h4>
@@ -685,7 +684,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-detail-box">
               <div className="dcc-detail-box-head">
                 <span className="dcc-detail-icon" aria-hidden="true">
-                  📅
+                  <CorporateIcon name="calendar" className="h-4 w-4 text-amber-300" />
                 </span>
                 <div>
                   <h4>Next Month Follow-Up (November 2026)</h4>
@@ -752,7 +751,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Historical Months (Jan–Sep)</span>
               <strong className="dcc-kpi-value">
-                {isGuest ? "🔒 Locked" : "9 Months"}
+                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Locked</span> : "9 Months"}
               </strong>
               <span className="dcc-kpi-note">
                 {isGuest
@@ -763,7 +762,7 @@ export default function CorporateSectionExecutivePanel({
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Gross Profit Report</span>
               <strong className="dcc-kpi-value">
-                {isGuest ? "🔒 Locked" : "$117,250.00"}
+                {isGuest ? <span className="inline-flex items-center gap-1"><CorporateIcon name="lock" className="h-4 w-4 text-amber-300" /> Locked</span> : "$117,250.00"}
               </strong>
               <span className="dcc-kpi-note">
                 {isGuest

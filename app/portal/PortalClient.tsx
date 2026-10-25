@@ -34,6 +34,7 @@ import { CORPORATE_11_MODULES } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
 import { VerifiedOpportunitiesTable } from "@/components/workspace/VerifiedOpportunitiesTable";
 import CorporateSectionExecutivePanel from "@/components/workspace/CorporateSectionExecutivePanel";
+import CorporateIcon from "@/components/workspace/CorporateIcons";
 
 export type DashboardData = {
   actor: { id: string; email: string; role: AuthRole };
@@ -470,7 +471,6 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
 
   const renderOperationsForm=(props:import("@/components/workspace/ProjectOverview").WorkspaceForm)=><CommandForm key={props.action+String(props.fixed?.id||"")} {...props} command={command}/>;
   const moduleId:Record<string,string>={executive:"executive",financial_dashboard:"financial-dashboard",corporate_meetings:"corporate-meetings",followups:"followups",proposal:"proposals",team:"project-teams",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
-  const sidebarIcons: Record<string, string> = { executive: "🏠", project: "📁", invoice: "🧾", financial_dashboard: "📊", team: "👥", lead: "🎯", hours: "⏱", compliance: "🛡", document: "📄", corporate_meetings: "📅", dossier: "📑" };
   const primaryIds = new Set(CORPORATE_11_MODULES.map(m => m.id));
   const secondaryTabs = tabs.filter(item => !primaryIds.has(item.id as typeof CORPORATE_11_MODULES[number]["id"]));
   return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><PortalShell className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties} sidebarRef={sidebarRef} sidebar={<div className="flex min-h-full flex-col justify-between gap-6">
@@ -502,7 +502,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
                   }
                 >
                   <span className="flex min-w-0 items-center gap-2.5">
-                    <span className="text-sm text-[#eab869]" aria-hidden="true">{sidebarIcons[mod.id] || "•"}</span>
+                    <CorporateIcon name={mod.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
                     <span className="truncate">{mod.label}</span>
                   </span>
                   {["project","document","lead","hours","compliance"].includes(mod.id) && (
@@ -538,7 +538,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         </div>
         <div className="mt-4 rounded-xl border border-[#eab869]/30 bg-[#081528]/90 p-3.5 shadow-inner">
           <div className="flex items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#eab869]/45 bg-[#eab869]/15 text-sm text-[#eab869]" aria-hidden="true">🔒</span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#eab869]/45 bg-[#eab869]/15 text-[#eab869]" aria-hidden="true"><CorporateIcon name="lock" className="h-4 w-4 text-[#eab869]" /></span>
             <div className="min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#eab869]">Internal System</p>
               <p className="mt-0.5 text-[11px] text-slate-300">Restricted access</p>
@@ -559,14 +559,14 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2.5 rounded-xl border border-slate-700/80 bg-[#0b1930]/90 px-3.5 py-2">
-            <span className="text-base text-[#eab869]" aria-hidden="true">🔒</span>
+            <CorporateIcon name="lock" className="h-4 w-4 shrink-0 text-[#eab869]" />
             <div className="leading-tight">
               <p className="text-xs font-bold text-white">Private Access</p>
               <p className="text-[11px] text-slate-400">Username &amp; password required</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5 rounded-xl border border-[#eab869]/35 bg-[#0b1930]/90 px-3.5 py-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700/70 text-sm text-[#eab869]" aria-hidden="true">👤</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700/70 text-[#eab869]" aria-hidden="true"><CorporateIcon name="user" className="h-4 w-4 text-[#eab869]" /></span>
             <div className="leading-tight">
               <p className="text-xs font-bold text-white">{admin ? "Administrator" : roleName}</p>
               <p className="text-[11px] text-[#eab869]">TAYCO · {data.actor.email}</p>

@@ -69,18 +69,131 @@ const DEFAULT_2026_MONTHLY_SERIES: readonly {
   { key: "2026-12", issuedCents: 14000000, paymentCents: 0, vendorCents: 9200000, payrollCents: 1600000, opps: 12 },
 ];
 
-const MODULE_ICONS: Record<string, string> = {
-  executive: "◈",
-  project: "◫",
-  invoice: "🧾",
-  financial_dashboard: "📊",
-  team: "👥",
-  lead: "🎯",
-  hours: "⏱",
-  compliance: "🛡",
-  document: "📐",
-  corporate_meetings: "📅",
-  dossier: "📑",
+const MODULE_ICONS: Record<string, React.ReactNode> = {
+  executive: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+    </svg>
+  ),
+  project: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+  invoice: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <line x1="10" y1="9" x2="8" y2="9" />
+    </svg>
+  ),
+  financial_dashboard: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  ),
+  team: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  lead: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  hours: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  ),
+  compliance: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ),
+  document: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="3 21 21 21 21 3 3 21" />
+      <path d="m15 15 3 3" />
+      <path d="m11 11 3 3" />
+      <path d="m7 7 3 3" />
+    </svg>
+  ),
+  corporate_meetings: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  ),
+  dossier: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
+};
+
+const renderCertIcon = (certId: string) => {
+  if (certId === "sam_gov" || certId === "federal_programs") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <line x1="3" y1="22" x2="21" y2="22" />
+        <line x1="6" y1="18" x2="6" y2="11" />
+        <line x1="10" y1="18" x2="10" y2="11" />
+        <line x1="14" y1="18" x2="14" y2="11" />
+        <line x1="18" y1="18" x2="18" y2="11" />
+        <polygon points="12 2 2 7 22 7" />
+      </svg>
+    );
+  }
+  if (certId === "esbe") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <path d="m9 15 2 2 4-4" />
+      </svg>
+    );
+  }
+  if (certId === "state_programs") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <polyline points="9 12 11 14 15 10" />
+      </svg>
+    );
+  }
+  if (certId === "union_private") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z" />
+        <path d="M10 10V5a2 2 0 0 1 4 0v5" />
+        <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </svg>
+  );
 };
 
 const GUEST_SECTION_MAP: Record<string, string> = {
@@ -309,7 +422,10 @@ export default function DashboardCommandCenter({
                       {monthName(m.key, true)}
                       {isLockedGuest && (
                         <span className="dcc-pill-lock" aria-hidden="true">
-                          🔒
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                          </svg>
                         </span>
                       )}
                     </button>
@@ -327,7 +443,12 @@ export default function DashboardCommandCenter({
             <header className="dcc-card-header">
               <div className="dcc-month-detail-title-row">
                 <span className="dcc-month-detail-cal-icon" aria-hidden="true">
-                  📅
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
                 </span>
                 <h3>
                   Month Detail:{" "}
@@ -343,7 +464,11 @@ export default function DashboardCommandCenter({
                   </span>
                 ) : isPastMonthForGuest ? (
                   <span className="dcc-badge" data-tone="amber">
-                    🔒 Restricted for Guest Users
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: "-1px", marginRight: 4 }}>
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    Restricted for Guest Users
                   </span>
                 ) : (
                   <span className="dcc-badge" data-tone="slate">
@@ -360,7 +485,10 @@ export default function DashboardCommandCenter({
                 data-testid="guest-past-month-restriction"
               >
                 <div className="dcc-restriction-icon" aria-hidden="true">
-                  🔒
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
                 </div>
                 <div className="dcc-restriction-body">
                   <h4>
@@ -374,7 +502,10 @@ export default function DashboardCommandCenter({
                     TAYCO Administrators and cannot be viewed as a guest user.
                   </p>
                   <p className="dcc-restriction-sub">
-                    ✓ <strong>Enabled for Guest Reviewer:</strong> Current month (
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <strong>Enabled for Guest Reviewer:</strong> Current month (
                     <strong>October 2026</strong>) operational data, 11 corporate
                     modules, and all 42 project plans &amp; architectural drawings.
                   </p>
@@ -393,7 +524,12 @@ export default function DashboardCommandCenter({
                 <div className="dcc-detail-box">
                   <div className="dcc-detail-box-head">
                     <span className="dcc-detail-icon" aria-hidden="true">
-                      📋
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                        <path d="M9 12h6" />
+                        <path d="M9 16h6" />
+                      </svg>
                     </span>
                     <div>
                       <h4>Monthly Notes</h4>
@@ -402,7 +538,11 @@ export default function DashboardCommandCenter({
                   </div>
                   <ul className="dcc-check-list">
                     <li>
-                      <i aria-hidden="true">✔</i>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>New opportunities (42 active packages)</strong>
                         <span>
@@ -412,7 +552,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">✔</i>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>SAM.gov &amp; Federal registration intake</strong>
                         <span>
@@ -421,7 +565,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">✔</i>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Federal &amp; state contracting programs</strong>
                         <span>
@@ -430,7 +578,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">✔</i>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Union &amp; private commercial projects</strong>
                         <span>
@@ -439,7 +591,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">✔</i>
+                      <i aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Approved certifications &amp; plan sets</strong>
                         <span>
@@ -454,7 +610,12 @@ export default function DashboardCommandCenter({
                 <div className="dcc-detail-box">
                   <div className="dcc-detail-box-head">
                     <span className="dcc-detail-icon" aria-hidden="true">
-                      📅
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
                     </span>
                     <div>
                       <h4>Next Month Follow-Ups (November 2026)</h4>
@@ -463,7 +624,11 @@ export default function DashboardCommandCenter({
                   </div>
                   <ul className="dcc-check-list is-followup">
                     <li>
-                      <i aria-hidden="true">▸</i>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Corporate meeting — opportunity review</strong>
                         <span>
@@ -472,7 +637,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">▸</i>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Follow up on pending proposals</strong>
                         <span>
@@ -481,7 +650,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">▸</i>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Review certification status</strong>
                         <span>
@@ -490,7 +663,11 @@ export default function DashboardCommandCenter({
                       </div>
                     </li>
                     <li>
-                      <i aria-hidden="true">▸</i>
+                      <i aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </i>
                       <div>
                         <strong>Prepare documentation for new projects</strong>
                         <span>
@@ -526,7 +703,17 @@ export default function DashboardCommandCenter({
                 >
                   <div className="dcc-detail-box-head">
                     <span className="dcc-detail-icon" aria-hidden="true">
-                      {isGuest ? "🔒" : "💰"}
+                      {isGuest ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <line x1="12" y1="1" x2="12" y2="23" />
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                      )}
                     </span>
                     <div>
                       <h4>Gross Profit Details (Detalles de Ganancia en Bruto)</h4>
@@ -544,7 +731,11 @@ export default function DashboardCommandCenter({
                       data-testid="guest-gross-profit-lock"
                     >
                       <p className="dcc-lock-badge">
-                        🔒 Cannot be viewed as a guest user · No se puede ver como
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: "-2px", marginRight: 4 }}>
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Cannot be viewed as a guest user · No se puede ver como
                         usuario invitado
                       </p>
                       <p className="dcc-lock-text">
@@ -553,7 +744,10 @@ export default function DashboardCommandCenter({
                         reports cannot be viewed as a guest user.
                       </p>
                       <p className="dcc-lock-allowed">
-                        ✓ <strong>Available in Guest Mode:</strong> Current month (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: 4 }}>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <strong>Available in Guest Mode:</strong> Current month (
                         <strong>October 2026</strong>) operational records, project
                         progress, and interactive architectural plans/drawings below.
                       </p>
@@ -626,41 +820,29 @@ export default function DashboardCommandCenter({
               </button>
             </header>
             <div className="dcc-right-menu-list">
-              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
-                const certIcon =
-                  cert.id === "sam_gov" || cert.id === "federal_programs"
-                    ? "🏛"
-                    : cert.id === "esbe"
-                    ? "📄"
-                    : cert.id === "state_programs"
-                    ? "🛡"
-                    : cert.id === "union_private"
-                    ? "⛑"
-                    : "👥";
-                return (
-                  <button
-                    type="button"
-                    key={cert.id}
-                    className="dcc-right-menu-item is-cert"
-                    onClick={() =>
-                      triggerNavigate(
-                        cert.id === "union_private" ? "lead" : "compliance"
-                      )
-                    }
-                  >
-                    <span className="dcc-right-menu-icon" aria-hidden="true">
-                      {certIcon}
-                    </span>
-                    <span className="dcc-right-menu-text">
-                      <strong>{cert.code}</strong>
-                      <small>{cert.label}</small>
-                    </span>
-                    <span className="dcc-right-menu-chevron" aria-hidden="true">
-                      ›
-                    </span>
-                  </button>
-                );
-              })}
+              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => (
+                <button
+                  type="button"
+                  key={cert.id}
+                  className="dcc-right-menu-item is-cert"
+                  onClick={() =>
+                    triggerNavigate(
+                      cert.id === "union_private" ? "lead" : "compliance"
+                    )
+                  }
+                >
+                  <span className="dcc-right-menu-icon" aria-hidden="true">
+                    {renderCertIcon(cert.id)}
+                  </span>
+                  <span className="dcc-right-menu-text">
+                    <strong>{cert.code}</strong>
+                    <small>{cert.label}</small>
+                  </span>
+                  <span className="dcc-right-menu-chevron" aria-hidden="true">
+                    ›
+                  </span>
+                </button>
+              ))}
             </div>
           </section>
 
