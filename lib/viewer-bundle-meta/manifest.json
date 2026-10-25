@@ -1,0 +1,5343 @@
+{
+  "schema_version": "takeoff-viewer-bundle/v1",
+  "bundle_status": "processed_catalog_and_readiness; OCR_not_performed; calibration_pending",
+  "counts": {
+    "projects": 20,
+    "documents": 60,
+    "unique_source_sha256": 48,
+    "assets": 119
+  },
+  "projects": [
+    {
+      "key": "cf_melrose_park_il",
+      "display_name": "CF Melrose Park, IL",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies CF Melrose Park, IL; batch 1 page 1 is CVR - COVER SHEET and pages 1–3 include cover, sheet index/project info, and responsibility schedule."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_cf_melrose_8c89250d32080e77"
+      ]
+    },
+    {
+      "key": "dutch_bros_il0403",
+      "display_name": "Dutch Bros IL0403",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "needs_ocr",
+        "identity_basis_tags": [
+          "filename or folder"
+        ],
+        "identity_evidence_summary": [
+          "Filename and page 1 identify IL0403; page 4 is a revision log. Revision #6/#7 boundaries need human review."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "revision scope pending review"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks. OCR/review pages without text layer: [72, 73, 74, 75, 76, 77, 78]; OCR was not run."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_dutch_bros_10443220659dcdb9"
+      ]
+    },
+    {
+      "key": "clc_idf_room_imeg",
+      "display_name": "CLC IDF Room — IMEG",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies CLC IDF Room and IMEG; indexed cover has IMEG registration and proprietary-rights notice."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_clc_idf_ro_ccb235ea5408d859"
+      ]
+    },
+    {
+      "key": "cuba_township_25_023",
+      "display_name": "Cuba Township — 25-023",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "location",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies project 25-023, Cuba Township and Rev 4; batch 2 index covers 36 pages."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_cuba_towns_15ce947a3388439f"
+      ]
+    },
+    {
+      "key": "benjamin_center",
+      "display_name": "Benjamin Center — specifications",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "reference_document",
+        "identity_basis_tags": [
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename and indexed page text identify Benjamin Center; specifications retained as a reference document."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm the related drawing set; keep this ITB/specification separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review bid requirements and identify linked plan set; no takeoff is supported by this reference alone."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Not applicable until a related drawing set is linked."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Not applicable to this reference document."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Not applicable until reviewed quantities exist."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_benjamin_c_0bace2aceb041d1b"
+      ]
+    },
+    {
+      "key": "millis_transfer_richfield_2026_045",
+      "display_name": "Millis Transfer — Richfield, WI (2026-045)",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "project number",
+          "address",
+          "location",
+          "document log",
+          "project name"
+        ],
+        "identity_evidence_summary": [
+          "The DOCX ITB names Millis Transfer: Richfield, WI Demo Maintenance Facility, project 2026-045, at 33001 W Holy Hill Road; the PDF document log names the facility; concept plan/scope/addenda belong to the package."
+        ],
+        "site_address_status": "corroborated",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_millis_tra_fbbb873f35fd6364",
+        "doc_millis_tra_1898a65e5cfa59d7",
+        "doc_millis_tra_fb7d4d0d31f7b742",
+        "doc_millis_tra_1545f77fb44407ae",
+        "doc_millis_tra_1ab4149daa28f625",
+        "doc_millis_tra_42398c7083b637ca"
+      ]
+    },
+    {
+      "key": "cresco_labs_glowup_rollout_il",
+      "display_name": "Cresco Labs — GlowUp Rollout, IL (ITB)",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "reference_document",
+        "identity_basis_tags": [
+          "filename or folder"
+        ],
+        "identity_evidence_summary": [
+          "Filename and page 1 identify an invitation to bid for Cresco Labs / GlowUp Rollout, IL; reference document only."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm the related drawing set; keep this ITB/specification separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review bid requirements and identify linked plan set; no takeoff is supported by this reference alone."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Not applicable until a related drawing set is linked."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Not applicable to this reference document."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Not applicable until reviewed quantities exist."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_cresco_lab_0d4883f542c894c7"
+      ]
+    },
+    {
+      "key": "davenport_10766",
+      "display_name": "Davenport, IA — DT #10766",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "location",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies project #10766 and Davenport; batch 3 page 52 includes 3850 Elmore Ave, Davenport, IA. Page 1 text/index is degraded; title-block mark needs visual review."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "sheet index or title block needs visual review"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_davenport__11aa948a056853fd"
+      ]
+    },
+    {
+      "key": "tmad_490_normal_il",
+      "display_name": "TMAD 490 — Normal, IL",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "location",
+          "filename or folder"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies TMAD 490, Normal, IL and Part 1 of 4; remaining parts are outside this intake."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "partial drawing set"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_tmad_490_n_d091ed5d3e838519"
+      ]
+    },
+    {
+      "key": "foot_locker_7091_mishawaka",
+      "display_name": "Foot Locker #7091 — Mishawaka, IN",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "project number",
+          "location",
+          "filename or folder",
+          "drawing index",
+          "project name"
+        ],
+        "identity_evidence_summary": [
+          "BidSet, combined current set and ITB share store #7091 and Mishawaka, IN in filenames; drawing indexes identify Foot Locker plan content and FL-189. Files remain separate."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_foot_locke_e71df919b3d34c6b",
+        "doc_foot_locke_bfbc724bce155876",
+        "doc_foot_locke_6ec1d4b94fe02bcc"
+      ]
+    },
+    {
+      "key": "freeway_insurance_8262_belvidere",
+      "display_name": "Freeway Insurance #8262 — Belvidere, IL (State St)",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "project number",
+          "location",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies Freeway Insurance #8262 at Belvidere / State St; one-page plan index has scope text."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_freeway_in_b8f38e171884faa5"
+      ]
+    },
+    {
+      "key": "goddard_burr_ridge",
+      "display_name": "Goddard — Burr Ridge",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "needs_ocr",
+        "identity_basis_tags": [
+          "location",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies Goddard and Burr Ridge; index covers the 62-page set."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks. OCR/review pages without text layer: [2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 26, 27, 28, 29, 30, 31]; OCR was not run."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_goddard_bu_5ab42a7310b91c9d"
+      ]
+    },
+    {
+      "key": "handel_zionsville_in",
+      "display_name": "Handel's Ice Cream — Zionsville, IN",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "location",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies Handel's Ice Cream and Zionsville; page 1 contains a drawing sheet index."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_handel_zio_8c71b8247afe46e7"
+      ]
+    },
+    {
+      "key": "kroger_greenfield_j552",
+      "display_name": "Kroger Store — Greenfield, IN (J-752 / J552)",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "needs_ocr",
+        "identity_basis_tags": [
+          "project number",
+          "location",
+          "filename or folder"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies J552 and Greenfield; batch 2 page 1 text says KROGER STORE, J-752, GREENFIELD, IN."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks. OCR/review pages without text layer: [2]; OCR was not run."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_kroger_gre_22c6d3ee054a3ce8"
+      ]
+    },
+    {
+      "key": "mission_pet_livewell_westfield_in",
+      "display_name": "Mission Pet Health — Livewell Animal Hospital, Westfield, IN",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "needs_ocr",
+        "identity_basis_tags": [
+          "filename or folder",
+          "project name"
+        ],
+        "identity_evidence_summary": [
+          "Folder and ITB page 1 name Mission Pet Health / Livewell Animal Hospital; ITB page 1 says Project: Mission Pet Health and Livewell Animal Hospital. Two permit-set PDFs are exact SHA-256 duplicates and represented as one content item with both source paths. The ITB excerpt does not establish site address."
+        ],
+        "site_address_status": "unconfirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "site address not independently confirmed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks. OCR/review pages without text layer: [21, 22, 23, 24]; OCR was not run."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_mission_pe_1f0ad0dba5cad2e5",
+        "doc_mission_pe_d443671f9a6baa22"
+      ]
+    },
+    {
+      "key": "mendocino_farms_naperville_il",
+      "display_name": "Mendocino Farms — Naperville, IL (192 W Gartner Rd; RS2425-0063)",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "project number",
+          "address",
+          "location",
+          "filename or folder",
+          "drawing index",
+          "project name"
+        ],
+        "identity_evidence_summary": [
+          "Combined scopes DOCX identifies 192 W Gartner Rd, Naperville, IL 60540 and NORR project RS2425-0063; scope PDFs and the drawing PDF are stored under the same project folder and indexed scopes repeat the project name."
+        ],
+        "site_address_status": "corroborated",
+        "location_status": "corroborated",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_mendocino__178e489fa0e57a56",
+        "doc_mendocino__0b7a59c8011cf580",
+        "doc_mendocino__1248e14d7b8df2b7",
+        "doc_mendocino__dc2d01b357522e10",
+        "doc_mendocino__5ef0686ea69c80ee",
+        "doc_mendocino__dea74dffc33d41b2",
+        "doc_mendocino__dd36ab7bc7c97ff8",
+        "doc_mendocino__896dc23b60462a7d",
+        "doc_mendocino__db711b449a811823",
+        "doc_mendocino__a386871640193c99",
+        "doc_mendocino__0054011def14910f"
+      ]
+    },
+    {
+      "key": "conformed_set_11111",
+      "display_name": "Project #11111 — Current Conformed Set",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "project number",
+          "filename or folder",
+          "drawing index"
+        ],
+        "identity_evidence_summary": [
+          "Filename identifies set #11111 and conformed-set date; page 1 index lists architecture, structure and MEP. Site/address not established in the excerpt."
+        ],
+        "site_address_status": "unconfirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "site address not independently confirmed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_conformed__1293e820e4ce142f"
+      ]
+    },
+    {
+      "key": "venice_grocery",
+      "display_name": "Venice Grocery Market / Retail Building",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "page title"
+        ],
+        "identity_evidence_summary": [
+          "Batch 2 page 1 title text says Venice Grocery Market / Retail Bldg.; standalone set."
+        ],
+        "site_address_status": "not_confirmed",
+        "location_status": "not_confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "scope",
+            "task": "Confirm included drawing pages/disciplines; keep ITB, specs, addenda and scope notes separate from measurable sheets."
+          },
+          {
+            "order": 2,
+            "stage": "review",
+            "task": "Review covers, revisions and page index; complete project-specific OCR or identity checks."
+          },
+          {
+            "order": 3,
+            "stage": "calibration",
+            "task": "Calibrate scale against a verified sheet and document units before dimension takeoff."
+          },
+          {
+            "order": 4,
+            "stage": "measurement",
+            "task": "Measure only reviewed in-scope sheets; record source sheet/page for each quantity."
+          },
+          {
+            "order": 5,
+            "stage": "boq_export",
+            "task": "Prepare BOQ/export only after quantities and scope review."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_venice_gro_3f2fafda2dbad7ad"
+      ]
+    },
+    {
+      "key": "received_artemis_pdf_review_20261024",
+      "display_name": "Received PDF sources - identity review",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "reference_document",
+        "identity_basis_tags": [
+          "verified source hashes and exact received files"
+        ],
+        "identity_evidence_summary": [
+          "This is a source-document collection, not an asserted business project."
+        ],
+        "review_caveats": [
+          "Business-opportunity associations are reported by the source and need reconciliation. No recipient publication, quantities or amounts are approved."
+        ],
+        "pending_tasks": [
+          {
+            "order": 1,
+            "stage": "review",
+            "task": "Reconcile reported opportunity identity, conflicting store numbers, sheet scope and photo references before recipient disclosure."
+          }
+        ]
+      },
+      "document_ids": [
+        "doc_received_151acb3878b7c125",
+        "doc_received_84c696f674582b0c",
+        "doc_received_95bdf922b5f91e0f",
+        "doc_received_a21360978c9f000a",
+        "doc_received_b5a8f86a9bfff989",
+        "doc_received_f8c5076aa6be3285",
+        "doc_received_4eb240ddb7584390",
+        "doc_received_7344b7b15a931484",
+        "doc_received_9dc0feb044c96a63",
+        "doc_received_aba56421a0107c1d",
+        "doc_received_bd33179afd9924c6",
+        "doc_received_cb104959e0d8d0bf"
+      ]
+    },
+    {
+      "key": "received_artemis_lotes123_20261024",
+      "display_name": "Received PDF sources - Batches 1 to 4",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "reference_document",
+        "identity_basis_tags": [
+          "verified source hashes and exact received files"
+        ],
+        "identity_evidence_summary": [
+          "Source-document collection for Batches 1 to 4."
+        ],
+        "review_caveats": [
+          "No quantities or amounts are approved."
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_lotes123_1b79da7bc73e530b",
+        "doc_lotes123_9308f2305ac4ebdc",
+        "doc_lotes123_a21f463e34d415f3",
+        "doc_lotes123_bddeb99c13d103e4",
+        "doc_lotes123_3fe596517ccbf713",
+        "doc_lotes123_cb426092e94f35ad",
+        "doc_lotes123_a0ebb98657d4efea",
+        "doc_lotes123_f795d7584b47e3b3",
+        "doc_lotes123_dad385680491c284",
+        "doc_lotes4_d54caa5a46d15449",
+        "doc_lotes4_3bab8a61f3578be7",
+        "doc_lotes4_76db82644184cd9c"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_cf_melrose_8c89250d32080e77",
+      "project_key": "cf_melrose_park_il",
+      "title": "CF Melrose Park,IL Rev 2 ECS.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "CF Melrose Park,IL Rev 2 ECS.pdf",
+      "source_sha256": "8c89250d32080e77cd09caa5d0a3c28654d39567fb046b4bda75038289276040",
+      "page_count": 65,
+      "asset_id": "asset_8c89250d32080e77cd09caa5",
+      "index_asset_id": "asset_94df536f149171540b4db675",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 96423327,
+        "source_aliases": [
+          "CF Melrose Park,IL Rev 2 ECS.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "CF Melrose Park,IL Rev 2 ECS.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_dutch_bros_10443220659dcdb9",
+      "project_key": "dutch_bros_il0403",
+      "title": "2026-10-08_Dutch Bros IL0403_Revision #6 and #7 (non S+S).pdf",
+      "kind": "drawing_pdf",
+      "source_name": "2026-10-08_Dutch Bros IL0403_Revision #6 and #7 (non S+S).pdf",
+      "source_sha256": "10443220659dcdb986b010dedb938d5acd5577051f21bfd20e46e09f0e9169fd",
+      "page_count": 89,
+      "asset_id": "asset_10443220659dcdb986b010de",
+      "index_asset_id": "asset_d472cbb177e59f054b176dc3",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 52379682,
+        "source_aliases": [
+          "2026-10-08_Dutch Bros IL0403_Revision #6 and #7 (non S+S).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78
+        ],
+        "ocr_queue_class": "no_text_visual_review_required_ocr_after_content_confirmation",
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "2026-10-08_Dutch Bros IL0403_Revision #6 and #7 (non S+S).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": [
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78
+        ]
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_clc_idf_ro_ccb235ea5408d859",
+      "project_key": "clc_idf_room_imeg",
+      "title": "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf",
+      "source_sha256": "ccb235ea5408d859f513175784b25362ea0d01e1ae9fe8033110b58e4a7785da",
+      "page_count": 19,
+      "asset_id": "asset_ccb235ea5408d859f5131757",
+      "index_asset_id": "asset_41182597be688dd6abeae10e",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NTS",
+            "page": 1
+          },
+          {
+            "text": "NTS.",
+            "page": 2
+          },
+          {
+            "text": "1/8\" = 1'-0\"",
+            "page": 3
+          },
+          {
+            "text": "1/4\" = 1'-0\"",
+            "page": 4
+          },
+          {
+            "text": "1/16\" = 1'-0\"",
+            "page": 9
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 1281330,
+        "source_aliases": [
+          "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_cuba_towns_15ce947a3388439f",
+      "project_key": "cuba_township_25_023",
+      "title": "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf",
+      "source_sha256": "15ce947a3388439f83059db2eee8f0eef0857562ddca619c4037e62ac411ac4c",
+      "page_count": 36,
+      "asset_id": "asset_15ce947a3388439f83059db2",
+      "index_asset_id": "asset_ab2b5f81393a5537298d2ec8",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NTS",
+            "page": 1
+          },
+          {
+            "text": "NOT TO SCALE",
+            "page": 1
+          },
+          {
+            "text": "1/8\" = 1'-0\"",
+            "page": 2
+          },
+          {
+            "text": "1:44",
+            "page": 2
+          },
+          {
+            "text": "NTS.",
+            "page": 3
+          },
+          {
+            "text": "1:2",
+            "page": 3
+          },
+          {
+            "text": "1:20",
+            "page": 3
+          },
+          {
+            "text": "1:12",
+            "page": 3
+          },
+          {
+            "text": "1:50",
+            "page": 3
+          },
+          {
+            "text": "1:47",
+            "page": 3
+          },
+          {
+            "text": "1:54",
+            "page": 4
+          },
+          {
+            "text": "1:55",
+            "page": 6
+          },
+          {
+            "text": "1/16\" = 1'-0\"",
+            "page": 7
+          },
+          {
+            "text": "3/16\" = 1'-0\"",
+            "page": 9
+          },
+          {
+            "text": "1/4\" = 1'-0\"",
+            "page": 13
+          },
+          {
+            "text": "3/8\" = 1'-0\"",
+            "page": 13
+          },
+          {
+            "text": "1/2\" = 1'-0\"",
+            "page": 13
+          },
+          {
+            "text": "3/4\" = 1'-0\"",
+            "page": 21
+          },
+          {
+            "text": "N.T.S.",
+            "page": 25
+          },
+          {
+            "text": "1:34",
+            "page": 34
+          },
+          {
+            "text": "1:40",
+            "page": 35
+          },
+          {
+            "text": "1:39",
+            "page": 35
+          },
+          {
+            "text": "1:38",
+            "page": 35
+          },
+          {
+            "text": "1:1",
+            "page": 35
+          },
+          {
+            "text": "1:3",
+            "page": 35
+          },
+          {
+            "text": "1:32",
+            "page": 35
+          },
+          {
+            "text": "1:31",
+            "page": 35
+          },
+          {
+            "text": "1:37",
+            "page": 35
+          },
+          {
+            "text": "1:16",
+            "page": 35
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 45565758,
+        "source_aliases": [
+          "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_benjamin_c_0bace2aceb041d1b",
+      "project_key": "benjamin_center",
+      "title": "Benjamin Center Project Specficiations 09-17-2026.pdf",
+      "kind": "specification",
+      "source_name": "Benjamin Center Project Specficiations 09-17-2026.pdf",
+      "source_sha256": "0bace2aceb041d1b6b08809347d3fd7956480e5b0235d13f4ac27846ce960e8c",
+      "page_count": 87,
+      "asset_id": "asset_0bace2aceb041d1b6b088093",
+      "index_asset_id": "asset_26530bc6055cf9d7886ecdb3",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 3956484,
+        "source_aliases": [
+          "Benjamin Center Project Specficiations 09-17-2026.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Benjamin Center Project Specficiations 09-17-2026.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_fbbb873f35fd6364",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf",
+      "source_sha256": "fbbb873f35fd6364a367f32f5798815fecc0d81e5d708825f79c705b12472885",
+      "page_count": 2,
+      "asset_id": "asset_fbbb873f35fd6364a367f32f",
+      "index_asset_id": "asset_fae9497929a5c84a05dd259b",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NTS",
+            "page": 2
+          },
+          {
+            "text": "N.T.S",
+            "page": 2
+          },
+          {
+            "text": "N.T.S.",
+            "page": 2
+          },
+          {
+            "text": "1/2\" = 1'-0\"",
+            "page": 2
+          },
+          {
+            "text": "3/8\" = 1'-0\"",
+            "page": 2
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 4314484,
+        "source_aliases": [
+          "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_1898a65e5cfa59d7",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "ICCC_Addendum_1.pdf",
+      "kind": "addendum",
+      "source_name": "ICCC_Addendum_1.pdf",
+      "source_sha256": "1898a65e5cfa59d77dd1d976a32b2cd694165ecda48433ef95b489297d791dd3",
+      "page_count": 1,
+      "asset_id": "asset_1898a65e5cfa59d77dd1d976",
+      "index_asset_id": "asset_33bd6eaa0079dd67d3f896f6",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 376036,
+        "source_aliases": [
+          "ICCC_Addendum_1.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "ICCC_Addendum_1.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_fb7d4d0d31f7b742",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "Millis_Richfield_Scope_10_10_26.pdf",
+      "kind": "reference",
+      "source_name": "Millis_Richfield_Scope_10_10_26.pdf",
+      "source_sha256": "fb7d4d0d31f7b742ee3c6b0dcbd4341e17b77236bdc7071474e779ff0c54b1ae",
+      "page_count": 11,
+      "asset_id": "asset_fb7d4d0d31f7b742ee3c6b0d",
+      "index_asset_id": "asset_39e08b196b5a2dc109589d07",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts.",
+            "page": 1
+          },
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 736814,
+        "source_aliases": [
+          "Millis_Richfield_Scope_10_10_26.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Millis_Richfield_Scope_10_10_26.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_1545f77fb44407ae",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "Millis_Transfer-Richfield_WI-Addendum_#1_REV.pdf",
+      "kind": "addendum",
+      "source_name": "Millis_Transfer-Richfield_WI-Addendum_#1_REV.pdf",
+      "source_sha256": "1545f77fb44407aeefa594c4fea47039affb47971dc57d463c98220b5a018c10",
+      "page_count": 3,
+      "asset_id": "asset_1545f77fb44407aeefa594c4",
+      "index_asset_id": "asset_1894864d2b794f6e481a0649",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 386365,
+        "source_aliases": [
+          "Millis_Transfer-Richfield_WI-Addendum_#1_REV.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Millis_Transfer-Richfield_WI-Addendum_#1_REV.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_1ab4149daa28f625",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "Document_Log.pdf",
+      "kind": "reference",
+      "source_name": "Document_Log.pdf",
+      "source_sha256": "1ab4149daa28f625bd6d46822ab0a715701309a34d98ca16b1ff550aa89a4b3c",
+      "page_count": 1,
+      "asset_id": "asset_1ab4149daa28f625bd6d4682",
+      "index_asset_id": "asset_02ee297efc574c049fe5d900",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 81645,
+        "source_aliases": [
+          "Document_Log.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Document_Log.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_millis_tra_42398c7083b637ca",
+      "project_key": "millis_transfer_richfield_2026_045",
+      "title": "2026_ITB_Millis_Transfer_-_Richfield,_WI.docx",
+      "kind": "processed_docx",
+      "source_name": "2026_ITB_Millis_Transfer_-_Richfield,_WI.docx",
+      "source_sha256": "42398c7083b637caf08a7ae2acd964e190f9fccf5345432a373e92ac01cbfb0d",
+      "page_count": null,
+      "asset_id": "asset_42398c7083b637caf08a7ae2",
+      "index_asset_id": "asset_478b755f1a17259c90d34d57",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "paragraph_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "DOCX",
+        "bytes": 483020,
+        "source_aliases": [
+          "2026_ITB_Millis_Transfer_-_Richfield,_WI.docx"
+        ],
+        "index_source": "inventory_report paragraphs_exact",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "2026_ITB_Millis_Transfer_-_Richfield,_WI.docx"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_cresco_lab_0d4883f542c894c7",
+      "project_key": "cresco_labs_glowup_rollout_il",
+      "title": "Cresco Labs - GlowUp Rollout IL_ITB.pdf",
+      "kind": "itb",
+      "source_name": "Cresco Labs - GlowUp Rollout IL_ITB.pdf",
+      "source_sha256": "0d4883f542c894c7a26e2bd84cced1fd1f81ee98bf904d2ebec241424d09b11f",
+      "page_count": 2,
+      "asset_id": "asset_0d4883f542c894c7a26e2bd8",
+      "index_asset_id": "asset_86bb15bdc241230fe8218942",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 250933,
+        "source_aliases": [
+          "Cresco Labs - GlowUp Rollout IL_ITB.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Cresco Labs - GlowUp Rollout IL_ITB.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_davenport__11aa948a056853fd",
+      "project_key": "davenport_10766",
+      "title": "DT #10766 Davenport, IA - Rev #2 Plans (Full Set).pdf",
+      "kind": "drawing_pdf",
+      "source_name": "DT #10766 Davenport, IA - Rev #2 Plans (Full Set).pdf",
+      "source_sha256": "11aa948a056853fdc1ca55c732bfe1655788cca360e8663bbad5ab7d20e59e66",
+      "page_count": 22,
+      "asset_id": "asset_11aa948a056853fdc1ca55c7",
+      "index_asset_id": "asset_560243128f99d3c1b6a86b84",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 13027584,
+        "source_aliases": [
+          "DT #10766 Davenport, IA - Rev #2 Plans (Full Set).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "DT #10766 Davenport, IA - Rev #2 Plans (Full Set).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_tmad_490_n_d091ed5d3e838519",
+      "project_key": "tmad_490_normal_il",
+      "title": "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4 (sheets 1-14).pdf",
+      "kind": "drawing_pdf",
+      "source_name": "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4 (sheets 1-14).pdf",
+      "source_sha256": "d091ed5d3e838519ca2722ac6a68507f736b3942f6a617123a32f48ef2ac932f",
+      "page_count": 14,
+      "asset_id": "asset_d091ed5d3e838519ca2722ac",
+      "index_asset_id": "asset_790bf85b85bb1b683b2da37f",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 5953905,
+        "source_aliases": [
+          "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4 (sheets 1-14).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4 (sheets 1-14).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_foot_locke_e71df919b3d34c6b",
+      "project_key": "foot_locker_7091_mishawaka",
+      "title": "Foot Locker 7091 Mishawaka, IN BidSet 09-30-26.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Foot Locker 7091 Mishawaka, IN BidSet 09-30-26.pdf",
+      "source_sha256": "e71df919b3d34c6bcb973a2a4fb32e89b8b0db59a83ad639e5f49a1f35f751ea",
+      "page_count": 46,
+      "asset_id": "asset_e71df919b3d34c6bcb973a2a",
+      "index_asset_id": "asset_7f390e67b75a7ffc07397df9",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 33230852,
+        "source_aliases": [
+          "Foot Locker 7091 Mishawaka, IN BidSet 09-30-26.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Foot Locker 7091 Mishawaka, IN BidSet 09-30-26.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_foot_locke_bfbc724bce155876",
+      "project_key": "foot_locker_7091_mishawaka",
+      "title": "Foot Locker 7091_ITB.pdf",
+      "kind": "itb",
+      "source_name": "Foot Locker 7091_ITB.pdf",
+      "source_sha256": "bfbc724bce155876675be01b670ec1c007746766a2923a76dbea7e44db7c8c5f",
+      "page_count": 1,
+      "asset_id": "asset_bfbc724bce155876675be01b",
+      "index_asset_id": "asset_6ff6345aa27ae2a319a7cde8",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 192329,
+        "source_aliases": [
+          "Foot Locker 7091_ITB.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Foot Locker 7091_ITB.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_foot_locke_6ec1d4b94fe02bcc",
+      "project_key": "foot_locker_7091_mishawaka",
+      "title": "Foot Locker #7091 - Mishawaka, IN - Combined Current Set.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Foot Locker #7091 - Mishawaka, IN - Combined Current Set.pdf",
+      "source_sha256": "6ec1d4b94fe02bccb60ec5ec673939e907027ec5c79c5e9823fd4c3e1ddfa119",
+      "page_count": 46,
+      "asset_id": "asset_6ec1d4b94fe02bccb60ec5ec",
+      "index_asset_id": "asset_e2ee80fbd8457c4a8d197c1f",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "AS NOTED",
+            "page": 44
+          },
+          {
+            "text": "AS NOTED",
+            "page": 46
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 33883621,
+        "source_aliases": [
+          "Foot Locker #7091 - Mishawaka, IN - Combined Current Set.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Foot Locker #7091 - Mishawaka, IN - Combined Current Set.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_freeway_in_b8f38e171884faa5",
+      "project_key": "freeway_insurance_8262_belvidere",
+      "title": "Freeway Insurance 8262 Belvidere, IL (State St) Floor Plan.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Freeway Insurance 8262 Belvidere, IL (State St) Floor Plan.pdf",
+      "source_sha256": "b8f38e171884faa553c9a7fe7b8fd2bff7f37287ca2ea4463af20670e1fa3d59",
+      "page_count": 1,
+      "asset_id": "asset_b8f38e171884faa553c9a7fe",
+      "index_asset_id": "asset_74647b938affa806bb4efb89",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 75939,
+        "source_aliases": [
+          "Freeway Insurance 8262 Belvidere, IL (State St) Floor Plan.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Freeway Insurance 8262 Belvidere, IL (State St) Floor Plan.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_goddard_bu_5ab42a7310b91c9d",
+      "project_key": "goddard_burr_ridge",
+      "title": "Goddard Burr Ridge - Full Set 2026 09291.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Goddard Burr Ridge - Full Set 2026 09291.pdf",
+      "source_sha256": "5ab42a7310b91c9da92d339a9d86d6871356c212213761ce2f0def09f3b53dfd",
+      "page_count": 62,
+      "asset_id": "asset_5ab42a7310b91c9da92d339a",
+      "index_asset_id": "asset_c1016880c684d4e9a41dc6ce",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 19791495,
+        "source_aliases": [
+          "Goddard Burr Ridge - Full Set 2026 09291.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [
+          2,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          21,
+          22,
+          23,
+          24,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "ocr_queue_class": "no_text_visual_review_required_ocr_after_content_confirmation",
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Goddard Burr Ridge - Full Set 2026 09291.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": [
+          2,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          21,
+          22,
+          23,
+          24,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ]
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_handel_zio_8c71b8247afe46e7",
+      "project_key": "handel_zionsville_in",
+      "title": "handel_s ice cream - zionsville, in 9-15-26.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "handel_s ice cream - zionsville, in 9-15-26.pdf",
+      "source_sha256": "8c71b8247afe46e7b1bdbb0b23562a86614af4ba695984905ce5c55d09a8177a",
+      "page_count": 26,
+      "asset_id": "asset_8c71b8247afe46e7b1bdbb0b",
+      "index_asset_id": "asset_eecafae4a283803b8dfca502",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 19423999,
+        "source_aliases": [
+          "handel_s ice cream - zionsville, in 9-15-26.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "handel_s ice cream - zionsville, in 9-15-26.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_kroger_gre_22c6d3ee054a3ce8",
+      "project_key": "kroger_greenfield_j552",
+      "title": "J552_Greenfield_Civil Plans_2026-09-11.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "J552_Greenfield_Civil Plans_2026-09-11.pdf",
+      "source_sha256": "22c6d3ee054a3ce8df816bb8408fb4f2192b594df0f99e2a47d3d62ff80697b4",
+      "page_count": 41,
+      "asset_id": "asset_22c6d3ee054a3ce8df816bb8",
+      "index_asset_id": "asset_1e07e5ab04d20e9b468c8ca5",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NOT TO SCALE",
+            "page": 1
+          },
+          {
+            "text": "NTS",
+            "page": 16
+          },
+          {
+            "text": "NTS.",
+            "page": 16
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 62384031,
+        "source_aliases": [
+          "J552_Greenfield_Civil Plans_2026-09-11.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [
+          2
+        ],
+        "ocr_queue_class": "conditional_sparse_page_visual_review",
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "J552_Greenfield_Civil Plans_2026-09-11.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": [
+          2
+        ]
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mission_pe_1f0ad0dba5cad2e5",
+      "project_key": "mission_pet_livewell_westfield_in",
+      "title": "LIVWST.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "LIVWST.pdf",
+      "source_sha256": "1f0ad0dba5cad2e53ae53ee852e93751e34dd87b900370aa0f78c3d6125436d5",
+      "page_count": 58,
+      "asset_id": "asset_1f0ad0dba5cad2e53ae53ee8",
+      "index_asset_id": "asset_8ac3df53ea3b097f30b46c0d",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 73528305,
+        "source_aliases": [
+          "LIVWST Permit Set 91426.pdf",
+          "LIVWST.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [
+          21,
+          22,
+          23,
+          24
+        ],
+        "ocr_queue_class": "no_text_visual_review_required_ocr_after_content_confirmation",
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "LIVWST Permit Set 91426.pdf",
+        "LIVWST.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": [
+          21,
+          22,
+          23,
+          24
+        ]
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mission_pe_d443671f9a6baa22",
+      "project_key": "mission_pet_livewell_westfield_in",
+      "title": "ITB - MPH Livewell Animal Hospital - Westfield IN.pdf",
+      "kind": "itb",
+      "source_name": "ITB - MPH Livewell Animal Hospital - Westfield IN.pdf",
+      "source_sha256": "d443671f9a6baa22079ff0a83c475d630d58b0fc83f8b8bbb5c7b3361d4c54bb",
+      "page_count": 3,
+      "asset_id": "asset_d443671f9a6baa22079ff0a8",
+      "index_asset_id": "asset_47a5f1bd617eea198b00888f",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 239670,
+        "source_aliases": [
+          "ITB - MPH Livewell Animal Hospital - Westfield IN.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "ITB - MPH Livewell Animal Hospital - Westfield IN.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__178e489fa0e57a56",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "Cleaning scope of Work .pdf",
+      "kind": "reference",
+      "source_name": "Cleaning scope of Work .pdf",
+      "source_sha256": "178e489fa0e57a569a559301f3484f422bc0c399c9b55bda451179453c65f35c",
+      "page_count": 4,
+      "asset_id": "asset_178e489fa0e57a569a559301",
+      "index_asset_id": "asset_124eea21caa28820f5770b95",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts.",
+            "page": 2
+          },
+          {
+            "text": "nts",
+            "page": 2
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 108587,
+        "source_aliases": [
+          "Cleaning scope of Work .pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Cleaning scope of Work .pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__0b7a59c8011cf580",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "MENDOCINO FARMS (1).pdf",
+      "kind": "reference",
+      "source_name": "MENDOCINO FARMS (1).pdf",
+      "source_sha256": "0b7a59c8011cf580dd9e7525a73f70bfa734fbe9bf00921e816d1d1aa07762a3",
+      "page_count": 8,
+      "asset_id": "asset_0b7a59c8011cf580dd9e7525",
+      "index_asset_id": "asset_5b4eab924a789b3e78df5c54",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 211661,
+        "source_aliases": [
+          "MENDOCINO FARMS (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "MENDOCINO FARMS (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__1248e14d7b8df2b7",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "Mendocino-Matrix-Responsibilities-and-Drawing-Gaps.pdf",
+      "kind": "reference",
+      "source_name": "Mendocino-Matrix-Responsibilities-and-Drawing-Gaps.pdf",
+      "source_sha256": "1248e14d7b8df2b7dacabcfed9648dbe0e81d74cc8f74acf7e7dc8ee079cb874",
+      "page_count": 22,
+      "asset_id": "asset_1248e14d7b8df2b7dacabcfe",
+      "index_asset_id": "asset_9025160ab33387b282db4142",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts.",
+            "page": 1
+          },
+          {
+            "text": "nts",
+            "page": 2
+          },
+          {
+            "text": "N.T.S.",
+            "page": 6
+          },
+          {
+            "text": "NOT TO SCALE",
+            "page": 6
+          },
+          {
+            "text": "1:33",
+            "page": 6
+          },
+          {
+            "text": "1/4\" = 1'-0\"",
+            "page": 6
+          },
+          {
+            "text": "AS NOTED",
+            "page": 7
+          },
+          {
+            "text": "1:03",
+            "page": 8
+          },
+          {
+            "text": "1/8\" = 1'-0\"",
+            "page": 8
+          },
+          {
+            "text": "1:02",
+            "page": 9
+          },
+          {
+            "text": "1/2\" = 1'-0\"",
+            "page": 9
+          },
+          {
+            "text": "1:34",
+            "page": 11
+          },
+          {
+            "text": "1:35",
+            "page": 13
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 6897838,
+        "source_aliases": [
+          "Mendocino-Matrix-Responsibilities-and-Drawing-Gaps.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Mendocino-Matrix-Responsibilities-and-Drawing-Gaps.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__dc2d01b357522e10",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "Mendocino Frarms- Naperville, IL Combined (2).pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Mendocino Frarms- Naperville, IL Combined (2).pdf",
+      "source_sha256": "dc2d01b357522e10bcc77f803c5d001d263600a7f560e4868caa31bc0dd2f7f0",
+      "page_count": 73,
+      "asset_id": "asset_dc2d01b357522e10bcc77f80",
+      "index_asset_id": "asset_1604f5b601f2cb56277fb86d",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "1/4\" = 1'-0\"",
+            "page": 1
+          },
+          {
+            "text": "N.T.S.",
+            "page": 2
+          },
+          {
+            "text": "NOT TO SCALE",
+            "page": 2
+          },
+          {
+            "text": "1:33",
+            "page": 2
+          },
+          {
+            "text": "NTS.",
+            "page": 2
+          },
+          {
+            "text": "AS NOTED",
+            "page": 4
+          },
+          {
+            "text": "1:20",
+            "page": 12
+          },
+          {
+            "text": "1:50",
+            "page": 12
+          },
+          {
+            "text": "1:04",
+            "page": 12
+          },
+          {
+            "text": "1:03",
+            "page": 13
+          },
+          {
+            "text": "1/8\" = 1'-0\"",
+            "page": 13
+          },
+          {
+            "text": "1:02",
+            "page": 14
+          },
+          {
+            "text": "1/2\" = 1'-0\"",
+            "page": 14
+          },
+          {
+            "text": "1:34",
+            "page": 19
+          },
+          {
+            "text": "3/4\" = 1'-0\"",
+            "page": 27
+          },
+          {
+            "text": "3/8\" = 1'-0\"",
+            "page": 28
+          },
+          {
+            "text": "1:35",
+            "page": 29
+          },
+          {
+            "text": "1:43",
+            "page": 55
+          },
+          {
+            "text": "1:44",
+            "page": 56
+          },
+          {
+            "text": "1:45",
+            "page": 57
+          },
+          {
+            "text": "1:48",
+            "page": 58
+          },
+          {
+            "text": "1:57",
+            "page": 59
+          },
+          {
+            "text": "1 : 3",
+            "page": 63
+          },
+          {
+            "text": "1:10",
+            "page": 68
+          },
+          {
+            "text": "1:13",
+            "page": 69
+          },
+          {
+            "text": "1:17",
+            "page": 70
+          },
+          {
+            "text": "1:25",
+            "page": 71
+          },
+          {
+            "text": "1:36",
+            "page": 72
+          },
+          {
+            "text": "1:39",
+            "page": 73
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 69974671,
+        "source_aliases": [
+          "Mendocino Frarms- Naperville, IL Combined (2).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Mendocino Frarms- Naperville, IL Combined (2).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__5ef0686ea69c80ee",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "21 Fire Sprinkler - Mendocino Farms - Naperville Illinois (1).pdf",
+      "kind": "reference",
+      "source_name": "21 Fire Sprinkler - Mendocino Farms - Naperville Illinois (1).pdf",
+      "source_sha256": "5ef0686ea69c80eeb8eab9c2dd8b3338af9e7cdc39d7dbd9d0e4385ce42c1161",
+      "page_count": 4,
+      "asset_id": "asset_5ef0686ea69c80eeb8eab9c2",
+      "index_asset_id": "asset_298d1dc3cfb080132beb6b11",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "nts.",
+            "page": 4
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 128667,
+        "source_aliases": [
+          "21 Fire Sprinkler - Mendocino Farms - Naperville Illinois (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "21 Fire Sprinkler - Mendocino Farms - Naperville Illinois (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__dea74dffc33d41b2",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "22 Plumbing - Mendocino Farms – Naperville, IL (1).pdf",
+      "kind": "reference",
+      "source_name": "22 Plumbing - Mendocino Farms – Naperville, IL (1).pdf",
+      "source_sha256": "dea74dffc33d41b2dc50e29700ef143d429d65ba605072be84b2971d93c0c135",
+      "page_count": 4,
+      "asset_id": "asset_dea74dffc33d41b2dc50e297",
+      "index_asset_id": "asset_a41669fdc5b7646abccb8738",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "nts.",
+            "page": 3
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 132541,
+        "source_aliases": [
+          "22 Plumbing - Mendocino Farms – Naperville, IL (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "22 Plumbing - Mendocino Farms – Naperville, IL (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__dd36ab7bc7c97ff8",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "23 HVAC - Mendocino Farms – Naperville, IL (1).pdf",
+      "kind": "reference",
+      "source_name": "23 HVAC - Mendocino Farms – Naperville, IL (1).pdf",
+      "source_sha256": "dd36ab7bc7c97ff8ea52d4457421f215b8622caf5ad89e1b71c47bcecc663ac4",
+      "page_count": 5,
+      "asset_id": "asset_dd36ab7bc7c97ff8ea52d445",
+      "index_asset_id": "asset_fe558a76fb8a5d791a8775b5",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 134967,
+        "source_aliases": [
+          "23 HVAC - Mendocino Farms – Naperville, IL (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "23 HVAC - Mendocino Farms – Naperville, IL (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__896dc23b60462a7d",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "26 Electrical - Mendocino Farms – Naperville, IL (1).pdf",
+      "kind": "reference",
+      "source_name": "26 Electrical - Mendocino Farms – Naperville, IL (1).pdf",
+      "source_sha256": "896dc23b60462a7d6126e81042da14ce63286efb78f474ace7e68bb8070c161d",
+      "page_count": 4,
+      "asset_id": "asset_896dc23b60462a7d6126e810",
+      "index_asset_id": "asset_4ff74b464bf8ae0d2f1683a1",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "nts.",
+            "page": 2
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 133019,
+        "source_aliases": [
+          "26 Electrical - Mendocino Farms – Naperville, IL (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "26 Electrical - Mendocino Farms – Naperville, IL (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__db711b449a811823",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "27 Communications and Low Voltage - Mendocino Farms – Naperville, IL (1).pdf",
+      "kind": "reference",
+      "source_name": "27 Communications and Low Voltage - Mendocino Farms – Naperville, IL (1).pdf",
+      "source_sha256": "db711b449a8118235da50690858d169d50d8336297074e946198291e095cb613",
+      "page_count": 4,
+      "asset_id": "asset_db711b449a8118235da50690",
+      "index_asset_id": "asset_7c81864593b224f9bb8ffd3c",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "nts.",
+            "page": 2
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 161414,
+        "source_aliases": [
+          "27 Communications and Low Voltage - Mendocino Farms – Naperville, IL (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "27 Communications and Low Voltage - Mendocino Farms – Naperville, IL (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__a386871640193c99",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "28 Fire Alarm - Mendocino Farms – Naperville, IL (1).pdf",
+      "kind": "reference",
+      "source_name": "28 Fire Alarm - Mendocino Farms – Naperville, IL (1).pdf",
+      "source_sha256": "a386871640193c99428271e40f38c23503a96887398cf469f25cde619f98e31b",
+      "page_count": 4,
+      "asset_id": "asset_a386871640193c99428271e4",
+      "index_asset_id": "asset_67fce9faba8efa2c8702bf52",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "nts",
+            "page": 1
+          },
+          {
+            "text": "nts.",
+            "page": 2
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "PDF",
+        "bytes": 129571,
+        "source_aliases": [
+          "28 Fire Alarm - Mendocino Farms – Naperville, IL (1).pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "28 Fire Alarm - Mendocino Farms – Naperville, IL (1).pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_mendocino__0054011def14910f",
+      "project_key": "mendocino_farms_naperville_il",
+      "title": "CDO_Mendocino_Farms_Naperville_Combined_Scopes (1).docx",
+      "kind": "processed_docx",
+      "source_name": "CDO_Mendocino_Farms_Naperville_Combined_Scopes (1).docx",
+      "source_sha256": "0054011def14910f6e3ff8d1ab9aca90abbfed5080447865e255815d4d973b3d",
+      "page_count": null,
+      "asset_id": "asset_0054011def14910f6e3ff8d1",
+      "index_asset_id": "asset_f83f1136f0d8c7a2f5b07d4a",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "1/16",
+            "page": null
+          },
+          {
+            "text": "1/4",
+            "page": null
+          },
+          {
+            "text": "1/2",
+            "page": null
+          },
+          {
+            "text": "1/3",
+            "page": null
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "paragraph_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "reference_document",
+        "file_type": "DOCX",
+        "bytes": 63362,
+        "source_aliases": [
+          "CDO_Mendocino_Farms_Naperville_Combined_Scopes (1).docx"
+        ],
+        "index_source": "inventory_report paragraphs_exact",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "CDO_Mendocino_Farms_Naperville_Combined_Scopes (1).docx"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_conformed__1293e820e4ce142f",
+      "project_key": "conformed_set_11111",
+      "title": "#11111 Current Conformed Set 08-28-2026.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "#11111 Current Conformed Set 08-28-2026.pdf",
+      "source_sha256": "1293e820e4ce142f46c28e22f7108f0c1b79dbe73e2968c630955fe0ff3921bf",
+      "page_count": 30,
+      "asset_id": "asset_1293e820e4ce142f46c28e22",
+      "index_asset_id": "asset_bae732283b3703b479ae66e9",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NTS",
+            "page": 6
+          },
+          {
+            "text": "NTS.",
+            "page": 10
+          },
+          {
+            "text": "1/4\" = 1'-0\"",
+            "page": 11
+          },
+          {
+            "text": "AS NOTED",
+            "page": 11
+          },
+          {
+            "text": "3/8\" = 1'-0\"",
+            "page": 11
+          },
+          {
+            "text": "N.T.S.",
+            "page": 12
+          },
+          {
+            "text": "3/4\" = 1'-0\"",
+            "page": 13
+          },
+          {
+            "text": "1/8\" = 1'-0\"",
+            "page": 14
+          },
+          {
+            "text": "1/2\" = 1'-0\"",
+            "page": 15
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 13341929,
+        "source_aliases": [
+          "#11111 Current Conformed Set 08-28-2026.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [],
+        "ocr_queue_class": null,
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "#11111 Current Conformed Set 08-28-2026.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_venice_gro_3f2fafda2dbad7ad",
+      "project_key": "venice_grocery",
+      "title": "Venice Grocery.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Venice Grocery.pdf",
+      "source_sha256": "3f2fafda2dbad7ad324c0d6ea2e2f84f2d1ebc3892726cc8a4017dab04a8d562",
+      "page_count": 19,
+      "asset_id": "asset_3f2fafda2dbad7ad324c0d6e",
+      "index_asset_id": "asset_b531478c509b55f55f4bd061",
+      "declared_scale": {
+        "status": "unverified_text_candidates",
+        "candidates": [
+          {
+            "text": "NTS",
+            "page": 3
+          },
+          {
+            "text": "NOT TO SCALE",
+            "page": 19
+          }
+        ],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 19428620,
+        "source_aliases": [
+          "Venice Grocery.pdf"
+        ],
+        "index_source": "catalog page_index",
+        "ocr_status": "not_performed",
+        "ocr_flagged_or_conditional_pages": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "ocr_queue_class": "conditional_sparse_page_visual_review",
+        "calibration_status": "pending_unverified_per_subview",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Venice Grocery.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_151acb3878b7c125",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
+      "source_sha256": "151acb3878b7c125bf4d91659158e1b0ec837ea1fcd3524f1fe317b7bef18549",
+      "page_count": 58,
+      "asset_id": "asset_151acb3878b7c125bf4d9165",
+      "index_asset_id": "asset_987d6e7ecdef99da313a8b9a",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 38782803,
+        "source_aliases": [
+          "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source bytes and cover sampled locally. Business-opportunity association remains source-reported; scope, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_84c696f674582b0c",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "Permit Set 10.2.26.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Permit Set 10.2.26.pdf",
+      "source_sha256": "84c696f674582b0c569236ae5dd67291e90ff1d4b9c561dd8f1190a8223bedf2",
+      "page_count": 8,
+      "asset_id": "asset_84c696f674582b0c569236ae",
+      "index_asset_id": "asset_bff48ffbb0f843f651171998",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 2448672,
+        "source_aliases": [
+          "Permit Set 10.2.26.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Cover heading says J-942 but side title block says J-705. Preserve both; store identity needs reconciliation."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Permit Set 10.2.26.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_95bdf922b5f91e0f",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "M2-1 - MECHANICAL PLAN AND SCHEDULES.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "M2-1 - MECHANICAL PLAN AND SCHEDULES.pdf",
+      "source_sha256": "95bdf922b5f91e0f0980f79bf1849899c27b80ecf2095dd064e62d9dfe17b3ec",
+      "page_count": 1,
+      "asset_id": "asset_95bdf922b5f91e0f0980f79b",
+      "index_asset_id": "asset_146589a5c14ed4e324dddbb9",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 472741,
+        "source_aliases": [
+          "M2-1 - MECHANICAL PLAN AND SCHEDULES.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source bytes and cover sampled locally. Business-opportunity association remains source-reported; scope, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "M2-1 - MECHANICAL PLAN AND SCHEDULES.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_a21360978c9f000a",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf",
+      "source_sha256": "a21360978c9f000ad7358a5a8583ca2d1066f66fa46427cba0fd7f5a1ef02c3c",
+      "page_count": 16,
+      "asset_id": "asset_a21360978c9f000ad7358a5a",
+      "index_asset_id": "asset_ecbcdc63479492a6a4d958b3",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 5261817,
+        "source_aliases": [
+          "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Cover identifies 1111 W. 110th Pl., Chicago, job 25-120. Source calls this Morgan Park Cluster K; cluster association is reported, not independently established."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_b5a8f86a9bfff989",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "Anderson, IN pdf.pdf",
+      "kind": "reference",
+      "source_name": "Anderson, IN pdf.pdf",
+      "source_sha256": "b5a8f86a9bfff989191326d2346e7575a902b9eef62a02479e8b72802abf1694",
+      "page_count": 22,
+      "asset_id": "asset_b5a8f86a9bfff989191326d2",
+      "index_asset_id": "asset_31b7c300ee1c830d6b3c619e",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 1803883,
+        "source_aliases": [
+          "Anderson, IN pdf.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "First page identifies Anderson, IN Photos, Brian Elliott, 7-22-2026. Register as reference/photo document; do not claim a complete drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Anderson, IN pdf.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_f8c5076aa6be3285",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "MSD Bus Transportation Facility - 100% Construction Documents.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "MSD Bus Transportation Facility - 100% Construction Documents.pdf",
+      "source_sha256": "f8c5076aa6be3285727b40f9289a18239b6cefbe591ece349c4683f98889b490",
+      "page_count": 102,
+      "asset_id": "asset_f8c5076aa6be3285727b40f9",
+      "index_asset_id": "asset_ba2119114b561e163ef68a5c",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 68848766,
+        "source_aliases": [
+          "MSD Bus Transportation Facility - 100% Construction Documents.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source bytes and cover sampled locally. Business-opportunity association remains source-reported; scope, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "MSD Bus Transportation Facility - 100% Construction Documents.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_4eb240ddb7584390",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "2601 Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "2601 Drawings.pdf",
+      "source_sha256": "4eb240ddb758439007a6448bb541010cfc597f033f9c08d8ae66964c49fe1c85",
+      "page_count": 47,
+      "asset_id": "asset_4eb240ddb758439007a6448b",
+      "index_asset_id": "asset_89e673ffb62e1ddd2ff701f1",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 17634165,
+        "source_aliases": [
+          "2601 Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Business-opportunity association remains source-reported; scope, rights, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "2601 Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_cb104959e0d8d0bf",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "Harper College Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Harper College Drawings.pdf",
+      "source_sha256": "cb104959e0d8d0bf988dec9e35f53ab531b29aef24a1c6b5dcad614945fd55c7",
+      "page_count": 39,
+      "asset_id": "asset_cb104959e0d8d0bf988dec9e",
+      "index_asset_id": "asset_3ea6cbf4d23390c2f26371dd",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 13516693,
+        "source_aliases": [
+          "Harper College Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Business-opportunity association remains source-reported; scope, rights, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Harper College Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_9dc0feb044c96a63",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "Dominos_Fortville_IN_Bid_Package_Summary_10-08-26.pdf",
+      "kind": "reference",
+      "source_name": "Dominos_Fortville_IN_Bid_Package_Summary_10-08-26.pdf",
+      "source_sha256": "9dc0feb044c96a63ffc106daeb29849a4d0296358b71f6a267a5f1fecc4781cc",
+      "page_count": 3,
+      "asset_id": "asset_9dc0feb044c96a63ffc106da",
+      "index_asset_id": "asset_df922117a3d04aea178ae009",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 158487,
+        "source_aliases": [
+          "Dominos_Fortville_IN_Bid_Package_Summary_10-08-26.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Three-page Bid Package Summary referencing separate26-sheet drawings; those drawings are NOT received by this summary."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Dominos_Fortville_IN_Bid_Package_Summary_10-08-26.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_aba56421a0107c1d",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "2026-08-04 431730 - 2311 HWY 10 LLC.pdf",
+      "kind": "reference",
+      "source_name": "2026-08-04 431730 - 2311 HWY 10 LLC.pdf",
+      "source_sha256": "aba56421a0107c1dcf42db1586bf3bd1d82193ac2c5172ea25bd51b04ae9c4fb",
+      "page_count": 12,
+      "asset_id": "asset_aba56421a0107c1dcf42db15",
+      "index_asset_id": "asset_7291052bf1ae75d4bc972e7d",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 2959849,
+        "source_aliases": [
+          "2026-08-04 431730 - 2311 HWY 10 LLC.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "IDENTITY HOLD: reported Red Iris, cover City of Moorhead/Mint Cannabis/2311 Highway10LLC. Exact slot/name is not business identity approval."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "2026-08-04 431730 - 2311 HWY 10 LLC.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_bd33179afd9924c6",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "26-0918_CCW 20015.221 Washington, IL_Permit Set_COMBINED.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "26-0918_CCW 20015.221 Washington, IL_Permit Set_COMBINED.pdf",
+      "source_sha256": "bd33179afd9924c651b6f5bdc1ee9bef6080902916eae18dcf524349bf37ae63",
+      "page_count": 61,
+      "asset_id": "asset_bd33179afd9924c651b6f5bd",
+      "index_asset_id": "asset_1b70bb3bd4f381d57255157d",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 38066046,
+        "source_aliases": [
+          "26-0918_CCW 20015.221 Washington, IL_Permit Set_COMBINED.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Business-opportunity association remains source-reported; scope, rights, revisions and calibration pending."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "26-0918_CCW 20015.221 Washington, IL_Permit Set_COMBINED.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_received_7344b7b15a931484",
+      "project_key": "received_artemis_pdf_review_20261024",
+      "title": "0150042 - IAA_BUILDING 280_RENOVATION_PHASE 1_BID SET 09-11-2026.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "0150042 - IAA_BUILDING 280_RENOVATION_PHASE 1_BID SET 09-11-2026.pdf",
+      "source_sha256": "7344b7b15a9314840abf0aa00d2535a8ff153d10eac6e27e7cc652b4e11aafc3",
+      "page_count": 74,
+      "asset_id": "asset_7344b7b15a9314840abf0aa0",
+      "index_asset_id": "asset_afb5cc0a502043fafd5205f3",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 23988594,
+        "source_aliases": [
+          "0150042 - IAA_BUILDING 280_RENOVATION_PHASE 1_BID SET 09-11-2026.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Business-opportunity association remains source-reported; scope, rights, revisions and calibration pending. Cover: Bidding / Preliminary - Not for Construction."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "0150042 - IAA_BUILDING 280_RENOVATION_PHASE 1_BID SET 09-11-2026.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_1b79da7bc73e530b",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf",
+      "source_sha256": "1b79da7bc73e530bc6dd3fed7d7472ef74163c0088cd413a11b2b33eb0d2bf86",
+      "page_count": 26,
+      "asset_id": "asset_1b79da7bc73e530bc6dd3fed",
+      "index_asset_id": "asset_5d83edb6ba83dd686563a9c1",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 8175240,
+        "source_aliases": [
+          "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_9308f2305ac4ebdc",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf",
+      "source_sha256": "9308f2305ac4ebdcc5ea65ed040bafca00ea34ccdba9c71d67c7879921f31c05",
+      "page_count": 4,
+      "asset_id": "asset_9308f2305ac4ebdcc5ea65ed",
+      "index_asset_id": "asset_5fef12abe70c0b5181d647ea",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 4525154,
+        "source_aliases": [
+          "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_a21f463e34d415f3",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf",
+      "source_sha256": "a21f463e34d415f36467efb6a914c4d72e16e17e70e5d65fdb8abb5d2efce41f",
+      "page_count": 55,
+      "asset_id": "asset_a21f463e34d415f36467efb6",
+      "index_asset_id": "asset_8433e1ed531c490c43e74c6b",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 19480503,
+        "source_aliases": [
+          "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_bddeb99c13d103e4",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf",
+      "source_sha256": "bddeb99c13d103e47c1659f7055fc39f6670978829884e4901701291bb69d24b",
+      "page_count": 100,
+      "asset_id": "asset_bddeb99c13d103e47c1659f7",
+      "index_asset_id": "asset_afc3baa753e6cdb9f5272ee4",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 82247733,
+        "source_aliases": [
+          "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_3fe596517ccbf713",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf",
+      "source_sha256": "3fe596517ccbf713d2a5074ad46fc4d1780713b7e5897f5d844e471a6d888173",
+      "page_count": 47,
+      "asset_id": "asset_3fe596517ccbf713d2a5074a",
+      "index_asset_id": "asset_430c5f543735896517a65791",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 14322067,
+        "source_aliases": [
+          "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_cb426092e94f35ad",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf",
+      "source_sha256": "cb426092e94f35ad37d1cf37f1984cce4dd13bdeaa56edc9a968d4a488180a0a",
+      "page_count": 31,
+      "asset_id": "asset_cb426092e94f35ad37d1cf37",
+      "index_asset_id": "asset_750ddc8ac6f2caea05827bf6",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 26575341,
+        "source_aliases": [
+          "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_a0ebb98657d4efea",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf",
+      "source_sha256": "a0ebb98657d4efea3bd46cc2e4b4228873c766817b312921c8f2097be35823fd",
+      "page_count": 18,
+      "asset_id": "asset_a0ebb98657d4efea3bd46cc2",
+      "index_asset_id": "asset_7737da91621972f0a67a6656",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 55749873,
+        "source_aliases": [
+          "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_f795d7584b47e3b3",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf",
+      "source_sha256": "f795d7584b47e3b372bc2cd68a1f72f1ece95072041d355b89bc4d29cec144f6",
+      "page_count": 155,
+      "asset_id": "asset_f795d7584b47e3b372bc2cd6",
+      "index_asset_id": "asset_2109254eaa29f12c4e1cb1f6",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 70840737,
+        "source_aliases": [
+          "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes123_dad385680491c284",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf",
+      "source_sha256": "dad385680491c2849ab24c59a6d5c1270f514642e5155b394bb09dbac642908b",
+      "page_count": 12,
+      "asset_id": "asset_dad385680491c2849ab24c59",
+      "index_asset_id": "asset_865616d02a39d05e0b56fcf2",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 752096,
+        "source_aliases": [
+          "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes4_d54caa5a46d15449",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "First Watch Bourbonnais - Permit Set.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "First Watch Bourbonnais - Permit Set.pdf",
+      "source_sha256": "d54caa5a46d15449a961731bc6b835540c725b1473343a3f08055c4afcf889d6",
+      "page_count": 81,
+      "asset_id": "asset_d54caa5a46d15449a961731b",
+      "index_asset_id": "asset_bb56bc68903f3c84060580b2",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 71100941,
+        "source_aliases": [
+          "First Watch Bourbonnais - Permit Set.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "First Watch Bourbonnais - Permit Set.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes4_3bab8a61f3578be7",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "Willowbrae Academy - Structural Calculations.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Willowbrae Academy - Structural Calculations.pdf",
+      "source_sha256": "3bab8a61f3578be7df2a5f75a234b7abb6814210bf48c10622ac9cae83c979c3",
+      "page_count": 55,
+      "asset_id": "asset_3bab8a61f3578be7df2a5f75",
+      "index_asset_id": "asset_8433e1ed531c490c43e74c6b",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 9247585,
+        "source_aliases": [
+          "Willowbrae Academy - Structural Calculations.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Willowbrae Academy - Structural Calculations.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_lotes4_76db82644184cd9c",
+      "project_key": "received_artemis_lotes123_20261024",
+      "title": "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf",
+      "source_sha256": "76db82644184cd9c564e87c689daa755cebcf1dc7ac9418df4bb8e6185c5f61a",
+      "page_count": 22,
+      "asset_id": "asset_76db82644184cd9c564e87c6",
+      "index_asset_id": "asset_e35cc5d405787f66fcfaf072",
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "structural_page_inventory_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "received_source_document",
+        "file_type": "PDF",
+        "bytes": 6008147,
+        "source_aliases": [
+          "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf"
+        ],
+        "index_source": "structural inventory of exact PDF",
+        "review_caveats": [
+          "Source-reported opportunity drawing set."
+        ],
+        "business_identity_status": "source_reported_pending_reconciliation",
+        "measurements_present": false,
+        "boq_present": false
+      },
+      "revisions": [],
+      "references": [
+        "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf"
+      ],
+      "ocr": {
+        "status": "not_performed",
+        "flagged_pages": []
+      },
+      "calibration": {
+        "status": "pending_unverified_per_subview",
+        "measurements_created": false
+      },
+      "measurements": [],
+      "boq": []
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_0054011def14910f6e3ff8d1",
+      "path": "assets/00/0054011def14910f6e3ff8d1ab9aca90abbfed5080447865e255815d4d973b3d.docx",
+      "media_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size_bytes": 63362,
+      "sha256": "0054011def14910f6e3ff8d1ab9aca90abbfed5080447865e255815d4d973b3d"
+    },
+    {
+      "id": "asset_02ee297efc574c049fe5d900",
+      "path": "assets/02/02ee297efc574c049fe5d900fd81a272647567f530efcae5728602612d08c781.json",
+      "media_type": "application/json",
+      "size_bytes": 1334,
+      "sha256": "02ee297efc574c049fe5d900fd81a272647567f530efcae5728602612d08c781"
+    },
+    {
+      "id": "asset_0b7a59c8011cf580dd9e7525",
+      "path": "assets/0b/0b7a59c8011cf580dd9e7525a73f70bfa734fbe9bf00921e816d1d1aa07762a3.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 211661,
+      "sha256": "0b7a59c8011cf580dd9e7525a73f70bfa734fbe9bf00921e816d1d1aa07762a3"
+    },
+    {
+      "id": "asset_0bace2aceb041d1b6b088093",
+      "path": "assets/0b/0bace2aceb041d1b6b08809347d3fd7956480e5b0235d13f4ac27846ce960e8c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 3956484,
+      "sha256": "0bace2aceb041d1b6b08809347d3fd7956480e5b0235d13f4ac27846ce960e8c"
+    },
+    {
+      "id": "asset_0d4883f542c894c7a26e2bd8",
+      "path": "assets/0d/0d4883f542c894c7a26e2bd84cced1fd1f81ee98bf904d2ebec241424d09b11f.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 250933,
+      "sha256": "0d4883f542c894c7a26e2bd84cced1fd1f81ee98bf904d2ebec241424d09b11f"
+    },
+    {
+      "id": "asset_10443220659dcdb986b010de",
+      "path": "assets/10/10443220659dcdb986b010dedb938d5acd5577051f21bfd20e46e09f0e9169fd.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 52379682,
+      "sha256": "10443220659dcdb986b010dedb938d5acd5577051f21bfd20e46e09f0e9169fd"
+    },
+    {
+      "id": "asset_11aa948a056853fdc1ca55c7",
+      "path": "assets/11/11aa948a056853fdc1ca55c732bfe1655788cca360e8663bbad5ab7d20e59e66.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 13027584,
+      "sha256": "11aa948a056853fdc1ca55c732bfe1655788cca360e8663bbad5ab7d20e59e66"
+    },
+    {
+      "id": "asset_1248e14d7b8df2b7dacabcfe",
+      "path": "assets/12/1248e14d7b8df2b7dacabcfed9648dbe0e81d74cc8f74acf7e7dc8ee079cb874.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 6897838,
+      "sha256": "1248e14d7b8df2b7dacabcfed9648dbe0e81d74cc8f74acf7e7dc8ee079cb874"
+    },
+    {
+      "id": "asset_124eea21caa28820f5770b95",
+      "path": "assets/12/124eea21caa28820f5770b9562e4a5312884a295608a55500c1ecbf7f62efcd8.json",
+      "media_type": "application/json",
+      "size_bytes": 6006,
+      "sha256": "124eea21caa28820f5770b9562e4a5312884a295608a55500c1ecbf7f62efcd8"
+    },
+    {
+      "id": "asset_1293e820e4ce142f46c28e22",
+      "path": "assets/12/1293e820e4ce142f46c28e22f7108f0c1b79dbe73e2968c630955fe0ff3921bf.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 13341929,
+      "sha256": "1293e820e4ce142f46c28e22f7108f0c1b79dbe73e2968c630955fe0ff3921bf"
+    },
+    {
+      "id": "asset_146589a5c14ed4e324dddbb9",
+      "path": "assets/14/146589a5c14ed4e324dddbb9e64fefdfc7a6d84252f9fedd1064931fe93f3f65.json",
+      "media_type": "application/json",
+      "size_bytes": 407,
+      "sha256": "146589a5c14ed4e324dddbb9e64fefdfc7a6d84252f9fedd1064931fe93f3f65"
+    },
+    {
+      "id": "asset_151acb3878b7c125bf4d9165",
+      "path": "assets/15/151acb3878b7c125bf4d91659158e1b0ec837ea1fcd3524f1fe317b7bef18549.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 38782803,
+      "sha256": "151acb3878b7c125bf4d91659158e1b0ec837ea1fcd3524f1fe317b7bef18549"
+    },
+    {
+      "id": "asset_1545f77fb44407aeefa594c4",
+      "path": "assets/15/1545f77fb44407aeefa594c4fea47039affb47971dc57d463c98220b5a018c10.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 386365,
+      "sha256": "1545f77fb44407aeefa594c4fea47039affb47971dc57d463c98220b5a018c10"
+    },
+    {
+      "id": "asset_15ce947a3388439f83059db2",
+      "path": "assets/15/15ce947a3388439f83059db2eee8f0eef0857562ddca619c4037e62ac411ac4c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 45565758,
+      "sha256": "15ce947a3388439f83059db2eee8f0eef0857562ddca619c4037e62ac411ac4c"
+    },
+    {
+      "id": "asset_1604f5b601f2cb56277fb86d",
+      "path": "assets/16/1604f5b601f2cb56277fb86d1ebd698d11b7db07a8d9586e519f1b1ee6e5c64e.json",
+      "media_type": "application/json",
+      "size_bytes": 52244,
+      "sha256": "1604f5b601f2cb56277fb86d1ebd698d11b7db07a8d9586e519f1b1ee6e5c64e"
+    },
+    {
+      "id": "asset_178e489fa0e57a569a559301",
+      "path": "assets/17/178e489fa0e57a569a559301f3484f422bc0c399c9b55bda451179453c65f35c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 108587,
+      "sha256": "178e489fa0e57a569a559301f3484f422bc0c399c9b55bda451179453c65f35c"
+    },
+    {
+      "id": "asset_1894864d2b794f6e481a0649",
+      "path": "assets/18/1894864d2b794f6e481a06490f89073d38242bf5ce563fe21a4fc27b707f2fc0.json",
+      "media_type": "application/json",
+      "size_bytes": 3704,
+      "sha256": "1894864d2b794f6e481a06490f89073d38242bf5ce563fe21a4fc27b707f2fc0"
+    },
+    {
+      "id": "asset_1898a65e5cfa59d77dd1d976",
+      "path": "assets/18/1898a65e5cfa59d77dd1d976a32b2cd694165ecda48433ef95b489297d791dd3.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 376036,
+      "sha256": "1898a65e5cfa59d77dd1d976a32b2cd694165ecda48433ef95b489297d791dd3"
+    },
+    {
+      "id": "asset_1ab4149daa28f625bd6d4682",
+      "path": "assets/1a/1ab4149daa28f625bd6d46822ab0a715701309a34d98ca16b1ff550aa89a4b3c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 81645,
+      "sha256": "1ab4149daa28f625bd6d46822ab0a715701309a34d98ca16b1ff550aa89a4b3c"
+    },
+    {
+      "id": "asset_1b70bb3bd4f381d57255157d",
+      "path": "assets/1b/1b70bb3bd4f381d57255157ddcd04d8d95d7d01f6264f3962af36b3a11313fd5.json",
+      "media_type": "application/json",
+      "size_bytes": 13886,
+      "sha256": "1b70bb3bd4f381d57255157ddcd04d8d95d7d01f6264f3962af36b3a11313fd5"
+    },
+    {
+      "id": "asset_1e07e5ab04d20e9b468c8ca5",
+      "path": "assets/1e/1e07e5ab04d20e9b468c8ca5f19129753132c11e102031cb79e3f26d43599880.json",
+      "media_type": "application/json",
+      "size_bytes": 26475,
+      "sha256": "1e07e5ab04d20e9b468c8ca5f19129753132c11e102031cb79e3f26d43599880"
+    },
+    {
+      "id": "asset_1f0ad0dba5cad2e53ae53ee8",
+      "path": "assets/1f/1f0ad0dba5cad2e53ae53ee852e93751e34dd87b900370aa0f78c3d6125436d5.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 73528305,
+      "sha256": "1f0ad0dba5cad2e53ae53ee852e93751e34dd87b900370aa0f78c3d6125436d5"
+    },
+    {
+      "id": "asset_22c6d3ee054a3ce8df816bb8",
+      "path": "assets/22/22c6d3ee054a3ce8df816bb8408fb4f2192b594df0f99e2a47d3d62ff80697b4.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 62384031,
+      "sha256": "22c6d3ee054a3ce8df816bb8408fb4f2192b594df0f99e2a47d3d62ff80697b4"
+    },
+    {
+      "id": "asset_26530bc6055cf9d7886ecdb3",
+      "path": "assets/26/26530bc6055cf9d7886ecdb32fe51eba16d3e939583754aae82af250acb999fc.json",
+      "media_type": "application/json",
+      "size_bytes": 20903,
+      "sha256": "26530bc6055cf9d7886ecdb32fe51eba16d3e939583754aae82af250acb999fc"
+    },
+    {
+      "id": "asset_298d1dc3cfb080132beb6b11",
+      "path": "assets/29/298d1dc3cfb080132beb6b115ce7a9618d9b6a894866a761471ff551f50b8557.json",
+      "media_type": "application/json",
+      "size_bytes": 5543,
+      "sha256": "298d1dc3cfb080132beb6b115ce7a9618d9b6a894866a761471ff551f50b8557"
+    },
+    {
+      "id": "asset_31b7c300ee1c830d6b3c619e",
+      "path": "assets/31/31b7c300ee1c830d6b3c619e7988b862765e3e9ea6c3150701c66ae5d9cd3efb.json",
+      "media_type": "application/json",
+      "size_bytes": 4329,
+      "sha256": "31b7c300ee1c830d6b3c619e7988b862765e3e9ea6c3150701c66ae5d9cd3efb"
+    },
+    {
+      "id": "asset_33bd6eaa0079dd67d3f896f6",
+      "path": "assets/33/33bd6eaa0079dd67d3f896f635046002ec5a9fc16fc408c23b5cb63dcc975830.json",
+      "media_type": "application/json",
+      "size_bytes": 1669,
+      "sha256": "33bd6eaa0079dd67d3f896f635046002ec5a9fc16fc408c23b5cb63dcc975830"
+    },
+    {
+      "id": "asset_39e08b196b5a2dc109589d07",
+      "path": "assets/39/39e08b196b5a2dc109589d07f515e0493eabf607d33d716a347914dff851a28c.json",
+      "media_type": "application/json",
+      "size_bytes": 16348,
+      "sha256": "39e08b196b5a2dc109589d07f515e0493eabf607d33d716a347914dff851a28c"
+    },
+    {
+      "id": "asset_3ea6cbf4d23390c2f26371dd",
+      "path": "assets/3e/3ea6cbf4d23390c2f26371dd8b843bb95af80ef35d6ca1096e5ff0bf989c61df.json",
+      "media_type": "application/json",
+      "size_bytes": 7641,
+      "sha256": "3ea6cbf4d23390c2f26371dd8b843bb95af80ef35d6ca1096e5ff0bf989c61df"
+    },
+    {
+      "id": "asset_3f2fafda2dbad7ad324c0d6e",
+      "path": "assets/3f/3f2fafda2dbad7ad324c0d6ea2e2f84f2d1ebc3892726cc8a4017dab04a8d562.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 19428620,
+      "sha256": "3f2fafda2dbad7ad324c0d6ea2e2f84f2d1ebc3892726cc8a4017dab04a8d562"
+    },
+    {
+      "id": "asset_41182597be688dd6abeae10e",
+      "path": "assets/41/41182597be688dd6abeae10e677f235026c02ea8d9c012a11f0e51bf236a3e09.json",
+      "media_type": "application/json",
+      "size_bytes": 17298,
+      "sha256": "41182597be688dd6abeae10e677f235026c02ea8d9c012a11f0e51bf236a3e09"
+    },
+    {
+      "id": "asset_42398c7083b637caf08a7ae2",
+      "path": "assets/42/42398c7083b637caf08a7ae2acd964e190f9fccf5345432a373e92ac01cbfb0d.docx",
+      "media_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size_bytes": 483020,
+      "sha256": "42398c7083b637caf08a7ae2acd964e190f9fccf5345432a373e92ac01cbfb0d"
+    },
+    {
+      "id": "asset_478b755f1a17259c90d34d57",
+      "path": "assets/47/478b755f1a17259c90d34d570db776d7619282254f0fc3b51613f497a98bd21b.json",
+      "media_type": "application/json",
+      "size_bytes": 2879,
+      "sha256": "478b755f1a17259c90d34d570db776d7619282254f0fc3b51613f497a98bd21b"
+    },
+    {
+      "id": "asset_47a5f1bd617eea198b00888f",
+      "path": "assets/47/47a5f1bd617eea198b00888fd4f3beaa1ae51ae5d9cf5269b9aecc791319b8e8.json",
+      "media_type": "application/json",
+      "size_bytes": 1318,
+      "sha256": "47a5f1bd617eea198b00888fd4f3beaa1ae51ae5d9cf5269b9aecc791319b8e8"
+    },
+    {
+      "id": "asset_4eb240ddb758439007a6448b",
+      "path": "assets/4e/4eb240ddb758439007a6448bb541010cfc597f033f9c08d8ae66964c49fe1c85.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 17634165,
+      "sha256": "4eb240ddb758439007a6448bb541010cfc597f033f9c08d8ae66964c49fe1c85"
+    },
+    {
+      "id": "asset_4ff74b464bf8ae0d2f1683a1",
+      "path": "assets/4f/4ff74b464bf8ae0d2f1683a172cefecdb04be83054444aaef6a801b9aed27738.json",
+      "media_type": "application/json",
+      "size_bytes": 5803,
+      "sha256": "4ff74b464bf8ae0d2f1683a172cefecdb04be83054444aaef6a801b9aed27738"
+    },
+    {
+      "id": "asset_560243128f99d3c1b6a86b84",
+      "path": "assets/56/560243128f99d3c1b6a86b843aa1eb3b54b4dc472ec87e426019e9b0ee35aa14.json",
+      "media_type": "application/json",
+      "size_bytes": 12768,
+      "sha256": "560243128f99d3c1b6a86b843aa1eb3b54b4dc472ec87e426019e9b0ee35aa14"
+    },
+    {
+      "id": "asset_5ab42a7310b91c9da92d339a",
+      "path": "assets/5a/5ab42a7310b91c9da92d339a9d86d6871356c212213761ce2f0def09f3b53dfd.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 19791495,
+      "sha256": "5ab42a7310b91c9da92d339a9d86d6871356c212213761ce2f0def09f3b53dfd"
+    },
+    {
+      "id": "asset_5b4eab924a789b3e78df5c54",
+      "path": "assets/5b/5b4eab924a789b3e78df5c5450e2fa57ea24e9a41734a567f5e76ec1b131dc2a.json",
+      "media_type": "application/json",
+      "size_bytes": 10495,
+      "sha256": "5b4eab924a789b3e78df5c5450e2fa57ea24e9a41734a567f5e76ec1b131dc2a"
+    },
+    {
+      "id": "asset_5ef0686ea69c80eeb8eab9c2",
+      "path": "assets/5e/5ef0686ea69c80eeb8eab9c2dd8b3338af9e7cdc39d7dbd9d0e4385ce42c1161.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 128667,
+      "sha256": "5ef0686ea69c80eeb8eab9c2dd8b3338af9e7cdc39d7dbd9d0e4385ce42c1161"
+    },
+    {
+      "id": "asset_67fce9faba8efa2c8702bf52",
+      "path": "assets/67/67fce9faba8efa2c8702bf52032608a30eb297767fc82fdd3e79aa0caa23bd99.json",
+      "media_type": "application/json",
+      "size_bytes": 5683,
+      "sha256": "67fce9faba8efa2c8702bf52032608a30eb297767fc82fdd3e79aa0caa23bd99"
+    },
+    {
+      "id": "asset_6ec1d4b94fe02bccb60ec5ec",
+      "path": "assets/6e/6ec1d4b94fe02bccb60ec5ec673939e907027ec5c79c5e9823fd4c3e1ddfa119.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 33883621,
+      "sha256": "6ec1d4b94fe02bccb60ec5ec673939e907027ec5c79c5e9823fd4c3e1ddfa119"
+    },
+    {
+      "id": "asset_6ff6345aa27ae2a319a7cde8",
+      "path": "assets/6f/6ff6345aa27ae2a319a7cde839f537f1cb4e35af79d309dd0ab262d51e9c15c8.json",
+      "media_type": "application/json",
+      "size_bytes": 399,
+      "sha256": "6ff6345aa27ae2a319a7cde839f537f1cb4e35af79d309dd0ab262d51e9c15c8"
+    },
+    {
+      "id": "asset_7291052bf1ae75d4bc972e7d",
+      "path": "assets/72/7291052bf1ae75d4bc972e7d6bfaeea8e9f4c12f4be4b11f403384def1e55d09.json",
+      "media_type": "application/json",
+      "size_bytes": 3857,
+      "sha256": "7291052bf1ae75d4bc972e7d6bfaeea8e9f4c12f4be4b11f403384def1e55d09"
+    },
+    {
+      "id": "asset_7344b7b15a9314840abf0aa0",
+      "path": "assets/73/7344b7b15a9314840abf0aa00d2535a8ff153d10eac6e27e7cc652b4e11aafc3.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 23988594,
+      "sha256": "7344b7b15a9314840abf0aa00d2535a8ff153d10eac6e27e7cc652b4e11aafc3"
+    },
+    {
+      "id": "asset_74647b938affa806bb4efb89",
+      "path": "assets/74/74647b938affa806bb4efb898eb415a1d66052d7e8d027969020c7e0589648fc.json",
+      "media_type": "application/json",
+      "size_bytes": 471,
+      "sha256": "74647b938affa806bb4efb898eb415a1d66052d7e8d027969020c7e0589648fc"
+    },
+    {
+      "id": "asset_790bf85b85bb1b683b2da37f",
+      "path": "assets/79/790bf85b85bb1b683b2da37f8107975787a145bc6ec991f057ef9e1245bf4bcf.json",
+      "media_type": "application/json",
+      "size_bytes": 8227,
+      "sha256": "790bf85b85bb1b683b2da37f8107975787a145bc6ec991f057ef9e1245bf4bcf"
+    },
+    {
+      "id": "asset_7c81864593b224f9bb8ffd3c",
+      "path": "assets/7c/7c81864593b224f9bb8ffd3c8a02b1b783bf809215d042d417f34af0565efe23.json",
+      "media_type": "application/json",
+      "size_bytes": 5955,
+      "sha256": "7c81864593b224f9bb8ffd3c8a02b1b783bf809215d042d417f34af0565efe23"
+    },
+    {
+      "id": "asset_7f390e67b75a7ffc07397df9",
+      "path": "assets/7f/7f390e67b75a7ffc07397df9a72b5a52abf6c3ef888b71be781ddcfd0980680a.json",
+      "media_type": "application/json",
+      "size_bytes": 12009,
+      "sha256": "7f390e67b75a7ffc07397df9a72b5a52abf6c3ef888b71be781ddcfd0980680a"
+    },
+    {
+      "id": "asset_84c696f674582b0c569236ae",
+      "path": "assets/84/84c696f674582b0c569236ae5dd67291e90ff1d4b9c561dd8f1190a8223bedf2.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 2448672,
+      "sha256": "84c696f674582b0c569236ae5dd67291e90ff1d4b9c561dd8f1190a8223bedf2"
+    },
+    {
+      "id": "asset_86bb15bdc241230fe8218942",
+      "path": "assets/86/86bb15bdc241230fe821894267066ddf64c49c2cdae5a9ebc5f1486765056e81.json",
+      "media_type": "application/json",
+      "size_bytes": 621,
+      "sha256": "86bb15bdc241230fe821894267066ddf64c49c2cdae5a9ebc5f1486765056e81"
+    },
+    {
+      "id": "asset_896dc23b60462a7d6126e810",
+      "path": "assets/89/896dc23b60462a7d6126e81042da14ce63286efb78f474ace7e68bb8070c161d.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 133019,
+      "sha256": "896dc23b60462a7d6126e81042da14ce63286efb78f474ace7e68bb8070c161d"
+    },
+    {
+      "id": "asset_89e673ffb62e1ddd2ff701f1",
+      "path": "assets/89/89e673ffb62e1ddd2ff701f1cf4a3e5626c8bb43926bcd7a1b03c9757380c941.json",
+      "media_type": "application/json",
+      "size_bytes": 9434,
+      "sha256": "89e673ffb62e1ddd2ff701f1cf4a3e5626c8bb43926bcd7a1b03c9757380c941"
+    },
+    {
+      "id": "asset_8ac3df53ea3b097f30b46c0d",
+      "path": "assets/8a/8ac3df53ea3b097f30b46c0d697cda8e29436f12135a57fb5d9de0d7d05bdda7.json",
+      "media_type": "application/json",
+      "size_bytes": 27551,
+      "sha256": "8ac3df53ea3b097f30b46c0d697cda8e29436f12135a57fb5d9de0d7d05bdda7"
+    },
+    {
+      "id": "asset_8c71b8247afe46e7b1bdbb0b",
+      "path": "assets/8c/8c71b8247afe46e7b1bdbb0b23562a86614af4ba695984905ce5c55d09a8177a.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 19423999,
+      "sha256": "8c71b8247afe46e7b1bdbb0b23562a86614af4ba695984905ce5c55d09a8177a"
+    },
+    {
+      "id": "asset_8c89250d32080e77cd09caa5",
+      "path": "assets/8c/8c89250d32080e77cd09caa5d0a3c28654d39567fb046b4bda75038289276040.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 96423327,
+      "sha256": "8c89250d32080e77cd09caa5d0a3c28654d39567fb046b4bda75038289276040"
+    },
+    {
+      "id": "asset_9025160ab33387b282db4142",
+      "path": "assets/90/9025160ab33387b282db4142413877b021f1d9de80bd7d59bc64ff4b6fe54c68.json",
+      "media_type": "application/json",
+      "size_bytes": 19845,
+      "sha256": "9025160ab33387b282db4142413877b021f1d9de80bd7d59bc64ff4b6fe54c68"
+    },
+    {
+      "id": "asset_94df536f149171540b4db675",
+      "path": "assets/94/94df536f149171540b4db6754f18171c6ac55434e02aa00503c734a44cd41557.json",
+      "media_type": "application/json",
+      "size_bytes": 21957,
+      "sha256": "94df536f149171540b4db6754f18171c6ac55434e02aa00503c734a44cd41557"
+    },
+    {
+      "id": "asset_95bdf922b5f91e0f0980f79b",
+      "path": "assets/95/95bdf922b5f91e0f0980f79bf1849899c27b80ecf2095dd064e62d9dfe17b3ec.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 472741,
+      "sha256": "95bdf922b5f91e0f0980f79bf1849899c27b80ecf2095dd064e62d9dfe17b3ec"
+    },
+    {
+      "id": "asset_987d6e7ecdef99da313a8b9a",
+      "path": "assets/98/987d6e7ecdef99da313a8b9ad7b7ad58f98f15c5afb8c3d6e61f9083c92fb605.json",
+      "media_type": "application/json",
+      "size_bytes": 11379,
+      "sha256": "987d6e7ecdef99da313a8b9ad7b7ad58f98f15c5afb8c3d6e61f9083c92fb605"
+    },
+    {
+      "id": "asset_9dc0feb044c96a63ffc106da",
+      "path": "assets/9d/9dc0feb044c96a63ffc106daeb29849a4d0296358b71f6a267a5f1fecc4781cc.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 158487,
+      "sha256": "9dc0feb044c96a63ffc106daeb29849a4d0296358b71f6a267a5f1fecc4781cc"
+    },
+    {
+      "id": "asset_a21360978c9f000ad7358a5a",
+      "path": "assets/a2/a21360978c9f000ad7358a5a8583ca2d1066f66fa46427cba0fd7f5a1ef02c3c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 5261817,
+      "sha256": "a21360978c9f000ad7358a5a8583ca2d1066f66fa46427cba0fd7f5a1ef02c3c"
+    },
+    {
+      "id": "asset_a386871640193c99428271e4",
+      "path": "assets/a3/a386871640193c99428271e40f38c23503a96887398cf469f25cde619f98e31b.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 129571,
+      "sha256": "a386871640193c99428271e40f38c23503a96887398cf469f25cde619f98e31b"
+    },
+    {
+      "id": "asset_a41669fdc5b7646abccb8738",
+      "path": "assets/a4/a41669fdc5b7646abccb8738493c24ceed7e8ac0461e031fa8fd24f0734a30e4.json",
+      "media_type": "application/json",
+      "size_bytes": 5624,
+      "sha256": "a41669fdc5b7646abccb8738493c24ceed7e8ac0461e031fa8fd24f0734a30e4"
+    },
+    {
+      "id": "asset_ab2b5f81393a5537298d2ec8",
+      "path": "assets/ab/ab2b5f81393a5537298d2ec8c58bdcd914b15983d4906cd4cb24a90e94784af9.json",
+      "media_type": "application/json",
+      "size_bytes": 25409,
+      "sha256": "ab2b5f81393a5537298d2ec8c58bdcd914b15983d4906cd4cb24a90e94784af9"
+    },
+    {
+      "id": "asset_aba56421a0107c1dcf42db15",
+      "path": "assets/ab/aba56421a0107c1dcf42db1586bf3bd1d82193ac2c5172ea25bd51b04ae9c4fb.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 2959849,
+      "sha256": "aba56421a0107c1dcf42db1586bf3bd1d82193ac2c5172ea25bd51b04ae9c4fb"
+    },
+    {
+      "id": "asset_afb5cc0a502043fafd5205f3",
+      "path": "assets/af/afb5cc0a502043fafd5205f39b60314e999d7ce9c1c59aa66a89b5367d092567.json",
+      "media_type": "application/json",
+      "size_bytes": 15493,
+      "sha256": "afb5cc0a502043fafd5205f39b60314e999d7ce9c1c59aa66a89b5367d092567"
+    },
+    {
+      "id": "asset_b531478c509b55f55f4bd061",
+      "path": "assets/b5/b531478c509b55f55f4bd061773eff48d1f70e4245bd781f52fcae3f28af9ebb.json",
+      "media_type": "application/json",
+      "size_bytes": 7875,
+      "sha256": "b531478c509b55f55f4bd061773eff48d1f70e4245bd781f52fcae3f28af9ebb"
+    },
+    {
+      "id": "asset_b5a8f86a9bfff989191326d2",
+      "path": "assets/b5/b5a8f86a9bfff989191326d2346e7575a902b9eef62a02479e8b72802abf1694.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 1803883,
+      "sha256": "b5a8f86a9bfff989191326d2346e7575a902b9eef62a02479e8b72802abf1694"
+    },
+    {
+      "id": "asset_b8f38e171884faa553c9a7fe",
+      "path": "assets/b8/b8f38e171884faa553c9a7fe7b8fd2bff7f37287ca2ea4463af20670e1fa3d59.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 75939,
+      "sha256": "b8f38e171884faa553c9a7fe7b8fd2bff7f37287ca2ea4463af20670e1fa3d59"
+    },
+    {
+      "id": "asset_ba2119114b561e163ef68a5c",
+      "path": "assets/ba/ba2119114b561e163ef68a5ca76f489bc18dab3ce972beebfe62753ba73a0a7c.json",
+      "media_type": "application/json",
+      "size_bytes": 19642,
+      "sha256": "ba2119114b561e163ef68a5ca76f489bc18dab3ce972beebfe62753ba73a0a7c"
+    },
+    {
+      "id": "asset_bae732283b3703b479ae66e9",
+      "path": "assets/ba/bae732283b3703b479ae66e99ad3a494e4e690559fbb65ef113eb5611c5fb1f1.json",
+      "media_type": "application/json",
+      "size_bytes": 23676,
+      "sha256": "bae732283b3703b479ae66e99ad3a494e4e690559fbb65ef113eb5611c5fb1f1"
+    },
+    {
+      "id": "asset_bd33179afd9924c651b6f5bd",
+      "path": "assets/bd/bd33179afd9924c651b6f5bdc1ee9bef6080902916eae18dcf524349bf37ae63.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 38066046,
+      "sha256": "bd33179afd9924c651b6f5bdc1ee9bef6080902916eae18dcf524349bf37ae63"
+    },
+    {
+      "id": "asset_bfbc724bce155876675be01b",
+      "path": "assets/bf/bfbc724bce155876675be01b670ec1c007746766a2923a76dbea7e44db7c8c5f.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 192329,
+      "sha256": "bfbc724bce155876675be01b670ec1c007746766a2923a76dbea7e44db7c8c5f"
+    },
+    {
+      "id": "asset_bff48ffbb0f843f651171998",
+      "path": "assets/bf/bff48ffbb0f843f6511719988e84bb929d79eebf3322b4d026558a7bb62ec282.json",
+      "media_type": "application/json",
+      "size_bytes": 1970,
+      "sha256": "bff48ffbb0f843f6511719988e84bb929d79eebf3322b4d026558a7bb62ec282"
+    },
+    {
+      "id": "asset_c1016880c684d4e9a41dc6ce",
+      "path": "assets/c1/c1016880c684d4e9a41dc6ce20c270ad86582b86fb31571fe67a132a6bbbf7fa.json",
+      "media_type": "application/json",
+      "size_bytes": 15981,
+      "sha256": "c1016880c684d4e9a41dc6ce20c270ad86582b86fb31571fe67a132a6bbbf7fa"
+    },
+    {
+      "id": "asset_cb104959e0d8d0bf988dec9e",
+      "path": "assets/cb/cb104959e0d8d0bf988dec9e35f53ab531b29aef24a1c6b5dcad614945fd55c7.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 13516693,
+      "sha256": "cb104959e0d8d0bf988dec9e35f53ab531b29aef24a1c6b5dcad614945fd55c7"
+    },
+    {
+      "id": "asset_ccb235ea5408d859f5131757",
+      "path": "assets/cc/ccb235ea5408d859f513175784b25362ea0d01e1ae9fe8033110b58e4a7785da.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 1281330,
+      "sha256": "ccb235ea5408d859f513175784b25362ea0d01e1ae9fe8033110b58e4a7785da"
+    },
+    {
+      "id": "asset_d091ed5d3e838519ca2722ac",
+      "path": "assets/d0/d091ed5d3e838519ca2722ac6a68507f736b3942f6a617123a32f48ef2ac932f.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 5953905,
+      "sha256": "d091ed5d3e838519ca2722ac6a68507f736b3942f6a617123a32f48ef2ac932f"
+    },
+    {
+      "id": "asset_d443671f9a6baa22079ff0a8",
+      "path": "assets/d4/d443671f9a6baa22079ff0a83c475d630d58b0fc83f8b8bbb5c7b3361d4c54bb.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 239670,
+      "sha256": "d443671f9a6baa22079ff0a83c475d630d58b0fc83f8b8bbb5c7b3361d4c54bb"
+    },
+    {
+      "id": "asset_d472cbb177e59f054b176dc3",
+      "path": "assets/d4/d472cbb177e59f054b176dc33920487fc324930446950a775b3ca57e783d0978.json",
+      "media_type": "application/json",
+      "size_bytes": 29278,
+      "sha256": "d472cbb177e59f054b176dc33920487fc324930446950a775b3ca57e783d0978"
+    },
+    {
+      "id": "asset_db711b449a8118235da50690",
+      "path": "assets/db/db711b449a8118235da50690858d169d50d8336297074e946198291e095cb613.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 161414,
+      "sha256": "db711b449a8118235da50690858d169d50d8336297074e946198291e095cb613"
+    },
+    {
+      "id": "asset_dc2d01b357522e10bcc77f80",
+      "path": "assets/dc/dc2d01b357522e10bcc77f803c5d001d263600a7f560e4868caa31bc0dd2f7f0.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 69974671,
+      "sha256": "dc2d01b357522e10bcc77f803c5d001d263600a7f560e4868caa31bc0dd2f7f0"
+    },
+    {
+      "id": "asset_dd36ab7bc7c97ff8ea52d445",
+      "path": "assets/dd/dd36ab7bc7c97ff8ea52d4457421f215b8622caf5ad89e1b71c47bcecc663ac4.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 134967,
+      "sha256": "dd36ab7bc7c97ff8ea52d4457421f215b8622caf5ad89e1b71c47bcecc663ac4"
+    },
+    {
+      "id": "asset_dea74dffc33d41b2dc50e297",
+      "path": "assets/de/dea74dffc33d41b2dc50e29700ef143d429d65ba605072be84b2971d93c0c135.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 132541,
+      "sha256": "dea74dffc33d41b2dc50e29700ef143d429d65ba605072be84b2971d93c0c135"
+    },
+    {
+      "id": "asset_df922117a3d04aea178ae009",
+      "path": "assets/df/df922117a3d04aea178ae009b5a417b97d90742a26312737e1c4be0c1d5b431e.json",
+      "media_type": "application/json",
+      "size_bytes": 786,
+      "sha256": "df922117a3d04aea178ae009b5a417b97d90742a26312737e1c4be0c1d5b431e"
+    },
+    {
+      "id": "asset_e2ee80fbd8457c4a8d197c1f",
+      "path": "assets/e2/e2ee80fbd8457c4a8d197c1f3ae4a6506382f2fcf4602c4432a20fa1ae661be2.json",
+      "media_type": "application/json",
+      "size_bytes": 18342,
+      "sha256": "e2ee80fbd8457c4a8d197c1f3ae4a6506382f2fcf4602c4432a20fa1ae661be2"
+    },
+    {
+      "id": "asset_e71df919b3d34c6bcb973a2a",
+      "path": "assets/e7/e71df919b3d34c6bcb973a2a4fb32e89b8b0db59a83ad639e5f49a1f35f751ea.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 33230852,
+      "sha256": "e71df919b3d34c6bcb973a2a4fb32e89b8b0db59a83ad639e5f49a1f35f751ea"
+    },
+    {
+      "id": "asset_ecbcdc63479492a6a4d958b3",
+      "path": "assets/ec/ecbcdc63479492a6a4d958b39fdbc26337c1cefcd248c5c36a7e34dea2c5355b.json",
+      "media_type": "application/json",
+      "size_bytes": 4069,
+      "sha256": "ecbcdc63479492a6a4d958b39fdbc26337c1cefcd248c5c36a7e34dea2c5355b"
+    },
+    {
+      "id": "asset_eecafae4a283803b8dfca502",
+      "path": "assets/ee/eecafae4a283803b8dfca502c69a28c5668ff016b534b43cd873bce2f71b995d.json",
+      "media_type": "application/json",
+      "size_bytes": 7850,
+      "sha256": "eecafae4a283803b8dfca502c69a28c5668ff016b534b43cd873bce2f71b995d"
+    },
+    {
+      "id": "asset_f83f1136f0d8c7a2f5b07d4a",
+      "path": "assets/f8/f83f1136f0d8c7a2f5b07d4a1f1e922392c5d79e0a6563b6fd8dc644f591615e.json",
+      "media_type": "application/json",
+      "size_bytes": 46481,
+      "sha256": "f83f1136f0d8c7a2f5b07d4a1f1e922392c5d79e0a6563b6fd8dc644f591615e"
+    },
+    {
+      "id": "asset_f8c5076aa6be3285727b40f9",
+      "path": "assets/f8/f8c5076aa6be3285727b40f9289a18239b6cefbe591ece349c4683f98889b490.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 68848766,
+      "sha256": "f8c5076aa6be3285727b40f9289a18239b6cefbe591ece349c4683f98889b490"
+    },
+    {
+      "id": "asset_fae9497929a5c84a05dd259b",
+      "path": "assets/fa/fae9497929a5c84a05dd259b59c0de1eb52f89ca7b426a1c636f48ffe99c21ab.json",
+      "media_type": "application/json",
+      "size_bytes": 1489,
+      "sha256": "fae9497929a5c84a05dd259b59c0de1eb52f89ca7b426a1c636f48ffe99c21ab"
+    },
+    {
+      "id": "asset_fb7d4d0d31f7b742ee3c6b0d",
+      "path": "assets/fb/fb7d4d0d31f7b742ee3c6b0dcbd4341e17b77236bdc7071474e779ff0c54b1ae.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 736814,
+      "sha256": "fb7d4d0d31f7b742ee3c6b0dcbd4341e17b77236bdc7071474e779ff0c54b1ae"
+    },
+    {
+      "id": "asset_fbbb873f35fd6364a367f32f",
+      "path": "assets/fb/fbbb873f35fd6364a367f32f5798815fecc0d81e5d708825f79c705b12472885.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 4314484,
+      "sha256": "fbbb873f35fd6364a367f32f5798815fecc0d81e5d708825f79c705b12472885"
+    },
+    {
+      "id": "asset_fe558a76fb8a5d791a8775b5",
+      "path": "assets/fe/fe558a76fb8a5d791a8775b58d039a9e6ff1c462fbba010bf809671e4e7a675b.json",
+      "media_type": "application/json",
+      "size_bytes": 6721,
+      "sha256": "fe558a76fb8a5d791a8775b58d039a9e6ff1c462fbba010bf809671e4e7a675b"
+    },
+    {
+      "id": "asset_1b79da7bc73e530bc6dd3fed",
+      "path": "assets/1b/1b79da7bc73e530bc6dd3fed7d7472ef74163c0088cd413a11b2b33eb0d2bf86.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 8175240,
+      "sha256": "1b79da7bc73e530bc6dd3fed7d7472ef74163c0088cd413a11b2b33eb0d2bf86"
+    },
+    {
+      "id": "asset_5d83edb6ba83dd686563a9c1",
+      "path": "assets/5d/5d83edb6ba83dd686563a9c15cf367e4b05a402f672f53dd7345c7472db74b74.json",
+      "media_type": "application/json",
+      "size_bytes": 5144,
+      "sha256": "5d83edb6ba83dd686563a9c15cf367e4b05a402f672f53dd7345c7472db74b74"
+    },
+    {
+      "id": "asset_9308f2305ac4ebdcc5ea65ed",
+      "path": "assets/93/9308f2305ac4ebdcc5ea65ed040bafca00ea34ccdba9c71d67c7879921f31c05.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 4525154,
+      "sha256": "9308f2305ac4ebdcc5ea65ed040bafca00ea34ccdba9c71d67c7879921f31c05"
+    },
+    {
+      "id": "asset_5fef12abe70c0b5181d647ea",
+      "path": "assets/5f/5fef12abe70c0b5181d647eaa585476504342064d5a330cdc030052e38936834.json",
+      "media_type": "application/json",
+      "size_bytes": 979,
+      "sha256": "5fef12abe70c0b5181d647eaa585476504342064d5a330cdc030052e38936834"
+    },
+    {
+      "id": "asset_a21f463e34d415f36467efb6",
+      "path": "assets/a2/a21f463e34d415f36467efb6a914c4d72e16e17e70e5d65fdb8abb5d2efce41f.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 19480503,
+      "sha256": "a21f463e34d415f36467efb6a914c4d72e16e17e70e5d65fdb8abb5d2efce41f"
+    },
+    {
+      "id": "asset_8433e1ed531c490c43e74c6b",
+      "path": "assets/84/8433e1ed531c490c43e74c6be9c2ad3aa5526597591ea45cdb35462aed0d263b.json",
+      "media_type": "application/json",
+      "size_bytes": 10654,
+      "sha256": "8433e1ed531c490c43e74c6be9c2ad3aa5526597591ea45cdb35462aed0d263b"
+    },
+    {
+      "id": "asset_bddeb99c13d103e47c1659f7",
+      "path": "assets/bd/bddeb99c13d103e47c1659f7055fc39f6670978829884e4901701291bb69d24b.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 82247733,
+      "sha256": "bddeb99c13d103e47c1659f7055fc39f6670978829884e4901701291bb69d24b"
+    },
+    {
+      "id": "asset_afc3baa753e6cdb9f5272ee4",
+      "path": "assets/af/afc3baa753e6cdb9f5272ee47f2fe065f762a3ed9b38dc72db5cd81d5a41efde.json",
+      "media_type": "application/json",
+      "size_bytes": 19207,
+      "sha256": "afc3baa753e6cdb9f5272ee47f2fe065f762a3ed9b38dc72db5cd81d5a41efde"
+    },
+    {
+      "id": "asset_3fe596517ccbf713d2a5074a",
+      "path": "assets/3f/3fe596517ccbf713d2a5074ad46fc4d1780713b7e5897f5d844e471a6d888173.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 14322067,
+      "sha256": "3fe596517ccbf713d2a5074ad46fc4d1780713b7e5897f5d844e471a6d888173"
+    },
+    {
+      "id": "asset_430c5f543735896517a65791",
+      "path": "assets/43/430c5f543735896517a65791681c6a43f0ec1322672857adff017c1f17b39e9d.json",
+      "media_type": "application/json",
+      "size_bytes": 9134,
+      "sha256": "430c5f543735896517a65791681c6a43f0ec1322672857adff017c1f17b39e9d"
+    },
+    {
+      "id": "asset_cb426092e94f35ad37d1cf37",
+      "path": "assets/cb/cb426092e94f35ad37d1cf37f1984cce4dd13bdeaa56edc9a968d4a488180a0a.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 26575341,
+      "sha256": "cb426092e94f35ad37d1cf37f1984cce4dd13bdeaa56edc9a968d4a488180a0a"
+    },
+    {
+      "id": "asset_750ddc8ac6f2caea05827bf6",
+      "path": "assets/75/750ddc8ac6f2caea05827bf6f2febbc42e52c257a6d171d423071cdf98be2083.json",
+      "media_type": "application/json",
+      "size_bytes": 6094,
+      "sha256": "750ddc8ac6f2caea05827bf6f2febbc42e52c257a6d171d423071cdf98be2083"
+    },
+    {
+      "id": "asset_a0ebb98657d4efea3bd46cc2",
+      "path": "assets/a0/a0ebb98657d4efea3bd46cc2e4b4228873c766817b312921c8f2097be35823fd.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 55749873,
+      "sha256": "a0ebb98657d4efea3bd46cc2e4b4228873c766817b312921c8f2097be35823fd"
+    },
+    {
+      "id": "asset_7737da91621972f0a67a6656",
+      "path": "assets/77/7737da91621972f0a67a665630c115c0c24b714c872c459371484fb15824fe97.json",
+      "media_type": "application/json",
+      "size_bytes": 3624,
+      "sha256": "7737da91621972f0a67a665630c115c0c24b714c872c459371484fb15824fe97"
+    },
+    {
+      "id": "asset_f795d7584b47e3b372bc2cd6",
+      "path": "assets/f7/f795d7584b47e3b372bc2cd68a1f72f1ece95072041d355b89bc4d29cec144f6.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 70840737,
+      "sha256": "f795d7584b47e3b372bc2cd68a1f72f1ece95072041d355b89bc4d29cec144f6"
+    },
+    {
+      "id": "asset_2109254eaa29f12c4e1cb1f6",
+      "path": "assets/21/2109254eaa29f12c4e1cb1f61e78672f3ff716d59010311393dc0e0a217e1997.json",
+      "media_type": "application/json",
+      "size_bytes": 29822,
+      "sha256": "2109254eaa29f12c4e1cb1f61e78672f3ff716d59010311393dc0e0a217e1997"
+    },
+    {
+      "id": "asset_dad385680491c2849ab24c59",
+      "path": "assets/da/dad385680491c2849ab24c59a6d5c1270f514642e5155b394bb09dbac642908b.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 752096,
+      "sha256": "dad385680491c2849ab24c59a6d5c1270f514642e5155b394bb09dbac642908b"
+    },
+    {
+      "id": "asset_865616d02a39d05e0b56fcf2",
+      "path": "assets/86/865616d02a39d05e0b56fcf2e74fb4e7502943bc3f2c8f77867b5af439eb4aa3.json",
+      "media_type": "application/json",
+      "size_bytes": 2484,
+      "sha256": "865616d02a39d05e0b56fcf2e74fb4e7502943bc3f2c8f77867b5af439eb4aa3"
+    },
+    {
+      "id": "asset_d54caa5a46d15449a961731b",
+      "path": "assets/d5/d54caa5a46d15449a961731bc6b835540c725b1473343a3f08055c4afcf889d6.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 71100941,
+      "sha256": "d54caa5a46d15449a961731bc6b835540c725b1473343a3f08055c4afcf889d6"
+    },
+    {
+      "id": "asset_bb56bc68903f3c84060580b2",
+      "path": "assets/bb/bb56bc68903f3c84060580b2fd1a44d45668fe1341c985bb81ed80b3ced9557d.json",
+      "media_type": "application/json",
+      "size_bytes": 15594,
+      "sha256": "bb56bc68903f3c84060580b2fd1a44d45668fe1341c985bb81ed80b3ced9557d"
+    },
+    {
+      "id": "asset_3bab8a61f3578be7df2a5f75",
+      "path": "assets/3b/3bab8a61f3578be7df2a5f75a234b7abb6814210bf48c10622ac9cae83c979c3.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 9247585,
+      "sha256": "3bab8a61f3578be7df2a5f75a234b7abb6814210bf48c10622ac9cae83c979c3"
+    },
+    {
+      "id": "asset_76db82644184cd9c564e87c6",
+      "path": "assets/76/76db82644184cd9c564e87c689daa755cebcf1dc7ac9418df4bb8e6185c5f61a.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 6008147,
+      "sha256": "76db82644184cd9c564e87c689daa755cebcf1dc7ac9418df4bb8e6185c5f61a"
+    },
+    {
+      "id": "asset_e35cc5d405787f66fcfaf072",
+      "path": "assets/e3/e35cc5d405787f66fcfaf072caad4d70dd81726499970b3e8cde3f8f187e8b97.json",
+      "media_type": "application/json",
+      "size_bytes": 4384,
+      "sha256": "e35cc5d405787f66fcfaf072caad4d70dd81726499970b3e8cde3f8f187e8b97"
+    }
+  ],
+  "bundle_id": "tayco-9ac5cedabb2d9c01aeedff86a88f028b25d4e96d46e9d40b6f666598a83a0e20"
+}

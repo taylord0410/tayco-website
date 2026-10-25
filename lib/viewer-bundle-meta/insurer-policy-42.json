@@ -1,0 +1,517 @@
+{
+  "schemaVersion": "tayco-insurer-review-policy/v1",
+  "tenantId": "tayco_llc",
+  "period": "2026-10",
+  "sourceSha256": "0da462190dc8c169bc635ada9e45103931aa4a4d1639855cb9a78aa36620bbb4",
+  "bundleId": "tayco-9ac5cedabb2d9c01aeedff86a88f028b25d4e96d46e9d40b6f666598a83a0e20",
+  "manifestSha256": "68ba5da0bcfc808a0404b57fe894db557f1fb1fae2c0724177acf68d66aeaaf2",
+  "relationsId": "relations-63ad9f0190c1ac9b596ba64a673615dce92f495764fecd4fe9bb7ece20ffddb2",
+  "opportunityIds": [
+    "reported-opportunity-2",
+    "reported-opportunity-3",
+    "reported-opportunity-4",
+    "reported-opportunity-5",
+    "reported-opportunity-10",
+    "reported-opportunity-11",
+    "reported-opportunity-12",
+    "reported-opportunity-13",
+    "reported-opportunity-15",
+    "reported-opportunity-16",
+    "reported-opportunity-17",
+    "reported-opportunity-18",
+    "reported-opportunity-19",
+    "reported-opportunity-20",
+    "reported-opportunity-21",
+    "reported-opportunity-22",
+    "reported-opportunity-23",
+    "reported-opportunity-6",
+    "reported-opportunity-7",
+    "reported-opportunity-8",
+    "reported-opportunity-9",
+    "reported-opportunity-14",
+    "reported-opportunity-24",
+    "reported-opportunity-25",
+    "reported-opportunity-26",
+    "reported-opportunity-27",
+    "reported-opportunity-28",
+    "reported-opportunity-29",
+    "reported-opportunity-30",
+    "reported-opportunity-31",
+    "reported-opportunity-32",
+    "reported-opportunity-33",
+    "reported-opportunity-34",
+    "reported-opportunity-35",
+    "reported-opportunity-36",
+    "reported-opportunity-37",
+    "reported-opportunity-38",
+    "reported-opportunity-39",
+    "reported-opportunity-40",
+    "reported-opportunity-41",
+    "reported-opportunity-42",
+    "reported-opportunity-43"
+  ],
+  "documents": [
+    {
+      "projectId": "takeoff-project-407f145f0c80530677758d1fb3da7a6a52ac0e94b0ee29f826624047c4352c3b",
+      "erpDocumentId": "takeoff-document-d575bc43151824ddf706c994ad2f314e0b1f6a877b643ece0abeecd1a791b533",
+      "viewerDocumentId": "doc_kroger_gre_22c6d3ee054a3ce8",
+      "contextKey": "kroger_greenfield_j552",
+      "sourceSha256": "22c6d3ee054a3ce8df816bb8408fb4f2192b594df0f99e2a47d3d62ff80697b4",
+      "assetIds": [
+        "asset_1e07e5ab04d20e9b468c8ca5",
+        "asset_22c6d3ee054a3ce8df816bb8"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-f948318444fa3e16e634fdc0a28aeb42f5976473824e9d2acaaf61487274f702",
+      "erpDocumentId": "takeoff-document-1c8e43c7cdbf3eef618009ff6f65bd7a60f2b12fae25233762ee54e908e2796e",
+      "viewerDocumentId": "doc_dutch_bros_10443220659dcdb9",
+      "contextKey": "dutch_bros_il0403",
+      "sourceSha256": "10443220659dcdb986b010dedb938d5acd5577051f21bfd20e46e09f0e9169fd",
+      "assetIds": [
+        "asset_10443220659dcdb986b010de",
+        "asset_d472cbb177e59f054b176dc3"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-952fcc77ccf3149a14844a8597f0ecc8d73a96de298189a08c1a95af64e235ba",
+      "viewerDocumentId": "doc_received_f8c5076aa6be3285",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "f8c5076aa6be3285727b40f9289a18239b6cefbe591ece349c4683f98889b490",
+      "assetIds": [
+        "asset_ba2119114b561e163ef68a5c",
+        "asset_f8c5076aa6be3285727b40f9"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-cf1d2246a4f00215d6300eeff6eabcc8424bb127976bc74656afb0379cb94bc7",
+      "erpDocumentId": "takeoff-document-25c135dfc9fa3b046482a36dc694ca994fdd08aa58215103b90de5ade0c90e2b",
+      "viewerDocumentId": "doc_davenport__11aa948a056853fd",
+      "contextKey": "davenport_10766",
+      "sourceSha256": "11aa948a056853fdc1ca55c732bfe1655788cca360e8663bbad5ab7d20e59e66",
+      "assetIds": [
+        "asset_11aa948a056853fdc1ca55c7",
+        "asset_560243128f99d3c1b6a86b84"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35193cae13b26d92b2b23fdf98b86d823ac2c2ada4fc62abad8629a985a59112",
+      "erpDocumentId": "takeoff-document-439232189174dad2ae8b2028a3b6be513420a91ab5a3ad78901aa0f9c752fd43",
+      "viewerDocumentId": "doc_benjamin_c_0bace2aceb041d1b",
+      "contextKey": "benjamin_center",
+      "sourceSha256": "0bace2aceb041d1b6b08809347d3fd7956480e5b0235d13f4ac27846ce960e8c",
+      "assetIds": [
+        "asset_0bace2aceb041d1b6b088093",
+        "asset_26530bc6055cf9d7886ecdb3"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-839a907b259e56b4b400c576e361df5559b2ba53ba4830bf3e121bc65840ab09",
+      "viewerDocumentId": "doc_received_95bdf922b5f91e0f",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "95bdf922b5f91e0f0980f79bf1849899c27b80ecf2095dd064e62d9dfe17b3ec",
+      "assetIds": [
+        "asset_146589a5c14ed4e324dddbb9",
+        "asset_95bdf922b5f91e0f0980f79b"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-b91d944ef7a62fe8c2ceb1650dd6652aa9c7e47cb7cf17dfbe781f40d78b63c3",
+      "viewerDocumentId": "doc_received_b5a8f86a9bfff989",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "b5a8f86a9bfff989191326d2346e7575a902b9eef62a02479e8b72802abf1694",
+      "assetIds": [
+        "asset_31b7c300ee1c830d6b3c619e",
+        "asset_b5a8f86a9bfff989191326d2"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-90668401b4540e3e5202b253a59d1fc9864ecac574a0dc3a8828a3ab50398a92",
+      "erpDocumentId": "takeoff-document-e10b31a4ab3f491339121e122aed06bce46d0273d658da8b1ac9bb2ca5c15e6b",
+      "viewerDocumentId": "doc_freeway_in_b8f38e171884faa5",
+      "contextKey": "freeway_insurance_8262_belvidere",
+      "sourceSha256": "b8f38e171884faa553c9a7fe7b8fd2bff7f37287ca2ea4463af20670e1fa3d59",
+      "assetIds": [
+        "asset_74647b938affa806bb4efb89",
+        "asset_b8f38e171884faa553c9a7fe"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-d8ea5ac5c3d47d3dd9e29b8e638b766273cebbb7092778ba9515b4c08d573b1e",
+      "erpDocumentId": "takeoff-document-b3f51b4b27f0d8fff5aea3075be5ac393421face1ccbf3d81d47b28b5282f7bf",
+      "viewerDocumentId": "doc_cresco_lab_0d4883f542c894c7",
+      "contextKey": "cresco_labs_glowup_rollout_il",
+      "sourceSha256": "0d4883f542c894c7a26e2bd84cced1fd1f81ee98bf904d2ebec241424d09b11f",
+      "assetIds": [
+        "asset_0d4883f542c894c7a26e2bd8",
+        "asset_86bb15bdc241230fe8218942"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-d4127e2fa2f7714d688c5c5174516ec01173e62fab8d337b92206b4c3bd414c6",
+      "viewerDocumentId": "doc_received_7344b7b15a931484",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "7344b7b15a9314840abf0aa00d2535a8ff153d10eac6e27e7cc652b4e11aafc3",
+      "assetIds": [
+        "asset_7344b7b15a9314840abf0aa0",
+        "asset_afb5cc0a502043fafd5205f3"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-66e108df849998632dcf7f4e6e3525d4d0f488bb177479393a36eb925d970edd",
+      "erpDocumentId": "takeoff-document-73fb1c18ccc1c23b8edf76d6fdfa02896aa8027bd1e5ac2ad2f4b6e82ac94e5e",
+      "viewerDocumentId": "doc_mission_pe_1f0ad0dba5cad2e5",
+      "contextKey": "mission_pet_livewell_westfield_in",
+      "sourceSha256": "1f0ad0dba5cad2e53ae53ee852e93751e34dd87b900370aa0f78c3d6125436d5",
+      "assetIds": [
+        "asset_1f0ad0dba5cad2e53ae53ee8",
+        "asset_8ac3df53ea3b097f30b46c0d"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-96726a630ca0da618d98b936a8567f325a957a57342338c0cae1222bbab6a345",
+      "erpDocumentId": "takeoff-document-50e19a6ab28448e93b9c9c939599a17fdb29ee754001014ccc81acb73040d61c",
+      "viewerDocumentId": "doc_venice_gro_3f2fafda2dbad7ad",
+      "contextKey": "venice_grocery",
+      "sourceSha256": "3f2fafda2dbad7ad324c0d6ea2e2f84f2d1ebc3892726cc8a4017dab04a8d562",
+      "assetIds": [
+        "asset_3f2fafda2dbad7ad324c0d6e",
+        "asset_b531478c509b55f55f4bd061"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-384a91a66f429c0d2936a53d23677c505c1f65d7a8671d7c29b887bbbed40e46",
+      "viewerDocumentId": "doc_received_bd33179afd9924c6",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "bd33179afd9924c651b6f5bdc1ee9bef6080902916eae18dcf524349bf37ae63",
+      "assetIds": [
+        "asset_1b70bb3bd4f381d57255157d",
+        "asset_bd33179afd9924c651b6f5bd"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-f24eaf7bb7f5a556f83222829a5a0adf865200309a6300e1819f59e0a472fb98",
+      "viewerDocumentId": "doc_received_aba56421a0107c1d",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "aba56421a0107c1dcf42db1586bf3bd1d82193ac2c5172ea25bd51b04ae9c4fb",
+      "assetIds": [
+        "asset_7291052bf1ae75d4bc972e7d",
+        "asset_aba56421a0107c1dcf42db15"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-c45e0e27e04eeb2aabd3f18b06200e60e6279a4e0d4ec9715892e40366b82b60",
+      "viewerDocumentId": "doc_received_9dc0feb044c96a63",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "9dc0feb044c96a63ffc106daeb29849a4d0296358b71f6a267a5f1fecc4781cc",
+      "assetIds": [
+        "asset_9dc0feb044c96a63ffc106da",
+        "asset_df922117a3d04aea178ae009"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-75b0f52683a047365758c00a38f1d225c5dbb3b57ed9ad64d5faf580fb1b8725",
+      "viewerDocumentId": "doc_received_cb104959e0d8d0bf",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "cb104959e0d8d0bf988dec9e35f53ab531b29aef24a1c6b5dcad614945fd55c7",
+      "assetIds": [
+        "asset_3ea6cbf4d23390c2f26371dd",
+        "asset_cb104959e0d8d0bf988dec9e"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-b569fdf5c10cf36a28a046681f2249c4b5b521c137e75074c03e43da4706097e",
+      "viewerDocumentId": "doc_received_4eb240ddb7584390",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "4eb240ddb758439007a6448bb541010cfc597f033f9c08d8ae66964c49fe1c85",
+      "assetIds": [
+        "asset_4eb240ddb758439007a6448b",
+        "asset_89e673ffb62e1ddd2ff701f1"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-cea43b7cd3e55f8ae3c44fffe9fd51686b7fa81fe9ef7c90043adc0646cb78e4",
+      "erpDocumentId": "takeoff-document-18621dbf1b4d6d9f6468f57c3a18c8da55fda28bc6987ec5e54b29c30586fdd1",
+      "viewerDocumentId": "doc_tmad_490_n_d091ed5d3e838519",
+      "contextKey": "tmad_490_normal_il",
+      "sourceSha256": "d091ed5d3e838519ca2722ac6a68507f736b3942f6a617123a32f48ef2ac932f",
+      "assetIds": [
+        "asset_790bf85b85bb1b683b2da37f",
+        "asset_d091ed5d3e838519ca2722ac"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-1c02d9d3d9920884125823b2b767c65227288d38e2aa2a3bead54c92720c8958",
+      "viewerDocumentId": "doc_received_a21360978c9f000a",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "a21360978c9f000ad7358a5a8583ca2d1066f66fa46427cba0fd7f5a1ef02c3c",
+      "assetIds": [
+        "asset_a21360978c9f000ad7358a5a",
+        "asset_ecbcdc63479492a6a4d958b3"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-d7045820433c60be4c3f3e88a2aa988d4e2c6d6a91f71c912207f53e344f94dc",
+      "viewerDocumentId": "doc_received_84c696f674582b0c",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "84c696f674582b0c569236ae5dd67291e90ff1d4b9c561dd8f1190a8223bedf2",
+      "assetIds": [
+        "asset_84c696f674582b0c569236ae",
+        "asset_bff48ffbb0f843f651171998"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-35f87cf6a72cdba892d1815d2dff2f9e7d50e662a83d630870480dd8fa8d2ce1",
+      "erpDocumentId": "takeoff-document-92569b99069b08c2abb6e9c0bc591b235946ff420a58f69d9cf4625b44be5494",
+      "viewerDocumentId": "doc_received_151acb3878b7c125",
+      "contextKey": "received_artemis_pdf_review_20261024",
+      "sourceSha256": "151acb3878b7c125bf4d91659158e1b0ec837ea1fcd3524f1fe317b7bef18549",
+      "assetIds": [
+        "asset_151acb3878b7c125bf4d9165",
+        "asset_987d6e7ecdef99da313a8b9a"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-f4feef694d2db8d8eb3d913b06fffcf685b69bac2073a9eb49d0773d144a4079",
+      "erpDocumentId": "takeoff-document-4b5cc418bd58b230438bb668f3e6647a9c9b099d566dece40523a5ed07168b92",
+      "viewerDocumentId": "doc_clc_idf_ro_ccb235ea5408d859",
+      "contextKey": "clc_idf_room_imeg",
+      "sourceSha256": "ccb235ea5408d859f513175784b25362ea0d01e1ae9fe8033110b58e4a7785da",
+      "assetIds": [
+        "asset_41182597be688dd6abeae10e",
+        "asset_ccb235ea5408d859f5131757"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-59b2f7bb0cc500f99fe4e8e278f715b6a86edcd6e4a56b2a1be0ea06f28339da",
+      "erpDocumentId": "takeoff-document-46e43cef82b7d8cddccd4029fbc0388fb47db95e817740a237486329fccea77e",
+      "viewerDocumentId": "doc_foot_locke_bfbc724bce155876",
+      "contextKey": "foot_locker_7091_mishawaka",
+      "sourceSha256": "bfbc724bce155876675be01b670ec1c007746766a2923a76dbea7e44db7c8c5f",
+      "assetIds": [
+        "asset_6ff6345aa27ae2a319a7cde8",
+        "asset_bfbc724bce155876675be01b"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-59b2f7bb0cc500f99fe4e8e278f715b6a86edcd6e4a56b2a1be0ea06f28339da",
+      "erpDocumentId": "takeoff-document-8398ee5f49c0dd7202ede322a25ae7c833c494305d6372d8edd57c6b01e0652b",
+      "viewerDocumentId": "doc_foot_locke_e71df919b3d34c6b",
+      "contextKey": "foot_locker_7091_mishawaka",
+      "sourceSha256": "e71df919b3d34c6bcb973a2a4fb32e89b8b0db59a83ad639e5f49a1f35f751ea",
+      "assetIds": [
+        "asset_7f390e67b75a7ffc07397df9",
+        "asset_e71df919b3d34c6bcb973a2a"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-23fcf993d259519ca52a2287bb05ef7c416d4ba198f851debe008e573704ccf5",
+      "viewerDocumentId": "doc_lotes123_1b79da7bc73e530b",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "1b79da7bc73e530bc6dd3fed7d7472ef74163c0088cd413a11b2b33eb0d2bf86",
+      "assetIds": [
+        "asset_1b79da7bc73e530bc6dd3fed",
+        "asset_5d83edb6ba83dd686563a9c1"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-a9dfcd9805c645534f3ba7eaf227af5319520107e5f2483193258cf45ef3658f",
+      "viewerDocumentId": "doc_lotes123_9308f2305ac4ebdc",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "9308f2305ac4ebdcc5ea65ed040bafca00ea34ccdba9c71d67c7879921f31c05",
+      "assetIds": [
+        "asset_5fef12abe70c0b5181d647ea",
+        "asset_9308f2305ac4ebdcc5ea65ed"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-d0edc469f766316b3a502b8783a460c73474f82943748460e43277de8574f3b0",
+      "viewerDocumentId": "doc_lotes123_a21f463e34d415f3",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "a21f463e34d415f36467efb6a914c4d72e16e17e70e5d65fdb8abb5d2efce41f",
+      "assetIds": [
+        "asset_8433e1ed531c490c43e74c6b",
+        "asset_a21f463e34d415f36467efb6"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-40f5b0bccc0b9599793e4d7aa1a83b347629846bbd111677d70ebc96f3e2837b",
+      "viewerDocumentId": "doc_lotes123_bddeb99c13d103e4",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "bddeb99c13d103e47c1659f7055fc39f6670978829884e4901701291bb69d24b",
+      "assetIds": [
+        "asset_afc3baa753e6cdb9f5272ee4",
+        "asset_bddeb99c13d103e47c1659f7"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-d4c27976ab8a45590e5c8cb3608d58ab96cfc53eb5db6dcf911b34dc57f33941",
+      "viewerDocumentId": "doc_lotes123_3fe596517ccbf713",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "3fe596517ccbf713d2a5074ad46fc4d1780713b7e5897f5d844e471a6d888173",
+      "assetIds": [
+        "asset_3fe596517ccbf713d2a5074a",
+        "asset_430c5f543735896517a65791"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-c390ab266ff8f5858c22791412bfc5b23b9e308befcd9c2ad78668d40433b694",
+      "viewerDocumentId": "doc_lotes123_cb426092e94f35ad",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "cb426092e94f35ad37d1cf37f1984cce4dd13bdeaa56edc9a968d4a488180a0a",
+      "assetIds": [
+        "asset_750ddc8ac6f2caea05827bf6",
+        "asset_cb426092e94f35ad37d1cf37"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-6de6f896571a005736ef541e0a3ff7949807e8c196728e9fbd0858d36f19bb36",
+      "viewerDocumentId": "doc_lotes123_a0ebb98657d4efea",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "a0ebb98657d4efea3bd46cc2e4b4228873c766817b312921c8f2097be35823fd",
+      "assetIds": [
+        "asset_7737da91621972f0a67a6656",
+        "asset_a0ebb98657d4efea3bd46cc2"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-c85512fc1b7a004489cccd847c6f0eeeaaf16555a259a3d43575ef3be64a88b2",
+      "viewerDocumentId": "doc_lotes123_f795d7584b47e3b3",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "f795d7584b47e3b372bc2cd68a1f72f1ece95072041d355b89bc4d29cec144f6",
+      "assetIds": [
+        "asset_2109254eaa29f12c4e1cb1f6",
+        "asset_f795d7584b47e3b372bc2cd6"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-991a2658cec406a4c82d844f20e1fb24e187b448824dfb6003b656aabecce75d",
+      "viewerDocumentId": "doc_lotes123_dad385680491c284",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "dad385680491c2849ab24c59a6d5c1270f514642e5155b394bb09dbac642908b",
+      "assetIds": [
+        "asset_865616d02a39d05e0b56fcf2",
+        "asset_dad385680491c2849ab24c59"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-19f78f8e9e412b6bcf1f843cbdbcf9dc5388662ff17086cfc247ea1b1d71f6be",
+      "erpDocumentId": "takeoff-document-fa589f41fde118e62fce1f8ce28df46eaebd80020e1223412320fa2e48485466",
+      "viewerDocumentId": "doc_cf_melrose_8c89250d32080e77",
+      "contextKey": "cf_melrose_park_il",
+      "sourceSha256": "8c89250d32080e77cd09caa5d0a3c28654d39567fb046b4bda75038289276040",
+      "assetIds": [
+        "asset_8c89250d32080e77cd09caa5",
+        "asset_94df536f149171540b4db675"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-5d2b9cfe5fbda44b9ef570180a9808189f6eec88f7b75f5893941e912f4a9587",
+      "erpDocumentId": "takeoff-document-9797e71ce46c6522e2442ef3cf59d978e247478b36b38ce64afa60127963273c",
+      "viewerDocumentId": "doc_cuba_towns_15ce947a3388439f",
+      "contextKey": "cuba_township_25_023",
+      "sourceSha256": "15ce947a3388439f83059db2eee8f0eef0857562ddca619c4037e62ac411ac4c",
+      "assetIds": [
+        "asset_15ce947a3388439f83059db2",
+        "asset_ab2b5f81393a5537298d2ec8"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-d1fc25b7523ccf021e32bdcbd4a3133bb4837e334e89d5f1b6003b00bc5c1177",
+      "erpDocumentId": "takeoff-document-dbaf57306abb1ec9292db48cd39bf88c0545b6bf06d781db0ecd46bac8c48804",
+      "viewerDocumentId": "doc_goddard_bu_5ab42a7310b91c9d",
+      "contextKey": "goddard_burr_ridge",
+      "sourceSha256": "5ab42a7310b91c9da92d339a9d86d6871356c212213761ce2f0def09f3b53dfd",
+      "assetIds": [
+        "asset_5ab42a7310b91c9da92d339a",
+        "asset_c1016880c684d4e9a41dc6ce"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-88a66333b5ee88f5c6f949c18d5de3b09823aaa09e9dc38d678994c78cd24fc6",
+      "erpDocumentId": "takeoff-document-81af8f25b2b7f07a55e78fe7124dae2207d394ee6bf42ee7163cbaa76c7a1d46",
+      "viewerDocumentId": "doc_handel_zio_8c71b8247afe46e7",
+      "contextKey": "handel_zionsville_in",
+      "sourceSha256": "8c71b8247afe46e7b1bdbb0b23562a86614af4ba695984905ce5c55d09a8177a",
+      "assetIds": [
+        "asset_8c71b8247afe46e7b1bdbb0b",
+        "asset_eecafae4a283803b8dfca502"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-4b24b66c85455ff05abba4381916183c6dd17f7abbc94553796fc9a1eda5d633",
+      "erpDocumentId": "takeoff-document-d8618a7181e6cadb4736e6f917372fdf7e5403cd88a998de4bf03ad3d120701f",
+      "viewerDocumentId": "doc_mendocino__dc2d01b357522e10",
+      "contextKey": "mendocino_farms_naperville_il",
+      "sourceSha256": "dc2d01b357522e10bcc77f803c5d001d263600a7f560e4868caa31bc0dd2f7f0",
+      "assetIds": [
+        "asset_1604f5b601f2cb56277fb86d",
+        "asset_dc2d01b357522e10bcc77f80"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-8e173d64ab43955901dcbba3d4a648ab0d578a566eb94ea82092dc8c6e6312dd",
+      "erpDocumentId": "takeoff-document-b50e758d2441328211babe3372455c0fd2f4c64a77e66c84a266ea286d88044e",
+      "viewerDocumentId": "doc_millis_tra_fbbb873f35fd6364",
+      "contextKey": "millis_transfer_richfield_2026_045",
+      "sourceSha256": "fbbb873f35fd6364a367f32f5798815fecc0d81e5d708825f79c705b12472885",
+      "assetIds": [
+        "asset_fae9497929a5c84a05dd259b",
+        "asset_fbbb873f35fd6364a367f32f"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-89763f7ed6448e23a3962c3612a77af8952ef8cb20296d87949ccf07be8c3692",
+      "viewerDocumentId": "doc_lotes4_d54caa5a46d15449",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "d54caa5a46d15449a961731bc6b835540c725b1473343a3f08055c4afcf889d6",
+      "assetIds": [
+        "asset_bb56bc68903f3c84060580b2",
+        "asset_d54caa5a46d15449a961731b"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-16997153fc6b060b4a839cdb36bfc4f14f30cb672f263f4f57fccec9896944e6",
+      "viewerDocumentId": "doc_lotes4_3bab8a61f3578be7",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "3bab8a61f3578be7df2a5f75a234b7abb6814210bf48c10622ac9cae83c979c3",
+      "assetIds": [
+        "asset_3bab8a61f3578be7df2a5f75",
+        "asset_8433e1ed531c490c43e74c6b"
+      ]
+    },
+    {
+      "projectId": "takeoff-project-25b2a70df81c18f48a7ec1a34ac88bcf2be4ec3bb02133869d6ae105167d6a9b",
+      "erpDocumentId": "takeoff-document-bf9fa1ecb56cde537b72dbe46e19aedf46c0476185cb111c985ac76fd60df6f4",
+      "viewerDocumentId": "doc_lotes4_76db82644184cd9c",
+      "contextKey": "received_artemis_lotes123_20261024",
+      "sourceSha256": "76db82644184cd9c564e87c689daa755cebcf1dc7ac9418df4bb8e6185c5f61a",
+      "assetIds": [
+        "asset_76db82644184cd9c564e87c6",
+        "asset_e35cc5d405787f66fcfaf072"
+      ]
+    }
+  ]
+}

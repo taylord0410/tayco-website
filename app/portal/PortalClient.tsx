@@ -31,6 +31,8 @@ import GuestActivityPanel from "@/components/GuestActivityPanel";
 import ReviewAuditPanel from "@/components/ReviewAuditPanel";
 import InvoicePaymentControls from "@/components/workspace/InvoicePaymentControls";
 import { CORPORATE_11_MODULES } from "@/lib/verified-bidding-opportunities";
+import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
+import { VerifiedOpportunitiesTable } from "@/components/workspace/VerifiedOpportunitiesTable";
 
 export type DashboardData = {
   actor: { id: string; email: string; role: AuthRole };
@@ -261,6 +263,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const [expired, setExpired] = useState(false);
   const [sending, setSending] = useState(false);
   const [deliveryMessage, setDeliveryMessage] = useState("");
+  const [activeDocViewer, setActiveDocViewer] = useState<{ src: string; name: string } | null>(null);
   const team = data.actor.role === "admin" || data.actor.role === "staff";
   const admin = data.actor.role === "admin";
   const vendor = data.actor.role === "vendor";
@@ -423,7 +426,43 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
 
       {entry.kind === "invoice" && <p className="text-xl font-bold text-white">{money(d.amountUsd)}</p>}
       {entry.kind === "hours" && <p className="text-lg font-bold text-white">{value(d, "hours")} hours</p>}
-      {entry.kind === "document" && <a className={secondaryClass} href={"/api/documents/" + encodeURIComponent(entry.id)}>Download document</a>}
+      {entry.kind === "document" && (
+        <div className="flex flex-wrap gap-2">
+          {Boolean(d.storage === "takeoff_viewer" && d.contextKey && d.viewerDocumentId) && (
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => {
+                const src =
+                  "/api/takeoff-viewer/viewer/?embed=1&project=" +
+                  encodeURIComponent(String(d.contextKey)) +
+                  "&document=" +
+                  encodeURIComponent(String(d.viewerDocumentId)) +
+                  "&page=1";
+                setActiveDocViewer({ src, name: recordTitle(entry) });
+              }}
+            >
+              View drawing in reader
+            </button>
+          )}
+          {entry.projectId && (
+            <Link
+              className={secondaryClass}
+              href={"/portal/takeoff/" + encodeURIComponent(entry.projectId)}
+            >
+              Open project plans ↗
+            </Link>
+          )}
+          <a
+            className={secondaryClass}
+            href={"/api/documents/" + encodeURIComponent(entry.id)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Download / open sheet ↗
+          </a>
+        </div>
+      )}
     </div>;
   }
 
@@ -502,6 +541,20 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
           {tab === "invoice" && (team || vendor) && projects.length > 0 && <CommandForm title="Record an invoice" action="record_invoice" command={command} fields={[projectField(projects), { name: "reference", label: "Invoice reference" }, { name: "amountUsd", label: "Amount (USD)", type: "number", min: 0, max: 1e10, step: 0.01 }, {name:"issuedOn",label:"Invoice issue date",type:"date",value:new Date().toISOString().slice(0,10)},{name:"source",label:"Invoice source",value:"Team record"},{ name: "dueDate", label: "Due date", type: "date", required: false }, ...(team ? [{ name: "audience", label: "Visible to", type: "select" as const, value: "client", options: [{ value: "client", label: "Assigned client" }, { value: "internal", label: "TAYCO team only" }] }] : [])]} />}
           {tab === "document" && (team || vendor) && <DocumentUpload projects={projects} refresh={refresh} />}
           {tab === "document" && <details className="mb-5 rounded-xl border border-slate-600 bg-[#09172b]/40"><summary className="flex min-h-11 cursor-pointer items-center px-4 py-3 text-sm font-semibold text-amber-100">Document preservation and renewals</summary><fieldset disabled={Boolean(pendingView)} className="min-w-0 p-3"><DocumentMaintenance projectId={projectId||undefined} refreshKey={data.updatedAt} onChanged={()=>void refresh().catch(()=>{})} /></fieldset></details>}
+          {tab === "document" && activeDocViewer && (
+            <div className="mb-6 space-y-3 rounded-2xl border border-amber-200/40 bg-[#08172b] p-4 sm:p-5" data-testid="admin-document-viewer-drawer">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/20 pb-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-200">Interactive Takeoff Plan Reader</p>
+                  <h3 className="mt-1 text-lg font-bold text-white">{activeDocViewer.name}</h3>
+                </div>
+                <button type="button" className={secondaryClass} onClick={() => setActiveDocViewer(null)}>
+                  Close reader ✕
+                </button>
+              </div>
+              <TakeoffProjectReader source={activeDocViewer.src} projectName={activeDocViewer.name} privacyNotice={false} />
+            </div>
+          )}
           {tab==="executive"?<div className="space-y-6"><ExecutiveConsole data={data} projectId={projectId} onNavigate={navigate} estimates={estimateReport.estimates}/>{team&&!projectId&&<ManagementEstimatesPanel compact onOpenMonth={period=>navigate("financial_dashboard",undefined,period)}/>}</div>:tab==="financial_dashboard"?<div className="space-y-6">{team&&!projectId&&<ManagementEstimatesPanel initialPeriod={financePeriod||undefined}/>}<FinancialDashboard entries={data.entries} projectId={projectId} asOf={data.updatedAt} initialMonth={financePeriod||undefined} onNavigate={navigate} renderForm={renderOperationsForm}/></div>: team&&["corporate_meetings","followups"].includes(tab)?<CorporateAgenda key={tab} view={tab==="corporate_meetings"?"meetings":"followups"} entries={data.entries} assignees={data.assignees||[]} asOf={data.updatedAt} month={financePeriod||undefined} renderForm={renderOperationsForm}/>: tab==="hours"?<div className="space-y-5"><HoursReport entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor}/><details className="rounded-xl border border-amber-200/20 p-4"><summary className="min-h-11 cursor-pointer font-semibold text-amber-100">Work-log source records</summary><div className="mt-4 grid gap-4 lg:grid-cols-2">{visible.map(entry=><article key={entry.id} className={card}><h3 className="font-semibold text-white">{recordTitle(entry)}</h3><Status>{label(entry.data.status)}</Status>{metadata(entry)}{detail(entry)}{controls(entry)}</article>)}</div></details></div>: tab==="lead"&&team?<CommercialRequests entries={data.entries} projectId="" assignees={data.assignees||[]} renderForm={renderOperationsForm} renderProgress={entry=><CommercialRecordControl entry={entry} command={command} pending={Boolean(pendingView)}/>}/>: tab==="estimate"?<EstimateArchive estimates={estimateReport.estimates} invalidCount={estimateReport.invalidCount}/>: tab==="takeoff"&&team?<div className="space-y-5"><MeasurementReview projectId={projectId}/><OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/></div>: ["proposal","team","bid","compliance","dossier","takeoff"].includes(tab)?<OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/>:tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} initialPeriod={financePeriod} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
             <div className={card}><h3 className="font-semibold text-amber-100">Request notifications</h3><p className="mt-2 text-sm leading-relaxed text-slate-300">Request records are saved independently of email delivery. Acceptance by the email provider does not guarantee delivery to the recipient’s inbox.</p>
               <div className="mt-3 flex flex-wrap gap-2">{data.delivery.length ? data.delivery.map((item, index) => <Status key={index}>{item.status==="delivered"?"Accepted by email provider":label(item.status)}: {value(item, "count")}</Status>) : <p className="text-sm text-slate-400">No queued notifications.</p>}</div>

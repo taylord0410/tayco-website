@@ -1,0 +1,642 @@
+{
+  "schemaVersion": "tayco-profile-a-review/v1",
+  "tenantId": "tayco_llc",
+  "period": "2026-10",
+  "rows": [
+    {
+      "id": "reported-opportunity-2",
+      "name": "Kroger J552 Greenfield",
+      "location": "Greenfield, IN",
+      "contractor": "Crossroad Engineers / Kroger",
+      "section": "dated",
+      "reportedDeadline": "2026-10-09",
+      "documents": [
+        {
+          "name": "J552_Greenfield_Civil Plans_2026-09-11.pdf",
+          "state": "received",
+          "sha256": "22c6d3ee054a3ce8df816bb8408fb4f2192b594df0f99e2a47d3d62ff80697b4"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-3",
+      "name": "Dutch Bros IL0403",
+      "location": "990 N Elmhurst Rd, Mt Prospect, IL",
+      "contractor": "Dutch Bros Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "2026-10-08_Dutch Bros IL0403_Revision #6 and #7 (non S+S).pdf",
+          "state": "received",
+          "sha256": "10443220659dcdb986b010dedb938d5acd5577051f21bfd20e46e09f0e9169fd"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-4",
+      "name": "Bus Transportation Facility",
+      "location": "Missouri (MSD District)",
+      "contractor": "MSD Facilities Group",
+      "section": "dated",
+      "reportedDeadline": "2026-10-13",
+      "documents": [
+        {
+          "name": "MSD Bus Transportation Facility - 100% Construction Documents.pdf",
+          "state": "received",
+          "sha256": "f8c5076aa6be3285727b40f9289a18239b6cefbe591ece349c4683f98889b490"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-5",
+      "name": "Dollar Tree #10766",
+      "location": "1647 W Kimberly Rd, Davenport, IA",
+      "contractor": "Dollar Tree Store Development",
+      "section": "dated",
+      "reportedDeadline": "2026-10-19",
+      "documents": [
+        {
+          "name": "DT #10766 Davenport, IA - Rev #2 Plans (Full Set).pdf",
+          "state": "received",
+          "sha256": "11aa948a056853fdc1ca55c732bfe1655788cca360e8663bbad5ab7d20e59e66"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-10",
+      "name": "Benjamin Center",
+      "location": "2010 E Shorewood Blvd, Shorewood, WI 53211",
+      "contractor": "Korb + Associates Architects",
+      "section": "dated",
+      "reportedDeadline": "2026-10-19",
+      "documents": [
+        {
+          "name": "Benjamin Center Project Specficiations 09-17-2026.pdf",
+          "state": "received",
+          "sha256": "0bace2aceb041d1b6b08809347d3fd7956480e5b0235d13f4ac27846ce960e8c"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-11",
+      "name": "300 S Wacker",
+      "location": "300 S Wacker Dr, Chicago, IL",
+      "contractor": "Wacker Building Management",
+      "section": "dated",
+      "reportedDeadline": "2026-10-09",
+      "documents": [
+        {
+          "name": "M2-1 - MECHANICAL PLAN AND SCHEDULES.pdf",
+          "state": "received",
+          "sha256": "95bdf922b5f91e0f0980f79bf1849899c27b80ecf2095dd064e62d9dfe17b3ec"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-12",
+      "name": "Tractor Supply TSC 533",
+      "location": "2010 Cross Street, Anderson, IN",
+      "contractor": "Tractor Supply Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-13",
+      "documents": [
+        {
+          "name": "Anderson, IN pdf.pdf",
+          "state": "received",
+          "sha256": "b5a8f86a9bfff989191326d2346e7575a902b9eef62a02479e8b72802abf1694"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-13",
+      "name": "Freeway Insurance #8262",
+      "location": "Belvidere, IL (State St)",
+      "contractor": "Freeway Retail Buildout",
+      "section": "dated",
+      "reportedDeadline": "2026-10-09",
+      "documents": [
+        {
+          "name": "Freeway Insurance 8262 Belvidere, IL (State St) Floor Plan.pdf",
+          "state": "received",
+          "sha256": "b8f38e171884faa553c9a7fe7b8fd2bff7f37287ca2ea4463af20670e1fa3d59"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-15",
+      "name": "Cresco Labs — GlowUp Rollout IL (4 Sunnyside Locations)",
+      "location": "South Beloit, Rockford, Chicago (Wrigleyville) & Danville, IL",
+      "contractor": "Cresco Labs Facilities",
+      "section": "dated",
+      "reportedDeadline": "2026-10-08",
+      "documents": [
+        {
+          "name": "Cresco Labs - GlowUp Rollout IL_ITB.pdf",
+          "state": "received",
+          "sha256": "0d4883f542c894c7a26e2bd84cced1fd1f81ee98bf904d2ebec241424d09b11f"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-16",
+      "name": "Planning & Development Office Renovation — Building 280",
+      "location": "Indianapolis International Airport (IND), Indianapolis, IN",
+      "contractor": "Indianapolis Airport Authority (IAA)",
+      "section": "dated",
+      "reportedDeadline": "2026-10-13",
+      "documents": [
+        {
+          "name": "0150042 - IAA_BUILDING 280_RENOVATION_PHASE 1_BID SET 09-11-2026.pdf",
+          "state": "received",
+          "sha256": "7344b7b15a9314840abf0aa00d2535a8ff153d10eac6e27e7cc652b4e11aafc3"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-17",
+      "name": "Livewell Animal Hospital",
+      "location": "Towne Rd & W 146th St, Westfield, IN 46074",
+      "contractor": "Bean / BDT Architects & Designers",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "LIVWST.pdf",
+          "state": "received",
+          "sha256": "1f0ad0dba5cad2e53ae53ee852e93751e34dd87b900370aa0f78c3d6125436d5"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-18",
+      "name": "Venice Grocery Market",
+      "location": "Venice, IL",
+      "contractor": "Hurford Architects / City of Venice",
+      "section": "dated",
+      "reportedDeadline": "2026-10-19",
+      "documents": [
+        {
+          "name": "Venice Grocery.pdf",
+          "state": "received",
+          "sha256": "3f2fafda2dbad7ad324c0d6ea2e2f84f2d1ebc3892726cc8a4017dab04a8d562"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-19",
+      "name": "Club Car Wash",
+      "location": "Washington, IL",
+      "contractor": "Club Car Wash Development",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "26-0918_CCW 20015.221 Washington, IL_Permit Set_COMBINED.pdf",
+          "state": "received",
+          "sha256": "bd33179afd9924c651b6f5bdc1ee9bef6080902916eae18dcf524349bf37ae63"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-20",
+      "name": "Red Iris — Mint Cannabis",
+      "location": "2311 Hwy 10, Moorhead, MN",
+      "contractor": "RCS Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "2026-08-04 431730 - 2311 HWY 10 LLC.pdf",
+          "state": "received",
+          "sha256": "aba56421a0107c1dcf42db1586bf3bd1d82193ac2c5172ea25bd51b04ae9c4fb"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-21",
+      "name": "Domino's Pizza — Fortville",
+      "location": "400 W Broadway St, Fortville, IN 46040",
+      "contractor": "Domino's Store Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "Dominos_Fortville_IN_Bid_Package_Summary_10-08-26.pdf",
+          "state": "received",
+          "sha256": "9dc0feb044c96a63ffc106daeb29849a4d0296358b71f6a267a5f1fecc4781cc"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-22",
+      "name": "Harper College — Building A, S, U, X, Y & Z Improvements",
+      "location": "1200 W Algonquin Rd, Palatine, IL 60067",
+      "contractor": "Harper College Facilities Management",
+      "section": "dated",
+      "reportedDeadline": "2026-10-16",
+      "documents": [
+        {
+          "name": "Harper College Drawings.pdf",
+          "state": "received",
+          "sha256": "cb104959e0d8d0bf988dec9e35f53ab531b29aef24a1c6b5dcad614945fd55c7"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-23",
+      "name": "Kenosha County Center",
+      "location": "19600 75th St, Bristol, WI 53104 (Kenosha County)",
+      "contractor": "Kenosha County Division of Facilities",
+      "section": "dated",
+      "reportedDeadline": "2026-10-20",
+      "documents": [
+        {
+          "name": "2601 Drawings.pdf",
+          "state": "received",
+          "sha256": "4eb240ddb758439007a6448bb541010cfc597f033f9c08d8ae66964c49fe1c85"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-6",
+      "name": "Teriyaki Madness #490",
+      "location": "1700 E College Ave, Normal, IL",
+      "contractor": "TMAD Franchise Construction",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4.pdf",
+          "state": "received",
+          "sha256": "d091ed5d3e838519ca2722ac6a68507f736b3942f6a617123a32f48ef2ac932f"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-7",
+      "name": "Morgan Park — Five 3-Unit Residential Buildings (Cluster K)",
+      "location": "Chicago, IL (Morgan Park Cluster K)",
+      "contractor": "Cluster K Residential Development",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf",
+          "state": "received",
+          "sha256": "a21360978c9f000ad7358a5a8583ca2d1066f66fa46427cba0fd7f5a1ef02c3c"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-8",
+      "name": "Kroger J-942 Exterior",
+      "location": "2019 Meadows Ave, East Peoria, IL",
+      "contractor": "Kroger Store Development",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "Permit Set 10.2.26.pdf",
+          "state": "received",
+          "sha256": "84c696f674582b0c569236ae5dd67291e90ff1d4b9c561dd8f1190a8223bedf2"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-9",
+      "name": "Classroom Addition — Scott Elementary School",
+      "location": "Mascoutah / Scott AFB, IL",
+      "contractor": "Mascoutah CUSD #19",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
+          "state": "received",
+          "sha256": "151acb3878b7c125bf4d91659158e1b0ec837ea1fcd3524f1fe317b7bef18549"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-14",
+      "name": "IDF Room Conversion (rebid)",
+      "location": "19351 W Washington St, Grayslake, IL",
+      "contractor": "College of Lake County / IMEG",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf",
+          "state": "received",
+          "sha256": "ccb235ea5408d859f513175784b25362ea0d01e1ae9fe8033110b58e4a7785da"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-24",
+      "name": "Foot Locker #7091 — University Park Mall",
+      "location": "6501 N Grape Rd, Mishawaka, IN",
+      "contractor": "Foot Locker Retail Construction",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "Foot Locker 7091_ITB.pdf",
+          "state": "received",
+          "sha256": "bfbc724bce155876675be01b670ec1c007746766a2923a76dbea7e44db7c8c5f"
+        },
+        {
+          "name": "Foot Locker 7091 Mishawaka, IN BidSet 09-30-26.pdf",
+          "state": "received",
+          "sha256": "e71df919b3d34c6bcb973a2a4fb32e89b8b0db59a83ad639e5f49a1f35f751ea"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-25",
+      "name": "U.S. Bank — Hamilton Main Street Branch TI",
+      "location": "540 Main St., Hamilton, OH",
+      "contractor": "Guarantee Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-22",
+      "documents": [
+        {
+          "name": "24052925_US-Bank_540-Main-St_Hamilton-OH_CD-Floor-Plans_02-13-2026.pdf",
+          "state": "received",
+          "sha256": "1b79da7bc73e530bc6dd3fed7d7472ef74163c0088cd413a11b2b33eb0d2bf86"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-26",
+      "name": "First Farmers & Merchants Bank — Fairmont Remodel (Civil Set)",
+      "location": "E. Blue Earth Ave. & S. Park St., Fairmont, MN",
+      "contractor": "Gil Haugan Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-22",
+      "documents": [
+        {
+          "name": "FFMB_Fairmont-MN_Civil-Plans_2025-12-03.pdf",
+          "state": "received",
+          "sha256": "9308f2305ac4ebdcc5ea65ed040bafca00ea34ccdba9c71d67c7879921f31c05"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-27",
+      "name": "VA Illiana Health Care System — Bldg 103 PRRTP Restroom Renovation (SEED Project)",
+      "location": "1900 E. Main Street, Danville, IL 61832",
+      "contractor": "DAX Contracting",
+      "section": "dated",
+      "reportedDeadline": "2026-10-22",
+      "documents": [
+        {
+          "name": "VA-Illiana_Bldg-103-PRRTP-Restroom-Renovation_550-22-110_Drawings.pdf",
+          "state": "received",
+          "sha256": "a21f463e34d415f36467efb6a914c4d72e16e17e70e5d65fdb8abb5d2efce41f"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-28",
+      "name": "Rockford Self Storage Units",
+      "location": "2500 N. Main Street, Rockford, IL 61107",
+      "contractor": "MLCO Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-21",
+      "documents": [
+        {
+          "name": "Rockford-Self-Storage-Units_2500-N-Main-St_Rockford-IL_Drawings.pdf",
+          "state": "received",
+          "sha256": "bddeb99c13d103e47c1659f7055fc39f6670978829884e4901701291bb69d24b"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-29",
+      "name": "Heartland Dental — Liberty Township TI",
+      "location": "4706 Old Kyles Station Rd., Liberty Township, OH 45011",
+      "contractor": "Singleton Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-21",
+      "documents": [
+        {
+          "name": "Heartland-Dental_4706-Old-Kyles-Station-Rd_Liberty-Township-OH_Drawings.pdf",
+          "state": "received",
+          "sha256": "3fe596517ccbf713d2a5074ad46fc4d1780713b7e5897f5d844e471a6d888173"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-30",
+      "name": "FedEx Legacy — Waukesha Facility",
+      "location": "2001 Airport Rd., Waukesha, WI 53188",
+      "contractor": "Jackson Taylor Contractors",
+      "section": "dated",
+      "reportedDeadline": "2026-10-23",
+      "documents": [
+        {
+          "name": "FedEx-Legacy_2001-Airport-Rd_Waukesha-WI_Drawings.pdf",
+          "state": "received",
+          "sha256": "cb426092e94f35ad37d1cf37f1984cce4dd13bdeaa56edc9a968d4a488180a0a"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-31",
+      "name": "N Family Westmont Childcare (Civil Set — Architectural Set Pending)",
+      "location": "6120 S. Cass Ave., Westmont, IL",
+      "contractor": "Englewood Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-22",
+      "documents": [
+        {
+          "name": "N-Family-Westmont_6120-S-Cass-Ave_Westmont-IL_Civil-Drawings.pdf",
+          "state": "received",
+          "sha256": "a0ebb98657d4efea3bd46cc2e4b4228873c766817b312921c8f2097be35823fd"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-32",
+      "name": "L.D. Fargo Public Library — Re-Bid",
+      "location": "120 E. Madison St., Lake Mills, WI 53551",
+      "contractor": "Corporate Contractors, Inc.",
+      "section": "dated",
+      "reportedDeadline": "2026-10-23",
+      "documents": [
+        {
+          "name": "LD-Fargo-Public-Library-ReBid_120-E-Madison-St_Lake-Mills-WI_Drawings.pdf",
+          "state": "received",
+          "sha256": "f795d7584b47e3b372bc2cd68a1f72f1ece95072041d355b89bc4d29cec144f6"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-33",
+      "name": "Edward Jones Branch #17975 — Marine on St. Croix Remodel",
+      "location": "41 Judd St., Marine on St. Croix, MN 55047",
+      "contractor": "Horizon Retail Construction",
+      "section": "dated",
+      "reportedDeadline": "2026-10-21",
+      "documents": [
+        {
+          "name": "Edward-Jones-17975_41-Judd-St_Marine-on-St-Croix-MN_Drawings.pdf",
+          "state": "received",
+          "sha256": "dad385680491c2849ab24c59a6d5c1270f514642e5155b394bb09dbac642908b"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-34",
+      "name": "Crunch Fitness — Melrose Park Takeover",
+      "location": "1334 Winston Plaza, Melrose Park, IL 60160",
+      "contractor": "Atticus Franchise Group / pb2 Architecture + Engineering",
+      "section": "dated",
+      "reportedDeadline": "2026-10-19",
+      "documents": [
+        {
+          "name": "CF Melrose Park,IL Rev 2 ECS.pdf",
+          "state": "received",
+          "sha256": "8c89250d32080e77cd09caa5d0a3c28654d39567fb046b4bda75038289276040"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-35",
+      "name": "Cuba Township Building Addition",
+      "location": "28000 W. Cuba Rd., Barrington, IL 60010",
+      "contractor": "Allen+Pepa Architects",
+      "section": "dated",
+      "reportedDeadline": "2026-10-09",
+      "documents": [
+        {
+          "name": "26-10-09_25-023-Cuba-Township-_Rev-4-2.pdf",
+          "state": "received",
+          "sha256": "15ce947a3388439f83059db2eee8f0eef0857562ddca619c4037e62ac411ac4c"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-36",
+      "name": "The Goddard School — Burr Ridge",
+      "location": "7660 S. County Line Rd., Burr Ridge, IL 60527",
+      "contractor": "Goddard Systems / Burr Ridge Development",
+      "section": "dated",
+      "reportedDeadline": "2026-09-29",
+      "documents": [
+        {
+          "name": "Goddard Burr Ridge - Full Set 2026 09291.pdf",
+          "state": "received",
+          "sha256": "5ab42a7310b91c9da92d339a9d86d6871356c212213761ce2f0def09f3b53dfd"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-37",
+      "name": "Handel's Homemade Ice Cream — Zionsville",
+      "location": "3715 Marketplace Dr., Zionsville, IN 46077",
+      "contractor": "Tedrow Design Group",
+      "section": "dated",
+      "reportedDeadline": "2026-09-15",
+      "documents": [
+        {
+          "name": "handel_s ice cream - zionsville, in 9-15-26.pdf",
+          "state": "received",
+          "sha256": "8c71b8247afe46e7b1bdbb0b23562a86614af4ba695984905ce5c55d09a8177a"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-38",
+      "name": "Mendocino Farms — Naperville Plaza",
+      "location": "S. Washington St. & W. Gartner Rd., Naperville, IL",
+      "contractor": "NORR Architects & Engineers",
+      "section": "dated",
+      "reportedDeadline": "2026-09-15",
+      "documents": [
+        {
+          "name": "Mendocino Frarms- Naperville, IL Combined (2).pdf",
+          "state": "received",
+          "sha256": "dc2d01b357522e10bcc77f803c5d001d263600a7f560e4868caa31bc0dd2f7f0"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-39",
+      "name": "Millis Transfer — Richfield Demo & Maintenance Facility",
+      "location": "33001 W. Holy Hill Rd., Richfield, WI 53076",
+      "contractor": "IC Construction Company (ICCC)",
+      "section": "dated",
+      "reportedDeadline": "2026-10-10",
+      "documents": [
+        {
+          "name": "10.06.2026_-_Concept_Plan_-_Millis_Transfer_-_Richfield_WI.pdf",
+          "state": "received",
+          "sha256": "fbbb873f35fd6364a367f32f5798815fecc0d81e5d708825f79c705b12472885"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-40",
+      "name": "First Watch Restaurant — Bourbonnais",
+      "location": "1604 N. Route 50, Suite A-2, Bourbonnais, IL 60914",
+      "contractor": "Capitol Construction Solutions",
+      "section": "dated",
+      "reportedDeadline": "2026-08-18",
+      "documents": [
+        {
+          "name": "First Watch Bourbonnais - Permit Set.pdf",
+          "state": "received",
+          "sha256": "d54caa5a46d15449a961731bc6b835540c725b1473343a3f08055c4afcf889d6"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-41",
+      "name": "Willowbrae Academy (Structural Calculations Only)",
+      "location": "4777 N. Milwaukee Ave., Chicago, IL",
+      "contractor": "Johnson Wilbur Adams, Inc.",
+      "section": "dated",
+      "reportedDeadline": "2026-09-02",
+      "documents": [
+        {
+          "name": "Willowbrae Academy - Structural Calculations.pdf",
+          "state": "received",
+          "sha256": "3bab8a61f3578be7df2a5f75a234b7abb6814210bf48c10622ac9cae83c979c3"
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-42",
+      "name": "IDOT Maintenance Facility",
+      "location": "Illinois (IDOT District Facility)",
+      "contractor": "Staalsen Construction",
+      "section": "undated",
+      "reportedDeadline": null,
+      "documents": [
+        {
+          "name": "IDOT Maintenance Facility — Drawings pending from client",
+          "state": "pending",
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "reported-opportunity-43",
+      "name": "Maurices #1801 — Oshkosh Retail Center",
+      "location": "1941 S. Koeller St., Oshkosh, WI 54902",
+      "contractor": "Todd Cooper Architect LLC (TCA)",
+      "section": "dated",
+      "reportedDeadline": "2026-09-25",
+      "documents": [
+        {
+          "name": "Maurices #1801 Oshkosh Retail Center - Construction Drawings.pdf",
+          "state": "received",
+          "sha256": "76db82644184cd9c564e87c689daa755cebcf1dc7ac9418df4bb8e6185c5f61a"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
-import {closeSync,fstatSync,lstatSync,openSync,readSync} from 'node:fs';
+import {closeSync,existsSync,fstatSync,lstatSync,openSync,readSync} from 'node:fs';
+import path from 'node:path';
 import type {Actor} from './auth';
 import {parseProfileAReviewSource,type ProfileAReview} from './profile-a-review';
 export class InsurerReviewError extends Error{constructor(public status:number,message='This recipient review is unavailable.'){super(message);}}
@@ -50,7 +51,8 @@ function safeRecipientText(data:ProfileAReview){
  if(labels.some(s=>/(?:https?:|file:|[A-Za-z]:[\\/]|\S+@\S+|[$€£]|\b(?:USD|EUR|GBP)\b)/i.test(s)||s.toLowerCase().replace(/[^a-z0-9]/g,'').includes('autozone')))throw fail();
 }
 export function readInsurerSource(policy:InsurerPolicy){
- const bytes=readInsurerFile(process.env.TAYCO_PROFILE_A_REVIEW_SOURCE);
+ const defaultSource=path.join(process.cwd(),'lib','viewer-bundle-meta','profile-a-source-42.json');
+ const bytes=readInsurerFile(process.env.TAYCO_PROFILE_A_REVIEW_SOURCE||(existsSync(defaultSource)?defaultSource:undefined));
  let data:ProfileAReview;
  try{data=parseProfileAReviewSource(policy.tenantId,bytes,policy.sourceSha256);}catch{throw fail();}
  if(data.period!==policy.period)throw fail();safeRecipientText(data);
@@ -65,7 +67,8 @@ export function readInsurerSource(policy:InsurerPolicy){
 export function insurerPolicy(actor:Actor,now=Date.now()){
  const recipient=actor.review?.recipient;
  if(actor.role!=='guest'||!actor.review||recipient?.kind!=='insurer-a'||actor.review.expiresAt<=now||actor.review.detailPeriod!==new Date(now).toISOString().slice(0,7))throw new InsurerReviewError(403);
- const policy=parseInsurerPolicy(readInsurerFile(process.env.TAYCO_INSURER_REVIEW_POLICY),recipient.policySha256,actor.tenantId,actor.review.detailPeriod);
+ const defaultPolicy=path.join(process.cwd(),'lib','viewer-bundle-meta','insurer-policy-42.json');
+ const policy=parseInsurerPolicy(readInsurerFile(process.env.TAYCO_INSURER_REVIEW_POLICY||(existsSync(defaultPolicy)?defaultPolicy:undefined)),recipient.policySha256,actor.tenantId,actor.review.detailPeriod);
  readInsurerSource(policy);return policy;
 }
 export function insurerRouteAllowed(actor:Actor,request:Request){

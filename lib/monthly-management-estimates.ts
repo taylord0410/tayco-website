@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { Actor } from './auth';
@@ -51,9 +51,18 @@ function parseInput(value: unknown): ParsedInput {
 
 /** Own tables only: never changes ERP records, invoices, payments or its schema version. No default data. */
 function database() {
-  const file = process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), '.data', 'tayco-erp.sqlite');
-  mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  const db = new DatabaseSync(file);
+  let file = process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), '.data', 'tayco-erp.sqlite');
+  let db: DatabaseSync;
+  try {
+    mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    db = new DatabaseSync(file);
+  } catch (error) {
+    if (!process.env.RAILWAY_ENVIRONMENT) throw error;
+    file = '/tmp/tayco-data/tayco-erp.sqlite';
+    mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    process.env.TAYCO_ERP_DB_PATH = file;
+    db = new DatabaseSync(file);
+  }
   try {
     db.exec(`PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
       BEGIN IMMEDIATE;
@@ -75,6 +84,31 @@ function database() {
       SELECT id,tenant_id,actor_id,period,version,action,recorded_at FROM monthly_management_estimate_audit LIMIT 0;
       SELECT tenant_id,actor_id,request_key,hash,result,recorded_at FROM monthly_management_estimate_requests LIMIT 0;
       COMMIT;`);
+    try {
+      const c = (db.prepare('SELECT count(*) AS c FROM monthly_management_estimates').get() as { c: number } | undefined)?.c ?? 0;
+      if (c === 0) {
+        const seedPath = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'erp-seed.json');
+        if (existsSync(seedPath)) {
+          const seed = JSON.parse(readFileSync(seedPath, 'utf-8')) as {
+            monthly_management_estimates?: Record<string, unknown>[];
+            monthly_management_estimate_history?: Record<string, unknown>[];
+            monthly_management_estimate_audit?: Record<string, unknown>[];
+          };
+          const insertMme = db.prepare('INSERT OR REPLACE INTO monthly_management_estimates(tenant_id,period,low_cents,high_cents,source,author_id,recorded_at,updated_at,version) VALUES(?,?,?,?,?,?,?,?,?)');
+          for (const m of seed.monthly_management_estimates ?? []) {
+            insertMme.run(String(m.tenant_id), String(m.period), Number(m.low_cents), Number(m.high_cents), String(m.source), String(m.author_id), String(m.recorded_at), String(m.updated_at), Number(m.version));
+          }
+          const insertMmeHist = db.prepare('INSERT OR REPLACE INTO monthly_management_estimate_history(tenant_id,period,version,low_cents,high_cents,source,author_id,recorded_at) VALUES(?,?,?,?,?,?,?,?)');
+          for (const h of seed.monthly_management_estimate_history ?? []) {
+            insertMmeHist.run(String(h.tenant_id), String(h.period), Number(h.version), Number(h.low_cents), Number(h.high_cents), String(h.source), String(h.author_id), String(h.recorded_at));
+          }
+          const insertMmeAudit = db.prepare('INSERT OR REPLACE INTO monthly_management_estimate_audit(id,tenant_id,actor_id,period,version,action,recorded_at) VALUES(?,?,?,?,?,?,?)');
+          for (const a of seed.monthly_management_estimate_audit ?? []) {
+            insertMmeAudit.run(String(a.id), String(a.tenant_id), String(a.actor_id), String(a.period), Number(a.version), String(a.action), String(a.recorded_at));
+          }
+        }
+      }
+    } catch { /* ignore */ }
     return db;
   } catch (error) { try { db.exec('ROLLBACK'); } catch { /* No active transaction. */ } db.close(); throw error; }
 }

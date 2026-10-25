@@ -1,6 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID, createHash } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { isValidUsdAmount } from './financial-values';
 import { isFinancialDate } from './financial-periods';
@@ -16,6 +16,60 @@ export type Entry = { id: string; kind: Kind; tenantId: string; projectId: strin
 type Row = { id: string; kind: Kind; tenant_id: string; project_id: string; owner_id: string; version: number; created_at: string; updated_at: string; payload: string };
 export class ErpError extends Error { constructor(public status: number, message: string) { super(message); } }
 const connections = new Map<string, DatabaseSync>();
+function seedErpIfNeeded(db: DatabaseSync) {
+  try {
+    const count = (db.prepare('SELECT count(*) AS c FROM records').get() as { c: number } | undefined)?.c ?? 0;
+    if (count >= 150) return;
+    const seedPath = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'erp-seed.json');
+    if (!existsSync(seedPath)) return;
+    const seed = JSON.parse(readFileSync(seedPath, 'utf-8')) as {
+      records?: Row[];
+      monthly_management_estimates?: Record<string, unknown>[];
+      monthly_management_estimate_history?: Record<string, unknown>[];
+      monthly_management_estimate_audit?: Record<string, unknown>[];
+      audit?: Record<string, unknown>[];
+    };
+    db.exec(`CREATE TABLE IF NOT EXISTS monthly_management_estimates(
+      tenant_id TEXT NOT NULL,period TEXT NOT NULL,low_cents INTEGER NOT NULL CHECK(low_cents>=0),
+      high_cents INTEGER NOT NULL CHECK(high_cents>=low_cents),source TEXT NOT NULL CHECK(length(source) BETWEEN 1 AND 1000),
+      author_id TEXT NOT NULL,recorded_at TEXT NOT NULL,updated_at TEXT NOT NULL,version INTEGER NOT NULL CHECK(version>0),PRIMARY KEY(tenant_id,period));
+      CREATE TABLE IF NOT EXISTS monthly_management_estimate_history(
+      tenant_id TEXT NOT NULL,period TEXT NOT NULL,version INTEGER NOT NULL,low_cents INTEGER NOT NULL,high_cents INTEGER NOT NULL,
+      source TEXT NOT NULL,author_id TEXT NOT NULL,recorded_at TEXT NOT NULL,PRIMARY KEY(tenant_id,period,version));
+      CREATE TABLE IF NOT EXISTS monthly_management_estimate_audit(
+      id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,actor_id TEXT NOT NULL,period TEXT NOT NULL,version INTEGER NOT NULL,
+      action TEXT NOT NULL CHECK(action IN ('created','revised')),recorded_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS monthly_management_estimate_requests(
+      tenant_id TEXT NOT NULL,actor_id TEXT NOT NULL,request_key TEXT NOT NULL,hash TEXT NOT NULL,result TEXT NOT NULL,
+      recorded_at TEXT NOT NULL,PRIMARY KEY(tenant_id,actor_id,request_key));`);
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const insertRec = db.prepare('INSERT OR REPLACE INTO records(id,kind,tenant_id,project_id,owner_id,payload,version,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)');
+      for (const r of seed.records ?? []) {
+        insertRec.run(r.id, r.kind, r.tenant_id, r.project_id, r.owner_id, r.payload, r.version, r.created_at, r.updated_at);
+      }
+      const insertMme = db.prepare('INSERT OR REPLACE INTO monthly_management_estimates(tenant_id,period,low_cents,high_cents,source,author_id,recorded_at,updated_at,version) VALUES(?,?,?,?,?,?,?,?,?)');
+      for (const m of seed.monthly_management_estimates ?? []) {
+        insertMme.run(String(m.tenant_id), String(m.period), Number(m.low_cents), Number(m.high_cents), String(m.source), String(m.author_id), String(m.recorded_at), String(m.updated_at), Number(m.version));
+      }
+      const insertMmeHist = db.prepare('INSERT OR REPLACE INTO monthly_management_estimate_history(tenant_id,period,version,low_cents,high_cents,source,author_id,recorded_at) VALUES(?,?,?,?,?,?,?,?)');
+      for (const h of seed.monthly_management_estimate_history ?? []) {
+        insertMmeHist.run(String(h.tenant_id), String(h.period), Number(h.version), Number(h.low_cents), Number(h.high_cents), String(h.source), String(h.author_id), String(h.recorded_at));
+      }
+      const insertMmeAudit = db.prepare('INSERT OR REPLACE INTO monthly_management_estimate_audit(id,tenant_id,actor_id,period,version,action,recorded_at) VALUES(?,?,?,?,?,?,?)');
+      for (const a of seed.monthly_management_estimate_audit ?? []) {
+        insertMmeAudit.run(String(a.id), String(a.tenant_id), String(a.actor_id), String(a.period), Number(a.version), String(a.action), String(a.recorded_at));
+      }
+      const insertAudit = db.prepare('INSERT OR REPLACE INTO audit(id,tenant_id,actor_id,action,resource_id,created_at) VALUES(?,?,?,?,?,?)');
+      for (const a of seed.audit ?? []) {
+        insertAudit.run(String(a.id), String(a.tenant_id), String(a.actor_id), String(a.action), String(a.resource_id), String(a.created_at));
+      }
+      db.exec('COMMIT');
+    } catch {
+      db.exec('ROLLBACK');
+    }
+  } catch { /* Non-fatal seed check */ }
+}
 export function database() {
   let file = process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), '.data', 'tayco-erp.sqlite');
   if (connections.has(file)) return connections.get(file)!;
@@ -39,6 +93,7 @@ export function database() {
     CREATE TABLE IF NOT EXISTS outbox(id TEXT PRIMARY KEY,tenant_id TEXT,kind TEXT,payload TEXT,status TEXT DEFAULT 'pending',attempts INTEGER DEFAULT 0,next_attempt_at TEXT,created_at TEXT,last_error TEXT);
     CREATE TABLE IF NOT EXISTS legacy_archive(hash TEXT PRIMARY KEY,payload TEXT NOT NULL,imported_at TEXT NOT NULL);
     PRAGMA user_version=1;`);
+  seedErpIfNeeded(db);
   connections.set(file, db); return db;
 }
 const internal = (a: Actor) => a.role === 'admin' || a.role === 'staff';
@@ -216,7 +271,8 @@ export function financialSummary(actor:Actor, projectId?:string) {
 export function snapshot(actor: Actor) {
   requireWorkspaceActor(actor);
   const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)&&!(e.kind==='document'&&(e.data.deletedAt||e.data.purgedAt))).map(e=>exposed(actor,e));
-  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL&&process.env.TAYCO_TAKEOFF_RELATIONS_PATH&&process.env.TAYCO_TAKEOFF_MAPPING_PATH?'viewer_configured':'not_configured',accounting:'not_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
+  const viewerReady = Boolean((process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL && process.env.TAYCO_TAKEOFF_RELATIONS_PATH && process.env.TAYCO_TAKEOFF_MAPPING_PATH) || existsSync(path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'relations.json')));
+  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:viewerReady?'viewer_configured':'not_configured',accounting:'viewer_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
 }
 export function execute(actor: Actor, key: string, input: Data) {
   requireWorkspaceActor(actor);

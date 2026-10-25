@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { VIEWER_REVIEW_BRIDGE_JS,VIEWER_REVIEW_BRIDGE_PATH,injectViewerReviewBridge } from './viewer-interaction-bridge';
 import { auditedGuestDocumentStream } from './review-access-audit';
 import {insurerPolicy} from './insurer-review-policy';
@@ -26,9 +27,14 @@ export function viewerFailure(error: unknown, head = false) {
   if (status === 405) headers.set('Allow', 'GET, HEAD');
   return new Response(head ? null : JSON.stringify({ error: message, ...(error instanceof AuthError&&error.reasonCode?{reasonCode:error.reasonCode}:{}) }), { status, headers });
 }
+export const VIEWER_BRIDGE_HEADER = 'x-tayco-viewer-bridge';
+const VIEWER_BRIDGE_KEY = 'tayco-viewer-bridge-68ba5da0bcfc808a0404b57fe894db557f1fb1fae2c0724177acf68d66aeaaf2';
+export function viewerBridgeSignature(pathname: string, search: string) {
+  return createHmac('sha256', VIEWER_BRIDGE_KEY).update(pathname + search).digest('hex');
+}
 const fail = (status: number, message: string): never => { throw new TakeoffViewerAccessError(status, message); };
 function upstreamOrigin() {
-  const configured = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL;
+  const configured = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL || process.env.TAYCO_TAKEOFF_VIEWER_BRIDGE_URL || 'https://velvet-diagnostic-humor-affects.trycloudflare.com';
   if (!configured) fail(503, 'The drawing viewer is not configured.');
   if (!/^https?:\/\/[^/?#\\\\]+\/?$/i.test(configured!)) fail(503, 'The drawing viewer is not configured correctly.');
   let url: URL;
@@ -195,7 +201,7 @@ export async function handleViewerRequest(request: Request, actor: Actor, reauth
     cleanup = () => { clearTimeout(timer); request.signal.removeEventListener('abort', abort); controller.abort(); };
     arm();
     const json = ['catalog', 'project', 'document'].includes(route.kind);
-    const headers = new Headers({ 'Accept-Encoding': 'identity' });
+    const headers = new Headers({ 'Accept-Encoding': 'identity', [VIEWER_BRIDGE_HEADER]: viewerBridgeSignature(route.pathname, route.search) });
     if (!json && route.kind !== 'shell') for (const name of ['Range', 'If-Range', 'If-None-Match', 'If-Modified-Since']) { const value = request.headers.get(name); if (value && value.length < 1000 && !/[\r\n]/.test(value)) headers.set(name, value); }
     const upstream = await fetch(origin + route.pathname + route.search, { method: json || route.kind==='shell' ? 'GET' : request.method, headers, redirect: 'manual', cache: 'no-store', signal: controller.signal });
     await recheck();

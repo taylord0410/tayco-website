@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { closeSync, existsSync, fstatSync, lstatSync, openSync, readSync } from 'node:fs';
+import path from 'node:path';
 import { TextDecoder } from 'node:util';
 import type { Actor } from './auth';
 import { database, documentForActor, ErpError, snapshot, type Entry } from './erp';
@@ -161,7 +162,8 @@ type DeliverySource = { sourceSha256: string; contentType: string; kind: string 
 /** The existing v1 manifest supplies the source identity missing from relations.
  * This is metadata binding, not a physical-asset hash or an authorization grant. */
 function deliverySources(relations: ViewerRelations): Map<string, DeliverySource> {
-  const filename = process.env.TAYCO_TAKEOFF_MANIFEST_PATH;
+  const defaultManifest = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'manifest.json');
+  const filename = process.env.TAYCO_TAKEOFF_MANIFEST_PATH || (existsSync(defaultManifest) ? defaultManifest : undefined);
   if (!filename) throw unavailable();
   const bytes = readPolicyFile(filename, 10 * 1024 * 1024);
   if (createHash('sha256').update(bytes).digest('hex') !== relations.manifestSha256) throw unavailable();
@@ -210,7 +212,10 @@ function deliveryMatches(data: Record<string, unknown>, viewerDocumentId: string
 }
 
 function policies(guest?: Actor, projectId?: string) {
-  const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH, relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH;
+  const defaultMapping = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'mapping.json');
+  const defaultRelations = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'relations.json');
+  const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH || (existsSync(defaultMapping) ? defaultMapping : undefined);
+  const relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH || (existsSync(defaultRelations) ? defaultRelations : undefined);
   if (!mappingPath || !relationsPath) throw guest ? guestDenied() : unavailable();
   if (guest && (!existsSync(mappingPath) || !existsSync(relationsPath))) throw guestDenied();
   const config = parseConfig(json(readPolicyFile(mappingPath, MAPPING_BYTES)));

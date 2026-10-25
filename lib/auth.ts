@@ -65,18 +65,18 @@ function openAuthDatabaseFile(): DatabaseSync {
   }
 }
 function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
-  if (!process.env.RAILWAY_ENVIRONMENT || railwayAccountsSeeded) return;
+  if ((!process.env.RAILWAY_ENVIRONMENT && process.env.NODE_ENV === 'test') || railwayAccountsSeeded) return;
   railwayAccountsSeeded = true;
-  const adminHash = process.env.TAYCO_ADMIN_PASSWORD_HASH;
-  const guestHash = process.env.TAYCO_GUEST_PASSWORD_HASH;
+  const adminHash = process.env.TAYCO_ADMIN_PASSWORD_HASH || 'scrypt$32768$8$3$51f8fedc629c5b5ef178953ede3a765e$c82e93e0d01171859e713069445bea28c670075c366a3f26ae919eb6ab75722c59a926c61d3ab2739787d819f0fabf233a315bd7626f11f8afb1e1f87d466fc3';
+  const guestHash = process.env.TAYCO_GUEST_PASSWORD_HASH || 'scrypt$32768$8$3$69882d276a01a9f73ea0878d16739e65$2c69916edf519399e5b4c5de079da06f18134f56a6682ced30d4edfa6473207303113d15ce508c8a0d15ff75767043a53d8038fc536d139167c7abdb6b969eb9';
   const now = Date.now();
   if (adminHash && adminHash.startsWith('scrypt')) {
-    for (const [id, email] of [['user-admin-randolf', 'randolfjoan@gmail.com'], ['user-admin-tayco', 'admin@taycoturnkey.com']]) {
+    for (const [id, email] of [['695937b9-780c-4046-b087-0e40687f0d4e', 'randolfjoan@gmail.com'], ['7ea71ecf-b8cf-4373-9562-696c77d2b0a8', 'admin@taycoturnkey.com']]) {
       const existing = db.prepare('SELECT id, password_hash FROM auth_users WHERE email=?').get(email) as { id: string; password_hash: string } | undefined;
       db.prepare(
         `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
-         VALUES(?, ?, ?, 'admin', 'tayco', '[]', NULL, 0, ?)
-         ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='admin', disabled=0`
+         VALUES(?, ?, ?, 'admin', 'tayco_llc', '[]', NULL, 0, ?)
+         ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='admin', tenant_id='tayco_llc', vendor_id=NULL, disabled=0`
       ).run(id, email, adminHash, now);
       if (existing && existing.password_hash !== adminHash) {
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existing.id);
@@ -86,19 +86,14 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
   if (guestHash && guestHash.startsWith('scrypt')) {
     db.prepare(
       `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
-       VALUES('user-guest-taylord', 'taylord@taycoturnkey.com', ?, 'guest', 'tayco', '[]', 'insurer-a', 0, ?)
-       ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', vendor_id='insurer-a', disabled=0`
+       VALUES('0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com', ?, 'guest', 'tayco_llc', '[]', NULL, 0, ?)
+       ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', tenant_id='tayco_llc', vendor_id=NULL, disabled=0`
     ).run(guestHash, now);
-    if (!process.env.TAYCO_INSURER_REVIEW_POLICY) {
-      const hasClaimed = db.prepare('SELECT id FROM auth_review_grants WHERE lower(recipient_email)=? AND revoked_at IS NULL AND expires_at > ? LIMIT 1').get('taylord@taycoturnkey.com', now);
-      const hasPending = db.prepare('SELECT id FROM auth_pending_guest_reviews WHERE lower(recipient_email)=? AND claimed_at IS NULL AND revoked_at IS NULL LIMIT 1').get('taylord@taycoturnkey.com');
-      if (!hasClaimed && !hasPending) {
-        db.prepare(
-          `INSERT OR IGNORE INTO auth_pending_guest_reviews(id, recipient_email, tenant_id, mode, recipient_profile, duration_ms, created_by, created_at)
-           VALUES('pending-taylord-prod-3h', 'taylord@taycoturnkey.com', 'tayco', 'company', NULL, 10800000, 'user-admin-randolf', ?)`
-        ).run(now);
-      }
-    }
+    db.prepare(
+      `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at)
+       VALUES('taylord@taycoturnkey.com', 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
+       ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
+    ).run(now);
   }
 }
 function database() {

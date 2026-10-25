@@ -32,12 +32,9 @@ async function ProjectViewerPage({ params }: { params: Promise<{ projectId: stri
       name = typeof project.data.name === "string" ? project.data.name : "Project plans";
     }
     const scope = viewerScope(actor, projectId);
-    if (!process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL) {noteReviewAuditFailure(undefined,503);unavailable = true;}
-    else {
-      const context = scope.contexts[0];
-      if (!context?.documentIds.length) {noteReviewAuditFailure(undefined,404);notFound();}
-      source = VIEWER_PREFIX + "/viewer/?" + new URLSearchParams({ embed: "1", project: context.key, document: context.documentIds[0], page: "1" });
-    }
+    const context = scope.contexts[0];
+    if (!context?.documentIds.length) {noteReviewAuditFailure(undefined,404);notFound();}
+    source = VIEWER_PREFIX + "/viewer/?" + new URLSearchParams({ embed: "1", project: context.key, document: context.documentIds[0], page: "1" });
   } catch (error) {
     source="";
     if(error instanceof TakeoffViewerAccessError||error instanceof AuthError)noteReviewAuditFailure(error,error.status);

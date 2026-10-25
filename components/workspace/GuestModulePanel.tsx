@@ -106,6 +106,12 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
     const visibleProjects = data.projects.filter(p => !selectedStatus || p.status === selectedStatus);
 
     return <div className="space-y-5"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(stat => <button key={stat.label} type="button" onClick={() => onNavigate(stat.section)} className={card + " text-left transition hover:border-amber-200/60 focus-visible:outline-2 focus-visible:outline-amber-200"}><span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">{stat.label}</span><strong className="mt-3 block break-words font-mono text-2xl font-medium text-amber-100">{stat.value}</strong><span className="mt-3 block text-[11px] text-slate-400">{stat.note} ↗</span></button>)}</div>
+      {["financial_dashboard", "finance"].includes(section) && (
+        <div role="alert" data-testid="guest-finance-gross-profit-lock" className="rounded-2xl border border-amber-300/40 bg-amber-950/35 p-5 text-sm text-amber-100">
+          <p className="font-bold text-amber-200">🔒 Gross Profit Details — Cannot be viewed as a guest user (No se puede ver como usuario invitado)</p>
+          <p className="mt-2 leading-relaxed text-slate-200">Detailed gross profit margins (<em>detalles de ganancia en bruto</em>), subcontractor cost spreads, and past months&apos; detailed accounting reports are restricted to TAYCO Administrators and cannot be viewed as a guest user. Current month (<strong>October 2026</strong>) operational records and all 42 project plans remain enabled.</p>
+        </div>
+      )}
       
       <div className="grid gap-5 xl:grid-cols-2">
         <Surface title="Portfolio project status" eyebrow="Current position · Read only">

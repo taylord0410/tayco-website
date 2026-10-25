@@ -20,7 +20,6 @@ async function handleGET(request:NextRequest,context:{params:Promise<{id:string}
     if(!entry.projectId||!sourceId(viewerDocumentId)||!sourceId(bundleId)||!sourceId(contextKey)||
       typeof manifestSha256!=='string'||!/^[a-f0-9]{64}$/.test(manifestSha256)||
       typeof relationsId!=='string'||!/^relations-[a-f0-9]{64}$/.test(relationsId))throw new ErpError(404,'Document unavailable. Contact TAYCO.');
-    if(!process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL)throw new ErpError(503,'The protected document reader is unavailable.');
     const scope=viewerScope(actor,entry.projectId);
     if(scope.bundleId!==bundleId||scope.manifestSha256!==manifestSha256||scope.relationsId!==relationsId||
       !scope.documentIds.includes(viewerDocumentId)||!scope.contexts.some(item=>item.key===contextKey&&item.documentIds.includes(viewerDocumentId)))
