@@ -145,8 +145,8 @@ export default function DashboardCommandCenter({
   };
 
   const selectMonthPill = (monthKey: string) => {
-    if (isGuest && monthKey !== currentMonthKey) {
-      setAdminOnlyModalTitle(`Historical Monthly Breakdown (${monthName(monthKey)})`);
+    if (isGuest) {
+      setAdminOnlyModalTitle(`Monthly Activity & Breakdown (${monthName(monthKey)} 2026)`);
       return;
     }
     setSelectedMonth(monthKey);
@@ -349,88 +349,82 @@ export default function DashboardCommandCenter({
         {/* Card 2 (Directly Below the Chart, Full Width): New Opportunities Since October 2026 Header + Opportunities & Large Projects Table */}
         <VerifiedOpportunitiesTable defaultLimit={48} isGuest={isGuest} />
 
-        {/* Card 3 (Directly Below the Projects Table, Full Width): 2026 Monthly Income Ledger (Jan–Oct) with October Details in its corresponding row */}
-        <section
-          className="dcc-card dcc-income-ledger-wide-card"
-          data-testid="corporate-income-ledger-panel"
-        >
-          <header className="dcc-right-menu-head">
-            <div>
-              <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
-              <h3>Monthly Income Ledger</h3>
-            </div>
-            <span className="dcc-badge" data-tone="emerald">
-              207 TPRJ
-            </span>
-          </header>
-          <div className="dcc-right-menu-list">
-            {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
-              const isSelected = m.key === selectedMonth;
-              const isOctRow = m.key === "2026-10";
-              const rowMicroProjects = getMicroProjectsByPeriod(m.key);
-              return (
-                <div
-                  key={m.key}
-                  data-testid={isOctRow ? "october-right-row-detail" : undefined}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    borderRadius: "10px",
-                    border: isSelected
-                      ? "1px solid rgba(212, 175, 55, 0.45)"
-                      : "1px solid rgba(148, 163, 184, 0.14)",
-                    background: isSelected ? "rgba(212, 175, 55, 0.07)" : "rgba(15, 32, 56, 0.45)",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
-                    style={{ border: "none", background: "transparent" }}
-                    onClick={() => {
-                      if (isGuest && !isOctRow) {
-                        setAdminOnlyModalTitle(`Monthly Income Detail (${monthName(m.key)})`);
-                        return;
-                      }
-                      setSelectedMonth(m.key);
+        {/* Card 3 (Directly Below the Projects Table, Full Width — Administrator Only): 2026 Monthly Income Ledger (Jan–Oct) with October Details in its corresponding row */}
+        {!isGuest ? (
+          <section
+            className="dcc-card dcc-income-ledger-wide-card"
+            data-testid="corporate-income-ledger-panel"
+          >
+            <header className="dcc-right-menu-head">
+              <div>
+                <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
+                <h3>Monthly Income Ledger</h3>
+              </div>
+              <span className="dcc-badge" data-tone="emerald">
+                207 TPRJ
+              </span>
+            </header>
+            <div className="dcc-right-menu-list">
+              {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
+                const isSelected = m.key === selectedMonth;
+                const isOctRow = m.key === "2026-10";
+                const rowMicroProjects = getMicroProjectsByPeriod(m.key);
+                return (
+                  <div
+                    key={m.key}
+                    data-testid={isOctRow ? "october-right-row-detail" : undefined}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: "10px",
+                      border: isSelected
+                        ? "1px solid rgba(212, 175, 55, 0.45)"
+                        : "1px solid rgba(148, 163, 184, 0.14)",
+                      background: isSelected ? "rgba(212, 175, 55, 0.07)" : "rgba(15, 32, 56, 0.45)",
                     }}
                   >
-                    <span className="dcc-right-menu-text">
-                      <strong>{monthName(m.key, true)} 2026</strong>
-                      <small>
-                        {isOctRow
-                          ? "1 consolidated record (TPRJ-2610-207)"
-                          : `${m.opps} TPRJ micro-projects`}
-                      </small>
-                    </span>
-                    <span style={{ fontWeight: 700, fontSize: "0.9rem", color: isSelected ? "#f59e0b" : "inherit" }}>
-                      {money(m.issuedCents)}
-                    </span>
-                  </button>
-
-                  {/* October Detail (or Selected Month Detail for Admin) stays exclusively in its corresponding row */}
-                  {isSelected && (
-                    <div
-                      style={{
-                        padding: "0.65rem 0.9rem 0.8rem",
-                        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                        fontSize: "0.78rem",
-                        color: "#cbd5e1",
-                      }}
+                    <button
+                      type="button"
+                      className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
+                      style={{ border: "none", background: "transparent" }}
+                      onClick={() => setSelectedMonth(m.key)}
                     >
-                      {isOctRow ? (
-                        <div>
-                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                              October 2026 Consolidated Record
-                            </strong>
-                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                              ● Reconciled
-                            </span>
-                          </div>
-                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                            TPRJ-2610-207 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Consolidated turnkey package total: <strong style={{ color: "#f8fafc" }}>{usd(21789)}</strong>
-                          </p>
-                          {!isGuest && (
+                      <span className="dcc-right-menu-text">
+                        <strong>{monthName(m.key, true)} 2026</strong>
+                        <small>
+                          {isOctRow
+                            ? "1 consolidated record (TPRJ-2610-207)"
+                            : `${m.opps} TPRJ micro-projects`}
+                        </small>
+                      </span>
+                      <span style={{ fontWeight: 700, fontSize: "0.9rem", color: isSelected ? "#f59e0b" : "inherit" }}>
+                        {money(m.issuedCents)}
+                      </span>
+                    </button>
+
+                    {/* October Detail (or Selected Month Detail for Admin) stays exclusively in its corresponding row */}
+                    {isSelected && (
+                      <div
+                        style={{
+                          padding: "0.65rem 0.9rem 0.8rem",
+                          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                          fontSize: "0.78rem",
+                          color: "#cbd5e1",
+                        }}
+                      >
+                        {isOctRow ? (
+                          <div>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
+                              <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
+                                October 2026 Consolidated Record
+                              </strong>
+                              <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
+                                ● Reconciled
+                              </span>
+                            </div>
+                            <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
+                              TPRJ-2610-207 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Consolidated turnkey package total: <strong style={{ color: "#f8fafc" }}>{usd(21789)}</strong>
+                            </p>
                             <button
                               type="button"
                               onClick={() => openMonthDetail("2026-10")}
@@ -448,22 +442,20 @@ export default function DashboardCommandCenter({
                             >
                               Open October Ledger →
                             </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                              {monthName(m.key)} Breakdown
-                            </strong>
-                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                              {rowMicroProjects.length} records
-                            </span>
                           </div>
-                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                            {rowMicroProjects[0]?.id} – {rowMicroProjects[rowMicroProjects.length - 1]?.id} · Total: <strong style={{ color: "#f8fafc" }}>{money(m.issuedCents)}</strong>
-                          </p>
-                          {!isGuest && (
+                        ) : (
+                          <div>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
+                              <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
+                                {monthName(m.key)} Breakdown
+                              </strong>
+                              <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
+                                {rowMicroProjects.length} records
+                              </span>
+                            </div>
+                            <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
+                              {rowMicroProjects[0]?.id} – {rowMicroProjects[rowMicroProjects.length - 1]?.id} · Total: <strong style={{ color: "#f8fafc" }}>{money(m.issuedCents)}</strong>
+                            </p>
                             <button
                               type="button"
                               onClick={() => openMonthDetail(m.key)}
@@ -481,38 +473,96 @@ export default function DashboardCommandCenter({
                             >
                               Open {monthName(m.key, true)} Ledger →
                             </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.85rem 1rem",
+                  marginTop: "0.35rem",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  borderRadius: "8px",
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: "0.9rem", display: "block" }}>YTD Total Income</strong>
+                  <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.76rem" }}>207 TPRJ records · Jan–Oct</small>
                 </div>
-              );
-            })}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.85rem 1rem",
-                marginTop: "0.35rem",
-                borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-                background: "rgba(255, 255, 255, 0.03)",
-                borderRadius: "8px",
-              }}
-            >
-              <div>
-                <strong style={{ fontSize: "0.9rem", display: "block" }}>YTD Total Income</strong>
-                <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.76rem" }}>207 TPRJ records · Jan–Oct</small>
+                <strong style={{ fontSize: "1.08rem", color: "#10b981" }}>
+                  {money(ytdCents)}
+                </strong>
               </div>
-              <strong style={{ fontSize: "1.08rem", color: "#10b981" }}>
-                {money(ytdCents)}
-              </strong>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section
+            className="dcc-card dcc-income-ledger-wide-card"
+            data-testid="corporate-income-ledger-locked-guest"
+            onClick={() => setAdminOnlyModalTitle("Monthly Income Ledger (Jan–Oct 2026)")}
+            style={{ cursor: "pointer" }}
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+                <span
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    background: "rgba(212, 175, 55, 0.15)",
+                    border: "1px solid rgba(212, 175, 55, 0.42)",
+                    color: "#f3d37a",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="dcc-eyebrow" style={{ margin: 0 }}>RESTRICTED CORPORATE LEDGER · 2026</p>
+                  <h3 style={{ margin: "0.15rem 0 0", fontSize: "1rem" }}>Monthly Income Ledger &amp; Monthly Records (Jan–Oct 2026)</h3>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#94a3b8" }}>
+                    Detailed monthly financial records and consolidated package ledgers are restricted to corporate administrators.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAdminOnlyModalTitle("Monthly Income Ledger (Jan–Oct 2026)");
+                }}
+                style={{
+                  padding: "0.48rem 0.95rem",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(212, 175, 55, 0.45)",
+                  background: "rgba(15, 31, 56, 0.9)",
+                  color: "#f3d37a",
+                  fontWeight: 700,
+                  fontSize: "0.78rem",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                🔒 Administrator Only
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Card 4 (Admin Only): 8 Active Certifications & Programs */}
         {!isGuest && (
