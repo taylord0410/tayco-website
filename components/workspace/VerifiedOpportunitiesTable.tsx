@@ -7,8 +7,20 @@ import {
 } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
 
+const sanitizeGuestText = (text: string): string =>
+  text
+    .replace(/\bIllinois Dept\. of Transportation \(IDOT\)/gi, "Department of Transportation (DOT)")
+    .replace(/\bIndianapolis Airport Authority \(IAA\)/gi, "Regional Airport Authority")
+    .replace(/\bLifeway Mobility Chicago\b/gi, "Lifeway Mobility")
+    .replace(/\bVillage of Shorewood\b/gi, "Municipal Public Works")
+    .replace(/\bCity of Venice Development\b/gi, "Municipal Development Board")
+    .replace(/\bCity of Lake Mills\b/gi, "Municipal Library Board")
+    .replace(/\bKenosha County\b/gi, "County")
+    .replace(/\(IL0403\)/g, "(#0403)")
+    .replace(/\b(Wisconsin|Illinois|Indiana|Iowa|Missouri|Ohio|Minnesota)\b/gi, "Regional");
+
 export function VerifiedOpportunitiesTable({
-  defaultLimit = 12,
+  defaultLimit = 24,
   isGuest = false,
 }: {
   defaultLimit?: number;
@@ -150,10 +162,10 @@ export function VerifiedOpportunitiesTable({
         >
           <TakeoffProjectReader
             source={activeItem.viewerHref}
-            projectName={activeItem.name}
+            projectName={isGuest ? sanitizeGuestText(activeItem.name) : activeItem.name}
             privacyNotice={false}
             badgeText={`Opportunity #${activeItem.number} · ${activeItem.infrastructureType} Infrastructure · Protected Drawing Sheet`}
-            subtitle={`General Contractor: ${activeItem.contractor} · Price: ${activeItem.estimatedPrice} · (${activeItem.planFilesCount ?? 1} plan files)`}
+            subtitle={`General Contractor: ${isGuest ? sanitizeGuestText(activeItem.contractor) : activeItem.contractor}${!isGuest && activeItem.location ? ` · Location: ${activeItem.location}` : ""} · Price: ${activeItem.estimatedPrice} · (${activeItem.planFilesCount ?? 1} plan files)`}
             onClose={() => setActiveViewerId(null)}
             onPrevProject={() => {
               const drawable = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((o) => Boolean(o.viewerHref));
@@ -212,7 +224,7 @@ export function VerifiedOpportunitiesTable({
                             isUnionOrAssoc ? "dcc-union-contractor-title" : ""
                           }`}
                         >
-                          {row.contractor}
+                          {isGuest ? sanitizeGuestText(row.contractor) : row.contractor}
                         </p>
                         {isUnionOrAssoc && (
                           <span className="dcc-union-row-tag">
@@ -226,7 +238,14 @@ export function VerifiedOpportunitiesTable({
                   </td>
                   <td>
                     <div>
-                      <p className="dcc-row-title">{row.name}</p>
+                      <p className="dcc-row-title">
+                        {isGuest ? sanitizeGuestText(row.name) : row.name}
+                      </p>
+                      {!isGuest && row.location && (
+                        <small style={{ color: "#94a3b8", fontSize: "0.73rem", display: "block", marginTop: "0.18rem" }}>
+                          {row.location}
+                        </small>
+                      )}
                     </div>
                   </td>
                   <td>
@@ -238,7 +257,24 @@ export function VerifiedOpportunitiesTable({
                     </span>
                   </td>
                   <td>
-                    <span className="dcc-opp-price">{row.estimatedPrice}</span>
+                    <span
+                      className="dcc-opp-price"
+                      style={
+                        row.estimatedPrice.startsWith("$")
+                          ? {
+                              color: "#6ee7b7",
+                              fontWeight: 800,
+                              fontSize: "0.78rem",
+                              padding: "0.18rem 0.5rem",
+                              borderRadius: "6px",
+                              background: "rgba(16, 185, 129, 0.14)",
+                              border: "1px solid rgba(16, 185, 129, 0.38)",
+                            }
+                          : undefined
+                      }
+                    >
+                      {row.estimatedPrice}
+                    </span>
                   </td>
                   <td>
                     <span className="dcc-opp-deadline">

@@ -347,7 +347,7 @@ export default function DashboardCommandCenter({
         </section>
 
         {/* Card 2 (Directly Below the Chart, Full Width): New Opportunities Since October 2026 Header + Opportunities & Large Projects Table */}
-        <VerifiedOpportunitiesTable defaultLimit={12} isGuest={isGuest} />
+        <VerifiedOpportunitiesTable defaultLimit={24} isGuest={isGuest} />
 
         {/* Card 3 (Directly Below the Projects Table, Full Width): 2026 Monthly Income Ledger (Jan–Oct) with October Details in its corresponding row */}
         <section
