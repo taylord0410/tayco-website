@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
   type VerifiedBiddingOpportunity,
@@ -20,6 +20,13 @@ export function VerifiedOpportunitiesTable({
   const [search, setSearch] = useState("");
   const [showAll, setShowAll] = useState(defaultLimit >= 42);
   const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeViewerId && drawerRef.current) {
+      drawerRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [activeViewerId]);
 
   const counts = useMemo(() => {
     const overdue = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
@@ -162,33 +169,27 @@ export function VerifiedOpportunitiesTable({
 
       {activeItem && activeItem.viewerHref && (
         <div
+          ref={drawerRef}
           className="dcc-opportunities-viewer-drawer"
           data-testid="verified-opportunity-viewer-drawer"
         >
-          <div className="dcc-opportunities-viewer-bar">
-            <div>
-              <span className="dcc-badge" data-tone="amber">
-                Opportunity #{activeItem.number} · Protected Drawing Sheet
-              </span>
-              <h4 className="dcc-row-title" style={{ marginTop: "0.35rem" }}>
-                {activeItem.name}
-              </h4>
-              <p className="dcc-row-meta">
-                General Contractor: {activeItem.contractor} · ({activeItem.planFilesCount ?? 1} plan files)
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveViewerId(null)}
-              className="dcc-action-btn"
-            >
-              Close drawing viewer ✕
-            </button>
-          </div>
           <TakeoffProjectReader
             source={activeItem.viewerHref}
             projectName={activeItem.name}
             privacyNotice={false}
+            badgeText={`Opportunity #${activeItem.number} · Protected Drawing Sheet`}
+            subtitle={`General Contractor: ${activeItem.contractor} · (${activeItem.planFilesCount ?? 1} plan files)`}
+            onClose={() => setActiveViewerId(null)}
+            onPrevProject={() => {
+              const drawable = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((o) => Boolean(o.viewerHref));
+              const idx = drawable.findIndex((o) => o.id === activeItem.id);
+              if (idx > 0) setActiveViewerId(drawable[idx - 1].id);
+            }}
+            onNextProject={() => {
+              const drawable = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((o) => Boolean(o.viewerHref));
+              const idx = drawable.findIndex((o) => o.id === activeItem.id);
+              if (idx >= 0 && idx < drawable.length - 1) setActiveViewerId(drawable[idx + 1].id);
+            }}
           />
         </div>
       )}

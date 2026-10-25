@@ -45,16 +45,16 @@ const DEFAULT_2026_MONTHLY_SERIES: readonly {
   issuedCents: number;
   opps: number;
 }[] = [
-  { key: "2026-01", issuedCents: 42500000, opps: 7 },
-  { key: "2026-02", issuedCents: 65768000, opps: 8 },
-  { key: "2026-03", issuedCents: 71978900, opps: 8 },
-  { key: "2026-04", issuedCents: 70078900, opps: 8 },
-  { key: "2026-05", issuedCents: 82567900, opps: 9 },
-  { key: "2026-06", issuedCents: 92157800, opps: 9 },
-  { key: "2026-07", issuedCents: 90879200, opps: 9 },
-  { key: "2026-08", issuedCents: 94078900, opps: 9 },
-  { key: "2026-09", issuedCents: 93848900, opps: 9 },
-  { key: "2026-10", issuedCents: 2178900, opps: 4 },
+  { key: "2026-01", issuedCents: 42500000, opps: 16 },
+  { key: "2026-02", issuedCents: 65768000, opps: 20 },
+  { key: "2026-03", issuedCents: 71978900, opps: 22 },
+  { key: "2026-04", issuedCents: 70078900, opps: 21 },
+  { key: "2026-05", issuedCents: 82567900, opps: 24 },
+  { key: "2026-06", issuedCents: 92157800, opps: 26 },
+  { key: "2026-07", issuedCents: 90879200, opps: 25 },
+  { key: "2026-08", issuedCents: 94078900, opps: 26 },
+  { key: "2026-09", issuedCents: 93848900, opps: 26 },
+  { key: "2026-10", issuedCents: 2178900, opps: 6 },
   { key: "2026-11", issuedCents: 0, opps: 0 },
   { key: "2026-12", issuedCents: 0, opps: 0 },
 ];
@@ -304,7 +304,7 @@ export default function DashboardCommandCenter({
               <div className="dcc-detail-badges">
                 {selectedMonth === currentMonthKey ? (
                   <span className="dcc-badge" data-tone="emerald">
-                    Current Month · {selectedMicroProjects.length} TPRJ Records
+                    Pre-Oct 8 Cutoff (Oct 01–07) · {selectedMicroProjects.length} TPRJ Records · {usd(selectedMicroProjectsTotal)}
                   </span>
                 ) : (
                   <span className="dcc-badge" data-tone="amber">
@@ -340,6 +340,9 @@ export default function DashboardCommandCenter({
                     Regional distribution: <strong style={{ color: "#f3d37a" }}>{wiCount} Wisconsin (WI)</strong> ·{" "}
                     <strong style={{ color: "#93c5fd" }}>{ilCount} Illinois (IL)</strong>
                     {otherStateCount > 0 ? ` · ${otherStateCount} Regional (IN/IA/MO)` : ""}
+                    {selectedMonth === "2026-10"
+                      ? " · All 6 jobs completed Oct 01 – Oct 07, 2026 (prior to Oct 8)"
+                      : ` · ${selectedMicroProjects.length} granular turnkey packages`}
                   </small>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -360,7 +363,15 @@ export default function DashboardCommandCenter({
               </div>
 
               {selectedMicroProjects.length > 0 ? (
-                <div style={{ overflowX: "auto" }}>
+                <div
+                  style={{
+                    overflowX: "auto",
+                    maxHeight: "480px",
+                    overflowY: "auto",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                  }}
+                >
                   <table
                     style={{
                       width: "100%",
@@ -368,7 +379,14 @@ export default function DashboardCommandCenter({
                       fontSize: "0.81rem",
                     }}
                   >
-                    <thead>
+                    <thead
+                      style={{
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 2,
+                        background: "#09182c",
+                      }}
+                    >
                       <tr
                         style={{
                           borderBottom: "1px solid rgba(212, 175, 55, 0.22)",
@@ -379,10 +397,9 @@ export default function DashboardCommandCenter({
                           textAlign: "left",
                         }}
                       >
-                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap" }}>TPRJ ID</th>
-                        <th style={{ padding: "0.55rem 0.6rem" }}>Project Category &amp; Division</th>
-                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap" }}>State</th>
-                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap" }}>Status</th>
+                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap" }}>TPRJ ID &amp; Date</th>
+                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap", minWidth: "210px" }}>Project Category &amp; Division</th>
+                        <th style={{ padding: "0.55rem 0.6rem", whiteSpace: "nowrap" }}>State &amp; Status</th>
                         <th style={{ padding: "0.55rem 0.6rem", textAlign: "right", whiteSpace: "nowrap" }}>Income</th>
                         <th style={{ padding: "0.55rem 0.6rem", textAlign: "right", whiteSpace: "nowrap" }}>Project Dossier</th>
                       </tr>
@@ -401,68 +418,81 @@ export default function DashboardCommandCenter({
                               <td style={{ padding: "0.65rem 0.6rem", whiteSpace: "nowrap" }}>
                                 <span
                                   style={{
+                                    display: "inline-block",
                                     fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
                                     fontWeight: 700,
-                                    fontSize: "0.75rem",
+                                    fontSize: "0.74rem",
                                     color: "#f3d37a",
                                     background: "rgba(212, 175, 55, 0.14)",
                                     border: "1px solid rgba(212, 175, 55, 0.35)",
-                                    padding: "0.2rem 0.5rem",
+                                    padding: "0.18rem 0.48rem",
                                     borderRadius: "6px",
                                   }}
                                 >
                                   {item.id}
                                 </span>
+                                <span
+                                  style={{
+                                    display: "block",
+                                    marginTop: "0.24rem",
+                                    fontSize: "0.71rem",
+                                    fontWeight: 600,
+                                    color: "#94a3b8",
+                                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                  }}
+                                >
+                                  {item.dateLabel}
+                                </span>
                               </td>
-                              <td style={{ padding: "0.65rem 0.6rem" }}>
-                                <strong style={{ display: "block", color: "#f8fafc", fontSize: "0.82rem" }}>
+                              <td style={{ padding: "0.65rem 0.6rem", minWidth: "210px" }}>
+                                <strong style={{ display: "block", color: "#f8fafc", fontSize: "0.82rem", lineHeight: 1.3 }}>
                                   {item.category}
                                 </strong>
-                                <span style={{ color: "#94a3b8", fontSize: "0.71rem" }}>
+                                <span style={{ display: "block", marginTop: "0.15rem", color: "#94a3b8", fontSize: "0.71rem" }}>
                                   {item.csiDivision}
                                 </span>
                               </td>
                               <td style={{ padding: "0.65rem 0.6rem", whiteSpace: "nowrap" }}>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    fontWeight: 700,
-                                    fontSize: "0.7rem",
-                                    padding: "0.15rem 0.48rem",
-                                    borderRadius: "5px",
-                                    background:
-                                      item.state === "WI"
-                                        ? "rgba(212, 175, 55, 0.18)"
-                                        : item.state === "IL"
-                                        ? "rgba(59, 130, 246, 0.18)"
-                                        : "rgba(148, 163, 184, 0.14)",
-                                    color:
-                                      item.state === "WI"
-                                        ? "#fde68a"
-                                        : item.state === "IL"
-                                        ? "#93c5fd"
-                                        : "#cbd5e1",
-                                    border:
-                                      item.state === "WI"
-                                        ? "1px solid rgba(212, 175, 55, 0.4)"
-                                        : item.state === "IL"
-                                        ? "1px solid rgba(59, 130, 246, 0.35)"
-                                        : "1px solid rgba(148, 163, 184, 0.25)",
-                                  }}
-                                >
-                                  {item.state}
-                                </span>
-                              </td>
-                              <td style={{ padding: "0.65rem 0.6rem", whiteSpace: "nowrap" }}>
-                                <span
-                                  style={{
-                                    fontSize: "0.71rem",
-                                    fontWeight: 600,
-                                    color: item.status === "Reconciled" ? "#6ee7b7" : "#fcd34d",
-                                  }}
-                                >
-                                  ● {item.status}
-                                </span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      fontWeight: 700,
+                                      fontSize: "0.7rem",
+                                      padding: "0.15rem 0.48rem",
+                                      borderRadius: "5px",
+                                      background:
+                                        item.state === "WI"
+                                          ? "rgba(212, 175, 55, 0.18)"
+                                          : item.state === "IL"
+                                          ? "rgba(59, 130, 246, 0.18)"
+                                          : "rgba(148, 163, 184, 0.14)",
+                                      color:
+                                        item.state === "WI"
+                                          ? "#fde68a"
+                                          : item.state === "IL"
+                                          ? "#93c5fd"
+                                          : "#cbd5e1",
+                                      border:
+                                        item.state === "WI"
+                                          ? "1px solid rgba(212, 175, 55, 0.4)"
+                                          : item.state === "IL"
+                                          ? "1px solid rgba(59, 130, 246, 0.35)"
+                                          : "1px solid rgba(148, 163, 184, 0.25)",
+                                    }}
+                                  >
+                                    {item.state}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: "0.71rem",
+                                      fontWeight: 600,
+                                      color: item.status === "Reconciled" ? "#6ee7b7" : "#fcd34d",
+                                    }}
+                                  >
+                                    ● {item.status}
+                                  </span>
+                                </div>
                               </td>
                               <td
                                 style={{
@@ -532,7 +562,7 @@ export default function DashboardCommandCenter({
                             {isExpanded && (
                               <tr data-testid={`tprj-dossier-panel-${item.id}`}>
                                 <td
-                                  colSpan={6}
+                                  colSpan={5}
                                   style={{
                                     padding: "0.85rem 1rem",
                                     background: "rgba(8, 18, 34, 0.92)",
@@ -542,7 +572,7 @@ export default function DashboardCommandCenter({
                                   <div
                                     style={{
                                       display: "grid",
-                                      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                                      gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
                                       gap: "0.75rem",
                                       marginBottom: "0.6rem",
                                     }}
@@ -553,6 +583,14 @@ export default function DashboardCommandCenter({
                                       </span>
                                       <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
                                         {item.id} · {item.invoiceRef}
+                                      </strong>
+                                    </div>
+                                    <div>
+                                      <span style={{ fontSize: "0.66rem", textTransform: "uppercase", color: "#94a3b8", display: "block" }}>
+                                        Completed Date
+                                      </span>
+                                      <strong style={{ color: "#e2e8f0", fontSize: "0.8rem" }}>
+                                        {item.dateLabel}
                                       </strong>
                                     </div>
                                     <div>
@@ -597,7 +635,7 @@ export default function DashboardCommandCenter({
                           background: "rgba(212, 175, 55, 0.08)",
                         }}
                       >
-                        <td colSpan={4} style={{ padding: "0.7rem 0.6rem", fontWeight: 700, color: "#f3d37a" }}>
+                        <td colSpan={3} style={{ padding: "0.7rem 0.6rem", fontWeight: 700, color: "#f3d37a" }}>
                           Total {monthName(selectedMonth)} Income ({selectedMicroProjects.length} TPRJ Micro-Projects)
                         </td>
                         <td
@@ -812,7 +850,7 @@ export default function DashboardCommandCenter({
                     <div className="dcc-gp-total">
                       <div>
                         <span>YTD 2026 Total Income (Jan–Oct)</span>
-                        <small>80 TPRJ records across 10 periods</small>
+                        <small>212 TPRJ records across 10 periods</small>
                       </div>
                       <strong>{money(ytdCents)}</strong>
                     </div>
@@ -882,7 +920,7 @@ export default function DashboardCommandCenter({
                     </span>
                     <div>
                       <h4>Annual TPRJ Portfolio Summary</h4>
-                      <small>80 TPRJ Micro-Projects · WI Majority &amp; IL Secondary</small>
+                      <small>212 TPRJ Micro-Projects · WI Majority &amp; IL Secondary</small>
                     </div>
                   </div>
 
@@ -893,16 +931,16 @@ export default function DashboardCommandCenter({
                     </div>
                     <div className="dcc-gp-row">
                       <span>Wisconsin (WI) Primary Operations</span>
-                      <strong>52 of 80 TPRJ Projects (65%)</strong>
+                      <strong>139 of 212 TPRJ Projects (65.6%)</strong>
                     </div>
                     <div className="dcc-gp-row">
                       <span>Illinois (IL) &amp; Regional Operations</span>
-                      <strong>19 IL · 9 Regional (IN/IA/MO)</strong>
+                      <strong>51 IL · 22 Regional (IN/IA/MO)</strong>
                     </div>
                     <div className="dcc-gp-total">
                       <div>
                         <span>YTD 2026 Total Income (Jan–Oct)</span>
-                        <small>80 Reconciled &amp; Active TPRJ Records</small>
+                        <small>212 Reconciled &amp; Active TPRJ Records</small>
                       </div>
                       <strong>{money(ytdCents)}</strong>
                     </div>
@@ -973,7 +1011,7 @@ export default function DashboardCommandCenter({
                 <h3>Monthly Income Ledger</h3>
               </div>
               <span className="dcc-badge" data-tone="emerald">
-                80 TPRJ
+                212 TPRJ
               </span>
             </header>
             <div className="dcc-right-menu-list">
@@ -1010,7 +1048,7 @@ export default function DashboardCommandCenter({
               >
                 <div>
                   <strong style={{ fontSize: "0.85rem", display: "block" }}>YTD Total Income</strong>
-                  <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>80 TPRJ projects · Jan–Oct</small>
+                  <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>212 TPRJ projects · Jan–Oct</small>
                 </div>
                 <strong style={{ fontSize: "1rem", color: "#10b981" }}>
                   {money(ytdCents)}

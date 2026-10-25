@@ -61,16 +61,16 @@ const CANONICAL_SECTION_MAP: Record<string, string> = {
 };
 
 export const CORPORATE_2026_MONTHLY_INCOME = [
-  { month: "January 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2601-001 – TPRJ-2601-007 (7)", states: "5 WI · 1 IL · 1 IN", income: "$425,000", amount: 425000, status: "Reconciled" },
-  { month: "February 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2602-008 – TPRJ-2602-015 (8)", states: "5 WI · 2 IL · 1 IA", income: "$657,680", amount: 657680, status: "Reconciled" },
-  { month: "March 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2603-016 – TPRJ-2603-023 (8)", states: "5 WI · 2 IL · 1 IN", income: "$719,789", amount: 719789, status: "Reconciled" },
-  { month: "April 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2604-024 – TPRJ-2604-031 (8)", states: "5 WI · 2 IL · 1 MO", income: "$700,789", amount: 700789, status: "Reconciled" },
-  { month: "May 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2605-032 – TPRJ-2605-040 (9)", states: "6 WI · 2 IL · 1 IN", income: "$825,679", amount: 825679, status: "Reconciled" },
-  { month: "June 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2606-041 – TPRJ-2606-049 (9)", states: "6 WI · 2 IL · 1 IA", income: "$921,578", amount: 921578, status: "Reconciled" },
-  { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-050 – TPRJ-2607-058 (9)", states: "5 WI · 3 IL · 1 MO", income: "$908,792", amount: 908792, status: "Reconciled" },
-  { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-059 – TPRJ-2608-067 (9)", states: "6 WI · 2 IL · 1 IN", income: "$940,789", amount: 940789, status: "Reconciled" },
-  { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-068 – TPRJ-2609-076 (9)", states: "6 WI · 2 IL · 1 IA", income: "$938,489", amount: 938489, status: "Reconciled" },
-  { month: "October 2026", quarter: "Q4 2026", tprjRange: "TPRJ-2610-077 – TPRJ-2610-080 (4)", states: "3 WI · 1 IL", income: "$21,789", amount: 21789, status: "In Progress" },
+  { month: "January 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2601-001 – TPRJ-2601-016 (16)", states: "11 WI · 4 IL · 1 IN", income: "$425,000", amount: 425000, status: "Reconciled" },
+  { month: "February 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2602-017 – TPRJ-2602-036 (20)", states: "13 WI · 5 IL · 2 IA/IN", income: "$657,680", amount: 657680, status: "Reconciled" },
+  { month: "March 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2603-037 – TPRJ-2603-058 (22)", states: "14 WI · 5 IL · 3 IN/MO", income: "$719,789", amount: 719789, status: "Reconciled" },
+  { month: "April 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2604-059 – TPRJ-2604-079 (21)", states: "14 WI · 5 IL · 2 IA/IN", income: "$700,789", amount: 700789, status: "Reconciled" },
+  { month: "May 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2605-080 – TPRJ-2605-103 (24)", states: "16 WI · 6 IL · 2 IN/MO", income: "$825,679", amount: 825679, status: "Reconciled" },
+  { month: "June 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2606-104 – TPRJ-2606-129 (26)", states: "17 WI · 6 IL · 3 IN/IA", income: "$921,578", amount: 921578, status: "Reconciled" },
+  { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-130 – TPRJ-2607-154 (25)", states: "16 WI · 6 IL · 3 IN/MO", income: "$908,792", amount: 908792, status: "Reconciled" },
+  { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-155 – TPRJ-2608-180 (26)", states: "17 WI · 6 IL · 3 IN/IA", income: "$940,789", amount: 940789, status: "Reconciled" },
+  { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-181 – TPRJ-2609-206 (26)", states: "17 WI · 6 IL · 3 IA/MO", income: "$938,489", amount: 938489, status: "Reconciled" },
+  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-207 – TPRJ-2610-212 (6)", states: "4 WI · 2 IL (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
 ] as const;
 
 export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
@@ -145,30 +145,13 @@ export default function CorporateSectionExecutivePanel({
 
           {activeDrawingOpp && activeDrawingOpp.viewerHref && (
             <div className="dcc-opportunities-viewer-drawer">
-              <div className="dcc-opportunities-viewer-bar">
-                <div>
-                  <span className="dcc-badge" data-tone="amber">
-                    Project Plan Set · #{activeDrawingOpp.number}
-                  </span>
-                  <h4 className="dcc-row-title" style={{ marginTop: "0.35rem" }}>
-                    {activeDrawingOpp.name}
-                  </h4>
-                  <p className="dcc-row-meta">
-                    General Contractor: {activeDrawingOpp.contractor}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="dcc-action-btn"
-                  onClick={() => setActiveViewerId(null)}
-                >
-                  Close plans ✕
-                </button>
-              </div>
               <TakeoffProjectReader
                 source={activeDrawingOpp.viewerHref}
                 projectName={activeDrawingOpp.name}
                 privacyNotice={false}
+                badgeText={`Project Plan Set · #${activeDrawingOpp.number}`}
+                subtitle={`General Contractor: ${activeDrawingOpp.contractor}`}
+                onClose={() => setActiveViewerId(null)}
               />
             </div>
           )}
@@ -316,10 +299,10 @@ export default function CorporateSectionExecutivePanel({
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">October 2026</span>
+              <span className="dcc-kpi-label">October 2026 (Oct 01–07)</span>
               <strong className="dcc-kpi-value">$21,789</strong>
               <span className="dcc-kpi-note">
-                Current month in progress
+                6 TPRJ jobs completed prior to Oct 8
               </span>
             </div>
             <div className="dcc-kpi">
