@@ -36,7 +36,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     "href": "/estimate",
     "cta": "Request a free estimate",
     "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#F97316",
+    "stroke": "#C9A84C",
     "badgeColor": "#C9A84C"
   },
   {
@@ -116,7 +116,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     "href": "/vendor-application",
     "cta": "Apply as a trade partner",
     "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#F97316",
+    "stroke": "#1B3A6B",
     "badgeColor": "#C9A84C"
   }
 ];
@@ -137,7 +137,7 @@ const LIGHT_STUDIES = [
     "buttonTitle": "02 / Timber & structure",
     "label": "TIMBER / STRUCTURE",
     "note": "Light and shadow give form to structural rhythm. Discuss framing, detailing and finishes with the team for your space.",
-    "color": "#4A90D9",
+    "color": "#E2C675",
     "specMetric": "Timber · Structure"
   },
   {
@@ -146,7 +146,7 @@ const LIGHT_STUDIES = [
     "buttonTitle": "03 / Shape & detail",
     "label": "DETAIL / CRAFT",
     "note": "Small details shape how a space feels. This interactive material study is a visual illustration, not an inspection or construction specification.",
-    "color": "#F97316",
+    "color": "#94B8D7",
     "specMetric": "Shape · Detail"
   }
 ];
@@ -176,7 +176,7 @@ const PROJECT_STEPS = [
     "status": "Planning",
     "requestHref": "/estimate",
     "loginHref": "/login",
-    "accent": "#4A90D9"
+    "accent": "#DFC06C"
   },
   {
     "code": "03",
@@ -202,7 +202,7 @@ const PROJECT_STEPS = [
     "status": "Construction",
     "requestHref": "/estimate",
     "loginHref": "/login",
-    "accent": "#10B981"
+    "accent": "#E2C675"
   },
   {
     "code": "05",
@@ -215,7 +215,7 @@ const PROJECT_STEPS = [
     "status": "Closeout",
     "requestHref": "/estimate",
     "loginHref": "/login",
-    "accent": "#F97316"
+    "accent": "#F3D37A"
   }
 ];
 
@@ -331,7 +331,32 @@ export default function Home() {
               ★ Primary Service · Commercial Construction
             </div>
 
-            <div className="text-5xl mb-3">🏢</div>
+            <div
+              className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto mb-5 shadow-inner"
+              style={{
+                background: "rgba(7, 14, 26, 0.65)",
+                borderColor: "rgba(201, 168, 76, 0.45)",
+              }}
+              aria-hidden="true"
+            >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F3D37A"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 21h18" />
+                <path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16" />
+                <path d="M15 21V9h4a1 1 0 0 1 1 1v11" />
+                <path d="M8 7h4" />
+                <path d="M8 11h4" />
+                <path d="M8 15h4" />
+              </svg>
+            </div>
 
             <h2
               className="font-black tracking-tight text-white mb-2"
@@ -409,7 +434,7 @@ export default function Home() {
                 </textPath>
               </text>
             </svg>
-            <span>✳</span>
+            <span>✦</span>
           </div>
         </div>
 
@@ -420,7 +445,7 @@ export default function Home() {
           style={{
             flex: residentialFlex,
             background:
-              "linear-gradient(145deg, #0F2040 0%, #1B3A6B 60%, #234B88 100%)",
+              "linear-gradient(155deg, #0B172A 0%, #132747 58%, #1B3A6B 100%)",
             transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
             minHeight: "50%",
             willChange: "flex",
@@ -433,25 +458,56 @@ export default function Home() {
             <i />
             <i />
           </div>
-          {/* Right Orange Safety Accent Line */}
+          {/* Architectural grid */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(243,211,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(243,211,122,0.05) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+          {/* Right Champagne Gold Accent Line */}
           <div
             className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5"
-            style={{ background: "#F97316" }}
+            style={{ background: "#E2C675" }}
           />
           <div className="relative z-10 text-center px-6 sm:px-12 w-full max-w-md shrink-0">
             <div
               className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] mb-4"
               style={{
-                background: "rgba(249, 115, 22, 0.16)",
-                color: "#FDBA74",
-                border: "1px solid rgba(249, 115, 22, 0.45)",
+                background: "rgba(201, 168, 76, 0.14)",
+                color: "#F3D37A",
+                border: "1px solid rgba(201, 168, 76, 0.42)",
               }}
             >
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              Residential Division · Fire & Water Restoration
+              <span className="tayco-live-dot" style={{ color: "#E2C675" }} />
+              Residential Division · Fire &amp; Water Restoration
             </div>
 
-            <div className="text-5xl mb-3">🏠</div>
+            <div
+              className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto mb-5 shadow-inner"
+              style={{
+                background: "rgba(7, 14, 26, 0.65)",
+                borderColor: "rgba(226, 198, 117, 0.45)",
+              }}
+              aria-hidden="true"
+            >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F3D37A"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 10.5 12 3l9 7.5" />
+                <path d="M5 9.5V21h14V9.5" />
+                <path d="M9 21v-6h6v6" />
+              </svg>
+            </div>
 
             <h2
               className="font-black tracking-tight text-white mb-2"
@@ -464,12 +520,12 @@ export default function Home() {
             </h2>
             <p
               className="text-[11px] font-bold uppercase tracking-[0.2em] mb-4"
-              style={{ color: "#F3D37A" }}
+              style={{ color: "#C9A84C" }}
             >
               Renovation &amp;{" "}
               <em
                 className="tayco-serif-em text-sm"
-                style={{ color: "#F97316" }}
+                style={{ color: "#F3D37A" }}
               >
                 Rapid Recovery
               </em>
@@ -483,10 +539,11 @@ export default function Home() {
 
             <div
               data-magnetic
-              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 group-hover:scale-105 shadow-lg"
+              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 group-hover:scale-105 shadow-lg border"
               style={{
-                background: "#F97316",
-                color: "#ffffff",
+                background: "rgba(201, 168, 76, 0.16)",
+                borderColor: "rgba(243, 211, 122, 0.65)",
+                color: "#F3D37A",
               }}
             >
               View Residential Services <span>→</span>
@@ -502,7 +559,7 @@ export default function Home() {
             borderColor: "rgba(201, 168, 76, 0.5)",
           }}
         >
-          <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+          <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
           <span className="text-[11px] font-mono text-slate-200 font-semibold">
             YOUR NEXT PROJECT STARTS HERE
           </span>
@@ -517,7 +574,7 @@ export default function Home() {
           <Link
             href="/login"
             className="text-[11px] font-mono font-bold hover:text-white underline"
-            style={{ color: "#F97316" }}
+            style={{ color: "#C9A84C" }}
           >
             Team & supplier sign in
           </Link>
@@ -578,7 +635,7 @@ export default function Home() {
           <div className="text-center lg:text-left">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
               <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-                <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                 TAYCO LLC · FULL-SERVICE CONSTRUCTION
               </span>
               <span
@@ -619,8 +676,9 @@ export default function Home() {
               data-magnetic
               className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-white border transition-colors"
               style={{
-                background: "rgba(249, 115, 22, 0.2)",
-                borderColor: "rgba(249, 115, 22, 0.55)",
+                background: "rgba(201, 168, 76, 0.14)",
+                borderColor: "rgba(201, 168, 76, 0.45)",
+                color: "#F3D37A",
               }}
             >
               Trade partner sign in
@@ -628,6 +686,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ContractingOpportunities />
 
       {/* ── SVG CHROMATIC HORIZON WAVE INTO WARM EDITORIAL IVORY ── */}
       <div className="chromatic-horizon" aria-hidden="true">
@@ -647,8 +707,6 @@ export default function Home() {
         </svg>
       </div>
 
-      <ContractingOpportunities />
-
       {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION ── */}
       <section
         id="tayco-operations-showcase"
@@ -664,7 +722,7 @@ export default function Home() {
               className="tayco-eyebrow font-bold"
               style={{ color: "#1B3A6B" }}
             >
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               01 / TYPES OF WORK WE PERFORM
             </span>
             <span
@@ -862,7 +920,7 @@ export default function Home() {
                     }}
                   >
                     <span>{card.cta}</span>
-                    <span style={{ color: "#F97316" }}>→</span>
+                    <span style={{ color: "#C9A84C" }}>→</span>
                   </Link>
                 </div>
               </div>
@@ -903,7 +961,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               02 / MATERIALS IN A DIFFERENT LIGHT
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
@@ -1003,7 +1061,7 @@ export default function Home() {
                   htmlFor="tayco-light-angle-slider"
                   className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
                 >
-                  <span>☀️ Raking Light Angle: {lightAngle}°</span>
+                  <span>◐ Raking Light Angle: {lightAngle}°</span>
                   <output
                     htmlFor="tayco-light-angle-slider"
                     className="font-black text-sm px-2.5 py-0.5 rounded"
@@ -1150,7 +1208,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
             <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-              <span className="tayco-live-dot" style={{ color: "#10B981" }} />
+              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               03 / FROM FIRST CONVERSATION TO FINISHED SPACE
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
@@ -1257,7 +1315,7 @@ export default function Home() {
                       >
                         {contract.headline}
                       </div>
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-300">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-amber-300/90">
                         {contract.status}
                       </div>
                     </div>
@@ -1292,7 +1350,7 @@ export default function Home() {
               style={{
                 background:
                   "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
-                borderColor: "rgba(249, 115, 22, 0.5)",
+                borderColor: "rgba(201, 168, 76, 0.48)",
               }}
             >
               <div className="preview-orbits" aria-hidden="true">
@@ -1302,8 +1360,8 @@ export default function Home() {
               </div>
 
               <div className="relative z-10">
-                <div className="tayco-eyebrow mb-3" style={{ color: "#FDBA74" }}>
-                  <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+                <div className="tayco-eyebrow mb-3" style={{ color: "#F3D37A" }}>
+                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                   SERVING EIGHT STATES
                 </div>
                 <h3 className="text-xl font-black text-white leading-snug">
@@ -1331,8 +1389,12 @@ export default function Home() {
                 <Link
                   href="/residential"
                   data-magnetic
-                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black text-white"
-                  style={{ background: "#F97316" }}
+                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black border"
+                  style={{
+                    background: "rgba(201, 168, 76, 0.16)",
+                    borderColor: "rgba(243, 211, 122, 0.55)",
+                    color: "#F3D37A",
+                  }}
                 >
                   <span>Explore Residential Services</span>
                   <span>→</span>

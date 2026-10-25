@@ -185,7 +185,7 @@ export default function TradeGallery() {
       >
         <div>
           <div className="tayco-eyebrow mb-1" style={{ color: "#F3D37A" }}>
-            <span className="tayco-live-dot" style={{ color: "#F97316" }} />
+            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
           </div>
           <p className="text-xs sm:text-sm text-slate-200 font-medium">
@@ -251,7 +251,7 @@ export default function TradeGallery() {
                   aria-label={`Zoom ${alt}`}
                   className="project-open cursor-pointer"
                 >
-                  🔍
+                  ↗
                 </button>
               </div>
 
