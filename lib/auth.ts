@@ -65,7 +65,8 @@ function openAuthDatabaseFile(): DatabaseSync {
   }
 }
 function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
-  if ((!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || Boolean(process.env.TAYCO_AUTH_DB_PATH))) || railwayAccountsSeeded) return;
+  const isTempTestDb = Boolean(process.env.TAYCO_AUTH_DB_PATH && !/\.data[\\/]+tayco-auth\.sqlite$/i.test(process.env.TAYCO_AUTH_DB_PATH));
+  if ((!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || isTempTestDb)) || railwayAccountsSeeded) return;
   railwayAccountsSeeded = true;
   const defaultAdminHash = 'scrypt$32768$8$3$51f8fedc629c5b5ef178953ede3a765e$c82e93e0d01171859e713069445bea28c670075c366a3f26ae919eb6ab75722c59a926c61d3ab2739787d819f0fabf233a315bd7626f11f8afb1e1f87d466fc3';
   const defaultGuestHash = 'scrypt$32768$8$3$69882d276a01a9f73ea0878d16739e65$30016f979e7e2f63a964a35e8b0621f5f051e24b6b2ceedf4abde8145cd4dc4535124a22fb7f8815332ea8b39cadf84bcdd4110c3abfdfbe59978eceae623f04';
@@ -93,6 +94,9 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       ['2da400f3-f466-4d10-8ed0-ef9d8e45faaf', 'guest@taycoturnkey.com'],
       ['3eb500f4-a577-4e21-9fe1-f0ae9f560bb0', 'cliente@taycoturnkey.com'],
       ['4fc600f5-b688-4f32-80f2-01bfa0671cc1', 'review@taycoturnkey.com'],
+      ['5ad700f6-c799-4043-9103-12c0b1782dd2', 'evaluador1@taycoturnkey.com'],
+      ['6be800f7-d8aa-4154-a214-23d1c2893ee3', 'evaluador2@taycoturnkey.com'],
+      ['7cf900f8-e9bb-4265-b325-34e2d39a4ff4', 'evaluador3@taycoturnkey.com'],
     ];
     for (const [guestId, guestEmail] of guestAccounts) {
       const existingGuest = db.prepare('SELECT id, password_hash FROM auth_users WHERE email=?').get(guestEmail) as { id: string; password_hash: string } | undefined;

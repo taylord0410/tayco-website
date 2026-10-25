@@ -162,14 +162,14 @@ export function claimPendingGuestReviewIfNeeded(db:DatabaseSync,actor:Actor,now=
   if(!pending)return undefined;
   if(pending.claimed_grant_id){
     const existing=db.prepare('SELECT id,expires_at,revoked_at,recipient_profile FROM auth_review_grants WHERE id=?').get(pending.claimed_grant_id) as {id:string;expires_at:number;revoked_at:number|null;recipient_profile:string}|undefined;
-    if(existing&&existing.revoked_at===null&&existing.expires_at>now&&existing.recipient_profile===pending.recipient_profile)return existing.id;
+    if(existing&&(existing.revoked_at!==null||(existing.expires_at>now&&existing.recipient_profile===pending.recipient_profile)))return existing.id;
   }
   return transaction(db,()=>{
     const fresh=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as typeof pending;
     if(!fresh)return undefined;
     if(fresh.claimed_grant_id){
       const existing=db.prepare('SELECT id,expires_at,revoked_at,recipient_profile FROM auth_review_grants WHERE id=?').get(fresh.claimed_grant_id) as {id:string;expires_at:number;revoked_at:number|null;recipient_profile:string}|undefined;
-      if(existing&&existing.revoked_at===null&&existing.expires_at>now&&existing.recipient_profile===fresh.recipient_profile)return existing.id;
+      if(existing&&(existing.revoked_at!==null||(existing.expires_at>now&&existing.recipient_profile===fresh.recipient_profile)))return existing.id;
     }
     const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
     const creationKey='pending_claim_'+grantId.replace(/-/g,'').slice(0,24);

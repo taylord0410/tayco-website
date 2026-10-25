@@ -106,97 +106,14 @@ export function VerifiedOpportunitiesTable({
     >
       <div className="dcc-card-head dcc-opportunities-head">
         <div>
-          <p className="dcc-kicker dcc-eyebrow">
-            {isGuest
-              ? "OCTOBER 2026 CORPORATE INTAKE · PENDING & CANCELLED OPPORTUNITIES"
-              : "NEW OPPORTUNITIES · OCTOBER 2026 CORPORATE INTAKE"}
-          </p>
           <h3 className="dcc-section-title">
-            New Opportunities — October 2026 ({counts.total} Verified Bidding
-            Opportunities)
+            New Opportunities Since October 2026: Federal, State &amp; Local
+            Government, Public Works, Private Investment &amp; Union
+            Construction Projects
           </h3>
-          <p className="dcc-row-meta">
-            All {counts.total} verified commercial, public and private
-            infrastructure bidding packages (#2–#19, #21–#49 ·{" "}
-            {counts.publicCount} Public · {counts.privateCount} Private).{" "}
-            {counts.withDrawings} packages include protected PDF drawing sheets
-            ready for high-speed in-place CAD inspection; zero invented or
-            sample pricing is displayed prior to quote completion.
-          </p>
         </div>
 
         <div className="dcc-opportunities-controls">
-          <div
-            className="dcc-opportunities-pills"
-            role="group"
-            aria-label="Filter bidding opportunities"
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setStatusFilter("all");
-                setInfraFilter("all");
-              }}
-              className={`dcc-filter-pill ${
-                statusFilter === "all" && infraFilter === "all"
-                  ? "is-active"
-                  : ""
-              }`}
-            >
-              All ({counts.total})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("Pending company information")}
-              className={`dcc-filter-pill ${
-                statusFilter === "Pending company information"
-                  ? "is-active"
-                  : ""
-              }`}
-            >
-              {isGuest
-                ? `Pending (${counts.pending})`
-                : `Pending Info (${counts.pending})`}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("Overdue")}
-              className={`dcc-filter-pill ${
-                statusFilter === "Overdue" ? "is-active" : ""
-              }`}
-            >
-              {isGuest
-                ? `Cancelled (${counts.overdue})`
-                : `Overdue (${counts.overdue})`}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setInfraFilter((prev) =>
-                  prev === "Public" ? "all" : "Public"
-                )
-              }
-              className={`dcc-filter-pill ${
-                infraFilter === "Public" ? "is-active" : ""
-              }`}
-            >
-              Public ({counts.publicCount})
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setInfraFilter((prev) =>
-                  prev === "Private" ? "all" : "Private"
-                )
-              }
-              className={`dcc-filter-pill ${
-                infraFilter === "Private" ? "is-active" : ""
-              }`}
-            >
-              Private ({counts.privateCount})
-            </button>
-          </div>
-
           <div className="dcc-opportunities-search-row">
             <input
               type="search"

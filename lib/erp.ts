@@ -19,8 +19,6 @@ const connections = new Map<string, DatabaseSync>();
 function seedErpIfNeeded(db: DatabaseSync) {
   try {
     if (!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || Boolean(process.env.TAYCO_ERP_DB_PATH))) return;
-    const count = (db.prepare('SELECT count(*) AS c FROM records').get() as { c: number } | undefined)?.c ?? 0;
-    if (count >= 150) return;
     const seedPath = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'erp-seed.json');
     if (!existsSync(seedPath)) return;
     const seed = JSON.parse(readFileSync(seedPath, 'utf-8')) as {
@@ -30,6 +28,8 @@ function seedErpIfNeeded(db: DatabaseSync) {
       monthly_management_estimate_audit?: Record<string, unknown>[];
       audit?: Record<string, unknown>[];
     };
+    const count = (db.prepare('SELECT count(*) AS c FROM records').get() as { c: number } | undefined)?.c ?? 0;
+    if (count >= (seed.records?.length ?? 150)) return;
     db.exec(`CREATE TABLE IF NOT EXISTS monthly_management_estimates(
       tenant_id TEXT NOT NULL,period TEXT NOT NULL,low_cents INTEGER NOT NULL CHECK(low_cents>=0),
       high_cents INTEGER NOT NULL CHECK(high_cents>=low_cents),source TEXT NOT NULL CHECK(length(source) BETWEEN 1 AND 1000),
