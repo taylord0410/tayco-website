@@ -20,7 +20,7 @@ import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import { useReviewInteractions } from "@/lib/use-review-interactions";
 
 export type GuestConsoleSection = GuestSection;
-const modules = guestModuleDefinitions.filter(item => item.id !== "purchase_order" && item.id !== "invoice");
+const modules = guestModuleDefinitions.filter(item => item.id !== "purchase_order" && item.id !== "invoice" && item.id !== "plans" && item.id !== "takeoff");
 const control = "inline-flex min-h-11 items-center justify-center rounded-lg border border-amber-200/30 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-200/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:opacity-60";
 const card = "rounded-xl border border-slate-600/70 bg-[#09172b]/70 p-4 sm:p-5";
 const text = (value: string | null | undefined) => value?.trim() || "Not provided";
@@ -41,6 +41,27 @@ function Empty({ children }: { children: ReactNode }) {
   return <p className="rounded-xl border border-dashed border-slate-600 px-5 py-7 text-sm leading-relaxed text-slate-300">{children}</p>;
 }
 
+const GUEST_ALLOWED_SECTIONS = new Set<string>([
+  "summary",
+  "projects",
+  "lead",
+]);
+
+const GUEST_MODULE_LABELS: Record<string, string> = {
+  summary: "Dashboard",
+  projects: "Projects",
+  invoice: "Billing",
+  financial_dashboard: "Accounting",
+  team: "Administration",
+  lead: "New Opportunities",
+  hours: "Payroll",
+  compliance: "Compliance",
+  plans: "Documents",
+  takeoff: "Takeoff Plans",
+  corporate_meetings: "Meetings",
+  dossier: "Corporate Reports",
+};
+
 /** Guest-only query surface. No ERP command or administrative module is mounted. */
 export default function GuestConsole({ initial, initialSection = "summary" }: { initial: GuestConsoleData; initialSection?: GuestConsoleSection }) {
   const router = useRouter();
@@ -49,7 +70,10 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   const [history, setHistory] = useState(initial.historicalSummary.months);
   const [display, setDisplay] = useWorkspaceDisplay();
   const [period, setPeriod] = useState(initial.period);
-  const [section, setSection] = useState<GuestConsoleSection>(initialSection);
+  const [section, setSection] = useState<GuestConsoleSection>(
+    GUEST_ALLOWED_SECTIONS.has(initialSection) ? initialSection : "summary"
+  );
+  const [adminOnlyModalLabel, setAdminOnlyModalLabel] = useState<string | null>(null);
   const [projectId, setProjectId] = useState("");
   const [selectedViewerDocId, setSelectedViewerDocId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -112,6 +136,16 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     window.history.replaceState(null, "", url);
   }
   function navigate(next: GuestConsoleSection, selectedProjectId = "") {
+    if (!GUEST_ALLOWED_SECTIONS.has(next)) {
+      record("module.select", { section: next });
+      const label =
+        GUEST_MODULE_LABELS[next] ||
+        modules.find((item) => item.id === next)?.label ||
+        "Administrative Module";
+      setAdminOnlyModalLabel(label);
+      setMobileOpen(false);
+      return;
+    }
     record("module.select",{section:next});
     setSection(next); setProjectId(selectedProjectId); setMobileOpen(false);
     rememberView(period, next);
@@ -119,6 +153,10 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     window.requestAnimationFrame(() => { moduleRef.current?.focus({ preventScroll: true }); moduleRef.current?.scrollIntoView({ block: "start", behavior: "auto" }); });
   }
   function selectPeriod(next: string) {
+    if (next !== data.currentPeriod) {
+      setAdminOnlyModalLabel(`Historical Period (${periodLabel(next)})`);
+      return;
+    }
     setPeriod(next); setSection("summary"); setProjectId("");
     rememberView(next, "summary");
     void record("month.select", { period: next });
@@ -174,18 +212,22 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
         { id: "lead" as GuestConsoleSection, label: "New Opportunities" },
         { id: "hours" as GuestConsoleSection, label: "Payroll" },
         { id: "compliance" as GuestConsoleSection, label: "Compliance" },
-        { id: "plans" as GuestConsoleSection, label: "Documents" },
         { id: "corporate_meetings" as GuestConsoleSection, label: "Meetings" },
         { id: "dossier" as GuestConsoleSection, label: "Corporate Reports" },
-      ].map(item => (
-        <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-10 w-full items-center justify-between gap-2.5 rounded-lg border px-3 py-2 text-left text-[13px] font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-l-[3px] border-amber-300/60 border-l-[#eab869] bg-gradient-to-r from-[#c9a84c]/30 via-[#c9a84c]/15 to-transparent text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}>
-          <span className="flex items-center gap-2.5 truncate">
-            <CorporateIcon name={item.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
-            <span className="truncate">{item.label}</span>
-          </span>
-          
-        </button>
-      ))}
+      ].map(item => {
+        const isLocked = !GUEST_ALLOWED_SECTIONS.has(item.id);
+        return (
+          <button key={item.id} type="button" onClick={() => navigate(item.id)} aria-current={section === item.id ? "page" : undefined} className={"flex min-h-10 w-full items-center justify-between gap-2.5 rounded-lg border px-3 py-2 text-left text-[13px] font-semibold transition focus-visible:outline-2 focus-visible:outline-amber-200 " + (section === item.id ? "border-l-[3px] border-amber-300/60 border-l-[#eab869] bg-gradient-to-r from-[#c9a84c]/30 via-[#c9a84c]/15 to-transparent text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]" : "border-transparent text-slate-300 hover:border-amber-200/20 hover:bg-white/5")}>
+            <span className="flex items-center gap-2.5 truncate">
+              <CorporateIcon name={item.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
+              <span className="truncate">{item.label}</span>
+            </span>
+            {isLocked && (
+              <CorporateIcon name="lock" className="h-3.5 w-3.5 shrink-0 text-amber-300/55" />
+            )}
+          </button>
+        );
+      })}
       <details className="mt-4 rounded-xl border border-slate-700/60 bg-[#07111f]/60 p-2">
         <summary className="cursor-pointer px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/75">Additional Modules</summary>
         <div className="mt-2 space-y-3">
@@ -193,7 +235,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
         </div>
       </details>
     </nav>
-    <div className="mt-6 rounded-xl border border-[#C9A84C]/35 bg-gradient-to-b from-[#0e2038] to-[#081322] p-3.5 text-center shadow-inner">
+    <div className={(mobileOpen ? "block" : "hidden") + " mt-6 rounded-xl border border-[#C9A84C]/35 bg-gradient-to-b from-[#0e2038] to-[#081322] p-3.5 text-center shadow-inner lg:block"}>
       <p className="flex items-center justify-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#eab869]">
         <CorporateIcon name="lock" className="h-3.5 w-3.5 text-[#eab869]" /> INTERNAL SYSTEM
       </p>
@@ -229,6 +271,111 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
     </div>
   </>}>
     <GuestPrivacyNotice onReady={setPrivacyReady}/>
+
+    {adminOnlyModalLabel && (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="guest-console-admin-only-title"
+        data-testid="guest-admin-only-modal"
+        onClick={() => setAdminOnlyModalLabel(null)}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9999,
+          background: "rgba(3, 8, 18, 0.78)",
+          backdropFilter: "blur(6px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.25rem",
+        }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            maxWidth: "490px",
+            width: "100%",
+            background: "linear-gradient(180deg, #0d1f3a 0%, #071326 100%)",
+            border: "1px solid rgba(212, 175, 55, 0.45)",
+            borderRadius: "14px",
+            padding: "1.6rem 1.75rem",
+            boxShadow: "0 24px 60px rgba(0, 0, 0, 0.65)",
+            color: "#f8fafc",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.85rem" }}>
+            <span
+              style={{
+                width: "38px",
+                height: "38px",
+                borderRadius: "10px",
+                background: "rgba(212, 175, 55, 0.16)",
+                border: "1px solid rgba(212, 175, 55, 0.4)",
+                color: "#f3d37a",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <CorporateIcon name="lock" className="h-5 w-5 text-[#eab869]" />
+            </span>
+            <div>
+              <p style={{ margin: 0, fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#eab869", fontWeight: 700 }}>
+                Restricted Corporate Module
+              </p>
+              <h4 id="guest-console-admin-only-title" style={{ margin: "0.15rem 0 0", fontSize: "1.08rem", fontWeight: 700, color: "#ffffff" }}>
+                Administrator Access Only
+              </h4>
+            </div>
+          </div>
+          <p style={{ margin: "0 0 0.75rem", fontSize: "0.86rem", lineHeight: 1.55, color: "#cbd5e1" }}>
+            <strong>{adminOnlyModalLabel}</strong> can only be viewed by authorized corporate administrators.
+          </p>
+          <p style={{ margin: "0 0 1.25rem", fontSize: "0.8rem", lineHeight: 1.5, color: "#94a3b8" }}>
+            Guest accounts have full access to the current month&apos;s <strong>Opportunities &amp; Projects</strong> and interactive <strong>Blueprints / Plans</strong>.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: "0.55rem" }}>
+            <button
+              type="button"
+              onClick={() => {
+                setAdminOnlyModalLabel(null);
+                navigate("lead");
+              }}
+              style={{
+                padding: "0.48rem 0.9rem",
+                borderRadius: "8px",
+                border: "1px solid rgba(212, 175, 55, 0.35)",
+                background: "rgba(15, 31, 56, 0.85)",
+                color: "#f3d37a",
+                fontWeight: 600,
+                fontSize: "0.78rem",
+                cursor: "pointer",
+              }}
+            >
+              Opportunities &amp; Plans
+            </button>
+            <button
+              type="button"
+              onClick={() => setAdminOnlyModalLabel(null)}
+              style={{
+                padding: "0.48rem 1.1rem",
+                borderRadius: "8px",
+                border: "1px solid rgba(212, 175, 55, 0.55)",
+                background: "linear-gradient(135deg, #d4af37 0%, #b58922 100%)",
+                color: "#06101e",
+                fontWeight: 700,
+                fontSize: "0.8rem",
+                cursor: "pointer",
+              }}
+            >
+              Understood
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
 
 
     {error && <div role="alert" className="mt-5 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error}{!denied && <p className="mt-1 text-xs">Previously loaded information may be out of date. Use Refresh to try again.</p>}</div>}
@@ -298,7 +445,6 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
             {documents.length ? <div className="grid gap-4 xl:grid-cols-2">{documents.map(documentCard)}</div> : <Empty>No plans or documents are available for this selection.</Empty>}
           </>}
         </Panel>}
-        {["projects", "followups", "note", "change", "proposal", "vendor", "bid", "access", "activity"].includes(section) && <GuestModulePanel data={presentationData} section={section} projectId={projectId} onNavigate={navigate} onMonthSelect={selectPeriod}/>}
       </>}
     </div>
   </PortalShell>;

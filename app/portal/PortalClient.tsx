@@ -472,7 +472,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const renderOperationsForm=(props:import("@/components/workspace/ProjectOverview").WorkspaceForm)=><CommandForm key={props.action+String(props.fixed?.id||"")} {...props} command={command}/>;
   const moduleId:Record<string,string>={executive:"executive",financial_dashboard:"financial-dashboard",corporate_meetings:"corporate-meetings",followups:"followups",proposal:"proposals",team:"project-teams",lead:"crm",bid:"bids",hours:"payroll",finance:"accounting",compliance:"compliance",dossier:"dossier",takeoff:"takeoff"};
   const primaryIds = new Set(CORPORATE_11_MODULES.map(m => m.id));
-  const secondaryTabs = tabs.filter(item => !primaryIds.has(item.id as typeof CORPORATE_11_MODULES[number]["id"]));
+  const secondaryTabs = tabs.filter(item => item.id !== "document" && item.id !== "takeoff" && !primaryIds.has(item.id as typeof CORPORATE_11_MODULES[number]["id"]));
   return <CommandRecovery.Provider value={{ lockedKey: pendingView?.key || null, subscribe: subscribeOutcome }}><PortalShell className="workspace-shell min-h-screen bg-[#070e1a] text-slate-100" data-atmosphere={display.atmosphere} data-density={display.density} data-current-module={tab} style={{"--workspace-light-angle":display.lightAngle+"deg"} as CSSProperties} sidebarRef={sidebarRef} sidebar={<div className="flex min-h-full flex-col justify-between gap-6">
         <div>
           <div className="flex items-center justify-between gap-3 lg:flex-col lg:items-center lg:text-center">
@@ -486,7 +486,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
             <button ref={modulesToggleRef} type="button" className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100 lg:hidden" aria-expanded={mobileModulesOpen} aria-controls="tayco-portal-module-tabs" onClick={()=>setMobileModulesOpen(!mobileModulesOpen)}>{mobileModulesOpen?"Close modules":"Open modules"}</button>
           </div>
           <nav id="tayco-portal-module-tabs" aria-label="Command Center Navigation" className={(mobileModulesOpen?"block":"hidden")+" mt-6 space-y-1.5 lg:block"}>
-            {CORPORATE_11_MODULES.map((mod) => {
+            {CORPORATE_11_MODULES.filter((mod) => mod.id !== "document").map((mod) => {
               const active = tab === mod.id;
               return (
                 <button

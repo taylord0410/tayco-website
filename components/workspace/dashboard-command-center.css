@@ -204,6 +204,19 @@
   color: var(--dcc-muted);
 }
 
+/* Full-Width Stack Layout: Chart -> Projects -> Income Ledger -> Certifications (Admin) */
+.dcc-console-fullwidth-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+.dcc-income-ledger-wide-card {
+  width: 100%;
+}
+
 /* Main 2-Column Split matching Reference Mockup */
 .dcc-console-split {
   display: grid;
@@ -1518,10 +1531,32 @@
     padding: 12px 14px;
   }
   .dcc-chart {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
-    grid-template-columns: repeat(12, minmax(42px, 1fr));
+    padding: 34px 2px 4px;
+    gap: 3px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  .dcc-chart-month {
+    min-height: 185px;
+    padding: 6px 1px 8px;
+  }
+  .dcc-bar-pair {
+    height: 140px;
+  }
+  .dcc-bar-pair i {
+    width: 72%;
+    min-width: 10px;
+  }
+  .dcc-month-label {
+    font-size: 9.5px;
+  }
+  .dcc-chart-month:nth-child(n + 9) .dcc-oct-callout {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+  .dcc-chart-month:nth-child(-n + 3) .dcc-oct-callout {
+    left: 0;
+    transform: none;
   }
   .dcc-month-pills {
     grid-template-columns: repeat(4, minmax(0, 1fr));
