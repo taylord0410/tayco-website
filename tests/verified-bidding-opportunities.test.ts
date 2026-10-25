@@ -6,19 +6,19 @@ import {
   CORPORATE_CERTIFICATIONS_STATUS,
 } from "../lib/verified-bidding-opportunities";
 
-test("VERIFIED_OCTOBER_2026_OPPORTUNITIES has exactly 42 items (#2–#19, #21–#43 intake)", () => {
-  assert.equal(VERIFIED_OCTOBER_2026_OPPORTUNITIES.length, 42);
+test("VERIFIED_OCTOBER_2026_OPPORTUNITIES has exactly 48 items (#2–#19, #21–#49 intake)", () => {
+  assert.equal(VERIFIED_OCTOBER_2026_OPPORTUNITIES.length, 48);
   const numbers = VERIFIED_OCTOBER_2026_OPPORTUNITIES.map((item) => item.number);
-  assert.equal(new Set(numbers).size, 42);
+  assert.equal(new Set(numbers).size, 48);
   assert.equal(numbers[0], 2);
-  assert.equal(numbers[numbers.length - 1], 43);
+  assert.equal(numbers[numbers.length - 1], 49);
   // AutoZone (#1) was intentionally omitted from intake
   assert.equal(numbers.includes(1), false);
-  // All numbers fall within #2 through #43
-  assert.ok(numbers.every((n) => n >= 2 && n <= 43));
+  // All numbers fall within #2 through #49
+  assert.ok(numbers.every((n) => n >= 2 && n <= 49));
 });
 
-test("36 items have status === 'Overdue' and 6 items have status === 'Pending company information'", () => {
+test("41 items have status === 'Overdue' and 7 items have status === 'Pending company information'", () => {
   const overdue = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) => item.status === "Overdue"
   );
@@ -26,17 +26,17 @@ test("36 items have status === 'Overdue' and 6 items have status === 'Pending co
     (item) => item.status === "Pending company information"
   );
 
-  assert.equal(overdue.length, 36);
-  assert.equal(pending.length, 6);
-  assert.equal(overdue.length + pending.length, 42);
+  assert.equal(overdue.length, 41);
+  assert.equal(pending.length, 7);
+  assert.equal(overdue.length + pending.length, 48);
 
-  // All 6 pending company info items have null reportedDeadline
+  // All 7 pending company info items have null reportedDeadline
   for (const item of pending) {
     assert.equal(item.reportedDeadline, null);
   }
 });
 
-test("41 items have a valid viewerHref and only #42 (IDOT Maintenance Facility) has viewerHref === null", () => {
+test("47 items have a valid viewerHref and only #42 (State Highway District Maintenance Facility) has viewerHref === null", () => {
   const withViewer = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) =>
       typeof item.viewerHref === "string" &&
@@ -48,16 +48,27 @@ test("41 items have a valid viewerHref and only #42 (IDOT Maintenance Facility) 
     (item) => item.viewerHref === null
   );
 
-  assert.equal(withViewer.length, 41);
+  assert.equal(withViewer.length, 47);
   assert.equal(nullViewer.length, 1);
   assert.equal(nullViewer[0].number, 42);
-  assert.equal(nullViewer[0].name, "IDOT Maintenance Facility");
+  assert.equal(nullViewer[0].name, "State Highway District Maintenance Facility");
   assert.equal(nullViewer[0].documentState, "pending");
 });
 
-test("zero items contain fake/sample dollar amounts, and every estimatedPrice equals 'Not set — awaiting quote'", () => {
+test("every item has a valid infrastructureType ('Public' or 'Private'), zero fake/sample dollar amounts, and estimatedPrice === 'Not set — awaiting quote'", () => {
+  const publicItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.infrastructureType === "Public"
+  );
+  const privateItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.infrastructureType === "Private"
+  );
+  assert.equal(publicItems.length, 14);
+  assert.equal(privateItems.length, 34);
+  assert.equal(publicItems.length + privateItems.length, 48);
+
   for (const item of VERIFIED_OCTOBER_2026_OPPORTUNITIES) {
     assert.equal(item.estimatedPrice, "Not set — awaiting quote");
+    assert.ok(item.contractor.length > 3);
     const serialized = JSON.stringify(item);
     assert.equal(/\$250,?000/.test(serialized), false);
     assert.equal(/Centro Comunitario Norte/i.test(serialized), false);

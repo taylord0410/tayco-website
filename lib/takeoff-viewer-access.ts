@@ -211,16 +211,51 @@ function deliveryMatches(data: Record<string, unknown>, viewerDocumentId: string
     data.sourceSha256 === source.sourceSha256 && data.contentType === source.contentType && data.sourceKind === source.kind);
 }
 
+type CachedPolicyEntry = {
+  mappingPath: string;
+  relationsPath: string;
+  manifestPath: string;
+  mappingBytes: Buffer;
+  relationsBytes: Buffer;
+  manifestBytes: Buffer;
+  result: {
+    config: AccessConfig;
+    relations: ViewerRelations;
+    documents: Map<string, ViewerRelations['documents'][number]>;
+    sources: Map<string, DeliverySource>;
+  };
+};
+let cachedPolicyEntry: CachedPolicyEntry | null = null;
+
 function policies(guest?: Actor, projectId?: string) {
   const defaultMapping = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'mapping.json');
   const defaultRelations = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'relations.json');
+  const defaultManifest = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'manifest.json');
   const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH || (existsSync(defaultMapping) ? defaultMapping : undefined);
   const relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH || (existsSync(defaultRelations) ? defaultRelations : undefined);
+  const manifestPath = process.env.TAYCO_TAKEOFF_MANIFEST_PATH || (existsSync(defaultManifest) ? defaultManifest : undefined);
   if (!mappingPath || !relationsPath) throw guest ? guestDenied() : unavailable();
   if (guest && (!existsSync(mappingPath) || !existsSync(relationsPath))) throw guestDenied();
-  const config = parseConfig(json(readPolicyFile(mappingPath, MAPPING_BYTES)));
-  if (guest && (config.schemaVersion !== 'tayco-takeoff-viewer-access/v2' || !config.guestReviews.some(grant => grant.tenantId === guest.tenantId && grant.guestId === guest.id && (projectId === undefined || grant.projectId === projectId)))) throw guestDenied();
+  const mappingBytes = readPolicyFile(mappingPath, MAPPING_BYTES);
   const artifact = readPolicyFile(relationsPath, RELATIONS_BYTES);
+  if (
+    cachedPolicyEntry &&
+    cachedPolicyEntry.mappingPath === mappingPath &&
+    cachedPolicyEntry.relationsPath === relationsPath &&
+    cachedPolicyEntry.manifestPath === (manifestPath ?? '') &&
+    cachedPolicyEntry.mappingBytes.equals(mappingBytes) &&
+    cachedPolicyEntry.relationsBytes.equals(artifact) &&
+    manifestPath
+  ) {
+    const manifestBytes = readPolicyFile(manifestPath, 10 * 1024 * 1024);
+    if (cachedPolicyEntry.manifestBytes.equals(manifestBytes)) {
+      const { config } = cachedPolicyEntry.result;
+      if (guest && (config.schemaVersion !== 'tayco-takeoff-viewer-access/v2' || !config.guestReviews.some(grant => grant.tenantId === guest.tenantId && grant.guestId === guest.id && (projectId === undefined || grant.projectId === projectId)))) throw guestDenied();
+      return cachedPolicyEntry.result;
+    }
+  }
+  const config = parseConfig(json(mappingBytes));
+  if (guest && (config.schemaVersion !== 'tayco-takeoff-viewer-access/v2' || !config.guestReviews.some(grant => grant.tenantId === guest.tenantId && grant.guestId === guest.id && (projectId === undefined || grant.projectId === projectId)))) throw guestDenied();
   if (createHash('sha256').update(artifact).digest('hex') !== config.relationsSha256) throw unavailable();
   const relations = parseRelations(json(artifact));
   if (config.bundleId !== relations.bundleId) throw unavailable();
@@ -231,7 +266,23 @@ function policies(guest?: Actor, projectId?: string) {
     if (!context || context.identityStatus !== 'resolved') throw unavailable();
     for (const document of mapping.documents) if (documents.get(document.viewerDocumentId)?.contextKeys[0] !== mapping.contextKey) throw unavailable();
   }
-  return { config, relations, documents, sources: deliverySources(relations) };
+  const sources = deliverySources(relations);
+  const result = { config, relations, documents, sources };
+  if (manifestPath) {
+    try {
+      const manifestBytes = readPolicyFile(manifestPath, 10 * 1024 * 1024);
+      cachedPolicyEntry = {
+        mappingPath,
+        relationsPath,
+        manifestPath,
+        mappingBytes,
+        relationsBytes: artifact,
+        manifestBytes,
+        result,
+      };
+    } catch { /* ignore cache population error */ }
+  }
+  return result;
 }
 function intact(entry: Entry): boolean {
   return Boolean(entry.data && typeof entry.data === 'object' && !Array.isArray(entry.data) && !entry.data.deletedAt && !entry.data.purgedAt);

@@ -17,8 +17,11 @@ export function VerifiedOpportunitiesTable({
   const [statusFilter, setStatusFilter] = useState<
     "all" | "Overdue" | "Pending company information"
   >("all");
+  const [infraFilter, setInfraFilter] = useState<"all" | "Public" | "Private">(
+    "all"
+  );
   const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(defaultLimit >= 42);
+  const [showAll, setShowAll] = useState(defaultLimit >= 48);
   const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -38,11 +41,19 @@ export function VerifiedOpportunitiesTable({
     const withDrawings = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((item) =>
       Boolean(item.viewerHref)
     ).length;
+    const publicCount = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+      (item) => item.infrastructureType === "Public"
+    ).length;
+    const privateCount = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+      (item) => item.infrastructureType === "Private"
+    ).length;
     return {
       total: VERIFIED_OCTOBER_2026_OPPORTUNITIES.length,
       overdue,
       pending,
       withDrawings,
+      publicCount,
+      privateCount,
     };
   }, []);
 
@@ -52,22 +63,32 @@ export function VerifiedOpportunitiesTable({
       if (statusFilter !== "all" && item.status !== statusFilter) {
         return false;
       }
+      if (infraFilter !== "all" && item.infrastructureType !== infraFilter) {
+        return false;
+      }
       if (!q) return true;
       return (
         item.name.toLowerCase().includes(q) ||
         item.contractor.toLowerCase().includes(q) ||
+        item.infrastructureType.toLowerCase().includes(q) ||
+        item.estimatedPrice.toLowerCase().includes(q) ||
         (item.reportedDeadline ?? "").toLowerCase().includes(q) ||
         String(item.number).includes(q)
       );
     });
-  }, [statusFilter, search]);
+  }, [statusFilter, infraFilter, search]);
 
   const displayed = useMemo(() => {
-    if (showAll || search.trim().length > 0 || statusFilter !== "all") {
+    if (
+      showAll ||
+      search.trim().length > 0 ||
+      statusFilter !== "all" ||
+      infraFilter !== "all"
+    ) {
       return filtered;
     }
     return filtered.slice(0, defaultLimit);
-  }, [filtered, showAll, search, statusFilter, defaultLimit]);
+  }, [filtered, showAll, search, statusFilter, infraFilter, defaultLimit]);
 
   const activeItem: VerifiedBiddingOpportunity | null = useMemo(() => {
     if (activeViewerId === null) return null;
@@ -95,10 +116,12 @@ export function VerifiedOpportunitiesTable({
             Opportunities)
           </h3>
           <p className="dcc-row-meta">
-            All {counts.total} verified commercial and institutional bidding
-            packages (#2–#19, #21–#43). {counts.withDrawings} packages include
-            protected PDF drawing sheets ready for in-place inspection; zero
-            invented or sample pricing is displayed prior to quote completion.
+            All {counts.total} verified commercial, public and private
+            infrastructure bidding packages (#2–#19, #21–#49 ·{" "}
+            {counts.publicCount} Public · {counts.privateCount} Private).{" "}
+            {counts.withDrawings} packages include protected PDF drawing sheets
+            ready for high-speed in-place CAD inspection; zero invented or
+            sample pricing is displayed prior to quote completion.
           </p>
         </div>
 
@@ -110,9 +133,14 @@ export function VerifiedOpportunitiesTable({
           >
             <button
               type="button"
-              onClick={() => setStatusFilter("all")}
+              onClick={() => {
+                setStatusFilter("all");
+                setInfraFilter("all");
+              }}
               className={`dcc-filter-pill ${
-                statusFilter === "all" ? "is-active" : ""
+                statusFilter === "all" && infraFilter === "all"
+                  ? "is-active"
+                  : ""
               }`}
             >
               All ({counts.total})
@@ -141,6 +169,32 @@ export function VerifiedOpportunitiesTable({
                 ? `Cancelled (${counts.overdue})`
                 : `Overdue (${counts.overdue})`}
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                setInfraFilter((prev) =>
+                  prev === "Public" ? "all" : "Public"
+                )
+              }
+              className={`dcc-filter-pill ${
+                infraFilter === "Public" ? "is-active" : ""
+              }`}
+            >
+              Public ({counts.publicCount})
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setInfraFilter((prev) =>
+                  prev === "Private" ? "all" : "Private"
+                )
+              }
+              className={`dcc-filter-pill ${
+                infraFilter === "Private" ? "is-active" : ""
+              }`}
+            >
+              Private ({counts.privateCount})
+            </button>
           </div>
 
           <div className="dcc-opportunities-search-row">
@@ -148,21 +202,23 @@ export function VerifiedOpportunitiesTable({
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search project, contractor, deadline or #ID..."
+              placeholder="Search general contractor, project, public/private, deadline or #ID..."
               aria-label="Search verified bidding opportunities"
               className="dcc-opportunities-search"
             />
-            {statusFilter === "all" && !search.trim() && (
-              <button
-                type="button"
-                onClick={() => setShowAll((prev) => !prev)}
-                className="dcc-action-btn"
-              >
-                {showAll
-                  ? `Show top ${defaultLimit}`
-                  : `Show all ${counts.total} opportunities`}
-              </button>
-            )}
+            {statusFilter === "all" &&
+              infraFilter === "all" &&
+              !search.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll((prev) => !prev)}
+                  className="dcc-action-btn"
+                >
+                  {showAll
+                    ? `Show top ${defaultLimit}`
+                    : `Show all ${counts.total} opportunities`}
+                </button>
+              )}
           </div>
         </div>
       </div>
@@ -177,8 +233,8 @@ export function VerifiedOpportunitiesTable({
             source={activeItem.viewerHref}
             projectName={activeItem.name}
             privacyNotice={false}
-            badgeText={`Opportunity #${activeItem.number} · Protected Drawing Sheet`}
-            subtitle={`General Contractor: ${activeItem.contractor} · (${activeItem.planFilesCount ?? 1} plan files)`}
+            badgeText={`Opportunity #${activeItem.number} · ${activeItem.infrastructureType} Infrastructure · Protected Drawing Sheet`}
+            subtitle={`General Contractor: ${activeItem.contractor} · Price: ${activeItem.estimatedPrice} · (${activeItem.planFilesCount ?? 1} plan files)`}
             onClose={() => setActiveViewerId(null)}
             onPrevProject={() => {
               const drawable = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((o) => Boolean(o.viewerHref));
@@ -200,6 +256,8 @@ export function VerifiedOpportunitiesTable({
             <tr>
               <th>General Contractor</th>
               <th>Project</th>
+              <th>Infrastructure</th>
+              <th>Price</th>
               <th>Deadline</th>
               <th>Plans / Drawings</th>
               <th>Status</th>
@@ -209,6 +267,7 @@ export function VerifiedOpportunitiesTable({
             {displayed.map((row) => {
               const isViewerOpen = activeViewerId === row.id;
               const isOverdue = row.status === "Overdue";
+              const isPublic = row.infrastructureType === "Public";
               return (
                 <tr key={row.id} data-opportunity-id={row.number}>
                   <td>
@@ -223,6 +282,17 @@ export function VerifiedOpportunitiesTable({
                     <div>
                       <p className="dcc-row-title">{row.name}</p>
                     </div>
+                  </td>
+                  <td>
+                    <span
+                      className="dcc-badge"
+                      data-tone={isPublic ? "sky" : "indigo"}
+                    >
+                      {isPublic ? "Public" : "Private"}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="dcc-opp-price">{row.estimatedPrice}</span>
                   </td>
                   <td>
                     <span className="dcc-opp-deadline">
@@ -257,7 +327,7 @@ export function VerifiedOpportunitiesTable({
                       {row.status === "Pending company information"
                         ? isGuest
                           ? "Pending"
-                          : "Pending company information"
+                          : "Pending Info"
                         : isGuest
                         ? "Cancelled"
                         : "Overdue"}

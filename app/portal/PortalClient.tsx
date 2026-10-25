@@ -30,7 +30,7 @@ import MeasurementReview from "@/components/workspace/MeasurementReview";
 import GuestActivityPanel from "@/components/GuestActivityPanel";
 import ReviewAuditPanel from "@/components/ReviewAuditPanel";
 import InvoicePaymentControls from "@/components/workspace/InvoicePaymentControls";
-import { CORPORATE_11_MODULES } from "@/lib/verified-bidding-opportunities";
+import { CORPORATE_11_MODULES, VERIFIED_OCTOBER_2026_OPPORTUNITIES } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
 import { VerifiedOpportunitiesTable } from "@/components/workspace/VerifiedOpportunitiesTable";
 import CorporateSectionExecutivePanel from "@/components/workspace/CorporateSectionExecutivePanel";
@@ -507,7 +507,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
                   </span>
                   {["project","document","lead","hours","compliance"].includes(mod.id) && (
                     <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-amber-100">
-                      {mod.id === "lead" ? 42 : data.entries.filter(entry=>String(entry.kind)===mod.id).length}
+                      {mod.id === "lead" ? VERIFIED_OCTOBER_2026_OPPORTUNITIES.length : data.entries.filter(entry=>String(entry.kind)===mod.id).length}
                     </span>
                   )}
                 </button>

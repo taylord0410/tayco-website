@@ -108,28 +108,28 @@ export default function CorporateSectionExecutivePanel({
               <h3>Projects — Commercial, Institutional &amp; Civil Portfolio</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              20 Portfolio Projects · 41 Plan Sets
+              25 Portfolio Projects · 47 Plan Sets
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Active Portfolio</span>
-              <strong className="dcc-kpi-value">20 Projects</strong>
+              <strong className="dcc-kpi-value">25 Projects</strong>
               <span className="dcc-kpi-note">
-                15 active execution · 5 pre-construction
+                18 active execution · 7 pre-construction
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Bidding Intake (Oct 2026)</span>
-              <strong className="dcc-kpi-value">42 Packages</strong>
+              <strong className="dcc-kpi-value">48 Packages</strong>
               <span className="dcc-kpi-note">
-                IL, IN, IA, WI &amp; MO regional coverage
+                14 Public · 34 Private Infrastructure
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Architectural Drawings</span>
-              <strong className="dcc-kpi-value">41 Plan Sets</strong>
+              <strong className="dcc-kpi-value">47 Plan Sets</strong>
               <span className="dcc-kpi-note">
                 Connected to interactive Takeoff Reader
               </span>
@@ -149,8 +149,8 @@ export default function CorporateSectionExecutivePanel({
                 source={activeDrawingOpp.viewerHref}
                 projectName={activeDrawingOpp.name}
                 privacyNotice={false}
-                badgeText={`Project Plan Set · #${activeDrawingOpp.number}`}
-                subtitle={`General Contractor: ${activeDrawingOpp.contractor}`}
+                badgeText={`Project Plan Set · #${activeDrawingOpp.number} · ${activeDrawingOpp.infrastructureType} Infrastructure`}
+                subtitle={`General Contractor: ${activeDrawingOpp.contractor} · Price: ${activeDrawingOpp.estimatedPrice}`}
                 onClose={() => setActiveViewerId(null)}
               />
             </div>
@@ -162,14 +162,17 @@ export default function CorporateSectionExecutivePanel({
                 <tr>
                   <th>General Contractor</th>
                   <th>Project</th>
+                  <th>Infrastructure</th>
+                  <th>Price</th>
                   <th>Schedule Deadline</th>
                   <th>Plans</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, 8).map((item) => {
+                {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, 12).map((item) => {
                   const isOpen = activeViewerId === item.id;
+                  const isPublic = item.infrastructureType === "Public";
                   return (
                     <tr key={item.id}>
                       <td>
@@ -182,6 +185,17 @@ export default function CorporateSectionExecutivePanel({
                       </td>
                       <td>
                         <p className="dcc-row-title">{item.name}</p>
+                      </td>
+                      <td>
+                        <span
+                          className="dcc-badge"
+                          data-tone={isPublic ? "sky" : "indigo"}
+                        >
+                          {isPublic ? "Public" : "Private"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="dcc-opp-price">{item.estimatedPrice}</span>
                       </td>
                       <td>
                         <span className="dcc-opp-deadline">
@@ -435,7 +449,7 @@ export default function CorporateSectionExecutivePanel({
 
       {canonical === "lead" && (
         <div style={{ display: "grid", gap: "1rem" }}>
-          <VerifiedOpportunitiesTable defaultLimit={42} isGuest={isGuest} />
+          <VerifiedOpportunitiesTable defaultLimit={48} isGuest={isGuest} />
         </div>
       )}
 
@@ -556,7 +570,7 @@ export default function CorporateSectionExecutivePanel({
                   MODULE 09 · PROTECTED PLANS, W-9 &amp; COI FILES · OCTOBER 2026
                 </p>
                 <h3>
-                  Documents — 41 Takeoff Plan Sets &amp; 60 Controlled Records
+                  Documents — 47 Takeoff Plan Sets &amp; 65 Controlled Records
                 </h3>
               </div>
               <span className="dcc-badge" data-tone="emerald">
@@ -564,7 +578,7 @@ export default function CorporateSectionExecutivePanel({
               </span>
             </header>
           </section>
-          <VerifiedOpportunitiesTable defaultLimit={15} isGuest={isGuest} />
+          <VerifiedOpportunitiesTable defaultLimit={18} isGuest={isGuest} />
         </div>
       )}
 
@@ -597,7 +611,7 @@ export default function CorporateSectionExecutivePanel({
                 <li>
                   <i aria-hidden="true">•</i>
                   <div>
-                    <strong>New opportunities (42 active packages)</strong>
+                    <strong>New opportunities (48 active packages)</strong>
                   </div>
                 </li>
                 <li>
@@ -709,7 +723,7 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Verified Plan Sets</span>
-              <strong className="dcc-kpi-value">41 Drawings</strong>
+              <strong className="dcc-kpi-value">47 Drawings</strong>
               <span className="dcc-kpi-note">
                 Connected to interactive Takeoff Reader
               </span>

@@ -46,7 +46,7 @@ export default function CommercialRequests({ entries, projectId, assignees, rend
       {rows.length === 0 && <p className="rounded-xl border border-dashed border-slate-600 p-5 text-sm text-slate-400">No accessible commercial requests match this selection.</p>}
     </div>
     <div className="pt-4">
-      <VerifiedOpportunitiesTable defaultLimit={42} />
+      <VerifiedOpportunitiesTable defaultLimit={48} />
     </div>
   </section>;
 }

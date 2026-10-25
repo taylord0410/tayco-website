@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import type { GuestConsoleData } from "@/lib/guest-workspace";
 import { guestModuleDefinitions, type GuestSection } from "@/lib/guest-sections";
 import { VERIFIED_OCTOBER_2026_OPPORTUNITIES } from "@/lib/verified-bidding-opportunities";
+import TakeoffProjectReader from "./TakeoffProjectReader";
 
 type ModuleRecord = GuestConsoleData["moduleRecords"][number];
 const card = "rounded-xl border border-slate-600/60 bg-[#09172b]/65 p-4 sm:p-5";
@@ -95,6 +96,10 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
   const [showAllSummary, setShowAllSummary] = useState(false);
   const [projectsFilter, setProjectsFilter] = useState<"all" | "pending" | "cancelled">("all");
   const [leadFilter, setLeadFilter] = useState<"all" | "pending" | "cancelled">("all");
+  const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
+  const activeDrawingOpp = activeViewerId
+    ? VERIFIED_OCTOBER_2026_OPPORTUNITIES.find((o) => o.id === activeViewerId) ?? null
+    : null;
 
   const pendingOpps = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) => item.status === "Pending company information"
@@ -134,7 +139,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
             <div className="flex items-center justify-between border-b border-slate-700/60 pb-3">
               <span className="text-xs font-medium text-slate-300">Intake Portfolio Status</span>
               <span className="rounded-full border border-amber-200/30 bg-amber-200/10 px-2.5 py-0.5 text-xs font-semibold text-amber-100">
-                42 records
+                {VERIFIED_OCTOBER_2026_OPPORTUNITIES.length} records
               </span>
             </div>
 
@@ -145,10 +150,10 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                   <strong className="font-semibold text-amber-200">Pending</strong>
                   <span className="text-slate-400">({pendingOpps.length} records)</span>
                 </div>
-                <span className="font-mono font-bold text-amber-300">14%</span>
+                <span className="font-mono font-bold text-amber-300">15%</span>
               </div>
               <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                <div className="h-full rounded-full bg-amber-400" style={{ width: "14%" }} />
+                <div className="h-full rounded-full bg-amber-400" style={{ width: "15%" }} />
               </div>
               <p className="mt-2 text-[11px] text-amber-200/80">
                 Pending company information &amp; documentation
@@ -162,10 +167,10 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                   <strong className="font-semibold text-rose-200">Cancelled</strong>
                   <span className="text-slate-400">({cancelledOpps.length} records)</span>
                 </div>
-                <span className="font-mono font-bold text-rose-300">86%</span>
+                <span className="font-mono font-bold text-rose-300">85%</span>
               </div>
               <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                <div className="h-full rounded-full bg-rose-500" style={{ width: "86%" }} />
+                <div className="h-full rounded-full bg-rose-500" style={{ width: "85%" }} />
               </div>
               <p className="mt-2 text-[11px] text-rose-200/80">
                 Cancelled / bidding window closed
@@ -281,19 +286,36 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                   </button>
                 )}
               </div>
+              {activeDrawingOpp && activeDrawingOpp.viewerHref && (
+                <div className="mb-4 rounded-xl border border-amber-300/30 bg-[#06101e] p-3">
+                  <TakeoffProjectReader
+                    source={activeDrawingOpp.viewerHref}
+                    projectName={activeDrawingOpp.name}
+                    privacyNotice={false}
+                    badgeText={`Opportunity #${activeDrawingOpp.number} · ${activeDrawingOpp.infrastructureType} Infrastructure`}
+                    subtitle={`General Contractor: ${activeDrawingOpp.contractor} · Price: ${activeDrawingOpp.estimatedPrice}`}
+                    onClose={() => setActiveViewerId(null)}
+                  />
+                </div>
+              )}
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[500px] text-left text-xs">
+                <table className="w-full min-w-[680px] text-left text-xs">
                   <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
                     <tr>
                       <th className="pb-3 font-medium">General Contractor</th>
                       <th className="pb-3 font-medium">Project</th>
+                      <th className="pb-3 font-medium">Infrastructure</th>
+                      <th className="pb-3 font-medium">Price</th>
                       <th className="pb-3 font-medium">Deadline</th>
+                      <th className="pb-3 font-medium">Plans</th>
                       <th className="pb-3 text-right font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700/60">
                     {displayedSummary.map((item) => {
                       const isPending = item.status === "Pending company information";
+                      const isPublic = item.infrastructureType === "Public";
+                      const isOpen = activeViewerId === item.id;
                       return (
                         <tr key={item.id} className="hover:bg-white/[0.02]">
                           <td className="py-3 pr-3 font-medium text-slate-200">
@@ -301,8 +323,35 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                             <strong className="text-white">{item.contractor}</strong>
                           </td>
                           <td className="py-3 pr-3 text-slate-300">{item.name}</td>
+                          <td className="whitespace-nowrap py-3 pr-3">
+                            <span
+                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                                isPublic
+                                  ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                                  : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                              }`}
+                            >
+                              {isPublic ? "Public" : "Private"}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                            {item.estimatedPrice}
+                          </td>
                           <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                             {item.reportedDeadline || "Pending"}
+                          </td>
+                          <td className="whitespace-nowrap py-3 pr-3">
+                            {item.viewerHref ? (
+                              <button
+                                type="button"
+                                onClick={() => setActiveViewerId(isOpen ? null : item.id)}
+                                className="rounded-md border border-amber-200/35 bg-[#0f2038] px-2.5 py-1 text-[11px] font-semibold text-amber-200 hover:bg-amber-200/15"
+                              >
+                                {isOpen ? "Hide plans" : "View plans"}
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">Pending</span>
+                            )}
                           </td>
                           <td className="whitespace-nowrap py-3 text-right">
                             {isPending ? (
@@ -383,19 +432,36 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
             </button>
           </div>
         </div>
+        {activeDrawingOpp && activeDrawingOpp.viewerHref && (
+          <div className="mb-4 rounded-xl border border-amber-300/30 bg-[#06101e] p-3">
+            <TakeoffProjectReader
+              source={activeDrawingOpp.viewerHref}
+              projectName={activeDrawingOpp.name}
+              privacyNotice={false}
+              badgeText={`Opportunity #${activeDrawingOpp.number} · ${activeDrawingOpp.infrastructureType} Infrastructure`}
+              subtitle={`General Contractor: ${activeDrawingOpp.contractor} · Price: ${activeDrawingOpp.estimatedPrice}`}
+              onClose={() => setActiveViewerId(null)}
+            />
+          </div>
+        )}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px] text-left text-xs">
+          <table className="w-full min-w-[680px] text-left text-xs">
             <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="pb-3 font-medium">General Contractor</th>
                 <th className="pb-3 font-medium">Project</th>
+                <th className="pb-3 font-medium">Infrastructure</th>
+                <th className="pb-3 font-medium">Price</th>
                 <th className="pb-3 font-medium">Deadline</th>
+                <th className="pb-3 font-medium">Plans</th>
                 <th className="pb-3 text-right font-medium">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/60">
               {projectItems.map((item) => {
                 const isPending = item.status === "Pending company information";
+                const isPublic = item.infrastructureType === "Public";
+                const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
                     <td className="py-3 pr-3 font-medium text-slate-200">
@@ -403,8 +469,35 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                       <strong className="text-white">{item.contractor}</strong>
                     </td>
                     <td className="py-3 pr-3 text-slate-300">{item.name}</td>
+                    <td className="whitespace-nowrap py-3 pr-3">
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                          isPublic
+                            ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                            : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                        }`}
+                      >
+                        {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                      {item.estimatedPrice}
+                    </td>
                     <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                       {item.reportedDeadline || "Pending"}
+                    </td>
+                    <td className="whitespace-nowrap py-3 pr-3">
+                      {item.viewerHref ? (
+                        <button
+                          type="button"
+                          onClick={() => setActiveViewerId(isOpen ? null : item.id)}
+                          className="rounded-md border border-amber-200/35 bg-[#0f2038] px-2.5 py-1 text-[11px] font-semibold text-amber-200 hover:bg-amber-200/15"
+                        >
+                          {isOpen ? "Hide plans" : "View plans"}
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-slate-400">Pending</span>
+                      )}
                     </td>
                     <td className="whitespace-nowrap py-3 text-right">
                       {isPending ? (
@@ -474,27 +567,72 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
             </button>
           </div>
         </div>
+        {activeDrawingOpp && activeDrawingOpp.viewerHref && (
+          <div className="mb-4 rounded-xl border border-amber-300/30 bg-[#06101e] p-3">
+            <TakeoffProjectReader
+              source={activeDrawingOpp.viewerHref}
+              projectName={activeDrawingOpp.name}
+              privacyNotice={false}
+              badgeText={`Opportunity #${activeDrawingOpp.number} · ${activeDrawingOpp.infrastructureType} Infrastructure`}
+              subtitle={`General Contractor: ${activeDrawingOpp.contractor} · Price: ${activeDrawingOpp.estimatedPrice}`}
+              onClose={() => setActiveViewerId(null)}
+            />
+          </div>
+        )}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px] text-left text-xs">
+          <table className="w-full min-w-[680px] text-left text-xs">
             <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="pb-3 font-medium">General Contractor</th>
                 <th className="pb-3 font-medium">Project</th>
+                <th className="pb-3 font-medium">Infrastructure</th>
+                <th className="pb-3 font-medium">Price</th>
                 <th className="pb-3 font-medium">Deadline</th>
+                <th className="pb-3 font-medium">Plans</th>
                 <th className="pb-3 text-right font-medium">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/60">
               {leadItems.map((item) => {
                 const isPending = item.status === "Pending company information";
+                const isPublic = item.infrastructureType === "Public";
+                const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
                     <td className="py-3 pr-3 font-medium text-white">
+                      <span className="mr-1.5 font-mono text-amber-200/80">#{item.number}</span>
                       {item.contractor}
                     </td>
                     <td className="py-3 pr-3 text-slate-300">{item.name}</td>
+                    <td className="whitespace-nowrap py-3 pr-3">
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                          isPublic
+                            ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                            : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                        }`}
+                      >
+                        {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                      {item.estimatedPrice}
+                    </td>
                     <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                       {item.reportedDeadline || "Pending"}
+                    </td>
+                    <td className="whitespace-nowrap py-3 pr-3">
+                      {item.viewerHref ? (
+                        <button
+                          type="button"
+                          onClick={() => setActiveViewerId(isOpen ? null : item.id)}
+                          className="rounded-md border border-amber-200/35 bg-[#0f2038] px-2.5 py-1 text-[11px] font-semibold text-amber-200 hover:bg-amber-200/15"
+                        >
+                          {isOpen ? "Hide plans" : "View plans"}
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-slate-400">Pending</span>
+                      )}
                     </td>
                     <td className="whitespace-nowrap py-3 text-right">
                       {isPending ? (

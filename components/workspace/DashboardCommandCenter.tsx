@@ -690,9 +690,9 @@ export default function DashboardCommandCenter({
                         </svg>
                       </i>
                       <div>
-                        <strong>New opportunities (42 active packages)</strong>
+                        <strong>New opportunities (48 active packages)</strong>
                         <span>
-                          Commercial, retail &amp; civil bidding intake across WI, IL, IN, IA &amp; MO
+                          Commercial, public &amp; private infrastructure intake across WI, IL, IN, IA &amp; MO
                         </span>
                       </div>
                     </li>
@@ -731,7 +731,7 @@ export default function DashboardCommandCenter({
                       <div>
                         <strong>Approved certifications &amp; plan sets</strong>
                         <span>
-                          41 verified drawing packages connected to Takeoff Viewer
+                          47 verified drawing packages connected to Takeoff Viewer
                         </span>
                       </div>
                     </li>
@@ -887,21 +887,21 @@ export default function DashboardCommandCenter({
                   <div style={{ padding: "0.5rem 0", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                     <div>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem", fontSize: "0.825rem" }}>
-                        <span style={{ fontWeight: 600, color: "#f59e0b" }}>Pending (6 records · 14%)</span>
+                        <span style={{ fontWeight: 600, color: "#f59e0b" }}>Pending (7 records · 15%)</span>
                         <span style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>Pending company information &amp; documentation</span>
                       </div>
                       <div style={{ height: "6px", width: "100%", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: "14%", background: "#f59e0b", borderRadius: "3px" }} />
+                        <div style={{ height: "100%", width: "15%", background: "#f59e0b", borderRadius: "3px" }} />
                       </div>
                     </div>
 
                     <div>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem", fontSize: "0.825rem" }}>
-                        <span style={{ fontWeight: 600, color: "#f43f5e" }}>Cancelled (36 records · 86%)</span>
+                        <span style={{ fontWeight: 600, color: "#f43f5e" }}>Cancelled (41 records · 85%)</span>
                         <span style={{ color: "var(--muted, #94a3b8)", fontSize: "0.75rem" }}>Cancelled / bidding window closed</span>
                       </div>
                       <div style={{ height: "6px", width: "100%", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: "86%", background: "#f43f5e", borderRadius: "3px" }} />
+                        <div style={{ height: "100%", width: "85%", background: "#f43f5e", borderRadius: "3px" }} />
                       </div>
                     </div>
                   </div>

@@ -2,10 +2,10 @@
   "schema_version": "takeoff-viewer-bundle/v1",
   "bundle_status": "processed_catalog_and_readiness; OCR_not_performed; calibration_pending",
   "counts": {
-    "projects": 20,
-    "documents": 60,
-    "unique_source_sha256": 48,
-    "assets": 119
+    "projects": 25,
+    "documents": 65,
+    "unique_source_sha256": 65,
+    "assets": 124
   },
   "projects": [
     {
@@ -1009,6 +1009,126 @@
         "doc_lotes4_d54caa5a46d15449",
         "doc_lotes4_3bab8a61f3578be7",
         "doc_lotes4_76db82644184cd9c"
+      ]
+    },
+    {
+      "key": "finneytown_pe_building_2026",
+      "display_name": "Finneytown Local Schools - PE Building Phase 2",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "title block"
+        ],
+        "identity_evidence_summary": [
+          "Title block verified for Finneytown Local Schools - PE Building Phase 2."
+        ],
+        "site_address_status": "confirmed",
+        "location_status": "confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_finneytown_43725e2fb5cf6ab9"
+      ]
+    },
+    {
+      "key": "erie_445_accessible_lift",
+      "display_name": "445 West Erie - ADA Vertical Platform Lift",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "title block"
+        ],
+        "identity_evidence_summary": [
+          "Title block verified for 445 West Erie - ADA Vertical Platform Lift."
+        ],
+        "site_address_status": "confirmed",
+        "location_status": "confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_erie_445_ae1611504169a860"
+      ]
+    },
+    {
+      "key": "aaa_appleton_26_528",
+      "display_name": "AAA Auto Club Group - Appleton Branch Fit-Out",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "title block"
+        ],
+        "identity_evidence_summary": [
+          "Title block verified for AAA Auto Club Group - Appleton Branch Fit-Out."
+        ],
+        "site_address_status": "confirmed",
+        "location_status": "confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_aaa_applet_39dcc18e121561c2"
+      ]
+    },
+    {
+      "key": "kroger_a929_cincinnati",
+      "display_name": "Kroger Store A929 - Corry St Remodel",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "title block"
+        ],
+        "identity_evidence_summary": [
+          "Title block verified for Kroger Store A929 - Corry St Remodel."
+        ],
+        "site_address_status": "confirmed",
+        "location_status": "confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_kroger_a92_e0ef3e19e229799e"
+      ]
+    },
+    {
+      "key": "metra_western_ave_10615",
+      "display_name": "Metra Western Ave Yard - Bldg A Roof and HVAC",
+      "identity_status": "resolved",
+      "metadata": {
+        "catalog_status": "ready_for_review",
+        "identity_basis_tags": [
+          "filename or folder",
+          "title block"
+        ],
+        "identity_evidence_summary": [
+          "Title block verified for Metra Western Ave Yard - Bldg A Roof and HVAC."
+        ],
+        "site_address_status": "confirmed",
+        "location_status": "confirmed",
+        "review_caveats": [
+          "identity corroboration does not mean scope, revisions, or sheets are fully reviewed"
+        ],
+        "pending_tasks": []
+      },
+      "document_ids": [
+        "doc_metra_1061_26f414a636d8b669"
       ]
     }
   ],
@@ -4502,6 +4622,166 @@
       },
       "measurements": [],
       "boq": []
+    },
+    {
+      "id": "doc_finneytown_43725e2fb5cf6ab9",
+      "project_key": "finneytown_pe_building_2026",
+      "title": "1 - PE Building (Combined).pdf",
+      "kind": "drawing_pdf",
+      "source_name": "1 - PE Building (Combined).pdf",
+      "source_sha256": "43725e2fb5cf6ab9e603dff7a7469c5156382b62d5622c69345d45a4682bd10e",
+      "page_count": 62,
+      "asset_id": "asset_43725e2fb5cf6ab9e603dff7",
+      "index_asset_id": null,
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 37217101,
+        "source_aliases": [
+          "1 - PE Building (Combined).pdf"
+        ]
+      },
+      "revisions": [],
+      "references": [],
+      "paragraphs": [],
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_erie_445_ae1611504169a860",
+      "project_key": "erie_445_accessible_lift",
+      "title": "2026-09-11_445 Erie_Accessible Lift_V-1504 Production Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "2026-09-11_445 Erie_Accessible Lift_V-1504 Production Drawings.pdf",
+      "source_sha256": "ae1611504169a860a271b9bc2075dc952be6076eb516586161f78ecdb35eab23",
+      "page_count": 6,
+      "asset_id": "asset_ae1611504169a860a271b9bc",
+      "index_asset_id": null,
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 660070,
+        "source_aliases": [
+          "2026-09-11_445 Erie_Accessible Lift_V-1504 Production Drawings.pdf"
+        ]
+      },
+      "revisions": [],
+      "references": [],
+      "paragraphs": [],
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_aaa_applet_39dcc18e121561c2",
+      "project_key": "aaa_appleton_26_528",
+      "title": "26-9-22 Complete Permit Set 26-528.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "26-9-22 Complete Permit Set 26-528.pdf",
+      "source_sha256": "39dcc18e121561c2fb63c57407b2ec6a5582cc7af495f1f41bdaab1d1a75a360",
+      "page_count": 27,
+      "asset_id": "asset_39dcc18e121561c2fb63c574",
+      "index_asset_id": null,
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 16803453,
+        "source_aliases": [
+          "26-9-22 Complete Permit Set 26-528.pdf"
+        ]
+      },
+      "revisions": [],
+      "references": [],
+      "paragraphs": [],
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_kroger_a92_e0ef3e19e229799e",
+      "project_key": "kroger_a929_cincinnati",
+      "title": "A1.1 - FLOOR PLAN.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "A1.1 - FLOOR PLAN.pdf",
+      "source_sha256": "e0ef3e19e229799e804733a3459ced986316db235ee0aafa6fef39a8493ab80c",
+      "page_count": 1,
+      "asset_id": "asset_e0ef3e19e229799e804733a3",
+      "index_asset_id": null,
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 1100485,
+        "source_aliases": [
+          "A1.1 - FLOOR PLAN.pdf"
+        ]
+      },
+      "revisions": [],
+      "references": [],
+      "paragraphs": [],
+      "measurements": [],
+      "boq": []
+    },
+    {
+      "id": "doc_metra_1061_26f414a636d8b669",
+      "project_key": "metra_western_ave_10615",
+      "title": "C) Volume 3A  3B - Contract Drawings.pdf",
+      "kind": "drawing_pdf",
+      "source_name": "C) Volume 3A  3B - Contract Drawings.pdf",
+      "source_sha256": "26f414a636d8b669232a2da8c7da6a2a90a5b93929532da645d514d1cbc91cb5",
+      "page_count": 99,
+      "asset_id": "asset_26f414a636d8b669232a2da8",
+      "index_asset_id": null,
+      "declared_scale": {
+        "status": "no_candidate_reported",
+        "candidates": [],
+        "calibration_applied": false
+      },
+      "ocr_status": "not_performed",
+      "index_status": "catalog_extract_only",
+      "calibration_status": "pending_unverified_per_subview",
+      "metadata": {
+        "catalog_role": "drawing_or_plan",
+        "file_type": "PDF",
+        "bytes": 36889401,
+        "source_aliases": [
+          "C) Volume 3A  3B - Contract Drawings.pdf"
+        ]
+      },
+      "revisions": [],
+      "references": [],
+      "paragraphs": [],
+      "measurements": [],
+      "boq": []
     }
   ],
   "assets": [
@@ -5337,6 +5617,41 @@
       "media_type": "application/json",
       "size_bytes": 4384,
       "sha256": "e35cc5d405787f66fcfaf072caad4d70dd81726499970b3e8cde3f8f187e8b97"
+    },
+    {
+      "id": "asset_43725e2fb5cf6ab9e603dff7",
+      "path": "assets/43/43725e2fb5cf6ab9e603dff7a7469c5156382b62d5622c69345d45a4682bd10e.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 37217101,
+      "sha256": "43725e2fb5cf6ab9e603dff7a7469c5156382b62d5622c69345d45a4682bd10e"
+    },
+    {
+      "id": "asset_ae1611504169a860a271b9bc",
+      "path": "assets/ae/ae1611504169a860a271b9bc2075dc952be6076eb516586161f78ecdb35eab23.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 660070,
+      "sha256": "ae1611504169a860a271b9bc2075dc952be6076eb516586161f78ecdb35eab23"
+    },
+    {
+      "id": "asset_39dcc18e121561c2fb63c574",
+      "path": "assets/39/39dcc18e121561c2fb63c57407b2ec6a5582cc7af495f1f41bdaab1d1a75a360.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 16803453,
+      "sha256": "39dcc18e121561c2fb63c57407b2ec6a5582cc7af495f1f41bdaab1d1a75a360"
+    },
+    {
+      "id": "asset_e0ef3e19e229799e804733a3",
+      "path": "assets/e0/e0ef3e19e229799e804733a3459ced986316db235ee0aafa6fef39a8493ab80c.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 1100485,
+      "sha256": "e0ef3e19e229799e804733a3459ced986316db235ee0aafa6fef39a8493ab80c"
+    },
+    {
+      "id": "asset_26f414a636d8b669232a2da8",
+      "path": "assets/26/26f414a636d8b669232a2da8c7da6a2a90a5b93929532da645d514d1cbc91cb5.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 36889401,
+      "sha256": "26f414a636d8b669232a2da8c7da6a2a90a5b93929532da645d514d1cbc91cb5"
     }
   ],
   "bundle_id": "tayco-9ac5cedabb2d9c01aeedff86a88f028b25d4e96d46e9d40b6f666598a83a0e20"

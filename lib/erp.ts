@@ -18,6 +18,7 @@ export class ErpError extends Error { constructor(public status: number, message
 const connections = new Map<string, DatabaseSync>();
 function seedErpIfNeeded(db: DatabaseSync) {
   try {
+    if (!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || Boolean(process.env.TAYCO_ERP_DB_PATH))) return;
     const count = (db.prepare('SELECT count(*) AS c FROM records').get() as { c: number } | undefined)?.c ?? 0;
     if (count >= 150) return;
     const seedPath = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'erp-seed.json');

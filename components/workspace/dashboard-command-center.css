@@ -885,12 +885,13 @@
 .dcc-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
   background: rgba(148, 163, 184, 0.2);
   color: #e2e8f0;
 }
@@ -917,6 +918,27 @@
   background: rgba(100, 116, 139, 0.25);
   border: 1px solid rgba(148, 163, 184, 0.3);
   color: #cbd5e1;
+}
+
+.dcc-badge[data-tone="sky"] {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #bae6fd;
+}
+
+.dcc-badge[data-tone="indigo"] {
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  color: #c7d2fe;
+}
+
+.dcc-opp-price {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: #fcd34d;
+  white-space: nowrap;
 }
 
 /* Verified Opportunities Table & Embedded Takeoff Drawing Viewer */
@@ -1047,21 +1069,39 @@
 }
 
 .dcc-opportunities-table th {
-  padding: 11px 12px;
+  padding: 10px 8px;
   background: rgba(15, 32, 56, 0.95);
   color: var(--dcc-gold-bright);
   font-size: 10px;
   font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  white-space: nowrap;
   border-bottom: 1px solid rgba(201, 168, 76, 0.25);
 }
 
+.dcc-opp-deadline {
+  white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.dcc-opp-drawing-btn {
+  white-space: nowrap;
+}
+
 .dcc-opportunities-table td {
-  padding: 11px 12px;
+  padding: 10px 8px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   vertical-align: middle;
   color: #e2e8f0;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.dcc-opportunities-table td:nth-child(2) {
+  min-width: 185px;
 }
 
 .dcc-opportunities-table tr:hover td {
@@ -1071,15 +1111,17 @@
 .dcc-opp-project-cell {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
-  min-width: 210px;
+  gap: 8px;
+  min-width: 180px;
 }
 
 .dcc-opp-id {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 30px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 32px;
   height: 22px;
   padding: 0 6px;
   border-radius: 6px;

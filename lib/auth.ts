@@ -65,7 +65,7 @@ function openAuthDatabaseFile(): DatabaseSync {
   }
 }
 function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
-  if ((!process.env.RAILWAY_ENVIRONMENT && process.env.NODE_ENV === 'test') || railwayAccountsSeeded) return;
+  if ((!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || Boolean(process.env.TAYCO_AUTH_DB_PATH))) || railwayAccountsSeeded) return;
   railwayAccountsSeeded = true;
   const defaultAdminHash = 'scrypt$32768$8$3$51f8fedc629c5b5ef178953ede3a765e$c82e93e0d01171859e713069445bea28c670075c366a3f26ae919eb6ab75722c59a926c61d3ab2739787d819f0fabf233a315bd7626f11f8afb1e1f87d466fc3';
   const defaultGuestHash = 'scrypt$32768$8$3$69882d276a01a9f73ea0878d16739e65$30016f979e7e2f63a964a35e8b0621f5f051e24b6b2ceedf4abde8145cd4dc4535124a22fb7f8815332ea8b39cadf84bcdd4110c3abfdfbe59978eceae623f04';
