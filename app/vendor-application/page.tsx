@@ -52,7 +52,7 @@ const COPY = {
     "If we need documents, we will provide the next steps through your invited account. Do not email tax or identity documents.",
   backHome: "Back to Home",
   uploadDocs: "Documents are requested after review",
-  sectionBusiness: "01 · Legal Entity & Trade Qualifications",
+  sectionBusiness: "01 / Legal Entity & Trade Qualifications",
   businessName: "Legal Business Name",
   contactName: "Primary Contact Name",
   phone: "Direct Phone",
@@ -67,15 +67,15 @@ const COPY = {
   insuredSelect: "Select...",
   insuredYes: "Yes",
   insuredNo: "No",
-  sectionArea: "02 · Your service area",
+  sectionArea: "02 / Your service area",
   statesServed: "States you serve",
   statesSelect: "Select...",
   citiesServed: "Primary Metro Areas & Counties Covered",
   citiesHint: "e.g. Milwaukee, Madison or Chicago and surrounding counties",
-  sectionTrades: "03 · Trades & services",
+  sectionTrades: "03 / Trades & services",
   tradesNote: "(select all trades performed in-house)",
   tradesAlert: "Please select at least one trade.",
-  sectionDocs: "04 · Supporting documents",
+  sectionDocs: "04 / Supporting documents",
   docsIntro:
     "You can apply without uploading documents. When required, W-9 and insurance records are requested through an invited account and reviewed separately.",
 
@@ -87,8 +87,11 @@ const COPY = {
   footer:
     "We review your trade experience, service area and project fit. A team member will contact you about the next steps.",
   errorFallback: "Something went wrong. Please try again.",
-
 };
+
+const INPUT_CLASS =
+  "w-full border rounded-xl px-4 py-3 text-sm bg-[#FAF9F5] text-[#070E1A] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/35 transition-all";
+const INPUT_STYLE = { borderColor: "rgba(201, 168, 76, 0.35)" };
 
 export default function VendorApplicationPage() {
   const [form, setForm] = useState({
@@ -140,11 +143,20 @@ export default function VendorApplicationPage() {
     setStatus("sending");
     setErrorMsg("");
     try {
-      const payload = JSON.stringify({ ...form, trades: selectedTrades.join(", "), docsPending: true, _loadedAt: loadedAt.current });
-      if (requestRef.current?.payload !== payload) requestRef.current = { key: crypto.randomUUID(), payload };
+      const payload = JSON.stringify({
+        ...form,
+        trades: selectedTrades.join(", "),
+        docsPending: true,
+        _loadedAt: loadedAt.current,
+      });
+      if (requestRef.current?.payload !== payload)
+        requestRef.current = { key: crypto.randomUUID(), payload };
       const res = await fetch("/api/vendor", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Idempotency-Key": requestRef.current.key },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": requestRef.current.key,
+        },
         body: payload,
       });
       if (res.ok) {
@@ -166,68 +178,251 @@ export default function VendorApplicationPage() {
   }
 
   return (
-    <main className="min-h-screen pt-16 section-editorial-ivory" style={{ background: "#F7F6F1" }}>
-      {/* Header */}
+    <main
+      className="min-h-screen pt-16 section-editorial-ivory"
+      style={{ background: "#F4F2EA" }}
+    >
+      {/* Architectural Header */}
       <div
-        className="py-12 border-b "
+        className="py-14 border-b"
         style={{
-          background: "linear-gradient(145deg, #070E1A 0%, #0F2040 60%, #142B54 100%)",
-          borderColor: "rgba(201,168,76,0.35)",
+          background:
+            "linear-gradient(145deg, #070E1A 0%, #0B172A 45%, #0F2040 80%, #1B3A6B 100%)",
+          borderColor: "rgba(201, 168, 76, 0.4)",
         }}
       >
         <div className="max-w-5xl mx-auto px-4 text-center">
-          <span className="tayco-eyebrow mb-3">
-            <span className="tayco-live-dot" />
+          <span className="tayco-eyebrow mb-3" style={{ color: "#F3D37A" }}>
+            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             {COPY.badge}
           </span>
-          <h1 className="text-3xl sm:text-5xl font-black text-white mt-2 mb-3 tracking-tight">
+          <h1
+            className="text-3xl sm:text-5xl font-black mt-2 mb-3 tracking-tight"
+            style={{ color: "#F4F2EA" }}
+          >
             Vendor &amp; Subcontractor{" "}
-            <em className="tayco-serif-em">Application</em>
+            <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
+              Application
+            </em>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
             {COPY.subtitle}
           </p>
-          <div className="mt-4 inline-flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-amber-300">
+          <div
+            className="mt-5 inline-flex flex-wrap items-center justify-center gap-4 text-xs font-mono px-4 py-2 rounded-full border"
+            style={{
+              color: "#F3D37A",
+              background: "rgba(7, 14, 26, 0.55)",
+              borderColor: "rgba(201, 168, 76, 0.32)",
+            }}
+          >
             <span>{COMPANY.phoneDisplay}</span>
-            <span>·</span>
+            <span style={{ color: "#C9A84C" }}>·</span>
             <span>{COMPANY.email}</span>
           </div>
         </div>
       </div>
 
+      {/* 3-Step Onboarding Strip */}
       <div className="max-w-5xl mx-auto px-4 pt-8">
-        <div data-surface-mode="crystal" className="tayco-living-card bg-gradient-to-br from-[#070E1A] via-[#0F2040] to-[#1B3A6B] text-white shadow-2xl p-5 sm:p-6">
-          <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
+        <div
+          data-surface-mode="crystal"
+          className="tayco-living-card text-white shadow-2xl p-6 sm:p-7 rounded-2xl border"
+          style={{
+            background:
+              "linear-gradient(135deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)",
+            borderColor: "rgba(201, 168, 76, 0.42)",
+          }}
+        >
+          <div className="preview-orbits" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
           <div className="relative z-10">
-            <p className="tayco-eyebrow text-amber-300 mb-3">A clear path to working together</p>
+            <p className="tayco-eyebrow mb-4" style={{ color: "#F3D37A" }}>
+              A clear path to working together
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div><h2 className="font-bold text-white">01 · Introduce your team</h2><p className="text-sm text-slate-300 mt-2">Share your trade experience, crew size and service area.</p></div>
-              <div><h2 className="font-bold text-white">02 · Application review</h2><p className="text-sm text-slate-300 mt-2">We review project fit and contact you for any missing information.</p></div>
-              <div><h2 className="font-bold text-white">03 · Invited account</h2><p className="text-sm text-slate-300 mt-2">If invited, sign in to exchange project information and requested documents.</p></div>
+              <div
+                className="p-4 rounded-xl border"
+                style={{
+                  background: "rgba(7, 14, 26, 0.48)",
+                  borderColor: "rgba(201, 168, 76, 0.24)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-2">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#F3D37A"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 21h18" />
+                    <path d="M5 21V7l7-4 7 4v14" />
+                    <path d="M9 11h6" />
+                    <path d="M9 15h6" />
+                  </svg>
+                  <h2 className="font-bold text-sm tracking-wide" style={{ color: "#F4F2EA" }}>
+                    <span className="font-mono mr-1.5" style={{ color: "#C9A84C" }}>
+                      01 /
+                    </span>
+                    Introduce your team
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Share your trade experience, crew size and service area.
+                </p>
+              </div>
+
+              <div
+                className="p-4 rounded-xl border"
+                style={{
+                  background: "rgba(7, 14, 26, 0.48)",
+                  borderColor: "rgba(201, 168, 76, 0.24)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-2">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#F3D37A"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                  </svg>
+                  <h2 className="font-bold text-sm tracking-wide" style={{ color: "#F4F2EA" }}>
+                    <span className="font-mono mr-1.5" style={{ color: "#C9A84C" }}>
+                      02 /
+                    </span>
+                    Application review
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  We review project fit and contact you for any missing information.
+                </p>
+              </div>
+
+              <div
+                className="p-4 rounded-xl border"
+                style={{
+                  background: "rgba(7, 14, 26, 0.48)",
+                  borderColor: "rgba(201, 168, 76, 0.24)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-2">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#F3D37A"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="11" width="18" height="10" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <h2 className="font-bold text-sm tracking-wide" style={{ color: "#F4F2EA" }}>
+                    <span className="font-mono mr-1.5" style={{ color: "#C9A84C" }}>
+                      03 /
+                    </span>
+                    Invited account
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  If invited, sign in to exchange project information and requested documents.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Main Application Container */}
       <div className="max-w-4xl mx-auto px-4 py-8">
         {status === "success" ? (
           <div
             data-surface-mode="mineral"
-            className="tayco-living-card editorial-ivory-card text-center py-14 px-6 bg-white"
+            className="tayco-living-card editorial-ivory-card text-center py-14 px-6 bg-white rounded-2xl border"
+            style={{ borderColor: "rgba(201, 168, 76, 0.42)" }}
           >
-            <div className="text-6xl mb-4">✅</div>
+            <div
+              className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center border shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #070E1A 0%, #0F2040 100%)",
+                borderColor: "#C9A84C",
+              }}
+            >
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F3D37A"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: "#0F2040" }}>
               {COPY.successTitle}
             </h2>
-            <p className="text-slate-600 mb-4 max-w-xl mx-auto text-sm">{COPY.successMsg}</p>
-            <p role="status" className="text-xs text-slate-600 mb-5 break-all">Reference: <strong>{referenceId}</strong><br />{notificationStatus === "pending" ? "Saved. Team notification is pending; your reference remains valid." : "Saved for team review."}</p>
+            <p className="text-slate-600 mb-4 max-w-xl mx-auto text-sm">
+              {COPY.successMsg}
+            </p>
+            <p role="status" className="text-xs text-slate-600 mb-5 break-all">
+              Reference: <strong>{referenceId}</strong>
+              <br />
+              {notificationStatus === "pending"
+                ? "Saved. Team notification is pending; your reference remains valid."
+                : "Saved for team review."}
+            </p>
             {docsPending && (
               <div
-                className="mx-auto max-w-md rounded-xl px-5 py-4 mb-6 text-sm"
-                style={{ background: "#FFF7ED", border: "2px solid #C9A84C" }}
+                className="mx-auto max-w-md rounded-xl px-5 py-4 mb-6 text-sm border"
+                style={{
+                  background: "#F4F2EA",
+                  borderColor: "#C9A84C",
+                }}
               >
-                <p className="font-semibold mb-1" style={{ color: "#C9A84C" }}>
-                  📄 {COPY.uploadDocs}
+                <p
+                  className="font-semibold mb-1.5 inline-flex items-center justify-center gap-2"
+                  style={{ color: "#0F2040" }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="13" y2="17" />
+                  </svg>
+                  <span>{COPY.uploadDocs}</span>
                 </p>
                 <p className="text-slate-600 text-xs">{COPY.successPending}</p>
                 <Link
@@ -243,15 +438,23 @@ export default function VendorApplicationPage() {
               <Link
                 href="/login"
                 data-magnetic
-                className="font-bold px-6 py-3 rounded-xl text-xs"
-                style={{ background: "#0F2040", color: "#C9A84C" }}
+                className="font-bold px-6 py-3 rounded-xl text-xs border"
+                style={{
+                  background: "linear-gradient(135deg, #070E1A 0%, #0F2040 100%)",
+                  borderColor: "#C9A84C",
+                  color: "#F3D37A",
+                }}
               >
                 Existing partner sign in →
               </Link>
               <Link
                 href="/"
                 className="font-semibold px-6 py-3 rounded-xl text-xs"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                style={{
+                  background:
+                    "linear-gradient(135deg, #C9A84C 0%, #DFC06C 55%, #F3D37A 100%)",
+                  color: "#070E1A",
+                }}
               >
                 {COPY.backHome}
               </Link>
@@ -261,10 +464,11 @@ export default function VendorApplicationPage() {
           <form
             onSubmit={handleSubmit}
             data-surface-mode="mineral"
-            className="tayco-living-card editorial-ivory-card p-5 sm:p-8 space-y-6 bg-white"
+            className="tayco-living-card editorial-ivory-card p-6 sm:p-9 space-y-8 bg-white rounded-2xl border shadow-xl"
+            style={{ borderColor: "rgba(201, 168, 76, 0.38)" }}
           >
             <div className="preview-orbits" aria-hidden="true" />
-            <div className="relative z-10 space-y-6">
+            <div className="relative z-10 space-y-8">
               {/* Honeypot */}
               <div style={{ display: "none" }} aria-hidden="true">
                 <input
@@ -276,163 +480,195 @@ export default function VendorApplicationPage() {
                 />
               </div>
 
-              {/* Business Info */}
+              {/* 01 / Business Info */}
               <div>
                 <h2
-                  className="text-base font-mono font-bold uppercase tracking-wider mb-4 pb-2 border-b-2"
-                  style={{ color: "#0F2040", borderColor: "#E2E8F0" }}
+                  className="text-sm sm:text-base font-mono font-bold uppercase tracking-wider mb-5 pb-3 border-b flex items-center gap-2.5"
+                  style={{
+                    color: "#0F2040",
+                    borderColor: "rgba(201, 168, 76, 0.38)",
+                  }}
                 >
-                  {COPY.sectionBusiness}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 3v18" />
+                    <path d="M13 8h4" />
+                    <path d="M13 12h4" />
+                  </svg>
+                  <span>{COPY.sectionBusiness}</span>
                 </h2>
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="vendor-businessName"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-businessName"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.businessName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-businessName"
-                    name="businessName" autoComplete="organization"
+                        id="vendor-businessName"
+                        name="businessName"
+                        autoComplete="organization"
                         value={form.businessName}
                         onChange={handleChange}
                         required
                         placeholder="Badger State Mechanical LLC"
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                     <div>
-                      <label htmlFor="vendor-contactName"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-contactName"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.contactName} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-contactName"
-                    name="contactName" autoComplete="name"
+                        id="vendor-contactName"
+                        name="contactName"
+                        autoComplete="name"
                         value={form.contactName}
                         onChange={handleChange}
                         required
                         placeholder="Robert Kowalski"
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="vendor-phone"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-phone"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.phone} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-phone"
-                    name="phone" autoComplete="tel" inputMode="tel"
+                        id="vendor-phone"
+                        name="phone"
+                        autoComplete="tel"
+                        inputMode="tel"
                         value={form.phone}
                         onChange={handleChange}
                         required
                         placeholder="Your phone number"
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                     <div>
-                      <label htmlFor="vendor-email"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-email"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.email} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-email"
-                    name="email" autoComplete="email"
+                        id="vendor-email"
+                        name="email"
+                        autoComplete="email"
                         type="email"
                         value={form.email}
                         onChange={handleChange}
                         required
                         placeholder="dispatch@company.com"
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="vendor-licenseNumber"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-licenseNumber"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.licenseNumber}
                       </label>
                       <input
-                    id="vendor-licenseNumber"
-                    name="licenseNumber"
+                        id="vendor-licenseNumber"
+                        name="licenseNumber"
                         value={form.licenseNumber}
                         onChange={handleChange}
                         placeholder={COPY.licenseHint}
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                     <div>
-                      <label htmlFor="vendor-yearsInBusiness"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-yearsInBusiness"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.yearsInBusiness} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-yearsInBusiness"
-                    name="yearsInBusiness"
+                        id="vendor-yearsInBusiness"
+                        name="yearsInBusiness"
                         value={form.yearsInBusiness}
                         onChange={handleChange}
                         required
                         placeholder={COPY.yearsHint}
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="vendor-crewSize"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-crewSize"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.crewSize} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <input
-                    id="vendor-crewSize"
-                    name="crewSize"
+                        id="vendor-crewSize"
+                        name="crewSize"
                         value={form.crewSize}
                         onChange={handleChange}
                         required
                         placeholder={COPY.crewHint}
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       />
                     </div>
                     <div>
-                      <label htmlFor="vendor-insured"
-                        className="block text-sm font-semibold mb-1"
+                      <label
+                        htmlFor="vendor-insured"
+                        className="block text-sm font-semibold mb-1.5"
                         style={{ color: "#0F2040" }}
                       >
                         {COPY.insured} <span style={{ color: "#C9A84C" }}>*</span>
                       </label>
                       <select
-                    id="vendor-insured"
-                    name="insured"
+                        id="vendor-insured"
+                        name="insured"
                         value={form.insured}
                         onChange={handleChange}
                         required
-                        className="w-full border-2 rounded-lg px-4 py-2.5 text-sm focus:outline-none bg-white"
-                        style={{ borderColor: "#E2E8F0" }}
+                        className={INPUT_CLASS}
+                        style={INPUT_STYLE}
                       >
                         <option value="">{COPY.insuredSelect}</option>
                         <option value="Yes">{COPY.insuredYes}</option>
@@ -443,30 +679,48 @@ export default function VendorApplicationPage() {
                 </div>
               </div>
 
-              {/* Service Area */}
+              {/* 02 / Service Area */}
               <div>
                 <h2
-                  className="text-base font-mono font-bold uppercase tracking-wider mb-4 pb-2 border-b-2"
-                  style={{ color: "#0F2040", borderColor: "#E2E8F0" }}
+                  className="text-sm sm:text-base font-mono font-bold uppercase tracking-wider mb-5 pb-3 border-b flex items-center gap-2.5"
+                  style={{
+                    color: "#0F2040",
+                    borderColor: "rgba(201, 168, 76, 0.38)",
+                  }}
                 >
-                  {COPY.sectionArea}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 21s-7-5.7-7-11a7 7 0 1 1 14 0c0 5.3-7 11-7 11z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <span>{COPY.sectionArea}</span>
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="vendor-stateServed"
-                      className="block text-sm font-semibold mb-1"
+                    <label
+                      htmlFor="vendor-stateServed"
+                      className="block text-sm font-semibold mb-1.5"
                       style={{ color: "#0F2040" }}
                     >
                       {COPY.statesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <select
-                    id="vendor-stateServed"
-                    name="stateServed"
+                      id="vendor-stateServed"
+                      name="stateServed"
                       value={form.stateServed}
                       onChange={handleChange}
                       required
-                      className="w-full border-2 rounded-lg px-4 py-2.5 text-sm focus:outline-none bg-white"
-                      style={{ borderColor: "#E2E8F0" }}
+                      className={INPUT_CLASS}
+                      style={INPUT_STYLE}
                     >
                       <option value="">{COPY.statesSelect}</option>
                       {STATES.map((s) => (
@@ -477,107 +731,241 @@ export default function VendorApplicationPage() {
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="vendor-citiesServed"
-                      className="block text-sm font-semibold mb-1"
+                    <label
+                      htmlFor="vendor-citiesServed"
+                      className="block text-sm font-semibold mb-1.5"
                       style={{ color: "#0F2040" }}
                     >
                       {COPY.citiesServed} <span style={{ color: "#C9A84C" }}>*</span>
                     </label>
                     <input
-                    id="vendor-citiesServed"
-                    name="citiesServed"
+                      id="vendor-citiesServed"
+                      name="citiesServed"
                       value={form.citiesServed}
                       onChange={handleChange}
                       required
                       placeholder={COPY.citiesHint}
-                      className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none"
-                      style={{ borderColor: "#E2E8F0" }}
+                      className={INPUT_CLASS}
+                      style={INPUT_STYLE}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Trades */}
+              {/* 03 / Trades */}
               <div>
                 <h2
-                  className="text-base font-mono font-bold uppercase tracking-wider mb-2 pb-2 border-b-2"
-                  style={{ color: "#0F2040", borderColor: "#E2E8F0" }}
+                  className="text-sm sm:text-base font-mono font-bold uppercase tracking-wider mb-2 pb-3 border-b flex flex-wrap items-center gap-2.5"
+                  style={{
+                    color: "#0F2040",
+                    borderColor: "rgba(201, 168, 76, 0.38)",
+                  }}
                 >
-                  {COPY.sectionTrades}{" "}
-                  <span className="text-xs font-sans font-normal text-slate-400">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                    <polyline points="2 17 12 22 22 17" />
+                    <polyline points="2 12 12 17 22 12" />
+                  </svg>
+                  <span>{COPY.sectionTrades}</span>
+                  <span className="text-xs font-sans font-normal text-slate-500">
                     {COPY.tradesNote}
                   </span>
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
-                  {TRADES.map((trade) => (
-                    <button
-                      key={trade}
-                      type="button"
-                      aria-pressed={selectedTrades.includes(trade)}
-                      onClick={() => toggleTrade(trade)}
-                      className="text-left text-xs px-3 py-2 rounded-lg border-2 font-semibold transition-colors cursor-pointer"
-                      style={{
-                        borderColor: selectedTrades.includes(trade) ? "#C9A84C" : "#E2E8F0",
-                        background: selectedTrades.includes(trade) ? "#FFF7ED" : "white",
-                        color: selectedTrades.includes(trade) ? "#0F2040" : "#374151",
-                      }}
-                    >
-                      {selectedTrades.includes(trade) ? "✔ " : ""}
-                      {trade}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-4">
+                  {TRADES.map((trade) => {
+                    const isSelected = selectedTrades.includes(trade);
+                    return (
+                      <button
+                        key={trade}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => toggleTrade(trade)}
+                        className="text-left text-xs px-3.5 py-2.5 rounded-xl border font-semibold transition-all cursor-pointer flex items-center gap-2"
+                        style={
+                          isSelected
+                            ? {
+                                background:
+                                  "linear-gradient(135deg, #0F2040 0%, #1B3A6B 100%)",
+                                borderColor: "#C9A84C",
+                                color: "#F3D37A",
+                                boxShadow:
+                                  "0 8px 20px -8px rgba(201, 168, 76, 0.45)",
+                              }
+                            : {
+                                background: "#FAF9F5",
+                                borderColor: "rgba(201, 168, 76, 0.28)",
+                                color: "#0F2040",
+                              }
+                        }
+                      >
+                        <span
+                          className="w-4 h-4 rounded flex items-center justify-center shrink-0 border"
+                          style={
+                            isSelected
+                              ? {
+                                  background: "#C9A84C",
+                                  borderColor: "#F3D37A",
+                                }
+                              : {
+                                  background: "transparent",
+                                  borderColor: "rgba(201, 168, 76, 0.45)",
+                                }
+                          }
+                          aria-hidden="true"
+                        >
+                          {isSelected && (
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#070E1A"
+                              strokeWidth="2.4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="truncate">{trade}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Documents */}
+              {/* 04 / Supporting Documents */}
               <div>
                 <h2
-                  className="text-base font-mono font-bold uppercase tracking-wider mb-1 pb-2 border-b-2"
-                  style={{ color: "#0F2040", borderColor: "#E2E8F0" }}
+                  className="text-sm sm:text-base font-mono font-bold uppercase tracking-wider mb-2 pb-3 border-b flex items-center gap-2.5"
+                  style={{
+                    color: "#0F2040",
+                    borderColor: "rgba(201, 168, 76, 0.38)",
+                  }}
                 >
-                  {COPY.sectionDocs}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <span>{COPY.sectionDocs}</span>
                 </h2>
-                <p className="text-xs text-slate-500 mb-4">{COPY.docsIntro}</p>
+                <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                  {COPY.docsIntro}
+                </p>
 
-                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-slate-700">
-                  Do not include tax identification numbers or banking details in this form.
-                  Already invited? <Link href="/login" className="font-semibold underline">Sign in to your partner account</Link>.
+                <div
+                  className="rounded-xl border p-4 text-sm flex items-start gap-3"
+                  style={{
+                    background: "#F4F2EA",
+                    borderColor: "rgba(201, 168, 76, 0.45)",
+                    color: "#0F2040",
+                  }}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <div>
+                    Do not include tax identification numbers or banking details in this form.{" "}
+                    Already invited?{" "}
+                    <Link
+                      href="/login"
+                      className="font-semibold underline"
+                      style={{ color: "#0F2040" }}
+                    >
+                      Sign in to your partner account
+                    </Link>
+                    .
+                  </div>
                 </div>
               </div>
 
-              {/* Notes */}
+              {/* Additional Notes */}
               <div>
-                <label htmlFor="vendor-notes"
-                  className="block text-sm font-semibold mb-1"
+                <label
+                  htmlFor="vendor-notes"
+                  className="block text-sm font-semibold mb-1.5"
                   style={{ color: "#0F2040" }}
                 >
                   {COPY.notes}
                 </label>
                 <textarea
-                    id="vendor-notes"
-                    name="notes"
+                  id="vendor-notes"
+                  name="notes"
                   value={form.notes}
                   onChange={handleChange}
                   rows={3}
                   placeholder={COPY.notesHint}
-                  className="w-full border-2 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none resize-none"
-                  style={{ borderColor: "#E2E8F0" }}
+                  className={`${INPUT_CLASS} resize-none`}
+                  style={INPUT_STYLE}
                 />
               </div>
 
               {status === "error" && (
-                <div role="alert" className="rounded-lg border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
+                <div
+                  role="alert"
+                  className="rounded-xl border px-4 py-3 text-sm text-center font-medium"
+                  style={{
+                    background: "rgba(15, 32, 64, 0.06)",
+                    borderColor: "#C9A84C",
+                    color: "#0F2040",
+                  }}
+                >
                   {errorMsg}
                 </div>
               )}
 
-              <p className="text-xs text-slate-600">We use these details to review your application and contact you. <Link href="/privacy" className="underline">Privacy &amp; data protection</Link>.</p>
+              <p className="text-xs text-slate-600">
+                We use these details to review your application and contact you.{" "}
+                <Link href="/privacy" className="underline" style={{ color: "#0F2040" }}>
+                  Privacy &amp; data protection
+                </Link>
+                .
+              </p>
               <button
                 type="submit"
                 data-magnetic
                 disabled={status === "sending"}
-                className="w-full font-black py-3.5 rounded-xl text-base transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                className="w-full font-black py-4 rounded-xl text-base transition-all hover:opacity-95 disabled:opacity-50 cursor-pointer border"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #C9A84C 0%, #DFC06C 50%, #F3D37A 100%)",
+                  borderColor: "rgba(243, 211, 122, 0.7)",
+                  color: "#070E1A",
+                  boxShadow: "0 12px 28px -10px rgba(201, 168, 76, 0.55)",
+                }}
               >
                 {status === "sending" ? COPY.submitting : COPY.submit}
               </button>

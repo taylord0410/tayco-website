@@ -146,7 +146,7 @@ const LIGHT_STUDIES = [
     "buttonTitle": "03 / Shape & detail",
     "label": "DETAIL / CRAFT",
     "note": "Small details shape how a space feels. This interactive material study is a visual illustration, not an inspection or construction specification.",
-    "color": "#94B8D7",
+    "color": "#F3D37A",
     "specMetric": "Shape · Detail"
   }
 ];
@@ -328,7 +328,21 @@ export default function Home() {
               style={{ color: "#F3D37A" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              ★ Primary Service · Commercial Construction
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F3D37A"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="inline-block shrink-0"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              Primary Service · Commercial Construction
             </div>
 
             <div
@@ -420,7 +434,13 @@ export default function Home() {
           }}
           aria-hidden="true"
         >
-          <div className="orbital-caption rounded-full bg-slate-950/75 backdrop-blur-md border border-amber-400/35 shadow-2xl p-1">
+          <div
+            className="orbital-caption rounded-full backdrop-blur-md border shadow-2xl p-1"
+            style={{
+              background: "rgba(7, 14, 26, 0.85)",
+              borderColor: "rgba(201, 168, 76, 0.42)",
+            }}
+          >
             <svg viewBox="0 0 120 120">
               <defs>
                 <path
@@ -434,7 +454,11 @@ export default function Home() {
                 </textPath>
               </text>
             </svg>
-            <span>✦</span>
+            <span aria-hidden="true" style={{ color: "#F3D37A" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3D37A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07" />
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -581,7 +605,7 @@ export default function Home() {
           <span className="text-slate-500">·</span>
           <Link
             href="/estimate"
-            className="text-[11px] font-mono font-bold text-white hover:text-amber-300 underline"
+            className="text-[11px] font-mono font-bold text-white hover:text-[#F3D37A] transition-colors underline"
           >
             Request an estimate
           </Link>
@@ -595,28 +619,28 @@ export default function Home() {
       >
         <div>
           <span className="gold">Precision Commercial Execution</span>
-          <i aria-hidden="true">✳</i>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
           <span>Commercial & Residential</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
+          <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
+            ◆
           </i>
           <span className="gold">Clear scopes. Thoughtful construction.</span>
-          <i aria-hidden="true">✳</i>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
           <span>Fire & Water Restoration</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
+          <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
+            ◆
           </i>
           <span className="gold">Precision Commercial Execution</span>
-          <i aria-hidden="true">✳</i>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
           <span>Commercial & Residential</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
+          <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
+            ◆
           </i>
           <span className="gold">Clear scopes. Thoughtful construction.</span>
-          <i aria-hidden="true">✳</i>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
           <span>Fire & Water Restoration</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
+          <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
+            ◆
           </i>
         </div>
       </div>
@@ -986,8 +1010,8 @@ export default function Home() {
               </h2>
               <p className="text-sm text-slate-300 mt-3 leading-relaxed">
                 Choose a material study and move the light from{" "}
-                <span className="font-mono text-amber-300">0°</span> to{" "}
-                <span className="font-mono text-amber-300">90°</span> to inspect
+                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>0°</span> to{" "}
+                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>90°</span> to inspect
                 texture, form and shadow. Use this illustration to start a conversation about your finishes.
               </p>
 
@@ -1061,7 +1085,23 @@ export default function Home() {
                   htmlFor="tayco-light-angle-slider"
                   className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
                 >
-                  <span>◐ Raking Light Angle: {lightAngle}°</span>
+                  <span className="inline-flex items-center gap-2">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#F3D37A"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="5" />
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
+                    </svg>
+                    Raking Light Angle: {lightAngle}°
+                  </span>
                   <output
                     htmlFor="tayco-light-angle-slider"
                     className="font-black text-sm px-2.5 py-0.5 rounded"
@@ -1080,7 +1120,8 @@ export default function Home() {
                   max={90}
                   value={lightAngle}
                   onChange={(e) => setLightAngle(Number(e.target.value))}
-                  className="w-full h-2 rounded-lg cursor-ew-resize accent-amber-400"
+                  className="w-full h-2 rounded-lg cursor-ew-resize accent-[#C9A84C]"
+                  style={{ accentColor: "#C9A84C" }}
                 />
                 <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1.5">
                   <span>0° Low Horizon Grazing</span>
@@ -1211,7 +1252,10 @@ export default function Home() {
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               03 / FROM FIRST CONVERSATION TO FINISHED SPACE
             </span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
+            <span
+              className="text-[11px] font-mono uppercase tracking-widest"
+              style={{ color: "#F3D37A" }}
+            >
               A CLEAR PATH FOR YOUR PROJECT
             </span>
           </div>
@@ -1298,7 +1342,10 @@ export default function Home() {
                   <h3 className="text-lg font-black text-white leading-snug">
                     {contract.code} · {contract.name}
                   </h3>
-                  <div className="text-xs font-mono text-amber-300 mt-1">
+                  <div
+                    className="text-xs font-mono mt-1"
+                    style={{ color: "#F3D37A" }}
+                  >
                     {contract.location} · {contract.sqft}
                   </div>
                   <p className="text-xs text-slate-300 mt-2.5 leading-relaxed">
@@ -1315,7 +1362,10 @@ export default function Home() {
                       >
                         {contract.headline}
                       </div>
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-amber-300/90">
+                      <div
+                        className="text-[10px] font-mono uppercase tracking-wider"
+                        style={{ color: "#DFC06C" }}
+                      >
                         {contract.status}
                       </div>
                     </div>
