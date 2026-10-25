@@ -91,6 +91,8 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       ['0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com'],
       ['1c9300f2-e355-4c0f-9dcf-de8c7d34e99e', 'invitado@taycoturnkey.com'],
       ['2da400f3-f466-4d10-8ed0-ef9d8e45faaf', 'guest@taycoturnkey.com'],
+      ['3eb500f4-a577-4e21-9fe1-f0ae9f560bb0', 'cliente@taycoturnkey.com'],
+      ['4fc600f5-b688-4f32-80f2-01bfa0671cc1', 'review@taycoturnkey.com'],
     ];
     for (const [guestId, guestEmail] of guestAccounts) {
       const existingGuest = db.prepare('SELECT id, password_hash FROM auth_users WHERE email=?').get(guestEmail) as { id: string; password_hash: string } | undefined;
@@ -102,11 +104,10 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       db.prepare(
         `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at)
          VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
-         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
+         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL, claimed_grant_id=NULL, claimed_at=NULL`
       ).run(guestEmail, now);
-      if (!existingGuest || existingGuest.password_hash !== guestHash) {
-        if (existingGuest) db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
-        db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=?').run(guestEmail);
+      if (existingGuest) {
+        db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
     }
     db.prepare('DELETE FROM auth_rate_limits').run();
