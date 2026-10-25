@@ -1152,6 +1152,77 @@
   color: #cbd5e1;
 }
 
+/* Union & Association Highlight System */
+.dcc-union-title-highlight {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, rgba(234, 184, 105, 0.24) 0%, rgba(201, 168, 76, 0.12) 100%);
+  border: 1px solid rgba(243, 214, 131, 0.65);
+  color: #fde68a;
+  box-shadow: 0 0 16px rgba(234, 184, 105, 0.22);
+}
+
+.dcc-right-menu-item.is-union-highlight {
+  border-color: rgba(243, 214, 131, 0.65) !important;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.24) 0%, rgba(15, 32, 56, 0.92) 100%) !important;
+  box-shadow: 0 6px 18px -6px rgba(201, 168, 76, 0.35), inset 3px 0 0 #eab869;
+}
+
+.dcc-right-menu-item.is-union-highlight strong {
+  color: #fde68a !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dcc-union-inline-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  background: rgba(234, 184, 105, 0.25);
+  border: 1px solid rgba(243, 214, 131, 0.6);
+  color: #fef08a;
+}
+
+.dcc-opportunities-table tr.is-union-assoc-row td {
+  background: linear-gradient(90deg, rgba(201, 168, 76, 0.11) 0%, rgba(201, 168, 76, 0.03) 100%);
+}
+
+.dcc-opportunities-table tr.is-union-assoc-row td:first-child {
+  box-shadow: inset 3px 0 0 #eab869;
+}
+
+.dcc-opp-id.is-union-assoc {
+  background: linear-gradient(135deg, #e5c365 0%, #b98928 100%);
+  border-color: #f3d683;
+  color: #07111f;
+  font-weight: 800;
+}
+
+.dcc-union-contractor-title {
+  color: #fde68a !important;
+}
+
+.dcc-union-row-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: rgba(201, 168, 76, 0.18);
+  border: 1px solid rgba(234, 184, 105, 0.48);
+  color: #fde68a;
+}
+
 /* Bottom Grid (Upcoming, Followups, Calendar) */
 .dcc-bottom-grid {
   display: grid;

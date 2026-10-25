@@ -974,29 +974,41 @@ export default function DashboardCommandCenter({
               </button>
             </header>
             <div className="dcc-right-menu-list">
-              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => (
-                <button
-                  type="button"
-                  key={cert.id}
-                  className="dcc-right-menu-item is-cert"
-                  onClick={() =>
-                    triggerNavigate(
-                      cert.id === "union_private" ? "lead" : "compliance"
-                    )
-                  }
-                >
-                  <span className="dcc-right-menu-icon" aria-hidden="true">
-                    {renderCertIcon(cert.id)}
-                  </span>
-                  <span className="dcc-right-menu-text">
-                    <strong>{cert.code}</strong>
-                    <small>{cert.label}</small>
-                  </span>
-                  <span className="dcc-right-menu-chevron" aria-hidden="true">
-                    ›
-                  </span>
-                </button>
-              ))}
+              {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
+                const isUnionHighlight = cert.id === "union_private";
+                return (
+                  <button
+                    type="button"
+                    key={cert.id}
+                    className={`dcc-right-menu-item is-cert ${
+                      isUnionHighlight ? "is-union-highlight" : ""
+                    }`}
+                    onClick={() =>
+                      triggerNavigate(
+                        isUnionHighlight ? "lead" : "compliance"
+                      )
+                    }
+                  >
+                    <span className="dcc-right-menu-icon" aria-hidden="true">
+                      {renderCertIcon(cert.id)}
+                    </span>
+                    <span className="dcc-right-menu-text">
+                      <strong>
+                        {cert.code}
+                        {isUnionHighlight && (
+                          <span className="dcc-union-inline-pill">
+                            UNION &amp; ASSOC.
+                          </span>
+                        )}
+                      </strong>
+                      <small>{cert.label}</small>
+                    </span>
+                    <span className="dcc-right-menu-chevron" aria-hidden="true">
+                      ›
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </section>
 

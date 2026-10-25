@@ -108,8 +108,10 @@ export function VerifiedOpportunitiesTable({
         <div>
           <h3 className="dcc-section-title">
             New Opportunities Since October 2026: Federal, State &amp; Local
-            Government, Public Works, Private Investment &amp; Union
-            Construction Projects
+            Government, Public Works, Private Investment &amp;{" "}
+            <span className="dcc-union-title-highlight">
+              Union Construction Projects
+            </span>
           </h3>
         </div>
 
@@ -185,13 +187,40 @@ export function VerifiedOpportunitiesTable({
               const isViewerOpen = activeViewerId === row.id;
               const isOverdue = row.status === "Overdue";
               const isPublic = row.infrastructureType === "Public";
+              const isUnionOrAssoc =
+                /\b(union|associat|unified|prevailing|district|board|council|club|authority|department|municipal|village|city of|state of)\b/i.test(
+                  `${row.contractor} ${row.name}`
+                );
               return (
-                <tr key={row.id} data-opportunity-id={row.number}>
+                <tr
+                  key={row.id}
+                  data-opportunity-id={row.number}
+                  className={isUnionOrAssoc ? "is-union-assoc-row" : undefined}
+                >
                   <td>
                     <div className="dcc-opp-project-cell">
-                      <span className="dcc-opp-id">#{row.number}</span>
+                      <span
+                        className={`dcc-opp-id ${
+                          isUnionOrAssoc ? "is-union-assoc" : ""
+                        }`}
+                      >
+                        #{row.number}
+                      </span>
                       <div>
-                        <p className="dcc-row-title">{row.contractor}</p>
+                        <p
+                          className={`dcc-row-title ${
+                            isUnionOrAssoc ? "dcc-union-contractor-title" : ""
+                          }`}
+                        >
+                          {row.contractor}
+                        </p>
+                        {isUnionOrAssoc && (
+                          <span className="dcc-union-row-tag">
+                            {/\b(associat|club)\b/i.test(row.contractor)
+                              ? "Association / Affiliated GC"
+                              : "Union / Prevailing Wage Scope"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>

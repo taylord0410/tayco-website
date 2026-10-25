@@ -505,18 +505,13 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
                     <CorporateIcon name={mod.id} className="h-4 w-4 shrink-0 text-[#eab869]" />
                     <span className="truncate">{mod.label}</span>
                   </span>
-                  {["project","document","lead","hours","compliance"].includes(mod.id) && (
-                    <span className="shrink-0 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-amber-100">
-                      {mod.id === "lead" ? VERIFIED_OCTOBER_2026_OPPORTUNITIES.length : data.entries.filter(entry=>String(entry.kind)===mod.id).length}
-                    </span>
-                  )}
                 </button>
               );
             })}
             {secondaryTabs.length > 0 && (
               <details className="mt-4 rounded-xl border border-slate-700/70 bg-[#071326]/70 p-2">
                 <summary className="cursor-pointer px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-amber-100">
-                  Additional ERP Records ({secondaryTabs.length})
+                  Additional ERP Records
                 </summary>
                 <div className="mt-2 space-y-1">
                   {secondaryTabs.map(item => (
