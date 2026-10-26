@@ -151,7 +151,7 @@ export function assertSameOrigin(request: Request) {
   let expected: string;
   try { expected = new URL(process.env.TAYCO_APP_URL || (process.env.NODE_ENV === 'production' ? '' : request.url)).origin; } catch { throw new AuthError('Account access is not configured.', 503); }
   const defaultRailwayOrigins = process.env.RAILWAY_ENVIRONMENT
-    ? ['https://tayco.llc', 'https://www.tayco.llc', 'https://tayco-website-production-7e01.up.railway.app', 'https://tayco-review-product-review.up.railway.app']
+    ? ['https://tayroofing.org', 'https://www.tayroofing.org', 'https://tayco.llc', 'https://www.tayco.llc', 'https://tayco-website-production-7e01.up.railway.app', 'https://tayco-review-product-review.up.railway.app']
     : [];
   const extra = [...defaultRailwayOrigins, ...(process.env.TAYCO_EXTRA_ORIGINS || '').split(',').map(v => v.trim()).filter(Boolean)];
   if (!origin || (origin !== expected && !extra.includes(origin)) || request.headers.get('sec-fetch-site') === 'cross-site') throw new AuthError('Please reload this page and try again.', 403);
