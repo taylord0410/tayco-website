@@ -72,10 +72,10 @@ export const CORPORATE_2026_MONTHLY_INCOME = [
   { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-465 – TPRJ-2607-556 (92)", states: "61 Prime Packages · 31 Mini-Projects", income: "$908,792", amount: 908792, status: "Reconciled" },
   { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-557 – TPRJ-2608-654 (98)", states: "65 Prime Packages · 33 Mini-Projects", income: "$940,789", amount: 940789, status: "Reconciled" },
   { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-655 – TPRJ-2609-750 (96)", states: "64 Prime Packages · 32 Mini-Projects", income: "$938,489", amount: 938489, status: "Reconciled" },
-  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-751 – TPRJ-2610-756 (6)", states: "6 Completed Mini-Projects (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
+  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-751 (1)", states: "1 Completed Project (Pre-Oct 8)", income: "$41,789", amount: 41789, status: "Reconciled (Oct 01–07)" },
 ] as const;
 
-export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
+export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,080,374";
 
 export default function CorporateSectionExecutivePanel({
   activeTab,
@@ -323,14 +323,14 @@ export default function CorporateSectionExecutivePanel({
               <h3>Billing — Verified Monthly Income &amp; Applications</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              October 2026 · $21,789 Current Income
+              October 2026 · $41,789 Current Income
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">October 2026 Income</span>
-              <strong className="dcc-kpi-value">$21,789</strong>
+              <strong className="dcc-kpi-value">$41,789</strong>
               <span className="dcc-kpi-note">
                 Current month in progress
               </span>
@@ -351,7 +351,7 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD 2026 Total Income</span>
-              <strong className="dcc-kpi-value">$7,060,374</strong>
+              <strong className="dcc-kpi-value">$7,080,374</strong>
               <span className="dcc-kpi-note">
                 Cumulative Jan–Oct 2026 income
               </span>
@@ -372,16 +372,16 @@ export default function CorporateSectionExecutivePanel({
               </h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              YTD 2026 Income · $7,060,374
+              YTD 2026 Income · $7,080,374
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">October 2026 (Oct 01–07)</span>
-              <strong className="dcc-kpi-value">$21,789</strong>
+              <strong className="dcc-kpi-value">$41,789</strong>
               <span className="dcc-kpi-note">
-                6 completed mini-projects prior to Oct 8
+                1 completed project prior to Oct 8
               </span>
             </div>
             <div className="dcc-kpi">
@@ -400,9 +400,9 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD 2026 (Jan–Oct)</span>
-              <strong className="dcc-kpi-value">$7,060,374</strong>
+              <strong className="dcc-kpi-value">$7,080,374</strong>
               <span className="dcc-kpi-note">
-                756 projects &amp; mini-projects verified
+                751 projects &amp; mini-projects verified
               </span>
             </div>
           </div>
@@ -768,7 +768,7 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">Active Evaluation Period</span>
               <strong className="dcc-kpi-value">October 2026</strong>
               <span className="dcc-kpi-note">
-                $21,789 current month income
+                $41,789 current month income
               </span>
             </div>
             <div className="dcc-kpi">
@@ -780,7 +780,7 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD 2026 Corporate Income</span>
-              <strong className="dcc-kpi-value">$7,060,374</strong>
+              <strong className="dcc-kpi-value">$7,080,374</strong>
               <span className="dcc-kpi-note">
                 Jan–Oct 2026 verified income
               </span>

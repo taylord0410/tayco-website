@@ -52,7 +52,7 @@ const EXACT_2026_MONTHLY_INCOME = [
   { period: "2026-07", label: "Jul 2026", income: 908792 },
   { period: "2026-08", label: "Aug 2026", income: 940789 },
   { period: "2026-09", label: "Sep 2026", income: 938489 },
-  { period: "2026-10", label: "Oct 2026", income: 21789 },
+  { period: "2026-10", label: "Oct 2026", income: 41789 },
 ];
 
 export function GuestMonthlyTotals({ data, selectedPeriod, onMonthSelect }: { data: GuestConsoleData; selectedPeriod: string; onMonthSelect: (period: string) => void }) {

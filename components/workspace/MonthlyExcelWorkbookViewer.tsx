@@ -31,7 +31,7 @@ const ALL_MONTH_TABS: readonly MonthTabConfig[] = [
   { key: "2026-03", shortLabel: "Mar 2026", monthName: "March 2026", targetBilled: 719789 },
   { key: "2026-02", shortLabel: "Feb 2026", monthName: "February 2026", targetBilled: 657680 },
   { key: "2026-01", shortLabel: "Jan 2026", monthName: "January 2026", targetBilled: 425000 },
-  { key: "2026-10", shortLabel: "Oct 2026", monthName: "October 2026", targetBilled: 21789 },
+  { key: "2026-10", shortLabel: "Oct 2026", monthName: "October 2026", targetBilled: 41789 },
 ];
 
 interface SelectedCellDetails {

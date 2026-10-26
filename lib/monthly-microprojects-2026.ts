@@ -324,11 +324,11 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     monthShort: "Oct",
     monthLabel: "October 2026",
     yyMm: "2610",
-    targetUsd: 21789,
+    targetUsd: 41789,
     maxDay: 7,
-    projectCount: 6,
-    explicitAmounts: [4850, 3920, 3640, 3410, 3180, 2789],
-    explicitDays: [2, 3, 4, 5, 6, 7],
+    projectCount: 1,
+    explicitAmounts: [41789],
+    explicitDays: [7],
   },
 ];
 

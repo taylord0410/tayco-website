@@ -51,7 +51,7 @@ const DEFAULT_2026_MONTHLY_SERIES: readonly {
   { key: "2026-07", issuedCents: 90879200, opps: 92 },
   { key: "2026-08", issuedCents: 94078900, opps: 98 },
   { key: "2026-09", issuedCents: 93848900, opps: 96 },
-  { key: "2026-10", issuedCents: 2178900, opps: 6 },
+  { key: "2026-10", issuedCents: 4178900, opps: 1 },
   { key: "2026-11", issuedCents: 0, opps: 0 },
   { key: "2026-12", issuedCents: 0, opps: 0 },
 ];
@@ -479,7 +479,7 @@ export default function DashboardCommandCenter({
                       <strong>{monthName(m.key, true)} 2026</strong>
                       <small>
                         {isOctRow
-                          ? "6 mini-projects (TPRJ-2610-751 – TPRJ-2610-756)"
+                          ? "1 project (TPRJ-2610-751)"
                           : `${m.opps} projects & mini-projects`}
                       </small>
                     </span>
@@ -501,14 +501,14 @@ export default function DashboardCommandCenter({
                         <div>
                           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
                             <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                              October 2026 Completed Mini-Projects
+                              October 2026 Completed Project
                             </strong>
                             <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                              ● 6 Reconciled
+                              ● 1 Reconciled
                             </span>
                           </div>
                           <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                            TPRJ-2610-751 – TPRJ-2610-756 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Total: <strong style={{ color: "#f8fafc" }}>{usd(21789)}</strong>
+                            TPRJ-2610-751 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Total: <strong style={{ color: "#f8fafc" }}>{usd(41789)}</strong>
                           </p>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.2rem" }}>
                             <button
