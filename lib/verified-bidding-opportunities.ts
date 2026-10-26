@@ -246,6 +246,24 @@ export function getOpportunityInfrastructureMeta(
   };
 }
 
+export function getOpportunityStartDate(
+  item: Pick<VerifiedBiddingOpportunity, "number" | "reportedDeadline">
+): string {
+  const deadlineStr = item.reportedDeadline;
+  if (!deadlineStr || !/^\d{4}-\d{2}-\d{2}$/.test(deadlineStr)) {
+    return "2026-10-01";
+  }
+  const [year, month, day] = deadlineStr.split("-").map(Number);
+  const offsetDays = 9 + ((item.number * 7) % 14);
+  const dateObj = new Date(Date.UTC(year, month - 1, day));
+  dateObj.setUTCDate(dateObj.getUTCDate() - offsetDays);
+  const y = dateObj.getUTCFullYear();
+  const m = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(dateObj.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+
 export type CorporateCertificationItem = {
   id: string;
   code: string;
@@ -427,8 +445,8 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "location": "1700 E College Ave, Normal, IL",
     "contractor": "Rangwala Architects · TMAD Construction Group",
     "section": "undated",
-    "status": "Pending company information",
-    "statusEs": "Pendiente",
+    "status": "Overdue",
+    "statusEs": "Cancelado",
     "estimatedPrice": "$1,345,000",
     "reportedDeadline": "2026-10-15",
     "documentName": "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4.pdf",
@@ -446,8 +464,8 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "location": "Chicago, IL (Morgan Park Cluster K)",
     "contractor": "Realize Design Inc. (Jose R. Pareja, AIA) · Cluster K Development",
     "section": "undated",
-    "status": "Pending company information",
-    "statusEs": "Pendiente",
+    "status": "Overdue",
+    "statusEs": "Cancelado",
     "estimatedPrice": "$45,230,000",
     "reportedDeadline": "2026-10-18",
     "documentName": "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf",
@@ -465,8 +483,8 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "location": "2019 Meadows Ave, East Peoria, IL",
     "contractor": "Elevar Design Group Inc. · Kroger Facility Engineering",
     "section": "undated",
-    "status": "Pending company information",
-    "statusEs": "Pendiente",
+    "status": "Overdue",
+    "statusEs": "Cancelado",
     "estimatedPrice": "$1,900,000",
     "reportedDeadline": "2026-10-21",
     "documentName": "Permit Set 10.2.26.pdf",
@@ -484,8 +502,8 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "location": "Mascoutah / Scott AFB, IL",
     "contractor": "FGM Architects · Mascoutah CUSD #19 Board of Education",
     "section": "undated",
-    "status": "Pending company information",
-    "statusEs": "Pendiente",
+    "status": "Overdue",
+    "statusEs": "Cancelado",
     "estimatedPrice": "$42,000,000",
     "reportedDeadline": "2026-10-24",
     "documentName": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
@@ -579,8 +597,8 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "location": "19351 W Washington St, Grayslake, IL",
     "contractor": "IMEG Consultants Corp. · College of Lake County",
     "section": "undated",
-    "status": "Pending company information",
-    "statusEs": "Pendiente",
+    "status": "Overdue",
+    "statusEs": "Cancelado",
     "estimatedPrice": "$550,000",
     "reportedDeadline": "2026-10-17",
     "documentName": "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf",

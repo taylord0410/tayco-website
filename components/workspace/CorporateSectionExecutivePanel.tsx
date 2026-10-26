@@ -5,6 +5,7 @@ import {
   CORPORATE_CERTIFICATIONS_STATUS,
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
   getOpportunityInfrastructureMeta,
+  getOpportunityStartDate,
 } from "@/lib/verified-bidding-opportunities";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 import TakeoffProjectReader from "./TakeoffProjectReader";
@@ -239,9 +240,8 @@ export default function CorporateSectionExecutivePanel({
                         </span>
                       </td>
                       <td data-label="Schedule Deadline">
-                        <span className="dcc-opp-deadline">
-                          {item.reportedDeadline || "Oct 2026"}
-                        </span>
+                        <small style={{ display: "block", fontSize: "0.68rem", color: "#94a3b8", fontWeight: 600 }}>Start: {getOpportunityStartDate(item)}</small>
+                        <span className="dcc-opp-deadline">Due: {item.reportedDeadline}</span>
                       </td>
                       <td data-label="Plans">
                         {item.viewerHref ? (

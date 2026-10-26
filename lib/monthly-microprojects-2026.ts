@@ -2,6 +2,8 @@ export interface MonthlyMicroProject {
   id: string;
   period: string;
   monthLabel: string;
+  startDate: string;
+  startDateLabel: string;
   completedDate: string;
   dateLabel: string;
   category: string;
@@ -9,6 +11,9 @@ export interface MonthlyMicroProject {
   state: "WI" | "IL" | "IN" | "IA" | "MO";
   status: "Reconciled" | "In Progress";
   incomeUsd: number;
+  materialUsd: number;
+  laborUsd: number;
+  laborHours: number;
   invoiceRef: string;
   fieldLead: string;
   completionPct: number;
@@ -287,11 +292,11 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2610",
     targetUsd: 21789,
     maxDay: 7,
-    // 6 projects completed strictly before Oct 8 (Oct 01 - Oct 07, 2026): 4 WI, 2 IL
-    states: ["WI", "WI", "IL", "WI", "WI", "IL"],
-    weights: [1, 1, 1, 1, 1, 1],
-    explicitAmounts: [4620, 4180, 3840, 3490, 3120, 2539],
-    explicitDays: [1, 2, 3, 5, 6, 7],
+    // 1 consolidated record completed strictly before Oct 8 (Oct 07, 2026): $21,789
+    states: ["WI"],
+    weights: [1],
+    explicitAmounts: [21789],
+    explicitDays: [7],
   },
 ];
 
@@ -331,10 +336,51 @@ function buildMonthlyMicroProjects(): readonly MonthlyMicroProject[] {
       const dateLabel = `${spec.monthShort} ${dayPadded}, 2026`;
       const seqPadded = String(globalSeq).padStart(3, "0");
 
+      const [yrStr, moStr] = spec.period.split("-");
+      const year = parseInt(yrStr, 10);
+      const month = parseInt(moStr, 10);
+
+      // Varied start date: between 4 and 14 days before completedDate
+      // If subtracting falls before day 1, use a day from previous month or 01 of current month
+      // varied with Math.max(1, day - (3 + ((globalSeq * 5) % 9)))
+      const durationOffset = 4 + ((globalSeq * 5) % 11); // 4 to 14 days
+      let startYear = year;
+      let startMonth = month;
+      let startDay = day - durationOffset;
+
+      if (startDay < 1) {
+        if (month > 1 && globalSeq % 2 === 0) {
+          // Span from previous month
+          const prevMonthLastDate = new Date(Date.UTC(year, month - 1, 0));
+          const prevMaxDay = prevMonthLastDate.getUTCDate();
+          startMonth = month - 1;
+          startDay = Math.max(1, prevMaxDay + startDay);
+        } else {
+          // Same month varied between 1 and min(day, 4)
+          const formulaDay = Math.max(1, day - (3 + ((globalSeq * 5) % 9)));
+          startDay = Math.min(day, formulaDay > 0 ? formulaDay : 1 + ((globalSeq * 2) % Math.max(1, Math.min(4, day))));
+        }
+      }
+
+      const MONTH_NAMES = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ];
+      const startDayPadded = String(startDay).padStart(2, "0");
+      const startMonthPadded = String(startMonth).padStart(2, "0");
+      const startDate = `${startYear}-${startMonthPadded}-${startDayPadded}`;
+      const startDateLabel = `${MONTH_NAMES[startMonth - 1]} ${startDayPadded}, ${startYear}`;
+
+      const materialUsd = Math.round(amounts[i] * (0.42 + ((globalSeq * 7) % 15) / 100));
+      const laborUsd = amounts[i] - materialUsd;
+      const laborHours = Math.max(24, Math.round(laborUsd / (68 + ((globalSeq * 3) % 18))));
+
       result.push({
         id: `TPRJ-${spec.yyMm}-${seqPadded}`,
         period: spec.period,
         monthLabel: spec.monthLabel,
+        startDate,
+        startDateLabel,
         completedDate,
         dateLabel,
         category: tpl.category,
@@ -342,6 +388,9 @@ function buildMonthlyMicroProjects(): readonly MonthlyMicroProject[] {
         state,
         status: "Reconciled",
         incomeUsd: amounts[i],
+        materialUsd,
+        laborUsd,
+        laborHours,
         invoiceRef: `INV-${spec.yyMm}-${String(100 + i + 1)}`,
         fieldLead: tpl.fieldLead,
         completionPct: 100,
@@ -364,4 +413,16 @@ export function getMicroProjectsByPeriod(period: string): MonthlyMicroProject[] 
 
 export function getPeriodMicroProjectsTotal(period: string): number {
   return getMicroProjectsByPeriod(period).reduce((sum, item) => sum + item.incomeUsd, 0);
+}
+
+export function getPeriodMaterialsTotal(period: string): number {
+  return getMicroProjectsByPeriod(period).reduce((sum, item) => sum + item.materialUsd, 0);
+}
+
+export function getPeriodLaborTotal(period: string): number {
+  return getMicroProjectsByPeriod(period).reduce((sum, item) => sum + item.laborUsd, 0);
+}
+
+export function getPeriodHoursTotal(period: string): number {
+  return getMicroProjectsByPeriod(period).reduce((sum, item) => sum + item.laborHours, 0);
 }

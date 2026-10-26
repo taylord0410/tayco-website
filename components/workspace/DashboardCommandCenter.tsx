@@ -5,6 +5,7 @@ import type { GuestConsoleData } from "@/lib/guest-workspace";
 import { CORPORATE_CERTIFICATIONS_STATUS } from "@/lib/verified-bidding-opportunities";
 import { getMicroProjectsByPeriod } from "@/lib/monthly-microprojects-2026";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
+import MonthlyExcelWorkbookViewer from "./MonthlyExcelWorkbookViewer";
 
 type Props = {
   entries?: Entry[];
@@ -124,6 +125,7 @@ export default function DashboardCommandCenter({
 }: Props) {
   const currentMonthKey = "2026-10";
   const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
+  const [excelWorkbookMonth, setExcelWorkbookMonth] = useState<string | null>(null);
   const [adminOnlyModalTitle, setAdminOnlyModalTitle] = useState<string | null>(null);
 
   const monthSeries = DEFAULT_2026_MONTHLY_SERIES;
@@ -145,11 +147,11 @@ export default function DashboardCommandCenter({
   };
 
   const selectMonthPill = (monthKey: string) => {
-    if (isGuest) {
-      setAdminOnlyModalTitle(`Monthly Activity & Breakdown (${monthName(monthKey)} 2026)`);
-      return;
-    }
     setSelectedMonth(monthKey);
+    const target = monthSeries.find((m) => m.key === monthKey);
+    if (target && target.issuedCents > 0) {
+      setExcelWorkbookMonth(monthKey);
+    }
   };
 
   const openMonthDetail = (monthKey: string) => {
@@ -258,21 +260,78 @@ export default function DashboardCommandCenter({
         <section className="dcc-card dcc-monthly-activity-card">
           <header className="dcc-card-header">
             <div>
-              <h3>Monthly Activity 2026</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.25rem" }}>
+                <h3>Monthly Activity 2026</h3>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    padding: "0.2rem 0.55rem",
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    borderRadius: "6px",
+                    background: "rgba(16, 185, 129, 0.12)",
+                    border: "1px solid rgba(16, 185, 129, 0.35)",
+                    color: "#6ee7b7",
+                    cursor: "pointer",
+                  }}
+                  data-testid="chart-excel-workbook-hint"
+                  onClick={() => {
+                    const target = selectedMonth <= "2026-10" ? selectedMonth : "2026-09";
+                    setExcelWorkbookMonth(target);
+                  }}
+                  title="Click to open Excel Workbook"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <line x1="9" y1="3" x2="9" y2="21" />
+                    <line x1="15" y1="3" x2="15" y2="21" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                    <line x1="3" y1="15" x2="21" y2="15" />
+                  </svg>
+                  Click any month bar (Jan–Sep 2026) to open its Excel Workbook
+                </span>
+              </div>
               <p className="dcc-card-subtitle">
                 Corporate Income · {monthName(selectedMonth)} (
                 {money(selectedSeries.issuedCents)}) · YTD 2026: {money(ytdCents)}
               </p>
             </div>
-            {!isGuest && (
-              <button
-                type="button"
-                className="dcc-open-month-btn"
-                onClick={() => openMonthDetail(selectedMonth)}
-              >
-                Open month detail →
-              </button>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+              {excelWorkbookMonth && (
+                <button
+                  type="button"
+                  onClick={() => setExcelWorkbookMonth(null)}
+                  style={{
+                    padding: "0.35rem 0.75rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    borderRadius: "6px",
+                    border: "1px solid rgba(239, 68, 68, 0.45)",
+                    background: "rgba(239, 68, 68, 0.12)",
+                    color: "#fca5a5",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                  }}
+                  data-testid="close-excel-workbook-btn"
+                  aria-label="Close Excel Workbook"
+                >
+                  ✕ Close Excel ({monthName(excelWorkbookMonth, true)})
+                </button>
+              )}
+              {!isGuest && (
+                <button
+                  type="button"
+                  className="dcc-open-month-btn"
+                  onClick={() => openMonthDetail(selectedMonth)}
+                >
+                  Open month detail →
+                </button>
+              )}
+            </div>
           </header>
 
           <div
@@ -351,6 +410,18 @@ export default function DashboardCommandCenter({
             </div>
           </div>
         </section>
+
+        {excelWorkbookMonth && (
+          <MonthlyExcelWorkbookViewer
+            selectedMonth={excelWorkbookMonth}
+            onSelectMonth={(m) => {
+              setSelectedMonth(m);
+              setExcelWorkbookMonth(m);
+            }}
+            onClose={() => setExcelWorkbookMonth(null)}
+            isGuest={isGuest}
+          />
+        )}
 
         {/* Card 2 (Directly Below the Chart, Full Width): New Opportunities Since October 2026 Header + Opportunities & Large Projects Table */}
         <VerifiedOpportunitiesTable defaultLimit={48} isGuest={isGuest} />

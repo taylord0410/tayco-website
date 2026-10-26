@@ -7,6 +7,7 @@ import { guestModuleDefinitions, type GuestSection } from "@/lib/guest-sections"
 import {
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
   getOpportunityInfrastructureMeta,
+  getOpportunityStartDate,
 } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
 
@@ -347,7 +348,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                             {item.estimatedPrice}
                           </td>
                           <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
-                            {item.reportedDeadline || "Pending"}
+                            <small style={{ display: "block", fontSize: "0.68rem", color: "#94a3b8", fontWeight: 600 }}>Start: {getOpportunityStartDate(item)}</small>
+                            <span className="dcc-opp-deadline">Due: {item.reportedDeadline}</span>
                           </td>
                           <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                             {item.viewerHref ? (
@@ -504,7 +506,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                       {item.estimatedPrice}
                     </td>
                     <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
-                      {item.reportedDeadline || "Pending"}
+                      <small style={{ display: "block", fontSize: "0.68rem", color: "#94a3b8", fontWeight: 600 }}>Start: {getOpportunityStartDate(item)}</small>
+                      <span className="dcc-opp-deadline">Due: {item.reportedDeadline}</span>
                     </td>
                     <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                       {item.viewerHref ? (
@@ -650,7 +653,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                       {item.estimatedPrice}
                     </td>
                     <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
-                      {item.reportedDeadline || "Pending"}
+                      <small style={{ display: "block", fontSize: "0.68rem", color: "#94a3b8", fontWeight: 600 }}>Start: {getOpportunityStartDate(item)}</small>
+                      <span className="dcc-opp-deadline">Due: {item.reportedDeadline}</span>
                     </td>
                     <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                       {item.viewerHref ? (

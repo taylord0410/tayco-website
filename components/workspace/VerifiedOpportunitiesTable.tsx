@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
   getOpportunityInfrastructureMeta,
+  getOpportunityStartDate,
   type VerifiedBiddingOpportunity,
 } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
@@ -286,9 +287,8 @@ export function VerifiedOpportunitiesTable({
                     </span>
                   </td>
                   <td data-label="Deadline">
-                    <span className="dcc-opp-deadline">
-                      {row.reportedDeadline || "Pending date"}
-                    </span>
+                    <small style={{ display: "block", fontSize: "0.68rem", color: "#94a3b8", fontWeight: 600 }}>Start: {getOpportunityStartDate(row)}</small>
+                    <span className="dcc-opp-deadline">Due: {row.reportedDeadline}</span>
                   </td>
                   <td data-label="Plans">
                     {row.viewerHref ? (
