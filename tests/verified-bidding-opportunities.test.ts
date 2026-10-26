@@ -4,6 +4,7 @@ import {
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
   CORPORATE_11_MODULES,
   CORPORATE_CERTIFICATIONS_STATUS,
+  getOpportunityInfrastructureMeta,
 } from "../lib/verified-bidding-opportunities";
 
 test("VERIFIED_OCTOBER_2026_OPPORTUNITIES has exactly 48 items (#2–#19, #21–#49 intake)", () => {
@@ -30,9 +31,22 @@ test("41 items have status === 'Overdue' and 7 items have status === 'Pending co
   assert.equal(pending.length, 7);
   assert.equal(overdue.length + pending.length, 48);
 
-  // All 7 pending company info items have null reportedDeadline
+  // All 7 pending company info items have deadlines between 2026-10-14 and 2026-10-27
   for (const item of pending) {
-    assert.equal(item.reportedDeadline, null);
+    assert.ok(
+      typeof item.reportedDeadline === "string" &&
+        item.reportedDeadline >= "2026-10-14" &&
+        item.reportedDeadline <= "2026-10-27",
+      `Expected deadline between 2026-10-14 and 2026-10-27 for #${item.number}, got ${item.reportedDeadline}`
+    );
+  }
+  // All 48 opportunities have a concrete reportedDeadline
+  for (const item of VERIFIED_OCTOBER_2026_OPPORTUNITIES) {
+    assert.ok(
+      typeof item.reportedDeadline === "string" &&
+        /^2026-\d{2}-\d{2}$/.test(item.reportedDeadline),
+      `Expected valid reportedDeadline for #${item.number}, got ${item.reportedDeadline}`
+    );
   }
 });
 
@@ -77,6 +91,13 @@ test("every item has a valid infrastructureType ('Public' or 'Private') and all 
 
   for (const item of VERIFIED_OCTOBER_2026_OPPORTUNITIES) {
     assert.ok(item.contractor.length > 3);
+    const meta = getOpportunityInfrastructureMeta(item);
+    assert.equal(meta.sectorType, item.infrastructureType);
+    assert.ok(
+      meta.badgeLabel.startsWith(`${item.infrastructureType} · `),
+      `Expected descriptive badgeLabel for #${item.number}, got ${meta.badgeLabel}`
+    );
+    assert.ok(meta.subLabel.length >= 10);
     const serialized = JSON.stringify(item);
     assert.equal(/\$250,?000/.test(serialized), false);
     assert.equal(/Centro Comunitario Norte/i.test(serialized), false);

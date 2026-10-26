@@ -23,6 +23,229 @@ export type VerifiedBiddingOpportunity = {
   viewerSlug?: string;
 };
 
+export type OpportunityInfrastructureMeta = {
+  sectorType: "Public" | "Private";
+  badgeLabel: string;
+  subLabel: string;
+  tone: "sky" | "indigo";
+};
+
+const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
+  Record<number, { badgeLabel: string; subLabel: string }>
+> = {
+  2: {
+    badgeLabel: "Private · Grocery Anchor",
+    subLabel: "Supermarket & Civil Site",
+  },
+  3: {
+    badgeLabel: "Private · QSR Drive-Thru",
+    subLabel: "National Beverage Franchise",
+  },
+  4: {
+    badgeLabel: "Public · K-12 Transit",
+    subLabel: "School District Fleet Facility",
+  },
+  5: {
+    badgeLabel: "Private · National Retail",
+    subLabel: "Anchor Variety Store Build-Out",
+  },
+  6: {
+    badgeLabel: "Private · Fast-Casual QSR",
+    subLabel: "Commercial Restaurant Fit-Out",
+  },
+  7: {
+    badgeLabel: "Private · Multi-Family",
+    subLabel: "5-Bldg Residential Development",
+  },
+  8: {
+    badgeLabel: "Private · Grocery Anchor",
+    subLabel: "Supermarket Structural Remodel",
+  },
+  9: {
+    badgeLabel: "Public · K-12 Education",
+    subLabel: "Board of Ed / AFB Campus",
+  },
+  10: {
+    badgeLabel: "Public · Municipal Civic",
+    subLabel: "Public Library & Community Ctr",
+  },
+  11: {
+    badgeLabel: "Private · Class-A Tower",
+    subLabel: "High-Rise MEP & HVAC Upgrade",
+  },
+  12: {
+    badgeLabel: "Private · National Retail",
+    subLabel: "Big-Box Storefront & Signage",
+  },
+  13: {
+    badgeLabel: "Private · Financial Office",
+    subLabel: "Commercial Branch Fit-Out",
+  },
+  14: {
+    badgeLabel: "Public · Higher Education",
+    subLabel: "Community College IT / MEP",
+  },
+  15: {
+    badgeLabel: "Private · Multi-Site Retail",
+    subLabel: "4-Store Commercial Rollout",
+  },
+  16: {
+    badgeLabel: "Public · Aviation Authority",
+    subLabel: "Airport Terminal & Admin Bldg",
+  },
+  17: {
+    badgeLabel: "Private · Vet & Healthcare",
+    subLabel: "Clinical Surgical Hospital",
+  },
+  18: {
+    badgeLabel: "Public · Municipal Dev",
+    subLabel: "City Economic Development",
+  },
+  19: {
+    badgeLabel: "Private · Auto Service",
+    subLabel: "Tunnel Facility & Civil Site",
+  },
+  20: {
+    badgeLabel: "Private · Commercial Site",
+    subLabel: "Retail Civil & ADA Package",
+  },
+  21: {
+    badgeLabel: "Private · National QSR",
+    subLabel: "Freestanding Franchise Fit-Out",
+  },
+  22: {
+    badgeLabel: "Public · Higher Education",
+    subLabel: "6-Bldg Campus Life-Safety",
+  },
+  23: {
+    badgeLabel: "Public · County Gov",
+    subLabel: "Government Center & Civil Site",
+  },
+  24: {
+    badgeLabel: "Private · Mall Anchor Retail",
+    subLabel: "National Footwear Flagship",
+  },
+  25: {
+    badgeLabel: "Private · Banking & Finance",
+    subLabel: "National Bank Branch TI",
+  },
+  26: {
+    badgeLabel: "Private · Banking & Finance",
+    subLabel: "Regional Bank Addition & Civil",
+  },
+  27: {
+    badgeLabel: "Public · Federal VA Medical",
+    subLabel: "U.S. Dept. of Veterans Affairs",
+  },
+  28: {
+    badgeLabel: "Private · Industrial Storage",
+    subLabel: "Multi-Building Storage Campus",
+  },
+  29: {
+    badgeLabel: "Private · Clinical Dental",
+    subLabel: "Outpatient Medical Office",
+  },
+  30: {
+    badgeLabel: "Private · Air Freight Hub",
+    subLabel: "Regional Logistics Distribution",
+  },
+  31: {
+    badgeLabel: "Private · Early Education",
+    subLabel: "Daycare Campus & Civil Site",
+  },
+  32: {
+    badgeLabel: "Public · Municipal Civic",
+    subLabel: "Historic Library Expansion",
+  },
+  33: {
+    badgeLabel: "Private · Financial Office",
+    subLabel: "Wealth Management Branch",
+  },
+  34: {
+    badgeLabel: "Private · Athletic & Fitness",
+    subLabel: "Plaza Anchor & MEP Remodel",
+  },
+  35: {
+    badgeLabel: "Public · Township Gov",
+    subLabel: "Municipal Office & Community",
+  },
+  36: {
+    badgeLabel: "Private · Early Education",
+    subLabel: "Educational Annex & Campus",
+  },
+  37: {
+    badgeLabel: "Private · Retail Hospitality",
+    subLabel: "Parlour & Outdoor Patio Fit-Out",
+  },
+  38: {
+    badgeLabel: "Private · Fast-Casual Dining",
+    subLabel: "Restaurant & Patio Permit Set",
+  },
+  39: {
+    badgeLabel: "Private · Freight Logistics",
+    subLabel: "Fleet Terminal & Site Demo",
+  },
+  40: {
+    badgeLabel: "Private · Commercial Dining",
+    subLabel: "Full-Service Kitchen & Cafe",
+  },
+  41: {
+    badgeLabel: "Private · Early Education",
+    subLabel: "Academy TI & Structural RTU",
+  },
+  42: {
+    badgeLabel: "Public · State DOT Highway",
+    subLabel: "District Maintenance Facility",
+  },
+  43: {
+    badgeLabel: "Private · Retail Apparel",
+    subLabel: "Commercial Center Build-Out",
+  },
+  44: {
+    badgeLabel: "Public · K-12 Education",
+    subLabel: "Secondary Campus Gymnasium",
+  },
+  45: {
+    badgeLabel: "Private · ADA Accessibility",
+    subLabel: "Commercial Vertical Lift System",
+  },
+  46: {
+    badgeLabel: "Private · Member Services",
+    subLabel: "Regional Auto Club Office",
+  },
+  47: {
+    badgeLabel: "Private · Grocery Anchor",
+    subLabel: "Supermarket & Pharmacy Remodel",
+  },
+  48: {
+    badgeLabel: "Public · Commuter Rail",
+    subLabel: "Metra Diesel Shop & Heavy HVAC",
+  },
+  49: {
+    badgeLabel: "Private · Fast-Casual Dining",
+    subLabel: "GC Scope Matrix & Hospitality",
+  },
+};
+
+export function getOpportunityInfrastructureMeta(
+  item: Pick<VerifiedBiddingOpportunity, "number" | "infrastructureType">
+): OpportunityInfrastructureMeta {
+  const isPublic = item.infrastructureType === "Public";
+  const mapped = OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER[item.number];
+  return {
+    sectorType: item.infrastructureType,
+    badgeLabel:
+      mapped?.badgeLabel ??
+      (isPublic ? "Public · Civic Works" : "Private · Commercial"),
+    subLabel:
+      mapped?.subLabel ??
+      (isPublic
+        ? "Government & Institutional"
+        : "Commercial & Corporate Scope"),
+    tone: isPublic ? "sky" : "indigo",
+  };
+}
+
 export type CorporateCertificationItem = {
   id: string;
   code: string;
@@ -207,7 +430,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$1,345,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-15",
     "documentName": "E26.31 TMAD 490 Normal IL - Drawing Set 09-22-26 - Part 1 of 4.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=tmad_490_normal_il&document=doc_tmad_490_n_d091ed5d3e838519",
@@ -226,7 +449,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$45,230,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-18",
     "documentName": "Morgan Park 3 Unit - Standard Permit Set - Cluster K.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_a21360978c9f000a",
@@ -245,7 +468,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$1,900,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-21",
     "documentName": "Permit Set 10.2.26.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_84c696f674582b0c",
@@ -264,7 +487,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$42,000,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-24",
     "documentName": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=received_artemis_pdf_review_20261024&document=doc_received_151acb3878b7c125",
@@ -359,7 +582,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$550,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-17",
     "documentName": "20260921_CLC IDF ROOM_IMEG IFB DRAWINGS.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=clc_idf_room_imeg&document=doc_clc_idf_ro_ccb235ea5408d859",
@@ -549,7 +772,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Overdue",
     "statusEs": "Cancelado",
     "estimatedPrice": "$16,700,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-14",
     "documentName": "Foot Locker 7091_ITB.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=foot_locker_7091_mishawaka&document=doc_foot_locke_bfbc724bce155876",
@@ -891,7 +1114,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$1,600,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-26",
     "documentName": "IDOT Maintenance Facility — Drawings pending from client",
     "documentState": "pending",
     "viewerHref": null,
@@ -986,7 +1209,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "status": "Pending company information",
     "statusEs": "Pendiente",
     "estimatedPrice": "$16,800,000",
-    "reportedDeadline": null,
+    "reportedDeadline": "2026-10-27",
     "documentName": "A1.1 - FLOOR PLAN.pdf",
     "documentState": "received",
     "viewerHref": "/api/takeoff-viewer/viewer?embed=1&project=kroger_a929_cincinnati&document=doc_kroger_a92_e0ef3e19e229799e",

@@ -1454,6 +1454,31 @@
   font-weight: 800;
 }
 
+.dcc-infra-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.dcc-infra-sector-badge {
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(2, 8, 20, 0.35);
+}
+
+.dcc-infra-sublabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
 /* Corporate Section Executive Panel (All 11 Sections Unified Shell) */
 .dcc-section-executive-wrap {
   margin-bottom: 22px;
@@ -1626,6 +1651,15 @@
   .dcc-opp-project-cell {
     min-width: 0 !important;
     width: 100%;
+  }
+
+  .dcc-infra-cell {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .dcc-infra-sublabel {
+    white-space: normal;
   }
 }
 

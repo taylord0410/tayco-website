@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { GuestConsoleData } from "@/lib/guest-workspace";
 import { guestModuleDefinitions, type GuestSection } from "@/lib/guest-sections";
-import { VERIFIED_OCTOBER_2026_OPPORTUNITIES } from "@/lib/verified-bidding-opportunities";
+import {
+  VERIFIED_OCTOBER_2026_OPPORTUNITIES,
+  getOpportunityInfrastructureMeta,
+} from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
 
 type ModuleRecord = GuestConsoleData["moduleRecords"][number];
@@ -315,6 +318,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                     {displayedSummary.map((item) => {
                       const isPending = item.status === "Pending company information";
                       const isPublic = item.infrastructureType === "Public";
+                      const infraMeta = getOpportunityInfrastructureMeta(item);
                       const isOpen = activeViewerId === item.id;
                       return (
                         <tr key={item.id} className="hover:bg-white/[0.02]">
@@ -324,15 +328,20 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                           </td>
                           <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
                           <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
-                            <span
-                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                                isPublic
-                                  ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
-                                  : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
-                              }`}
-                            >
-                              {isPublic ? "Public" : "Private"}
-                            </span>
+                            <div className="inline-flex flex-col items-start gap-1">
+                              <span
+                                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                                  isPublic
+                                    ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                                    : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                                }`}
+                              >
+                                {infraMeta.badgeLabel}
+                              </span>
+                              <small className="text-[10px] font-medium text-slate-400">
+                                {infraMeta.subLabel}
+                              </small>
+                            </div>
                           </td>
                           <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                             {item.estimatedPrice}
@@ -466,6 +475,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
               {projectItems.map((item) => {
                 const isPending = item.status === "Pending company information";
                 const isPublic = item.infrastructureType === "Public";
+                const infraMeta = getOpportunityInfrastructureMeta(item);
                 const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
@@ -475,15 +485,20 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                     </td>
                     <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
                     <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                          isPublic
-                            ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
-                            : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
-                        }`}
-                      >
-                        {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
-                      </span>
+                      <div className="inline-flex flex-col items-start gap-1">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            isPublic
+                              ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                              : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                          }`}
+                        >
+                          {infraMeta.badgeLabel}
+                        </span>
+                        <small className="text-[10px] font-medium text-slate-400">
+                          {infraMeta.subLabel}
+                        </small>
+                      </div>
                     </td>
                     <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                       {item.estimatedPrice}
@@ -606,6 +621,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
               {leadItems.map((item) => {
                 const isPending = item.status === "Pending company information";
                 const isPublic = item.infrastructureType === "Public";
+                const infraMeta = getOpportunityInfrastructureMeta(item);
                 const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
@@ -615,15 +631,20 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                     </td>
                     <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
                     <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                          isPublic
-                            ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
-                            : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
-                        }`}
-                      >
-                        {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
-                      </span>
+                      <div className="inline-flex flex-col items-start gap-1">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            isPublic
+                              ? "border-sky-400/40 bg-sky-500/15 text-sky-200"
+                              : "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                          }`}
+                        >
+                          {infraMeta.badgeLabel}
+                        </span>
+                        <small className="text-[10px] font-medium text-slate-400">
+                          {infraMeta.subLabel}
+                        </small>
+                      </div>
                     </td>
                     <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                       {item.estimatedPrice}

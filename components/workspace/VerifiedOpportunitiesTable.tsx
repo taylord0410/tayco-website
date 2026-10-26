@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
+  getOpportunityInfrastructureMeta,
   type VerifiedBiddingOpportunity,
 } from "@/lib/verified-bidding-opportunities";
 import TakeoffProjectReader from "./TakeoffProjectReader";
@@ -79,10 +80,13 @@ export function VerifiedOpportunitiesTable({
         return false;
       }
       if (!q) return true;
+      const infraMeta = getOpportunityInfrastructureMeta(item);
       return (
         item.name.toLowerCase().includes(q) ||
         item.contractor.toLowerCase().includes(q) ||
         item.infrastructureType.toLowerCase().includes(q) ||
+        infraMeta.badgeLabel.toLowerCase().includes(q) ||
+        infraMeta.subLabel.toLowerCase().includes(q) ||
         item.estimatedPrice.toLowerCase().includes(q) ||
         (item.reportedDeadline ?? "").toLowerCase().includes(q) ||
         String(item.number).includes(q)
@@ -164,7 +168,7 @@ export function VerifiedOpportunitiesTable({
             source={activeItem.viewerHref}
             projectName={isGuest ? sanitizeGuestText(activeItem.name) : activeItem.name}
             privacyNotice={false}
-            badgeText={`Opportunity #${activeItem.number} · ${activeItem.infrastructureType} Infrastructure · Protected Drawing Sheet`}
+            badgeText={`Opportunity #${activeItem.number} · ${getOpportunityInfrastructureMeta(activeItem).badgeLabel} · Protected Drawing Sheet`}
             subtitle={`General Contractor: ${isGuest ? sanitizeGuestText(activeItem.contractor) : activeItem.contractor}${!isGuest && activeItem.location ? ` · Location: ${activeItem.location}` : ""} · Price: ${activeItem.estimatedPrice} · (${activeItem.planFilesCount ?? 1} plan files)`}
             onClose={() => setActiveViewerId(null)}
             onPrevProject={() => {
@@ -198,7 +202,7 @@ export function VerifiedOpportunitiesTable({
             {displayed.map((row) => {
               const isViewerOpen = activeViewerId === row.id;
               const isOverdue = row.status === "Overdue";
-              const isPublic = row.infrastructureType === "Public";
+              const infraMeta = getOpportunityInfrastructureMeta(row);
               const isUnionOrAssoc =
                 /\b(union|associat|unified|prevailing|district|board|council|club|authority|department|municipal|village|city of|state of)\b/i.test(
                   `${row.contractor} ${row.name}`
@@ -249,12 +253,17 @@ export function VerifiedOpportunitiesTable({
                     </div>
                   </td>
                   <td data-label="Infrastructure">
-                    <span
-                      className="dcc-badge"
-                      data-tone={isPublic ? "sky" : "indigo"}
-                    >
-                      {isPublic ? "Public" : "Private"}
-                    </span>
+                    <div className="dcc-infra-cell" data-testid={`opp-infra-meta-${row.number}`}>
+                      <span
+                        className="dcc-badge dcc-infra-sector-badge"
+                        data-tone={infraMeta.tone}
+                      >
+                        {infraMeta.badgeLabel}
+                      </span>
+                      <small className="dcc-infra-sublabel">
+                        {infraMeta.subLabel}
+                      </small>
+                    </div>
                   </td>
                   <td data-label="Price">
                     <span

@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   CORPORATE_CERTIFICATIONS_STATUS,
   VERIFIED_OCTOBER_2026_OPPORTUNITIES,
+  getOpportunityInfrastructureMeta,
 } from "@/lib/verified-bidding-opportunities";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 import TakeoffProjectReader from "./TakeoffProjectReader";
@@ -172,7 +173,7 @@ export default function CorporateSectionExecutivePanel({
               <tbody>
                 {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, 12).map((item) => {
                   const isOpen = activeViewerId === item.id;
-                  const isPublic = item.infrastructureType === "Public";
+                  const infraMeta = getOpportunityInfrastructureMeta(item);
                   const cleanContractor = isGuest
                     ? item.contractor
                         .replace(/\bIllinois Dept\. of Transportation \(IDOT\)/gi, "Department of Transportation (DOT)")
@@ -205,12 +206,17 @@ export default function CorporateSectionExecutivePanel({
                         )}
                       </td>
                       <td data-label="Infrastructure">
-                        <span
-                          className="dcc-badge"
-                          data-tone={isPublic ? "sky" : "indigo"}
-                        >
-                          {isPublic ? "Public" : "Private"}
-                        </span>
+                        <div className="dcc-infra-cell">
+                          <span
+                            className="dcc-badge dcc-infra-sector-badge"
+                            data-tone={infraMeta.tone}
+                          >
+                            {infraMeta.badgeLabel}
+                          </span>
+                          <small className="dcc-infra-sublabel">
+                            {infraMeta.subLabel}
+                          </small>
+                        </div>
                       </td>
                       <td data-label="Price">
                         <span
