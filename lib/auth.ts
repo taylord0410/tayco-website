@@ -88,7 +88,8 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
     }
   }
   if (guestHash && guestHash.startsWith('scrypt')) {
-    const guestAccounts: [string, string][] = [
+    const harperGuestHash = 'scrypt$32768$8$3$8a4f19c27e30b56d91e24c7f03a85b12$bbda4f8be628ac06107eca146da67ca96fc04dd81eb93b99c24821f139e310b03d372aed2b27a7f0f8f083a4ceb4842d10c574e08bf5726b87bdb57286eed60c';
+    const guestAccounts: [string, string, string?][] = [
       ['0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com'],
       ['1c9300f2-e355-4c0f-9dcf-de8c7d34e99e', 'invitado@taycoturnkey.com'],
       ['2da400f3-f466-4d10-8ed0-ef9d8e45faaf', 'guest@taycoturnkey.com'],
@@ -97,20 +98,22 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       ['5ad700f6-c799-4043-9103-12c0b1782dd2', 'evaluador1@taycoturnkey.com'],
       ['6be800f7-d8aa-4154-a214-23d1c2893ee3', 'evaluador2@taycoturnkey.com'],
       ['7cf900f8-e9bb-4265-b325-34e2d39a4ff4', 'evaluador3@taycoturnkey.com'],
+      ['8dfa00f9-f0cc-4376-a436-45f3e50b5115', 'harper@tayco.llc', harperGuestHash],
     ];
-    for (const [guestId, guestEmail] of guestAccounts) {
+    for (const [guestId, guestEmail, customHash] of guestAccounts) {
+      const effectiveHash = customHash ?? guestHash;
       const existingGuest = db.prepare('SELECT id, password_hash FROM auth_users WHERE email=?').get(guestEmail) as { id: string; password_hash: string } | undefined;
       db.prepare(
         `INSERT INTO auth_users(id, email, password_hash, role, tenant_id, project_ids, vendor_id, disabled, created_at)
          VALUES(?, ?, ?, 'guest', 'tayco_llc', '[]', NULL, 0, ?)
          ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', tenant_id='tayco_llc', vendor_id=NULL, disabled=0`
-      ).run(guestId, guestEmail, guestHash, now);
+      ).run(guestId, guestEmail, effectiveHash, now);
       db.prepare(
         `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at)
          VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
          ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
       ).run(guestEmail, now);
-      if (existingGuest && existingGuest.password_hash !== guestHash) {
+      if (existingGuest && existingGuest.password_hash !== effectiveHash) {
         db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=?').run(guestEmail);
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
