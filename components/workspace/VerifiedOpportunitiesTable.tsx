@@ -318,9 +318,7 @@ export function VerifiedOpportunitiesTable({
                           ? isGuest
                             ? "Pending"
                             : "Pending Info"
-                          : isGuest
-                          ? "Cancelled"
-                          : "Overdue"}
+                          : "Cancelled"}
                       </span>
                       {isOverdue && (
                         <small
