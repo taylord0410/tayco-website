@@ -84,18 +84,9 @@ export default function MonthlyExcelWorkbookViewer({
     });
   }, [rawProjects, searchTerm]);
 
-  // Exact Month Totals
-  const { totalGross, totalMaterials, totalLabor, totalHours } = useMemo(() => {
-    return filteredProjects.reduce(
-      (acc, p) => {
-        acc.totalGross += p.incomeUsd;
-        acc.totalMaterials += p.materialUsd;
-        acc.totalLabor += p.laborUsd;
-        acc.totalHours += p.laborHours;
-        return acc;
-      },
-      { totalGross: 0, totalMaterials: 0, totalLabor: 0, totalHours: 0 }
-    );
+  // Exact Month Total
+  const totalGross = useMemo(() => {
+    return filteredProjects.reduce((acc, p) => acc + p.incomeUsd, 0);
   }, [filteredProjects]);
 
   // Formatter helpers
@@ -106,16 +97,13 @@ export default function MonthlyExcelWorkbookViewer({
       maximumFractionDigits: 0,
     }).format(amount);
 
-  const formatHours = (hours: number) =>
-    new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(hours) + " hrs";
-
   // Default SUM Formula string
   const defaultFormulaString = useMemo(() => {
     const lastRow = filteredProjects.length + 1;
-    return `=SUM(K2:K${lastRow})  →  ${formatUsd(totalGross)} (${filteredProjects.length} projects & mini-projects in ${activeTabConfig.monthName})`;
+    return `=SUM(H2:H${lastRow})  →  ${formatUsd(totalGross)} (${filteredProjects.length} projects & mini-projects in ${activeTabConfig.monthName})`;
   }, [filteredProjects.length, totalGross, activeTabConfig.monthName]);
 
-  const defaultActiveCellCoord = `K${filteredProjects.length + 2}`;
+  const defaultActiveCellCoord = `H${filteredProjects.length + 2}`;
 
   return (
     <div
@@ -238,7 +226,7 @@ export default function MonthlyExcelWorkbookViewer({
         {/* ========================================================= */}
         {/* 3. MONTH KPI STRIP                                        */}
         {/* ========================================================= */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-2.5 bg-[#091522] border-b border-slate-700/60 text-xs">
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 bg-[#091522] border-b border-slate-700/60 text-xs">
           {/* Active Month Box */}
           <div className="flex flex-col p-2 rounded-lg bg-[#0c1c2e] border border-slate-700/80">
             <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
@@ -268,48 +256,6 @@ export default function MonthlyExcelWorkbookViewer({
             </span>
           </div>
 
-          {/* Total Materials */}
-          <div className="flex flex-col p-2 rounded-lg bg-[#0c1c2e] border border-slate-700/80">
-            <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-              Materials Direct
-            </span>
-            <div className="text-sm font-bold text-amber-200 mt-0.5 font-mono">
-              {formatUsd(totalMaterials)}
-            </div>
-            <span className="text-[10px] text-slate-400">
-              {totalGross > 0 ? Math.round((totalMaterials / totalGross) * 100) : 0}% of Billed
-            </span>
-          </div>
-
-          {/* Total Labor */}
-          <div className="flex flex-col p-2 rounded-lg bg-[#0c1c2e] border border-slate-700/80">
-            <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-              Labor Certified
-            </span>
-            <div className="text-sm font-bold text-sky-200 mt-0.5 font-mono">
-              {formatUsd(totalLabor)}
-            </div>
-            <span className="text-[10px] text-slate-400">
-              {totalGross > 0 ? Math.round((totalLabor / totalGross) * 100) : 0}% of Billed
-            </span>
-          </div>
-
-          {/* Total Labor Hours */}
-          <div className="flex flex-col p-2 rounded-lg bg-[#0c1c2e] border border-slate-700/80">
-            <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-              Labor Hours Logged
-            </span>
-            <div className="text-sm font-bold text-indigo-200 mt-0.5 font-mono">
-              {formatHours(totalHours)}
-            </div>
-            <span className="text-[10px] text-slate-400">
-              {filteredProjects.length > 0
-                ? Math.round(totalHours / filteredProjects.length)
-                : 0}{" "}
-              hrs / proj avg
-            </span>
-          </div>
-
           {/* Projects Count */}
           <div className="flex flex-col p-2 rounded-lg bg-[#0c1c2e] border border-slate-700/80">
             <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
@@ -325,7 +271,7 @@ export default function MonthlyExcelWorkbookViewer({
         </section>
 
         {/* ========================================================= */}
-        {/* 4. SPREADSHEET GRID (COLUMNS A-K + ROW NUMBERS 1..N)       */}
+        {/* 4. SPREADSHEET GRID (COLUMNS A-H + ROW NUMBERS 1..N)       */}
         {/* ========================================================= */}
         <div className="flex-1 overflow-auto bg-[#07111c] text-xs">
           <table className="w-full border-collapse text-left select-text">
@@ -336,38 +282,29 @@ export default function MonthlyExcelWorkbookViewer({
                 <th className="w-9 px-1 py-1.5 text-center bg-[#091522] border-r border-slate-700/80 text-slate-500 font-bold sticky left-0 z-30">
                   #
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">A</span> Project ID
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">B</span> Invoice Ref
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">C</span> Start Date
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">D</span> Completion
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">E</span> Trade Category
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">F</span> CSI Division
                 </th>
-                <th className="px-2 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
+                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
                   <span className="text-emerald-400 font-bold mr-1">G</span> Superintendent
                 </th>
-                <th className="px-2 py-1.5 text-right border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">H</span> Labor Hrs
-                </th>
-                <th className="px-2 py-1.5 text-right border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">I</span> Materials
-                </th>
-                <th className="px-2 py-1.5 text-right border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">J</span> Labor USD
-                </th>
-                <th className="px-2.5 py-1.5 text-right font-semibold text-emerald-300 bg-[#09221b]/40 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">K</span> Gross Billed
+                <th className="px-3 py-1.5 text-right font-semibold text-emerald-300 bg-[#09221b]/40 whitespace-nowrap">
+                  <span className="text-emerald-400 font-bold mr-1">H</span> Gross Billed
                 </th>
               </tr>
             </thead>
@@ -498,62 +435,17 @@ export default function MonthlyExcelWorkbookViewer({
                       {p.fieldLead}
                     </td>
 
-                    {/* Col H: Labor Hrs */}
+                    {/* Col H: Gross Billed USD */}
                     <td
                       onClick={() =>
                         setActiveCell({
                           cellCoord: `H${rowNum}`,
                           formula: `=H${rowNum}`,
-                          valueDisplay: `${p.laborHours} hrs`,
-                          label: "Certified On-Site Trade Labor Hours",
-                        })
-                      }
-                      className="px-2 py-1.5 text-right border-r border-slate-800/70 text-indigo-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
-                    >
-                      {p.laborHours.toLocaleString()}
-                    </td>
-
-                    {/* Col I: Materials USD */}
-                    <td
-                      onClick={() =>
-                        setActiveCell({
-                          cellCoord: `I${rowNum}`,
-                          formula: `=I${rowNum}`,
-                          valueDisplay: formatUsd(p.materialUsd),
-                          label: "Direct Procurement & Materials Cost",
-                        })
-                      }
-                      className="px-2 py-1.5 text-right border-r border-slate-800/70 text-amber-200 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
-                    >
-                      {formatUsd(p.materialUsd)}
-                    </td>
-
-                    {/* Col J: Labor USD */}
-                    <td
-                      onClick={() =>
-                        setActiveCell({
-                          cellCoord: `J${rowNum}`,
-                          formula: `=J${rowNum}`,
-                          valueDisplay: formatUsd(p.laborUsd),
-                          label: "Fully Burdened Field Labor",
-                        })
-                      }
-                      className="px-2 py-1.5 text-right border-r border-slate-800/70 text-sky-200 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
-                    >
-                      {formatUsd(p.laborUsd)}
-                    </td>
-
-                    {/* Col K: Gross Billed USD */}
-                    <td
-                      onClick={() =>
-                        setActiveCell({
-                          cellCoord: `K${rowNum}`,
-                          formula: `=I${rowNum}+J${rowNum}`,
                           valueDisplay: formatUsd(p.incomeUsd),
-                          label: `Materials (${formatUsd(p.materialUsd)}) + Labor (${formatUsd(p.laborUsd)})`,
+                          label: `Reconciled Contract Amount · ${p.invoiceRef}`,
                         })
                       }
-                      className="px-2.5 py-1.5 text-right font-bold text-emerald-300 bg-emerald-950/20 cursor-pointer hover:bg-emerald-500/20 whitespace-nowrap"
+                      className="px-3 py-1.5 text-right font-bold text-emerald-300 bg-emerald-950/20 cursor-pointer hover:bg-emerald-500/20 whitespace-nowrap"
                     >
                       {formatUsd(p.incomeUsd)}
                     </td>
@@ -569,32 +461,17 @@ export default function MonthlyExcelWorkbookViewer({
                 className="bg-[#0b241c] text-white font-mono font-bold border-t-2 border-emerald-500 sticky bottom-0 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.5)] cursor-pointer hover:bg-[#0e2c22] transition"
               >
                 {/* Total Row Left Header */}
-                <td className="w-12 px-2 py-2 text-center bg-[#071d15] border-r border-emerald-700/60 text-emerald-400 font-extrabold sticky left-0 z-30">
+                <td className="w-9 px-1 py-2 text-center bg-[#071d15] border-r border-emerald-700/60 text-emerald-400 font-extrabold sticky left-0 z-30">
                   Σ
                 </td>
                 <td
                   colSpan={7}
                   className="px-3 py-2 border-r border-emerald-700/60 text-emerald-100 tracking-wider uppercase text-xs"
                 >
-                  TOTAL RECONCILED WORKBOOK · {activeTabConfig.monthName.toUpperCase()} ({filteredProjects.length} PROJECTS)
+                  TOTAL RECONCILED WORKBOOK · {activeTabConfig.monthName.toUpperCase()} ({filteredProjects.length} PROJECTS &amp; MINI-PROJECTS)
                 </td>
 
-                {/* Col H: Total Hours */}
-                <td className="px-3 py-2 text-right border-r border-emerald-700/60 text-indigo-200">
-                  {totalHours.toLocaleString()} hrs
-                </td>
-
-                {/* Col I: Total Materials */}
-                <td className="px-3 py-2 text-right border-r border-emerald-700/60 text-amber-200">
-                  {formatUsd(totalMaterials)}
-                </td>
-
-                {/* Col J: Total Labor */}
-                <td className="px-3 py-2 text-right border-r border-emerald-700/60 text-sky-200">
-                  {formatUsd(totalLabor)}
-                </td>
-
-                {/* Col K: Total Gross Billed */}
+                {/* Col H: Total Gross Billed */}
                 <td className="px-3 py-2 text-right text-base font-extrabold text-emerald-300 underline decoration-double decoration-emerald-400">
                   {formatUsd(totalGross)}
                 </td>
