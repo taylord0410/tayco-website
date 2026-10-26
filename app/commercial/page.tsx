@@ -358,7 +358,14 @@ export default function CommercialPage() {
                     </textPath>
                   </text>
                 </svg>
-                <span>🏢</span>
+                <span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/logo.png"
+                    alt="TAYCO LLC"
+                    className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
+                  />
+                </span>
               </div>
 
               <div>

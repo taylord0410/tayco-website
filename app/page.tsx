@@ -455,9 +455,12 @@ export default function Home() {
               </text>
             </svg>
             <span aria-hidden="true" style={{ color: "#F3D37A" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3D37A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07" />
-              </svg>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="TAYCO LLC"
+                className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
+              />
             </span>
           </div>
         </div>
