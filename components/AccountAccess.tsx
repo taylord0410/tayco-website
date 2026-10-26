@@ -36,7 +36,7 @@ function ExecutiveTopBar({ showConsoleLink = false }: { showConsoleLink?: boolea
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3.5 sm:px-8 lg:flex-nowrap">
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-3.5 text-left transition hover:opacity-95"
+          className="group flex min-w-0 items-center gap-3 text-left transition hover:opacity-95"
           aria-label="TAYCO Turnkey — Return to Landing Page"
         >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d4af37]/35 bg-[#0b1629] p-1.5 shadow-[0_0_20px_rgba(212,175,55,0.12)]">
@@ -49,11 +49,11 @@ function ExecutiveTopBar({ showConsoleLink = false }: { showConsoleLink?: boolea
               priority
             />
           </div>
-          <div>
-            <span className="block text-sm font-bold tracking-[0.18em] text-white group-hover:text-[#f3d37a]">
+          <div className="min-w-0">
+            <span className="block truncate text-sm font-bold tracking-[0.16em] text-white group-hover:text-[#f3d37a]">
               TAYCO TURNKEY
             </span>
-            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#d4af37]">
+            <span className="block truncate text-[10px] font-medium uppercase tracking-[0.11em] text-[#d4af37]">
               Construction &amp; Restoration · Corporate System
             </span>
           </div>
@@ -153,6 +153,7 @@ export function LoginAccess() {
   const router = useRouter();
   const [token, setToken] = useState('');
   const [busy, setBusy] = useState(false);
+  const [authPhase, setAuthPhase] = useState<'idle' | 'verifying' | 'redirecting'>('idle');
   const [error, setError] = useState('');
   const [help, setHelp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -168,7 +169,9 @@ export function LoginAccess() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     setBusy(true);
+    setAuthPhase('verifying');
     setError('');
     const form = new FormData(event.currentTarget);
     try {
@@ -177,12 +180,16 @@ export function LoginAccess() {
         password: form.get('password'),
         ...(token ? { token } : {}),
       });
-      router.replace('/portal');
-      router.refresh();
+      setAuthPhase('redirecting');
+      if (typeof window !== 'undefined') {
+        window.location.replace('/portal');
+      } else {
+        router.replace('/portal');
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Please try again.');
-    } finally {
       setBusy(false);
+      setAuthPhase('idle');
     }
   }
 
@@ -279,7 +286,7 @@ export function LoginAccess() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                <h2 className="text-sm font-bold text-white">42 Active Packages</h2>
+                <h2 className="text-sm font-bold text-white">48 Active Packages</h2>
                 <p className="mt-1 text-xs leading-relaxed text-slate-400">
                   SAM.gov, SBE/WBE/MBE/ESBE compliance &amp; general contractor pipeline.
                 </p>
@@ -430,15 +437,102 @@ export function LoginAccess() {
                   </p>
                 )}
 
+                {busy && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    data-testid="login-progress-feedback"
+                    className="rounded-2xl border border-[#d4af37]/50 bg-[#07101e]/95 p-4 shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <span
+                        aria-hidden="true"
+                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#d4af37]/45 bg-[#d4af37]/15 text-[#f3d37a]"
+                      >
+                        <svg
+                          className="h-5 w-5 animate-spin text-[#f3d37a]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          />
+                          <path
+                            className="opacity-95"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"
+                          />
+                        </svg>
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f3d37a]">
+                          {authPhase === 'redirecting'
+                            ? 'Access Granted · Opening Console'
+                            : 'Verifying Credentials'}
+                        </p>
+                        <p className="mt-0.5 text-xs text-slate-300">
+                          {authPhase === 'redirecting'
+                            ? 'Loading 48 active packages, Takeoff blueprints & corporate workspace…'
+                            : 'Validating encrypted session with TAYCO Corporate Gateway…'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r from-[#b8860b] via-[#f3d37a] to-[#d4af37] transition-all duration-500 ${
+                          authPhase === 'redirecting' ? 'w-full animate-pulse' : 'w-2/3 animate-pulse'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <button
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#e6c453] to-[#c59b27] px-5 py-3.5 text-sm font-bold uppercase tracking-[0.12em] text-[#07101e] shadow-[0_10px_28px_rgba(212,175,55,0.28)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f3d37a] disabled:opacity-50"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#e6c453] to-[#c59b27] px-5 py-3.5 text-sm font-bold uppercase tracking-[0.12em] text-[#07101e] shadow-[0_10px_28px_rgba(212,175,55,0.28)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f3d37a] disabled:cursor-wait disabled:opacity-90"
                   disabled={busy}
                   type="submit"
                 >
-                  <span>{busy ? 'Please wait…' : token ? 'Activate account' : 'Sign in'}</span>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 5l7 7-7 7" />
-                  </svg>
+                  {busy ? (
+                    <>
+                      <svg
+                        className="h-4 w-4 animate-spin text-[#07101e]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        />
+                        <path
+                          className="opacity-90"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"
+                        />
+                      </svg>
+                      <span>
+                        {authPhase === 'redirecting'
+                          ? 'Opening Corporate Console…'
+                          : 'Authenticating Session…'}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{token ? 'Activate account' : 'Sign in'}</span>
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 5l7 7-7 7" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </form>
 

@@ -1522,6 +1522,95 @@
   }
 }
 
+@media (max-width: 768px) {
+  .dcc-opportunities-table-wrap {
+    overflow-x: visible;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .dcc-opportunities-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .dcc-opportunities-table thead {
+    display: none;
+  }
+
+  .dcc-opportunities-table tbody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+
+  .dcc-opportunities-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 12px;
+    background: rgba(9, 20, 38, 0.88);
+    box-shadow: 0 8px 22px rgba(2, 8, 20, 0.42);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dcc-opportunities-table tbody tr.is-union-assoc-row {
+    border-color: rgba(251, 191, 36, 0.42);
+    background: linear-gradient(145deg, rgba(16, 30, 52, 0.94), rgba(9, 20, 38, 0.9));
+  }
+
+  .dcc-opportunities-table td,
+  .dcc-opportunities-table td:nth-child(2) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-width: 0 !important;
+    padding: 6px 0 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    text-align: right;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .dcc-opportunities-table td:last-child {
+    border-bottom: none;
+    padding-bottom: 2px !important;
+  }
+
+  .dcc-opportunities-table td[data-stack="true"] {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .dcc-opportunities-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 9.5px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--dcc-gold-bright, #f3d37a);
+    text-align: left;
+  }
+
+  .dcc-opp-project-cell {
+    min-width: 0 !important;
+    width: 100%;
+  }
+}
+
 @media (max-width: 680px) {
   .dcc-card {
     padding: 14px;

@@ -209,7 +209,7 @@ export function VerifiedOpportunitiesTable({
                   data-opportunity-id={row.number}
                   className={isUnionOrAssoc ? "is-union-assoc-row" : undefined}
                 >
-                  <td>
+                  <td data-label="General Contractor" data-stack="true">
                     <div className="dcc-opp-project-cell">
                       <span
                         className={`dcc-opp-id ${
@@ -236,7 +236,7 @@ export function VerifiedOpportunitiesTable({
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Project" data-stack="true">
                     <div>
                       <p className="dcc-row-title">
                         {isGuest ? sanitizeGuestText(row.name) : row.name}
@@ -248,7 +248,7 @@ export function VerifiedOpportunitiesTable({
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Infrastructure">
                     <span
                       className="dcc-badge"
                       data-tone={isPublic ? "sky" : "indigo"}
@@ -256,7 +256,7 @@ export function VerifiedOpportunitiesTable({
                       {isPublic ? "Public" : "Private"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Price">
                     <span
                       className="dcc-opp-price"
                       style={
@@ -276,12 +276,12 @@ export function VerifiedOpportunitiesTable({
                       {row.estimatedPrice}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Deadline">
                     <span className="dcc-opp-deadline">
                       {row.reportedDeadline || "Pending date"}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Plans">
                     {row.viewerHref ? (
                       <button
                         type="button"
@@ -301,7 +301,7 @@ export function VerifiedOpportunitiesTable({
                       </span>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <div
                       style={{
                         display: "inline-flex",

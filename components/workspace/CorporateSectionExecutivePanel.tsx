@@ -188,7 +188,7 @@ export default function CorporateSectionExecutivePanel({
                     : item.name;
                   return (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="General Contractor" data-stack="true">
                         <div className="dcc-opp-project-cell">
                           <span className="dcc-opp-id">#{item.number}</span>
                           <div>
@@ -196,7 +196,7 @@ export default function CorporateSectionExecutivePanel({
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Project" data-stack="true">
                         <p className="dcc-row-title">{cleanName}</p>
                         {!isGuest && item.location && (
                           <small style={{ color: "#94a3b8", fontSize: "0.73rem", display: "block", marginTop: "0.18rem" }}>
@@ -204,7 +204,7 @@ export default function CorporateSectionExecutivePanel({
                           </small>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Infrastructure">
                         <span
                           className="dcc-badge"
                           data-tone={isPublic ? "sky" : "indigo"}
@@ -212,7 +212,7 @@ export default function CorporateSectionExecutivePanel({
                           {isPublic ? "Public" : "Private"}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Price">
                         <span
                           className="dcc-opp-price"
                           style={
@@ -232,12 +232,12 @@ export default function CorporateSectionExecutivePanel({
                           {item.estimatedPrice}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Schedule Deadline">
                         <span className="dcc-opp-deadline">
                           {item.reportedDeadline || "Oct 2026"}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Plans">
                         {item.viewerHref ? (
                           <button
                             type="button"
@@ -254,7 +254,7 @@ export default function CorporateSectionExecutivePanel({
                           <span className="dcc-opp-no-drawing">Pending</span>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Status">
                         {isGuest ? (
                           <div
                             style={{
@@ -416,13 +416,13 @@ export default function CorporateSectionExecutivePanel({
               <tbody>
                 {CORPORATE_2026_MONTHLY_INCOME.map((item) => (
                   <tr key={item.month}>
-                    <td>
+                    <td data-label="Month">
                       <strong className="dcc-row-title">{item.month}</strong>
                     </td>
-                    <td>
+                    <td data-label="Quarter">
                       <span className="dcc-row-meta">{item.quarter}</span>
                     </td>
-                    <td>
+                    <td data-label="TPRJ Series" data-stack="true">
                       <span
                         className="dcc-row-meta"
                         style={{ fontFamily: "var(--font-mono, monospace)", color: "#f3d37a" }}
@@ -430,10 +430,10 @@ export default function CorporateSectionExecutivePanel({
                         {item.tprjRange}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurisdictions" data-stack="true">
                       <span className="dcc-row-meta">{item.states}</span>
                     </td>
-                    <td>
+                    <td data-label="Corporate Income">
                       <strong
                         className="dcc-row-title"
                         style={{ fontFamily: "var(--font-mono, monospace)" }}
@@ -441,7 +441,7 @@ export default function CorporateSectionExecutivePanel({
                         {item.income}
                       </strong>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span
                         className="dcc-badge"
                         data-tone={item.status === "In Progress" ? "amber" : "emerald"}
@@ -593,16 +593,16 @@ export default function CorporateSectionExecutivePanel({
                 {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
                   return (
                     <tr key={cert.id}>
-                      <td>
+                      <td data-label="Program / Certification">
                         <strong className="dcc-row-title">{cert.code}</strong>
                       </td>
-                      <td>
+                      <td data-label="Classification" data-stack="true">
                         <span className="dcc-row-meta">{cert.label}</span>
                       </td>
-                      <td>
+                      <td data-label="Operational Note" data-stack="true">
                         <span className="dcc-row-meta">{cert.detail}</span>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span
                           className="dcc-badge"
                           data-tone="emerald"

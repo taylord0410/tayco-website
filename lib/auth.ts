@@ -108,9 +108,10 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       db.prepare(
         `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at)
          VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
-         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL, claimed_grant_id=NULL, claimed_at=NULL`
+         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
       ).run(guestEmail, now);
-      if (existingGuest) {
+      if (existingGuest && existingGuest.password_hash !== guestHash) {
+        db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=?').run(guestEmail);
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
     }

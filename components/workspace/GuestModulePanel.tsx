@@ -298,8 +298,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                   />
                 </div>
               )}
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[680px] text-left text-xs">
+              <div className="dcc-opportunities-table-wrap overflow-x-auto">
+                <table className="dcc-opportunities-table w-full md:min-w-[680px] text-left text-xs">
                   <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
                     <tr>
                       <th className="pb-3 font-medium">General Contractor</th>
@@ -318,12 +318,12 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                       const isOpen = activeViewerId === item.id;
                       return (
                         <tr key={item.id} className="hover:bg-white/[0.02]">
-                          <td className="py-3 pr-3 font-medium text-slate-200">
+                          <td data-label="General Contractor" data-stack="true" className="py-3 pr-3 font-medium text-slate-200">
                             <span className="mr-1.5 font-mono text-amber-200/80">#{item.number}</span>
                             <strong className="text-white">{item.contractor}</strong>
                           </td>
-                          <td className="py-3 pr-3 text-slate-300">{item.name}</td>
-                          <td className="whitespace-nowrap py-3 pr-3">
+                          <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
+                          <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
                             <span
                               className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                                 isPublic
@@ -334,13 +334,13 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                               {isPublic ? "Public" : "Private"}
                             </span>
                           </td>
-                          <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                          <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                             {item.estimatedPrice}
                           </td>
-                          <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
+                          <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                             {item.reportedDeadline || "Pending"}
                           </td>
-                          <td className="whitespace-nowrap py-3 pr-3">
+                          <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                             {item.viewerHref ? (
                               <button
                                 type="button"
@@ -353,7 +353,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                               <span className="text-[11px] text-slate-400">Pending</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap py-3 text-right">
+                          <td data-label="Status" className="whitespace-nowrap py-3 md:text-right">
                             {isPending ? (
                               <span className="inline-flex whitespace-nowrap items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300">
                                 Pending
@@ -449,8 +449,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
             />
           </div>
         )}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-left text-xs">
+        <div className="dcc-opportunities-table-wrap overflow-x-auto">
+          <table className="dcc-opportunities-table w-full md:min-w-[680px] text-left text-xs">
             <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="pb-3 font-medium">General Contractor</th>
@@ -469,12 +469,12 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                 const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
-                    <td className="py-3 pr-3 font-medium text-slate-200">
+                    <td data-label="General Contractor" data-stack="true" className="py-3 pr-3 font-medium text-slate-200">
                       <span className="mr-1.5 font-mono text-amber-200/80">#{item.number}</span>
                       <strong className="text-white">{item.contractor}</strong>
                     </td>
-                    <td className="py-3 pr-3 text-slate-300">{item.name}</td>
-                    <td className="whitespace-nowrap py-3 pr-3">
+                    <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
+                    <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
                       <span
                         className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                           isPublic
@@ -485,13 +485,13 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                         {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                    <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                       {item.estimatedPrice}
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
+                    <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                       {item.reportedDeadline || "Pending"}
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3">
+                    <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                       {item.viewerHref ? (
                         <button
                           type="button"
@@ -504,7 +504,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                         <span className="text-[11px] text-slate-400">Pending</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap py-3 text-right">
+                    <td data-label="Status" className="whitespace-nowrap py-3 md:text-right">
                       {isPending ? (
                         <span className="inline-flex whitespace-nowrap items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300">
                           Pending
@@ -589,8 +589,8 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
             />
           </div>
         )}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-left text-xs">
+        <div className="dcc-opportunities-table-wrap overflow-x-auto">
+          <table className="dcc-opportunities-table w-full md:min-w-[680px] text-left text-xs">
             <thead className="border-b border-slate-600 text-[10px] uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="pb-3 font-medium">General Contractor</th>
@@ -609,12 +609,12 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                 const isOpen = activeViewerId === item.id;
                 return (
                   <tr key={item.id} className="hover:bg-white/[0.02]">
-                    <td className="py-3 pr-3 font-medium text-white">
+                    <td data-label="General Contractor" data-stack="true" className="py-3 pr-3 font-medium text-white">
                       <span className="mr-1.5 font-mono text-amber-200/80">#{item.number}</span>
                       {item.contractor}
                     </td>
-                    <td className="py-3 pr-3 text-slate-300">{item.name}</td>
-                    <td className="whitespace-nowrap py-3 pr-3">
+                    <td data-label="Project" data-stack="true" className="py-3 pr-3 text-slate-300">{item.name}</td>
+                    <td data-label="Infrastructure" className="whitespace-nowrap py-3 pr-3">
                       <span
                         className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                           isPublic
@@ -625,13 +625,13 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                         {isPublic ? "Public Infrastructure" : "Private Infrastructure"}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
+                    <td data-label="Price" className="whitespace-nowrap py-3 pr-3 font-mono text-[11px] font-semibold text-amber-200">
                       {item.estimatedPrice}
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
+                    <td data-label="Deadline" className="whitespace-nowrap py-3 pr-3 font-mono text-slate-300">
                       {item.reportedDeadline || "Pending"}
                     </td>
-                    <td className="whitespace-nowrap py-3 pr-3">
+                    <td data-label="Plans" className="whitespace-nowrap py-3 pr-3">
                       {item.viewerHref ? (
                         <button
                           type="button"
@@ -644,7 +644,7 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                         <span className="text-[11px] text-slate-400">Pending</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap py-3 text-right">
+                    <td data-label="Status" className="whitespace-nowrap py-3 md:text-right">
                       {isPending ? (
                         <span className="inline-flex whitespace-nowrap items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300">
                           Pending
