@@ -213,7 +213,24 @@ export default function CorporateSectionExecutivePanel({
                         </span>
                       </td>
                       <td>
-                        <span className="dcc-opp-price">{item.estimatedPrice}</span>
+                        <span
+                          className="dcc-opp-price"
+                          style={
+                            item.estimatedPrice.startsWith("$")
+                              ? {
+                                  color: "#6ee7b7",
+                                  fontWeight: 800,
+                                  fontSize: "0.78rem",
+                                  padding: "0.18rem 0.5rem",
+                                  borderRadius: "6px",
+                                  background: "rgba(16, 185, 129, 0.14)",
+                                  border: "1px solid rgba(16, 185, 129, 0.38)",
+                                }
+                              : undefined
+                          }
+                        >
+                          {item.estimatedPrice}
+                        </span>
                       </td>
                       <td>
                         <span className="dcc-opp-deadline">

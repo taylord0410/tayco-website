@@ -55,7 +55,7 @@ test("47 items have a valid viewerHref and only #42 (State Highway District Main
   assert.equal(nullViewer[0].documentState, "pending");
 });
 
-test("every item has a valid infrastructureType ('Public' or 'Private'), zero fake/sample dollar amounts, and estimatedPrice === 'Not set — awaiting quote'", () => {
+test("every item has a valid infrastructureType ('Public' or 'Private'), 25 verified dollar prices (#2–#8, #10, #12–#24, #40–#43), and 23 awaiting quote", () => {
   const publicItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) => item.infrastructureType === "Public"
   );
@@ -66,8 +66,16 @@ test("every item has a valid infrastructureType ('Public' or 'Private'), zero fa
   assert.equal(privateItems.length, 34);
   assert.equal(publicItems.length + privateItems.length, 48);
 
+  const pricedItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter((item) =>
+    item.estimatedPrice.startsWith("$")
+  );
+  const unpricedItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.estimatedPrice === "Not set — awaiting quote"
+  );
+  assert.equal(pricedItems.length, 25);
+  assert.equal(unpricedItems.length, 23);
+
   for (const item of VERIFIED_OCTOBER_2026_OPPORTUNITIES) {
-    assert.equal(item.estimatedPrice, "Not set — awaiting quote");
     assert.ok(item.contractor.length > 3);
     const serialized = JSON.stringify(item);
     assert.equal(/\$250,?000/.test(serialized), false);
@@ -119,14 +127,9 @@ test("CORPORATE_CERTIFICATIONS_STATUS has all 8 items", () => {
   const actualCodes = CORPORATE_CERTIFICATIONS_STATUS.map((c) => c.code);
   assert.deepEqual([...actualCodes], expectedCodes);
 
-  // 7 pending confirmation and 1 active intake
-  const pending = CORPORATE_CERTIFICATIONS_STATUS.filter(
-    (c) => c.status === "Pending confirmation"
-  );
+  // All 8 certifications are Active
   const active = CORPORATE_CERTIFICATIONS_STATUS.filter(
-    (c) => c.status === "Active intake"
+    (c) => c.status === "Active"
   );
-  assert.equal(pending.length, 7);
-  assert.equal(active.length, 1);
-  assert.equal(active[0].code, "Union / Private");
+  assert.equal(active.length, 8);
 });
