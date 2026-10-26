@@ -299,9 +299,15 @@ export default function DashboardCommandCenter({
                   )}, ${m.opps} ${m.opps === 1 ? "consolidated record" : "micro-projects"}. Select month.`}
                   onClick={() => selectMonthPill(m.key)}
                 >
-                  {isSelected && (
-                    <span className="dcc-oct-callout" aria-hidden="true">
-                      {monthName(m.key, true)} 2026 · {money(m.issuedCents)}
+                  {m.issuedCents > 0 && (
+                    <span
+                      className={`dcc-oct-callout dcc-month-income-callout ${
+                        isOct ? "is-oct-callout" : ""
+                      } ${isSelected ? "is-selected-callout" : ""}`}
+                      data-testid={`chart-income-callout-${m.key}`}
+                      aria-hidden="true"
+                    >
+                      {money(m.issuedCents)}
                     </span>
                   )}
                   <span className="dcc-bar-pair" aria-hidden="true">

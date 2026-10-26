@@ -14,19 +14,61 @@ const button =
   'inline-flex min-h-12 items-center justify-center rounded-xl bg-[#173252] px-5 py-3 font-semibold text-white transition hover:bg-[#254969] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d89935] disabled:opacity-50';
 
 async function request(path: string, body?: unknown, method = 'POST') {
-  const response = await fetch(`/api/auth/${path}`, {
-    method,
-    credentials: 'same-origin',
-    cache: 'no-store',
-    ...(body === undefined
-      ? {}
-      : {
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        }),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Please try again.');
+  const url = `/api/auth/${path}`;
+  const payload = body === undefined ? undefined : JSON.stringify(body);
+  let status = 0;
+  let rawText = '';
+
+  try {
+    const response = await fetch(url, {
+      method,
+      credentials: 'same-origin',
+      cache: 'no-store',
+      ...(payload === undefined
+        ? {}
+        : {
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+          }),
+    });
+    if (response && typeof response.text === 'function') {
+      status = response.status;
+      rawText = await response.text();
+    }
+  } catch {
+    // Fall back to XMLHttpRequest if fetch was intercepted or failed
+  }
+
+  if (!status && typeof XMLHttpRequest !== 'undefined') {
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.withCredentials = true;
+      if (payload !== undefined) {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+      }
+      xhr.onload = () => {
+        status = xhr.status;
+        rawText = xhr.responseText || '';
+        resolve();
+      };
+      xhr.onerror = () => reject(new Error('Network connection error. Please try again.'));
+      xhr.send(payload ?? null);
+    });
+  }
+
+  let data: { error?: string } & Record<string, unknown> = {};
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = {};
+    }
+  }
+
+  if (status < 200 || status >= 300) {
+    throw new Error(data.error || 'Please verify your credentials and try again.');
+  }
   return data;
 }
 
@@ -216,10 +258,10 @@ export function LoginAccess() {
 
       <ExecutiveTopBar />
 
-      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 py-10 sm:px-8 lg:py-14">
-        <div className="grid w-full gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
-          {/* Left Column: Executive Brand Identity & Portal Overview */}
-          <div className="space-y-8 lg:col-span-7">
+      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-start px-4 pt-5 pb-10 sm:px-8 sm:pt-8 lg:py-12">
+        <div className="grid w-full gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
+          {/* Left Column on Desktop / Second on Mobile: Executive Brand Identity & Portal Overview */}
+          <div className="order-2 space-y-8 lg:order-1 lg:col-span-7">
             <div className="inline-flex items-center gap-2.5 rounded-full border border-[#d4af37]/35 bg-[#0c182c]/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#f3d37a] shadow-sm">
               <svg className="h-3.5 w-3.5 text-[#d4af37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l8 4v5c0 5.25-3.4 9.74-8 11-4.6-1.26-8-5.75-8-11V7l8-4z" />
@@ -343,8 +385,8 @@ export function LoginAccess() {
             </div>
           </div>
 
-          {/* Right Column: Executive Authentication Card */}
-          <div className="lg:col-span-5">
+          {/* Right Column on Desktop / First at Top on Mobile: Executive Authentication Card */}
+          <div className="order-1 lg:order-2 lg:col-span-5">
             <div className="relative overflow-hidden rounded-3xl border border-[#d4af37]/35 bg-[#0c182c]/95 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.75)] backdrop-blur-xl sm:p-9">
               <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#b8860b] via-[#f3d37a] to-[#d4af37]" />
 
