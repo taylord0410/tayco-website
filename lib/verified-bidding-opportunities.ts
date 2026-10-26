@@ -263,7 +263,7 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "section": "undated",
     "status": "Pending company information",
     "statusEs": "Pendiente",
-    "estimatedPrice": "Not set — awaiting quote",
+    "estimatedPrice": "$42,000,000",
     "reportedDeadline": null,
     "documentName": "25-4307.02_Mascoutah_Classroom Addition_Scott Elementary School_IFB.pdf",
     "documentState": "received",

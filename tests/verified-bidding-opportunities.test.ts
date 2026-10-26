@@ -55,7 +55,7 @@ test("47 items have a valid viewerHref and only #42 (State Highway District Main
   assert.equal(nullViewer[0].documentState, "pending");
 });
 
-test("every item has a valid infrastructureType ('Public' or 'Private'), 25 verified dollar prices (#2–#8, #10, #12–#24, #40–#43), and 23 awaiting quote", () => {
+test("every item has a valid infrastructureType ('Public' or 'Private'), 26 verified dollar prices (#2–#10, #12–#24, #40–#43), and 22 awaiting quote", () => {
   const publicItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) => item.infrastructureType === "Public"
   );
@@ -72,8 +72,8 @@ test("every item has a valid infrastructureType ('Public' or 'Private'), 25 veri
   const unpricedItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
     (item) => item.estimatedPrice === "Not set — awaiting quote"
   );
-  assert.equal(pricedItems.length, 25);
-  assert.equal(unpricedItems.length, 23);
+  assert.equal(pricedItems.length, 26);
+  assert.equal(unpricedItems.length, 22);
 
   for (const item of VERIFIED_OCTOBER_2026_OPPORTUNITIES) {
     assert.ok(item.contractor.length > 3);
