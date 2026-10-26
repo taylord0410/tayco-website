@@ -70,7 +70,7 @@ export const CORPORATE_2026_MONTHLY_INCOME = [
   { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-130 – TPRJ-2607-154 (25)", states: "16 WI · 6 IL · 3 IN/MO", income: "$908,792", amount: 908792, status: "Reconciled" },
   { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-155 – TPRJ-2608-180 (26)", states: "17 WI · 6 IL · 3 IN/IA", income: "$940,789", amount: 940789, status: "Reconciled" },
   { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-181 – TPRJ-2609-206 (26)", states: "17 WI · 6 IL · 3 IA/MO", income: "$938,489", amount: 938489, status: "Reconciled" },
-  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-207 – TPRJ-2610-212 (6)", states: "4 WI · 2 IL (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
+  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-207 (1 Consolidated Record)", states: "1 Consolidated Package (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
 ] as const;
 
 export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
@@ -173,18 +173,36 @@ export default function CorporateSectionExecutivePanel({
                 {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, 12).map((item) => {
                   const isOpen = activeViewerId === item.id;
                   const isPublic = item.infrastructureType === "Public";
+                  const cleanContractor = isGuest
+                    ? item.contractor
+                        .replace(/\bIllinois Dept\. of Transportation \(IDOT\)/gi, "Department of Transportation (DOT)")
+                        .replace(/\bIndianapolis Airport Authority \(IAA\)/gi, "Regional Airport Authority")
+                        .replace(/\bLifeway Mobility Chicago\b/gi, "Lifeway Mobility")
+                        .replace(/\bVillage of Shorewood\b/gi, "Municipal Public Works")
+                        .replace(/\bCity of Venice Development\b/gi, "Municipal Development Board")
+                        .replace(/\bCity of Lake Mills\b/gi, "Municipal Library Board")
+                        .replace(/\bKenosha County\b/gi, "County")
+                    : item.contractor;
+                  const cleanName = isGuest
+                    ? item.name.replace(/\(IL0403\)/g, "(#0403)")
+                    : item.name;
                   return (
                     <tr key={item.id}>
                       <td>
                         <div className="dcc-opp-project-cell">
                           <span className="dcc-opp-id">#{item.number}</span>
                           <div>
-                            <p className="dcc-row-title">{item.contractor}</p>
+                            <p className="dcc-row-title">{cleanContractor}</p>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <p className="dcc-row-title">{item.name}</p>
+                        <p className="dcc-row-title">{cleanName}</p>
+                        {!isGuest && item.location && (
+                          <small style={{ color: "#94a3b8", fontSize: "0.73rem", display: "block", marginTop: "0.18rem" }}>
+                            {item.location}
+                          </small>
+                        )}
                       </td>
                       <td>
                         <span
@@ -221,18 +239,42 @@ export default function CorporateSectionExecutivePanel({
                       </td>
                       <td>
                         {isGuest ? (
-                          <span
-                            className="dcc-badge"
-                            data-tone={
-                              item.status === "Pending company information"
-                                ? "amber"
-                                : "rose"
-                            }
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start",
+                              gap: "0.2rem",
+                            }}
                           >
-                            {item.status === "Pending company information"
-                              ? "Pending"
-                              : "Cancelled"}
-                          </span>
+                            <span
+                              className="dcc-badge"
+                              data-tone={
+                                item.status === "Pending company information"
+                                  ? "amber"
+                                  : "rose"
+                              }
+                            >
+                              {item.status === "Pending company information"
+                                ? "Pending"
+                                : "Cancelled"}
+                            </span>
+                            {item.status !== "Pending company information" && (
+                              <small
+                                style={{
+                                  fontSize: "0.66rem",
+                                  fontWeight: 600,
+                                  color: "#fda4af",
+                                  lineHeight: 1.15,
+                                  letterSpacing: "0.02em",
+                                  whiteSpace: "nowrap",
+                                  paddingLeft: "0.15rem",
+                                }}
+                              >
+                                Insurance Issues
+                              </small>
+                            )}
+                          </div>
                         ) : (
                           <span className="dcc-badge" data-tone="emerald">
                             Active Portfolio
@@ -316,7 +358,7 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">October 2026 (Oct 01–07)</span>
               <strong className="dcc-kpi-value">$21,789</strong>
               <span className="dcc-kpi-note">
-                6 TPRJ jobs completed prior to Oct 8
+                1 consolidated TPRJ record prior to Oct 8
               </span>
             </div>
             <div className="dcc-kpi">
@@ -512,8 +554,8 @@ export default function CorporateSectionExecutivePanel({
                 Programs
               </h3>
             </div>
-            <span className="dcc-badge" data-tone="amber">
-              8 Corporate Programs Tracked
+            <span className="dcc-badge" data-tone="emerald">
+              8 Active Corporate Certifications
             </span>
           </header>
 
@@ -532,7 +574,6 @@ export default function CorporateSectionExecutivePanel({
               </thead>
               <tbody>
                 {CORPORATE_CERTIFICATIONS_STATUS.map((cert) => {
-                  const isActive = cert.status === "Active intake";
                   return (
                     <tr key={cert.id}>
                       <td>
@@ -547,9 +588,9 @@ export default function CorporateSectionExecutivePanel({
                       <td>
                         <span
                           className="dcc-badge"
-                          data-tone={isActive ? "emerald" : "amber"}
+                          data-tone="emerald"
                         >
-                          {cert.status}
+                          ● Active
                         </span>
                       </td>
                     </tr>

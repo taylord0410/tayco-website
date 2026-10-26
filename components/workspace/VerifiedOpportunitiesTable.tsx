@@ -302,18 +302,42 @@ export function VerifiedOpportunitiesTable({
                     )}
                   </td>
                   <td>
-                    <span
-                      className="dcc-badge"
-                      data-tone={isOverdue ? "rose" : "amber"}
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "0.2rem",
+                      }}
                     >
-                      {row.status === "Pending company information"
-                        ? isGuest
-                          ? "Pending"
-                          : "Pending Info"
-                        : isGuest
-                        ? "Cancelled"
-                        : "Overdue"}
-                    </span>
+                      <span
+                        className="dcc-badge"
+                        data-tone={isOverdue ? "rose" : "amber"}
+                      >
+                        {row.status === "Pending company information"
+                          ? isGuest
+                            ? "Pending"
+                            : "Pending Info"
+                          : isGuest
+                          ? "Cancelled"
+                          : "Overdue"}
+                      </span>
+                      {isOverdue && (
+                        <small
+                          style={{
+                            fontSize: "0.66rem",
+                            fontWeight: 600,
+                            color: "#fda4af",
+                            lineHeight: 1.15,
+                            letterSpacing: "0.02em",
+                            whiteSpace: "nowrap",
+                            paddingLeft: "0.15rem",
+                          }}
+                        >
+                          Insurance Issues
+                        </small>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

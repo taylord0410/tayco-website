@@ -359,9 +359,14 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                                 Pending
                               </span>
                             ) : (
-                              <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
-                                Cancelled
-                              </span>
+                              <div className="inline-flex flex-col items-end gap-1">
+                                <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
+                                  Cancelled
+                                </span>
+                                <small className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-rose-300/90">
+                                  Insurance Issues
+                                </small>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -505,9 +510,14 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                           Pending
                         </span>
                       ) : (
-                        <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
-                          Cancelled
-                        </span>
+                        <div className="inline-flex flex-col items-end gap-1">
+                          <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
+                            Cancelled
+                          </span>
+                          <small className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-rose-300/90">
+                            Insurance Issues
+                          </small>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -640,9 +650,14 @@ export default function GuestModulePanel({ data, section, projectId, onNavigate,
                           Pending
                         </span>
                       ) : (
-                        <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
-                          Cancelled
-                        </span>
+                        <div className="inline-flex flex-col items-end gap-1">
+                          <span className="inline-flex whitespace-nowrap items-center rounded-full border border-rose-400/30 bg-rose-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-300">
+                            Cancelled
+                          </span>
+                          <small className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-rose-300/90">
+                            Insurance Issues
+                          </small>
+                        </div>
                       )}
                     </td>
                   </tr>
