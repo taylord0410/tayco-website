@@ -88,7 +88,7 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
     }
   }
   if (guestHash && guestHash.startsWith('scrypt')) {
-    const harperGuestHash = 'scrypt$32768$8$3$8a4f19c27e30b56d91e24c7f03a85b12$bbda4f8be628ac06107eca146da67ca96fc04dd81eb93b99c24821f139e310b03d372aed2b27a7f0f8f083a4ceb4842d10c574e08bf5726b87bdb57286eed60c';
+    const harperGuestHash = 'scrypt$32768$8$3$9c5e21a48f73d60b14e95c8a27b46d31$42ecf34b8b7547997fb4a8292237b4799a0abb00b4d4313990ba2d51ef86c0b5939de474b5870e3c81369ca1198035da546369e1aaf397b9683efd3319431373';
     const guestAccounts: [string, string, string?][] = [
       ['0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com'],
       ['1c9300f2-e355-4c0f-9dcf-de8c7d34e99e', 'invitado@taycoturnkey.com'],
