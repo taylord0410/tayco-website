@@ -110,16 +110,16 @@ export default function CorporateSectionExecutivePanel({
               <h3>Projects — Commercial, Institutional &amp; Civil Portfolio</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              756 YTD Projects &amp; Mini-Projects · 47 Plan Sets
+              751 YTD Projects &amp; Mini-Projects · 47 Plan Sets
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD Projects &amp; Mini-Projects</span>
-              <strong className="dcc-kpi-value">756 Projects</strong>
+              <strong className="dcc-kpi-value">751 Projects</strong>
               <span className="dcc-kpi-note">
-                505 prime packages · 251 mini-projects
+                501 prime packages · 250 mini-projects
               </span>
             </div>
             <div className="dcc-kpi">
@@ -528,7 +528,7 @@ export default function CorporateSectionExecutivePanel({
               <h3>Payroll — Field Labor, Trades &amp; Prevailing Wage Logs</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              48,420+ YTD Verified Hours · 756 Projects
+              48,420+ YTD Verified Hours · 751 Projects
             </span>
           </header>
 
@@ -537,7 +537,7 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">YTD 2026 Field Hours</span>
               <strong className="dcc-kpi-value">48,420 hrs</strong>
               <span className="dcc-kpi-note">
-                Approved across 756 projects &amp; mini-projects
+                Approved across 751 projects &amp; mini-projects
               </span>
             </div>
             <div className="dcc-kpi">

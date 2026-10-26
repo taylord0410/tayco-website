@@ -264,7 +264,7 @@ export default function MonthlyExcelWorkbookViewer({
               {filteredProjects.length} Projects
             </div>
             <span className="text-[10px] text-emerald-400">
-              756 YTD · Prime &amp; Mini-Projects
+              {MONTHLY_MICROPROJECTS_2026.length} YTD · Prime &amp; Mini-Projects
             </span>
           </div>
         </section>

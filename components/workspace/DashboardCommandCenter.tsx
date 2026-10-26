@@ -330,7 +330,7 @@ export default function DashboardCommandCenter({
                     <line x1="3" y1="9" x2="21" y2="9" />
                     <line x1="3" y1="15" x2="21" y2="15" />
                   </svg>
-                  Click any month bar (Jan–Sep 2026) to open its Excel Workbook
+                  Click any month bar (Jan–Oct 2026) to open its Excel Workbook
                 </span>
               </div>
               <p className="dcc-card-subtitle">
