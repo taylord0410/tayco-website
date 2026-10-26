@@ -78,7 +78,6 @@ export default function MonthlyExcelWorkbookViewer({
         p.fieldLead.toLowerCase().includes(term) ||
         p.scopeSummary.toLowerCase().includes(term) ||
         p.startDate.includes(term) ||
-        p.completedDate.includes(term) ||
         String(p.incomeUsd).includes(term)
       );
     });
@@ -100,10 +99,10 @@ export default function MonthlyExcelWorkbookViewer({
   // Default SUM Formula string
   const defaultFormulaString = useMemo(() => {
     const lastRow = filteredProjects.length + 1;
-    return `=SUM(H2:H${lastRow})  →  ${formatUsd(totalGross)} (${filteredProjects.length} projects & mini-projects in ${activeTabConfig.monthName})`;
+    return `=SUM(G2:G${lastRow})  →  ${formatUsd(totalGross)} (${filteredProjects.length} projects & mini-projects in ${activeTabConfig.monthName})`;
   }, [filteredProjects.length, totalGross, activeTabConfig.monthName]);
 
-  const defaultActiveCellCoord = `H${filteredProjects.length + 2}`;
+  const defaultActiveCellCoord = `G${filteredProjects.length + 2}`;
 
   return (
     <div
@@ -271,7 +270,7 @@ export default function MonthlyExcelWorkbookViewer({
         </section>
 
         {/* ========================================================= */}
-        {/* 4. SPREADSHEET GRID (COLUMNS A-H + ROW NUMBERS 1..N)       */}
+        {/* 4. SPREADSHEET GRID (COLUMNS A-G + ROW NUMBERS 1..N)       */}
         {/* ========================================================= */}
         <div className="flex-1 overflow-auto bg-[#07111c] text-xs">
           <table className="w-full border-collapse text-left select-text">
@@ -292,19 +291,16 @@ export default function MonthlyExcelWorkbookViewer({
                   <span className="text-emerald-400 font-bold mr-1">C</span> Start Date
                 </th>
                 <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">D</span> Completion
+                  <span className="text-emerald-400 font-bold mr-1">D</span> Trade Category
                 </th>
                 <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">E</span> Trade Category
+                  <span className="text-emerald-400 font-bold mr-1">E</span> CSI Division
                 </th>
                 <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">F</span> CSI Division
-                </th>
-                <th className="px-2.5 py-1.5 border-r border-slate-700/80 font-semibold text-slate-300 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">G</span> Superintendent
+                  <span className="text-emerald-400 font-bold mr-1">F</span> Superintendent
                 </th>
                 <th className="px-3 py-1.5 text-right font-semibold text-emerald-300 bg-[#09221b]/40 whitespace-nowrap">
-                  <span className="text-emerald-400 font-bold mr-1">H</span> Gross Billed
+                  <span className="text-emerald-400 font-bold mr-1">G</span> Gross Billed
                 </th>
               </tr>
             </thead>
@@ -337,7 +333,7 @@ export default function MonthlyExcelWorkbookViewer({
                           label: "Project Identifier",
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 font-semibold text-emerald-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 font-semibold text-emerald-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
                     >
                       {p.id}
                     </td>
@@ -352,7 +348,7 @@ export default function MonthlyExcelWorkbookViewer({
                           label: "Tax Reconciled Invoice",
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 text-slate-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
                     >
                       {p.invoiceRef}
                     </td>
@@ -367,80 +363,65 @@ export default function MonthlyExcelWorkbookViewer({
                           label: `Start: ${p.startDateLabel}`,
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 text-slate-300 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
                     >
                       {p.startDate}
                     </td>
 
-                    {/* Col D: Completion Date */}
+                    {/* Col D: Trade Category */}
                     <td
                       onClick={() =>
                         setActiveCell({
                           cellCoord: `D${rowNum}`,
                           formula: `=D${rowNum}`,
-                          valueDisplay: p.completedDate,
-                          label: `Completed: ${p.dateLabel}`,
-                        })
-                      }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-200 cursor-pointer hover:bg-emerald-500/10 whitespace-nowrap"
-                    >
-                      {p.completedDate}
-                    </td>
-
-                    {/* Col E: Trade Category */}
-                    <td
-                      onClick={() =>
-                        setActiveCell({
-                          cellCoord: `E${rowNum}`,
-                          formula: `=E${rowNum}`,
                           valueDisplay: p.category,
                           label: "Corporate Trade Category",
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-200 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[175px]"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 text-slate-200 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[200px]"
                       title={p.category}
                     >
                       {p.category}
                     </td>
 
-                    {/* Col F: CSI Division */}
+                    {/* Col E: CSI Division */}
                     <td
                       onClick={() =>
                         setActiveCell({
-                          cellCoord: `F${rowNum}`,
-                          formula: `=F${rowNum}`,
+                          cellCoord: `E${rowNum}`,
+                          formula: `=E${rowNum}`,
                           valueDisplay: p.csiDivision,
                           label: "MasterFormat CSI Classification",
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-400 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[165px]"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 text-slate-400 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[185px]"
                       title={p.csiDivision}
                     >
                       {p.csiDivision}
                     </td>
 
-                    {/* Col G: Field Superintendent */}
+                    {/* Col F: Field Superintendent */}
                     <td
                       onClick={() =>
                         setActiveCell({
-                          cellCoord: `G${rowNum}`,
-                          formula: `=G${rowNum}`,
+                          cellCoord: `F${rowNum}`,
+                          formula: `=F${rowNum}`,
                           valueDisplay: p.fieldLead,
                           label: "Site Operations Superintendent",
                         })
                       }
-                      className="px-2 py-1.5 border-r border-slate-800/70 text-slate-300 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[135px]"
+                      className="px-2.5 py-1.5 border-r border-slate-800/70 text-slate-300 font-sans cursor-pointer hover:bg-emerald-500/10 truncate max-w-[155px]"
                       title={p.fieldLead}
                     >
                       {p.fieldLead}
                     </td>
 
-                    {/* Col H: Gross Billed USD */}
+                    {/* Col G: Gross Billed USD */}
                     <td
                       onClick={() =>
                         setActiveCell({
-                          cellCoord: `H${rowNum}`,
-                          formula: `=H${rowNum}`,
+                          cellCoord: `G${rowNum}`,
+                          formula: `=G${rowNum}`,
                           valueDisplay: formatUsd(p.incomeUsd),
                           label: `Reconciled Contract Amount · ${p.invoiceRef}`,
                         })
@@ -465,13 +446,13 @@ export default function MonthlyExcelWorkbookViewer({
                   Σ
                 </td>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-3 py-2 border-r border-emerald-700/60 text-emerald-100 tracking-wider uppercase text-xs"
                 >
                   TOTAL RECONCILED WORKBOOK · {activeTabConfig.monthName.toUpperCase()} ({filteredProjects.length} PROJECTS &amp; MINI-PROJECTS)
                 </td>
 
-                {/* Col H: Total Gross Billed */}
+                {/* Col G: Total Gross Billed */}
                 <td className="px-3 py-2 text-right text-base font-extrabold text-emerald-300 underline decoration-double decoration-emerald-400">
                   {formatUsd(totalGross)}
                 </td>
