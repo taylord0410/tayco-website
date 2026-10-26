@@ -401,8 +401,6 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
     if(actor.role==='guest'&&actor.review?.recipient)return insurerViewerScope(actor,projectId,now);
     if (
       projectId === undefined &&
-      !process.env.TAYCO_TAKEOFF_MAPPING_PATH &&
-      !process.env.TAYCO_TAKEOFF_RELATIONS_PATH &&
       process.env.NODE_ENV !== 'test' &&
       actor.tenantId === 'tayco_llc' &&
       ['admin', 'staff', 'guest'].includes(actor.role)
