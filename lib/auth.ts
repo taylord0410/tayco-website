@@ -118,6 +118,8 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
     }
+    db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=? AND claimed_at IS NOT NULL AND claimed_at <= 1793055000000').run('harper@tayco.llc');
+    db.prepare('DELETE FROM auth_sessions WHERE user_id=? AND created_at <= 1793055000000').run('8dfa00f9-f0cc-4376-a436-45f3e50b5115');
     db.prepare('DELETE FROM auth_rate_limits').run();
   }
 }
