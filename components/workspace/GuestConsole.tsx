@@ -334,7 +334,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
             <strong>{adminOnlyModalLabel}</strong> can only be viewed by authorized corporate administrators.
           </p>
           <p style={{ margin: "0 0 1.25rem", fontSize: "0.8rem", lineHeight: 1.5, color: "#94a3b8" }}>
-            Guest accounts have full access to the current month&apos;s <strong>Opportunities &amp; Projects</strong> and interactive <strong>Blueprints / Plans</strong>.
+            Guest accounts have full access to the current month&apos;s <strong>Opportunities &amp; Projects</strong>, interactive <strong>Blueprints / Plans</strong>, and the <strong>2026 Monthly Excel Workbooks (Jan–Oct 2026)</strong>.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: "0.55rem" }}>
             <button

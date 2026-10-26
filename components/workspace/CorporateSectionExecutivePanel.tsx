@@ -63,16 +63,16 @@ const CANONICAL_SECTION_MAP: Record<string, string> = {
 };
 
 export const CORPORATE_2026_MONTHLY_INCOME = [
-  { month: "January 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2601-001 – TPRJ-2601-016 (16)", states: "11 WI · 4 IL · 1 IN", income: "$425,000", amount: 425000, status: "Reconciled" },
-  { month: "February 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2602-017 – TPRJ-2602-036 (20)", states: "13 WI · 5 IL · 2 IA/IN", income: "$657,680", amount: 657680, status: "Reconciled" },
-  { month: "March 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2603-037 – TPRJ-2603-058 (22)", states: "14 WI · 5 IL · 3 IN/MO", income: "$719,789", amount: 719789, status: "Reconciled" },
-  { month: "April 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2604-059 – TPRJ-2604-079 (21)", states: "14 WI · 5 IL · 2 IA/IN", income: "$700,789", amount: 700789, status: "Reconciled" },
-  { month: "May 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2605-080 – TPRJ-2605-103 (24)", states: "16 WI · 6 IL · 2 IN/MO", income: "$825,679", amount: 825679, status: "Reconciled" },
-  { month: "June 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2606-104 – TPRJ-2606-129 (26)", states: "17 WI · 6 IL · 3 IN/IA", income: "$921,578", amount: 921578, status: "Reconciled" },
-  { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-130 – TPRJ-2607-154 (25)", states: "16 WI · 6 IL · 3 IN/MO", income: "$908,792", amount: 908792, status: "Reconciled" },
-  { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-155 – TPRJ-2608-180 (26)", states: "17 WI · 6 IL · 3 IN/IA", income: "$940,789", amount: 940789, status: "Reconciled" },
-  { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-181 – TPRJ-2609-206 (26)", states: "17 WI · 6 IL · 3 IA/MO", income: "$938,489", amount: 938489, status: "Reconciled" },
-  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-207 (1 Consolidated Record)", states: "1 Consolidated Package (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
+  { month: "January 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2601-001 – TPRJ-2601-058 (58)", states: "38 Prime Packages · 20 Mini-Projects", income: "$425,000", amount: 425000, status: "Reconciled" },
+  { month: "February 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2602-059 – TPRJ-2602-130 (72)", states: "48 Prime Packages · 24 Mini-Projects", income: "$657,680", amount: 657680, status: "Reconciled" },
+  { month: "March 2026", quarter: "Q1 2026", tprjRange: "TPRJ-2603-131 – TPRJ-2603-208 (78)", states: "52 Prime Packages · 26 Mini-Projects", income: "$719,789", amount: 719789, status: "Reconciled" },
+  { month: "April 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2604-209 – TPRJ-2604-284 (76)", states: "51 Prime Packages · 25 Mini-Projects", income: "$700,789", amount: 700789, status: "Reconciled" },
+  { month: "May 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2605-285 – TPRJ-2605-370 (86)", states: "57 Prime Packages · 29 Mini-Projects", income: "$825,679", amount: 825679, status: "Reconciled" },
+  { month: "June 2026", quarter: "Q2 2026", tprjRange: "TPRJ-2606-371 – TPRJ-2606-464 (94)", states: "63 Prime Packages · 31 Mini-Projects", income: "$921,578", amount: 921578, status: "Reconciled" },
+  { month: "July 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2607-465 – TPRJ-2607-556 (92)", states: "61 Prime Packages · 31 Mini-Projects", income: "$908,792", amount: 908792, status: "Reconciled" },
+  { month: "August 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2608-557 – TPRJ-2608-654 (98)", states: "65 Prime Packages · 33 Mini-Projects", income: "$940,789", amount: 940789, status: "Reconciled" },
+  { month: "September 2026", quarter: "Q3 2026", tprjRange: "TPRJ-2609-655 – TPRJ-2609-750 (96)", states: "64 Prime Packages · 32 Mini-Projects", income: "$938,489", amount: 938489, status: "Reconciled" },
+  { month: "October 2026 (Oct 01–07)", quarter: "Q4 2026", tprjRange: "TPRJ-2610-751 – TPRJ-2610-756 (6)", states: "6 Completed Mini-Projects (Pre-Oct 8)", income: "$21,789", amount: 21789, status: "Reconciled (Oct 01–07)" },
 ] as const;
 
 export const CORPORATE_2026_TOTAL_YTD_INCOME = "$7,060,374";
@@ -110,16 +110,16 @@ export default function CorporateSectionExecutivePanel({
               <h3>Projects — Commercial, Institutional &amp; Civil Portfolio</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              25 Portfolio Projects · 47 Plan Sets
+              756 YTD Projects &amp; Mini-Projects · 47 Plan Sets
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">Active Portfolio</span>
-              <strong className="dcc-kpi-value">25 Projects</strong>
+              <span className="dcc-kpi-label">YTD Projects &amp; Mini-Projects</span>
+              <strong className="dcc-kpi-value">756 Projects</strong>
               <span className="dcc-kpi-note">
-                18 active execution · 7 pre-construction
+                505 prime packages · 251 mini-projects
               </span>
             </div>
             <div className="dcc-kpi">
@@ -381,28 +381,28 @@ export default function CorporateSectionExecutivePanel({
               <span className="dcc-kpi-label">October 2026 (Oct 01–07)</span>
               <strong className="dcc-kpi-value">$21,789</strong>
               <span className="dcc-kpi-note">
-                1 consolidated TPRJ record prior to Oct 8
+                6 completed mini-projects prior to Oct 8
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Q3 2026 (Jul–Sep)</span>
               <strong className="dcc-kpi-value">$2,788,070</strong>
               <span className="dcc-kpi-note">
-                Q3 completed corporate income
+                286 projects &amp; mini-projects reconciled
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Q2 2026 (Apr–Jun)</span>
               <strong className="dcc-kpi-value">$2,448,046</strong>
               <span className="dcc-kpi-note">
-                Q2 completed corporate income
+                256 projects &amp; mini-projects reconciled
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD 2026 (Jan–Oct)</span>
               <strong className="dcc-kpi-value">$7,060,374</strong>
               <span className="dcc-kpi-note">
-                10-month verified income
+                756 projects &amp; mini-projects verified
               </span>
             </div>
           </div>
@@ -413,8 +413,8 @@ export default function CorporateSectionExecutivePanel({
                 <tr>
                   <th>Month</th>
                   <th>Quarter</th>
-                  <th>TPRJ Micro-Projects Series</th>
-                  <th>Jurisdictions (WI Majority)</th>
+                  <th>TPRJ Projects &amp; Mini-Projects Series</th>
+                  <th>Composition</th>
                   <th>Corporate Monthly Income</th>
                   <th>Status</th>
                 </tr>
@@ -496,7 +496,7 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Project Field Teams</span>
-              <strong className="dcc-kpi-value">20 Assignments</strong>
+              <strong className="dcc-kpi-value">84 Assignments</strong>
               <span className="dcc-kpi-note">
                 Superintendents, estimators &amp; compliance leads
               </span>
@@ -528,16 +528,16 @@ export default function CorporateSectionExecutivePanel({
               <h3>Payroll — Field Labor, Trades &amp; Prevailing Wage Logs</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              758.0 Verified Hours · Oct 2026
+              48,420+ YTD Verified Hours · 756 Projects
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
             <div className="dcc-kpi">
-              <span className="dcc-kpi-label">October 2026 Field Hours</span>
-              <strong className="dcc-kpi-value">758.0 hrs</strong>
+              <span className="dcc-kpi-label">YTD 2026 Field Hours</span>
+              <strong className="dcc-kpi-value">48,420 hrs</strong>
               <span className="dcc-kpi-note">
-                Approved by site superintendents
+                Approved across 756 projects &amp; mini-projects
               </span>
             </div>
             <div className="dcc-kpi">
@@ -549,16 +549,16 @@ export default function CorporateSectionExecutivePanel({
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Active Field Trades</span>
-              <strong className="dcc-kpi-value">8 Divisions</strong>
+              <strong className="dcc-kpi-value">12 Divisions</strong>
               <span className="dcc-kpi-note">
                 Civil, concrete, framing, MEP &amp; interior finishes
               </span>
             </div>
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Certified Payroll Logs</span>
-              <strong className="dcc-kpi-value">12 Active</strong>
+              <strong className="dcc-kpi-value">96 Active</strong>
               <span className="dcc-kpi-note">
-                Reconciled against October field schedules
+                Reconciled against 2026 field schedules
               </span>
             </div>
           </div>

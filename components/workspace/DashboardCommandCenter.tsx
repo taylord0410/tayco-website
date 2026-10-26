@@ -42,16 +42,16 @@ const DEFAULT_2026_MONTHLY_SERIES: readonly {
   issuedCents: number;
   opps: number;
 }[] = [
-  { key: "2026-01", issuedCents: 42500000, opps: 16 },
-  { key: "2026-02", issuedCents: 65768000, opps: 20 },
-  { key: "2026-03", issuedCents: 71978900, opps: 22 },
-  { key: "2026-04", issuedCents: 70078900, opps: 21 },
-  { key: "2026-05", issuedCents: 82567900, opps: 24 },
-  { key: "2026-06", issuedCents: 92157800, opps: 26 },
-  { key: "2026-07", issuedCents: 90879200, opps: 25 },
-  { key: "2026-08", issuedCents: 94078900, opps: 26 },
-  { key: "2026-09", issuedCents: 93848900, opps: 26 },
-  { key: "2026-10", issuedCents: 2178900, opps: 1 },
+  { key: "2026-01", issuedCents: 42500000, opps: 58 },
+  { key: "2026-02", issuedCents: 65768000, opps: 72 },
+  { key: "2026-03", issuedCents: 71978900, opps: 78 },
+  { key: "2026-04", issuedCents: 70078900, opps: 76 },
+  { key: "2026-05", issuedCents: 82567900, opps: 86 },
+  { key: "2026-06", issuedCents: 92157800, opps: 94 },
+  { key: "2026-07", issuedCents: 90879200, opps: 92 },
+  { key: "2026-08", issuedCents: 94078900, opps: 98 },
+  { key: "2026-09", issuedCents: 93848900, opps: 96 },
+  { key: "2026-10", issuedCents: 2178900, opps: 6 },
   { key: "2026-11", issuedCents: 0, opps: 0 },
   { key: "2026-12", issuedCents: 0, opps: 0 },
 ];
@@ -230,7 +230,7 @@ export default function DashboardCommandCenter({
               <strong>{adminOnlyModalTitle}</strong> is restricted exclusively to authorized corporate administrators.
             </p>
             <p style={{ margin: "0 0 1.25rem", fontSize: "0.8rem", lineHeight: 1.5, color: "#94a3b8" }}>
-              Guest review accounts have full access to current <strong>October 2026 Opportunities &amp; Projects</strong> and interactive <strong>Blueprints / Plans</strong>.
+              Guest review accounts have full access to current <strong>October 2026 Opportunities &amp; Projects</strong>, interactive <strong>Blueprints / Plans</strong>, and the <strong>2026 Monthly Excel Workbooks (Jan–Oct 2026)</strong>.
             </p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
               <button
@@ -322,6 +322,16 @@ export default function DashboardCommandCenter({
                   ✕ Close Excel ({monthName(excelWorkbookMonth, true)})
                 </button>
               )}
+              <button
+                type="button"
+                className="dcc-open-month-btn"
+                onClick={() => {
+                  const target = selectedMonth <= "2026-10" ? selectedMonth : "2026-09";
+                  setExcelWorkbookMonth(target);
+                }}
+              >
+                Open Excel ({monthName(selectedMonth <= "2026-10" ? selectedMonth : "2026-09", true)}) →
+              </button>
               {!isGuest && (
                 <button
                   type="button"
@@ -426,220 +436,197 @@ export default function DashboardCommandCenter({
         {/* Card 2 (Directly Below the Chart, Full Width): New Opportunities Since October 2026 Header + Opportunities & Large Projects Table */}
         <VerifiedOpportunitiesTable defaultLimit={48} isGuest={isGuest} />
 
-        {/* Card 3 (Directly Below the Projects Table, Full Width — Administrator Only): 2026 Monthly Income Ledger (Jan–Oct) with October Details in its corresponding row */}
-        {!isGuest ? (
-          <section
-            className="dcc-card dcc-income-ledger-wide-card"
-            data-testid="corporate-income-ledger-panel"
-          >
-            <header className="dcc-right-menu-head">
-              <div>
-                <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
-                <h3>Monthly Income Ledger</h3>
-              </div>
-              <span className="dcc-badge" data-tone="emerald">
-                207 TPRJ
-              </span>
-            </header>
-            <div className="dcc-right-menu-list">
-              {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
-                const isSelected = m.key === selectedMonth;
-                const isOctRow = m.key === "2026-10";
-                const rowMicroProjects = getMicroProjectsByPeriod(m.key);
-                return (
-                  <div
-                    key={m.key}
-                    data-testid={isOctRow ? "october-right-row-detail" : undefined}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      borderRadius: "10px",
-                      border: isSelected
-                        ? "1px solid rgba(212, 175, 55, 0.45)"
-                        : "1px solid rgba(148, 163, 184, 0.14)",
-                      background: isSelected ? "rgba(212, 175, 55, 0.07)" : "rgba(15, 32, 56, 0.45)",
-                    }}
-                  >
-                    <button
-                      type="button"
-                      className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
-                      style={{ border: "none", background: "transparent" }}
-                      onClick={() => setSelectedMonth(m.key)}
-                    >
-                      <span className="dcc-right-menu-text">
-                        <strong>{monthName(m.key, true)} 2026</strong>
-                        <small>
-                          {isOctRow
-                            ? "1 consolidated record (TPRJ-2610-207)"
-                            : `${m.opps} TPRJ micro-projects`}
-                        </small>
-                      </span>
-                      <span style={{ fontWeight: 700, fontSize: "0.9rem", color: isSelected ? "#f59e0b" : "inherit" }}>
-                        {money(m.issuedCents)}
-                      </span>
-                    </button>
-
-                    {/* October Detail (or Selected Month Detail for Admin) stays exclusively in its corresponding row */}
-                    {isSelected && (
-                      <div
-                        style={{
-                          padding: "0.65rem 0.9rem 0.8rem",
-                          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                          fontSize: "0.78rem",
-                          color: "#cbd5e1",
-                        }}
-                      >
-                        {isOctRow ? (
-                          <div>
-                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                              <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                                October 2026 Consolidated Record
-                              </strong>
-                              <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                                ● Reconciled
-                              </span>
-                            </div>
-                            <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                              TPRJ-2610-207 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Consolidated turnkey package total: <strong style={{ color: "#f8fafc" }}>{usd(21789)}</strong>
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => openMonthDetail("2026-10")}
-                              style={{
-                                marginTop: "0.2rem",
-                                padding: "0.28rem 0.65rem",
-                                fontSize: "0.72rem",
-                                fontWeight: 700,
-                                borderRadius: "6px",
-                                border: "1px solid rgba(212, 175, 55, 0.4)",
-                                background: "rgba(15, 31, 56, 0.85)",
-                                color: "#f3d37a",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Open October Ledger →
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                              <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                                {monthName(m.key)} Breakdown
-                              </strong>
-                              <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                                {rowMicroProjects.length} records
-                              </span>
-                            </div>
-                            <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                              {rowMicroProjects[0]?.id} – {rowMicroProjects[rowMicroProjects.length - 1]?.id} · Total: <strong style={{ color: "#f8fafc" }}>{money(m.issuedCents)}</strong>
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => openMonthDetail(m.key)}
-                              style={{
-                                marginTop: "0.2rem",
-                                padding: "0.28rem 0.65rem",
-                                fontSize: "0.72rem",
-                                fontWeight: 700,
-                                borderRadius: "6px",
-                                border: "1px solid rgba(212, 175, 55, 0.4)",
-                                background: "rgba(15, 31, 56, 0.85)",
-                                color: "#f3d37a",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Open {monthName(m.key, true)} Ledger →
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.85rem 1rem",
-                  marginTop: "0.35rem",
-                  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-                  background: "rgba(255, 255, 255, 0.03)",
-                  borderRadius: "8px",
-                }}
-              >
-                <div>
-                  <strong style={{ fontSize: "0.9rem", display: "block" }}>YTD Total Income</strong>
-                  <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.76rem" }}>207 TPRJ records · Jan–Oct</small>
-                </div>
-                <strong style={{ fontSize: "1.08rem", color: "#10b981" }}>
-                  {money(ytdCents)}
-                </strong>
-              </div>
+        {/* Card 3 (Directly Below the Projects Table, Full Width): 2026 Monthly Income Ledger & Excel Workbooks (Jan–Oct) */}
+        <section
+          className="dcc-card dcc-income-ledger-wide-card"
+          data-testid="corporate-income-ledger-panel"
+        >
+          <header className="dcc-right-menu-head">
+            <div>
+              <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
+              <h3>Monthly Income Ledger &amp; Excel Workbooks</h3>
             </div>
-          </section>
-        ) : (
-          <section
-            className="dcc-card dcc-income-ledger-wide-card"
-            data-testid="corporate-income-ledger-locked-guest"
-            onClick={() => setAdminOnlyModalTitle("Monthly Income Ledger (Jan–Oct 2026)")}
-            style={{ cursor: "pointer" }}
-          >
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-                <span
+            <span className="dcc-badge" data-tone="emerald">
+              756 Projects &amp; Mini-Projects
+            </span>
+          </header>
+          <div className="dcc-right-menu-list">
+            {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
+              const isSelected = m.key === selectedMonth;
+              const isOctRow = m.key === "2026-10";
+              const rowMicroProjects = getMicroProjectsByPeriod(m.key);
+              return (
+                <div
+                  key={m.key}
+                  data-testid={isOctRow ? "october-right-row-detail" : undefined}
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    display: "flex",
+                    flexDirection: "column",
                     borderRadius: "10px",
-                    background: "rgba(212, 175, 55, 0.15)",
-                    border: "1px solid rgba(212, 175, 55, 0.42)",
-                    color: "#f3d37a",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
+                    border: isSelected
+                      ? "1px solid rgba(212, 175, 55, 0.45)"
+                      : "1px solid rgba(148, 163, 184, 0.14)",
+                    background: isSelected ? "rgba(212, 175, 55, 0.07)" : "rgba(15, 32, 56, 0.45)",
                   }}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </span>
-                <div>
-                  <p className="dcc-eyebrow" style={{ margin: 0 }}>RESTRICTED CORPORATE LEDGER · 2026</p>
-                  <h3 style={{ margin: "0.15rem 0 0", fontSize: "1rem" }}>Monthly Income Ledger &amp; Monthly Records (Jan–Oct 2026)</h3>
-                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#94a3b8" }}>
-                    Detailed monthly financial records and consolidated package ledgers are restricted to corporate administrators.
-                  </p>
+                  <button
+                    type="button"
+                    className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
+                    style={{ border: "none", background: "transparent" }}
+                    onClick={() => selectMonthPill(m.key)}
+                  >
+                    <span className="dcc-right-menu-text">
+                      <strong>{monthName(m.key, true)} 2026</strong>
+                      <small>
+                        {isOctRow
+                          ? "6 mini-projects (TPRJ-2610-751 – TPRJ-2610-756)"
+                          : `${m.opps} projects & mini-projects`}
+                      </small>
+                    </span>
+                    <span style={{ fontWeight: 700, fontSize: "0.9rem", color: isSelected ? "#f59e0b" : "inherit" }}>
+                      {money(m.issuedCents)}
+                    </span>
+                  </button>
+
+                  {isSelected && (
+                    <div
+                      style={{
+                        padding: "0.65rem 0.9rem 0.8rem",
+                        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                        fontSize: "0.78rem",
+                        color: "#cbd5e1",
+                      }}
+                    >
+                      {isOctRow ? (
+                        <div>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
+                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
+                              October 2026 Completed Mini-Projects
+                            </strong>
+                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
+                              ● 6 Reconciled
+                            </span>
+                          </div>
+                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
+                            TPRJ-2610-751 – TPRJ-2610-756 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Total: <strong style={{ color: "#f8fafc" }}>{usd(21789)}</strong>
+                          </p>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.2rem" }}>
+                            <button
+                              type="button"
+                              onClick={() => setExcelWorkbookMonth("2026-10")}
+                              style={{
+                                padding: "0.28rem 0.65rem",
+                                fontSize: "0.72rem",
+                                fontWeight: 700,
+                                borderRadius: "6px",
+                                border: "1px solid rgba(16, 185, 129, 0.45)",
+                                background: "rgba(16, 185, 129, 0.14)",
+                                color: "#6ee7b7",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Open Oct Excel Workbook →
+                            </button>
+                            {!isGuest && (
+                              <button
+                                type="button"
+                                onClick={() => openMonthDetail("2026-10")}
+                                style={{
+                                  padding: "0.28rem 0.65rem",
+                                  fontSize: "0.72rem",
+                                  fontWeight: 700,
+                                  borderRadius: "6px",
+                                  border: "1px solid rgba(212, 175, 55, 0.4)",
+                                  background: "rgba(15, 31, 56, 0.85)",
+                                  color: "#f3d37a",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Open October Ledger →
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
+                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
+                              {monthName(m.key)} Breakdown
+                            </strong>
+                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
+                              {rowMicroProjects.length} projects &amp; mini-projects
+                            </span>
+                          </div>
+                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
+                            {rowMicroProjects[0]?.id} – {rowMicroProjects[rowMicroProjects.length - 1]?.id} · Total: <strong style={{ color: "#f8fafc" }}>{money(m.issuedCents)}</strong>
+                          </p>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.2rem" }}>
+                            <button
+                              type="button"
+                              onClick={() => setExcelWorkbookMonth(m.key)}
+                              style={{
+                                padding: "0.28rem 0.65rem",
+                                fontSize: "0.72rem",
+                                fontWeight: 700,
+                                borderRadius: "6px",
+                                border: "1px solid rgba(16, 185, 129, 0.45)",
+                                background: "rgba(16, 185, 129, 0.14)",
+                                color: "#6ee7b7",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Open {monthName(m.key, true)} Excel Workbook →
+                            </button>
+                            {!isGuest && (
+                              <button
+                                type="button"
+                                onClick={() => openMonthDetail(m.key)}
+                                style={{
+                                  padding: "0.28rem 0.65rem",
+                                  fontSize: "0.72rem",
+                                  fontWeight: 700,
+                                  borderRadius: "6px",
+                                  border: "1px solid rgba(212, 175, 55, 0.4)",
+                                  background: "rgba(15, 31, 56, 0.85)",
+                                  color: "#f3d37a",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Open {monthName(m.key, true)} Ledger →
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+              );
+            })}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.85rem 1rem",
+                marginTop: "0.35rem",
+                borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "rgba(255, 255, 255, 0.03)",
+                borderRadius: "8px",
+              }}
+            >
+              <div>
+                <strong style={{ fontSize: "0.9rem", display: "block" }}>YTD Total Income</strong>
+                <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.76rem" }}>756 Projects &amp; Mini-Projects · Jan–Oct</small>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setAdminOnlyModalTitle("Monthly Income Ledger (Jan–Oct 2026)");
-                }}
-                style={{
-                  padding: "0.48rem 0.95rem",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(212, 175, 55, 0.45)",
-                  background: "rgba(15, 31, 56, 0.9)",
-                  color: "#f3d37a",
-                  fontWeight: 700,
-                  fontSize: "0.78rem",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                🔒 Administrator Only
-              </button>
+              <strong style={{ fontSize: "1.08rem", color: "#10b981" }}>
+                {money(ytdCents)}
+              </strong>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* Card 4 (Admin Only): 8 Active Certifications & Programs */}
         {!isGuest && (

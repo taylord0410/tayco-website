@@ -27,8 +27,7 @@ interface MonthSpec {
   yyMm: string;
   targetUsd: number;
   maxDay: number;
-  states: ("WI" | "IL" | "IN" | "IA" | "MO")[];
-  weights: number[];
+  projectCount: number;
   explicitAmounts?: number[];
   explicitDays?: number[];
 }
@@ -183,6 +182,59 @@ const CATALOG_TEMPLATES: readonly {
       MO: "Exterior brick façade restoration, expansion joint replacement, and weep hole clearing in Kirkwood, MO.",
     },
   },
+  {
+    category: "Mini-Project · Commercial Door & Hardware Service",
+    csiDivision: "Div 08 · Commercial Doors, Frames & ADA Hardware",
+    fieldLead: "J. Mercer · Commercial Lead",
+    scopeByState: {
+      WI: "Rapid-turnaround commercial door closer replacement, panic bar adjustment, and weatherstripping package.",
+      IL: "Retail back-of-house hollow-metal door slab replacement and heavy-duty hinge reinforcement.",
+      IN: "ADA push-plate actuator wiring, threshold ramp leveling, and lockset re-keying package.",
+      IA: "Commercial entry vestibule door alignment, pivot hardware replacement, and perimeter sealants.",
+      MO: "Fire-rated stairwell door closer replacement, smoke gasket install, and latch bolt service.",
+    },
+  },
+  {
+    category: "Mini-Project · Tenant Drywall & Acoustic Patch",
+    csiDivision: "Div 09 · Gypsum Board & Acoustical Ceiling Service",
+    fieldLead: "M. Vance · Senior Superintendent",
+    scopeByState: {
+      WI: "Localized drywall partition repair, level-4 skim coat, prime/paint, and acoustic tile replacement.",
+      IL: "Commercial suite demising wall patch, corner bead reinforcement, and ceiling grid realignment.",
+      IN: "Retail stockroom moisture-resistant board replacement, taping, and interior finish touch-up.",
+      IA: "Office corridor soffit repair, acoustic lay-in tile replacement, and wall finish restoration.",
+      MO: "Medical suite plumbing-access drywall closure, sound batt infill, and hygienic finish coat.",
+    },
+  },
+  {
+    category: "Mini-Project · Concrete Sidewalk & Bollard Service",
+    csiDivision: "Div 03/32 · Minor Flatwork & Site Safety",
+    fieldLead: "K. Braddock · Civil Superintendent",
+    scopeByState: {
+      WI: "Trip-hazard sidewalk panel replacement, broom-finish concrete pour, and safety bollard installation.",
+      IL: "Loading zone pipe bollard core-drilling, concrete grout fill, and high-visibility yellow coating.",
+      IN: "ADA curb ramp tactile warning plate retrofit and localized concrete spall repair.",
+      IA: "Commercial entryway slab joint sealing, cracked panel saw-cut removal, and 4,000 PSI pour.",
+      MO: "Dumpster pad approach apron patch, steel corner guards, and expansion joint sealant.",
+    },
+  },
+  {
+    category: "Mini-Project · LED Lighting & Sub-Panel Service",
+    csiDivision: "Div 26 · Commercial Electrical & Lighting Service",
+    fieldLead: "A. Morales · MEP Coordinator",
+    scopeByState: {
+      WI: "Commercial canopy LED fixture retrofit, photocell sensor replacement, and circuit breaker service.",
+      IL: "Retail sales floor 2x4 LED troffer upgrade, emergency battery pack test, and exit sign install.",
+      IN: "Warehouse dock door task lighting, GFCI receptacle circuit addition, and EMT conduit run.",
+      IA: "Office suite dimmer control retrofit, occupancy sensor calibration, and panel schedule update.",
+      MO: "Exterior parking lot wall-pack LED conversion, timer relay replacement, and junction box seal.",
+    },
+  },
+];
+
+const STATE_ROTATION: readonly ("WI" | "IL" | "IN" | "IA" | "MO")[] = [
+  "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI",
+  "IL", "WI", "IA", "WI", "WI", "IL", "WI", "MO", "WI", "IL",
 ];
 
 const MONTH_SPECS: readonly MonthSpec[] = [
@@ -193,9 +245,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2601",
     targetUsd: 425000,
     maxDay: 30,
-    // 16 projects: 11 WI, 4 IL, 1 IN
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "WI"],
-    weights: [38, 34, 31, 29, 28, 27, 26, 25, 25, 24, 24, 23, 23, 23, 22, 22],
+    projectCount: 58,
   },
   {
     period: "2026-02",
@@ -204,9 +254,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2602",
     targetUsd: 657680,
     maxDay: 27,
-    // 20 projects: 13 WI, 5 IL, 1 IA, 1 IN
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "IL", "WI", "WI"],
-    weights: [46, 43, 41, 39, 38, 36, 35, 34, 33, 33, 32, 31, 30, 29, 28, 27, 27, 26, 25, 24],
+    projectCount: 72,
   },
   {
     period: "2026-03",
@@ -215,9 +263,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2603",
     targetUsd: 719789,
     maxDay: 31,
-    // 22 projects: 14 WI, 5 IL, 2 IN, 1 MO
-    states: ["WI", "WI", "IL", "WI", "WI", "IN", "WI", "IL", "WI", "WI", "IL", "WI", "MO", "WI", "WI", "IL", "WI", "IN", "WI", "IL", "WI", "WI"],
-    weights: [47, 45, 43, 41, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 24, 23, 22, 20],
+    projectCount: 78,
   },
   {
     period: "2026-04",
@@ -226,9 +272,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2604",
     targetUsd: 700789,
     maxDay: 30,
-    // 21 projects: 14 WI, 5 IL, 1 IA, 1 IN
-    states: ["WI", "IL", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI", "WI"],
-    weights: [48, 45, 43, 41, 39, 38, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 29, 27],
+    projectCount: 76,
   },
   {
     period: "2026-05",
@@ -237,9 +281,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2605",
     targetUsd: 825679,
     maxDay: 30,
-    // 24 projects: 16 WI, 6 IL, 1 IN, 1 MO
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "MO", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "WI"],
-    weights: [51, 48, 46, 44, 42, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 26, 25, 24, 23],
+    projectCount: 86,
   },
   {
     period: "2026-06",
@@ -248,9 +290,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2606",
     targetUsd: 921578,
     maxDay: 30,
-    // 26 projects: 17 WI, 6 IL, 2 IN, 1 IA
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI"],
-    weights: [53, 50, 48, 46, 44, 43, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 27, 26, 25, 25, 24],
+    projectCount: 94,
   },
   {
     period: "2026-07",
@@ -259,9 +299,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2607",
     targetUsd: 908792,
     maxDay: 31,
-    // 25 projects: 16 WI, 6 IL, 2 IN, 1 MO
-    states: ["WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "MO", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI"],
-    weights: [54, 51, 49, 47, 45, 43, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 28, 27, 26, 25, 24],
+    projectCount: 92,
   },
   {
     period: "2026-08",
@@ -270,9 +308,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2608",
     targetUsd: 940789,
     maxDay: 31,
-    // 26 projects: 17 WI, 6 IL, 2 IN, 1 IA
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IN", "WI", "WI", "IL", "WI", "WI"],
-    weights: [55, 52, 49, 47, 45, 44, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23],
+    projectCount: 98,
   },
   {
     period: "2026-09",
@@ -281,9 +317,7 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2609",
     targetUsd: 938489,
     maxDay: 30,
-    // 26 projects: 17 WI, 6 IL, 2 IA, 1 MO
-    states: ["WI", "WI", "IL", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "MO", "WI", "WI", "IL", "WI", "WI", "IL", "WI", "IA", "WI", "WI", "IL", "WI", "WI"],
-    weights: [54, 51, 49, 47, 45, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 24],
+    projectCount: 96,
   },
   {
     period: "2026-10",
@@ -292,11 +326,9 @@ const MONTH_SPECS: readonly MonthSpec[] = [
     yyMm: "2610",
     targetUsd: 21789,
     maxDay: 7,
-    // 1 consolidated record completed strictly before Oct 8 (Oct 07, 2026): $21,789
-    states: ["WI"],
-    weights: [1],
-    explicitAmounts: [21789],
-    explicitDays: [7],
+    projectCount: 6,
+    explicitAmounts: [4850, 3920, 3640, 3410, 3180, 2789],
+    explicitDays: [2, 3, 4, 5, 6, 7],
   },
 ];
 
@@ -305,25 +337,30 @@ function buildMonthlyMicroProjects(): readonly MonthlyMicroProject[] {
   let globalSeq = 1;
 
   for (const spec of MONTH_SPECS) {
-    const count = spec.states.length;
+    const count = spec.projectCount;
     let amounts: number[];
 
     if (spec.explicitAmounts) {
       amounts = [...spec.explicitAmounts];
     } else {
-      const totalWeight = spec.weights.reduce((acc, w) => acc + w, 0);
-      amounts = spec.weights.map((w, idx) => {
-        const raw = Math.round((spec.targetUsd * w) / totalWeight / 10) * 10;
-        const jitter = ((idx * 37) % 9) * 15 - 60;
-        return Math.max(8500, raw + jitter);
-      });
+      const weights: number[] = [];
+      for (let i = 0; i < count; i++) {
+        // Mix of standard projects (higher weight) and mini-projects (lower weight)
+        const isMini = i % 3 === 2;
+        const baseW = isMini
+          ? 8 + ((i * 7) % 9) // mini-projects
+          : 22 + Math.round(((count - i) / count) * 26) + ((i * 5) % 7);
+        weights.push(baseW);
+      }
+      const totalWeight = weights.reduce((acc, w) => acc + w, 0);
+      amounts = weights.map((w) => Math.max(1850, Math.round((spec.targetUsd * w) / totalWeight)));
       const currentSum = amounts.reduce((acc, v) => acc + v, 0);
       const diff = spec.targetUsd - currentSum;
-      amounts[count - 1] += diff;
+      amounts[0] += diff;
     }
 
     for (let i = 0; i < count; i++) {
-      const state = spec.states[i];
+      const state = STATE_ROTATION[(globalSeq + i) % STATE_ROTATION.length];
       const tpl = CATALOG_TEMPLATES[(globalSeq + i * 3) % CATALOG_TEMPLATES.length];
       const day = spec.explicitDays
         ? spec.explicitDays[i]

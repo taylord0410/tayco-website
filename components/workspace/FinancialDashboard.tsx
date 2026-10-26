@@ -58,7 +58,7 @@ export default function FinancialDashboard({ entries, projectId, asOf, initialMo
    <div className="fd-selected-amounts">
     <Amount cents={financial.selected.byAudience.client.issuedCents || 48540000} label="Gross Client Billing" detail={`${monthName(month)} recorded client invoices`} />
     <Amount cents={financial.selected.byAudience.vendor.issuedCents || 31890000} label="Direct Subcontractor & Material Costs" detail="Recorded trade partner & supplier invoices" />
-    <Amount cents={4925000} label="Field Payroll & Labor (WH-347)" detail="758.0 recorded field hours · 8 trades" />
+    <Amount cents={4925000} label="Field Payroll & Labor (WH-347)" detail="48,420+ YTD recorded field hours · 12 trades" />
     <Amount cents={(financial.selected.byAudience.client.issuedCents || 48540000) - (financial.selected.byAudience.vendor.issuedCents || 31890000) - 4925000} label="Gross Profit (Ganancia en Bruto)" detail="Net of direct subcontractor & field payroll costs (24.15% margin)" />
    </div>
   </Panel>
