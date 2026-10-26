@@ -2,8 +2,10 @@
 import { useState } from "react";
 import type { Entry } from "@/lib/erp";
 import type { GuestConsoleData } from "@/lib/guest-workspace";
-import { CORPORATE_CERTIFICATIONS_STATUS } from "@/lib/verified-bidding-opportunities";
-import { getMicroProjectsByPeriod } from "@/lib/monthly-microprojects-2026";
+import {
+  CORPORATE_CERTIFICATIONS_STATUS,
+  VERIFIED_OCTOBER_2026_OPPORTUNITIES,
+} from "@/lib/verified-bidding-opportunities";
 import { VerifiedOpportunitiesTable } from "./VerifiedOpportunitiesTable";
 import MonthlyExcelWorkbookViewer from "./MonthlyExcelWorkbookViewer";
 
@@ -136,6 +138,44 @@ export default function DashboardCommandCenter({
   const ytdCents = monthSeries
     .filter((m) => m.key <= currentMonthKey)
     .reduce((sum, m) => sum + m.issuedCents, 0);
+
+  const parseOpportunityUsd = (item: {
+    estimatedPrice?: string;
+    estimatedValueUsd?: number;
+  }): number => {
+    if (
+      typeof item.estimatedValueUsd === "number" &&
+      Number.isFinite(item.estimatedValueUsd)
+    ) {
+      return item.estimatedValueUsd;
+    }
+    const parsed = Number(
+      String(item.estimatedPrice ?? "").replace(/[^0-9.-]+/g, "")
+    );
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const octoberCancelledProjects = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.status === "Overdue"
+  );
+  const octoberCancelledLossUsd = octoberCancelledProjects.reduce(
+    (sum, item) => sum + (item.estimatedValueUsd ?? parseOpportunityUsd(item)),
+    0
+  );
+  const octoberPendingProjects = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.status === "Pending company information"
+  );
+  const octoberPendingTotalUsd = octoberPendingProjects.reduce(
+    (sum, item) => sum + (item.estimatedValueUsd ?? parseOpportunityUsd(item)),
+    0
+  );
+  const octoberSeriesEntry =
+    monthSeries.find((r) => r.key === "2026-10") ??
+    monthSeries[monthSeries.length - 1];
+  const octoberLedgerRow = {
+    ...octoberSeriesEntry,
+    grossIncomeUsd: Math.round(octoberSeriesEntry.issuedCents / 100),
+  };
 
   const triggerNavigate = (view: string, projId?: string, month?: string) => {
     if (isGuest) {
@@ -436,194 +476,300 @@ export default function DashboardCommandCenter({
         {/* Card 2 (Directly Below the Chart, Full Width): New Opportunities Since October 2026 Header + Opportunities & Large Projects Table */}
         <VerifiedOpportunitiesTable defaultLimit={48} isGuest={isGuest} />
 
-        {/* Card 3 (Directly Below the Projects Table, Full Width): 2026 Monthly Income Ledger & Excel Workbooks (Jan–Oct) */}
+        {/* Card 3 (Directly Below the Projects Table, Full Width): October 2026 Current Month Income & Cancelled Projects Loss Summary */}
         <section
           className="dcc-card dcc-income-ledger-wide-card"
           data-testid="corporate-income-ledger-panel"
         >
           <header className="dcc-right-menu-head">
             <div>
-              <p className="dcc-eyebrow">CORPORATE RECORD · 2026</p>
-              <h3>Monthly Income Ledger &amp; Excel Workbooks</h3>
+              <p className="dcc-eyebrow">
+                CORPORATE RECORD · CURRENT MONTH (OCTOBER 2026)
+              </p>
+              <h4
+                style={{
+                  margin: "0.15rem 0 0",
+                  fontSize: "1.06rem",
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                }}
+              >
+                October 2026 — Current Month Income &amp; Cancelled Projects Loss Summary
+              </h4>
             </div>
-            <span className="dcc-badge" data-tone="emerald">
-              756 Projects &amp; Mini-Projects
+            <span className="dcc-badge" data-tone="amber">
+              Current Month · October 2026
             </span>
           </header>
+
           <div className="dcc-right-menu-list">
-            {DEFAULT_2026_MONTHLY_SERIES.filter((m) => m.issuedCents > 0).map((m) => {
-              const isSelected = m.key === selectedMonth;
-              const isOctRow = m.key === "2026-10";
-              const rowMicroProjects = getMicroProjectsByPeriod(m.key);
-              return (
+            <div
+              data-testid="october-right-row-detail"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem",
+                padding: "1rem 1.1rem",
+                borderRadius: "12px",
+                border: "1px solid rgba(212, 175, 55, 0.42)",
+                background:
+                  "linear-gradient(180deg, rgba(15, 32, 56, 0.78) 0%, rgba(10, 22, 40, 0.9) 100%)",
+              }}
+            >
+              {/* Top row / banner for Current Month (October 2026 · Current Month) */}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  paddingBottom: "0.75rem",
+                  borderBottom: "1px solid rgba(148, 163, 184, 0.16)",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      gap: "0.55rem",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "0.18rem 0.55rem",
+                        borderRadius: "999px",
+                        fontSize: "0.68rem",
+                        fontWeight: 800,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        background: "rgba(245, 158, 11, 0.16)",
+                        border: "1px solid rgba(245, 158, 11, 0.45)",
+                        color: "#fcd34d",
+                      }}
+                    >
+                      CURRENT MONTH · OCT 2026
+                    </span>
+                    <strong style={{ fontSize: "0.96rem", color: "#f8fafc" }}>
+                      October 2026 (Through Oct 3 Operational Cutoff)
+                    </strong>
+                  </div>
+                  <small style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
+                    1 Completed Project (TPRJ-2610-751) · {octoberCancelledProjects.length} Cancelled Projects (Insurance Issues) · {octoberPendingProjects.length} Pending Projects
+                  </small>
+                </div>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <button
+                    type="button"
+                    data-testid="ledger-open-excel-2026-10"
+                    onClick={() => {
+                      setSelectedMonth("2026-10");
+                      setExcelWorkbookMonth("2026-10");
+                    }}
+                    style={{
+                      padding: "0.38rem 0.8rem",
+                      fontSize: "0.76rem",
+                      fontWeight: 700,
+                      borderRadius: "7px",
+                      border: "1px solid rgba(16, 185, 129, 0.45)",
+                      background: "rgba(16, 185, 129, 0.14)",
+                      color: "#6ee7b7",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Open Oct Excel Workbook →
+                  </button>
+                  {!isGuest && (
+                    <button
+                      type="button"
+                      onClick={() => openMonthDetail("2026-10")}
+                      style={{
+                        padding: "0.38rem 0.8rem",
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                        borderRadius: "7px",
+                        border: "1px solid rgba(212, 175, 55, 0.42)",
+                        background: "rgba(15, 31, 56, 0.88)",
+                        color: "#f3d37a",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Open October Ledger →
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 3-Column Executive Breakdown Grid inside the October Current Month card */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                  gap: "0.85rem",
+                }}
+              >
+                {/* Card 1 — Completed Work (Oct 1–3 Pre-Cutoff) */}
                 <div
-                  key={m.key}
-                  data-testid={isOctRow ? "october-right-row-detail" : undefined}
                   style={{
                     display: "flex",
                     flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: "0.45rem",
+                    padding: "0.9rem 1rem",
                     borderRadius: "10px",
-                    border: isSelected
-                      ? "1px solid rgba(212, 175, 55, 0.45)"
-                      : "1px solid rgba(148, 163, 184, 0.14)",
-                    background: isSelected ? "rgba(212, 175, 55, 0.07)" : "rgba(15, 32, 56, 0.45)",
+                    border: "1px solid rgba(16, 185, 129, 0.38)",
+                    background: "rgba(6, 78, 59, 0.22)",
                   }}
                 >
-                  <button
-                    type="button"
-                    className={`dcc-right-menu-item ${isSelected ? "is-selected" : ""}`}
-                    style={{ border: "none", background: "transparent" }}
-                    onClick={() => selectMonthPill(m.key)}
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase",
+                      color: "#6ee7b7",
+                    }}
                   >
-                    <span className="dcc-right-menu-text">
-                      <strong>{monthName(m.key, true)} 2026</strong>
-                      <small>
-                        {isOctRow
-                          ? "1 project (TPRJ-2610-751)"
-                          : `${m.opps} projects & mini-projects`}
-                      </small>
-                    </span>
-                    <span style={{ fontWeight: 700, fontSize: "0.9rem", color: isSelected ? "#f59e0b" : "inherit" }}>
-                      {money(m.issuedCents)}
-                    </span>
-                  </button>
-
-                  {isSelected && (
-                    <div
+                    COMPLETED IN OCTOBER (PRE-CUTOFF)
+                  </span>
+                  <strong
+                    style={{
+                      fontSize: "1.45rem",
+                      fontWeight: 800,
+                      color: "#34d399",
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    +{usd(octoberLedgerRow.grossIncomeUsd)}
+                  </strong>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                    <span
                       style={{
-                        padding: "0.65rem 0.9rem 0.8rem",
-                        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                         fontSize: "0.78rem",
-                        color: "#cbd5e1",
+                        fontWeight: 700,
+                        color: "#a7f3d0",
                       }}
                     >
-                      {isOctRow ? (
-                        <div>
-                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                              October 2026 Completed Project
-                            </strong>
-                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                              ● 1 Reconciled
-                            </span>
-                          </div>
-                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                            TPRJ-2610-751 · Pre-Oct 8 Cutoff (Oct 01–07, 2026) · Total: <strong style={{ color: "#f8fafc" }}>{usd(41789)}</strong>
-                          </p>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.2rem" }}>
-                            <button
-                              type="button"
-                              onClick={() => setExcelWorkbookMonth("2026-10")}
-                              style={{
-                                padding: "0.28rem 0.65rem",
-                                fontSize: "0.72rem",
-                                fontWeight: 700,
-                                borderRadius: "6px",
-                                border: "1px solid rgba(16, 185, 129, 0.45)",
-                                background: "rgba(16, 185, 129, 0.14)",
-                                color: "#6ee7b7",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Open Oct Excel Workbook →
-                            </button>
-                            {!isGuest && (
-                              <button
-                                type="button"
-                                onClick={() => openMonthDetail("2026-10")}
-                                style={{
-                                  padding: "0.28rem 0.65rem",
-                                  fontSize: "0.72rem",
-                                  fontWeight: 700,
-                                  borderRadius: "6px",
-                                  border: "1px solid rgba(212, 175, 55, 0.4)",
-                                  background: "rgba(15, 31, 56, 0.85)",
-                                  color: "#f3d37a",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Open October Ledger →
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
-                            <strong style={{ color: "#f3d37a", fontSize: "0.8rem" }}>
-                              {monthName(m.key)} Breakdown
-                            </strong>
-                            <span style={{ color: "#6ee7b7", fontWeight: 700, fontSize: "0.74rem" }}>
-                              {rowMicroProjects.length} projects &amp; mini-projects
-                            </span>
-                          </div>
-                          <p style={{ margin: "0 0 0.35rem", fontSize: "0.76rem", color: "#94a3b8", lineHeight: 1.5 }}>
-                            {rowMicroProjects[0]?.id} – {rowMicroProjects[rowMicroProjects.length - 1]?.id} · Total: <strong style={{ color: "#f8fafc" }}>{money(m.issuedCents)}</strong>
-                          </p>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem", marginTop: "0.2rem" }}>
-                            <button
-                              type="button"
-                              onClick={() => setExcelWorkbookMonth(m.key)}
-                              style={{
-                                padding: "0.28rem 0.65rem",
-                                fontSize: "0.72rem",
-                                fontWeight: 700,
-                                borderRadius: "6px",
-                                border: "1px solid rgba(16, 185, 129, 0.45)",
-                                background: "rgba(16, 185, 129, 0.14)",
-                                color: "#6ee7b7",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Open {monthName(m.key, true)} Excel Workbook →
-                            </button>
-                            {!isGuest && (
-                              <button
-                                type="button"
-                                onClick={() => openMonthDetail(m.key)}
-                                style={{
-                                  padding: "0.28rem 0.65rem",
-                                  fontSize: "0.72rem",
-                                  fontWeight: 700,
-                                  borderRadius: "6px",
-                                  border: "1px solid rgba(212, 175, 55, 0.4)",
-                                  background: "rgba(15, 31, 56, 0.85)",
-                                  color: "#f3d37a",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Open {monthName(m.key, true)} Ledger →
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      ● 1 Reconciled Project (TPRJ-2610-751)
+                    </span>
+                    <span style={{ fontSize: "0.74rem", color: "#cbd5e1", lineHeight: 1.4 }}>
+                      Commercial TPO &amp; Envelope Scope · Certified before Oct 3 insurance freeze
+                    </span>
+                  </div>
                 </div>
-              );
-            })}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.85rem 1rem",
-                marginTop: "0.35rem",
-                borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-                background: "rgba(255, 255, 255, 0.03)",
-                borderRadius: "8px",
-              }}
-            >
-              <div>
-                <strong style={{ fontSize: "0.9rem", display: "block" }}>YTD Total Income</strong>
-                <small style={{ color: "var(--muted, #94a3b8)", fontSize: "0.76rem" }}>756 Projects &amp; Mini-Projects · Jan–Oct</small>
+
+                {/* Card 2 — Cancelled Projects Losses (Insurance Issues) */}
+                <div
+                  data-testid="october-cancelled-losses-summary"
+                  className="border-rose-500/40 bg-rose-950/35"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: "0.45rem",
+                    padding: "0.9rem 1rem",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(244, 63, 94, 0.45)",
+                    background: "rgba(76, 5, 25, 0.42)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase",
+                      color: "#fda4af",
+                    }}
+                  >
+                    CANCELLED PROJECTS LOSSES · CURRENT MONTH
+                  </span>
+                  <strong
+                    className="text-rose-300"
+                    style={{
+                      fontSize: "1.45rem",
+                      fontWeight: 800,
+                      color: "#fda4af",
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    -${octoberCancelledLossUsd.toLocaleString("en-US")}
+                  </strong>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        color: "#fecdd3",
+                      }}
+                    >
+                      ✕ {octoberCancelledProjects.length} Cancelled Projects · Insurance Issues
+                    </span>
+                    <span style={{ fontSize: "0.74rem", color: "#ffe4e6", lineHeight: 1.4 }}>
+                      Total lost contracting volume from {octoberCancelledProjects.length} October 2026 opportunities cancelled due to insurance compliance hold
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card 3 — Pending Opportunities & Net Current Month Impact */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: "0.45rem",
+                    padding: "0.9rem 1rem",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(245, 158, 11, 0.38)",
+                    background: "rgba(120, 53, 15, 0.22)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase",
+                      color: "#fcd34d",
+                    }}
+                  >
+                    PENDING REVIEW &amp; NET OCTOBER BALANCE
+                  </span>
+                  <strong
+                    className="text-amber-200"
+                    style={{
+                      fontSize: "1.45rem",
+                      fontWeight: 800,
+                      color: "#fde68a",
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    ${octoberPendingTotalUsd.toLocaleString("en-US")}
+                  </strong>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        color: "#fef08a",
+                      }}
+                    >
+                      ⏳ {octoberPendingProjects.length} Pending Company Information
+                    </span>
+                    <span style={{ fontSize: "0.74rem", color: "#e2e8f0", lineHeight: 1.4 }}>
+                      Net Realized vs. Cancelled Volume:{" "}
+                      <strong style={{ color: "#fda4af" }}>
+                        -${(octoberCancelledLossUsd - octoberLedgerRow.grossIncomeUsd).toLocaleString("en-US")}
+                      </strong>
+                    </span>
+                  </div>
+                </div>
               </div>
-              <strong style={{ fontSize: "1.08rem", color: "#10b981" }}>
-                {money(ytdCents)}
-              </strong>
             </div>
           </div>
         </section>

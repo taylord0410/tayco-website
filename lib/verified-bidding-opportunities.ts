@@ -14,6 +14,7 @@ export type VerifiedBiddingOpportunity = {
   status: "Overdue" | "Pending company information";
   statusEs?: string;
   estimatedPrice: string;
+  estimatedValueUsd?: number;
   reportedDeadline: string | null;
   documentName: string;
   documentState: "received" | "pending";
@@ -28,10 +29,11 @@ export type OpportunityInfrastructureMeta = {
   badgeLabel: string;
   subLabel: string;
   tone: "sky" | "indigo";
+  icon?: string;
 };
 
 const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
-  Record<number, { badgeLabel: string; subLabel: string }>
+  Record<number, { badgeLabel: string; subLabel: string; icon?: string }>
 > = {
   2: {
     badgeLabel: "Private · Grocery Anchor",
@@ -42,8 +44,9 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "National Beverage Franchise",
   },
   4: {
-    badgeLabel: "Public · K-12 Transit",
-    subLabel: "School District Fleet Facility",
+    badgeLabel: "Public Government · K-12 Transit",
+    subLabel: "School District Fleet & Maintenance",
+    icon: "school",
   },
   5: {
     badgeLabel: "Private · National Retail",
@@ -62,12 +65,14 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Supermarket Structural Remodel",
   },
   9: {
-    badgeLabel: "Public · K-12 Education",
-    subLabel: "Board of Ed / AFB Campus",
+    badgeLabel: "Federal & Public Gov · DoD / K-12",
+    subLabel: "Scott AFB & Board of Education Campus",
+    icon: "school",
   },
   10: {
-    badgeLabel: "Public · Municipal Civic",
-    subLabel: "Public Library & Community Ctr",
+    badgeLabel: "Municipal Government · Civic Works",
+    subLabel: "Public Library & Community Center",
+    icon: "civic",
   },
   11: {
     badgeLabel: "Private · Class-A Tower",
@@ -82,24 +87,27 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Commercial Branch Fit-Out",
   },
   14: {
-    badgeLabel: "Public · Higher Education",
-    subLabel: "Community College IT / MEP",
+    badgeLabel: "State Government · Higher Education",
+    subLabel: "Public Community College IT & MEP",
+    icon: "school",
   },
   15: {
     badgeLabel: "Private · Multi-Site Retail",
     subLabel: "4-Store Commercial Rollout",
   },
   16: {
-    badgeLabel: "Public · Aviation Authority",
-    subLabel: "Airport Terminal & Admin Bldg",
+    badgeLabel: "Federal / Municipal Gov · Aviation",
+    subLabel: "Airport Authority Terminal & Admin (IAA)",
+    icon: "aviation",
   },
   17: {
     badgeLabel: "Private · Vet & Healthcare",
     subLabel: "Clinical Surgical Hospital",
   },
   18: {
-    badgeLabel: "Public · Municipal Dev",
-    subLabel: "City Economic Development",
+    badgeLabel: "Municipal Government · Public Works",
+    subLabel: "City Economic Development & Retail",
+    icon: "civic",
   },
   19: {
     badgeLabel: "Private · Auto Service",
@@ -114,12 +122,14 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Freestanding Franchise Fit-Out",
   },
   22: {
-    badgeLabel: "Public · Higher Education",
-    subLabel: "6-Bldg Campus Life-Safety",
+    badgeLabel: "State Government · Higher Education",
+    subLabel: "Public College 6-Bldg Life-Safety",
+    icon: "school",
   },
   23: {
-    badgeLabel: "Public · County Gov",
-    subLabel: "Government Center & Civil Site",
+    badgeLabel: "County Government · Civic Center",
+    subLabel: "Kenosha County Administration & Civil",
+    icon: "civic",
   },
   24: {
     badgeLabel: "Private · Mall Anchor Retail",
@@ -134,8 +144,9 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Regional Bank Addition & Civil",
   },
   27: {
-    badgeLabel: "Public · Federal VA Medical",
-    subLabel: "U.S. Dept. of Veterans Affairs",
+    badgeLabel: "Federal Government · U.S. VA Medical",
+    subLabel: "Dept. of Veterans Affairs Hospital",
+    icon: "hospital",
   },
   28: {
     badgeLabel: "Private · Industrial Storage",
@@ -154,8 +165,9 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Daycare Campus & Civil Site",
   },
   32: {
-    badgeLabel: "Public · Municipal Civic",
-    subLabel: "Historic Library Expansion",
+    badgeLabel: "Municipal Government · Civic Library",
+    subLabel: "City Public Library Historic Expansion",
+    icon: "civic",
   },
   33: {
     badgeLabel: "Private · Financial Office",
@@ -166,8 +178,9 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Plaza Anchor & MEP Remodel",
   },
   35: {
-    badgeLabel: "Public · Township Gov",
-    subLabel: "Municipal Office & Community",
+    badgeLabel: "Municipal Government · Township Hall",
+    subLabel: "Township Government Office & Community",
+    icon: "civic",
   },
   36: {
     badgeLabel: "Private · Early Education",
@@ -194,16 +207,18 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Academy TI & Structural RTU",
   },
   42: {
-    badgeLabel: "Public · State DOT Highway",
-    subLabel: "District Maintenance Facility",
+    badgeLabel: "State Government · Highway & DOT",
+    subLabel: "Illinois DOT District Maintenance",
+    icon: "highway",
   },
   43: {
     badgeLabel: "Private · Retail Apparel",
     subLabel: "Commercial Center Build-Out",
   },
   44: {
-    badgeLabel: "Public · K-12 Education",
-    subLabel: "Secondary Campus Gymnasium",
+    badgeLabel: "Public Government · K-12 Education",
+    subLabel: "Public School District Campus Gym",
+    icon: "school",
   },
   45: {
     badgeLabel: "Private · ADA Accessibility",
@@ -218,8 +233,9 @@ const OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER: Readonly<
     subLabel: "Supermarket & Pharmacy Remodel",
   },
   48: {
-    badgeLabel: "Public · Commuter Rail",
-    subLabel: "Metra Diesel Shop & Heavy HVAC",
+    badgeLabel: "State & Regional Gov · Rail Transit",
+    subLabel: "Metra Commuter Rail Diesel Shop & HVAC",
+    icon: "transit",
   },
   49: {
     badgeLabel: "Private · Fast-Casual Dining",
@@ -231,18 +247,19 @@ export function getOpportunityInfrastructureMeta(
   item: Pick<VerifiedBiddingOpportunity, "number" | "infrastructureType">
 ): OpportunityInfrastructureMeta {
   const isPublic = item.infrastructureType === "Public";
-  const mapped = OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER[item.number];
+  const specific = OPPORTUNITY_INFRASTRUCTURE_BY_NUMBER[item.number];
   return {
     sectorType: item.infrastructureType,
     badgeLabel:
-      mapped?.badgeLabel ??
-      (isPublic ? "Public · Civic Works" : "Private · Commercial"),
+      specific?.badgeLabel ??
+      (isPublic ? "Public & Federal Government" : "Private Commercial"),
     subLabel:
-      mapped?.subLabel ??
+      specific?.subLabel ??
       (isPublic
-        ? "Government & Institutional"
-        : "Commercial & Corporate Scope"),
+        ? "Government, Federal & Civic Works"
+        : "Commercial & Institutional Asset"),
     tone: isPublic ? "sky" : "indigo",
+    ...(specific?.icon ? { icon: specific.icon } : {}),
   };
 }
 
@@ -1274,3 +1291,35 @@ export const VERIFIED_OCTOBER_2026_OPPORTUNITIES: readonly VerifiedBiddingOpport
     "viewerSlug": "mendocino_farms_naperville_il"
   }
 ] as const;
+
+function parseEstimatedValueUsd(item: VerifiedBiddingOpportunity): number {
+  if (typeof item.estimatedValueUsd === "number" && Number.isFinite(item.estimatedValueUsd)) {
+    return item.estimatedValueUsd;
+  }
+  const parsed = Number(String(item.estimatedPrice ?? "").replace(/[^0-9.-]+/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+export function getOctoberCancelledOpportunitiesSummary() {
+  const cancelledItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.status === "Overdue"
+  );
+  const pendingItems = VERIFIED_OCTOBER_2026_OPPORTUNITIES.filter(
+    (item) => item.status === "Pending company information"
+  );
+  const cancelledTotalUsd = cancelledItems.reduce(
+    (acc, item) => acc + (item.estimatedValueUsd ?? parseEstimatedValueUsd(item)),
+    0
+  );
+  const pendingTotalUsd = pendingItems.reduce(
+    (acc, item) => acc + (item.estimatedValueUsd ?? parseEstimatedValueUsd(item)),
+    0
+  );
+  return {
+    cancelledCount: cancelledItems.length,
+    cancelledTotalUsd,
+    pendingCount: pendingItems.length,
+    pendingTotalUsd,
+    totalCount: VERIFIED_OCTOBER_2026_OPPORTUNITIES.length,
+  };
+}
