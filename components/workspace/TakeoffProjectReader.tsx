@@ -86,7 +86,7 @@ export default function TakeoffProjectReader({
           type: "tayco-review-viewer-control",
           taxonomyVersion: 2,
           enabled,
-          remainingMs: enabled ? Math.min(remaining, 10800000) : 0,
+          remainingMs: enabled ? Math.min(remaining, 43200000) : 0,
         },
         window.location.origin
       );
@@ -259,9 +259,9 @@ export default function TakeoffProjectReader({
         </div>
       )}
 
-      {/* Unified Executive CAD Command Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/20 bg-gradient-to-r from-[#081629] via-[#0b1d36] to-[#081629] px-4 py-3">
-        <div className="min-w-0 flex-1">
+      {/* Unified Executive CAD Command Header (2-Row Stacked Layout: Row 1 = Full-Width Title & Metadata, Row 2 = CAD Controls Toolbar) */}
+      <div className="flex flex-col gap-3 border-b border-amber-200/20 bg-gradient-to-r from-[#081629] via-[#0b1d36] to-[#081629] px-4 py-3.5">
+        <div className="w-full min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             {badgeText && (
               <span className="inline-flex items-center rounded-md border border-amber-300/35 bg-amber-300/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-200">
@@ -272,10 +272,10 @@ export default function TakeoffProjectReader({
               Read only · Download controls hidden
             </span>
           </div>
-          <h2 className="mt-1 truncate text-base font-bold text-white">
+          <h2 className="mt-1.5 text-base font-bold leading-snug text-white sm:text-lg">
             Project reader · {projectName}
           </h2>
-          <p role="status" className="mt-0.5 text-xs leading-relaxed text-slate-400">
+          <p role="status" className="mt-0.5 text-xs leading-relaxed text-slate-300">
             {subtitle ? `${subtitle} · ` : ""}
             {failed
               ? "The reader window could not be opened. Retry or return to the workspace."
@@ -286,162 +286,166 @@ export default function TakeoffProjectReader({
         </div>
 
         {/* Interactive CAD Sheet, Zoom & View Mode Toolbar */}
-        <div className="flex flex-wrap items-center gap-2">
-          {(onPrevProject || onNextProject) && (
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#050e1c] p-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            {(onPrevProject || onNextProject) && (
+              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#050e1c] p-1">
+                <button
+                  type="button"
+                  onClick={onPrevProject}
+                  disabled={!onPrevProject}
+                  className={cadToolBtn}
+                  title="Previous project plan set"
+                >
+                  ◀ Prev Set
+                </button>
+                <button
+                  type="button"
+                  onClick={onNextProject}
+                  disabled={!onNextProject}
+                  className={cadToolBtn}
+                  title="Next project plan set"
+                >
+                  Next Set ▶
+                </button>
+              </div>
+            )}
+
+            {/* Sheet Navigation */}
+            <div
+              className="flex items-center gap-1.5 rounded-lg border border-amber-200/20 bg-[#050e1c] p-1"
+              data-testid="cad-sheet-nav-group"
+            >
               <button
                 type="button"
-                onClick={onPrevProject}
-                disabled={!onPrevProject}
+                data-testid="cad-prev-sheet"
+                onClick={() => stepPage(-1)}
+                disabled={!opened || currentPage <= 1}
                 className={cadToolBtn}
-                title="Previous project plan set"
+                title="Previous drawing sheet"
               >
-                ◀ Prev Set
+                ← Prev
               </button>
+              <span
+                data-testid="cad-sheet-counter"
+                className="px-2 font-mono text-xs font-bold text-amber-200"
+              >
+                Sheet {currentPage}
+                {totalPages ? ` / ${totalPages}` : ""}
+              </span>
               <button
                 type="button"
-                onClick={onNextProject}
-                disabled={!onNextProject}
+                data-testid="cad-next-sheet"
+                onClick={() => stepPage(1)}
+                disabled={!opened || (totalPages !== null && currentPage >= totalPages)}
                 className={cadToolBtn}
-                title="Next project plan set"
+                title="Next drawing sheet"
               >
-                Next Set ▶
+                Next →
               </button>
             </div>
-          )}
 
-          {/* Sheet Navigation */}
-          <div
-            className="flex items-center gap-1.5 rounded-lg border border-amber-200/20 bg-[#050e1c] p-1"
-            data-testid="cad-sheet-nav-group"
-          >
-            <button
-              type="button"
-              data-testid="cad-prev-sheet"
-              onClick={() => stepPage(-1)}
-              disabled={!opened || currentPage <= 1}
-              className={cadToolBtn}
-              title="Previous drawing sheet"
+            {/* Zoom Controls */}
+            <div
+              className="flex items-center gap-1 rounded-lg border border-amber-200/20 bg-[#050e1c] p-1"
+              data-testid="cad-zoom-group"
             >
-              ← Prev
-            </button>
-            <span
-              data-testid="cad-sheet-counter"
-              className="px-2 font-mono text-xs font-bold text-amber-200"
-            >
-              Sheet {currentPage}
-              {totalPages ? ` / ${totalPages}` : ""}
-            </span>
-            <button
-              type="button"
-              data-testid="cad-next-sheet"
-              onClick={() => stepPage(1)}
-              disabled={!opened || (totalPages !== null && currentPage >= totalPages)}
-              className={cadToolBtn}
-              title="Next drawing sheet"
-            >
-              Next →
-            </button>
+              <button
+                type="button"
+                data-testid="cad-zoom-out"
+                onClick={() => adjustZoom(zoomPct - 20)}
+                disabled={!opened || zoomPct <= 50}
+                className={cadToolBtn}
+                title="Zoom out (-20%)"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                data-testid="cad-zoom-reset"
+                onClick={() => adjustZoom(100)}
+                disabled={!opened}
+                className="px-2 font-mono text-xs font-bold text-slate-200 hover:text-amber-200"
+                title="Reset zoom to 100%"
+              >
+                {zoomPct}%
+              </button>
+              <button
+                type="button"
+                data-testid="cad-zoom-in"
+                onClick={() => adjustZoom(zoomPct + 20)}
+                disabled={!opened || zoomPct >= 200}
+                className={cadToolBtn}
+                title="Zoom in (+20%)"
+              >
+                +
+              </button>
+            </div>
           </div>
 
-          {/* Zoom Controls */}
-          <div
-            className="flex items-center gap-1 rounded-lg border border-amber-200/20 bg-[#050e1c] p-1"
-            data-testid="cad-zoom-group"
-          >
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Sheet Index Drawer Toggle */}
             <button
               type="button"
-              data-testid="cad-zoom-out"
-              onClick={() => adjustZoom(zoomPct - 20)}
-              disabled={!opened || zoomPct <= 50}
-              className={cadToolBtn}
-              title="Zoom out (-20%)"
-            >
-              −
-            </button>
-            <button
-              type="button"
-              data-testid="cad-zoom-reset"
-              onClick={() => adjustZoom(100)}
+              data-testid="cad-toggle-index"
+              onClick={toggleSheetIndex}
               disabled={!opened}
-              className="px-2 font-mono text-xs font-bold text-slate-200 hover:text-amber-200"
-              title="Reset zoom to 100%"
+              className={
+                button +
+                (sheetIndexOpen
+                  ? " border-amber-300 bg-amber-300/20 text-amber-100"
+                  : "")
+              }
             >
-              {zoomPct}%
+              {sheetIndexOpen ? "Hide index" : "Sheet index"}
+            </button>
+
+            {/* Workstation Actions */}
+            <button
+              className={button}
+              type="button"
+              data-testid="cad-expand-toggle"
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? "Standard height" : "Expand reader"}
             </button>
             <button
+              className={button}
               type="button"
-              data-testid="cad-zoom-in"
-              onClick={() => adjustZoom(zoomPct + 20)}
-              disabled={!opened || zoomPct >= 200}
-              className={cadToolBtn}
-              title="Zoom in (+20%)"
+              data-testid="cad-fullscreen-toggle"
+              onClick={() => setFullscreen((v) => !v)}
             >
-              +
+              {fullscreen ? "Exit fullscreen" : "Fullscreen"}
             </button>
-          </div>
-
-          {/* Sheet Index Drawer Toggle */}
-          <button
-            type="button"
-            data-testid="cad-toggle-index"
-            onClick={toggleSheetIndex}
-            disabled={!opened}
-            className={
-              button +
-              (sheetIndexOpen
-                ? " border-amber-300 bg-amber-300/20 text-amber-100"
-                : "")
-            }
-          >
-            {sheetIndexOpen ? "Hide index" : "Sheet index"}
-          </button>
-
-          {/* Workstation Actions */}
-          <button
-            className={button}
-            type="button"
-            data-testid="cad-expand-toggle"
-            onClick={() => setExpanded((v) => !v)}
-          >
-            {expanded ? "Standard height" : "Expand reader"}
-          </button>
-          <button
-            className={button}
-            type="button"
-            data-testid="cad-fullscreen-toggle"
-            onClick={() => setFullscreen((v) => !v)}
-          >
-            {fullscreen ? "Exit fullscreen" : "Fullscreen"}
-          </button>
-          <button
-            className={button}
-            type="button"
-            data-testid="cad-reload-btn"
-            onClick={() => {
-              if (selectedDocument)
-                record("viewer.reload", { documentId: selectedDocument });
-              publish(false);
-              setOpened(false);
-              setFailed(false);
-              setReload((value) => value + 1);
-            }}
-          >
-            Reload reader
-          </button>
-          {onClose && (
             <button
+              className={button}
               type="button"
-              data-testid="cad-close-viewer-btn"
+              data-testid="cad-reload-btn"
               onClick={() => {
-                setFullscreen(false);
-                onClose();
+                if (selectedDocument)
+                  record("viewer.reload", { documentId: selectedDocument });
+                publish(false);
+                setOpened(false);
+                setFailed(false);
+                setReload((value) => value + 1);
               }}
-              className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-400/35 bg-rose-500/15 px-3 py-1.5 text-xs font-bold text-rose-200 hover:bg-rose-500/25 transition"
             >
-              Close plans ✕
+              Reload reader
             </button>
-          )}
+            {onClose && (
+              <button
+                type="button"
+                data-testid="cad-close-viewer-btn"
+                onClick={() => {
+                  setFullscreen(false);
+                  onClose();
+                }}
+                className="inline-flex min-h-9 items-center justify-center rounded-lg border border-rose-400/35 bg-rose-500/15 px-3 py-1.5 text-xs font-bold text-rose-200 hover:bg-rose-500/25 transition"
+              >
+                Close plans ✕
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

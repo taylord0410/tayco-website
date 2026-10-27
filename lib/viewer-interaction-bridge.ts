@@ -40,7 +40,7 @@ export const VIEWER_REVIEW_BRIDGE_JS=`/* Closed, consent-gated control bridge. N
   if(event.origin!==location.origin||event.source!==window.parent||!x||typeof x!=='object'||Array.isArray(x)||
    Object.keys(x).some(k=>!['type','taxonomyVersion','enabled','remainingMs'].includes(k))||
    x.type!=='tayco-review-viewer-control'||x.taxonomyVersion!==2||typeof x.enabled!=='boolean'||
-   !Number.isFinite(x.remainingMs)||x.remainingMs<0||x.remainingMs>10800000)return;
+   !Number.isFinite(x.remainingMs)||x.remainingMs<0||x.remainingMs>43200000)return;
   until=x.enabled?performance.now()+x.remainingMs:0;
  });
  const documentId=()=>new URL(location.href).searchParams.get('document');

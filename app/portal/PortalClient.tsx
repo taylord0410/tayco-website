@@ -624,8 +624,8 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
               <section className="mt-8 space-y-4 rounded-2xl border border-amber-200/30 bg-[#08182b] p-6">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">Surveillance &amp; audit</p>
-                  <h3 className="mt-1 text-xl font-bold text-white">Guest 3-Hour Review &amp; Movement Log (Admin Only)</h3>
-                  <p className="mt-1 text-xs text-slate-300">Audited activity log and telemetry recorded for private 3-hour client reviews.</p>
+                  <h3 className="mt-1 text-xl font-bold text-white">Guest 12-Hour Review &amp; Movement Log (Admin Only)</h3>
+                  <p className="mt-1 text-xs text-slate-300">Audited activity log and telemetry recorded for private 12-hour client reviews.</p>
                 </div>
                 <div className="space-y-6 pt-2">
                   <ReviewAuditPanel />

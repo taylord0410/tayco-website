@@ -14,7 +14,7 @@ type UserRow = { id: string; email: string; password_hash: string; role: AuthRol
 type InviteRow = { id: string; token_hash: string; email: string; role: AuthRole; tenant_id: string; project_ids: string; vendor_id: string | null; expires_at: number; revoked_at: number | null; accepted_at: number | null; review_grant_id: string | null };
 export class AuthError extends Error { constructor(message: string, public status = 401, public reasonCode?: string) { super(message); this.name = 'AuthError'; } }
 export const SESSION_COOKIE = 'tayco_session';
-export const SESSION_TTL_SECONDS = 8 * 60 * 60;
+export const SESSION_TTL_SECONDS = 12 * 60 * 60;
 // OWASP's 32 MiB configuration balances password cost and the small site's memory budget.
 const passwordKey = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => scrypt(password, salt, 64, { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 }, (error, key) => error ? reject(error) : resolve(key)));
 const digest = (s: string) => createHash('sha256').update(s).digest('hex');
