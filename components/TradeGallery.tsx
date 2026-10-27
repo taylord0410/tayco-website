@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ProtectedImage";
 
 const SECTORS = [
   { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },

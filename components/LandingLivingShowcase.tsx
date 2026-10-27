@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import ProtectedImage from "@/components/ProtectedImage";
 
 export interface HeroSceneItem {
   id: string;
@@ -714,7 +715,7 @@ export function TransformationBeforeAfterStudio({
             >
               {/* Base Layer: AFTER (Finished Turnkey Execution) */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={activePair.afterImg}
                 alt={`${activePair.title} — After`}
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -723,7 +724,7 @@ export function TransformationBeforeAfterStudio({
 
               {/* Overlay Layer: BEFORE (Initial / Raw Structural Condition) */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={activePair.beforeImg}
                 alt={`${activePair.title} — Before`}
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -1046,14 +1047,14 @@ export function TransformationBeforeAfterStudio({
                   <div className="relative h-20 w-full overflow-hidden">
                     {/* Split thumbnail preview: left half before, right half after */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProtectedImage
                       src={pair.afterImg}
                       alt={pair.title}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProtectedImage
                       src={pair.beforeImg}
                       alt=""
                       loading="lazy"
@@ -1133,7 +1134,7 @@ export function DualTrackArchitecturalMarquee() {
           >
             <div className="flex items-center gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={selectedShot.image}
                 alt={selectedShot.title}
                 className="w-28 h-20 object-cover rounded-xl border"
@@ -1187,7 +1188,7 @@ export function DualTrackArchitecturalMarquee() {
               className="tayco-filmstrip-card group text-left cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={shot.image}
                 alt={shot.title}
                 loading="lazy"
@@ -1230,7 +1231,7 @@ export function DualTrackArchitecturalMarquee() {
               className="tayco-filmstrip-card group text-left cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={shot.image}
                 alt={shot.title}
                 loading="lazy"
@@ -1322,7 +1323,7 @@ export function RegionalStateFootprintStrip() {
       >
         <div className="flex items-center gap-3 min-w-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <ProtectedImage
             src={currentHub.sampleImage}
             alt={currentHub.name}
             className="w-11 h-9 rounded-lg object-cover border shrink-0"
@@ -1384,7 +1385,7 @@ export function ServiceCardTriptych({
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <ProtectedImage
           src={current.src}
           alt={current.label}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -1444,7 +1445,7 @@ export function ServiceCardTriptych({
                 aria-label={`Show ${frame.label}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProtectedImage
                   src={frame.src}
                   alt={frame.label}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"

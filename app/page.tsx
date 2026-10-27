@@ -4,6 +4,7 @@ import Link from "next/link";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
+import ProtectedImage from "@/components/ProtectedImage";
 import {
   COMMERCIAL_HERO_SCENES,
   RESIDENTIAL_HERO_SCENES,
@@ -584,7 +585,7 @@ export default function Home() {
               const isCurrent = idx === comSceneIdx;
               return (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <ProtectedImage
                   key={scene.id}
                   src={scene.image}
                   alt=""
@@ -824,7 +825,7 @@ export default function Home() {
             </svg>
             <span aria-hidden="true" style={{ color: "#F3D37A" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src="/logo.png"
                 alt="TAYCO LLC"
                 className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
@@ -854,7 +855,7 @@ export default function Home() {
               const isCurrent = idx === resSceneIdx;
               return (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <ProtectedImage
                   key={scene.id}
                   src={scene.image}
                   alt=""
@@ -1359,7 +1360,7 @@ export default function Home() {
                         }}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <ProtectedImage
                           src={currentFrame.src}
                           alt={currentFrame.caption}
                           loading="lazy"
@@ -1429,7 +1430,7 @@ export default function Home() {
                               aria-label={`Preview ${frame.caption}`}
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
+                              <ProtectedImage
                                 src={frame.src}
                                 alt=""
                                 loading="lazy"
@@ -1630,7 +1631,7 @@ export default function Home() {
                     >
                       <span className="flex items-center gap-3 min-w-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <ProtectedImage
                           src={study.image}
                           alt=""
                           loading="lazy"
@@ -1794,7 +1795,7 @@ export default function Home() {
                 >
                   {/* Real High-Relief Surface Photograph */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ProtectedImage
                     src={currentStudy.image}
                     alt={currentStudy.label}
                     className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
@@ -2066,7 +2067,7 @@ export default function Home() {
                 style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProtectedImage
                   src={activeStep.image}
                   alt={activeStep.name}
                   className="w-full h-full object-cover"
@@ -2171,7 +2172,7 @@ export default function Home() {
                     style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProtectedImage
                       src={contract.image}
                       alt={contract.name}
                       loading="lazy"
@@ -2282,7 +2283,7 @@ export default function Home() {
                   style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ProtectedImage
                     src="/curated/hero/com-hq-sunset.jpg"
                     alt="TAYCO 8-State Operations"
                     loading="lazy"

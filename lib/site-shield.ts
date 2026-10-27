@@ -158,6 +158,18 @@ export function isTrapPath(pathname: string): boolean {
   return TRAP_PATH_PATTERNS.some((re) => re.test(pathname));
 }
 
+export function isStreamOnlyPortfolioAsset(pathname: string): boolean {
+  const lower = pathname.toLowerCase();
+  return (
+    lower.startsWith("/curated/") ||
+    lower.startsWith("/work/") ||
+    lower.startsWith("/images/") ||
+    lower.startsWith("/img_v16_web/") ||
+    lower.startsWith("/media/") ||
+    lower.startsWith("/_next/image")
+  );
+}
+
 export function isProtectedImageAsset(pathname: string): boolean {
   const lower = pathname.toLowerCase();
   if (
@@ -167,13 +179,7 @@ export function isProtectedImageAsset(pathname: string): boolean {
   ) {
     return false;
   }
-  if (
-    lower.startsWith("/curated/") ||
-    lower.startsWith("/work/") ||
-    lower.startsWith("/images/") ||
-    lower.startsWith("/img_v16_web/") ||
-    lower.startsWith("/media/")
-  ) {
+  if (isStreamOnlyPortfolioAsset(lower)) {
     return true;
   }
   return /\.(png|jpe?g|webp|avif)$/i.test(lower);
@@ -437,7 +443,22 @@ export function evaluateSiteShield(input: EvaluateRequestInput): ShieldDecision 
       };
     }
 
-    // Require either embedded image fetch context (Sec-Fetch-Dest: image) OR a valid same-origin Referer
+    // Portfolio visuals (/curated/*, /work/*, /images/*, /_next/image) are never served as raw image files;
+    // they are exclusively streamed via encrypted binary canvas (/api/visual-stream) so they never appear in DevTools Sources.
+    if (isStreamOnlyPortfolioAsset(pathname)) {
+      return {
+        action: "block",
+        status: 403,
+        reason: "raw_portfolio_asset_disabled",
+        body: "Direct access to raw portfolio image files is disabled. Visuals are rendered exclusively via encrypted canvas stream.",
+        extraHeaders: {
+          "X-Tayco-Shield": "blocked-raw-portfolio-image",
+          "X-Robots-Tag": "noimageindex, noarchive, nosnippet, noai, noimageai",
+        },
+      };
+    }
+
+    // Require either embedded image fetch context (Sec-Fetch-Dest: image) OR a valid same-origin Referer (e.g., for /logo.png)
     const isEmbeddedImageContext =
       dest === "image" && (site === "same-origin" || site === "same-site" || validRef || isLocal);
     if (!isEmbeddedImageContext && !validRef) {

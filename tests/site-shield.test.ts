@@ -5,20 +5,21 @@ import {
   resetShieldStateForTests,
   buildAiExecutiveSummaryText,
 } from "../lib/site-shield";
+import { scrambleVisualBytes } from "../app/api/visual-stream/route";
 
 const HUMAN_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
 
-test("blocks direct image downloads, hotlinking, and unverified image scraping while allowing embedded page images", () => {
+test("blocks direct image downloads, hotlinking, and all raw /curated/* and /work/* requests (enforcing encrypted canvas stream)", () => {
   resetShieldStateForTests();
 
   // 1. Opening image directly in a browser tab (Sec-Fetch-Dest: document) -> 403
   const directTab = evaluateSiteShield({
     method: "GET",
-    pathname: "/curated/img_v16_web/cx_f1.jpg",
+    pathname: "/curated/magazine/revista_fr_metal_04.jpg",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
-    host: "www.taycoturnkey.com",
+    host: "www.tayroofing.org",
     referer: null,
     secFetchDest: "document",
     secFetchMode: "navigate",
@@ -50,10 +51,30 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
     assert.equal(hotlink.reason, "image_cross_site_hotlink");
   }
 
-  // 3. Spoofed browser UA script fetching image without Sec-Fetch-Dest: image or TAYCO Referer -> 403
+  // 3. Even same-origin <img src="/curated/..."> or /work/... is blocked (403 raw_portfolio_asset_disabled)
+  // so portfolio files never appear in DevTools Sources -> Page
+  const rawPortfolioImg = evaluateSiteShield({
+    method: "GET",
+    pathname: "/curated/magazine/revista_fr_metal_04.jpg",
+    clientIp: "174.192.68.31",
+    userAgent: HUMAN_UA,
+    host: "www.tayroofing.org",
+    referer: "https://www.tayroofing.org/",
+    secFetchDest: "image",
+    secFetchMode: "no-cors",
+    secFetchSite: "same-origin",
+    accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+  });
+  assert.equal(rawPortfolioImg.action, "block");
+  if (rawPortfolioImg.action === "block") {
+    assert.equal(rawPortfolioImg.status, 403);
+    assert.equal(rawPortfolioImg.reason, "raw_portfolio_asset_disabled");
+  }
+
+  // 4. Spoofed browser UA script fetching /logo.png without Sec-Fetch-Dest: image or TAYCO Referer -> 403
   const spoofedScript = evaluateSiteShield({
     method: "GET",
-    pathname: "/curated/portafolio_v1/roofing_01_ilustracion-generada-con-IA.png",
+    pathname: "/logo.png",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
     host: "www.taycoturnkey.com",
@@ -69,21 +90,13 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
     assert.equal(spoofedScript.reason, "image_unverified_origin");
   }
 
-  // 4. Legitimate embedded <img> tag on a TAYCO page -> allow with anti-index headers
-  const legitimateImg = evaluateSiteShield({
-    method: "GET",
-    pathname: "/curated/img_v16_web/cx_f1.jpg",
-    clientIp: "174.192.68.31",
-    userAgent: HUMAN_UA,
-    host: "www.taycoturnkey.com",
-    referer: "https://www.taycoturnkey.com/commercial",
-    secFetchDest: "image",
-    secFetchMode: "no-cors",
-    secFetchSite: "same-origin",
-    accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-  });
-  assert.equal(legitimateImg.action, "allow");
-  assert.ok(legitimateImg.extraHeaders?.["X-Robots-Tag"]?.includes("noimageindex"));
+  // 5. XOR binary stream cipher scrambles JPEG header bytes so Network response cannot be saved as an image
+  const jpegHeader = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]);
+  const scrambled = scrambleVisualBytes(jpegHeader);
+  assert.notEqual(scrambled[0], 0xff);
+  assert.notEqual(scrambled[1], 0xd8);
+  const unscrambled = scrambleVisualBytes(scrambled);
+  assert.deepEqual(Array.from(unscrambled), Array.from(jpegHeader));
 });
 
 test("blocks manual scrapers, trap paths (.env, .git, .svn), and penalizes hostile IPs", () => {

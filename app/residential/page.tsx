@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import ProtectedImage from "@/components/ProtectedImage";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -323,7 +324,7 @@ export default function ResidentialPage() {
           aria-hidden="true"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <ProtectedImage
             key={currentHeroScene.image}
             src={currentHeroScene.image}
             alt=""
@@ -379,7 +380,7 @@ export default function ResidentialPage() {
                 </svg>
                 <span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ProtectedImage
                     src="/logo.png"
                     alt="TAYCO LLC"
                     className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
@@ -546,7 +547,7 @@ export default function ResidentialPage() {
               >
                 <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-950">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ProtectedImage
                     src={currentHeroScene.image}
                     alt={currentHeroScene.title}
                     className="w-full h-full object-cover transition-all duration-700"
@@ -600,7 +601,7 @@ export default function ResidentialPage() {
                         style={{ borderColor: "rgba(201, 168, 76, 0.35)" }}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <ProtectedImage
                           src={thumb}
                           alt={`${currentHeroScene.sector} detail ${tIdx + 1}`}
                           className="w-full h-full object-cover"
@@ -663,7 +664,7 @@ export default function ResidentialPage() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProtectedImage
                   src={item.img}
                   alt={item.label}
                   className="w-12 h-12 rounded-xl object-cover border shrink-0"

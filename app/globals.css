@@ -771,6 +771,8 @@ html {
   text-decoration: none;
 }
 .tayco-brand-mark {
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   background: radial-gradient(circle, #0F2040 0%, #070E1A 100%);
   padding: 2px;
@@ -982,7 +984,8 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
  * V38 — PUBLIC IMAGE ANTI-SCRAPING & TOUCH-CALLOUT SHIELD
  * ───────────────────────────────────────────────────────────── */
 [data-site-surface="public"] img,
-[data-site-surface="public"] picture {
+[data-site-surface="public"] picture,
+[data-site-surface="public"] canvas {
   -webkit-user-drag: none;
   user-select: none;
   -webkit-user-select: none;

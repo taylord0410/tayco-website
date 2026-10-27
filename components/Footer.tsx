@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ProtectedImage";
 import { COMPANY, COMPANY_SERVICES } from "@/lib/company";
 
 export default function Footer() {
@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-9">
           <div>
             <Link href="/" className="inline-flex items-center gap-3 mb-4" aria-label="TAYCO home">
-              <Image src="/logo.png" alt="" width={48} height={48} className="rounded-full bg-[#070E1A] p-1 object-contain ring-1 ring-[#C9A84C]/50" />
+              <Image src="/logo.png" alt="" width={48} height={48} className="w-12 h-12 rounded-full bg-[#070E1A] p-1 object-contain ring-1 ring-[#C9A84C]/50" />
               <span><span className="font-bold text-xl tracking-tight block text-[#C9A84C]">{COMPANY.name}</span><span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Construction Company</span></span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">Commercial construction, residential renovation and restoration. One team to help take your project from a clear scope to a finished space.</p>
