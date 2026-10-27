@@ -20,12 +20,12 @@ export default function robots(): MetadataRoute.Robots {
           "Meta-ExternalAgent",
         ],
         allow: ["/llms.txt", "/", "/commercial", "/residential", "/investor", "/estimate", "/privacy"],
-        disallow: ["/images/", "/img_v16_web/", "/media/", "/login", "/portal", "/api/"],
+        disallow: ["/curated/", "/work/", "/images/", "/img_v16_web/", "/media/", "/login", "/portal", "/api/"],
       },
       {
         userAgent: "*",
         allow: ["/llms.txt"],
-        disallow: ["/images/", "/img_v16_web/", "/media/", "/login", "/portal", "/api/"],
+        disallow: ["/curated/", "/work/", "/images/", "/img_v16_web/", "/media/", "/login", "/portal", "/api/"],
       },
     ],
   };

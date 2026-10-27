@@ -159,11 +159,24 @@ export function isTrapPath(pathname: string): boolean {
 }
 
 export function isProtectedImageAsset(pathname: string): boolean {
-  return (
-    pathname.startsWith("/images/") ||
-    pathname.startsWith("/img_v16_web/") ||
-    pathname.startsWith("/media/")
-  );
+  const lower = pathname.toLowerCase();
+  if (
+    lower === "/favicon.ico" ||
+    lower === "/icon.png" ||
+    lower === "/apple-icon.png"
+  ) {
+    return false;
+  }
+  if (
+    lower.startsWith("/curated/") ||
+    lower.startsWith("/work/") ||
+    lower.startsWith("/images/") ||
+    lower.startsWith("/img_v16_web/") ||
+    lower.startsWith("/media/")
+  ) {
+    return true;
+  }
+  return /\.(png|jpe?g|webp|avif)$/i.test(lower);
 }
 
 export function isLocalhostIp(ip: string, hostHeader: string): boolean {

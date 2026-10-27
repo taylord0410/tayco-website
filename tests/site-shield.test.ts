@@ -15,7 +15,7 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
   // 1. Opening image directly in a browser tab (Sec-Fetch-Dest: document) -> 403
   const directTab = evaluateSiteShield({
     method: "GET",
-    pathname: "/img_v16_web/commercial/com_01_steel.png",
+    pathname: "/curated/img_v16_web/cx_f1.jpg",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
     host: "www.taycoturnkey.com",
@@ -34,7 +34,7 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
   // 2. Cross-site hotlinking -> 403
   const hotlink = evaluateSiteShield({
     method: "GET",
-    pathname: "/images/tayco-hero.jpg",
+    pathname: "/curated/before_after/tr_01_after.png",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
     host: "www.taycoturnkey.com",
@@ -53,7 +53,7 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
   // 3. Spoofed browser UA script fetching image without Sec-Fetch-Dest: image or TAYCO Referer -> 403
   const spoofedScript = evaluateSiteShield({
     method: "GET",
-    pathname: "/img_v16_web/residential/res_01_kitchen.png",
+    pathname: "/curated/portafolio_v1/roofing_01_ilustracion-generada-con-IA.png",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
     host: "www.taycoturnkey.com",
@@ -72,7 +72,7 @@ test("blocks direct image downloads, hotlinking, and unverified image scraping w
   // 4. Legitimate embedded <img> tag on a TAYCO page -> allow with anti-index headers
   const legitimateImg = evaluateSiteShield({
     method: "GET",
-    pathname: "/img_v16_web/commercial/com_01_steel.png",
+    pathname: "/curated/img_v16_web/cx_f1.jpg",
     clientIp: "174.192.68.31",
     userAgent: HUMAN_UA,
     host: "www.taycoturnkey.com",
