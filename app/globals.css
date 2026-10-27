@@ -978,3 +978,15 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+ * V38 — PUBLIC IMAGE ANTI-SCRAPING & TOUCH-CALLOUT SHIELD
+ * ───────────────────────────────────────────────────────────── */
+[data-site-surface="public"] img,
+[data-site-surface="public"] picture {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
