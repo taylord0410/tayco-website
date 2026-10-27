@@ -8,6 +8,15 @@ const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
 const ALLOWED_PREFIXES = ["/curated/", "/work/", "/images/", "/img_v16_web/", "/media/"];
 const ALLOWED_EXACT = new Set(["/logo.png"]);
 
+interface CachedScrambledAsset {
+  buffer: Buffer;
+  etag: string;
+}
+
+// Server-side in-memory cache of XOR-scrambled assets so disk I/O + XOR run only once per asset
+const scrambledAssetCache = new Map<string, CachedScrambledAsset>();
+const MAX_CACHE_ENTRIES = 260;
+
 export function scrambleVisualBytes(input: Uint8Array): Uint8Array {
   const out = new Uint8Array(input.length);
   for (let i = 0; i < input.length; i++) {
@@ -25,6 +34,23 @@ function isAllowedAssetPath(assetPath: string): boolean {
   if (ALLOWED_EXACT.has(lower)) return true;
   if (!/\.(jpe?g|png|webp|avif)$/i.test(lower)) return false;
   return ALLOWED_PREFIXES.some((prefix) => lower.startsWith(prefix));
+}
+
+async function getScrambledAsset(rawPath: string, resolvedFile: string): Promise<CachedScrambledAsset> {
+  const hit = scrambledAssetCache.get(rawPath);
+  if (hit) return hit;
+
+  const fileBuffer = await fs.readFile(resolvedFile);
+  const scrambled = Buffer.from(scrambleVisualBytes(new Uint8Array(fileBuffer)));
+  const etag = `W/"v40-${ scrambled.byteLength }-${ scrambled[0] ?? 0 }-${ scrambled[scrambled.byteLength - 1] ?? 0 }"`;
+  const entry: CachedScrambledAsset = { buffer: scrambled, etag };
+
+  if (scrambledAssetCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = scrambledAssetCache.keys().next().value;
+    if (oldestKey) scrambledAssetCache.delete(oldestKey);
+  }
+  scrambledAssetCache.set(rawPath, entry);
+  return entry;
 }
 
 export async function GET(request: NextRequest) {
@@ -88,15 +114,26 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const fileBuffer = await fs.readFile(resolvedFile);
-    const scrambled = scrambleVisualBytes(new Uint8Array(fileBuffer));
+    const asset = await getScrambledAsset(rawPath, resolvedFile);
+    const ifNoneMatch = request.headers.get("if-none-match");
+    if (ifNoneMatch && ifNoneMatch === asset.etag) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          ETag: asset.etag,
+          "Cache-Control": "private, max-age=86400, stale-while-revalidate=604800, no-transform",
+          "X-Tayco-Shield": "encrypted-canvas-stream-304",
+        },
+      });
+    }
 
-    return new NextResponse(Buffer.from(scrambled), {
+    return new NextResponse(new Uint8Array(asset.buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/octet-stream",
         "X-Content-Type-Options": "nosniff",
-        "Cache-Control": "private, max-age=300, no-transform",
+        ETag: asset.etag,
+        "Cache-Control": "private, max-age=86400, stale-while-revalidate=604800, no-transform",
         "Cross-Origin-Resource-Policy": "same-origin",
         "X-Robots-Tag": "noimageindex, noarchive, nosnippet, noai, noimageai",
         "X-Tayco-Shield": "encrypted-canvas-stream",

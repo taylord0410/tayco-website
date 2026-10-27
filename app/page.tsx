@@ -4,7 +4,7 @@ import Link from "next/link";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
-import ProtectedImage from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
 import {
   COMMERCIAL_HERO_SCENES,
   RESIDENTIAL_HERO_SCENES,
@@ -485,6 +485,16 @@ export default function Home() {
   );
   const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
 
+  // Preload Hero scenes + Light Studio + 5-Phase Spotlight in background
+  useEffect(() => {
+    preloadProtectedImages([
+      ...COMMERCIAL_HERO_SCENES.map((s) => s.image),
+      ...RESIDENTIAL_HERO_SCENES.map((s) => s.image),
+      ...LIGHT_STUDIES.map((s) => s.image),
+      ...PROJECT_STEPS.map((s) => s.image),
+    ]);
+  }, []);
+
   // Auto-cycle Hero Commercial & Residential scenes when not hovered
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -581,21 +591,12 @@ export default function Home() {
         >
           {/* Curated 6-Scene Commercial Backdrop Cycler */}
           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-            {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
-              const isCurrent = idx === comSceneIdx;
-              return (
-                // eslint-disable-next-line @next/next/no-img-element
-                <ProtectedImage
-                  key={scene.id}
-                  src={scene.image}
-                  alt=""
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  className={`absolute inset-0 w-full h-full object-cover tayco-hero-kenburns transition-opacity duration-1000 ${
-                    isCurrent ? "opacity-55" : "opacity-0"
-                  }`}
-                />
-              );
-            })}
+            <ProtectedImage
+              src={activeComScene.image}
+              alt=""
+              loading="eager"
+              className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
+            />
             {/* Calibrated Navy & Gold Architectural Vignette */}
             <div
               className="absolute inset-0"
@@ -851,21 +852,12 @@ export default function Home() {
         >
           {/* Curated 6-Scene Residential Backdrop Cycler */}
           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-            {RESIDENTIAL_HERO_SCENES.map((scene, idx) => {
-              const isCurrent = idx === resSceneIdx;
-              return (
-                // eslint-disable-next-line @next/next/no-img-element
-                <ProtectedImage
-                  key={scene.id}
-                  src={scene.image}
-                  alt=""
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  className={`absolute inset-0 w-full h-full object-cover tayco-hero-kenburns transition-opacity duration-1000 ${
-                    isCurrent ? "opacity-55" : "opacity-0"
-                  }`}
-                />
-              );
-            })}
+            <ProtectedImage
+              src={activeResScene.image}
+              alt=""
+              loading="eager"
+              className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
+            />
             {/* Calibrated Deep Navy & Warm Champagne Vignette */}
             <div
               className="absolute inset-0"

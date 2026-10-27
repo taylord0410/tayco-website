@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
-import ProtectedImage from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -282,6 +282,7 @@ export default function ResidentialPage() {
   const [heroIdx, setHeroIdx] = useState<number>(0);
 
   useEffect(() => {
+    preloadProtectedImages(RESIDENTIAL_HERO_SCENES.flatMap((s) => [s.image, ...s.gallery]));
     const timer = window.setInterval(() => {
       setHeroIdx((prev) => (prev + 1) % RESIDENTIAL_HERO_SCENES.length);
     }, 6200);
@@ -325,7 +326,7 @@ export default function ResidentialPage() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <ProtectedImage
-            key={currentHeroScene.image}
+            data-hero-backdrop="residential"
             src={currentHeroScene.image}
             alt=""
             className="w-full h-full object-cover opacity-25 scale-105 transition-all duration-1000"
@@ -596,7 +597,7 @@ export default function ResidentialPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {currentHeroScene.gallery.map((thumb, tIdx) => (
                       <div
-                        key={thumb}
+                        key={`res-hero-thumb-${tIdx}`}
                         className="relative overflow-hidden rounded-lg border aspect-[16/10]"
                         style={{ borderColor: "rgba(201, 168, 76, 0.35)" }}
                       >

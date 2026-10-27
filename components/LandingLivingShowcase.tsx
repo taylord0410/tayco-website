@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ProtectedImage from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
 
 export interface HeroSceneItem {
   id: string;
@@ -1275,6 +1275,7 @@ export function RegionalStateFootprintStrip() {
     REGIONAL_STATE_HUBS.find((h) => h.state === activeState) ?? REGIONAL_STATE_HUBS[0];
 
   useEffect(() => {
+    preloadProtectedImages(REGIONAL_STATE_HUBS.map((h) => h.sampleImage));
     const id = window.setInterval(() => {
       setActiveState((prev) => {
         const idx = REGIONAL_STATE_HUBS.findIndex((h) => h.state === prev);
