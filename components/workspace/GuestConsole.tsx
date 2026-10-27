@@ -18,6 +18,7 @@ import TakeoffProjectReader from "./TakeoffProjectReader";
 import CorporateIcon from "./CorporateIcons";
 import GuestPrivacyNotice from "../GuestPrivacyNotice";
 import { useReviewInteractions } from "@/lib/use-review-interactions";
+import { sendGuestSecuritySignal } from "@/lib/guest-security-client";
 
 export type GuestConsoleSection = GuestSection;
 const modules = guestModuleDefinitions.filter(item => item.id !== "purchase_order" && item.id !== "invoice" && item.id !== "plans" && item.id !== "takeoff");
@@ -98,6 +99,61 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   }, [record,privacyReady]);
   useEffect(()=>()=>{pending.current?.abort();logoutPending.current?.abort();},[]);
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const currentTarget = () =>
+      `view:${section}:${period}${selectedViewerDocId ? `:doc:${selectedViewerDocId}` : ""}`;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "PrintScreen" || event.code === "PrintScreen") {
+        sendGuestSecuritySignal("security.print_screen", "workspace", currentTarget(), "PrintScreen key pressed");
+      } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && ["s", "S", "3", "4", "5"].includes(event.key)) {
+        sendGuestSecuritySignal(
+          "security.snip_shortcut",
+          "workspace",
+          currentTarget(),
+          `Snip shortcut (${event.metaKey ? "Meta" : "Ctrl"}+Shift+${event.key.toUpperCase()})`,
+        );
+      } else if ((event.ctrlKey || event.metaKey) && ["p", "P"].includes(event.key)) {
+        sendGuestSecuritySignal("security.print_attempt", "workspace", currentTarget(), "Print shortcut (Ctrl/Cmd+P)");
+      } else if ((event.ctrlKey || event.metaKey) && ["s", "S"].includes(event.key)) {
+        sendGuestSecuritySignal("security.save_attempt", "workspace", currentTarget(), "Save shortcut (Ctrl/Cmd+S)");
+      } else if ((event.ctrlKey || event.metaKey) && ["c", "C"].includes(event.key)) {
+        sendGuestSecuritySignal("security.copy_attempt", "workspace", currentTarget(), "Copy shortcut (Ctrl/Cmd+C)");
+      } else if (
+        event.key === "F12" ||
+        ((event.ctrlKey || event.metaKey) && event.shiftKey && ["i", "I", "j", "J"].includes(event.key))
+      ) {
+        sendGuestSecuritySignal("security.devtools_shortcut", "workspace", currentTarget(), `DevTools shortcut (${event.key})`);
+      }
+    };
+    const onBeforePrint = () => {
+      sendGuestSecuritySignal("security.print_attempt", "workspace", currentTarget(), "Browser print dialog (beforeprint)");
+    };
+    const onCopy = () => {
+      sendGuestSecuritySignal("security.copy_attempt", "workspace", currentTarget(), "Clipboard copy event");
+    };
+    const onContextMenu = () => {
+      sendGuestSecuritySignal("security.context_menu", "workspace", currentTarget(), "Right-click contextmenu");
+    };
+    const onBlur = () => {
+      sendGuestSecuritySignal("security.window_blur_with_doc", "workspace", currentTarget(), "Window focus lost while workspace open");
+    };
+    window.addEventListener("keydown", onKey, true);
+    window.addEventListener("keyup", onKey, true);
+    window.addEventListener("beforeprint", onBeforePrint);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("copy", onCopy, true);
+    document.addEventListener("contextmenu", onContextMenu, true);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("keyup", onKey, true);
+      window.removeEventListener("beforeprint", onBeforePrint);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("copy", onCopy, true);
+      document.removeEventListener("contextmenu", onContextMenu, true);
+    };
+  }, [section, period, selectedViewerDocId]);
+
+  useEffect(() => {
     if (!mobileOpen) return;
     const key = (event: KeyboardEvent) => { if (event.key === "Escape") { setMobileOpen(false); toggleRef.current?.focus(); } };
     const outside = (event: PointerEvent) => { if (event.target instanceof Node && !sidebarRef.current?.contains(event.target)) setMobileOpen(false); };
@@ -142,6 +198,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
         GUEST_MODULE_LABELS[next] ||
         modules.find((item) => item.id === next)?.label ||
         "Administrative Module";
+      sendGuestSecuritySignal("module.restricted_click", "workspace", `restricted:${next}`, label);
       setAdminOnlyModalLabel(label);
       setMobileOpen(false);
       return;
@@ -154,6 +211,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   }
   function selectPeriod(next: string) {
     if (next !== data.currentPeriod) {
+      sendGuestSecuritySignal("module.restricted_click", "workspace", `restricted:period:${next}`, `Historical Period (${periodLabel(next)})`);
       setAdminOnlyModalLabel(`Historical Period (${periodLabel(next)})`);
       return;
     }

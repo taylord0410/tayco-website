@@ -1,4 +1,4 @@
-import { withGuestRequestAudit } from '@/lib/review-request-audit';
+import { withGuestRequestAudit, noteReviewAuditResource } from '@/lib/review-request-audit';
 import { requireActor } from '@/lib/auth';
 import { handleViewerRequest, viewerFailure, VIEWER_BRIDGE_HEADER, viewerBridgeSignature } from '@/lib/takeoff-viewer-gateway';
 
@@ -6,6 +6,21 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 async function dispatch(request: Request) {
   try {
+    const reqUrl = new URL(request.url);
+    const proj = reqUrl.searchParams.get('project');
+    const doc = reqUrl.searchParams.get('document');
+    if (proj || doc) {
+      noteReviewAuditResource(doc ? 'document' : 'project', doc ? `${proj ?? 'proj'}_${doc}` : String(proj), {
+        eventType: doc ? 'viewer.document' : 'viewer.open',
+        targetId: doc ? `${proj ?? 'project'}/${doc}` : String(proj),
+        detail: reqUrl.pathname,
+      });
+    } else if (/^\/(?:api\/)?takeoff-viewer\/?$/i.test(reqUrl.pathname)) {
+      noteReviewAuditResource('module', 'takeoff_viewer_index', {
+        eventType: 'viewer.open',
+        targetId: 'viewer:index',
+      });
+    }
     const bridgeSig = request.headers.get(VIEWER_BRIDGE_HEADER);
     const localUpstream = process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL || process.env.TAKEOFF_VIEWER_UPSTREAM || (!process.env.RAILWAY_ENVIRONMENT ? 'http://127.0.0.1:3023' : undefined);
     if (bridgeSig && localUpstream && /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/i.test(localUpstream)) {

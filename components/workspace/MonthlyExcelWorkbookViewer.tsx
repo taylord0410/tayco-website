@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { sendGuestSecuritySignal } from "@/lib/guest-security-client";
 import {
   MONTHLY_MICROPROJECTS_2026,
   getMicroProjectsByPeriod,
@@ -64,6 +65,45 @@ export default function MonthlyExcelWorkbookViewer({
   const rawProjects = useMemo(() => {
     return getMicroProjectsByPeriod(activePeriod);
   }, [activePeriod]);
+
+  useEffect(() => {
+    if (!isGuest) return;
+    sendGuestSecuritySignal(
+      "excel.open",
+      "excel",
+      `excel:${activePeriod}`,
+      `${activeTabConfig.monthName} (${rawProjects.length} projects)`,
+    );
+  }, [isGuest, activePeriod, activeTabConfig.monthName, rawProjects.length]);
+
+  useEffect(() => {
+    if (!isGuest || typeof window === "undefined") return;
+    const targetId = `excel:${activePeriod}`;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "PrintScreen" || event.code === "PrintScreen") {
+        sendGuestSecuritySignal("security.print_screen", "excel", targetId, `PrintScreen on ${activeTabConfig.monthName}`);
+      } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && ["s", "S", "3", "4", "5"].includes(event.key)) {
+        sendGuestSecuritySignal("security.snip_shortcut", "excel", targetId, `Snip shortcut on ${activeTabConfig.monthName}`);
+      } else if ((event.ctrlKey || event.metaKey) && ["p", "P"].includes(event.key)) {
+        sendGuestSecuritySignal("security.print_attempt", "excel", targetId, `Print shortcut on ${activeTabConfig.monthName}`);
+      } else if ((event.ctrlKey || event.metaKey) && ["s", "S"].includes(event.key)) {
+        sendGuestSecuritySignal("security.save_attempt", "excel", targetId, `Save shortcut on ${activeTabConfig.monthName}`);
+      } else if ((event.ctrlKey || event.metaKey) && ["c", "C"].includes(event.key)) {
+        sendGuestSecuritySignal("security.copy_attempt", "excel", targetId, `Copy shortcut on ${activeTabConfig.monthName}`);
+      }
+    };
+    const onBlur = () => {
+      sendGuestSecuritySignal("security.window_blur_with_doc", "excel", targetId, `Window focus lost while ${activeTabConfig.monthName} Excel open`);
+    };
+    window.addEventListener("keydown", onKey, true);
+    window.addEventListener("keyup", onKey, true);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("keyup", onKey, true);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [isGuest, activePeriod, activeTabConfig.monthName]);
 
   // Search filter
   const filteredProjects = useMemo(() => {

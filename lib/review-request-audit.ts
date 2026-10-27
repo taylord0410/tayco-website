@@ -1,7 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { recordReviewAudit,type ReviewAuditContext,type ReviewAuditInput } from './review-audit';
+import { recordGuestSecurityByContext,type GuestSecurityEventType } from './guest-security-log';
 
-type Frame={context?:ReviewAuditContext;reason?:NonNullable<ReviewAuditInput['reason']>;status?:number;reauthorize?:()=>Promise<void>};
+type Frame={context?:ReviewAuditContext;reason?:NonNullable<ReviewAuditInput['reason']>;status?:number;reauthorize?:()=>Promise<void>;resourceKind?:ReviewAuditInput['resourceKind'];resourceId?:string;securityEventType?:GuestSecurityEventType;securityTargetId?:string;securityDetail?:string};
 const frames=new AsyncLocalStorage<Frame>();
 /** Only auth.ts calls this after looking up a real active server session.
  * A known persisted review binding can be observed even if its grant subsequently denies access.
@@ -22,6 +23,22 @@ function reason(error:unknown,status:number):NonNullable<ReviewAuditInput['reaso
 }
 export function noteReviewAuditFailure(error:unknown,status:number){
  const frame=frames.getStore();if(frame){frame.reason=reason(error,status);frame.status=status;}
+}
+export function noteReviewAuditResource(
+ kind:NonNullable<ReviewAuditInput['resourceKind']>,
+ id:string,
+ security?:{eventType?:GuestSecurityEventType;targetId?:string;detail?:string},
+){
+ const frame=frames.getStore();
+ if(!frame)return;
+ const cleaned=id.replace(/[^A-Za-z0-9_-]/g,'_').replace(/^[^A-Za-z0-9]+/,'r').slice(0,190);
+ if(/^[A-Za-z0-9][A-Za-z0-9_-]{0,199}$/.test(cleaned)){
+  frame.resourceKind=kind;
+  frame.resourceId=cleaned;
+ }
+ if(security?.eventType)frame.securityEventType=security.eventType;
+ if(security?.targetId)frame.securityTargetId=security.targetId;
+ if(security?.detail)frame.securityDetail=security.detail;
 }
 function unavailable(request:Request,original?:Response){
  if(original?.body)void original.body.cancel().catch(()=>{});
@@ -62,7 +79,15 @@ export function withGuestRenderAudit<T>(surface:ReviewAuditInput['surface'],rend
   }
   if(frame.context){
    if(frame.status&&frame.status>=400)recordReviewAudit(frame.context,{kind:'access.denied',surface,statusCode:frame.status,reason:frame.reason??reason(undefined,frame.status)});
-   else {recordReviewAudit(frame.context,{kind:'access.allowed',surface,statusCode:200});await recheckAfterAudit(frame,surface);}
+   else {
+    recordReviewAudit(frame.context,{
+     kind:'access.allowed',
+     surface,
+     statusCode:200,
+     ...(frame.resourceKind&&frame.resourceId?{resourceKind:frame.resourceKind,resourceId:frame.resourceId}:{}),
+    });
+    await recheckAfterAudit(frame,surface);
+   }
   }
   return result;
  });
@@ -87,8 +112,22 @@ export function withGuestRequestAudit<Args extends [Request,...unknown[]]>(
   try{
    const statusCode=response.status;
    if(statusCode>=400)recordReviewAudit(frame.context,{kind:'access.denied',surface,statusCode,reason:frame.reason??reason(undefined,statusCode)});
-   else recordReviewAudit(frame.context,{kind:'access.allowed',surface,statusCode,
-    responseKind:request.method==='HEAD'?'head':statusCode===206?'range':statusCode===304?'not_modified':statusCode>=300?'redirect':'none'});
+   else {
+    recordReviewAudit(frame.context,{
+     kind:'access.allowed',
+     surface,
+     statusCode,
+     ...(frame.resourceKind&&frame.resourceId?{resourceKind:frame.resourceKind,resourceId:frame.resourceId}:{}),
+     responseKind:request.method==='HEAD'?'head':statusCode===206?'range':statusCode===304?'not_modified':statusCode>=300?'redirect':'none',
+    });
+    recordGuestSecurityByContext(frame.context,request.headers,{
+     eventType:frame.securityEventType??'request.access',
+     surface,
+     targetId:frame.securityTargetId??frame.resourceId,
+     detail:frame.securityDetail,
+     statusCode,
+    });
+   }
    if(statusCode<400&&['GET','HEAD'].includes(request.method)){try{await recheckAfterAudit(frame,surface);}catch(error){return ended(request,error,response);}}
    return response;
   }catch{return unavailable(request,response);}

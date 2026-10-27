@@ -2,7 +2,8 @@ import {insurerReviewData} from "@/lib/insurer-review";
 import {reviewDisplayDeadline} from "@/lib/review-grants";
 import ProfileAReviewConsole from "@/components/workspace/ProfileAReviewConsole";
 import ReviewDeadlineBoundary from "@/components/workspace/ReviewDeadlineBoundary";
-import { withGuestRenderAudit,noteReviewAuditFailure } from "@/lib/review-request-audit";
+import { withGuestRenderAudit,noteReviewAuditFailure,noteReviewAuditResource } from "@/lib/review-request-audit";
+import { recordGuestServerEvent } from "@/lib/guest-security-log";
 import { auditGuestFailure } from "@/lib/review-access-audit";
 import Link from "next/link";
 import { headers } from "next/headers";
@@ -30,7 +31,8 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
   try {
     if (!process.env.TAYCO_SESSION_SECRET || process.env.TAYCO_SESSION_SECRET.length < 32)
       throw new AuthError("Account access is being prepared. Please contact TAYCO for assistance.", 503);
-    const actor = await getActor(new Request("http://tayco.local/portal", { headers: await headers() }));
+    const reqHeaders = await headers();
+    const actor = await getActor(new Request("http://tayco.local/portal", { headers: reqHeaders }));
     if (!actor) redirect("/login?next=/portal");
     if(actor.review?.recipient){recipientInitial={data:insurerReviewData(actor),review:reviewDisplayDeadline(actor)};}
     else if (actor.role === "guest") {
@@ -49,6 +51,16 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
           guestInitial = guestConsoleSnapshot(actor, { period: query.period, section: "summary" });
         }
         else throw error;
+      }
+      if (guestInitial) {
+        noteReviewAuditResource("module", `portal_${guestSection}_${guestInitial.period}`);
+        recordGuestServerEvent(actor, reqHeaders, {
+          eventType: "portal.open",
+          surface: "portal",
+          targetId: `section:${guestSection}:${guestInitial.period}`,
+          detail: `${guestSection} (${guestInitial.period})`,
+          statusCode: 200,
+        });
       }
     } else {
       const current = snapshot(actor);

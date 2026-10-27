@@ -53,7 +53,7 @@ export const VIEWER_REVIEW_BRIDGE_JS=`/* Closed, consent-gated control bridge. N
   const number=Math.max(1,Math.min(max,current+delta));
   return Number.isInteger(number)&&number<=1000000?number:null;
  }
- document.addEventListener('contextmenu',event=>{if(event.preventDefault)event.preventDefault();},true);
+ document.addEventListener('contextmenu',event=>{if(event.preventDefault)event.preventDefault();try{if(typeof fetch==='function')fetch('/api/guest-security',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({eventType:'security.context_menu',surface:'viewer',targetId:documentId()||'viewer',detail:'Right-click in CAD/PDF viewer'})}).catch(()=>{});}catch{}},true);
  document.addEventListener('click',event=>{
   hideDownload();
   if(!event.isTrusted||!(event.target instanceof Element))return;
@@ -78,7 +78,8 @@ export const VIEWER_REVIEW_BRIDGE_JS=`/* Closed, consent-gated control bridge. N
   }else if(input.matches('.reader-toolbar input[type="range"]'))send('viewer.zoom.change');
  },true);
  document.addEventListener('keydown',event=>{
-  if((event.ctrlKey||event.metaKey)&&['s','S','p','P'].includes(event.key)){if(event.preventDefault)event.preventDefault();return;}
+  if(event.key==='PrintScreen'||event.code==='PrintScreen'){try{if(typeof fetch==='function')fetch('/api/guest-security',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({eventType:'security.print_screen',surface:'viewer',targetId:documentId()||'viewer',detail:'PrintScreen in CAD/PDF viewer'})}).catch(()=>{});}catch{}}
+  if((event.ctrlKey||event.metaKey)&&['s','S','p','P'].includes(event.key)){if(event.preventDefault)event.preventDefault();try{if(typeof fetch==='function')fetch('/api/guest-security',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({eventType:event.key.toLowerCase()==='p'?'security.print_attempt':'security.save_attempt',surface:'viewer',targetId:documentId()||'viewer',detail:'Save/Print shortcut in CAD/PDF viewer'})}).catch(()=>{});}catch{}return;}
   if(!event.isTrusted||!(event.target instanceof Element)||!event.target.closest('.reader-frame')||!['ArrowLeft','ArrowRight'].includes(event.key))return;
   const delta=event.key==='ArrowLeft'?-1:1,number=page(delta);if(number!==null)send(delta<0?'viewer.page.previous':'viewer.page.next',{pageNumber:number});
  },true);

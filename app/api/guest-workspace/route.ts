@@ -1,4 +1,4 @@
-import { withGuestRequestAudit,noteReviewAuditFailure } from '@/lib/review-request-audit';
+import { withGuestRequestAudit,noteReviewAuditFailure,noteReviewAuditResource } from '@/lib/review-request-audit';
 import { NextRequest, NextResponse } from "next/server";
 import { AuthError, requireActor } from "@/lib/auth";
 import { ErpError } from "@/lib/erp";
@@ -19,6 +19,12 @@ async function handleGET(request: NextRequest) {
     if (section !== undefined && !isGuestSection(section))
       throw new ErpError(422, "Choose a valid review section.");
     const workspace = guestConsoleSnapshot(actor, { period: query.get("period") ?? undefined, section: isGuestSection(section) ? section : undefined });
+    const secName = isGuestSection(section) ? section : "summary";
+    noteReviewAuditResource("module", `${secName}_${workspace.period}`, {
+      eventType: "workspace.section",
+      targetId: `section:${secName}:${workspace.period}`,
+      detail: `${secName} (${workspace.period})`,
+    });
     return NextResponse.json({ workspace }, { headers: privateHeaders });
   } catch (error) {
     noteReviewAuditFailure(error, error instanceof AuthError || error instanceof ErpError || error instanceof MonthlyManagementEstimateError ? error.status : 503);
