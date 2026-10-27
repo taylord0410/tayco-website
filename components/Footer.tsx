@@ -27,6 +27,7 @@ export default function Footer() {
               <li><Link href="/investor" className="inline-block py-1 text-slate-400 hover:text-white">Owners &amp; property managers</Link></li>
               <li><Link href="/vendor-application" className="inline-block py-1 text-slate-400 hover:text-white">Become a trade partner</Link></li>
               <li><Link href="/login" className="inline-block py-1 text-slate-400 hover:text-white">Team, client &amp; supplier sign in</Link></li>
+              <li><Link href="/privacy#project-photography-privacy" className="inline-block py-1 text-[#F3D37A] hover:text-white font-semibold">Privacy Policy &amp; Client Confidentiality</Link></li>
             </ul>
             <p className="text-xs text-slate-400 leading-relaxed mt-5">For property owners, investors, banks and lenders, general contractors, property managers and business owners.</p>
           </nav>
@@ -40,9 +41,11 @@ export default function Footer() {
             <Link href="/estimate" data-magnetic className="mt-5 inline-flex justify-center px-5 py-3 rounded-xl text-sm font-bold bg-[#C9A84C] text-[#070E1A]">Tell us what you’re planning →</Link>
           </div>
         </div>
-        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-xs text-slate-500">
+        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</p>
-          <Link href="/privacy" className="text-slate-400 hover:text-white">Privacy &amp; data protection</Link>
+          <Link href="/privacy#project-photography-privacy" className="inline-flex items-center gap-2 rounded-lg border border-[#C9A84C]/35 bg-[#0F2040]/70 px-3.5 py-1.5 font-semibold text-[#F3D37A] hover:border-[#C9A84C] hover:text-white transition-colors">
+            <span>🔒 Privacy Policy &amp; Data Protection</span>
+          </Link>
         </div>
       </div>
     </footer>

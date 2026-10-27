@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type FormEvent, type ReactNode, type CSSProperties } from "react";
 import Link from "next/link";
-import type { Entry, Data } from "@/lib/erp";
+import type { Entry, Data, WebsiteSubmissionItem } from "@/lib/erp";
 import type { AuthRole } from "@/lib/auth";
 import { COMPANY } from "@/lib/company";
 import { isValidUsdAmount } from "@/lib/financial-values";
@@ -35,6 +35,7 @@ import TakeoffProjectReader from "@/components/workspace/TakeoffProjectReader";
 import { VerifiedOpportunitiesTable } from "@/components/workspace/VerifiedOpportunitiesTable";
 import CorporateSectionExecutivePanel from "@/components/workspace/CorporateSectionExecutivePanel";
 import CorporateIcon from "@/components/workspace/CorporateIcons";
+import { AdminSubmissionsBell, AdminSubmissionsInbox } from "@/components/workspace/AdminSubmissionsBell";
 
 export type DashboardData = {
   actor: { id: string; email: string; role: AuthRole };
@@ -44,6 +45,7 @@ export type DashboardData = {
   delivery: Data[];
   audit: Data[];
   assignees?: {id:string;email:string;role:AuthRole}[];
+  websiteSubmissions?: WebsiteSubmissionItem[];
 };
 type Field = WorkspaceField;
 type Command = (data: Data, key: string) => Promise<number>;
@@ -267,6 +269,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   const [sending, setSending] = useState(false);
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [activeDocViewer, setActiveDocViewer] = useState<{ src: string; name: string } | null>(null);
+  const [focusSubmissionId, setFocusSubmissionId] = useState<string | null>(null);
   const team = data.actor.role === "admin" || data.actor.role === "staff";
   const admin = data.actor.role === "admin";
   const vendor = data.actor.role === "vendor";
@@ -278,9 +281,9 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
   function navigate(view:string,selectedProject?:string,reportingMonth?:string) {
     if(["finance","financial_dashboard","corporate_meetings","followups"].includes(view))setFinancePeriod(reportingMonth&&/^\d{4}-(0[1-9]|1[0-2])$/.test(reportingMonth)?reportingMonth:null);
     if(view === "project" && selectedProject !== undefined)setProjectClassificationFilter({ contractType: "all", laborRegime: "all" });
-    setTab(tabs.some(item=>item.id===view)?view:"project");
+    setTab((view==="website_inbox"&&admin)||tabs.some(item=>item.id===view)?view:"project");
     if(selectedProject!==undefined)setProjectId(selectedProject);
-    else if(["lead","vendor","activity","corporate_meetings","followups"].includes(view))setProjectId("");
+    else if(["lead","vendor","activity","corporate_meetings","followups","website_inbox"].includes(view))setProjectId("");
     setMobileModulesOpen(false);
     window.requestAnimationFrame(()=>{
       currentModuleRef.current?.focus({preventScroll:true});
@@ -528,7 +531,30 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
                 </div>
               </details>
             )}
-            {admin&&<div className="border-t border-amber-200/20 pt-3"><Link data-testid="module-access" href="/account" className="flex min-h-11 items-center rounded-xl border border-amber-200/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-200/10">B2B access &amp; invitations ↗</Link></div>}
+            {admin&&(
+              <div className="border-t border-amber-200/20 pt-3 space-y-2">
+                <button
+                  type="button"
+                  data-testid="sidebar-website-inbox"
+                  onClick={() => navigate("website_inbox")}
+                  aria-current={tab === "website_inbox" ? "page" : undefined}
+                  className={
+                    "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition cursor-pointer " +
+                    (tab === "website_inbox"
+                      ? "border-[#eab869] bg-[#eab869]/20 text-amber-100"
+                      : "border-amber-200/30 text-amber-100 hover:bg-amber-200/10")
+                  }
+                >
+                  <span>🔔 Website Form Inbox</span>
+                  {(data.websiteSubmissions || []).filter((s) => s.status === "unread").length > 0 && (
+                    <span className="rounded-full bg-rose-500 px-2 py-0.5 font-mono text-[10px] font-black text-white">
+                      {(data.websiteSubmissions || []).filter((s) => s.status === "unread").length}
+                    </span>
+                  )}
+                </button>
+                <Link data-testid="module-access" href="/account" className="flex min-h-11 items-center rounded-xl border border-amber-200/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-200/10">B2B access &amp; invitations ↗</Link>
+              </div>
+            )}
           </nav>
         </div>
         <div className="mt-4 rounded-xl border border-[#eab869]/30 bg-[#081528]/90 p-3.5 shadow-inner">
@@ -548,11 +574,21 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
             Monthly evaluation · <span className="font-semibold text-[#eab869]">TAYCO Construction Group</span>
             {" · "}
             <span className="text-slate-400">
-              {CORPORATE_11_MODULES.find(m => m.id === tab)?.label || tabs.find(t => t.id === tab)?.label || "Dashboard"}
+              {tab === "website_inbox" ? "Website Form Submissions Inbox" : (CORPORATE_11_MODULES.find(m => m.id === tab)?.label || tabs.find(t => t.id === tab)?.label || "Dashboard")}
             </span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          {admin && (
+            <AdminSubmissionsBell
+              submissions={data.websiteSubmissions || []}
+              onUpdated={(next) => setData((prev) => ({ ...prev, websiteSubmissions: next }))}
+              onOpenInbox={(focusId) => {
+                setFocusSubmissionId(focusId || null);
+                navigate("website_inbox");
+              }}
+            />
+          )}
           <div className="flex items-center gap-2.5 rounded-xl border border-slate-700/80 bg-[#0b1930]/90 px-3.5 py-2">
             <CorporateIcon name="lock" className="h-4 w-4 shrink-0 text-[#eab869]" />
             <div className="leading-tight">
@@ -574,7 +610,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
       {error && <div role="alert" className="mt-4 rounded-xl border border-red-300/40 bg-red-950/40 p-4 text-sm text-red-100">{error} {expired && <Link className="underline" href="/login?next=/portal">Sign in again</Link>}<p className="mt-1 text-xs">Previously loaded information remains visible and may be out of date.</p></div>}
       {tab !== "executive" && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          {!["lead","vendor","activity","corporate_meetings","followups"].includes(tab)?<label className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-300" htmlFor="portal-project-filter">Project<select id="portal-project-filter" className="min-h-11 max-w-full rounded-lg border border-slate-600 bg-[#0f2040] px-3 text-sm text-white" value={projectId} onChange={(event) => setProjectId(event.target.value)}><option value="">All assigned projects</option>{projects.map((entry) => <option key={entry.id} value={entry.id}>{value(entry.data, "name")}</option>)}</select></label>:<p className="text-xs text-slate-400">{team?"Company workspace":"Your linked company"} · no project filter</p>}
+          {!["lead","vendor","activity","corporate_meetings","followups","website_inbox"].includes(tab)?<label className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-300" htmlFor="portal-project-filter">Project<select id="portal-project-filter" className="min-h-11 max-w-full rounded-lg border border-slate-600 bg-[#0f2040] px-3 text-sm text-white" value={projectId} onChange={(event) => setProjectId(event.target.value)}><option value="">All assigned projects</option>{projects.map((entry) => <option key={entry.id} value={entry.id}>{value(entry.data, "name")}</option>)}</select></label>:<p className="text-xs text-slate-400">{team?"Company workspace":"Your linked company"} · no project filter</p>}
           <p role="status" className="text-xs text-slate-400">Last refreshed {timestamp(data.updatedAt)}</p>
         </div>
       )}
@@ -586,12 +622,12 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         {pendingView.phase === "uncertain" && <button type="button" className={buttonClass + " mt-3"} onClick={() => { const request = pendingCommand.current; if (request) void command(request.body, request.key).catch(() => {}); }}>Retry retained request</button>}
       </section>}
       <div ref={currentModuleRef} tabIndex={-1} role="region" aria-label={tabs.find(item=>item.id===tab)?.label||"Workspace module"} className="mt-4 min-w-0 outline-none" aria-busy={refreshing} data-testid={"module-"+(moduleId[tab]||tab)}>
-        {tab !== "executive" && team && (
+        {tab !== "executive" && tab !== "website_inbox" && team && (
           <div className="mb-5">
             <CorporateSectionExecutivePanel activeTab={tab} isGuest={false} onNavigate={(v) => navigate(v)} />
           </div>
         )}
-        <Panel featured={tab==="executive"} title={tab === "executive" ? "Monthly Corporate Overview" : (CORPORATE_11_MODULES.find((item) => item.id === tab)?.label || tabs.find((item) => item.id === tab)?.label || "Workspace")} subtitle={tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
+        <Panel featured={tab==="executive"} title={tab === "executive" ? "Monthly Corporate Overview" : tab === "website_inbox" ? "Website Form Submissions Inbox" : (CORPORATE_11_MODULES.find((item) => item.id === tab)?.label || tabs.find((item) => item.id === tab)?.label || "Workspace")} subtitle={tab === "invoice" ? "Track submitted invoices and recorded decisions. A paid status is a team record, not a payment transfer." : tab === "document" ? "Receipt and approval are separate steps. Review the status and any requested corrections." : tab === "hours" ? "Record work performed and follow its review. This workspace does not calculate wages or submit payroll." : tab === "project" ? "A shared view of progress, upcoming actions and project conversations." : undefined}>
           {tab === "project" && team && <CommandForm title="Add a project" action="create_project" command={command} fields={[{ name: "name", label: "Project name" }, { name: "location", label: "Location", required: false }, { name: "clientName", label: "Client name", required: false }, { name: "budgetUsd", label: "Approved budget (USD, optional)", type: "number", required: false, min: 0, max: 1e10, step: 0.01 }, { name: "budgetSource", label: "Approval source (required when budget is entered)", required: false }, { name: "budgetApprovedOn", label: "Approval date (required when budget is entered)", type: "date", required: false }, { name: "nextAction", label: "Next action (optional)", required: false, placeholder: "Record the actual next step for this project", type: "textarea" }, ...projectClassificationFields()]} />}
           {tab === "project" && <ProjectClassificationFilters projects={scopedRecords} value={projectClassificationFilter} onChange={setProjectClassificationFilter} />}
           {tab === "lead" && team && <CommandForm title="Add a request" action="create_lead" command={command} fields={[assigneeField(),{ name: "name", label: "Contact name" }, { name: "email", label: "Email address", type: "email" }, { name: "details", label: "Project details", type: "textarea" }]} />}
@@ -613,7 +649,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
               <TakeoffProjectReader source={activeDocViewer.src} projectName={activeDocViewer.name} privacyNotice={false} />
             </div>
           )}
-          {tab==="executive"?<div className="space-y-6"><ExecutiveConsole data={data} projectId={projectId} onNavigate={navigate} estimates={estimateReport.estimates}/>{team&&!projectId&&<ManagementEstimatesPanel compact onOpenMonth={period=>navigate("financial_dashboard",undefined,period)}/>}</div>:tab==="financial_dashboard"?<div className="space-y-6">{team&&!projectId&&<ManagementEstimatesPanel initialPeriod={financePeriod||undefined}/>}<FinancialDashboard entries={data.entries} projectId={projectId} asOf={data.updatedAt} initialMonth={financePeriod||undefined} onNavigate={navigate} renderForm={renderOperationsForm}/></div>: team&&["corporate_meetings","followups"].includes(tab)?<CorporateAgenda key={tab} view={tab==="corporate_meetings"?"meetings":"followups"} entries={data.entries} assignees={data.assignees||[]} asOf={data.updatedAt} month={financePeriod||undefined} renderForm={renderOperationsForm}/>: tab==="hours"?<div className="space-y-5"><HoursReport entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor}/><details className="rounded-xl border border-amber-200/20 p-4"><summary className="min-h-11 cursor-pointer font-semibold text-amber-100">Work-log source records</summary><div className="mt-4 grid gap-4 lg:grid-cols-2">{visible.map(entry=><article key={entry.id} className={card}><h3 className="font-semibold text-white">{recordTitle(entry)}</h3><Status>{label(entry.data.status)}</Status>{metadata(entry)}{detail(entry)}{controls(entry)}</article>)}</div></details></div>: tab==="lead"&&team?<CommercialRequests entries={data.entries} projectId="" assignees={data.assignees||[]} renderForm={renderOperationsForm} renderProgress={entry=><CommercialRecordControl entry={entry} command={command} pending={Boolean(pendingView)}/>}/>: tab==="estimate"?<EstimateArchive estimates={estimateReport.estimates} invalidCount={estimateReport.invalidCount}/>: tab==="takeoff"&&team?<div className="space-y-5"><MeasurementReview projectId={projectId}/><OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/></div>: ["proposal","team","bid","compliance","dossier","takeoff"].includes(tab)?<OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/>:tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} initialPeriod={financePeriod} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
+          {tab==="website_inbox"&&admin?<AdminSubmissionsInbox submissions={data.websiteSubmissions||[]} focusId={focusSubmissionId} onUpdated={(next)=>setData(prev=>({...prev,websiteSubmissions:next}))}/>:tab==="executive"?<div className="space-y-6"><ExecutiveConsole data={data} projectId={projectId} onNavigate={navigate} estimates={estimateReport.estimates}/>{team&&!projectId&&<ManagementEstimatesPanel compact onOpenMonth={period=>navigate("financial_dashboard",undefined,period)}/>}</div>:tab==="financial_dashboard"?<div className="space-y-6">{team&&!projectId&&<ManagementEstimatesPanel initialPeriod={financePeriod||undefined}/>}<FinancialDashboard entries={data.entries} projectId={projectId} asOf={data.updatedAt} initialMonth={financePeriod||undefined} onNavigate={navigate} renderForm={renderOperationsForm}/></div>: team&&["corporate_meetings","followups"].includes(tab)?<CorporateAgenda key={tab} view={tab==="corporate_meetings"?"meetings":"followups"} entries={data.entries} assignees={data.assignees||[]} asOf={data.updatedAt} month={financePeriod||undefined} renderForm={renderOperationsForm}/>: tab==="hours"?<div className="space-y-5"><HoursReport entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor}/><details className="rounded-xl border border-amber-200/20 p-4"><summary className="min-h-11 cursor-pointer font-semibold text-amber-100">Work-log source records</summary><div className="mt-4 grid gap-4 lg:grid-cols-2">{visible.map(entry=><article key={entry.id} className={card}><h3 className="font-semibold text-white">{recordTitle(entry)}</h3><Status>{label(entry.data.status)}</Status>{metadata(entry)}{detail(entry)}{controls(entry)}</article>)}</div></details></div>: tab==="lead"&&team?<CommercialRequests entries={data.entries} projectId="" assignees={data.assignees||[]} renderForm={renderOperationsForm} renderProgress={entry=><CommercialRecordControl entry={entry} command={command} pending={Boolean(pendingView)}/>}/>: tab==="estimate"?<EstimateArchive estimates={estimateReport.estimates} invalidCount={estimateReport.invalidCount}/>: tab==="takeoff"&&team?<div className="space-y-5"><MeasurementReview projectId={projectId}/><OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/></div>: ["proposal","team","bid","compliance","dossier","takeoff"].includes(tab)?<OperationsModules view={tab} entries={data.entries} projectId={projectId} asOf={data.updatedAt} team={team} vendor={vendor} integrations={data.integrations} assignees={data.assignees||[]} renderForm={renderOperationsForm} onNavigate={navigate}/>:tab === "finance" ? <FinanceOverview entries={data.entries} projectId={projectId} asOf={data.updatedAt} internal={team} vendor={vendor} initialPeriod={financePeriod} onOpenInvoices={()=>setTab("invoice")}/> : tab === "activity" ? <div className="space-y-3">
             <div className={card}><h3 className="font-semibold text-amber-100">Request notifications</h3><p className="mt-2 text-sm leading-relaxed text-slate-300">Request records are saved independently of email delivery. Acceptance by the email provider does not guarantee delivery to the recipient’s inbox.</p>
               <div className="mt-3 flex flex-wrap gap-2">{data.delivery.length ? data.delivery.map((item, index) => <Status key={index}>{item.status==="delivered"?"Accepted by email provider":label(item.status)}: {value(item, "count")}</Status>) : <p className="text-sm text-slate-400">No queued notifications.</p>}</div>
               {admin && <button type="button" className={secondaryClass + " mt-4"} disabled={sending || Boolean(pendingView)} onClick={() => void deliverNotifications()}>{sending ? "Processing…" : "Send queued notifications"}</button>}

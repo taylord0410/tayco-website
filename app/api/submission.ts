@@ -13,7 +13,7 @@ export async function readJson(request:Request):Promise<Record<string,unknown>> 
 }
 function originAllowed(request:Request) {
  const origin=request.headers.get('origin');if(!origin)return false;
- const allowed=[process.env.TAYCO_APP_URL,'https://taycoturnkey.com','https://www.taycoturnkey.com',...(process.env.ALLOWED_ORIGINS||'').split(',')].filter(Boolean);
+ const allowed=[process.env.TAYCO_APP_URL,'https://tayco.llc','https://www.tayco.llc','https://tayroofing.org','https://www.tayroofing.org','https://taycoturnkey.com','https://www.taycoturnkey.com',...(process.env.TAYCO_EXTRA_ORIGINS||'').split(','),...(process.env.ALLOWED_ORIGINS||'').split(',')].map(s=>s?.trim()).filter(Boolean);
  if(allowed.includes(origin))return true;
  if(process.env.NODE_ENV!=='production'){try{const url=new URL(origin);return ['localhost','127.0.0.1'].includes(url.hostname)&&url.origin===new URL(request.url).origin;}catch{return false;}}
  return false;

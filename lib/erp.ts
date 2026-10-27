@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { randomUUID, createHash } from 'node:crypto';
+import { randomUUID, createHash, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { isValidUsdAmount } from './financial-values';
@@ -93,6 +93,8 @@ export function database() {
     CREATE TABLE IF NOT EXISTS audit(id TEXT PRIMARY KEY,tenant_id TEXT,actor_id TEXT,action TEXT,resource_id TEXT,created_at TEXT);
     CREATE TABLE IF NOT EXISTS outbox(id TEXT PRIMARY KEY,tenant_id TEXT,kind TEXT,payload TEXT,status TEXT DEFAULT 'pending',attempts INTEGER DEFAULT 0,next_attempt_at TEXT,created_at TEXT,last_error TEXT);
     CREATE TABLE IF NOT EXISTS legacy_archive(hash TEXT PRIMARY KEY,payload TEXT NOT NULL,imported_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS website_submissions(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,form_kind TEXT NOT NULL,sender_name TEXT NOT NULL,sender_email TEXT NOT NULL,sender_phone TEXT NOT NULL,company_or_type TEXT NOT NULL DEFAULT '',location TEXT NOT NULL DEFAULT '',summary TEXT NOT NULL DEFAULT '',payload_encrypted TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'unread',created_at TEXT NOT NULL,read_at TEXT,read_by TEXT);
+    CREATE INDEX IF NOT EXISTS idx_website_submissions_tenant ON website_submissions(tenant_id,status,created_at DESC);
     PRAGMA user_version=1;`);
   seedErpIfNeeded(db);
   connections.set(file, db); return db;
@@ -273,7 +275,7 @@ export function snapshot(actor: Actor) {
   requireWorkspaceActor(actor);
   const entries=(database().prepare('SELECT * FROM records WHERE tenant_id=? ORDER BY updated_at DESC').all(actor.tenantId) as Row[]).map(decode).filter(e=>allowed(actor,e)&&!(e.kind==='document'&&(e.data.deletedAt||e.data.purgedAt))).map(e=>exposed(actor,e));
   const viewerReady = Boolean((process.env.TAYCO_TAKEOFF_VIEWER_INTERNAL_URL && process.env.TAYCO_TAKEOFF_RELATIONS_PATH && process.env.TAYCO_TAKEOFF_MAPPING_PATH) || existsSync(path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'relations.json')));
-  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:viewerReady?'viewer_configured':'not_configured',accounting:'viewer_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[] };
+  return { actor:{id:actor.id,email:actor.email,role:actor.role}, entries, updatedAt:new Date().toISOString(), integrations:{takeoff:viewerReady?'viewer_configured':'not_configured',accounting:'viewer_configured'},assignees:internal(actor)?listAssignableStaff(actor):[],finance:financialSummary(actor), delivery:internal(actor) ? database().prepare('SELECT status,COUNT(*) AS count FROM outbox WHERE tenant_id=? GROUP BY status').all(actor.tenantId).map(row=>({...row})):[], audit:internal(actor)?database().prepare('SELECT action,resource_id,created_at FROM audit WHERE tenant_id=? ORDER BY created_at DESC LIMIT 30').all(actor.tenantId).map(row=>({...row})):[], ...(actor.role==='admin'?{websiteSubmissions:listWebsiteSubmissions(actor)}:{}) };
 }
 export function execute(actor: Actor, key: string, input: Data) {
   requireWorkspaceActor(actor);
@@ -563,6 +565,103 @@ export function validateInvitationAssignments(actor:Actor, projectIds:string[], 
   if(vendorId)requireEntry(actor,vendorId,'vendor');
 }
 export function validateDocumentProject(actor:Actor,id?:string) {if(id)project(actor,id);}
+export type WebsiteSubmissionItem = {
+  id: string;
+  formKind: 'estimate' | 'investor' | 'vendor';
+  senderName: string;
+  senderEmail: string;
+  senderPhone: string;
+  companyOrType: string;
+  location: string;
+  summary: string;
+  payload: Record<string, unknown>;
+  status: 'unread' | 'read' | 'archived';
+  createdAt: string;
+  readAt: string | null;
+  readBy: string | null;
+};
+function submissionCipherKey(): Buffer {
+  const secret = process.env.TAYCO_DATA_ENCRYPTION_KEY || process.env.TAYCO_SESSION_SECRET || process.env.SESSION_SECRET || 'tayco-default-dev-encryption-key-2026';
+  return createHash('sha256').update(secret).digest();
+}
+function encryptSubmissionPayload(payload: Record<string, unknown>): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', submissionCipherKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(JSON.stringify(payload), 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
+}
+function decryptSubmissionPayload(cipherText: string): Record<string, unknown> {
+  try {
+    const [ivHex, tagHex, dataHex] = cipherText.split(':');
+    if (!ivHex || !tagHex || !dataHex) return {};
+    const decipher = createDecipheriv('aes-256-gcm', submissionCipherKey(), Buffer.from(ivHex, 'hex'));
+    decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+    const decrypted = Buffer.concat([decipher.update(Buffer.from(dataHex, 'hex')), decipher.final()]).toString('utf8');
+    return JSON.parse(decrypted) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+export function listWebsiteSubmissions(actor: Actor): WebsiteSubmissionItem[] {
+  if (actor.role !== 'admin') throw new ErpError(403, 'Only an administrator can view website form submissions.');
+  const db = database();
+  type SubRow = {
+    id: string;
+    form_kind: string;
+    sender_name: string;
+    sender_email: string;
+    sender_phone: string;
+    company_or_type: string;
+    location: string;
+    summary: string;
+    payload_encrypted: string;
+    status: string;
+    created_at: string;
+    read_at: string | null;
+    read_by: string | null;
+  };
+  const rows = db.prepare('SELECT id,form_kind,sender_name,sender_email,sender_phone,company_or_type,location,summary,payload_encrypted,status,created_at,read_at,read_by FROM website_submissions WHERE tenant_id=? ORDER BY created_at DESC LIMIT 200').all(actor.tenantId) as SubRow[];
+  return rows.map((r) => ({
+    id: r.id,
+    formKind: (r.form_kind === 'investor' || r.form_kind === 'vendor' ? r.form_kind : 'estimate') as 'estimate' | 'investor' | 'vendor',
+    senderName: r.sender_name,
+    senderEmail: r.sender_email,
+    senderPhone: r.sender_phone,
+    companyOrType: r.company_or_type,
+    location: r.location,
+    summary: r.summary,
+    payload: decryptSubmissionPayload(r.payload_encrypted),
+    status: (r.status === 'read' || r.status === 'archived' ? r.status : 'unread') as 'unread' | 'read' | 'archived',
+    createdAt: r.created_at,
+    readAt: r.read_at,
+    readBy: r.read_by,
+  }));
+}
+export function updateWebsiteSubmissionStatus(actor: Actor, input: { action: 'mark_read' | 'mark_unread' | 'archive' | 'mark_all_read'; id?: string }): WebsiteSubmissionItem[] {
+  if (actor.role !== 'admin') throw new ErpError(403, 'Only an administrator can manage website form submissions.');
+  const now = new Date().toISOString();
+  return transact(() => {
+    const db = database();
+    if (input.action === 'mark_all_read') {
+      db.prepare("UPDATE website_submissions SET status='read', read_at=?, read_by=? WHERE tenant_id=? AND status='unread'").run(now, actor.email || actor.id, actor.tenantId);
+      audit(actor, 'mark_all_submissions_read', actor.tenantId);
+    } else {
+      const subId = text(input.id, 'submission reference', 100);
+      const nextStatus = input.action === 'mark_unread' ? 'unread' : input.action === 'archive' ? 'archived' : 'read';
+      const changed = db.prepare('UPDATE website_submissions SET status=?, read_at=?, read_by=? WHERE id=? AND tenant_id=?').run(
+        nextStatus,
+        nextStatus === 'unread' ? null : now,
+        nextStatus === 'unread' ? null : (actor.email || actor.id),
+        subId,
+        actor.tenantId
+      );
+      if (changed.changes !== 1) throw new ErpError(404, 'Submission not found.');
+      audit(actor, `submission_${input.action}`, subId);
+    }
+    return listWebsiteSubmissions(actor);
+  });
+}
 export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record<string,unknown>,key:string) {
   const actor={id:'website',email:'',role:'staff',tenantId:process.env.TAYCO_PUBLIC_TENANT_ID||'tayco_llc',projectIds:[]} as Actor;
   const hash=createHash('sha256').update(JSON.stringify({kind,payload})).digest('hex');
@@ -570,8 +669,17 @@ export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record
   return transact(()=>{
     const old=database().prepare('SELECT hash,result FROM commands WHERE tenant_id=? AND actor_id=? AND key=?').get(actor.tenantId,actor.id,key) as {hash:string;result:string}|undefined;
     if(old){if(old.hash!==hash)throw new ErpError(409,'Request reference already used.');return JSON.parse(old.result) as Entry;}
+    const senderName=String(payload.fullName||payload.contactName||payload.businessName||'Website Visitor').trim();
+    const senderEmail=String(payload.email||'').trim();
+    const senderPhone=String(payload.phone||'').trim();
+    const companyOrType=String(payload.businessName||payload.company||payload.projectType||payload.propertyType||'').trim();
+    const location=String(payload.projectLocation||payload.citiesServed||payload.stateServed||payload.states||'').trim();
+    const summary=String(payload.projectDetails||payload.notes||payload.workNeeded||payload.trades||'').trim();
     // Preserve submitted fields exactly as validated. Unknown money, tax and document approval remain unknown.
-    const item=create(actor,kind==='vendor'?'vendor':'lead',{...payload,kind,status:kind==='vendor'?'pending_review':'new',source:'website',estimatedValueUsd:null,takeoffProjectSlug:null});
+    const item=create(actor,kind==='vendor'?'vendor':'lead',{name:senderName,location,details:summary,...payload,kind,status:kind==='vendor'?'pending_review':'new',source:'website',estimatedValueUsd:null,takeoffProjectSlug:null});
+    database().prepare('INSERT OR REPLACE INTO website_submissions(id,tenant_id,form_kind,sender_name,sender_email,sender_phone,company_or_type,location,summary,payload_encrypted,status,created_at,read_at,read_by) VALUES(?,?,?,?,?,?,?,?,?,?,?, ?,NULL,NULL)').run(
+      item.id,actor.tenantId,kind,senderName,senderEmail,senderPhone,companyOrType,location,summary,encryptSubmissionPayload(payload),'unread',item.createdAt
+    );
     database().prepare('INSERT INTO outbox(id,tenant_id,kind,payload,next_attempt_at,created_at) VALUES(?,?,?,?,?,?)').run(randomUUID(),actor.tenantId,'website_request',JSON.stringify({referenceId:item.id,kind}),item.createdAt,item.createdAt);
     database().prepare('INSERT INTO commands VALUES(?,?,?,?,?)').run(actor.tenantId,actor.id,key,hash,JSON.stringify(item));return item;
   });
