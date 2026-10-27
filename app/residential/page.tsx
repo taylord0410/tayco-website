@@ -1,7 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import {
+  TransformationBeforeAfterStudio,
+  DualTrackArchitecturalMarquee,
+  RegionalFootprintStrip,
+  ServiceCardTriptych,
+  type TriptychFrame,
+} from "@/components/LandingLivingShowcase";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type ResidentialCategory =
@@ -20,7 +27,65 @@ interface ResidentialTradeCard {
   accent: string;
   summary: string;
   items: string[];
+  triptych: TriptychFrame[];
 }
+
+const RESIDENTIAL_HERO_SCENES = [
+  {
+    id: "res-hero-1",
+    sector: "Chef's Kitchens & Islands",
+    title: "Bespoke White-Oak Island, Quartz Waterfall & Custom Millwork",
+    csi: "DIV 06 · 09 · 22",
+    image: "/curated/hero/res-navy-kitchen.jpg",
+    gallery: ["/curated/pairs/div03_02_despues.jpg", "/curated/magazine/revista_ca_cab_1.jpg", "/curated/residential/div01_08_despues.jpg"],
+    summary: "Custom inset cabinetry, stone countertops, integrated lighting and full kitchen spatial reconfiguration.",
+  },
+  {
+    id: "res-hero-2",
+    sector: "Living & Finish Carpentry",
+    title: "Coffered Living Room Ceiling, Built-In Shelving & Stone Hearth",
+    csi: "DIV 04 · 06 · 09",
+    image: "/curated/hero/res-coffered-hearth.jpg",
+    gallery: ["/curated/pairs/div01_03_despues.jpg", "/curated/residential/div01_05_despues.jpg", "/curated/residential/div03_07_despues.jpg"],
+    summary: "Architectural beams, custom fireplace surrounds, oak stair carpentry and wainscoting trim.",
+  },
+  {
+    id: "res-hero-3",
+    sector: "Roofing & Architectural Gable",
+    title: "High-Pitch Architectural Shingle, Standing-Seam & Slate Roofs",
+    csi: "DIV 07 31 00 · 07 60 00",
+    image: "/curated/hero/res-estate-roofing.jpg",
+    gallery: ["/curated/residential/r1.jpg", "/curated/residential/r3.jpg", "/curated/residential/r4.jpg"],
+    summary: "Complete tear-off, ice-and-water shield, copper flashing, ridge ventilation and storm-rated roofing.",
+  },
+  {
+    id: "res-hero-4",
+    sector: "Siding & Exterior Envelope",
+    title: "Fiber-Cement Board & Batten, Cedar Accents & Window Package",
+    csi: "DIV 07 46 00 · 08 50 00",
+    image: "/curated/hero/res-farmhouse-metal.jpg",
+    gallery: ["/curated/residential/s1.jpg", "/curated/residential/s6.jpg", "/curated/residential/div01_04_despues.jpg"],
+    summary: "Full exterior envelope modernization with insulated housewrap, custom trim and energy-efficient glazing.",
+  },
+  {
+    id: "res-hero-5",
+    sector: "Decks, Patios & Additions",
+    title: "Multi-Tier Timber Deck, Patio Concrete & Outdoor Living",
+    csi: "DIV 03 · 06 11 00",
+    image: "/curated/hero/res-multitier-deck.jpg",
+    gallery: ["/curated/pairs/div01_02_despues.jpg", "/curated/residential/div01_07_despues.jpg", "/curated/residential/s3.jpg"],
+    summary: "Structural home additions, covered porches, custom timber decks and broom-finished concrete patios.",
+  },
+  {
+    id: "res-hero-6",
+    sector: "Basements & Whole-Home",
+    title: "Lower-Level Living Suite, Media Built-Ins & Hardwood Remodel",
+    csi: "DIV 06 · 09 · 26",
+    image: "/curated/hero/res-cedar-deck-home.jpg",
+    gallery: ["/curated/pairs/div03_04_despues.jpg", "/curated/capabilities/res-basement-media.jpg", "/curated/residential/div03_03_despues.jpg"],
+    summary: "Turnkey basement finishing, moisture-protected framing, custom cabinetry and whole-home remodeling.",
+  },
+] as const;
 
 const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   {
@@ -39,6 +104,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Leak and storm damage repairs",
       "Ventilation and flashing review",
       "Roof condition assessment"
+    ],
+    "triptych": [
+      { "src": "/curated/residential/r3.jpg", "label": "Architectural Shingle Roof Installation" },
+      { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
+      { "src": "/curated/residential/r6.jpg", "label": "Synthetic Ice & Water Shield Underlayment" }
     ]
   },
   {
@@ -57,6 +127,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Window and door coordination",
       "Soffit and fascia",
       "Repair and replacement planning"
+    ],
+    "triptych": [
+      { "src": "/curated/residential/s1.jpg", "label": "Fiber-Cement & Vinyl Lap Siding" },
+      { "src": "/curated/residential/div01_04_despues.jpg", "label": "Black-Frame Window & Exterior Trim Package" },
+      { "src": "/curated/residential/div02_06_despues.jpg", "label": "Porch Columns, Entry Door & Soffit Wrap" }
     ]
   },
   {
@@ -75,6 +150,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Structural headers",
       "Porches and decks",
       "Engineering review where required"
+    ],
+    "triptych": [
+      { "src": "/curated/pairs/div01_01_despues.jpg", "label": "2-Story Wood Framing & Roof Trusses" },
+      { "src": "/curated/residential/c3.jpg", "label": "OSB Subfloor & Wood I-Joist Decking" },
+      { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" }
     ]
   },
   {
@@ -93,6 +173,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Repair and patching",
       "Ceiling details",
       "Painting and final touch-ups"
+    ],
+    "triptych": [
+      { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Smooth Level-5 Drywall Finishing" },
+      { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Recessed Lighting" },
+      { "src": "/curated/magazine/revista_pa_01_a.jpg", "label": "Interior Wall Preparation & Finish Coat" }
     ]
   },
   {
@@ -111,6 +196,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Built-in storage",
       "Countertop coordination",
       "Stairs and finish carpentry"
+    ],
+    "triptych": [
+      { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Custom White Shaker Kitchen & Quartz Island" },
+      { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Bookcases, Mantel & Coffered Beams" },
+      { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
     ]
   },
   {
@@ -129,6 +219,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Steps and stoops",
       "Decorative concrete options",
       "Concrete repair"
+    ],
+    "triptych": [
+      { "src": "/curated/residential/c4.jpg", "label": "Poured Concrete Basement Foundation Wall" },
+      { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
+      { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" }
     ]
   },
   {
@@ -147,6 +242,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Soot and smoke repairs",
       "Insurance documentation support",
       "Home reconstruction"
+    ],
+    "triptych": [
+      { "src": "/curated/capabilities/fire-wood-framing.jpg", "label": "Fire & Smoke Structural Wood Reconstruction" },
+      { "src": "/curated/capabilities/mit-drywall-hang.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
+      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
     ]
   },
   {
@@ -165,6 +265,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Property rehabilitation",
       "Rental unit turnovers",
       "Bank-owned property repairs"
+    ],
+    "triptych": [
+      { "src": "/curated/pairs/div03_04_despues.jpg", "label": "Finished Basement Living Suite & LVP" },
+      { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
+      { "src": "/curated/residential/div01_08_despues.jpg", "label": "Custom Mudroom Lockers & Whole-Home Storage" }
     ]
   }
 ];
@@ -173,6 +278,17 @@ export default function ResidentialPage() {
   const [lightAngle, setLightAngle] = useState<number>(48);
   const [activeCategory, setActiveCategory] =
     useState<ResidentialCategory>("all");
+  const [heroIdx, setHeroIdx] = useState<number>(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setHeroIdx((prev) => (prev + 1) % RESIDENTIAL_HERO_SCENES.length);
+    }, 6200);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const currentHeroScene =
+    RESIDENTIAL_HERO_SCENES[heroIdx] ?? RESIDENTIAL_HERO_SCENES[0];
 
   const filteredTrades =
     activeCategory === "all"
@@ -201,6 +317,27 @@ export default function ResidentialPage() {
           borderColor: "rgba(201, 168, 76, 0.38)",
         }}
       >
+        {/* Live 6-Scene Residential Backdrop Cycler */}
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={currentHeroScene.image}
+            src={currentHeroScene.image}
+            alt=""
+            className="w-full h-full object-cover opacity-25 scale-105 transition-all duration-1000"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(108deg, rgba(7,14,26,0.95) 0%, rgba(15,32,64,0.85) 52%, rgba(7,14,26,0.93) 100%)",
+            }}
+          />
+        </div>
+
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -310,124 +447,248 @@ export default function ResidentialPage() {
             </div>
           </div>
 
-          {/* Project services and resources */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
-            <div className="lg:col-span-7">
-              <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
-                From kitchens and bathrooms to additions, basement finishing and restoration,
-                TAYCO helps make your next step clear. Tell us about your home, your priorities and the work you have in mind.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-6">
-                <Link
-                  href="/estimate"
-                  data-magnetic
-                  className="px-6 py-3.5 rounded-xl font-black text-sm text-white transition-transform hover:scale-105 shadow-lg"
-                  style={{ background: "#F97316" }}
-                >
-                  Request a home project estimate →
-                </Link>
-                <Link
-                  href="/login"
-                  data-magnetic
-                  className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
-                >
-                  Client project sign in →
-                </Link>
-                <Link
-                  href="/commercial"
-                  data-magnetic
-                  className="px-5 py-3.5 rounded-xl font-bold text-sm text-white border border-white/25 hover:bg-white/10 transition-colors"
-                >
-                  View Commercial Division →
-                </Link>
-              </div>
-            </div>
+          {/* Split Residential Hero: Left Copy + Space Pills | Right Live Home Showcase */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-12">
+            <div className="lg:col-span-7 flex flex-col justify-between">
+              <div>
+                <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
+                  From kitchens and bathrooms to additions, basement finishing and restoration,
+                  TAYCO helps make your next step clear. Tell us about your home, your priorities and the work you have in mind.
+                </p>
 
-            <div className="lg:col-span-5">
+                {/* Interactive 6-Scene Residential Space Selector */}
+                <div className="mt-6">
+                  <div className="text-[11px] font-mono uppercase tracking-widest text-amber-300 mb-2.5">
+                    EXPLORE RESIDENTIAL SPACES (0{heroIdx + 1} / 0{RESIDENTIAL_HERO_SCENES.length})
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {RESIDENTIAL_HERO_SCENES.map((scene, idx) => {
+                      const active = idx === heroIdx;
+                      return (
+                        <button
+                          key={scene.id}
+                          type="button"
+                          onClick={() => setHeroIdx(idx)}
+                          className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer"
+                          style={{
+                            background: active ? "#F97316" : "rgba(15, 32, 64, 0.78)",
+                            color: "#ffffff",
+                            borderColor: active ? "#FDBA74" : "rgba(201, 168, 76, 0.34)",
+                          }}
+                        >
+                          0{idx + 1} · {scene.sector}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 mt-7">
+                  <Link
+                    href="/estimate"
+                    data-magnetic
+                    className="px-6 py-3.5 rounded-xl font-black text-sm text-white transition-transform hover:scale-105 shadow-lg"
+                    style={{ background: "#F97316" }}
+                  >
+                    Request a home project estimate →
+                  </Link>
+                  <Link
+                    href="/login"
+                    data-magnetic
+                    className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105"
+                    style={{ background: "#C9A84C", color: "#070E1A" }}
+                  >
+                    Client project sign in →
+                  </Link>
+                  <Link
+                    href="/commercial"
+                    data-magnetic
+                    className="px-5 py-3.5 rounded-xl font-bold text-sm text-white border border-white/25 hover:bg-white/10 transition-colors"
+                  >
+                    View Commercial Division →
+                  </Link>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
-                className="tayco-living-card p-5 rounded-2xl border"
+                className="tayco-living-card p-5 rounded-2xl border mt-6"
                 style={{
                   background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.94), rgba(7, 14, 26, 0.96))`,
                   borderColor: "rgba(201, 168, 76, 0.48)",
                 }}
               >
-                <div className="flex items-center justify-between text-xs font-mono text-amber-300 font-bold mb-2">
+                <div className="flex items-center justify-between text-xs font-mono text-amber-300 font-bold mb-1.5">
                   <span>A HOME THAT WORKS FOR YOU</span>
                   <span>YOUR SPACE · YOUR PRIORITIES</span>
                 </div>
-                <div className="text-2xl font-black font-mono text-white">
+                <div className="text-xl font-black font-mono text-white">
                   Thoughtful renovation{" "}
                   <span className="text-xs font-normal text-emerald-300">
                     from room to whole home
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                   Start with your goals and existing conditions. We help coordinate scope, finishes and trades, with the details agreed before work begins.
                 </p>
               </div>
             </div>
+
+            {/* Right 5 Columns: Interactive Residential Showcase Card */}
+            <div className="lg:col-span-5 flex flex-col">
+              <div
+                data-response-kind="surface"
+                className="tayco-living-card rounded-2xl border overflow-hidden shadow-2xl flex-1 flex flex-col justify-between"
+                style={{
+                  background: "rgba(7, 14, 26, 0.92)",
+                  borderColor: "rgba(249, 115, 22, 0.52)",
+                }}
+              >
+                <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-950">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentHeroScene.image}
+                    alt={currentHeroScene.title}
+                    className="w-full h-full object-cover transition-all duration-700"
+                  />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
+                    }}
+                  />
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <span
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
+                      style={{
+                        background: "rgba(7, 14, 26, 0.85)",
+                        color: "#FDBA74",
+                        border: "1px solid rgba(249, 115, 22, 0.55)",
+                      }}
+                    >
+                      {currentHeroScene.sector}
+                    </span>
+                    <span
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
+                      style={{
+                        background: "rgba(201, 168, 76, 0.22)",
+                        color: "#F3D37A",
+                        border: "1px solid rgba(201, 168, 76, 0.5)",
+                      }}
+                    >
+                      {currentHeroScene.csi}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <div className="text-sm sm:text-base font-black text-white leading-snug">
+                      {currentHeroScene.title}
+                    </div>
+                    <p className="text-xs text-slate-300 mt-1 line-clamp-2">
+                      {currentHeroScene.summary}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 Curated Home Detail Thumbnails */}
+                <div className="p-3.5 border-t border-white/10">
+                  <div className="grid grid-cols-3 gap-2">
+                    {currentHeroScene.gallery.map((thumb, tIdx) => (
+                      <div
+                        key={thumb}
+                        className="relative overflow-hidden rounded-lg border aspect-[16/10]"
+                        style={{ borderColor: "rgba(201, 168, 76, 0.35)" }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={thumb}
+                          alt={`${currentHeroScene.sector} detail ${tIdx + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Project services and resources */}
+          {/* 5 Residential KPI Cards with Thumbnail Previews */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-  {
-    "metric": "Renovate",
-    "label": "Kitchens & bathrooms",
-    "sub": "Make everyday spaces work better",
-    "accent": "#C9A84C"
-  },
-  {
-    "metric": "Expand",
-    "label": "Additions & basements",
-    "sub": "Plan the space you need",
-    "accent": "#10B981"
-  },
-  {
-    "metric": "Restore",
-    "label": "Fire & water damage",
-    "sub": "Bring repair and rebuilding together",
-    "accent": "#4A90D9"
-  },
-  {
-    "metric": "8 States",
-    "label": "Service coverage",
-    "sub": "WI · IL · IA · IN · MN · MI · MO · TX",
-    "accent": "#F3D37A"
-  },
-  {
-    "metric": "One team",
-    "label": "Coordinated trades",
-    "sub": "Talk through scope and schedule",
-    "accent": "#F97316"
-  }
-].map((item) => (
+              {
+                metric: "Renovate",
+                label: "Kitchens & bathrooms",
+                sub: "Make everyday spaces work better",
+                accent: "#C9A84C",
+                img: "/curated/hero/res-navy-kitchen.jpg",
+              },
+              {
+                metric: "Expand",
+                label: "Additions & basements",
+                sub: "Plan the space you need",
+                accent: "#10B981",
+                img: "/curated/pairs/div03_04_despues.jpg",
+              },
+              {
+                metric: "Restore",
+                label: "Fire & water damage",
+                sub: "Bring repair and rebuilding together",
+                accent: "#4A90D9",
+                img: "/curated/capabilities/fire-wood-framing.jpg",
+              },
+              {
+                metric: "8 States",
+                label: "Service coverage",
+                sub: "WI · IL · IA · IN · MN · MI · MO · TX",
+                accent: "#F3D37A",
+                img: "/curated/residential/s1.jpg",
+              },
+              {
+                metric: "One team",
+                label: "Coordinated trades",
+                sub: "Talk through scope and schedule",
+                accent: "#F97316",
+                img: "/curated/residential/r1.jpg",
+              },
+            ].map((item) => (
               <div
                 key={item.label}
                 data-response-kind="surface"
-                className="tayco-living-card p-4 rounded-2xl border"
+                className="tayco-living-card p-3.5 rounded-2xl border flex items-center gap-3"
                 style={{
                   background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.88) 0%, rgba(7, 14, 26, 0.94) 100%)`,
                   borderColor: "rgba(201, 168, 76, 0.34)",
                 }}
               >
-                <div
-                  className="text-xl sm:text-2xl font-black font-mono"
-                  style={{ color: item.accent }}
-                >
-                  {item.metric}
-                </div>
-                <div className="text-xs font-bold text-white mt-1">
-                  {item.label}
-                </div>
-                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  {item.sub}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.img}
+                  alt={item.label}
+                  className="w-12 h-12 rounded-xl object-cover border shrink-0"
+                  style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
+                  loading="lazy"
+                />
+                <div className="min-w-0">
+                  <div
+                    className="text-lg sm:text-xl font-black font-mono leading-tight"
+                    style={{ color: item.accent }}
+                  >
+                    {item.metric}
+                  </div>
+                  <div className="text-xs font-bold text-white truncate">
+                    {item.label}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-400 truncate">
+                    {item.sub}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          <RegionalFootprintStrip />
         </div>
       </section>
 
@@ -597,6 +858,12 @@ export default function ResidentialPage() {
                 </div>
 
                 <div className="relative z-10">
+                  <ServiceCardTriptych
+                    frames={card.triptych}
+                    badge={`0${card.num} · ${card.csiCode}`}
+                    accentColor={card.accent}
+                  />
+
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
@@ -698,6 +965,16 @@ export default function ResidentialPage() {
         </svg>
       </div>
 
+      {/* ── 01B / INTERACTIVE RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+      <TransformationBeforeAfterStudio
+        initialDivision="div01"
+        initialPairId="div01_03"
+        eyebrowLabel="01B / RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO"
+      />
+
+      {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
+      <DualTrackArchitecturalMarquee />
+
       {/* ── SECCIÓN 02 / 24/7 CERTIFIED FIRE, WATER & STORM RESTORATION COMMAND + TRADE GALLERY ── */}
       <section
         id="restoration"
@@ -726,6 +1003,15 @@ export default function ResidentialPage() {
                 borderColor: "rgba(249, 115, 22, 0.5)",
               }}
             >
+              <ServiceCardTriptych
+                frames={[
+                  { src: "/curated/capabilities/fire-wood-framing.jpg", label: "Structural Wood Framing Reconstruction" },
+                  { src: "/curated/magazine/revista_fr_wood_05.jpg", label: "Custom Timber Roof Rafter Rebuild" },
+                  { src: "/curated/pairs/div01_03_despues.jpg", label: "Restored Living Room, Hearth & Built-Ins" },
+                ]}
+                badge="FIRE & SMOKE RECOVERY"
+                accentColor="#F97316"
+              />
               <div className="flex items-center justify-between mb-4">
                 <span
                   className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
@@ -789,6 +1075,15 @@ export default function ResidentialPage() {
                 borderColor: "rgba(201, 168, 76, 0.5)",
               }}
             >
+              <ServiceCardTriptych
+                frames={[
+                  { src: "/curated/pairs/div03_04_antes.jpg", label: "Lower-Level Strip-Out & Structural Drying" },
+                  { src: "/curated/capabilities/mit-drywall-hang.jpg", label: "Post-Mitigation Drywall & Insulation" },
+                  { src: "/curated/pairs/div03_04_despues.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
+                ]}
+                badge="WATER & STORM RECOVERY"
+                accentColor="#C9A84C"
+              />
               <div className="flex items-center justify-between mb-4">
                 <span
                   className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
@@ -851,7 +1146,7 @@ export default function ResidentialPage() {
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
+                SERVICE CATALOG · RESIDENTIAL TRADE EXECUTION
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
                 Types of work we perform by{" "}

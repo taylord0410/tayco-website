@@ -881,3 +881,100 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
 
 /* Decorative orbits stay inside their surface at every breakpoint. */
 .preview-orbits { right: 0; top: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+ * V35 — DUAL-TRACK ARCHITECTURAL FILMSTRIP & HERO CYCLER
+ * ───────────────────────────────────────────────────────────── */
+@keyframes tayco-filmstrip-left {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes tayco-filmstrip-right {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes tayco-kenburns-subtle {
+  0% { transform: scale3d(1, 1, 1); }
+  50% { transform: scale3d(1.06, 1.06, 1); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+
+.tayco-hero-kenburns {
+  animation: tayco-kenburns-subtle 18s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.tayco-filmstrip-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 5%,
+    #000 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 5%,
+    #000 95%,
+    transparent 100%
+  );
+}
+
+.tayco-filmstrip-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  will-change: transform;
+}
+
+.tayco-filmstrip-track.track-left {
+  animation: tayco-filmstrip-left 48s linear infinite;
+}
+
+.tayco-filmstrip-track.track-right {
+  animation: tayco-filmstrip-right 52s linear infinite;
+}
+
+.tayco-filmstrip-wrapper:hover .tayco-filmstrip-track {
+  animation-play-state: paused;
+}
+
+.tayco-filmstrip-card {
+  position: relative;
+  width: 280px;
+  height: 176px;
+  flex-shrink: 0;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  border: 1px solid rgba(201, 168, 76, 0.32);
+  background: #070e1a;
+  box-shadow: 0 14px 28px -12px rgba(4, 9, 18, 0.72);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.28s ease;
+}
+
+.tayco-filmstrip-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: #f3d37a;
+}
+
+.tayco-filmstrip-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 14, 26, 0.55) 0%,
+    rgba(7, 14, 26, 0.12) 42%,
+    rgba(7, 14, 26, 0.92) 100%
+  );
+}
+

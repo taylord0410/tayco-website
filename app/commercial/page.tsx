@@ -1,7 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
+import {
+  TransformationBeforeAfterStudio,
+  DualTrackArchitecturalMarquee,
+  RegionalFootprintStrip,
+  ServiceCardTriptych,
+  type TriptychFrame,
+} from "@/components/LandingLivingShowcase";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type CommercialTradeCategory =
@@ -22,7 +29,65 @@ interface CommercialTradeSpec {
   accent: string;
   summary: string;
   deliverables: string[];
+  triptych: TriptychFrame[];
 }
+
+const COMMERCIAL_HERO_SCENES = [
+  {
+    id: "com-hero-1",
+    sector: "Corporate HQ & Lobby",
+    title: "Double-Height Limestone Atrium & Reception Millwork",
+    csi: "DIV 04 · 06 · 09",
+    image: "/curated/hero/com-lobby-limestone.jpg",
+    gallery: ["/curated/commercial/cx_i2.jpg", "/curated/commercial/com_03_2.jpg", "/curated/commercial/cx_y1.jpg"],
+    summary: "Turnkey commercial lobby, reception millwork, stone cladding and porcelain tile flooring.",
+  },
+  {
+    id: "com-hero-2",
+    sector: "Class-A Office & TI",
+    title: "Executive Glass Partition Suite & Open-Plan Tenant Fit-Out",
+    csi: "DIV 08 · 09 · 26",
+    image: "/curated/hero/com-reception-walnut.jpg",
+    gallery: ["/curated/commercial/cx_i1.jpg", "/curated/commercial/com_03_1.jpg", "/curated/commercial/cx_i3.jpg"],
+    summary: "Acoustic glass demising walls, custom conference millwork and occupied-building phasing.",
+  },
+  {
+    id: "com-hero-3",
+    sector: "Retail & Plaza Envelope",
+    title: "Commercial Stone & Glass Storefront Plaza Envelope",
+    csi: "DIV 04 · 07 · 08",
+    image: "/curated/hero/com-plaza-stone.jpg",
+    gallery: ["/curated/commercial/com_02_2.jpg", "/curated/commercial/cx_o1.jpg", "/curated/commercial/cx_o2.jpg"],
+    summary: "Masonry facade piers, storefront glazing, commercial canopy systems and pedestrian plaza concrete.",
+  },
+  {
+    id: "com-hero-4",
+    sector: "Medical & Institutional",
+    title: "Clinical Corridor, Institutional Classrooms & Hygienic Fit-Outs",
+    csi: "DIV 09 · 22 · 26",
+    image: "/curated/commercial/cx_h3.jpg",
+    gallery: ["/curated/commercial/cx_h2.jpg", "/curated/commercial/com_03_1.jpg", "/curated/commercial/cx_r2.jpg"],
+    summary: "Healthcare and institutional tenant build-outs with acoustic control and infection-control surfaces.",
+  },
+  {
+    id: "com-hero-5",
+    sector: "Industrial & Structural",
+    title: "High-Bay Warehouse Mezzanine, Steel Framing & Concrete Slab",
+    csi: "DIV 03 · 05 · 07",
+    image: "/curated/commercial/cx_x3.jpg",
+    gallery: ["/curated/commercial/cx_x4.jpg", "/curated/commercial/cx_f1.jpg", "/curated/commercial/cx_f3.jpg"],
+    summary: "Heavy-duty reinforced slabs, cold-formed & structural steel framing, and warehouse mezzanine offices.",
+  },
+  {
+    id: "com-hero-6",
+    sector: "Multi-Family & Mixed-Use",
+    title: "Multi-Story Residential Communities, Exteriors & Portfolio Turnovers",
+    csi: "DIV 06 · 07 · 09",
+    image: "/curated/commercial/com_02_1.jpg",
+    gallery: ["/curated/commercial/cx_m1.jpg", "/curated/commercial/cx_m2.jpg", "/curated/commercial/cx_m3.jpg"],
+    summary: "Multi-unit exterior envelopes, common-area amenities and multi-property renovation programs.",
+  },
+] as const;
 
 const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   {
@@ -43,6 +108,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Insulation and ventilation review",
       "Repair or replacement scope",
       "Site access and protection"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/com_04_2.jpg", "label": "White TPO Flat Roof & Rooftop HVAC Curbs" },
+      { "src": "/curated/commercial/cx_r1.jpg", "label": "Aerial TPO Membrane & Standing-Seam Wing" },
+      { "src": "/curated/commercial/com_04_1.jpg", "label": "Industrial Standing-Seam Metal Roof System" }
     ]
   },
   {
@@ -63,6 +133,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Water-management detailing",
       "Exterior finish selections",
       "Coordination with occupied areas"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/com_02_2.jpg", "label": "Stone Veneer & Commercial Storefront Glazing" },
+      { "src": "/curated/commercial/cx_o3.jpg", "label": "2-Story Curtain-Wall & Metal Panel Envelope" },
+      { "src": "/curated/commercial/cx_o2.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" }
     ]
   },
   {
@@ -83,6 +158,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Openings and headers",
       "Engineer coordination where required",
       "Inspections and sequencing"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/cx_f1.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
+      { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
+      { "src": "/curated/commercial/cx_f2.jpg", "label": "3-Story Multi-Family Structural Wood Framing" }
     ]
   },
   {
@@ -103,6 +183,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Concrete and specialty finishes",
       "Transitions and base details",
       "Installation sequencing"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/cx_i2.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
+      { "src": "/work/flooring_commercial.jpg", "label": "Diamond-Polished Commercial Concrete Slab" },
+      { "src": "/curated/commercial/cx_h3.jpg", "label": "Hygienic Commercial Sheet-Vinyl Corridor" }
     ]
   },
   {
@@ -123,6 +208,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Surface preparation",
       "Paint and finish selection",
       "Final touch-ups and review"
+    ],
+    "triptych": [
+      { "src": "/work/drywall_commercial.jpg", "label": "Curved Commercial Soffit & Gypsum Assembly" },
+      { "src": "/curated/commercial/com_03_1.jpg", "label": "Acoustic Drop-Ceiling Grid & Partitions" },
+      { "src": "/curated/commercial/cx_i3.jpg", "label": "Suspended Acoustic Clouds & Interior Finish" }
     ]
   },
   {
@@ -143,6 +233,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Electrical and plumbing coordination",
       "Occupied-space access planning",
       "Walk-through and closeout"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/com_01_1.jpg", "label": "Restaurant & Hospitality Tenant Build-Out" },
+      { "src": "/curated/commercial/cx_x1.jpg", "label": "Retail White-Box & Custom Shelving Fit-Out" },
+      { "src": "/curated/commercial/cx_y3.jpg", "label": "Corporate Cafe & Breakroom Millwork TI" }
     ]
   },
   {
@@ -163,6 +258,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Debris handling",
       "Site access and logistics",
       "Readiness for the next trade"
+    ],
+    "triptych": [
+      { "src": "/curated/magazine/revista_ex_sp_demo.jpg", "label": "Selective Demolition & Site Clearing" },
+      { "src": "/curated/magazine/revista_ex_ex_mass.jpg", "label": "Mass Excavation & Earthwork Grading" },
+      { "src": "/curated/magazine/revista_ex_ex_found.jpg", "label": "Foundation Trenching & Utility Prep" }
     ]
   },
   {
@@ -183,6 +283,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Walkways, steps and patios",
       "Concrete repair options",
       "Finishing and curing plan"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/cx_f3.jpg", "label": "Poured Commercial Slab & Stem Walls" },
+      { "src": "/curated/pairs/div01_01_antes.jpg", "label": "Reinforced Concrete Foundation Pad" },
+      { "src": "/curated/commercial/cx_x4.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }
     ]
   },
   {
@@ -203,6 +308,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Site scheduling",
       "Change documentation",
       "Handover and outstanding items"
+    ],
+    "triptych": [
+      { "src": "/curated/commercial/com_02_1.jpg", "label": "Multi-Family Apartment Exterior Program" },
+      { "src": "/curated/commercial/cx_m3.jpg", "label": "Townhome Portfolio Exterior & Envelope Rehab" },
+      { "src": "/curated/commercial/cx_y2.jpg", "label": "Multi-Unit Corridor & Common-Area Turnover" }
     ]
   },
   {
@@ -223,6 +333,11 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Insurance documentation support",
       "Reconstruction planning",
       "Completion review"
+    ],
+    "triptych": [
+      { "src": "/curated/capabilities/fire-steel-ibeam.jpg", "label": "Fire-Damaged Structural Steel Remediation" },
+      { "src": "/curated/pairs/div04_03_antes.jpg", "label": "Commercial Roof & Storm Damage Assessment" },
+      { "src": "/curated/capabilities/fire-subfloor-joists.jpg", "label": "Water Mitigation & Structural Deck Rebuild" }
     ]
   }
 ];
@@ -294,6 +409,17 @@ export default function CommercialPage() {
   const [lightAngle, setLightAngle] = useState<number>(42);
   const [activeCategory, setActiveCategory] =
     useState<CommercialTradeCategory>("all");
+  const [heroIdx, setHeroIdx] = useState<number>(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setHeroIdx((prev) => (prev + 1) % COMMERCIAL_HERO_SCENES.length);
+    }, 6200);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const currentHeroScene =
+    COMMERCIAL_HERO_SCENES[heroIdx] ?? COMMERCIAL_HERO_SCENES[0];
 
   const filteredTrades =
     activeCategory === "all"
@@ -322,6 +448,27 @@ export default function CommercialPage() {
           borderColor: "rgba(201, 168, 76, 0.35)",
         }}
       >
+        {/* Live 6-Scene Commercial Backdrop Cycler */}
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={currentHeroScene.image}
+            src={currentHeroScene.image}
+            alt=""
+            className="w-full h-full object-cover opacity-25 scale-105 transition-all duration-1000"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(108deg, rgba(7,14,26,0.95) 0%, rgba(11,23,42,0.86) 52%, rgba(7,14,26,0.93) 100%)",
+            }}
+          />
+        </div>
+
         {/* Architectural Blueprint Grid */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -428,127 +575,251 @@ export default function CommercialPage() {
             </div>
           </div>
 
-          {/* Project services and resources */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
-            <div className="lg:col-span-7">
-              <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
-                TAYCO LLC coordinates ground-up construction, commercial renovations and tenant improvements.
-                Talk to one team about the scope, schedule, trades and decisions that move your project forward.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-6">
-                <Link
-                  href="/estimate"
-                  data-magnetic
-                  className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105 shadow-lg"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
-                >
-                  Request a commercial estimate →
-                </Link>
-                <Link
-                  href="/login"
-                  data-magnetic
-                  className="px-6 py-3.5 rounded-xl font-bold text-sm text-white border transition-colors hover:bg-white/10"
-                  style={{
-                    borderColor: "rgba(201, 168, 76, 0.55)",
-                    background: "rgba(15, 32, 64, 0.7)",
-                  }}
-                >
-                  Client project sign in →
-                </Link>
-                <Link
-                  href="/residential"
-                  data-magnetic
-                  className="px-5 py-3.5 rounded-xl font-bold text-sm text-amber-200 border border-white/20 hover:bg-white/10 transition-colors"
-                >
-                  View Residential Division →
-                </Link>
-              </div>
-            </div>
+          {/* Split Executive Hero: Left Copy + Sector Pills | Right Live Commercial Showcase */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-12">
+            <div className="lg:col-span-7 flex flex-col justify-between">
+              <div>
+                <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
+                  TAYCO LLC coordinates ground-up construction, commercial renovations and tenant improvements.
+                  Talk to one team about the scope, schedule, trades and decisions that move your project forward.
+                </p>
 
-            <div className="lg:col-span-5">
+                {/* Interactive 6-Sector Commercial Scene Selector */}
+                <div className="mt-6">
+                  <div className="text-[11px] font-mono uppercase tracking-widest text-amber-300 mb-2.5">
+                    EXPLORE COMMERCIAL SECTORS (0{heroIdx + 1} / 0{COMMERCIAL_HERO_SCENES.length})
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
+                      const active = idx === heroIdx;
+                      return (
+                        <button
+                          key={scene.id}
+                          type="button"
+                          onClick={() => setHeroIdx(idx)}
+                          className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer"
+                          style={{
+                            background: active ? "#C9A84C" : "rgba(15, 32, 64, 0.78)",
+                            color: active ? "#070E1A" : "#E2E8F0",
+                            borderColor: active ? "#F3D37A" : "rgba(201, 168, 76, 0.34)",
+                          }}
+                        >
+                          0{idx + 1} · {scene.sector}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 mt-7">
+                  <Link
+                    href="/estimate"
+                    data-magnetic
+                    className="px-6 py-3.5 rounded-xl font-black text-sm transition-transform hover:scale-105 shadow-lg"
+                    style={{ background: "#C9A84C", color: "#070E1A" }}
+                  >
+                    Request a commercial estimate →
+                  </Link>
+                  <Link
+                    href="/login"
+                    data-magnetic
+                    className="px-6 py-3.5 rounded-xl font-bold text-sm text-white border transition-colors hover:bg-white/10"
+                    style={{
+                      borderColor: "rgba(201, 168, 76, 0.55)",
+                      background: "rgba(15, 32, 64, 0.7)",
+                    }}
+                  >
+                    Client project sign in →
+                  </Link>
+                  <Link
+                    href="/residential"
+                    data-magnetic
+                    className="px-5 py-3.5 rounded-xl font-bold text-sm text-amber-200 border border-white/20 hover:bg-white/10 transition-colors"
+                  >
+                    View Residential Division →
+                  </Link>
+                </div>
+              </div>
+
               <div
                 data-response-kind="surface"
-                className="tayco-living-card p-5 rounded-2xl border"
+                className="tayco-living-card p-5 rounded-2xl border mt-6"
                 style={{
                   background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))`,
                   borderColor: "rgba(201, 168, 76, 0.45)",
                 }}
               >
-                <div className="flex items-center justify-between text-xs font-mono text-emerald-300 font-bold mb-2">
+                <div className="flex items-center justify-between text-xs font-mono text-emerald-300 font-bold mb-1.5">
                   <span>YOUR PROJECT, COORDINATED</span>
                   <span>PLANNING TO DELIVERY</span>
                 </div>
-                <div className="text-2xl font-black font-mono text-white">
+                <div className="text-xl font-black font-mono text-white">
                   One team{" "}
                   <span className="text-xs font-normal text-amber-300">
                     for the work ahead
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                   From the first review through the final walk-through, bring your trades, requirements and next steps into one clear plan.
                 </p>
               </div>
             </div>
+
+            {/* Right 5 Columns: Interactive Commercial Sector Stage Card */}
+            <div className="lg:col-span-5 flex flex-col">
+              <div
+                data-response-kind="surface"
+                className="tayco-living-card rounded-2xl border overflow-hidden shadow-2xl flex-1 flex flex-col justify-between"
+                style={{
+                  background: "rgba(7, 14, 26, 0.92)",
+                  borderColor: "rgba(201, 168, 76, 0.52)",
+                }}
+              >
+                <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-950">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentHeroScene.image}
+                    alt={currentHeroScene.title}
+                    className="w-full h-full object-cover transition-all duration-700"
+                  />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
+                    }}
+                  />
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <span
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
+                      style={{
+                        background: "rgba(7, 14, 26, 0.85)",
+                        color: "#F3D37A",
+                        border: "1px solid rgba(201, 168, 76, 0.55)",
+                      }}
+                    >
+                      {currentHeroScene.sector}
+                    </span>
+                    <span
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
+                      style={{
+                        background: "rgba(16, 185, 129, 0.2)",
+                        color: "#6EE7B7",
+                        border: "1px solid rgba(16, 185, 129, 0.45)",
+                      }}
+                    >
+                      {currentHeroScene.csi}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <div className="text-sm sm:text-base font-black text-white leading-snug">
+                      {currentHeroScene.title}
+                    </div>
+                    <p className="text-xs text-slate-300 mt-1 line-clamp-2">
+                      {currentHeroScene.summary}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 Curated Sector Detail Thumbnails */}
+                <div className="p-3.5 border-t border-white/10">
+                  <div className="grid grid-cols-3 gap-2">
+                    {currentHeroScene.gallery.map((thumb, tIdx) => (
+                      <div
+                        key={thumb}
+                        className="relative overflow-hidden rounded-lg border aspect-[16/10]"
+                        style={{ borderColor: "rgba(201, 168, 76, 0.35)" }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={thumb}
+                          alt={`${currentHeroScene.sector} detail ${tIdx + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Project services and resources */}
+          {/* 5 Commercial KPI Cards with Thumbnail Previews */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-  {
-    "metric": "Plan",
-    "label": "Scope & priorities",
-    "sub": "Start with drawings, photos or an idea",
-    "accent": "#C9A84C"
-  },
-  {
-    "metric": "Build",
-    "label": "Ground-up construction",
-    "sub": "Site, structure and coordinated trades",
-    "accent": "#10B981"
-  },
-  {
-    "metric": "Adapt",
-    "label": "Tenant improvements",
-    "sub": "Fit the space to your business",
-    "accent": "#4A90D9"
-  },
-  {
-    "metric": "Restore",
-    "label": "Property recovery",
-    "sub": "Fire & water reconstruction",
-    "accent": "#F97316"
-  },
-  {
-    "metric": "8 States",
-    "label": "Service coverage",
-    "sub": "Contact us about your location",
-    "accent": "#F3D37A"
-  }
-].map((item) => (
+              {
+                metric: "Plan",
+                label: "Scope & priorities",
+                sub: "Start with drawings, photos or an idea",
+                accent: "#C9A84C",
+                img: "/curated/commercial/cx_o1.jpg",
+              },
+              {
+                metric: "Build",
+                label: "Ground-up construction",
+                sub: "Site, structure and coordinated trades",
+                accent: "#10B981",
+                img: "/curated/commercial/cx_f1.jpg",
+              },
+              {
+                metric: "Adapt",
+                label: "Tenant improvements",
+                sub: "Fit the space to your business",
+                accent: "#4A90D9",
+                img: "/curated/commercial/cx_i1.jpg",
+              },
+              {
+                metric: "Restore",
+                label: "Property recovery",
+                sub: "Fire & water reconstruction",
+                accent: "#F97316",
+                img: "/curated/capabilities/fire-steel-ibeam.jpg",
+              },
+              {
+                metric: "8 States",
+                label: "Service coverage",
+                sub: "Contact us about your location",
+                accent: "#F3D37A",
+                img: "/curated/hero/com-plaza-stone.jpg",
+              },
+            ].map((item) => (
               <div
                 key={item.label}
                 data-response-kind="surface"
-                className="tayco-living-card p-4 rounded-2xl border"
+                className="tayco-living-card p-3.5 rounded-2xl border flex items-center gap-3"
                 style={{
                   background: `linear-gradient(${lightAngle}deg, rgba(15, 32, 64, 0.88) 0%, rgba(7, 14, 26, 0.94) 100%)`,
                   borderColor: "rgba(201, 168, 76, 0.32)",
                 }}
               >
-                <div
-                  className="text-xl sm:text-2xl font-black font-mono"
-                  style={{ color: item.accent }}
-                >
-                  {item.metric}
-                </div>
-                <div className="text-xs font-bold text-white mt-1">
-                  {item.label}
-                </div>
-                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  {item.sub}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.img}
+                  alt={item.label}
+                  className="w-12 h-12 rounded-xl object-cover border shrink-0"
+                  style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
+                  loading="lazy"
+                />
+                <div className="min-w-0">
+                  <div
+                    className="text-lg sm:text-xl font-black font-mono leading-tight"
+                    style={{ color: item.accent }}
+                  >
+                    {item.metric}
+                  </div>
+                  <div className="text-xs font-bold text-white truncate">
+                    {item.label}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-400 truncate">
+                    {item.sub}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          <RegionalFootprintStrip />
         </div>
       </section>
 
@@ -726,6 +997,12 @@ export default function CommercialPage() {
                 </div>
 
                 <div className="relative z-10">
+                  <ServiceCardTriptych
+                    frames={card.triptych}
+                    badge={`0${card.num} · ${card.csiCode}`}
+                    accentColor={card.accent}
+                  />
+
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
@@ -829,6 +1106,16 @@ export default function CommercialPage() {
           />
         </svg>
       </div>
+
+      {/* ── 01B / INTERACTIVE COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+      <TransformationBeforeAfterStudio
+        initialDivision="div03"
+        initialPairId="div03_01"
+        eyebrowLabel="01B / COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO"
+      />
+
+      {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
+      <DualTrackArchitecturalMarquee />
 
       {/* Project services and resources */}
       <section
@@ -981,7 +1268,7 @@ export default function CommercialPage() {
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
+                SERVICE CATALOG · COMMERCIAL TRADE EXECUTION
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
                 Types of work we perform across{" "}

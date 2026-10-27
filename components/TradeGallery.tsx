@@ -142,7 +142,7 @@ export default function TradeGallery() {
             <polyline points="2 17 12 22 22 17" />
             <polyline points="2 12 12 17 22 12" />
           </svg>
-          <span>Types of work we perform · Illustrative trade &amp; material catalog</span>
+          <span>Types of work we perform · Trade &amp; material execution catalog</span>
         </p>
       </div>
 

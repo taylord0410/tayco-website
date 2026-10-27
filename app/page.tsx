@@ -1,11 +1,24 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
+import {
+  COMMERCIAL_HERO_SCENES,
+  RESIDENTIAL_HERO_SCENES,
+  TransformationBeforeAfterStudio,
+  DualTrackArchitecturalMarquee,
+  RegionalStateFootprintStrip,
+} from "@/components/LandingLivingShowcase";
 
 type ServiceFilter = "all" | "commercial" | "residential" | "partners";
+
+interface ShowcaseCardFrame {
+  src: string;
+  caption: string;
+  csi: string;
+}
 
 const TAYCO_SHOWCASE_CARDS: Array<{
   id: string;
@@ -22,210 +35,467 @@ const TAYCO_SHOWCASE_CARDS: Array<{
   sparkPath: string;
   stroke: string;
   badgeColor: string;
+  frames: [ShowcaseCardFrame, ShowcaseCardFrame, ShowcaseCardFrame];
 }> = [
   {
-    "id": "service-1",
-    "category": "commercial",
-    "eyebrow": "01 / PLANNING",
-    "title": "Clear scope.",
-    "serifEm": "Better starts.",
-    "subtitle": "Planning & estimates",
-    "summary": "Share your plans, location and priorities. We help define the work before construction begins.",
-    "metric": "Scope",
-    "metricLabel": "Start with your project details",
-    "href": "/estimate",
-    "cta": "Request a free estimate",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#C9A84C",
-    "badgeColor": "#C9A84C"
+    id: "service-1",
+    category: "commercial",
+    eyebrow: "01 / PLANNING & PRE-CONSTRUCTION",
+    title: "Clear scope.",
+    serifEm: "Better starts.",
+    subtitle: "Site survey, takeoffs & estimates",
+    summary:
+      "Share your drawings, site photos and priorities. We align structural requirements, material selections and trade schedules before mobilization.",
+    metric: "CSI 01–33",
+    metricLabel: "Full-scope pre-construction review",
+    href: "/estimate",
+    cta: "Request a free estimate",
+    sparkPath: "M2,28 L18,24 L36,19 L54,21 L72,12 L94,9 L114,4",
+    stroke: "#C9A84C",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/magazine/revista_ex_ex_found.jpg",
+        caption: "Surveyed Foundation Grid & Site Layout",
+        csi: "DIV 31 · SITE PREP",
+      },
+      {
+        src: "/curated/magazine/revista_fr_metal_04.jpg",
+        caption: "Cold-Formed Structural Steel Engineering",
+        csi: "DIV 05 · FRAMING",
+      },
+      {
+        src: "/curated/capabilities/com-boardroom.jpg",
+        caption: "Turnkey Executive Boardroom Delivery",
+        csi: "DIV 09 · FINISHES",
+      },
+    ],
   },
   {
-    "id": "service-2",
-    "category": "commercial",
-    "eyebrow": "02 / COMMERCIAL",
-    "title": "Spaces built for",
-    "serifEm": "your business.",
-    "subtitle": "Construction & renovation",
-    "summary": "Ground-up construction, design-build, tenant improvements and construction management.",
-    "metric": "Build",
-    "metricLabel": "Commercial & industrial",
-    "href": "/commercial",
-    "cta": "Explore commercial services",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#1B3A6B",
-    "badgeColor": "#C9A84C"
+    id: "service-2",
+    category: "commercial",
+    eyebrow: "02 / COMMERCIAL CONSTRUCTION",
+    title: "Spaces built for",
+    serifEm: "your business.",
+    subtitle: "Ground-up, fit-outs & envelopes",
+    summary:
+      "Ground-up commercial construction, Class-A office and retail tenant improvements, structural framing and exterior envelope systems.",
+    metric: "Commercial",
+    metricLabel: "Office, retail, hospitality & industrial",
+    href: "/commercial",
+    cta: "Explore commercial services",
+    sparkPath: "M2,30 L22,18 L40,22 L58,10 L78,14 L96,6 L114,5",
+    stroke: "#1B3A6B",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/capabilities/com-boardroom.jpg",
+        caption: "Acoustic Wood-Slat Executive Conference Suite",
+        csi: "DIV 06 / 09 · CORPORATE",
+      },
+      {
+        src: "/curated/capabilities/com-retail-led.jpg",
+        caption: "Boutique Retail Millwork & Suspended LED Clouds",
+        csi: "DIV 06 / 26 · RETAIL",
+      },
+      {
+        src: "/curated/capabilities/com-walnut-lounge.jpg",
+        caption: "Custom Walnut Architectural Lounge & Library",
+        csi: "DIV 06 40 00 · MILLWORK",
+      },
+    ],
   },
   {
-    "id": "service-3",
-    "category": "residential",
-    "eyebrow": "03 / RESIDENTIAL",
-    "title": "More life in",
-    "serifEm": "every room.",
-    "subtitle": "Renovation & additions",
-    "summary": "Kitchens, bathrooms, additions and basement finishing designed around the way you use your home.",
-    "metric": "Home",
-    "metricLabel": "Renovation & remodeling",
-    "href": "/residential",
-    "cta": "Explore residential services",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#0F2040",
-    "badgeColor": "#C9A84C"
+    id: "service-3",
+    category: "residential",
+    eyebrow: "03 / RESIDENTIAL TURNKEY",
+    title: "More life in",
+    serifEm: "every room.",
+    subtitle: "Full-home remodeling & additions",
+    summary:
+      "Chef's kitchens, custom millwork, lower-level living suites, structural timber decks and complete exterior envelope transformations.",
+    metric: "Turnkey",
+    metricLabel: "Kitchens, additions, decks & exteriors",
+    href: "/residential",
+    cta: "Explore residential services",
+    sparkPath: "M2,26 L20,28 L38,16 L56,18 L74,9 L94,11 L114,3",
+    stroke: "#0F2040",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/hero/res-navy-kitchen.jpg",
+        caption: "Navy Island Kitchen, Quartz & White Oak Flooring",
+        csi: "RES · KITCHEN REMODEL",
+      },
+      {
+        src: "/curated/capabilities/res-basement-media.jpg",
+        caption: "Finished Lower-Level Media Suite & Custom Built-Ins",
+        csi: "RES · BASEMENT SUITE",
+      },
+      {
+        src: "/curated/hero/res-coffered-hearth.jpg",
+        caption: "Coffered Ceiling Grid, Stone Hearth & Cabinetry",
+        csi: "RES · FINISH CARPENTRY",
+      },
+    ],
   },
   {
-    "id": "service-4",
-    "category": "residential",
-    "eyebrow": "04 / RESTORATION",
-    "title": "A clear route to",
-    "serifEm": "recovery.",
-    "subtitle": "Fire & water restoration",
-    "summary": "Coordinate the repair scope, documentation and reconstruction after damage to your property.",
-    "metric": "Restore",
-    "metricLabel": "Fire, water & property repairs",
-    "href": "/residential#restoration",
-    "cta": "Discuss your restoration",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#C9A84C",
-    "badgeColor": "#C9A84C"
+    id: "service-4",
+    category: "residential",
+    eyebrow: "04 / RESTORATION & RECONSTRUCTION",
+    title: "A clear route to",
+    serifEm: "recovery.",
+    subtitle: "Fire, water & structural rebuild",
+    summary:
+      "From emergency mitigation and structural steel or timber framing to drywall, hardwood flooring and complete property reconstruction.",
+    metric: "Restore",
+    metricLabel: "Mitigation to full structural rebuild",
+    href: "/residential#restoration",
+    cta: "Discuss your restoration",
+    sparkPath: "M2,31 L16,29 L34,20 L52,12 L70,15 L90,7 L114,4",
+    stroke: "#C9A84C",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/capabilities/fire-wood-framing.jpg",
+        caption: "Full Two-Story Structural Wood Framing & Trusses",
+        csi: "DIV 06 · STRUCTURAL REBUILD",
+      },
+      {
+        src: "/curated/capabilities/mit-taped-drywall.jpg",
+        caption: "Post-Mitigation Drywall Taping & Interior Finish",
+        csi: "DIV 09 · INTERIOR RECOVERY",
+      },
+      {
+        src: "/curated/capabilities/fire-steel-ibeam.jpg",
+        caption: "Two-Story Structural Steel I-Beam Skeleton",
+        csi: "DIV 05 · STEEL RECONSTRUCTION",
+      },
+    ],
   },
   {
-    "id": "service-5",
-    "category": "partners",
-    "eyebrow": "05 / PROPERTY OWNERS",
-    "title": "One property or",
-    "serifEm": "a portfolio.",
-    "subtitle": "Owners & property managers",
-    "summary": "Plan repairs, turnovers and renovations with a clear scope and priorities for each property.",
-    "metric": "Plan",
-    "metricLabel": "Property improvement programs",
-    "href": "/investor",
-    "cta": "Tell us about your properties",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#1B3A6B",
-    "badgeColor": "#C9A84C"
+    id: "service-5",
+    category: "partners",
+    eyebrow: "05 / MULTI-FAMILY, REO & CAPEX",
+    title: "One property or",
+    serifEm: "a portfolio.",
+    subtitle: "Asset preservation & multi-family CapEx",
+    summary:
+      "Multi-family exterior envelope upgrades, commercial TPO and shingle roofing programs, unit turnovers and REO asset preservation across 8 states.",
+    metric: "Portfolio",
+    metricLabel: "Multi-family, REO & institutional assets",
+    href: "/investor",
+    cta: "Tell us about your properties",
+    sparkPath: "M2,29 L24,23 L44,17 L64,19 L82,11 L98,8 L114,4",
+    stroke: "#1B3A6B",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/capabilities/mf-apartments-4story.jpg",
+        caption: "Four-Story Multi-Family Apartment Envelope & CapEx",
+        csi: "MULTI-FAMILY · EXTERIOR",
+      },
+      {
+        src: "/curated/capabilities/mf-townhomes-row.jpg",
+        caption: "Three-Story Cedar & Siding Townhome Community",
+        csi: "PORTFOLIO · TOWNHOMES",
+      },
+      {
+        src: "/curated/capabilities/reo-roof-3phase.jpg",
+        caption: "Three-Phase Roof Deck, Underlayment & Shingle Recovery",
+        csi: "REO · ASSET PRESERVATION",
+      },
+    ],
   },
   {
-    "id": "service-6",
-    "category": "partners",
-    "eyebrow": "06 / TRADE PARTNERS",
-    "title": "Good work starts with",
-    "serifEm": "good people.",
-    "subtitle": "Suppliers & subcontractors",
-    "summary": "Tell us your trade, service area and availability so our team can review the right project opportunities.",
-    "metric": "Partner",
-    "metricLabel": "Trades & service coverage",
-    "href": "/vendor-application",
-    "cta": "Apply as a trade partner",
-    "sparkPath": "M2,30 L18,22 L34,25 L50,14 L66,16 L82,8 L98,10 L114,4",
-    "stroke": "#1B3A6B",
-    "badgeColor": "#C9A84C"
-  }
+    id: "service-6",
+    category: "partners",
+    eyebrow: "06 / TRADE PARTNERS & FIELD CREWS",
+    title: "Good work starts with",
+    serifEm: "good people.",
+    subtitle: "Suppliers & specialty subcontractors",
+    summary:
+      "Qualified carpentry, roofing, siding, drywall, masonry and flooring crews: connect with our project management team for active regional bids.",
+    metric: "8 States",
+    metricLabel: "WI · IL · IA · IN · MN · MI · MO · TX",
+    href: "/vendor-application",
+    cta: "Apply as a trade partner",
+    sparkPath: "M2,27 L19,21 L37,24 L57,14 L77,11 L95,6 L114,4",
+    stroke: "#1B3A6B",
+    badgeColor: "#C9A84C",
+    frames: [
+      {
+        src: "/curated/capabilities/reo-siding-wrap.jpg",
+        caption: "Weather-Barrier Envelope & Lap Siding Execution",
+        csi: "DIV 07 · ENVELOPE CREWS",
+      },
+      {
+        src: "/curated/capabilities/mit-hardwood-underlay.jpg",
+        caption: "Precision Hardwood Flooring & Acoustic Underlayment",
+        csi: "DIV 09 · FLOORING CREWS",
+      },
+      {
+        src: "/curated/capabilities/fire-subfloor-joists.jpg",
+        caption: "Engineered Floor Joist & Foundation Framing",
+        csi: "DIV 06 · FRAMING CREWS",
+      },
+    ],
+  },
 ];
 
-const LIGHT_STUDIES = [
+const LIGHT_STUDIES: Array<{
+  index: number;
+  code: string;
+  buttonTitle: string;
+  label: string;
+  note: string;
+  color: string;
+  specMetric: string;
+  image: string;
+  csi: string;
+  sheenProfile: string;
+  grainDepth: string;
+}> = [
   {
-    "index": 0,
-    "code": "MATERIAL STUDY 01 · SURFACE",
-    "buttonTitle": "01 / Concrete & surface texture",
-    "label": "CONCRETE / SURFACE",
-    "note": "Explore how changing light reveals texture. Final material selections and finish samples are reviewed for your project.",
-    "color": "#C9A84C",
-    "specMetric": "Concrete · Texture"
+    index: 0,
+    code: "MATERIAL STUDY 01 · POLISHED CONCRETE",
+    buttonTitle: "01 / Diamond-honed terrazzo concrete",
+    label: "CONCRETE / EXPOSED AGGREGATE",
+    note: "Diamond-polished architectural concrete slab where low-angle grazing light reveals fine stone aggregate and long specular floor reflections.",
+    color: "#C9A84C",
+    specMetric: "Terrazzo · Specular",
+    image: "/work/flooring/polished-concrete_2.jpg",
+    csi: "CSI 03 35 43 · POLISHED CONCRETE FINISHING",
+    sheenProfile: "High-Gloss Honed (82 GU)",
+    grainDepth: "0.4 mm Micro-Aggregate",
   },
   {
-    "index": 1,
-    "code": "MATERIAL STUDY 02 · STRUCTURE",
-    "buttonTitle": "02 / Timber & structure",
-    "label": "TIMBER / STRUCTURE",
-    "note": "Light and shadow give form to structural rhythm. Discuss framing, detailing and finishes with the team for your space.",
-    "color": "#E2C675",
-    "specMetric": "Timber · Structure"
+    index: 1,
+    code: "MATERIAL STUDY 02 · NATURAL CLEFT SLATE",
+    buttonTitle: "02 / Natural cleft stone & masonry",
+    label: "NATURAL STONE / CLEFT RELIEF",
+    note: "Hand-split natural stone tile whose layered geological ridges cast dramatic micro-shadows under oblique raking illumination.",
+    color: "#E2C675",
+    specMetric: "Natural Slate · Relief",
+    image: "/work/flooring/natural-stone_2.jpg",
+    csi: "CSI 09 30 33 · NATURAL STONE TILING",
+    sheenProfile: "Matte Mineral Cleft (18 GU)",
+    grainDepth: "2.8 mm Split Topographic Relief",
   },
   {
-    "index": 2,
-    "code": "MATERIAL STUDY 03 · DETAIL",
-    "buttonTitle": "03 / Shape & detail",
-    "label": "DETAIL / CRAFT",
-    "note": "Small details shape how a space feels. This interactive material study is a visual illustration, not an inspection or construction specification.",
-    "color": "#F3D37A",
-    "specMetric": "Shape · Detail"
-  }
+    index: 2,
+    code: "MATERIAL STUDY 03 · HERRINGBONE WHITE OAK",
+    buttonTitle: "03 / Herringbone white-oak millwork",
+    label: "ENGINEERED OAK / PARQUET",
+    note: "Alternating 45-degree herringbone oak staves catch lateral daylight in opposite grain directions, creating a living checkerboard of warm gold and shadow.",
+    color: "#F3D37A",
+    specMetric: "Herringbone · Grain",
+    image: "/work/flooring/engineered-hardwood_2.jpg",
+    csi: "CSI 09 64 29 · WOOD PARQUET FLOORING",
+    sheenProfile: "Satin Architectural Urethane (35 GU)",
+    grainDepth: "1.2 mm Wire-Brushed Oak Grain",
+  },
+  {
+    index: 3,
+    code: "MATERIAL STUDY 04 · WIDE-PLANK EUROPEAN OAK",
+    buttonTitle: "04 / Wide-plank timber under sunbeam",
+    label: "SOLID HARDWOOD / WIDE PLANK",
+    note: "Wide-plank cathedral-grain oak cut by a diagonal raking sunbeam, demonstrating how bevels and board flatness perform under direct window light.",
+    color: "#C9A84C",
+    specMetric: "Wide-Plank · Bevel",
+    image: "/work/flooring/engineered-hardwood_1.jpg",
+    csi: "CSI 09 64 00 · WOOD FLOORING ASSEMBLIES",
+    sheenProfile: "Low-Luster Natural Oil (24 GU)",
+    grainDepth: "1.5 mm Micro-Beveled Plank Edge",
+  },
+  {
+    index: 4,
+    code: "MATERIAL STUDY 05 · COMMERCIAL METALLIC EPOXY",
+    buttonTitle: "05 / Seamless metallic commercial epoxy",
+    label: "RESINOUS FLOORING / METALLIC",
+    note: "High-build commercial metallic epoxy system with three-dimensional pigment swirl and seamless chemical/impact resistance under overhead lighting.",
+    color: "#E2C675",
+    specMetric: "Resinous · Metallic",
+    image: "/curated/magazine/revista_ep_metal.jpg",
+    csi: "CSI 09 67 23 · RESINOUS FLOORING SYSTEMS",
+    sheenProfile: "Mirror-Grade High Build (94 GU)",
+    grainDepth: "0.1 mm Seamless Monolithic Coat",
+  },
+  {
+    index: 5,
+    code: "MATERIAL STUDY 06 · ARCHITECTURAL PORCELAIN",
+    buttonTitle: "06 / Large-format architectural porcelain",
+    label: "PORCELAIN / RECTIFIED PLANK",
+    note: "Rectified commercial-grade porcelain with crisp 1/16-inch grout joints engineered for high-traffic lobbies, corridors and wet-area durability.",
+    color: "#F3D37A",
+    specMetric: "Porcelain · Rectified",
+    image: "/work/flooring/porcelain-tile_1.jpg",
+    csi: "CSI 09 30 13 · CERAMIC & PORCELAIN TILING",
+    sheenProfile: "Architectural Matte-Satin (28 GU)",
+    grainDepth: "0.9 mm Kiln-Pressed Surface Texture",
+  },
 ];
 
 const PROJECT_STEPS = [
   {
-    "code": "01",
-    "name": "Tell us what matters",
-    "location": "Project goals",
-    "division": "Location, scope & priorities",
-    "sqft": "Start a conversation",
-    "headline": "Share your project",
-    "phase": "Initial inquiry",
-    "status": "Initial inquiry",
-    "requestHref": "/estimate",
-    "loginHref": "/login",
-    "accent": "#C9A84C"
+    code: "01",
+    name: "Site Survey & Scope Definition",
+    location: "Project goals & site conditions",
+    division: "Plans, site walk-through, measurements & priorities",
+    sqft: "Phase 01 · Pre-Construction",
+    headline: "Define the scope",
+    phase: "Initial inquiry & site survey",
+    status: "Step 01 · Site & Scope",
+    requestHref: "/estimate",
+    loginHref: "/login",
+    accent: "#C9A84C",
+    image: "/curated/magazine/revista_ex_ex_found.jpg",
+    csiTag: "CSI DIV 01 / 31 · SURVEY & SITE PREP",
+    deliverables: [
+      "Existing conditions & site verification",
+      "Trade-by-trade scope boundary matrix",
+      "Preliminary schedule & mobilization plan",
+    ],
   },
   {
-    "code": "02",
-    "name": "Define the work",
-    "location": "Scope & site review",
-    "division": "Plans, photos & existing conditions",
-    "sqft": "Review requirements",
-    "headline": "Agree on the scope",
-    "phase": "Planning",
-    "status": "Planning",
-    "requestHref": "/estimate",
-    "loginHref": "/login",
-    "accent": "#DFC06C"
+    code: "02",
+    name: "Structural Framing & Core Shell",
+    location: "Engineered wood & cold-formed steel",
+    division: "Load-bearing framing, trusses, subfloors & shear sheathing",
+    sqft: "Phase 02 · Structural Shell",
+    headline: "Build the frame",
+    phase: "Structural execution",
+    status: "Step 02 · Framing & Structure",
+    requestHref: "/estimate",
+    loginHref: "/login",
+    accent: "#DFC06C",
+    image: "/curated/magazine/revista_fr_metal_04.jpg",
+    csiTag: "CSI DIV 05 / 06 · STEEL & WOOD FRAMING",
+    deliverables: [
+      "Cold-formed steel & structural timber framing",
+      "Roof truss erection & OSB exterior sheathing",
+      "Plumb, level & structural inspection sign-off",
+    ],
   },
   {
-    "code": "03",
-    "name": "Make informed choices",
-    "location": "Materials & budget",
-    "division": "Selections, allowances & exclusions",
-    "sqft": "Review your proposal",
-    "headline": "Written proposal",
-    "phase": "Estimate review",
-    "status": "Estimate review",
-    "requestHref": "/estimate",
-    "loginHref": "/login",
-    "accent": "#C9A84C"
+    code: "03",
+    name: "Rough-In, Insulation & Drywall",
+    location: "Interior partitions & acoustic envelope",
+    division: "MEP coordination, thermal insulation & Level-4 gypsum finish",
+    sqft: "Phase 03 · Interior Envelope",
+    headline: "Close the walls",
+    phase: "Rough-in & drywall",
+    status: "Step 03 · Drywall & Rough-In",
+    requestHref: "/estimate",
+    loginHref: "/login",
+    accent: "#C9A84C",
+    image: "/work/drywall_commercial.jpg",
+    csiTag: "CSI DIV 07 / 09 · INSULATION & GYPSUM",
+    deliverables: [
+      "In-wall rough-in & fire-rated assemblies",
+      "Curved soffits, bulkheads & acoustic grids",
+      "Taped, mudded & primed Level-4 surfaces",
+    ],
   },
   {
-    "code": "04",
-    "name": "Coordinate the build",
-    "location": "Construction & communication",
-    "division": "Schedule, milestones & changes",
-    "sqft": "Keep the work connected",
-    "headline": "Project delivery",
-    "phase": "Construction",
-    "status": "Construction",
-    "requestHref": "/estimate",
-    "loginHref": "/login",
-    "accent": "#E2C675"
+    code: "04",
+    name: "Architectural Millwork & Finishes",
+    location: "Cabinetry, flooring, stone & coatings",
+    division: "Custom carpentry, hardwood/tile installation & precision painting",
+    sqft: "Phase 04 · Craft & Finishes",
+    headline: "Elevate every detail",
+    phase: "Interior finishes",
+    status: "Step 04 · Millwork & Surfaces",
+    requestHref: "/estimate",
+    loginHref: "/login",
+    accent: "#E2C675",
+    image: "/curated/magazine/revista_ca_finish_1.jpg",
+    csiTag: "CSI DIV 06 / 09 · MILLWORK & FLOORING",
+    deliverables: [
+      "Custom cabinetry, feature walls & trim carpentry",
+      "Hardwood, porcelain, stone & epoxy flooring",
+      "Architectural coatings & fixture trim-out",
+    ],
   },
   {
-    "code": "05",
-    "name": "Finish with clarity",
-    "location": "Review & handover",
-    "division": "Walk-through, final details & records",
-    "sqft": "Confirm completion",
-    "headline": "Finished space",
-    "phase": "Closeout",
-    "status": "Closeout",
-    "requestHref": "/estimate",
-    "loginHref": "/login",
-    "accent": "#F3D37A"
-  }
+    code: "05",
+    name: "Exterior Envelope & Final Handover",
+    location: "Roofing, facades & closeout walk-through",
+    division: "Standing-seam/TPO roofing, masonry, glazing & final punch-list",
+    sqft: "Phase 05 · Turnkey Handover",
+    headline: "Finished space",
+    phase: "Closeout & warranty",
+    status: "Step 05 · Final Handover",
+    requestHref: "/estimate",
+    loginHref: "/login",
+    accent: "#F3D37A",
+    image: "/curated/magazine/revista_wi_com.jpg",
+    csiTag: "CSI DIV 04 / 07 / 08 · ENVELOPE & CLOSEOUT",
+    deliverables: [
+      "Complete roofing, siding & masonry envelope",
+      "Room-by-room quality inspection walk-through",
+      "Closeout documentation & client handover",
+    ],
+  },
+];
+
+const COLOR_TEMPERATURES: Array<{
+  id: "daylight" | "gallery" | "dusk";
+  label: string;
+  kelvin: string;
+  tint: string;
+  beamBoost: string;
+}> = [
+  {
+    id: "daylight",
+    label: "Natural Daylight",
+    kelvin: "5600K",
+    tint: "rgba(219, 234, 254, 0.10)",
+    beamBoost: "rgba(255, 255, 255, 0.34)",
+  },
+  {
+    id: "gallery",
+    label: "Architectural Warm",
+    kelvin: "3500K",
+    tint: "rgba(243, 211, 122, 0.16)",
+    beamBoost: "rgba(243, 211, 122, 0.42)",
+  },
+  {
+    id: "dusk",
+    label: "Executive Dusk",
+    kelvin: "2700K",
+    tint: "rgba(201, 168, 76, 0.24)",
+    beamBoost: "rgba(201, 168, 76, 0.50)",
+  },
 ];
 
 export default function Home() {
   const [hovered, setHovered] = useState<"commercial" | "residential" | null>(
     null
   );
+  const [comSceneIdx, setComSceneIdx] = useState<number>(0);
+  const [resSceneIdx, setResSceneIdx] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
+  const [cardFrameMap, setCardFrameMap] = useState<Record<string, number>>({});
   const [activeStudy, setActiveStudy] = useState<number>(0);
-  const [lightAngle, setLightAngle] = useState<number>(45);
+  const [lightAngle, setLightAngle] = useState<number>(38);
+  const [colorTemp, setColorTemp] = useState<"daylight" | "gallery" | "dusk">(
+    "gallery"
+  );
+  const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
+
+  // Auto-cycle Hero Commercial & Residential scenes when not hovered
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (hovered !== "commercial") {
+        setComSceneIdx((prev) => (prev + 1) % COMMERCIAL_HERO_SCENES.length);
+      }
+      if (hovered !== "residential") {
+        setResSceneIdx((prev) => (prev + 1) % RESIDENTIAL_HERO_SCENES.length);
+      }
+    }, 5400);
+    return () => window.clearInterval(id);
+  }, [hovered]);
 
   const commercialFlex =
     hovered === "residential"
@@ -246,9 +516,17 @@ export default function Home() {
       : TAYCO_SHOWCASE_CARDS.filter((c) => c.category === activeFilter);
 
   const currentStudy = LIGHT_STUDIES[activeStudy] ?? LIGHT_STUDIES[0];
-  const lightX = Math.round(18 + (lightAngle / 90) * 68);
-  const lightY = Math.round(62 - Math.sin((lightAngle * Math.PI) / 180) * 38);
-  const beamX = Math.round(20 + (lightAngle / 90) * 60);
+  const currentTemp =
+    COLOR_TEMPERATURES.find((t) => t.id === colorTemp) ?? COLOR_TEMPERATURES[1];
+  const lightX = Math.round(14 + (lightAngle / 90) * 72);
+  const lightY = Math.round(66 - Math.sin((lightAngle * Math.PI) / 180) * 42);
+  const beamX = Math.round(16 + (lightAngle / 90) * 68);
+  const shadowContrast = (1.18 - (lightAngle / 90) * 0.22).toFixed(2);
+  const activeStep = PROJECT_STEPS[activeStepIdx] ?? PROJECT_STEPS[0];
+  const activeComScene =
+    COMMERCIAL_HERO_SCENES[comSceneIdx] ?? COMMERCIAL_HERO_SCENES[0];
+  const activeResScene =
+    RESIDENTIAL_HERO_SCENES[resSceneIdx] ?? RESIDENTIAL_HERO_SCENES[0];
 
   return (
     <main
@@ -262,17 +540,19 @@ export default function Home() {
         } as React.CSSProperties
       }
     >
-      <h1 className="sr-only">{COMPANY.name} · Construction, renovation &amp; restoration</h1>
-      {/* ── SPLIT HERO 50/50 WITH ORBITAL EDITORIAL STAMP ── */}
+      <h1 className="sr-only">
+        {COMPANY.name} · Construction, renovation &amp; restoration
+      </h1>
+
+      {/* ── SPLIT HERO 50/50 WITH CURATED 12-SCENE ARCHITECTURAL CYCLER ── */}
       <div
         className="relative flex-1 flex flex-col md:flex-row overflow-hidden"
-        style={{ minHeight: "76svh" }}
+        style={{ minHeight: "80svh" }}
         onPointerMove={(e) => {
           if (typeof window !== "undefined" && window.innerWidth >= 768) {
             const rect = e.currentTarget.getBoundingClientRect();
             if (rect.width > 0) {
               const ratio = (e.clientX - rect.left) / rect.width;
-              // Pointer hysteresis deadband around center to prevent layout oscillation
               if (ratio < 0.46) {
                 if (hovered !== "commercial") setHovered("commercial");
               } else if (ratio > 0.54) {
@@ -284,13 +564,13 @@ export default function Home() {
         onPointerLeave={() => setHovered(null)}
       >
         {/* ── COMMERCIAL (LEFT / TOP) ── */}
-        <Link
-          href="/commercial"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 min-w-0"
+        <div
+          role="region"
+          aria-label="Commercial Construction Division"
+          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 pb-20 min-w-0"
           style={{
             flex: commercialFlex,
-            background:
-              "linear-gradient(145deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)",
+            background: "#070E1A",
             transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
             minHeight: "50%",
             willChange: "flex",
@@ -298,33 +578,62 @@ export default function Home() {
           onFocus={() => setHovered("commercial")}
           onBlur={() => setHovered(null)}
         >
+          {/* Curated 6-Scene Commercial Backdrop Cycler */}
+          <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+            {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
+              const isCurrent = idx === comSceneIdx;
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={scene.id}
+                  src={scene.image}
+                  alt=""
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  className={`absolute inset-0 w-full h-full object-cover tayco-hero-kenburns transition-opacity duration-1000 ${
+                    isCurrent ? "opacity-55" : "opacity-0"
+                  }`}
+                />
+              );
+            })}
+            {/* Calibrated Navy & Gold Architectural Vignette */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(155deg, rgba(7, 14, 26, 0.88) 0%, rgba(15, 32, 64, 0.68) 48%, rgba(7, 14, 26, 0.92) 100%)",
+              }}
+            />
+          </div>
+
           <div className="preview-orbits" aria-hidden="true">
             <i />
             <i />
             <i />
           </div>
+
           {/* Blueprint grid */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
                 "linear-gradient(rgba(201,168,76,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.07) 1px, transparent 1px)",
               backgroundSize: "48px 48px",
             }}
           />
+
           {/* Gold accent line */}
           <div
-            className="absolute left-0 top-0 bottom-0 hidden md:block w-1.5"
+            className="absolute left-0 top-0 bottom-0 hidden md:block w-1.5 z-10"
             style={{ background: "#C9A84C" }}
           />
           <div
-            className="absolute left-0 right-0 top-0 md:hidden h-1.5"
+            className="absolute left-0 right-0 top-0 md:hidden h-1.5 z-10"
             style={{ background: "#C9A84C" }}
           />
 
-          <div className="relative z-10 text-center px-6 sm:px-12 w-full max-w-md shrink-0">
+          <div className="relative z-10 text-center px-6 sm:px-10 w-full max-w-xl shrink-0">
             <div
-              className="tayco-eyebrow mb-4 mx-auto justify-center"
+              className="tayco-eyebrow mb-3 mx-auto justify-center"
               style={{ color: "#F3D37A" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
@@ -346,16 +655,16 @@ export default function Home() {
             </div>
 
             <div
-              className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto mb-5 shadow-inner"
+              className="w-13 h-13 rounded-2xl border flex items-center justify-center mx-auto mb-4 shadow-inner backdrop-blur-md"
               style={{
-                background: "rgba(7, 14, 26, 0.65)",
-                borderColor: "rgba(201, 168, 76, 0.45)",
+                background: "rgba(7, 14, 26, 0.72)",
+                borderColor: "rgba(201, 168, 76, 0.55)",
               }}
               aria-hidden="true"
             >
               <svg
-                width="26"
-                height="26"
+                width="25"
+                height="25"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#F3D37A"
@@ -372,17 +681,20 @@ export default function Home() {
               </svg>
             </div>
 
-            <h2
-              className="font-black tracking-tight text-white mb-2"
-              style={{
-                fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-                lineHeight: 1.05,
-              }}
-            >
-              COMMERCIAL
-            </h2>
+            <Link href="/commercial" className="inline-block">
+              <h2
+                className="font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
+                style={{
+                  fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
+                  lineHeight: 1.04,
+                }}
+              >
+                COMMERCIAL
+              </h2>
+            </Link>
+
             <p
-              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-4"
+              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3"
               style={{ color: "#C9A84C" }}
             >
               Ground-Up, Turnkey &amp;{" "}
@@ -394,32 +706,88 @@ export default function Home() {
               </em>
             </p>
 
-            <p className="text-slate-200 text-sm leading-relaxed mb-7 max-w-[320px] mx-auto">
-              Ground-Up Construction · Design-Build Services
-              <br />
-              General Contracting · Construction Management
-              <br />
-              Tenant Improvements · Mixed-Use · Industrial
+            <p className="text-slate-100 text-xs sm:text-sm leading-relaxed mb-5 max-w-[380px] mx-auto drop-shadow">
+              Ground-Up Construction · Design-Build Services · General
+              Contracting · Tenant Improvements · Multi-Family &amp; Industrial
             </p>
 
+            {/* Interactive 6-Scene Commercial Discipline Selector Chips */}
             <div
+              className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
+              role="group"
+              aria-label="Preview commercial construction disciplines"
+            >
+              {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
+                const active = idx === comSceneIdx;
+                return (
+                  <button
+                    key={scene.id}
+                    type="button"
+                    onClick={() => setComSceneIdx(idx)}
+                    onPointerEnter={() => setComSceneIdx(idx)}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
+                    style={{
+                      background: active
+                        ? "rgba(201, 168, 76, 0.92)"
+                        : "rgba(7, 14, 26, 0.72)",
+                      color: active ? "#070E1A" : "#E2E8F0",
+                      borderColor: active
+                        ? "#F3D37A"
+                        : "rgba(201, 168, 76, 0.35)",
+                    }}
+                  >
+                    {scene.chip}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Live Active Scene Telemetry HUD */}
+            <div
+              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3"
+              style={{
+                background: "rgba(7, 14, 26, 0.78)",
+                borderColor: "rgba(201, 168, 76, 0.42)",
+              }}
+            >
+              <div className="min-w-0">
+                <div
+                  className="text-[9px] font-mono font-bold uppercase tracking-widest truncate"
+                  style={{ color: "#F3D37A" }}
+                >
+                  {activeComScene.csiCode}
+                </div>
+                <div className="text-xs font-bold text-white truncate">
+                  {activeComScene.title}
+                </div>
+              </div>
+              <span
+                className="text-[10px] font-mono font-black px-2 py-0.5 rounded shrink-0"
+                style={{ background: "rgba(201,168,76,0.22)", color: "#F3D37A" }}
+              >
+                0{comSceneIdx + 1}/06
+              </span>
+            </div>
+
+            <Link
+              href="/commercial"
               data-magnetic
-              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 group-hover:scale-105 group-hover:shadow-lg"
+              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg"
               style={{ background: "#C9A84C", color: "#070E1A" }}
             >
               View Commercial Services <span>→</span>
-            </div>
+            </Link>
           </div>
-        </Link>
+        </div>
 
         {/* Divider */}
         <div
-          className="hidden md:block w-px shrink-0"
-          style={{ background: "rgba(201,168,76,0.35)" }}
+          className="hidden md:block w-px shrink-0 z-20"
+          style={{ background: "rgba(201,168,76,0.45)" }}
         />
         <div
-          className="md:hidden h-px shrink-0"
-          style={{ background: "rgba(201,168,76,0.35)" }}
+          className="md:hidden h-px shrink-0 z-20"
+          style={{ background: "rgba(201,168,76,0.45)" }}
         />
 
         {/* ── ROTATING ORBITAL EDITORIAL STAMP (CENTER / TOP-RIGHT) ── */}
@@ -437,8 +805,8 @@ export default function Home() {
           <div
             className="orbital-caption rounded-full backdrop-blur-md border shadow-2xl p-1"
             style={{
-              background: "rgba(7, 14, 26, 0.85)",
-              borderColor: "rgba(201, 168, 76, 0.42)",
+              background: "rgba(7, 14, 26, 0.88)",
+              borderColor: "rgba(201, 168, 76, 0.5)",
             }}
           >
             <svg viewBox="0 0 120 120">
@@ -466,13 +834,13 @@ export default function Home() {
         </div>
 
         {/* ── RESIDENTIAL (RIGHT / BOTTOM) ── */}
-        <Link
-          href="/residential"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 min-w-0"
+        <div
+          role="region"
+          aria-label="Residential Renovation & Restoration Division"
+          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 pb-20 min-w-0"
           style={{
             flex: residentialFlex,
-            background:
-              "linear-gradient(155deg, #0B172A 0%, #132747 58%, #1B3A6B 100%)",
+            background: "#0B172A",
             transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
             minHeight: "50%",
             willChange: "flex",
@@ -480,32 +848,62 @@ export default function Home() {
           onFocus={() => setHovered("residential")}
           onBlur={() => setHovered(null)}
         >
+          {/* Curated 6-Scene Residential Backdrop Cycler */}
+          <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+            {RESIDENTIAL_HERO_SCENES.map((scene, idx) => {
+              const isCurrent = idx === resSceneIdx;
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={scene.id}
+                  src={scene.image}
+                  alt=""
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  className={`absolute inset-0 w-full h-full object-cover tayco-hero-kenburns transition-opacity duration-1000 ${
+                    isCurrent ? "opacity-55" : "opacity-0"
+                  }`}
+                />
+              );
+            })}
+            {/* Calibrated Deep Navy & Warm Champagne Vignette */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(155deg, rgba(11, 23, 42, 0.88) 0%, rgba(19, 39, 71, 0.66) 50%, rgba(7, 14, 26, 0.92) 100%)",
+              }}
+            />
+          </div>
+
           <div className="preview-orbits" aria-hidden="true">
             <i />
             <i />
             <i />
           </div>
+
           {/* Architectural grid */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
                 "linear-gradient(rgba(243,211,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(243,211,122,0.05) 1px, transparent 1px)",
               backgroundSize: "48px 48px",
             }}
           />
+
           {/* Right Champagne Gold Accent Line */}
           <div
-            className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5"
+            className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5 z-10"
             style={{ background: "#E2C675" }}
           />
-          <div className="relative z-10 text-center px-6 sm:px-12 w-full max-w-md shrink-0">
+
+          <div className="relative z-10 text-center px-6 sm:px-10 w-full max-w-xl shrink-0">
             <div
-              className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] mb-4"
+              className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] mb-3 backdrop-blur-md"
               style={{
-                background: "rgba(201, 168, 76, 0.14)",
+                background: "rgba(201, 168, 76, 0.18)",
                 color: "#F3D37A",
-                border: "1px solid rgba(201, 168, 76, 0.42)",
+                border: "1px solid rgba(201, 168, 76, 0.48)",
               }}
             >
               <span className="tayco-live-dot" style={{ color: "#E2C675" }} />
@@ -513,16 +911,16 @@ export default function Home() {
             </div>
 
             <div
-              className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto mb-5 shadow-inner"
+              className="w-13 h-13 rounded-2xl border flex items-center justify-center mx-auto mb-4 shadow-inner backdrop-blur-md"
               style={{
-                background: "rgba(7, 14, 26, 0.65)",
-                borderColor: "rgba(226, 198, 117, 0.45)",
+                background: "rgba(7, 14, 26, 0.72)",
+                borderColor: "rgba(226, 198, 117, 0.55)",
               }}
               aria-hidden="true"
             >
               <svg
-                width="26"
-                height="26"
+                width="25"
+                height="25"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#F3D37A"
@@ -536,17 +934,20 @@ export default function Home() {
               </svg>
             </div>
 
-            <h2
-              className="font-black tracking-tight text-white mb-2"
-              style={{
-                fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-                lineHeight: 1.05,
-              }}
-            >
-              RESIDENTIAL
-            </h2>
+            <Link href="/residential" className="inline-block">
+              <h2
+                className="font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
+                style={{
+                  fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
+                  lineHeight: 1.04,
+                }}
+              >
+                RESIDENTIAL
+              </h2>
+            </Link>
+
             <p
-              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-4"
+              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3"
               style={{ color: "#C9A84C" }}
             >
               Renovation &amp;{" "}
@@ -558,25 +959,83 @@ export default function Home() {
               </em>
             </p>
 
-            <p className="text-slate-200 text-sm leading-relaxed mb-7 max-w-[320px] mx-auto">
-              Full-scale home renovations · Kitchen &amp; bath remodels ·
-              Structural additions · Certified fire &amp; water damage
-              restoration
+            <p className="text-slate-100 text-xs sm:text-sm leading-relaxed mb-5 max-w-[380px] mx-auto drop-shadow">
+              Full-scale home renovations · Kitchen &amp; bath remodels · Custom
+              carpentry &amp; decks · Certified fire &amp; water damage restoration
             </p>
 
+            {/* Interactive 6-Scene Residential Discipline Selector Chips */}
             <div
-              data-magnetic
-              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 group-hover:scale-105 shadow-lg border"
+              className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
+              role="group"
+              aria-label="Preview residential construction disciplines"
+            >
+              {RESIDENTIAL_HERO_SCENES.map((scene, idx) => {
+                const active = idx === resSceneIdx;
+                return (
+                  <button
+                    key={scene.id}
+                    type="button"
+                    onClick={() => setResSceneIdx(idx)}
+                    onPointerEnter={() => setResSceneIdx(idx)}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
+                    style={{
+                      background: active
+                        ? "rgba(243, 211, 122, 0.92)"
+                        : "rgba(7, 14, 26, 0.72)",
+                      color: active ? "#070E1A" : "#E2E8F0",
+                      borderColor: active
+                        ? "#F3D37A"
+                        : "rgba(243, 211, 122, 0.35)",
+                    }}
+                  >
+                    {scene.chip}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Live Active Scene Telemetry HUD */}
+            <div
+              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3"
               style={{
-                background: "rgba(201, 168, 76, 0.16)",
-                borderColor: "rgba(243, 211, 122, 0.65)",
+                background: "rgba(7, 14, 26, 0.78)",
+                borderColor: "rgba(243, 211, 122, 0.42)",
+              }}
+            >
+              <div className="min-w-0">
+                <div
+                  className="text-[9px] font-mono font-bold uppercase tracking-widest truncate"
+                  style={{ color: "#F3D37A" }}
+                >
+                  {activeResScene.csiCode}
+                </div>
+                <div className="text-xs font-bold text-white truncate">
+                  {activeResScene.title}
+                </div>
+              </div>
+              <span
+                className="text-[10px] font-mono font-black px-2 py-0.5 rounded shrink-0"
+                style={{ background: "rgba(243,211,122,0.22)", color: "#F3D37A" }}
+              >
+                0{resSceneIdx + 1}/06
+              </span>
+            </div>
+
+            <Link
+              href="/residential"
+              data-magnetic
+              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg border backdrop-blur-md"
+              style={{
+                background: "rgba(201, 168, 76, 0.24)",
+                borderColor: "rgba(243, 211, 122, 0.75)",
                 color: "#F3D37A",
               }}
             >
               View Residential Services <span>→</span>
-            </div>
+            </Link>
           </div>
-        </Link>
+        </div>
 
         {/* Project services and resources */}
         <div
@@ -603,7 +1062,7 @@ export default function Home() {
             className="text-[11px] font-mono font-bold hover:text-white underline"
             style={{ color: "#C9A84C" }}
           >
-            Team & supplier sign in
+            Team &amp; supplier sign in
           </Link>
           <span className="text-slate-500">·</span>
           <Link
@@ -622,33 +1081,41 @@ export default function Home() {
       >
         <div>
           <span className="gold">Precision Commercial Execution</span>
-          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
-          <span>Commercial & Residential</span>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>
+            ◆
+          </i>
+          <span>Commercial &amp; Residential</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
           <span className="gold">Clear scopes. Thoughtful construction.</span>
-          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
-          <span>Fire & Water Restoration</span>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>
+            ◆
+          </i>
+          <span>Fire &amp; Water Restoration</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
           <span className="gold">Precision Commercial Execution</span>
-          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
-          <span>Commercial & Residential</span>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>
+            ◆
+          </i>
+          <span>Commercial &amp; Residential</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
           <span className="gold">Clear scopes. Thoughtful construction.</span>
-          <i aria-hidden="true" style={{ color: "#C9A84C" }}>◆</i>
-          <span>Fire & Water Restoration</span>
+          <i aria-hidden="true" style={{ color: "#C9A84C" }}>
+            ◆
+          </i>
+          <span>Fire &amp; Water Restoration</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
         </div>
       </div>
 
-      {/* Project services and resources */}
+      {/* Project services and resources + Interactive 8-State Footprint */}
       <section
         id="home-erp-suite-ribbon"
         className="border-b px-4 sm:px-8 py-5 relative z-10"
@@ -658,59 +1125,63 @@ export default function Home() {
           borderColor: "rgba(201,168,76,0.35)",
         }}
       >
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div className="text-center lg:text-left">
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
-              <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                TAYCO LLC · FULL-SERVICE CONSTRUCTION
-              </span>
-              <span
-                className="text-xs font-mono font-bold px-2 py-0.5 rounded"
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div className="text-center lg:text-left">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
+                <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                  TAYCO LLC · FULL-SERVICE CONSTRUCTION
+                </span>
+                <span
+                  className="text-xs font-mono font-bold px-2 py-0.5 rounded"
+                  style={{
+                    background: "rgba(201, 168, 76, 0.16)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  {COMPANY.coverage}
+                </span>
+              </div>
+              <p className="text-white font-bold text-sm sm:text-base">
+                Commercial construction, home renovations and restoration. Tell us
+                what you need and where you need it.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <Link
+                href="/login"
+                data-magnetic
+                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-transform hover:scale-105 shadow-md"
+                style={{ background: "#C9A84C", color: "#070E1A" }}
+              >
+                Project portal sign in →
+              </Link>
+              <Link
+                href="/estimate"
+                data-magnetic
+                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white border transition-colors hover:bg-white/10"
+                style={{ borderColor: "rgba(201,168,76,0.55)" }}
+              >
+                Request a free estimate
+              </Link>
+              <Link
+                href="/login"
+                data-magnetic
+                className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-white border transition-colors"
                 style={{
-                  background: "rgba(201, 168, 76, 0.16)",
+                  background: "rgba(201, 168, 76, 0.14)",
+                  borderColor: "rgba(201, 168, 76, 0.45)",
                   color: "#F3D37A",
                 }}
               >
-                {COMPANY.coverage}
-              </span>
+                Trade partner sign in
+              </Link>
             </div>
-            <p className="text-white font-bold text-sm sm:text-base">
-              Commercial construction, home renovations and restoration.
-              Tell us what you need and where you need it.
-            </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <Link
-              href="/login"
-              data-magnetic
-              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-transform hover:scale-105 shadow-md"
-              style={{ background: "#C9A84C", color: "#070E1A" }}
-            >
-              Project portal sign in →
-            </Link>
-            <Link
-              href="/estimate"
-              data-magnetic
-              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white border transition-colors hover:bg-white/10"
-              style={{ borderColor: "rgba(201,168,76,0.55)" }}
-            >
-              Request a free estimate
-            </Link>
-            <Link
-              href="/login"
-              data-magnetic
-              className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-white border transition-colors"
-              style={{
-                background: "rgba(201, 168, 76, 0.14)",
-                borderColor: "rgba(201, 168, 76, 0.45)",
-                color: "#F3D37A",
-              }}
-            >
-              Trade partner sign in
-            </Link>
-          </div>
+          <RegionalStateFootprintStrip />
         </div>
       </section>
 
@@ -734,7 +1205,7 @@ export default function Home() {
         </svg>
       </div>
 
-      {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION ── */}
+      {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION WITH 3-PHOTO TRIPTYCHS ── */}
       <section
         id="tayco-operations-showcase"
         className="section-editorial-ivory py-16 sm:py-20 px-4 sm:px-8"
@@ -756,7 +1227,7 @@ export default function Home() {
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#1B3A6B" }}
             >
-              CONSTRUCTION · RENOVATION · RESTORATION
+              18 CURATED FIELD PHOTOGRAPHS · 3 INTERACTIVE FRAMES PER SERVICE
             </span>
           </div>
 
@@ -783,8 +1254,9 @@ export default function Home() {
                 className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
                 style={{ color: "#334155" }}
               >
-                From a single room to a commercial property, find the right team for the work.
-                Explore our services or tell us about your project.
+                From a single room to a commercial property, find the right team
+                for the work. Hover or click the three photo frames inside each
+                card to inspect representative field execution.
               </p>
             </div>
 
@@ -838,120 +1310,217 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Project services and resources */}
+          {/* 6 Interactive Ivory Triptych Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCards.map((card) => (
-              <div
-                key={card.id}
-                data-response-kind="surface"
-                className="tayco-living-card editorial-ivory-card p-6 flex flex-col justify-between group"
-              >
-                <div className="preview-orbits" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
+            {filteredCards.map((card) => {
+              const activeFrameIdx = cardFrameMap[card.id] ?? 0;
+              const currentFrame = card.frames[activeFrameIdx] ?? card.frames[0];
 
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between gap-2 mb-4">
-                    <div
-                      className="tayco-eyebrow font-bold"
-                      style={{ color: "#1B3A6B" }}
-                    >
-                      <span
-                        className="tayco-live-dot"
-                        style={{ color: card.badgeColor }}
-                      />
-                      {card.eyebrow}
+              return (
+                <div
+                  key={card.id}
+                  data-response-kind="surface"
+                  className="tayco-living-card editorial-ivory-card p-5 flex flex-col justify-between group"
+                >
+                  <div className="preview-orbits" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div
+                        className="tayco-eyebrow font-bold"
+                        style={{ color: "#1B3A6B" }}
+                      >
+                        <span
+                          className="tayco-live-dot"
+                          style={{ color: card.badgeColor }}
+                        />
+                        {card.eyebrow}
+                      </div>
+                      <Link
+                        href={card.href}
+                        aria-label={card.cta}
+                        className="project-open"
+                      >
+                        ↗
+                      </Link>
                     </div>
+
+                    {/* Interactive 3-Photo Triptych Stage */}
+                    <div className="mb-4">
+                      <div
+                        className="relative h-44 w-full rounded-xl overflow-hidden border shadow-md"
+                        style={{
+                          borderColor: "rgba(15, 32, 64, 0.22)",
+                          background: "#070E1A",
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={currentFrame.src}
+                          alt={currentFrame.caption}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            background:
+                              "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 45%, rgba(7,14,26,0.88) 100%)",
+                          }}
+                        />
+                        <span
+                          className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider"
+                          style={{
+                            background: "rgba(7, 14, 26, 0.85)",
+                            color: "#F3D37A",
+                            border: "1px solid rgba(201, 168, 76, 0.45)",
+                          }}
+                        >
+                          {currentFrame.csi}
+                        </span>
+                        <span
+                          className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded text-[9px] font-mono font-bold"
+                          style={{
+                            background: "#C9A84C",
+                            color: "#070E1A",
+                          }}
+                        >
+                          0{activeFrameIdx + 1}/03
+                        </span>
+                        <div className="absolute bottom-2 left-2.5 right-2.5 text-[11px] font-bold text-white line-clamp-1 drop-shadow">
+                          {currentFrame.caption}
+                        </div>
+                      </div>
+
+                      {/* 3 Triptych Thumbnail Switchers */}
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {card.frames.map((frame, fIdx) => {
+                          const isSelected = fIdx === activeFrameIdx;
+                          return (
+                            <button
+                              key={frame.src}
+                              type="button"
+                              onClick={() =>
+                                setCardFrameMap((prev) => ({
+                                  ...prev,
+                                  [card.id]: fIdx,
+                                }))
+                              }
+                              onPointerEnter={() =>
+                                setCardFrameMap((prev) => ({
+                                  ...prev,
+                                  [card.id]: fIdx,
+                                }))
+                              }
+                              className="relative h-12 rounded-lg overflow-hidden border transition-all cursor-pointer"
+                              style={{
+                                borderColor: isSelected
+                                  ? "#0F2040"
+                                  : "rgba(15, 32, 64, 0.2)",
+                                boxShadow: isSelected
+                                  ? "0 0 0 2px #C9A84C"
+                                  : "none",
+                                opacity: isSelected ? 1 : 0.72,
+                              }}
+                              aria-label={`Preview ${frame.caption}`}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={frame.src}
+                                alt=""
+                                loading="lazy"
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <h3
+                      className="text-xl font-black leading-snug"
+                      style={{ color: "#0F2040" }}
+                    >
+                      {card.title}{" "}
+                      <em
+                        className="tayco-serif-em font-normal"
+                        style={{ color: "#1B3A6B" }}
+                      >
+                        {card.serifEm}
+                      </em>
+                    </h3>
+                    <div
+                      className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1"
+                      style={{ color: "#B8922F" }}
+                    >
+                      {card.subtitle}
+                    </div>
+                    <p
+                      className="text-xs mt-2 leading-relaxed font-medium"
+                      style={{ color: "#334155" }}
+                    >
+                      {card.summary}
+                    </p>
+                  </div>
+
+                  <div
+                    className="relative z-10 mt-5 pt-4 border-t"
+                    style={{ borderColor: "rgba(27, 58, 107, 0.14)" }}
+                  >
+                    <div className="flex items-end justify-between gap-2 mb-3.5">
+                      <div>
+                        <div
+                          className="text-lg font-black font-mono"
+                          style={{ color: card.stroke }}
+                        >
+                          {card.metric}
+                        </div>
+                        <div
+                          className="text-[10px] font-mono uppercase tracking-wider font-semibold"
+                          style={{ color: "#475569" }}
+                        >
+                          {card.metricLabel}
+                        </div>
+                      </div>
+                      <svg
+                        width="116"
+                        height="34"
+                        viewBox="0 0 116 34"
+                        fill="none"
+                        aria-hidden="true"
+                        className="shrink-0"
+                      >
+                        <path
+                          d={card.sparkPath}
+                          stroke={card.stroke}
+                          strokeWidth="2.4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+
                     <Link
                       href={card.href}
-                      aria-label={card.cta}
-                      className="project-open"
+                      data-magnetic
+                      className="inline-flex items-center justify-between w-full text-xs font-extrabold px-4 py-2.5 rounded-xl border transition-all"
+                      style={{
+                        background: "#0F2040",
+                        color: "#F3D37A",
+                        borderColor: "#1B3A6B",
+                      }}
                     >
-                      ↗
+                      <span>{card.cta}</span>
+                      <span style={{ color: "#C9A84C" }}>→</span>
                     </Link>
                   </div>
-
-                  <h3
-                    className="text-xl font-black leading-snug"
-                    style={{ color: "#0F2040" }}
-                  >
-                    {card.title}{" "}
-                    <em
-                      className="tayco-serif-em font-normal"
-                      style={{ color: "#1B3A6B" }}
-                    >
-                      {card.serifEm}
-                    </em>
-                  </h3>
-                  <div
-                    className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1"
-                    style={{ color: "#C9A84C" }}
-                  >
-                    {card.subtitle}
-                  </div>
-                  <p
-                    className="text-xs mt-2.5 leading-relaxed font-medium"
-                    style={{ color: "#334155" }}
-                  >
-                    {card.summary}
-                  </p>
                 </div>
-
-                <div
-                  className="relative z-10 mt-6 pt-4 border-t"
-                  style={{ borderColor: "rgba(27, 58, 107, 0.14)" }}
-                >
-                  <div className="flex items-end justify-between gap-2 mb-4">
-                    <div>
-                      <div
-                        className="text-xl font-black font-mono"
-                        style={{ color: card.stroke }}
-                      >
-                        {card.metric}
-                      </div>
-                      <div
-                        className="text-[10px] font-mono uppercase tracking-wider font-semibold"
-                        style={{ color: "#475569" }}
-                      >
-                        {card.metricLabel}
-                      </div>
-                    </div>
-                    <svg
-                      width="116"
-                      height="34"
-                      viewBox="0 0 116 34"
-                      fill="none"
-                      aria-hidden="true"
-                      className="shrink-0"
-                    >
-                      <path
-                        d={card.sparkPath}
-                        stroke={card.stroke}
-                        strokeWidth="2.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-
-                  <Link
-                    href={card.href}
-                    data-magnetic
-                    className="inline-flex items-center justify-between w-full text-xs font-extrabold px-4 py-2.5 rounded-xl border transition-all"
-                    style={{
-                      background: "#0F2040",
-                      color: "#F3D37A",
-                      borderColor: "#1B3A6B",
-                    }}
-                  >
-                    <span>{card.cta}</span>
-                    <span style={{ color: "#C9A84C" }}>→</span>
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -974,15 +1543,19 @@ export default function Home() {
         </svg>
       </div>
 
-      {/* ── 02 / INTERACTIVE ARCHITECTURAL LIGHT & SURFACE INSPECTOR ── */}
+      {/* ── 01B / INTERACTIVE 12-PAIR BEFORE & AFTER + X-RAY TRANSFORMATION STUDIO ── */}
+      <TransformationBeforeAfterStudio />
+
+      {/* ── 02 / INTERACTIVE ARCHITECTURAL LIGHT & SURFACE INSPECTOR (6 REAL TEXTURES) ── */}
       <section
         id="tayco-light-studio"
         data-light-table
         data-study={activeStudy}
-        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
+        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
         style={{
           background:
             "radial-gradient(circle at 18% 20%, rgba(201, 168, 76, 0.14), transparent 55%), radial-gradient(circle at 85% 80%, rgba(27, 58, 107, 0.45), transparent 60%), #070E1A",
+          borderColor: "rgba(201, 168, 76, 0.25)",
         }}
       >
         <div className="max-w-7xl mx-auto">
@@ -992,17 +1565,17 @@ export default function Home() {
               02 / MATERIALS IN A DIFFERENT LIGHT
             </span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
-              AN INTERACTIVE MATERIAL STUDY
+              6 REAL ARCHITECTURAL SURFACES · RAKING ANGLE (0°–90°) + KELVIN STUDIO
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* Left Controls Column */}
             <div className="lg:col-span-5">
               <h2
                 className="font-black text-white tracking-tight"
                 style={{
-                  fontSize: "clamp(2rem, 4vw, 3.3rem)",
+                  fontSize: "clamp(2rem, 4vw, 3.2rem)",
                   lineHeight: 1.05,
                 }}
               >
@@ -1012,15 +1585,24 @@ export default function Home() {
                 </em>
               </h2>
               <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                Choose a material study and move the light from{" "}
-                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>0°</span> to{" "}
-                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>90°</span> to inspect
-                texture, form and shadow. Use this illustration to start a conversation about your finishes.
+                Select one of the{" "}
+                <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
+                  6 architectural surface textures
+                </span>
+                , sweep the raking light from{" "}
+                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
+                  0°
+                </span>{" "}
+                to{" "}
+                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
+                  90°
+                </span>{" "}
+                and switch Kelvin color temperature to see how grain, relief and specular sheen respond.
               </p>
 
-              {/* 3 Study Switcher Buttons */}
+              {/* 6 Real Material Texture Switcher Buttons */}
               <div
-                className="flex flex-col gap-2.5 my-7"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 my-6"
                 role="group"
                 aria-label="Choose Architectural Light Study"
               >
@@ -1033,10 +1615,10 @@ export default function Home() {
                       data-magnetic
                       aria-pressed={selected}
                       onClick={() => setActiveStudy(study.index)}
-                      className="w-full text-left px-4 py-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
+                      className="w-full text-left px-3.5 py-2.5 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
                       style={{
                         background: selected
-                          ? "rgba(27, 58, 107, 0.75)"
+                          ? "rgba(27, 58, 107, 0.82)"
                           : "rgba(15, 32, 64, 0.55)",
                         borderColor: selected
                           ? study.color
@@ -1046,18 +1628,21 @@ export default function Home() {
                           : "none",
                       }}
                     >
-                      <span className="flex items-center gap-3">
-                        <span
-                          className="w-3 h-3 rounded-full shrink-0"
+                      <span className="flex items-center gap-3 min-w-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={study.image}
+                          alt=""
+                          loading="lazy"
+                          className="w-10 h-8 rounded-lg object-cover border shrink-0"
                           style={{
-                            background: study.color,
-                            boxShadow: selected
-                              ? `0 0 12px ${study.color}`
-                              : "none",
+                            borderColor: selected
+                              ? study.color
+                              : "rgba(255,255,255,0.2)",
                           }}
                         />
                         <span
-                          className="text-xs font-mono font-bold leading-snug"
+                          className="text-xs font-mono font-bold leading-snug truncate"
                           style={{
                             color: selected ? "#ffffff" : "#CBD5E1",
                           }}
@@ -1076,65 +1661,119 @@ export default function Home() {
                 })}
               </div>
 
-              {/* Light Incidence Angle Slider */}
+              {/* Light Incidence Angle Slider + Quick Angle Presets */}
               <div
-                className="p-4 rounded-2xl border"
+                className="p-4 rounded-2xl border space-y-4"
                 style={{
                   background: "rgba(15, 32, 64, 0.72)",
                   borderColor: "rgba(201, 168, 76, 0.35)",
                 }}
               >
-                <label
-                  htmlFor="tayco-light-angle-slider"
-                  className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#F3D37A"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="12" r="5" />
-                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
-                    </svg>
-                    Raking Light Angle: {lightAngle}°
-                  </span>
-                  <output
+                <div>
+                  <label
                     htmlFor="tayco-light-angle-slider"
-                    className="font-black text-sm px-2.5 py-0.5 rounded"
-                    style={{
-                      background: "rgba(201, 168, 76, 0.18)",
-                      color: "#F3D37A",
-                    }}
+                    className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
                   >
-                    {lightAngle}°
-                  </output>
-                </label>
-                <input
-                  id="tayco-light-angle-slider"
-                  type="range"
-                  min={0}
-                  max={90}
-                  value={lightAngle}
-                  onChange={(e) => setLightAngle(Number(e.target.value))}
-                  className="w-full h-2 rounded-lg cursor-ew-resize accent-[#C9A84C]"
-                  style={{ accentColor: "#C9A84C" }}
-                />
-                <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1.5">
-                  <span>0° Low Horizon Grazing</span>
-                  <span>45° Oblique Inspection</span>
-                  <span>90° Zenith Overhead</span>
+                    <span className="inline-flex items-center gap-2">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#F3D37A"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
+                      </svg>
+                      Raking Light Angle: {lightAngle}°
+                    </span>
+                    <output
+                      htmlFor="tayco-light-angle-slider"
+                      className="font-black text-sm px-2.5 py-0.5 rounded"
+                      style={{
+                        background: "rgba(201, 168, 76, 0.18)",
+                        color: "#F3D37A",
+                      }}
+                    >
+                      {lightAngle}°
+                    </output>
+                  </label>
+                  <input
+                    id="tayco-light-angle-slider"
+                    type="range"
+                    min={0}
+                    max={90}
+                    value={lightAngle}
+                    onChange={(e) => setLightAngle(Number(e.target.value))}
+                    className="w-full h-2 rounded-lg cursor-ew-resize accent-[#C9A84C]"
+                    style={{ accentColor: "#C9A84C" }}
+                  />
+                  <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setLightAngle(12)}
+                      className="hover:text-amber-200 cursor-pointer"
+                    >
+                      12° Grazing Relief
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLightAngle(45)}
+                      className="hover:text-amber-200 cursor-pointer"
+                    >
+                      45° Oblique Studio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLightAngle(82)}
+                      className="hover:text-amber-200 cursor-pointer"
+                    >
+                      82° Direct Specular
+                    </button>
+                  </div>
+                </div>
+
+                {/* Color Temperature Switcher (5600K / 3500K / 2700K) */}
+                <div className="pt-3 border-t border-white/10">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-slate-300 mb-2">
+                    Ambient Color Temperature (Kelvin):
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {COLOR_TEMPERATURES.map((temp) => {
+                      const active = temp.id === colorTemp;
+                      return (
+                        <button
+                          key={temp.id}
+                          type="button"
+                          onClick={() => setColorTemp(temp.id)}
+                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold border transition-all cursor-pointer text-center"
+                          style={{
+                            background: active
+                              ? "#C9A84C"
+                              : "rgba(7, 14, 26, 0.65)",
+                            color: active ? "#070E1A" : "#E2E8F0",
+                            borderColor: active
+                              ? "#F3D37A"
+                              : "rgba(201, 168, 76, 0.3)",
+                          }}
+                        >
+                          <div>{temp.kelvin}</div>
+                          <div className="text-[9px] opacity-80 truncate">
+                            {temp.label}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Interactive Surface Stage */}
+            {/* Right Interactive Surface Stage with Real Material Photograph */}
             <div className="lg:col-span-7">
               <div
                 data-response-kind="surface"
@@ -1149,14 +1788,56 @@ export default function Home() {
                   } as React.CSSProperties
                 }
               >
-                <div className="light-surface" aria-hidden="true">
+                <div
+                  className="light-surface relative overflow-hidden"
+                  style={{ minHeight: "390px" }}
+                >
+                  {/* Real High-Relief Surface Photograph */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentStudy.image}
+                    alt={currentStudy.label}
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
+                    style={{
+                      filter: `contrast(${shadowContrast}) brightness(${
+                        0.82 + (lightAngle / 90) * 0.24
+                      })`,
+                    }}
+                  />
+
+                  {/* Dynamic Directional Raking Light & Kelvin Overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none transition-all duration-150"
+                    style={{
+                      background: `radial-gradient(circle at ${lightX}% ${lightY}%, ${currentTemp.beamBoost} 0%, ${currentTemp.tint} 38%, rgba(7, 14, 26, 0.72) 88%)`,
+                    }}
+                  />
+
+                  {/* Moving Specular Grazing Line */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: `linear-gradient(${
+                        95 + lightAngle * 0.8
+                      }deg, transparent ${Math.max(
+                        0,
+                        beamX - 24
+                      )}%, rgba(243, 211, 122, 0.28) ${beamX}%, transparent ${Math.min(
+                        100,
+                        beamX + 24
+                      )}%)`,
+                    }}
+                  />
+
+                  {/* Optical Calibration Disc Reticle */}
                   <div
                     className="light-disc"
                     style={{
+                      opacity: 0.42,
                       borderRadius:
-                        activeStudy === 1
+                        activeStudy % 3 === 1
                           ? "16%"
-                          : activeStudy === 2
+                          : activeStudy % 3 === 2
                             ? "42% 56% 38% 58%"
                             : "50%",
                     }}
@@ -1169,25 +1850,32 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="light-beam" />
-                  <span className="absolute top-4 left-5 font-mono text-sm text-white/40">
-                    +
-                  </span>
-                  <span className="absolute bottom-4 right-5 font-mono text-sm text-white/40">
-                    +
+
+                  <span className="absolute top-4 left-5 font-mono text-xs font-bold px-2.5 py-1 rounded bg-[#070E1A]/80 text-amber-200 border border-amber-400/30">
+                    {currentStudy.csi}
                   </span>
                   <span
                     className="absolute top-4 right-5 font-mono text-[11px] font-bold px-2.5 py-1 rounded-full border"
                     style={{
-                      background: "rgba(7, 14, 26, 0.78)",
+                      background: "rgba(7, 14, 26, 0.85)",
                       borderColor: currentStudy.color,
                       color: currentStudy.color,
                     }}
                   >
-                    {currentStudy.specMetric} · {lightAngle}°
+                    {currentStudy.specMetric} · {lightAngle}° · {currentTemp.kelvin}
                   </span>
-                  <span className="absolute bottom-4 left-5 font-mono text-[10px] tracking-widest text-slate-300 uppercase">
-                    {currentStudy.code}
-                  </span>
+
+                  {/* Bottom Surface Telemetry Readout Bar */}
+                  <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-[#070E1A]/85 border border-white/15 backdrop-blur-md">
+                    <span className="font-mono text-[10px] tracking-widest text-slate-200 uppercase">
+                      {currentStudy.code}
+                    </span>
+                    <div className="flex items-center gap-3 text-[10px] font-mono text-amber-200">
+                      <span>SHEEN: {currentStudy.sheenProfile}</span>
+                      <span>·</span>
+                      <span>RELIEF: {currentStudy.grainDepth}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div
@@ -1211,21 +1899,26 @@ export default function Home() {
                     className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105 text-center"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
-                    Discuss your project →
+                    Discuss your finishes →
                   </Link>
                 </div>
               </div>
             </div>
           </div>
 
-          <div id="types-of-work" className="mt-16 pt-12 border-t border-white/10">
+          {/* 16-Shot Dual-Track Counter-Scrolling Architectural Filmstrip */}
+          <div className="mt-16">
+            <DualTrackArchitecturalMarquee />
+          </div>
+
+          <div id="types-of-work" className="mt-10 pt-12 border-t border-white/10">
             <div className="text-center mb-10">
               <div
                 className="tayco-eyebrow justify-center mb-2"
                 style={{ color: "#F3D37A" }}
               >
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                SERVICE CATALOG · ILLUSTRATIVE TRADE REFERENCE
+                SERVICE CATALOG · TRADE &amp; MATERIAL EXECUTION
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">
                 Types of work we perform{" "}
@@ -1239,7 +1932,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Project services and resources */}
+      {/* ── 03 / INTERACTIVE 5-PHASE CONSTRUCTION TIMELINE & VERIFIED TRACK RECORD ── */}
       <section
         id="tayco-verified-track-record"
         className="py-16 sm:py-24 px-4 sm:px-8 border-t relative z-10"
@@ -1259,7 +1952,7 @@ export default function Home() {
               className="text-[11px] font-mono uppercase tracking-widest"
               style={{ color: "#F3D37A" }}
             >
-              A CLEAR PATH FOR YOUR PROJECT
+              5-PHASE FIELD PROGRESSION · SITE PREP TO FINAL HANDOVER
             </span>
           </div>
 
@@ -1278,8 +1971,9 @@ export default function Home() {
                 </em>
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl leading-relaxed">
-                Here is how we approach a project. The specific scope, schedule and responsibilities
-                are agreed with you before work begins.
+                Explore how a TAYCO project progresses from initial site survey
+                and structural framing to rough-in, custom millwork and final
+                turnkey handover.
               </p>
             </div>
 
@@ -1303,16 +1997,165 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Interactive 5-Phase Construction Progression Spotlight */}
+          <div
+            className="mb-10 p-5 sm:p-6 rounded-2xl border shadow-2xl"
+            style={{
+              background:
+                "linear-gradient(145deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
+              borderColor: "rgba(201, 168, 76, 0.42)",
+            }}
+          >
+            {/* Phase Stepper Bar + Progress Line */}
+            <div className="mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
+                {PROJECT_STEPS.map((step, idx) => {
+                  const selected = idx === activeStepIdx;
+                  return (
+                    <button
+                      key={step.code}
+                      type="button"
+                      onClick={() => setActiveStepIdx(idx)}
+                      className="p-2.5 rounded-xl border text-left transition-all cursor-pointer"
+                      style={{
+                        background: selected
+                          ? "rgba(201, 168, 76, 0.22)"
+                          : "rgba(7, 14, 26, 0.65)",
+                        borderColor: selected
+                          ? "#F3D37A"
+                          : "rgba(201, 168, 76, 0.25)",
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="font-mono text-xs font-black"
+                          style={{ color: selected ? "#F3D37A" : "#C9A84C" }}
+                        >
+                          PHASE {step.code}
+                        </span>
+                        {selected && (
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ background: "#F3D37A" }}
+                          />
+                        )}
+                      </div>
+                      <div className="text-xs font-bold text-white truncate mt-0.5">
+                        {step.name}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full transition-all duration-300 rounded-full"
+                  style={{
+                    width: `${((activeStepIdx + 1) / PROJECT_STEPS.length) * 100}%`,
+                    background:
+                      "linear-gradient(90deg, #C9A84C 0%, #F3D37A 100%)",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Active Phase Image + Deliverables */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div
+                className="lg:col-span-7 relative rounded-xl overflow-hidden border h-64 sm:h-80"
+                style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activeStep.image}
+                  alt={activeStep.name}
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 45%, rgba(7,14,26,0.9) 100%)",
+                  }}
+                />
+                <span
+                  className="absolute top-3 left-3 px-2.5 py-1 rounded text-[10px] font-mono font-black"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                >
+                  PHASE {activeStep.code} / 05 · {activeStep.csiTag}
+                </span>
+                <div className="absolute bottom-3 left-3.5 right-3.5">
+                  <div className="text-lg sm:text-xl font-black text-white">
+                    {activeStep.code} · {activeStep.name}
+                  </div>
+                  <div className="text-xs font-mono text-amber-200">
+                    {activeStep.division}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 space-y-4">
+                <div
+                  className="text-xs font-mono font-bold uppercase tracking-widest"
+                  style={{ color: "#F3D37A" }}
+                >
+                  {activeStep.sqft} · {activeStep.location}
+                </div>
+                <h3 className="text-2xl font-black text-white">
+                  {activeStep.headline}
+                </h3>
+                <ul className="space-y-2.5">
+                  {activeStep.deliverables.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200"
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ background: "#C9A84C" }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-2 flex flex-wrap gap-2">
+                  <Link
+                    href={activeStep.requestHref}
+                    className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider"
+                    style={{ background: "#C9A84C", color: "#070E1A" }}
+                  >
+                    Start Phase {activeStep.code} Conversation →
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveStepIdx(
+                        (activeStepIdx + 1) % PROJECT_STEPS.length
+                      )
+                    }
+                    className="px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold text-amber-200 border border-amber-400/40 hover:bg-white/5 cursor-pointer"
+                  >
+                    Next Phase 0{((activeStepIdx + 1) % PROJECT_STEPS.length) + 1} →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PROJECT_STEPS.map((contract) => (
+            {PROJECT_STEPS.map((contract, idx) => (
               <div
                 key={contract.code}
                 data-response-kind="surface"
-                className="tayco-living-card p-6 rounded-2xl flex flex-col justify-between group"
+                onClick={() => setActiveStepIdx(idx)}
+                className="tayco-living-card p-5 rounded-2xl flex flex-col justify-between group cursor-pointer"
                 style={{
                   background:
                     "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
-                  borderColor: "rgba(201, 168, 76, 0.3)",
+                  borderColor:
+                    idx === activeStepIdx
+                      ? "#F3D37A"
+                      : "rgba(201, 168, 76, 0.3)",
                 }}
               >
                 <div className="preview-orbits" aria-hidden="true">
@@ -1322,11 +2165,29 @@ export default function Home() {
                 </div>
 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span
-                      className="font-mono text-xs font-black px-2.5 py-1 rounded-full border"
+                  {/* Phase Card Architectural Photo Header */}
+                  <div
+                    className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
+                    style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={contract.image}
+                      alt={contract.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div
+                      className="absolute inset-0"
                       style={{
-                        background: "rgba(201, 168, 76, 0.14)",
+                        background:
+                          "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 50%, rgba(7,14,26,0.88) 100%)",
+                      }}
+                    />
+                    <span
+                      className="absolute top-2.5 left-2.5 font-mono text-xs font-black px-2.5 py-0.5 rounded-full border"
+                      style={{
+                        background: "rgba(7, 14, 26, 0.85)",
                         borderColor: contract.accent,
                         color: "#F3D37A",
                       }}
@@ -1336,10 +2197,13 @@ export default function Home() {
                     <Link
                       href={contract.requestHref}
                       aria-label={`Discuss ${contract.name.toLowerCase()}`}
-                      className="project-open"
+                      className="project-open absolute top-2.5 right-2.5"
                     >
                       ↗
                     </Link>
+                    <span className="absolute bottom-2 left-2.5 text-[10px] font-mono text-amber-200 font-bold">
+                      {contract.csiTag}
+                    </span>
                   </div>
 
                   <h3 className="text-lg font-black text-white leading-snug">
@@ -1351,16 +2215,16 @@ export default function Home() {
                   >
                     {contract.location} · {contract.sqft}
                   </div>
-                  <p className="text-xs text-slate-300 mt-2.5 leading-relaxed">
+                  <p className="text-xs text-slate-300 mt-2 leading-relaxed">
                     {contract.division} — {contract.phase}
                   </p>
                 </div>
 
-                <div className="relative z-10 mt-6 pt-4 border-t border-white/10">
+                <div className="relative z-10 mt-5 pt-4 border-t border-white/10">
                   <div className="flex items-baseline justify-between gap-2 mb-3">
                     <div>
                       <div
-                        className="text-2xl font-black font-mono"
+                        className="text-xl font-black font-mono"
                         style={{ color: "#F3D37A" }}
                       >
                         {contract.headline}
@@ -1399,7 +2263,7 @@ export default function Home() {
             {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card p-6 rounded-2xl flex flex-col justify-between group"
+              className="tayco-living-card p-5 rounded-2xl flex flex-col justify-between group"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
@@ -1413,23 +2277,49 @@ export default function Home() {
               </div>
 
               <div className="relative z-10">
-                <div className="tayco-eyebrow mb-3" style={{ color: "#F3D37A" }}>
+                <div
+                  className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
+                  style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/curated/hero/com-hq-sunset.jpg"
+                    alt="TAYCO 8-State Operations"
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(7,14,26,0.3) 0%, transparent 45%, rgba(7,14,26,0.88) 100%)",
+                    }}
+                  />
+                  <span
+                    className="absolute bottom-2 left-2.5 text-[10px] font-mono font-bold"
+                    style={{ color: "#F3D37A" }}
+                  >
+                    WI · IL · IA · IN · MN · MI · MO · TX
+                  </span>
+                </div>
+
+                <div className="tayco-eyebrow mb-2" style={{ color: "#F3D37A" }}>
                   <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                   SERVING EIGHT STATES
                 </div>
                 <h3 className="text-xl font-black text-white leading-snug">
-                   Your next project{" "}
+                  Your next project{" "}
                   <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
                     Across 8 States
                   </em>
                 </h3>
-                <p className="text-xs text-slate-200 mt-2.5 leading-relaxed">
-                  We serve WI, IL, IA, IN, MN, MI, MO and TX.
-                  Contact us to confirm your location, project scope and scheduling.
+                <p className="text-xs text-slate-200 mt-2 leading-relaxed">
+                  We serve WI, IL, IA, IN, MN, MI, MO and TX. Contact us to
+                  confirm your location, project scope and scheduling.
                 </p>
               </div>
 
-              <div className="relative z-10 mt-6 pt-4 border-t border-white/15 space-y-2">
+              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 space-y-2">
                 <Link
                   href="/commercial"
                   data-magnetic
