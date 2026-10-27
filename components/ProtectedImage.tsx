@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ProtectedImageProps {
   src: string;
@@ -13,10 +13,26 @@ export interface ProtectedImageProps {
   sizes?: string;
   width?: number | string;
   height?: number | string;
+  /** Optional bundle of sibling URLs that must decode before this canvas transitions */
+  syncUrls?: string[];
 }
 
 const decodedSurfaceCache = new Map<string, Promise<HTMLCanvasElement>>();
+const resolvedSurfaceMap = new Map<string, HTMLCanvasElement>();
 let canvasPrototypesLocked = false;
+
+// Frame-locked shared timestamp so all canvases committing in the same React render share identical t=0
+let lastCommitBatchWindow = 0;
+let sharedBatchStartTime = 0;
+
+function getSharedTransitionStartTime(): number {
+  const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+  if (Math.abs(now - lastCommitBatchWindow) > 24) {
+    lastCommitBatchWindow = now;
+    sharedBatchStartTime = now;
+  }
+  return sharedBatchStartTime;
+}
 
 function lockProtectedCanvasExports(): void {
   if (canvasPrototypesLocked || typeof window === "undefined") return;
@@ -70,6 +86,9 @@ function unscrambleVisualBytes(scrambled: Uint8Array): Uint8Array {
 }
 
 export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
+  const ready = resolvedSurfaceMap.get(src);
+  if (ready) return Promise.resolve(ready);
+
   const existing = decodedSurfaceCache.get(src);
   if (existing) return existing;
 
@@ -97,7 +116,6 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
       const blob = new Blob([copy.buffer], { type: mime });
       const bitmap = await createImageBitmap(blob);
 
-      // Cap offscreen decoded surface at 1280px max dimension to keep GPU/RAM footprint lean
       const maxDim = 1280;
       const scale =
         bitmap.width > maxDim || bitmap.height > maxDim
@@ -115,6 +133,7 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
         ctx.drawImage(bitmap, 0, 0, w, h);
       }
       bitmap.close();
+      resolvedSurfaceMap.set(src, offscreen);
       return offscreen;
     })
     .catch((err) => {
@@ -126,6 +145,16 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
   return promise;
 }
 
+/** Atomic barrier: resolves only when all URLs in the bundle are decoded into resolvedSurfaceMap */
+export async function waitForDecodedSurfaces(urls: string[]): Promise<void> {
+  if (typeof window === "undefined") return;
+  const unique = Array.from(new Set(urls.filter(Boolean)));
+  if (unique.every((u) => resolvedSurfaceMap.has(u))) {
+    return;
+  }
+  await Promise.all(unique.map((u) => fetchDecodedSurface(u).catch(() => null)));
+}
+
 /** Gently preloads and decodes an array of image URLs sequentially during idle/background time */
 export function preloadProtectedImages(urls: string[]): void {
   if (typeof window === "undefined") return;
@@ -133,14 +162,84 @@ export function preloadProtectedImages(urls: string[]): void {
   let idx = 0;
   const step = () => {
     if (idx >= unique.length) return;
-    const nextUrl = unique[idx++];
-    fetchDecodedSurface(nextUrl)
-      .catch(() => {})
-      .finally(() => {
-        window.setTimeout(step, 45);
-      });
+    const batch = unique.slice(idx, idx + 2);
+    idx += 2;
+    Promise.all(batch.map((u) => fetchDecodedSurface(u).catch(() => null))).finally(() => {
+      window.setTimeout(step, 35);
+    });
   };
-  window.setTimeout(step, 120);
+  window.setTimeout(step, 80);
+}
+
+/**
+ * Synchronized Scene Choreographer Hook:
+ * Ensures that when a scene index changes (by user click or auto-timer), all images belonging
+ * to the target scene are 100% decoded in memory BEFORE committing displayIdx, so that the
+ * backdrop, main stage image, thumbnails, and text/badges transition on the exact same frame.
+ */
+export function useSynchronizedScene(
+  totalScenes: number,
+  getSceneUrls: (index: number) => string[],
+  intervalMs = 6000,
+  paused = false
+) {
+  const [displayIdx, setDisplayIdx] = useState<number>(0);
+  const [targetIdx, setTargetIdx] = useState<number>(0);
+  const [syncPulse, setSyncPulse] = useState<number>(0);
+  const getUrlsRef = useRef(getSceneUrls);
+  getUrlsRef.current = getSceneUrls;
+
+  const requestScene = useCallback(
+    (nextIndexOrUpdater: number | ((prev: number) => number)) => {
+      setTargetIdx((prev) => {
+        const raw =
+          typeof nextIndexOrUpdater === "function"
+            ? nextIndexOrUpdater(prev)
+            : nextIndexOrUpdater;
+        return ((raw % totalScenes) + totalScenes) % totalScenes;
+      });
+    },
+    [totalScenes]
+  );
+
+  // Pre-decode current + next scene immediately, and commit targetIdx only once all its surfaces are ready
+  useEffect(() => {
+    let cancelled = false;
+    const urls = getUrlsRef.current(targetIdx);
+    const nextIdx = (targetIdx + 1) % totalScenes;
+    const nextUrls = getUrlsRef.current(nextIdx);
+
+    waitForDecodedSurfaces(urls).then(() => {
+      if (cancelled) return;
+      setDisplayIdx((prev) => {
+        if (prev !== targetIdx) {
+          setSyncPulse((p) => p + 1);
+        }
+        return targetIdx;
+      });
+      // Pre-warm the subsequent scene so the next tick is 0ms synchronous
+      waitForDecodedSurfaces(nextUrls).catch(() => {});
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [targetIdx, totalScenes]);
+
+  useEffect(() => {
+    if (paused || intervalMs <= 0) return;
+    const id = window.setInterval(() => {
+      requestScene((prev) => (prev + 1) % totalScenes);
+    }, intervalMs);
+    return () => window.clearInterval(id);
+  }, [paused, intervalMs, totalScenes, requestScene]);
+
+  return {
+    displayIdx,
+    targetIdx,
+    syncPulse,
+    selectScene: requestScene,
+  };
 }
 
 function computeTargetDimensions(
@@ -152,7 +251,6 @@ function computeTargetDimensions(
   const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.65);
 
   if (rect.width > 16 && rect.height > 16) {
-    // Size backing buffer proportional to actual on-screen display box while preserving source aspect ratio
     const neededLongEdge = Math.max(rect.width, rect.height * aspect) * dpr;
     const clampedW = Math.min(
       source.width,
@@ -174,6 +272,7 @@ export default function ProtectedImage({
   fill = false,
   width,
   height,
+  syncUrls,
 }: ProtectedImageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const prevSurfaceRef = useRef<HTMLCanvasElement | null>(null);
@@ -214,78 +313,97 @@ export default function ProtectedImage({
     if (!shouldLoad || !src) return;
     let cancelled = false;
 
-    fetchDecodedSurface(src)
-      .then((nextSurface) => {
-        if (cancelled) return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+    const paintAndCrossfade = (nextSurface: HTMLCanvasElement, sharedStart: number) => {
+      if (cancelled) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-        if (rafRef.current) {
-          window.cancelAnimationFrame(rafRef.current);
-          rafRef.current = 0;
-        }
+      if (rafRef.current) {
+        window.cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
 
-        const { w: targetW, h: targetH } = computeTargetDimensions(canvas, nextSurface);
-        const prevSurface = prevSurfaceRef.current;
+      const { w: targetW, h: targetH } = computeTargetDimensions(canvas, nextSurface);
+      const prevSurface = prevSurfaceRef.current;
 
-        // Only resize backing buffer if dimensions changed; immediately repaint prevSurface so zero blank frame occurs
-        if (canvas.width !== targetW || canvas.height !== targetH) {
-          canvas.width = targetW;
-          canvas.height = targetH;
-          if (prevSurface) {
-            const initCtx = canvas.getContext("2d");
-            if (initCtx) {
-              initCtx.globalAlpha = 1;
-              initCtx.drawImage(prevSurface, 0, 0, targetW, targetH);
-            }
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+        if (prevSurface) {
+          const initCtx = canvas.getContext("2d");
+          if (initCtx) {
+            initCtx.globalAlpha = 1;
+            initCtx.drawImage(prevSurface, 0, 0, targetW, targetH);
           }
         }
+      }
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-        const motionReduced =
-          typeof document !== "undefined" &&
-          (document.body.dataset.motion === "reduced" ||
-            document.body.dataset.motionTier === "paused");
+      const motionReduced =
+        typeof document !== "undefined" &&
+        (document.body.dataset.motion === "reduced" ||
+          document.body.dataset.motionTier === "paused");
 
-        // Smooth 420ms GPU crossfade when transitioning between two images on the same canvas
-        if (prevSurface && prevSurface !== nextSurface && !motionReduced) {
-          const durationMs = 420;
-          const startTime = performance.now();
+      // Frame-locked 520ms harmonic crossfade shared across all canvases in the same commit
+      if (prevSurface && prevSurface !== nextSurface && !motionReduced) {
+        const durationMs = 520;
 
-          const animateBlend = (now: number) => {
-            if (cancelled) return;
-            const elapsed = now - startTime;
-            const progress = Math.min(1, Math.max(0, elapsed / durationMs));
-            // Cubic ease-out
-            const eased = 1 - Math.pow(1 - progress, 3);
+        const animateBlend = (now: number) => {
+          if (cancelled) return;
+          const elapsed = Math.max(0, now - sharedStart);
+          const progress = Math.min(1, elapsed / durationMs);
+          // Smooth harmonic cubic ease-in-out
+          const eased =
+            progress < 0.5
+              ? 4 * progress * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-            ctx.globalAlpha = 1;
-            ctx.drawImage(prevSurface, 0, 0, targetW, targetH);
-            ctx.globalAlpha = eased;
-            ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
-            ctx.globalAlpha = 1;
-
-            if (progress < 1) {
-              rafRef.current = window.requestAnimationFrame(animateBlend);
-            } else {
-              rafRef.current = 0;
-              prevSurfaceRef.current = nextSurface;
-            }
-          };
-
-          rafRef.current = window.requestAnimationFrame(animateBlend);
-        } else {
           ctx.globalAlpha = 1;
-          ctx.clearRect(0, 0, targetW, targetH);
+          ctx.drawImage(prevSurface, 0, 0, targetW, targetH);
+          ctx.globalAlpha = eased;
           ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
-          prevSurfaceRef.current = nextSurface;
-        }
-      })
-      .catch(() => {
-        // Ignore aborted or failed loads
-      });
+          ctx.globalAlpha = 1;
+
+          if (progress < 1) {
+            rafRef.current = window.requestAnimationFrame(animateBlend);
+          } else {
+            rafRef.current = 0;
+            prevSurfaceRef.current = nextSurface;
+          }
+        };
+
+        rafRef.current = window.requestAnimationFrame(animateBlend);
+      } else {
+        ctx.globalAlpha = 1;
+        ctx.clearRect(0, 0, targetW, targetH);
+        ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
+        prevSurfaceRef.current = nextSurface;
+      }
+    };
+
+    // Fast synchronous path: if surface (and any syncUrls) are already in resolvedSurfaceMap,
+    // start the crossfade on this exact synchronous React commit tick (delta_ms = 0 across all siblings!)
+    const immediateSurface = resolvedSurfaceMap.get(src);
+    const groupReady =
+      !syncUrls || syncUrls.length === 0 || syncUrls.every((u) => resolvedSurfaceMap.has(u));
+
+    if (immediateSurface && groupReady) {
+      const sharedStart = getSharedTransitionStartTime();
+      paintAndCrossfade(immediateSurface, sharedStart);
+    } else {
+      const bundle = syncUrls && syncUrls.length > 0 ? [src, ...syncUrls] : [src];
+      waitForDecodedSurfaces(bundle)
+        .then(() => {
+          if (cancelled) return;
+          const resolved = resolvedSurfaceMap.get(src);
+          if (resolved) {
+            paintAndCrossfade(resolved, getSharedTransitionStartTime());
+          }
+        })
+        .catch(() => {});
+    }
 
     return () => {
       cancelled = true;
@@ -294,7 +412,7 @@ export default function ProtectedImage({
         rafRef.current = 0;
       }
     };
-  }, [src, shouldLoad]);
+  }, [src, shouldLoad, syncUrls]);
 
   const computedClassName = fill
     ? `absolute inset-0 w-full h-full ${className}`.trim()

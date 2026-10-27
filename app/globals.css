@@ -992,4 +992,19 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
   -webkit-touch-callout: none;
 }
 
+@keyframes tayco-harmonic-reveal {
+  0% {
+    opacity: 0.28;
+    transform: translate3d(0, 4px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.tayco-harmonic-sync {
+  animation: tayco-harmonic-reveal 520ms cubic-bezier(0.32, 0, 0.24, 1) both;
+}
+
 

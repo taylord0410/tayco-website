@@ -1,7 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
+import ProtectedImage, {
+  preloadProtectedImages,
+  waitForDecodedSurfaces,
+  useSynchronizedScene,
+} from "@/components/ProtectedImage";
 
 export interface HeroSceneItem {
   id: string;
@@ -571,6 +575,23 @@ export function TransformationBeforeAfterStudio({
 } = {}) {
   const [activeDivision, setActiveDivision] = useState<TransformationDivision>(initialDivision);
   const [selectedId, setSelectedId] = useState<string>(initialPairId);
+  const [pendingPairId, setPendingPairId] = useState<string>(initialPairId);
+  const [pairSyncPulse, setPairSyncPulse] = useState<number>(0);
+
+  const selectPairHarmonized = (nextId: string) => {
+    setPendingPairId(nextId);
+    const target = TRANSFORMATION_PAIRS.find((p) => p.id === nextId);
+    if (!target) {
+      setSelectedId(nextId);
+      return;
+    }
+    waitForDecodedSurfaces([target.afterImg, target.beforeImg]).then(() => {
+      setSelectedId((prev) => {
+        if (prev !== nextId) setPairSyncPulse((p) => p + 1);
+        return nextId;
+      });
+    });
+  };
   const [inspectMode, setInspectMode] = useState<"split" | "xray">("split");
   const [splitPercent, setSplitPercent] = useState<number>(50);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -668,7 +689,7 @@ export function TransformationBeforeAfterStudio({
                         ? TRANSFORMATION_PAIRS
                         : TRANSFORMATION_PAIRS.filter((p) => p.division === nextDiv);
                     if (nextList.length > 0 && !nextList.some((p) => p.id === selectedId)) {
-                      setSelectedId(nextList[0].id);
+                      selectPairHarmonized(nextList[0].id);
                     }
                   }}
                   className="px-3.5 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer border"
@@ -718,6 +739,7 @@ export function TransformationBeforeAfterStudio({
               <ProtectedImage
                 src={activePair.afterImg}
                 alt={`${activePair.title} — After`}
+                syncUrls={[activePair.afterImg, activePair.beforeImg]}
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                 draggable={false}
               />
@@ -727,6 +749,7 @@ export function TransformationBeforeAfterStudio({
               <ProtectedImage
                 src={activePair.beforeImg}
                 alt={`${activePair.title} — Before`}
+                syncUrls={[activePair.afterImg, activePair.beforeImg]}
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                 draggable={false}
                 style={{
@@ -1027,13 +1050,13 @@ export function TransformationBeforeAfterStudio({
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {visiblePairs.map((pair) => {
-              const selected = pair.id === activePair.id;
+              {visiblePairs.map((pair) => {
+              const selected = pair.id === pendingPairId || pair.id === activePair.id;
               return (
                 <button
                   key={pair.id}
                   type="button"
-                  onClick={() => setSelectedId(pair.id)}
+                  onClick={() => selectPairHarmonized(pair.id)}
                   className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer"
                   style={{
                     background: "#0B172A",
@@ -1270,19 +1293,20 @@ export function DualTrackArchitecturalMarquee() {
  * 3. INTERACTIVE 8-STATE REGIONAL FOOTPRINT BAR
  * ───────────────────────────────────────────────────────────── */
 export function RegionalStateFootprintStrip() {
-  const [activeState, setActiveState] = useState<string>("WI");
-  const currentHub =
-    REGIONAL_STATE_HUBS.find((h) => h.state === activeState) ?? REGIONAL_STATE_HUBS[0];
+  const {
+    displayIdx: hubIdx,
+    targetIdx: selectedHubIdx,
+    syncPulse: hubPulse,
+    selectScene: selectHubIdx,
+  } = useSynchronizedScene(
+    REGIONAL_STATE_HUBS.length,
+    (idx) => [REGIONAL_STATE_HUBS[idx]?.sampleImage ?? REGIONAL_STATE_HUBS[0].sampleImage],
+    6000
+  );
+  const currentHub = REGIONAL_STATE_HUBS[hubIdx] ?? REGIONAL_STATE_HUBS[0];
 
   useEffect(() => {
     preloadProtectedImages(REGIONAL_STATE_HUBS.map((h) => h.sampleImage));
-    const id = window.setInterval(() => {
-      setActiveState((prev) => {
-        const idx = REGIONAL_STATE_HUBS.findIndex((h) => h.state === prev);
-        return REGIONAL_STATE_HUBS[(idx + 1) % REGIONAL_STATE_HUBS.length].state;
-      });
-    }, 6500);
-    return () => window.clearInterval(id);
   }, []);
 
   return (
@@ -1294,14 +1318,14 @@ export function RegionalStateFootprintStrip() {
         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-200/90 mr-1.5">
           8-State Dispatch:
         </span>
-        {REGIONAL_STATE_HUBS.map((hub) => {
-          const selected = hub.state === activeState;
+        {REGIONAL_STATE_HUBS.map((hub, hIdx) => {
+          const selected = hIdx === selectedHubIdx;
           return (
             <button
               key={hub.state}
               type="button"
-              onClick={() => setActiveState(hub.state)}
-              onPointerEnter={() => setActiveState(hub.state)}
+              onClick={() => selectHubIdx(hIdx)}
+              onPointerEnter={() => selectHubIdx(hIdx)}
               className="px-2.5 py-1 rounded-lg text-xs font-mono font-black transition-all cursor-pointer border"
               style={{
                 background: selected ? "#C9A84C" : "rgba(7, 14, 26, 0.65)",
@@ -1330,7 +1354,7 @@ export function RegionalStateFootprintStrip() {
             className="w-11 h-9 rounded-lg object-cover border shrink-0"
             style={{ borderColor: "rgba(201, 168, 76, 0.55)" }}
           />
-          <div className="text-left min-w-0">
+          <div key={`hub-copy-${hubPulse}`} className="tayco-harmonic-sync text-left min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-black text-white">
                 {currentHub.name} ({currentHub.state})
@@ -1371,8 +1395,21 @@ export function ServiceCardTriptych({
   accentColor?: string;
 }) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
+  const [triptychPulse, setTriptychPulse] = useState<number>(0);
   const safeFrames = frames.length > 0 ? frames : [{ src: "/curated/hero/com-lobby-limestone.jpg", label: "Field Execution" }];
+  const triptychUrls = safeFrames.map((f) => f.src);
   const current = safeFrames[activeIdx] ?? safeFrames[0];
+
+  const selectTriptychFrame = (idx: number) => {
+    const target = safeFrames[idx];
+    if (!target) return;
+    waitForDecodedSurfaces([target.src]).then(() => {
+      setActiveIdx((prev) => {
+        if (prev !== idx) setTriptychPulse((p) => p + 1);
+        return idx;
+      });
+    });
+  };
 
   return (
     <div className="mb-5">
@@ -1389,6 +1426,7 @@ export function ServiceCardTriptych({
         <ProtectedImage
           src={current.src}
           alt={current.label}
+          syncUrls={triptychUrls}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
@@ -1420,7 +1458,7 @@ export function ServiceCardTriptych({
             0{activeIdx + 1} / 0{safeFrames.length}
           </span>
         </div>
-        <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between gap-2">
+        <div key={`triptych-label-${triptychPulse}`} className="tayco-harmonic-sync absolute bottom-2.5 left-3 right-3 flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-white truncate">
             {current.label}
           </span>
@@ -1436,7 +1474,8 @@ export function ServiceCardTriptych({
               <button
                 key={`${frame.src}-${i}`}
                 type="button"
-                onClick={() => setActiveIdx(i)}
+                onClick={() => selectTriptychFrame(i)}
+                onPointerEnter={() => selectTriptychFrame(i)}
                 className="relative overflow-hidden rounded-lg border text-left transition-all cursor-pointer group"
                 style={{
                   height: "46px",

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
-import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages, useSynchronizedScene } from "@/components/ProtectedImage";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -410,18 +410,32 @@ export default function CommercialPage() {
   const [lightAngle, setLightAngle] = useState<number>(42);
   const [activeCategory, setActiveCategory] =
     useState<CommercialTradeCategory>("all");
-  const [heroIdx, setHeroIdx] = useState<number>(0);
+  const {
+    displayIdx: heroIdx,
+    targetIdx: selectedHeroIdx,
+    syncPulse,
+    selectScene: setHeroIdx,
+  } = useSynchronizedScene(
+    COMMERCIAL_HERO_SCENES.length,
+    (idx) => {
+      const s = COMMERCIAL_HERO_SCENES[idx] ?? COMMERCIAL_HERO_SCENES[0];
+      return [s.image, ...s.gallery];
+    },
+    6000
+  );
 
   useEffect(() => {
     preloadProtectedImages(COMMERCIAL_HERO_SCENES.flatMap((s) => [s.image, ...s.gallery]));
+    // Scene progression is orchestrated by useSynchronizedScene
     const timer = window.setInterval(() => {
-      setHeroIdx((prev) => (prev + 1) % COMMERCIAL_HERO_SCENES.length);
+    // Handled by useSynchronizedScene
     }, 6200);
     return () => window.clearInterval(timer);
   }, []);
 
   const currentHeroScene =
     COMMERCIAL_HERO_SCENES[heroIdx] ?? COMMERCIAL_HERO_SCENES[0];
+  const currentHeroBundle = [currentHeroScene.image, ...currentHeroScene.gallery];
 
   const filteredTrades =
     activeCategory === "all"
@@ -458,6 +472,7 @@ export default function CommercialPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <ProtectedImage
             data-hero-backdrop="commercial"
+            syncUrls={currentHeroBundle}
             src={currentHeroScene.image}
             alt=""
             className="w-full h-full object-cover opacity-25 scale-105 transition-all duration-1000"
@@ -593,7 +608,7 @@ export default function CommercialPage() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
-                      const active = idx === heroIdx;
+                      const active = idx === selectedHeroIdx;
                       return (
                         <button
                           key={scene.id}
@@ -682,6 +697,7 @@ export default function CommercialPage() {
                   <ProtectedImage
                     src={currentHeroScene.image}
                     alt={currentHeroScene.title}
+                    syncUrls={currentHeroBundle}
                     className="w-full h-full object-cover transition-all duration-700"
                   />
                   <div
@@ -691,7 +707,7 @@ export default function CommercialPage() {
                         "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
                     }}
                   />
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <div key={`com-stage-badges-${syncPulse}`} className="tayco-harmonic-sync absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                       style={{
@@ -713,7 +729,7 @@ export default function CommercialPage() {
                       {currentHeroScene.csi}
                     </span>
                   </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                  <div key={`com-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5">
                     <div className="text-sm sm:text-base font-black text-white leading-snug">
                       {currentHeroScene.title}
                     </div>
@@ -736,8 +752,10 @@ export default function CommercialPage() {
                         <ProtectedImage
                           src={thumb}
                           alt={`${currentHeroScene.sector} detail ${tIdx + 1}`}
+                          syncUrls={currentHeroBundle}
+                          loading="eager"
                           className="w-full h-full object-cover"
-                          loading="lazy"
+                          data-hero-thumb={tIdx}
                         />
                       </div>
                     ))}

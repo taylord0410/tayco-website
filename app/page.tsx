@@ -4,7 +4,7 @@ import Link from "next/link";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
-import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages, waitForDecodedSurfaces } from "@/components/ProtectedImage";
 import {
   COMMERCIAL_HERO_SCENES,
   RESIDENTIAL_HERO_SCENES,
@@ -476,6 +476,26 @@ export default function Home() {
   );
   const [comSceneIdx, setComSceneIdx] = useState<number>(0);
   const [resSceneIdx, setResSceneIdx] = useState<number>(0);
+  const [heroSyncPulse, setHeroSyncPulse] = useState<number>(0);
+  const selectComScene = (idx: number) => {
+    const target = COMMERCIAL_HERO_SCENES[idx] ?? COMMERCIAL_HERO_SCENES[0];
+    waitForDecodedSurfaces([target.image]).then(() => {
+      setComSceneIdx(idx);
+      setHeroSyncPulse((p) => p + 1);
+    });
+  };
+  const selectResScene = (idx: number) => {
+    const target = RESIDENTIAL_HERO_SCENES[idx] ?? RESIDENTIAL_HERO_SCENES[0];
+    waitForDecodedSurfaces([target.image]).then(() => {
+      setResSceneIdx(idx);
+      setHeroSyncPulse((p) => p + 1);
+    });
+  };
+  const selectCardFrame = (cardId: string, fIdx: number, urls: string[]) => {
+    waitForDecodedSurfaces(urls).then(() => {
+      setCardFrameMap((prev) => ({ ...prev, [cardId]: fIdx }));
+    });
+  };
   const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
   const [cardFrameMap, setCardFrameMap] = useState<Record<string, number>>({});
   const [activeStudy, setActiveStudy] = useState<number>(0);
@@ -498,15 +518,25 @@ export default function Home() {
   // Auto-cycle Hero Commercial & Residential scenes when not hovered
   useEffect(() => {
     const id = window.setInterval(() => {
-      if (hovered !== "commercial") {
-        setComSceneIdx((prev) => (prev + 1) % COMMERCIAL_HERO_SCENES.length);
+      if (hovered !== "commercial" && hovered !== "residential") {
+        const nextComIdx = (comSceneIdx + 1) % COMMERCIAL_HERO_SCENES.length;
+        const nextResIdx = (resSceneIdx + 1) % RESIDENTIAL_HERO_SCENES.length;
+        waitForDecodedSurfaces([
+          COMMERCIAL_HERO_SCENES[nextComIdx]?.image ?? "",
+          RESIDENTIAL_HERO_SCENES[nextResIdx]?.image ?? "",
+        ]).then(() => {
+          setComSceneIdx(nextComIdx);
+          setResSceneIdx(nextResIdx);
+          setHeroSyncPulse((p) => p + 1);
+        });
+      } else if (hovered !== "commercial") {
+        selectComScene((comSceneIdx + 1) % COMMERCIAL_HERO_SCENES.length);
+      } else if (hovered !== "residential") {
+        selectResScene((resSceneIdx + 1) % RESIDENTIAL_HERO_SCENES.length);
       }
-      if (hovered !== "residential") {
-        setResSceneIdx((prev) => (prev + 1) % RESIDENTIAL_HERO_SCENES.length);
-      }
-    }, 5400);
+    }, 6000);
     return () => window.clearInterval(id);
-  }, [hovered]);
+  }, [hovered, comSceneIdx, resSceneIdx]);
 
   const commercialFlex =
     hovered === "residential"
@@ -593,6 +623,7 @@ export default function Home() {
           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
             <ProtectedImage
               src={activeComScene.image}
+              syncUrls={[activeComScene.image, activeResScene.image]}
               alt=""
               loading="eager"
               className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
@@ -725,8 +756,8 @@ export default function Home() {
                   <button
                     key={scene.id}
                     type="button"
-                    onClick={() => setComSceneIdx(idx)}
-                    onPointerEnter={() => setComSceneIdx(idx)}
+                    onClick={() => selectComScene(idx)}
+                    onPointerEnter={() => selectComScene(idx)}
                     className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
                     style={{
                       background: active
@@ -746,7 +777,8 @@ export default function Home() {
 
             {/* Live Active Scene Telemetry HUD */}
             <div
-              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3"
+              key={`com-hud-${comSceneIdx}-${heroSyncPulse}`}
+              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3 tayco-harmonic-sync"
               style={{
                 background: "rgba(7, 14, 26, 0.78)",
                 borderColor: "rgba(201, 168, 76, 0.42)",
@@ -854,6 +886,7 @@ export default function Home() {
           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
             <ProtectedImage
               src={activeResScene.image}
+              syncUrls={[activeComScene.image, activeResScene.image]}
               alt=""
               loading="eager"
               className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
@@ -969,8 +1002,8 @@ export default function Home() {
                   <button
                     key={scene.id}
                     type="button"
-                    onClick={() => setResSceneIdx(idx)}
-                    onPointerEnter={() => setResSceneIdx(idx)}
+                    onClick={() => selectResScene(idx)}
+                    onPointerEnter={() => selectResScene(idx)}
                     className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
                     style={{
                       background: active
@@ -990,7 +1023,8 @@ export default function Home() {
 
             {/* Live Active Scene Telemetry HUD */}
             <div
-              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3"
+              key={`res-hud-${resSceneIdx}-${heroSyncPulse}`}
+              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3 tayco-harmonic-sync"
               style={{
                 background: "rgba(7, 14, 26, 0.78)",
                 borderColor: "rgba(243, 211, 122, 0.42)",
@@ -1354,6 +1388,7 @@ export default function Home() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <ProtectedImage
                           src={currentFrame.src}
+                          syncUrls={card.frames.map((f) => f.src)}
                           alt={currentFrame.caption}
                           loading="lazy"
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -1398,16 +1433,18 @@ export default function Home() {
                               key={frame.src}
                               type="button"
                               onClick={() =>
-                                setCardFrameMap((prev) => ({
-                                  ...prev,
-                                  [card.id]: fIdx,
-                                }))
+                                selectCardFrame(
+                                  card.id,
+                                  fIdx,
+                                  card.frames.map((f) => f.src)
+                                )
                               }
                               onPointerEnter={() =>
-                                setCardFrameMap((prev) => ({
-                                  ...prev,
-                                  [card.id]: fIdx,
-                                }))
+                                selectCardFrame(
+                                  card.id,
+                                  fIdx,
+                                  card.frames.map((f) => f.src)
+                                )
                               }
                               className="relative h-12 rounded-lg overflow-hidden border transition-all cursor-pointer"
                               style={{
