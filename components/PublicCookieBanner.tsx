@@ -111,6 +111,7 @@ export default function PublicCookieBanner() {
       if (latest) {
         setFunctional(latest.functional);
         setAnalytics(latest.analytics);
+        setIsOpen(false);
       }
     };
     window.addEventListener(PUBLIC_COOKIE_EVENT, onExternalUpdate);
