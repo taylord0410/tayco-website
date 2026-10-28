@@ -92,7 +92,8 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
   const existing = decodedSurfaceCache.get(src);
   if (existing) return existing;
 
-  const promise = fetch(`/api/visual-stream?p=${encodeURIComponent(src)}`, {
+  const cleanSrc = src.split("?")[0];
+  const promise = fetch(`/api/visual-stream?v=pf20261028&p=${encodeURIComponent(cleanSrc)}`, {
     method: "GET",
     headers: {
       "X-Tayco-Stream": "v39",

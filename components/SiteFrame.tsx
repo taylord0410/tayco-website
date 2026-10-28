@@ -4,7 +4,20 @@ import { useEffect, type ReactNode, type MouseEvent, type DragEvent } from "reac
 import { usePathname } from "next/navigation";
 import PublicCookieBanner from "@/components/PublicCookieBanner";
 
-const publicPages = new Set(["/", "/commercial", "/residential", "/investor", "/estimate", "/privacy", "/vendor-application"]);
+const publicPages = new Set([
+  "/",
+  "/commercial",
+  "/residential",
+  "/properties",
+  "/properties/single-family",
+  "/properties/duplexes",
+  "/properties/townhouses",
+  "/properties/commercial",
+  "/investor",
+  "/estimate",
+  "/privacy",
+  "/vendor-application",
+]);
 
 function isProtectedVisualTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;

@@ -12,6 +12,7 @@ import {
   DualTrackArchitecturalMarquee,
   RegionalStateFootprintStrip,
 } from "@/components/LandingLivingShowcase";
+import { LandingPropertyCategoriesSection } from "@/components/PropertyCategoryShowcase";
 
 type ServiceFilter = "all" | "commercial" | "residential" | "partners";
 
@@ -803,14 +804,27 @@ export default function Home() {
               </span>
             </div>
 
-            <Link
-              href="/commercial"
-              data-magnetic
-              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg"
-              style={{ background: "#C9A84C", color: "#070E1A" }}
-            >
-              View Commercial Services <span>→</span>
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <Link
+                href="/commercial"
+                data-magnetic
+                className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg"
+                style={{ background: "#C9A84C", color: "#070E1A" }}
+              >
+                View Commercial Services <span>→</span>
+              </Link>
+              <Link
+                href="/properties/commercial"
+                className="inline-flex items-center gap-1.5 font-mono font-bold px-4 py-3 rounded-xl text-xs transition-all duration-200 hover:scale-105 border backdrop-blur-md"
+                style={{
+                  background: "rgba(7, 14, 26, 0.82)",
+                  borderColor: "rgba(201, 168, 76, 0.55)",
+                  color: "#F3D37A",
+                }}
+              >
+                Commercial Properties (6) <span>↗</span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -1049,18 +1063,55 @@ export default function Home() {
               </span>
             </div>
 
-            <Link
-              href="/residential"
-              data-magnetic
-              className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg border backdrop-blur-md"
-              style={{
-                background: "rgba(201, 168, 76, 0.24)",
-                borderColor: "rgba(243, 211, 122, 0.75)",
-                color: "#F3D37A",
-              }}
-            >
-              View Residential Services <span>→</span>
-            </Link>
+            <div className="flex flex-col items-center gap-2.5">
+              <Link
+                href="/residential"
+                data-magnetic
+                className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg border backdrop-blur-md"
+                style={{
+                  background: "rgba(201, 168, 76, 0.24)",
+                  borderColor: "rgba(243, 211, 122, 0.75)",
+                  color: "#F3D37A",
+                }}
+              >
+                View Residential Services <span>→</span>
+              </Link>
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                <Link
+                  href="/properties/single-family"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
+                  style={{
+                    background: "rgba(7, 14, 26, 0.82)",
+                    borderColor: "rgba(243, 211, 122, 0.42)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  Single-Family Homes ↗
+                </Link>
+                <Link
+                  href="/properties/duplexes"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
+                  style={{
+                    background: "rgba(7, 14, 26, 0.82)",
+                    borderColor: "rgba(243, 211, 122, 0.42)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  Duplexes ↗
+                </Link>
+                <Link
+                  href="/properties/townhouses"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
+                  style={{
+                    background: "rgba(7, 14, 26, 0.82)",
+                    borderColor: "rgba(243, 211, 122, 0.42)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  Townhouses ↗
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1141,6 +1192,9 @@ export default function Home() {
           </i>
         </div>
       </div>
+
+      {/* ── 4-CATEGORY PROPERTY PORTFOLIO SHOWCASE (SINGLE-FAMILY, DUPLEXES, TOWNHOUSES, COMMERCIAL) ── */}
+      <LandingPropertyCategoriesSection />
 
       {/* Project services and resources + Interactive 8-State Footprint */}
       <section

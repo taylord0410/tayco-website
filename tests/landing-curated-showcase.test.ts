@@ -10,6 +10,12 @@ import {
   MARQUEE_TRACK_BOTTOM,
   REGIONAL_STATE_HUBS,
 } from "../components/LandingLivingShowcase";
+import {
+  PROPERTY_CATEGORIES,
+  PROPERTY_LISTINGS,
+  getPropertiesByCategory,
+} from "../lib/property-catalog";
+import { buildCoherentWalkthrough } from "../components/PropertyWalkthroughStudio";
 
 const publicDir = path.resolve(process.cwd(), "public");
 
@@ -198,11 +204,128 @@ test("Image-to-title concordance: residential page excludes commercial-only phot
     "Commercial Exterior card must use verified exterior curtain-wall photo cx_o3.jpg"
   );
   assert.ok(
-    comContent.includes('"/curated/commercial/cx_f1.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing"'),
-    "Commercial Framing card must use verified steel stud framing photo cx_f1.jpg"
+    comContent.includes('"/curated/commercial/cx_x3.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing"'),
+    "Commercial Framing card must use verified people-free steel framing photo cx_x3.jpg"
   );
   assert.ok(
-    comContent.includes('"/curated/commercial/cx_f3.jpg", "label": "Poured Commercial Slab & Stem Walls"'),
-    "Commercial Concrete card must use verified concrete slab photo cx_f3.jpg"
+    comContent.includes('"/curated/pairs/div02_02_antes.jpg", "label": "Poured Commercial Slab & Stem Walls"'),
+    "Commercial Concrete card must use verified people-free concrete slab photo div02_02_antes.jpg"
+  );
+  assert.ok(
+    resContent.includes('<DivisionInteractivePropertyAtelier division="residential" />'),
+    "app/residential/page.tsx must render DivisionInteractivePropertyAtelier"
+  );
+  assert.ok(
+    comContent.includes('<DivisionInteractivePropertyAtelier division="commercial" />'),
+    "app/commercial/page.tsx must render DivisionInteractivePropertyAtelier"
+  );
+
+  // Verify zero emojis in walkthrough studio, category showcase, and division pages
+  const forbiddenEmojis = ["🌅", "☀️", "🌇", "🌙", "🪵", "🪨", "🏠", "✨", "⏱️", "📐", "🔥", "💧"];
+  for (const rel of [
+    "components/PropertyWalkthroughStudio.tsx",
+    "components/PropertyCategoryShowcase.tsx",
+    "app/residential/page.tsx",
+    "app/commercial/page.tsx",
+  ]) {
+    const src = fs.readFileSync(path.resolve(process.cwd(), rel), "utf-8");
+    for (const emoji of forbiddenEmojis) {
+      assert.ok(
+        !src.includes(emoji),
+        `${rel} must use vector SVG icons instead of emoji "${emoji}"`
+      );
+    }
+  }
+});
+
+test("4-Category Property Catalog (Single-Family Homes, Duplexes, Townhouses, Commercial Properties) has verified images and dedicated routes", () => {
+  assert.equal(PROPERTY_CATEGORIES.length, 4);
+  assert.deepEqual(
+    PROPERTY_CATEGORIES.map((c) => c.slug),
+    ["single-family", "duplexes", "townhouses", "commercial"]
+  );
+  assert.deepEqual(
+    PROPERTY_CATEGORIES.map((c) => c.label),
+    ["Single-Family Homes", "Duplexes", "Townhouses", "Commercial Properties"]
+  );
+
+  for (const cat of PROPERTY_CATEGORIES) {
+    assertPublicImageExists(cat.heroImage, `Category Hero (${cat.slug})`);
+    for (const sec of cat.secondaryImages) {
+      assertPublicImageExists(sec, `Category Secondary (${cat.slug})`);
+    }
+    const items = getPropertiesByCategory(cat.slug);
+    assert.equal(
+      items.length,
+      6,
+      `Category "${cat.slug}" must have 6 curated properties`
+    );
+    for (const prop of items) {
+      assert.equal(prop.triptych.length, 3);
+      for (const frame of prop.triptych) {
+        assertPublicImageExists(
+          frame.src,
+          `Property ${prop.code} (${cat.slug})`
+        );
+      }
+
+      const walkthroughStops = buildCoherentWalkthrough(prop);
+      assert.equal(walkthroughStops.length, 5);
+      for (const stop of walkthroughStops) {
+        assertPublicImageExists(
+          stop.src,
+          `Walkthrough Day ${prop.code} Step ${stop.stepNumber}`
+        );
+        assertPublicImageExists(
+          stop.nightSrc,
+          `Walkthrough Night ${prop.code} Step ${stop.stepNumber}`
+        );
+        assert.ok(
+          stop.nightSrc.endsWith("-night.jpg"),
+          `Walkthrough Night image for ${prop.code} Step ${stop.stepNumber} must end with -night.jpg, got ${stop.nightSrc}`
+        );
+      }
+    }
+  }
+
+  assert.equal(PROPERTY_LISTINGS.length, 24);
+
+  const walkthroughStudioContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyWalkthroughStudio.tsx"),
+    "utf-8"
+  );
+  const studioImgMatches =
+    walkthroughStudioContent.match(/\/curated\/properties\/[a-z0-9-]+\.jpg/gi) ??
+    [];
+  assert.ok(
+    studioImgMatches.length >= 8,
+    "PropertyWalkthroughStudio.tsx must reference coherent interior/exterior property photos"
+  );
+  for (const imgPath of studioImgMatches) {
+    assertPublicImageExists(imgPath, "PropertyWalkthroughStudio.tsx");
+  }
+
+  const pageContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/page.tsx"),
+    "utf-8"
+  );
+  assert.ok(
+    pageContent.includes("LandingPropertyCategoriesSection"),
+    "app/page.tsx must render LandingPropertyCategoriesSection"
+  );
+  for (const slug of ["single-family", "duplexes", "townhouses", "commercial"]) {
+    assert.ok(
+      pageContent.includes(`/properties/${slug}`),
+      `app/page.tsx must include direct link to /properties/${slug}`
+    );
+  }
+
+  const protectedImageContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/ProtectedImage.tsx"),
+    "utf-8"
+  );
+  assert.ok(
+    protectedImageContent.includes("v=pf20261028"),
+    "ProtectedImage.tsx must include cache-busting version query parameter v=pf20261028"
   );
 });

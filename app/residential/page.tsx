@@ -10,6 +10,14 @@ import {
   ServiceCardTriptych,
   type TriptychFrame,
 } from "@/components/LandingLivingShowcase";
+import { DivisionInteractivePropertyAtelier } from "@/components/PropertyCategoryShowcase";
+import {
+  PropertyWalkthroughStudioModal,
+  resolveNightImageSrc,
+  SolarPhaseIcon,
+  StudioActionIcon,
+} from "@/components/PropertyWalkthroughStudio";
+import { PROPERTY_LISTINGS, type PropertyListing } from "@/lib/property-catalog";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type ResidentialCategory =
@@ -56,7 +64,7 @@ const RESIDENTIAL_HERO_SCENES = [
     title: "High-Pitch Architectural Shingle, Standing-Seam & Slate Roofs",
     csi: "DIV 07 31 00 · 07 60 00",
     image: "/curated/hero/res-estate-roofing.jpg",
-    gallery: ["/curated/residential/r1.jpg", "/curated/residential/r3.jpg", "/curated/residential/r4.jpg"],
+    gallery: ["/curated/residential/r4.jpg", "/curated/residential/s1.jpg", "/curated/pairs/div02_02_despues.jpg"],
     summary: "Complete tear-off, ice-and-water shield, copper flashing, ridge ventilation and storm-rated roofing.",
   },
   {
@@ -65,7 +73,7 @@ const RESIDENTIAL_HERO_SCENES = [
     title: "Fiber-Cement Board & Batten, Cedar Accents & Window Package",
     csi: "DIV 07 46 00 · 08 50 00",
     image: "/curated/hero/res-farmhouse-metal.jpg",
-    gallery: ["/curated/residential/s1.jpg", "/curated/residential/s6.jpg", "/curated/residential/div01_04_despues.jpg"],
+    gallery: ["/curated/residential/s1.jpg", "/curated/residential/s3.jpg", "/curated/residential/div01_04_despues.jpg"],
     summary: "Full exterior envelope modernization with insulated housewrap, custom trim and energy-efficient glazing.",
   },
   {
@@ -107,9 +115,9 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Roof condition assessment"
     ],
     "triptych": [
-      { "src": "/curated/residential/r3.jpg", "label": "Architectural Shingle Roof Installation" },
       { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
-      { "src": "/curated/residential/r6.jpg", "label": "Synthetic Ice & Water Shield Underlayment" }
+      { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
+      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Ridge Ventilation & Copper Chimney Flashing" }
     ]
   },
   {
@@ -154,8 +162,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     ],
     "triptych": [
       { "src": "/curated/pairs/div01_01_despues.jpg", "label": "2-Story Wood Framing & Roof Trusses" },
-      { "src": "/curated/residential/c3.jpg", "label": "OSB Subfloor & Wood I-Joist Decking" },
-      { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" }
+      { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" },
+      { "src": "/curated/magazine/revista_fr_wood_05.jpg", "label": "Engineered Wood I-Joist & Rafter System" }
     ]
   },
   {
@@ -222,9 +230,9 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Concrete repair"
     ],
     "triptych": [
-      { "src": "/curated/residential/c4.jpg", "label": "Poured Concrete Basement Foundation Wall" },
       { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
-      { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" }
+      { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
+      { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
     ]
   },
   {
@@ -246,7 +254,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     ],
     "triptych": [
       { "src": "/curated/capabilities/fire-wood-framing.jpg", "label": "Fire & Smoke Structural Wood Reconstruction" },
-      { "src": "/curated/capabilities/mit-drywall-hang.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
+      { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
       { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
     ]
   },
@@ -277,6 +285,9 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
 
 export default function ResidentialPage() {
   const [lightAngle, setLightAngle] = useState<number>(48);
+  const [heroMood, setHeroMood] = useState<"day" | "sunset" | "night">("day");
+  const [heroStudioProperty, setHeroStudioProperty] =
+    useState<PropertyListing | null>(null);
   const [activeCategory, setActiveCategory] =
     useState<ResidentialCategory>("all");
   const {
@@ -288,13 +299,19 @@ export default function ResidentialPage() {
     RESIDENTIAL_HERO_SCENES.length,
     (idx) => {
       const s = RESIDENTIAL_HERO_SCENES[idx] ?? RESIDENTIAL_HERO_SCENES[0];
-      return [s.image, ...s.gallery];
+      return [s.image, resolveNightImageSrc(s.image), ...s.gallery];
     },
     6000
   );
 
   useEffect(() => {
-    preloadProtectedImages(RESIDENTIAL_HERO_SCENES.flatMap((s) => [s.image, ...s.gallery]));
+    preloadProtectedImages(
+      RESIDENTIAL_HERO_SCENES.flatMap((s) => [
+        s.image,
+        resolveNightImageSrc(s.image),
+        ...s.gallery,
+      ])
+    );
     const timer = window.setInterval(() => {
       // Scene progression is orchestrated by useSynchronizedScene
     }, 6200);
@@ -303,7 +320,12 @@ export default function ResidentialPage() {
 
   const currentHeroScene =
     RESIDENTIAL_HERO_SCENES[heroIdx] ?? RESIDENTIAL_HERO_SCENES[0];
-  const currentHeroBundle = [currentHeroScene.image, ...currentHeroScene.gallery];
+  const currentHeroNightSrc = resolveNightImageSrc(currentHeroScene.image);
+  const currentHeroBundle = [
+    currentHeroScene.image,
+    currentHeroNightSrc,
+    ...currentHeroScene.gallery,
+  ];
 
   const filteredTrades =
     activeCategory === "all"
@@ -441,7 +463,13 @@ export default function ResidentialPage() {
                 htmlFor="residential-light-angle-slider"
                 className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-amber-200 mb-2"
               >
-                <span>☀️ Raking Light Angle: {lightAngle}°</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <SolarPhaseIcon
+                    phase="midday"
+                    className="w-3.5 h-3.5 text-[#F3D37A]"
+                  />
+                  <span>Raking Light Angle: {lightAngle}°</span>
+                </span>
                 <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-300">
                   0°–90°
                 </span>
@@ -567,12 +595,42 @@ export default function ResidentialPage() {
                     alt={currentHeroScene.title}
                     syncUrls={currentHeroBundle}
                     className="w-full h-full object-cover transition-all duration-700"
+                    style={{
+                      filter:
+                        heroMood === "sunset"
+                          ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
+                          : "none",
+                    }}
+                  />
+                  {/* Real AI-Generated Nighttime (2700K) Crossfade Layer */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      opacity: heroMood === "night" ? 1 : 0,
+                      transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    }}
+                  >
+                    <ProtectedImage
+                      src={currentHeroNightSrc}
+                      alt={`${currentHeroScene.title} (Night)`}
+                      syncUrls={currentHeroBundle}
+                      className="w-full h-full object-cover transition-all duration-700"
+                    />
+                  </div>
+                  <div
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+                    style={{
+                      opacity: heroMood === "sunset" ? 1 : 0,
+                      background:
+                        "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
+                      mixBlendMode: "soft-light",
+                    }}
                   />
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
                       background:
-                        "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
+                        "linear-gradient(180deg, rgba(7,14,26,0.55) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
                     }}
                   />
                   <div key={`res-stage-badges-${syncPulse}`} className="tayco-harmonic-sync absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
@@ -586,24 +644,76 @@ export default function ResidentialPage() {
                     >
                       {currentHeroScene.sector}
                     </span>
-                    <span
-                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-xl border border-white/15">
+                        {(
+                          [
+                            { id: "day", label: "Day" },
+                            { id: "sunset", label: "Sunset" },
+                            { id: "night", label: "Night" },
+                          ] as const
+                        ).map((m) => {
+                          const active = heroMood === m.id;
+                          return (
+                            <button
+                              key={m.id}
+                              type="button"
+                              onClick={() => setHeroMood(m.id)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                              style={{
+                                background: active ? "#E5C97B" : "transparent",
+                                color: active ? "#050A14" : "#CBD5E1",
+                              }}
+                            >
+                              <SolarPhaseIcon
+                                phase={m.id}
+                                className="w-2.5 h-2.5"
+                              />
+                              <span>{m.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <span
+                        className="hidden sm:inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
+                        style={{
+                          background: "rgba(201, 168, 76, 0.22)",
+                          color: "#F3D37A",
+                          border: "1px solid rgba(201, 168, 76, 0.5)",
+                        }}
+                      >
+                        {currentHeroScene.csi}
+                      </span>
+                    </div>
+                  </div>
+                  <div key={`res-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5 flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-sm sm:text-base font-black text-white leading-snug truncate">
+                        {currentHeroScene.title}
+                      </div>
+                      <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                        {currentHeroScene.summary}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHeroStudioProperty(
+                          PROPERTY_LISTINGS.find(
+                            (p) => p.category !== "commercial"
+                          ) ?? PROPERTY_LISTINGS[0]
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-mono font-black shrink-0 cursor-pointer transition-transform hover:scale-105 shadow-lg"
                       style={{
-                        background: "rgba(201, 168, 76, 0.22)",
-                        color: "#F3D37A",
-                        border: "1px solid rgba(201, 168, 76, 0.5)",
+                        background:
+                          "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",
+                        color: "#050A14",
                       }}
                     >
-                      {currentHeroScene.csi}
-                    </span>
-                  </div>
-                  <div key={`res-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5">
-                    <div className="text-sm sm:text-base font-black text-white leading-snug">
-                      {currentHeroScene.title}
-                    </div>
-                    <p className="text-xs text-slate-300 mt-1 line-clamp-2">
-                      {currentHeroScene.summary}
-                    </p>
+                      <StudioActionIcon kind="sparkle" className="w-3 h-3" />
+                      <span>5-Room Studio</span>
+                    </button>
                   </div>
                 </div>
 
@@ -669,7 +779,7 @@ export default function ResidentialPage() {
                 label: "Coordinated trades",
                 sub: "Talk through scope and schedule",
                 accent: "#F97316",
-                img: "/curated/residential/r1.jpg",
+                img: "/curated/residential/r4.jpg",
               },
             ].map((item) => (
               <div
@@ -740,6 +850,9 @@ export default function ResidentialPage() {
           <span>Custom Kitchens, Baths &amp; Structural Additions</span>
         </div>
       </div>
+
+      {/* ── 01A / INTERACTIVE RESIDENTIAL PROPERTY WALKTHROUGH, REAL 2700K NIGHT & COLOR STUDIO ── */}
+      <DivisionInteractivePropertyAtelier division="residential" />
 
       {/* ── CHROMATIC HORIZON WAVE INTO WARM EDITORIAL IVORY ── */}
       <div className="chromatic-horizon" aria-hidden="true">
@@ -1033,10 +1146,11 @@ export default function ResidentialPage() {
               />
               <div className="flex items-center justify-between mb-4">
                 <span
-                  className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
                   style={{ background: "#F97316", color: "#ffffff" }}
                 >
-                  🔥 Fire &amp; smoke restoration
+                  <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+                  <span>Fire &amp; smoke restoration</span>
                 </span>
                 <span className="font-mono text-xs text-amber-300">
                   CSI 02 41 00 / 06 11 00
@@ -1061,7 +1175,10 @@ export default function ResidentialPage() {
                     key={item}
                     className="text-xs sm:text-sm text-slate-200 flex items-start gap-2"
                   >
-                    <span style={{ color: "#F97316" }}>✔</span>
+                    <StudioActionIcon
+                      kind="check"
+                      className="w-4 h-4 mt-0.5 shrink-0 text-[#F97316]"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -1097,7 +1214,7 @@ export default function ResidentialPage() {
               <ServiceCardTriptych
                 frames={[
                   { src: "/curated/pairs/div03_04_antes.jpg", label: "Lower-Level Strip-Out & Structural Drying" },
-                  { src: "/curated/capabilities/mit-drywall-hang.jpg", label: "Post-Mitigation Drywall & Insulation" },
+                  { src: "/curated/magazine/revista_dw_fin.jpg", label: "Post-Mitigation Drywall & Insulation" },
                   { src: "/curated/pairs/div03_04_despues.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
                 ]}
                 badge="WATER & STORM RECOVERY"
@@ -1105,10 +1222,11 @@ export default function ResidentialPage() {
               />
               <div className="flex items-center justify-between mb-4">
                 <span
-                  className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  💧 Water damage restoration
+                  <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+                  <span>Water damage restoration</span>
                 </span>
                 <span className="font-mono text-xs text-sky-300">
                   Assessment &amp; drying
@@ -1133,7 +1251,10 @@ export default function ResidentialPage() {
                     key={item}
                     className="text-xs sm:text-sm text-slate-200 flex items-start gap-2"
                   >
-                    <span style={{ color: "#C9A84C" }}>✔</span>
+                    <StudioActionIcon
+                      kind="check"
+                      className="w-4 h-4 mt-0.5 shrink-0 text-[#C9A84C]"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -1189,6 +1310,17 @@ export default function ResidentialPage() {
           <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
         </div>
       </section>
+
+      {heroStudioProperty && (
+        <PropertyWalkthroughStudioModal
+          property={heroStudioProperty}
+          initialStepIndex={0}
+          initialSolarHour={
+            heroMood === "night" ? 21.5 : heroMood === "sunset" ? 18.5 : 12.5
+          }
+          onClose={() => setHeroStudioProperty(null)}
+        />
+      )}
     </main>
   );
 }

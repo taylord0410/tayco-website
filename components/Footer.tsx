@@ -17,7 +17,13 @@ export default function Footer() {
             <p className="mt-3 text-xs text-slate-400">Licensed &amp; Insured · Certified Restoration Contractor</p>
           </div>
           <nav aria-label="Footer services">
-            <h2 className="tayco-eyebrow mb-4">Our services</h2>
+            <h2 className="tayco-eyebrow mb-4">Property categories &amp; services</h2>
+            <ul className="space-y-2 text-sm mb-4 pb-3 border-b border-white/10">
+              <li><Link href="/properties/single-family" className="inline-block py-0.5 text-[#F3D37A] hover:text-white font-semibold transition-colors">Single-Family Homes →</Link></li>
+              <li><Link href="/properties/duplexes" className="inline-block py-0.5 text-[#F3D37A] hover:text-white font-semibold transition-colors">Duplexes →</Link></li>
+              <li><Link href="/properties/townhouses" className="inline-block py-0.5 text-[#F3D37A] hover:text-white font-semibold transition-colors">Townhouses →</Link></li>
+              <li><Link href="/properties/commercial" className="inline-block py-0.5 text-[#F3D37A] hover:text-white font-semibold transition-colors">Commercial Properties →</Link></li>
+            </ul>
             <ul className="space-y-2 text-sm">{COMPANY_SERVICES.map(service => <li key={service.label}><Link href={service.href} className="inline-block py-1 text-slate-400 hover:text-white transition-colors">{service.label}</Link></li>)}</ul>
           </nav>
           <nav aria-label="Footer project resources">

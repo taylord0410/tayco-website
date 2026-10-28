@@ -112,15 +112,30 @@ export default function ContractingOpportunities({ compact = false }: { compact?
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: "#F3D37A" }}>{program.category}</p>
-                  <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
-                    style={{
-                      background: "rgba(7, 14, 26, 0.65)",
-                      borderColor: "rgba(201, 168, 76, 0.38)",
-                    }}
-                  >
-                    <ProgramIcon id={program.id} />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        fontSize: "0.68rem",
+                        fontWeight: 700,
+                        padding: "0.18rem 0.52rem",
+                        borderRadius: "999px",
+                        background: "rgba(16, 185, 129, 0.16)",
+                        border: "1px solid rgba(16, 185, 129, 0.42)",
+                        color: "#6ee7b7",
+                      }}
+                    >
+                      ● Active
+                    </span>
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+                      style={{
+                        background: "rgba(7, 14, 26, 0.65)",
+                        borderColor: "rgba(201, 168, 76, 0.38)",
+                      }}
+                    >
+                      <ProgramIcon id={program.id} />
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-2.5 text-base font-bold leading-relaxed text-white">{program.label}</p>
               </li>

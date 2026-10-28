@@ -10,6 +10,14 @@ import {
   ServiceCardTriptych,
   type TriptychFrame,
 } from "@/components/LandingLivingShowcase";
+import { DivisionInteractivePropertyAtelier } from "@/components/PropertyCategoryShowcase";
+import {
+  PropertyWalkthroughStudioModal,
+  resolveNightImageSrc,
+  SolarPhaseIcon,
+  StudioActionIcon,
+} from "@/components/PropertyWalkthroughStudio";
+import { PROPERTY_LISTINGS } from "@/lib/property-catalog";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 type CommercialTradeCategory =
@@ -40,8 +48,9 @@ const COMMERCIAL_HERO_SCENES = [
     title: "Double-Height Limestone Atrium & Reception Millwork",
     csi: "DIV 04 · 06 · 09",
     image: "/curated/hero/com-lobby-limestone.jpg",
-    gallery: ["/curated/commercial/cx_i2.jpg", "/curated/commercial/com_03_2.jpg", "/curated/commercial/cx_y1.jpg"],
+    gallery: ["/curated/commercial/cx_i2.jpg", "/curated/commercial/com_03_2.jpg", "/curated/commercial/com_01_1.jpg"],
     summary: "Turnkey commercial lobby, reception millwork, stone cladding and porcelain tile flooring.",
+    propertyId: "com-401",
   },
   {
     id: "com-hero-2",
@@ -49,8 +58,9 @@ const COMMERCIAL_HERO_SCENES = [
     title: "Executive Glass Partition Suite & Open-Plan Tenant Fit-Out",
     csi: "DIV 08 · 09 · 26",
     image: "/curated/hero/com-reception-walnut.jpg",
-    gallery: ["/curated/commercial/cx_i1.jpg", "/curated/commercial/com_03_1.jpg", "/curated/commercial/cx_i3.jpg"],
+    gallery: ["/curated/commercial/cx_i1.jpg", "/curated/commercial/com_03_1.jpg", "/curated/commercial/cx_y3.jpg"],
     summary: "Acoustic glass demising walls, custom conference millwork and occupied-building phasing.",
+    propertyId: "com-402",
   },
   {
     id: "com-hero-3",
@@ -58,17 +68,19 @@ const COMMERCIAL_HERO_SCENES = [
     title: "Commercial Stone & Glass Storefront Plaza Envelope",
     csi: "DIV 04 · 07 · 08",
     image: "/curated/hero/com-plaza-stone.jpg",
-    gallery: ["/curated/commercial/com_02_2.jpg", "/curated/commercial/cx_o1.jpg", "/curated/commercial/cx_o2.jpg"],
+    gallery: ["/curated/commercial/com_02_2.jpg", "/curated/commercial/cx_o3.jpg", "/curated/hero/com-hq-sunset.jpg"],
     summary: "Masonry facade piers, storefront glazing, commercial canopy systems and pedestrian plaza concrete.",
+    propertyId: "com-403",
   },
   {
     id: "com-hero-4",
     sector: "Medical & Institutional",
     title: "Clinical Corridor, Institutional Classrooms & Hygienic Fit-Outs",
     csi: "DIV 09 · 22 · 26",
-    image: "/curated/commercial/cx_h3.jpg",
-    gallery: ["/curated/commercial/cx_h2.jpg", "/curated/commercial/com_03_1.jpg", "/curated/commercial/cx_r2.jpg"],
+    image: "/curated/commercial/com_03_1.jpg",
+    gallery: ["/curated/commercial/com_03_2.jpg", "/curated/commercial/cx_i2.jpg", "/curated/commercial/cx_r1.jpg"],
     summary: "Healthcare and institutional tenant build-outs with acoustic control and infection-control surfaces.",
+    propertyId: "com-404",
   },
   {
     id: "com-hero-5",
@@ -76,8 +88,9 @@ const COMMERCIAL_HERO_SCENES = [
     title: "High-Bay Warehouse Mezzanine, Steel Framing & Concrete Slab",
     csi: "DIV 03 · 05 · 07",
     image: "/curated/commercial/cx_x3.jpg",
-    gallery: ["/curated/commercial/cx_x4.jpg", "/curated/commercial/cx_f1.jpg", "/curated/commercial/cx_f3.jpg"],
+    gallery: ["/curated/commercial/com_04_1.jpg", "/curated/commercial/com_04_2.jpg", "/curated/magazine/revista_fr_metal_04.jpg"],
     summary: "Heavy-duty reinforced slabs, cold-formed & structural steel framing, and warehouse mezzanine offices.",
+    propertyId: "com-405",
   },
   {
     id: "com-hero-6",
@@ -85,8 +98,9 @@ const COMMERCIAL_HERO_SCENES = [
     title: "Multi-Story Residential Communities, Exteriors & Portfolio Turnovers",
     csi: "DIV 06 · 07 · 09",
     image: "/curated/commercial/com_02_1.jpg",
-    gallery: ["/curated/commercial/cx_m1.jpg", "/curated/commercial/cx_m2.jpg", "/curated/commercial/cx_m3.jpg"],
+    gallery: ["/curated/capabilities/mf-townhomes-row.jpg", "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg", "/curated/properties/townhouse-04-chicago-endunit-brick.jpg"],
     summary: "Multi-unit exterior envelopes, common-area amenities and multi-property renovation programs.",
+    propertyId: "com-406",
   },
 ] as const;
 
@@ -138,7 +152,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com_02_2.jpg", "label": "Stone Veneer & Commercial Storefront Glazing" },
       { "src": "/curated/commercial/cx_o3.jpg", "label": "2-Story Curtain-Wall & Metal Panel Envelope" },
-      { "src": "/curated/commercial/cx_o2.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" }
+      { "src": "/curated/hero/com-plaza-stone.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" }
     ]
   },
   {
@@ -161,9 +175,9 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Inspections and sequencing"
     ],
     "triptych": [
-      { "src": "/curated/commercial/cx_f1.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
+      { "src": "/curated/commercial/cx_x3.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
       { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
-      { "src": "/curated/commercial/cx_f2.jpg", "label": "3-Story Multi-Family Structural Wood Framing" }
+      { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Multi-Story Structural Envelope & Steel Framing" }
     ]
   },
   {
@@ -188,7 +202,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/cx_i2.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
       { "src": "/work/flooring_commercial.jpg", "label": "Diamond-Polished Commercial Concrete Slab" },
-      { "src": "/curated/commercial/cx_h3.jpg", "label": "Hygienic Commercial Sheet-Vinyl Corridor" }
+      { "src": "/curated/commercial/com_03_2.jpg", "label": "Commercial Corridor & High-Traffic Flooring" }
     ]
   },
   {
@@ -213,7 +227,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/work/drywall_commercial.jpg", "label": "Curved Commercial Soffit & Gypsum Assembly" },
       { "src": "/curated/commercial/com_03_1.jpg", "label": "Acoustic Drop-Ceiling Grid & Partitions" },
-      { "src": "/curated/commercial/cx_i3.jpg", "label": "Suspended Acoustic Clouds & Interior Finish" }
+      { "src": "/curated/commercial/cx_i1.jpg", "label": "Suspended Acoustic Clouds & Interior Finish" }
     ]
   },
   {
@@ -286,9 +300,9 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Finishing and curing plan"
     ],
     "triptych": [
-      { "src": "/curated/commercial/cx_f3.jpg", "label": "Poured Commercial Slab & Stem Walls" },
+      { "src": "/curated/pairs/div02_02_antes.jpg", "label": "Poured Commercial Slab & Stem Walls" },
       { "src": "/curated/pairs/div01_01_antes.jpg", "label": "Reinforced Concrete Foundation Pad" },
-      { "src": "/curated/commercial/cx_x4.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }
+      { "src": "/work/flooring_commercial.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }
     ]
   },
   {
@@ -312,8 +326,8 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     ],
     "triptych": [
       { "src": "/curated/commercial/com_02_1.jpg", "label": "Multi-Family Apartment Exterior Program" },
-      { "src": "/curated/commercial/cx_m3.jpg", "label": "Townhome Portfolio Exterior & Envelope Rehab" },
-      { "src": "/curated/commercial/cx_y2.jpg", "label": "Multi-Unit Corridor & Common-Area Turnover" }
+      { "src": "/curated/capabilities/mf-townhomes-row.jpg", "label": "Townhome Portfolio Exterior & Envelope Rehab" },
+      { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "Multi-Unit Corridor & Common-Area Turnover" }
     ]
   },
   {
@@ -338,7 +352,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/capabilities/fire-steel-ibeam.jpg", "label": "Fire-Damaged Structural Steel Remediation" },
       { "src": "/curated/pairs/div04_03_antes.jpg", "label": "Commercial Roof & Storm Damage Assessment" },
-      { "src": "/curated/capabilities/fire-subfloor-joists.jpg", "label": "Water Mitigation & Structural Deck Rebuild" }
+      { "src": "/curated/pairs/div04_02_antes.jpg", "label": "Water Mitigation & Structural Deck Rebuild" }
     ]
   }
 ];
@@ -408,6 +422,8 @@ const COMMERCIAL_PROJECT_STARTERS = [
 
 export default function CommercialPage() {
   const [lightAngle, setLightAngle] = useState<number>(42);
+  const [heroMood, setHeroMood] = useState<"day" | "sunset" | "night">("day");
+  const [heroStudioOpen, setHeroStudioOpen] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] =
     useState<CommercialTradeCategory>("all");
   const {
@@ -419,13 +435,19 @@ export default function CommercialPage() {
     COMMERCIAL_HERO_SCENES.length,
     (idx) => {
       const s = COMMERCIAL_HERO_SCENES[idx] ?? COMMERCIAL_HERO_SCENES[0];
-      return [s.image, ...s.gallery];
+      return [s.image, resolveNightImageSrc(s.image), ...s.gallery];
     },
     6000
   );
 
   useEffect(() => {
-    preloadProtectedImages(COMMERCIAL_HERO_SCENES.flatMap((s) => [s.image, ...s.gallery]));
+    preloadProtectedImages(
+      COMMERCIAL_HERO_SCENES.flatMap((s) => [
+        s.image,
+        resolveNightImageSrc(s.image),
+        ...s.gallery,
+      ])
+    );
     // Scene progression is orchestrated by useSynchronizedScene
     const timer = window.setInterval(() => {
     // Handled by useSynchronizedScene
@@ -435,7 +457,16 @@ export default function CommercialPage() {
 
   const currentHeroScene =
     COMMERCIAL_HERO_SCENES[heroIdx] ?? COMMERCIAL_HERO_SCENES[0];
-  const currentHeroBundle = [currentHeroScene.image, ...currentHeroScene.gallery];
+  const currentHeroNightImage = resolveNightImageSrc(currentHeroScene.image);
+  const currentHeroBundle = [
+    currentHeroScene.image,
+    currentHeroNightImage,
+    ...currentHeroScene.gallery,
+  ];
+  const activeHeroStudioProperty =
+    PROPERTY_LISTINGS.find((p) => p.id === currentHeroScene.propertyId) ??
+    PROPERTY_LISTINGS.find((p) => p.category === "commercial") ??
+    null;
 
   const filteredTrades =
     activeCategory === "all"
@@ -570,7 +601,10 @@ export default function CommercialPage() {
                 htmlFor="commercial-light-angle-slider"
                 className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-amber-200 mb-2"
               >
-                <span>☀️ Raking Light Angle: {lightAngle}°</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <SolarPhaseIcon phase="day" className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Raking Light Angle: {lightAngle}°</span>
+                </span>
                 <span className="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
                   0°–90°
                 </span>
@@ -699,6 +733,23 @@ export default function CommercialPage() {
                     alt={currentHeroScene.title}
                     syncUrls={currentHeroBundle}
                     className="w-full h-full object-cover transition-all duration-700"
+                    style={{
+                      filter:
+                        heroMood === "sunset"
+                          ? "brightness(0.92) contrast(1.09) saturate(1.24) sepia(0.16)"
+                          : "brightness(1.01) contrast(1.03)",
+                    }}
+                  />
+                  {/* Real Nighttime Architectural Lighting Layer */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <ProtectedImage
+                    src={currentHeroNightImage}
+                    alt={`${currentHeroScene.title} — Night Illumination`}
+                    syncUrls={currentHeroBundle}
+                    aria-hidden={heroMood !== "night"}
+                    className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 ${
+                      heroMood === "night" ? "opacity-100" : "opacity-0"
+                    }`}
                   />
                   <div
                     className="absolute inset-0 pointer-events-none"
@@ -718,16 +769,46 @@ export default function CommercialPage() {
                     >
                       {currentHeroScene.sector}
                     </span>
-                    <span
-                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
-                      style={{
-                        background: "rgba(16, 185, 129, 0.2)",
-                        color: "#6EE7B7",
-                        border: "1px solid rgba(16, 185, 129, 0.45)",
-                      }}
-                    >
-                      {currentHeroScene.csi}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className="inline-flex items-center gap-0.5 p-0.5 rounded-full border backdrop-blur-md"
+                        style={{
+                          background: "rgba(7, 14, 26, 0.88)",
+                          borderColor: "rgba(201, 168, 76, 0.45)",
+                        }}
+                      >
+                        {(["day", "sunset", "night"] as const).map((phase) => {
+                          const active = heroMood === phase;
+                          return (
+                            <button
+                              key={phase}
+                              type="button"
+                              onClick={() => setHeroMood(phase)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-all cursor-pointer"
+                              style={{
+                                background: active ? "#C9A84C" : "transparent",
+                                color: active ? "#070E1A" : "#E2E8F0",
+                              }}
+                            >
+                              <SolarPhaseIcon phase={phase} className="w-3 h-3" />
+                              <span>{phase}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setHeroStudioOpen(true)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer"
+                        style={{
+                          background: "#C9A84C",
+                          color: "#070E1A",
+                        }}
+                      >
+                        <StudioActionIcon kind="sparkle" className="w-3 h-3" />
+                        <span>5-Suite Studio</span>
+                      </button>
+                    </div>
                   </div>
                   <div key={`com-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5">
                     <div className="text-sm sm:text-base font-black text-white leading-snug">
@@ -773,14 +854,14 @@ export default function CommercialPage() {
                 label: "Scope & priorities",
                 sub: "Start with drawings, photos or an idea",
                 accent: "#C9A84C",
-                img: "/curated/commercial/cx_o1.jpg",
+                img: "/curated/commercial/com_02_2.jpg",
               },
               {
                 metric: "Build",
                 label: "Ground-up construction",
                 sub: "Site, structure and coordinated trades",
                 accent: "#10B981",
-                img: "/curated/commercial/cx_f1.jpg",
+                img: "/curated/commercial/cx_x3.jpg",
               },
               {
                 metric: "Adapt",
@@ -872,6 +953,9 @@ export default function CommercialPage() {
           <span>Roofing, exterior &amp; building improvements</span>
         </div>
       </div>
+
+      {/* ── INTERACTIVE COMMERCIAL PROPERTY & MULTI-FAMILY WALKTHROUGH ATELIER ── */}
+      <DivisionInteractivePropertyAtelier division="commercial" />
 
       {/* ── CHROMATIC HORIZON DIVIDER INTO WARM EDITORIAL IVORY ── */}
       <div className="chromatic-horizon" aria-hidden="true">
@@ -1090,9 +1174,21 @@ export default function CommercialPage() {
                   style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
                 >
                   <div className="flex items-center gap-3 text-[11px] font-mono font-bold text-slate-700">
-                    <span>⏱️ {card.scheduleNote}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                      </svg>
+                      <span>{card.scheduleNote}</span>
+                    </span>
                     <span>·</span>
-                    <span>📐 {card.planningNote}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 21h18L3 3v18Z" />
+                        <path d="M7 17h4v-4" />
+                      </svg>
+                      <span>{card.planningNote}</span>
+                    </span>
                   </div>
                   <Link
                     href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
@@ -1312,6 +1408,16 @@ export default function CommercialPage() {
           <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
         </div>
       </section>
+      {heroStudioOpen && activeHeroStudioProperty && (
+        <PropertyWalkthroughStudioModal
+          property={activeHeroStudioProperty}
+          initialStepIndex={0}
+          initialSolarHour={
+            heroMood === "night" ? 21.5 : heroMood === "sunset" ? 18.5 : 12.5
+          }
+          onClose={() => setHeroStudioOpen(false)}
+        />
+      )}
     </main>
   );
 }

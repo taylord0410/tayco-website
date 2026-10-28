@@ -11,9 +11,10 @@ const ALLOWED_EXACT = new Set(["/logo.png"]);
 interface CachedScrambledAsset {
   buffer: Buffer;
   etag: string;
+  mtimeMs: number;
 }
 
-// Server-side in-memory cache of XOR-scrambled assets so disk I/O + XOR run only once per asset
+// Server-side in-memory cache of XOR-scrambled assets so disk I/O + XOR run only once per asset version
 const scrambledAssetCache = new Map<string, CachedScrambledAsset>();
 const MAX_CACHE_ENTRIES = 260;
 
@@ -37,13 +38,14 @@ function isAllowedAssetPath(assetPath: string): boolean {
 }
 
 async function getScrambledAsset(rawPath: string, resolvedFile: string): Promise<CachedScrambledAsset> {
+  const stat = await fs.stat(resolvedFile);
   const hit = scrambledAssetCache.get(rawPath);
-  if (hit) return hit;
+  if (hit && hit.mtimeMs === stat.mtimeMs) return hit;
 
   const fileBuffer = await fs.readFile(resolvedFile);
   const scrambled = Buffer.from(scrambleVisualBytes(new Uint8Array(fileBuffer)));
-  const etag = `W/"v40-${ scrambled.byteLength }-${ scrambled[0] ?? 0 }-${ scrambled[scrambled.byteLength - 1] ?? 0 }"`;
-  const entry: CachedScrambledAsset = { buffer: scrambled, etag };
+  const etag = `W/"v41-${ Math.round(stat.mtimeMs) }-${ scrambled.byteLength }-${ scrambled[0] ?? 0 }"`;
+  const entry: CachedScrambledAsset = { buffer: scrambled, etag, mtimeMs: stat.mtimeMs };
 
   if (scrambledAssetCache.size >= MAX_CACHE_ENTRIES) {
     const oldestKey = scrambledAssetCache.keys().next().value;
