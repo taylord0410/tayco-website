@@ -174,3 +174,75 @@ test("Footer links prominently to /privacy#project-photography-privacy", () => {
   assert.ok(footerSrc.includes("/privacy#project-photography-privacy"));
   assert.ok(footerSrc.includes("Privacy Policy &amp; Client Confidentiality"));
 });
+
+test("guest security logs encrypt client_ip, user_agent, and detail with AES-256-GCM at rest in SQLite", async () => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { recordGuestSecurityByContext, guestSecurityReport } = await import(
+    "../lib/guest-security-log"
+  );
+  const dir = mkdtempSync(path.join(tmpdir(), "tayco-sec-log-test-"));
+  const prevAuthDb = process.env.TAYCO_AUTH_DB_PATH;
+  const dbFile = path.join(dir, "tayco-auth.sqlite");
+  process.env.TAYCO_AUTH_DB_PATH = dbFile;
+
+  try {
+    recordGuestSecurityByContext(
+      {
+        tenantId: "tayco_llc",
+        reviewId: "rev-test-1",
+        actorId: "guest-test-1",
+        actorRole: "guest",
+      },
+      {
+        "x-forwarded-for": "198.51.100.42",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+      },
+      {
+        eventType: "excel.open",
+        surface: "excel",
+        targetId: "excel:2026-09",
+        detail: "September 2026 workbook",
+        statusCode: 200,
+      }
+    );
+
+    const db = new DatabaseSync(dbFile);
+    try {
+      const rawRow = db
+        .prepare(
+          "SELECT client_ip, user_agent, detail FROM guest_security_events LIMIT 1"
+        )
+        .get() as {
+        client_ip: string;
+        user_agent: string;
+        detail: string;
+      };
+      assert.ok(rawRow.client_ip.startsWith("enc:v1:"));
+      assert.ok(!rawRow.client_ip.includes("198.51.100.42"));
+      assert.ok(rawRow.user_agent.startsWith("enc:v1:"));
+      assert.ok(rawRow.detail.startsWith("enc:v1:"));
+    } finally {
+      db.close();
+    }
+
+    assert.throws(
+      () => guestSecurityReport({ role: "guest", tenantId: "tayco_llc" }),
+      /Administrator access is required/
+    );
+
+    const report = guestSecurityReport({
+      role: "admin",
+      tenantId: "tayco_llc",
+    });
+    assert.equal(report.totalEvents, 1);
+    assert.equal(report.events[0]?.clientIp, "198.51.100.42");
+    assert.equal(report.events[0]?.detail, "September 2026 workbook");
+  } finally {
+    process.env.TAYCO_AUTH_DB_PATH = prevAuthDb;
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // Ignore Windows temp file lock
+    }
+  }
+});

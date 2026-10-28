@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -56,6 +56,54 @@ function openSecurityDb(): DatabaseSync {
   }
 }
 
+const ENC_PREFIX = 'enc:v1:';
+
+function getSecurityLogEncryptionKey(): Buffer {
+  const rawSecret =
+    process.env.TAYCO_SUBMISSIONS_KEY ||
+    process.env.TAYCO_SESSION_SECRET ||
+    'tayco-default-erp-submissions-vault-key-2026-aes256gcm';
+  return createHash('sha256')
+    .update(`tayco-guest-security-log-v1:${rawSecret}`)
+    .digest();
+}
+
+export function encryptSecurityField(plaintext: string): string {
+  if (plaintext.startsWith(ENC_PREFIX)) return plaintext;
+  const key = getSecurityLogEncryptionKey();
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+  const authTag = cipher.getAuthTag();
+  return `${ENC_PREFIX}${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted.toString('base64')}`;
+}
+
+export function decryptSecurityField(stored: string): string {
+  if (!stored || !stored.startsWith(ENC_PREFIX)) return stored;
+  try {
+    const parts = stored.slice(ENC_PREFIX.length).split(':');
+    if (parts.length !== 3) return '[redacted]';
+    const [ivB64, tagB64, dataB64] = parts;
+    const key = getSecurityLogEncryptionKey();
+    const decipher = createDecipheriv(
+      'aes-256-gcm',
+      key,
+      Buffer.from(ivB64, 'base64')
+    );
+    decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(dataB64, 'base64')),
+      decipher.final(),
+    ]);
+    return decrypted.toString('utf8');
+  } catch {
+    return '[redacted]';
+  }
+}
+
 export function installGuestSecuritySchema(db: DatabaseSync) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS guest_security_events (
@@ -78,6 +126,31 @@ export function installGuestSecuritySchema(db: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS idx_guest_security_actor_time ON guest_security_events(actor_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_guest_security_review_time ON guest_security_events(review_id, created_at DESC);
   `);
+
+  // Automatically encrypt any legacy plaintext rows at rest with AES-256-GCM
+  const unencryptedRows = db
+    .prepare(
+      `SELECT event_id, client_ip, user_agent, detail FROM guest_security_events WHERE client_ip NOT LIKE 'enc:v1:%' LIMIT 500`
+    )
+    .all() as {
+    event_id: string;
+    client_ip: string;
+    user_agent: string;
+    detail: string | null;
+  }[];
+  if (unencryptedRows.length > 0) {
+    const updateStmt = db.prepare(
+      `UPDATE guest_security_events SET client_ip = ?, user_agent = ?, detail = ? WHERE event_id = ?`
+    );
+    for (const row of unencryptedRows) {
+      updateStmt.run(
+        encryptSecurityField(String(row.client_ip)),
+        encryptSecurityField(String(row.user_agent)),
+        row.detail !== null ? encryptSecurityField(String(row.detail)) : null,
+        row.event_id
+      );
+    }
+  }
 }
 
 function getHeader(headers: Headers | Record<string, string | undefined> | null | undefined, name: string): string {
@@ -174,12 +247,12 @@ export function recordGuestSecurityByContext(
         input.eventType,
         input.surface,
         targetId,
-        detail,
+        detail !== null ? encryptSecurityField(detail) : null,
         statusCode,
-        net.clientIp,
+        encryptSecurityField(net.clientIp),
         net.deviceFingerprint,
         net.deviceSummary,
-        net.userAgent,
+        encryptSecurityField(net.userAgent),
         now
       );
       return { eventId, ...net };
@@ -241,12 +314,12 @@ export function guestSecurityReport(
         eventType: String(r.event_type),
         surface: String(r.surface),
         targetId: r.target_id !== null ? String(r.target_id) : null,
-        detail: r.detail !== null ? String(r.detail) : null,
+        detail: r.detail !== null ? decryptSecurityField(String(r.detail)) : null,
         statusCode: r.status_code !== null ? Number(r.status_code) : null,
-        clientIp: String(r.client_ip),
+        clientIp: decryptSecurityField(String(r.client_ip)),
         deviceFingerprint: String(r.device_fingerprint),
         deviceSummary: String(r.device_summary),
-        userAgent: String(r.user_agent),
+        userAgent: decryptSecurityField(String(r.user_agent)),
         createdAt: new Date(Number(r.created_at)).toISOString(),
       }));
 
