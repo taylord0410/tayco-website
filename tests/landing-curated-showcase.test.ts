@@ -122,6 +122,21 @@ test("Privacy page contains client photography recreation notice and public page
     "app/privacy/page.tsx must include #project-photography-privacy section"
   );
   assert.ok(
+    privacyContent.includes("id=\"cookies-and-security\"") &&
+      privacyContent.includes("id=\"form-encryption\"") &&
+      privacyContent.includes("id=\"guest-review-privacy\"") &&
+      privacyContent.includes("id=\"state-privacy-rights\""),
+    "app/privacy/page.tsx must include all executive privacy and cookie governance sections"
+  );
+  const siteFrameContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/SiteFrame.tsx"),
+    "utf-8"
+  );
+  assert.ok(
+    siteFrameContent.includes("PublicCookieBanner"),
+    "components/SiteFrame.tsx must render PublicCookieBanner on public pages"
+  );
+  assert.ok(
     privacyContent.includes("curated architectural recreations based on") &&
       privacyContent.includes("real projects, field conditions and scopes of work"),
     "app/privacy/page.tsx must disclose architectural recreations for client privacy"

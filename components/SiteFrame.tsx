@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode, type MouseEvent, type DragEvent } from "react";
 import { usePathname } from "next/navigation";
+import PublicCookieBanner from "@/components/PublicCookieBanner";
 
 const publicPages = new Set(["/", "/commercial", "/residential", "/investor", "/estimate", "/privacy", "/vendor-application"]);
 
@@ -62,6 +63,7 @@ export default function SiteFrame({ children, publicHeader, publicFooter }: { ch
       {publicSurface ? publicHeader : <a className="tayco-skip-link" href="#main-content">Skip to content</a>}
       <div id="main-content" tabIndex={-1} className="relative outline-none">{children}</div>
       {publicSurface && publicFooter}
+      {publicSurface && <PublicCookieBanner />}
     </div>
   );
 }
