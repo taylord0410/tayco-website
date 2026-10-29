@@ -78,8 +78,11 @@ export function installReviewSchema(db: DatabaseSync) {
     recipient_policy_sha256 TEXT,
     created_at INTEGER NOT NULL,
     claimed_grant_id TEXT,
-    claimed_at INTEGER
+    claimed_at INTEGER,
+    auto_renew INTEGER NOT NULL DEFAULT 1
   );`);
+  const pendingFields=db.prepare('PRAGMA table_info(auth_pending_guest_reviews)').all() as {name:string}[];
+  if(!pendingFields.some(f=>f.name==='auto_renew'))db.exec('ALTER TABLE auth_pending_guest_reviews ADD COLUMN auto_renew INTEGER NOT NULL DEFAULT 1');
   installReviewAuditSchema(db);
   db.exec('COMMIT');
   }catch(error){db.exec('ROLLBACK');throw error;}
@@ -158,18 +161,18 @@ export function latestClaimedReview(db:DatabaseSync,userId:string):string|undefi
 }
 export function claimPendingGuestReviewIfNeeded(db:DatabaseSync,actor:Actor,now=Date.now()):string|undefined{
   if(actor.role!=='guest')return undefined;
-  const pending=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as {email:string;tenant_id:string;created_by:string;recipient_profile:string;recipient_policy_sha256:string|null;created_at:number;claimed_grant_id:string|null;claimed_at:number|null}|undefined;
+  const pending=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as {email:string;tenant_id:string;created_by:string;recipient_profile:string;recipient_policy_sha256:string|null;created_at:number;claimed_grant_id:string|null;claimed_at:number|null;auto_renew?:number}|undefined;
   if(!pending)return undefined;
   if(pending.claimed_grant_id){
     const existing=db.prepare('SELECT id,expires_at,revoked_at,recipient_profile FROM auth_review_grants WHERE id=?').get(pending.claimed_grant_id) as {id:string;expires_at:number;revoked_at:number|null;recipient_profile:string}|undefined;
-    if(existing&&(existing.revoked_at!==null||(existing.expires_at>now&&existing.recipient_profile===pending.recipient_profile)))return existing.id;
+    if(existing&&(existing.revoked_at!==null||((pending.auto_renew===0||existing.expires_at>now)&&existing.recipient_profile===pending.recipient_profile)))return existing.id;
   }
   return transaction(db,()=>{
     const fresh=db.prepare('SELECT * FROM auth_pending_guest_reviews WHERE email=? AND tenant_id=?').get(actor.email,actor.tenantId) as typeof pending;
     if(!fresh)return undefined;
     if(fresh.claimed_grant_id){
       const existing=db.prepare('SELECT id,expires_at,revoked_at,recipient_profile FROM auth_review_grants WHERE id=?').get(fresh.claimed_grant_id) as {id:string;expires_at:number;revoked_at:number|null;recipient_profile:string}|undefined;
-      if(existing&&(existing.revoked_at!==null||(existing.expires_at>now&&existing.recipient_profile===fresh.recipient_profile)))return existing.id;
+      if(existing&&(existing.revoked_at!==null||((fresh.auto_renew===0||existing.expires_at>now)&&existing.recipient_profile===fresh.recipient_profile)))return existing.id;
     }
     const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
     const creationKey='pending_claim_'+grantId.replace(/-/g,'').slice(0,24);

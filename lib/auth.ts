@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
 import { appendReviewAudit,ReviewAuditError } from './review-audit';
 import { rememberReviewAuditContext } from './review-request-audit';
-import { installReviewSchema, ReviewGrantError, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, claimPendingGuestReviewIfNeeded, type ReviewAccess } from './review-grants';
+import { installReviewSchema, ReviewGrantError, REVIEW_TTL_MS, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, claimPendingGuestReviewIfNeeded, type ReviewAccess } from './review-grants';
 
 import {insurerPolicy,insurerRouteAllowed,parseInsurerPolicy,readInsurerFile,readInsurerSource,InsurerReviewError} from './insurer-review-policy';
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
@@ -108,18 +108,19 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
          VALUES(?, ?, ?, 'guest', 'tayco_llc', '[]', NULL, 0, ?)
          ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', tenant_id='tayco_llc', vendor_id=NULL, disabled=0`
       ).run(guestId, guestEmail, effectiveHash, now);
+      const autoRenew = guestEmail === 'harper@tayco.llc' ? 0 : 1;
       db.prepare(
-        `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at)
-         VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL)
-         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL`
-      ).run(guestEmail, now);
+        `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at, auto_renew)
+         VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL, ?)
+         ON CONFLICT(email) DO UPDATE SET tenant_id='tayco_llc', recipient_profile='company', recipient_policy_sha256=NULL, auto_renew=excluded.auto_renew`
+      ).run(guestEmail, now, autoRenew);
       if (existingGuest && existingGuest.password_hash !== effectiveHash) {
         db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=?').run(guestEmail);
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
     }
-    db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE email=? AND claimed_at IS NOT NULL AND claimed_at <= 1793124000000').run('harper@tayco.llc');
-    db.prepare('DELETE FROM auth_sessions WHERE user_id=? AND created_at <= 1793124000000').run('8dfa00f9-f0cc-4376-a436-45f3e50b5115');
+    db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL, auto_renew=0 WHERE email=? AND claimed_at IS NOT NULL AND claimed_at <= 1793282000000').run('harper@tayco.llc');
+    db.prepare('DELETE FROM auth_sessions WHERE user_id=? AND created_at <= 1793282000000').run('8dfa00f9-f0cc-4376-a436-45f3e50b5115');
     db.prepare('DELETE FROM auth_rate_limits').run();
   }
 }
@@ -340,6 +341,57 @@ export function createInsurerReviewInvitationPrivately(actor:Actor,emailInput:un
 }
 export function listInvitations(actor:Actor){requireRole(actor,['admin']);return withDb(db=>db.prepare('SELECT i.id,i.email,i.role,i.project_ids AS projectIds,i.vendor_id AS vendorId,i.expires_at AS expiresAt,i.revoked_at AS revokedAt,i.accepted_at AS acceptedAt,i.created_at AS createdAt,i.review_grant_id AS reviewGrantId,g.detail_period AS detailPeriod FROM auth_invites i LEFT JOIN auth_review_grants g ON g.id=i.review_grant_id WHERE i.tenant_id=? ORDER BY i.created_at DESC LIMIT 100').all(actor.tenantId));}
 export function rotateInvitation(actor:Actor,id:string,requestKey:string){requireRole(actor,['admin']);return withDb(db=>rotateReviewInvitation(db,actor,id,requestKey));}
+export function listPendingGuestReviews(actor:Actor,now=Date.now()){
+  requireRole(actor,['admin']);
+  return withDb(db=>{
+    const rows=db.prepare(`SELECT p.email,p.recipient_profile AS recipientProfile,p.created_at AS createdAt,p.claimed_grant_id AS claimedGrantId,p.claimed_at AS claimedAt,p.auto_renew AS autoRenew,g.expires_at AS expiresAt,g.revoked_at AS revokedAt,(SELECT count(*) FROM auth_sessions s JOIN auth_users u ON u.id=s.user_id WHERE u.email=p.email AND u.tenant_id=p.tenant_id AND s.expires_at>?) AS activeSessions FROM auth_pending_guest_reviews p LEFT JOIN auth_review_grants g ON g.id=p.claimed_grant_id WHERE p.tenant_id=? ORDER BY p.email`).all(now,actor.tenantId) as {email:string;recipientProfile:string;createdAt:number;claimedGrantId:string|null;claimedAt:number|null;autoRenew:number;expiresAt:number|null;revokedAt:number|null;activeSessions:number}[];
+    return rows.map(r=>({
+      email:r.email,
+      recipientProfile:r.recipientProfile,
+      createdAt:r.createdAt,
+      claimedGrantId:r.claimedGrantId,
+      claimedAt:r.claimedAt,
+      expiresAt:r.expiresAt,
+      revokedAt:r.revokedAt,
+      activeSessions:Number(r.activeSessions||0),
+      autoRenew:Boolean(r.autoRenew),
+      ttlHours:Math.round(REVIEW_TTL_MS/3600_000),
+      ttlMs:REVIEW_TTL_MS,
+      state:!r.claimedGrantId?'armed_waiting_for_login':r.revokedAt!==null?'revoked':(r.expiresAt!==null&&r.expiresAt>now)?'active':'expired',
+    }));
+  });
+}
+export function resetPendingGuestReview(actor:Actor,emailInput:unknown,now=Date.now()){
+  requireRole(actor,['admin']);
+  const email=normalizeEmail(emailInput);
+  return withDb(db=>{
+    db.exec('BEGIN IMMEDIATE');
+    try{
+      const user=db.prepare('SELECT * FROM auth_users WHERE email=? AND tenant_id=?').get(email,actor.tenantId) as UserRow|undefined;
+      if(!user||user.role!=='guest')throw new AuthError('Guest account not found.',404);
+      db.prepare(
+        `INSERT INTO auth_pending_guest_reviews(email,tenant_id,created_by,recipient_profile,recipient_policy_sha256,created_at,claimed_grant_id,claimed_at,auto_renew)
+         VALUES(?,?,?,'company',NULL,?,NULL,NULL,0)
+         ON CONFLICT(email) DO UPDATE SET tenant_id=excluded.tenant_id,created_by=excluded.created_by,created_at=excluded.created_at,claimed_grant_id=NULL,claimed_at=NULL,auto_renew=0`
+      ).run(email,actor.tenantId,actor.id,now);
+      db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(user.id);
+      db.prepare('DELETE FROM auth_rate_limits WHERE bucket=?').run(`login:${digest(email)}`);
+      audit(db,actor.id,'pending_guest_review.reset',user.id);
+      db.exec('COMMIT');
+      return {
+        email,
+        userId:user.id,
+        ttlHours:Math.round(REVIEW_TTL_MS/3600_000),
+        ttlMs:REVIEW_TTL_MS,
+        claimedGrantId:null,
+        claimedAt:null,
+        activeSessions:0,
+        autoRenew:false,
+        state:'armed_waiting_for_login' as const,
+      };
+    }catch(error){db.exec('ROLLBACK');throw error;}
+  });
+}
 
 export function listAccounts(actor: Actor) {
   requireRole(actor, ['admin']);

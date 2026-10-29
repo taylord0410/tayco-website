@@ -5,7 +5,7 @@ import {tmpdir} from "node:os";
 import path from "node:path";
 import {randomBytes} from "node:crypto";
 import {DatabaseSync} from "node:sqlite";
-import {provisionAdmin,signIn,createInvitation,acceptInvitation,revokeInvitation,requireActor,AuthError,SESSION_COOKIE,type Actor} from "../lib/auth";
+import {provisionAdmin,signIn,createInvitation,acceptInvitation,revokeInvitation,resetPendingGuestReview,listPendingGuestReviews,requireActor,AuthError,SESSION_COOKIE,type Actor} from "../lib/auth";
 import {reviewForSession,ReviewGrantError} from "../lib/review-grants";
 
 const password="Synthetic-pending-review-only-2026!";
@@ -126,4 +126,43 @@ test("pending insurer policy without a configured source fails closed at login; 
  await assert.rejects(signIn(f.guest.email,password),e=>e instanceof AuthError&&(e.status===403||e.status===503));
  assert.equal((await requireActor(request(f.oldCookie))).review?.id,f.guest.review?.id);
  console.info(JSON.stringify({syntheticPendingDeniedLogin:true,stagedGrants:count(f.db,"auth_review_grants")-before.grants,stagedSessions:count(f.db,"auth_sessions")-before.sessions,limit:"No claim+cookie activation atomicity or recipient-release approval is asserted."}));
+}));
+
+
+test("admin resetPendingGuestReview arms strict 12h counter starting only at next login and expires without auto-renewal until next reset",async()=>fixture(async f=>{
+ const reset=resetPendingGuestReview(f.admin,f.guest.email);
+ assert.equal(reset.state,"armed_waiting_for_login");
+ assert.equal(reset.claimedGrantId,null);
+ assert.equal(reset.claimedAt,null);
+ assert.equal(reset.ttlHours,12);
+ assert.equal(reset.ttlMs,12*3600_000);
+ assert.equal(reset.activeSessions,0);
+ await assert.rejects(requireActor(request(f.oldCookie)),e=>e instanceof AuthError&&e.status===401);
+ const beforeGrants=count(f.db,"auth_review_grants");
+ const preStatus=listPendingGuestReviews(f.admin).find(r=>r.email===f.guest.email)!;
+ assert.equal(preStatus.state,"armed_waiting_for_login");
+ assert.equal(preStatus.claimedGrantId,null);
+ const t0=Date.now(),login=await signIn(f.guest.email,password),t1=Date.now();
+ assert.equal(count(f.db,"auth_review_grants"),beforeGrants+1);
+ assert.ok(login.actor.review);
+ assert.ok(login.actor.review.createdAt>=t0&&login.actor.review.createdAt<=t1);
+ assert.equal(login.actor.review.expiresAt,login.actor.review.createdAt+12*3600_000);
+ const activeStatus=listPendingGuestReviews(f.admin,login.actor.review.createdAt+60_000).find(r=>r.email===f.guest.email)!;
+ assert.equal(activeStatus.state,"active");
+ assert.equal(activeStatus.claimedGrantId,login.actor.review.id);
+ // Simulate 12h expiry by shifting Date.now via listPendingGuestReviews & verifying claimPendingGuestReviewIfNeeded does not auto-renew when auto_renew=0
+ const expiredStatus=listPendingGuestReviews(f.admin,login.actor.review.expiresAt+1000).find(r=>r.email===f.guest.email)!;
+ assert.equal(expiredStatus.state,"expired");
+ const OriginalDate=Date,afterExpiry=login.actor.review.expiresAt+5000;
+ globalThis.Date=new Proxy(OriginalDate,{construct(target,args){return Reflect.construct(target,args.length?args:[afterExpiry]);},get(target,p,receiver){return p==="now"?()=>afterExpiry:Reflect.get(target,p,receiver);}}) as DateConstructor;
+ try{
+  await assert.rejects(signIn(f.guest.email,password),e=>e instanceof AuthError&&e.status===403&&e.reasonCode==="review_expired");
+  assert.equal(count(f.db,"auth_review_grants"),beforeGrants+1);
+  const rearmed=resetPendingGuestReview(f.admin,f.guest.email,afterExpiry);
+  assert.equal(rearmed.state,"armed_waiting_for_login");
+  const relogin=await signIn(f.guest.email,password);
+  assert.equal(relogin.actor.review?.expiresAt,afterExpiry+12*3600_000);
+ }finally{
+  globalThis.Date=OriginalDate;
+ }
 }));
