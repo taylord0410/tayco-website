@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
 import ProtectedImage, {
   preloadProtectedImages,
   waitForDecodedSurfaces,
@@ -853,7 +854,7 @@ export function TransformationBeforeAfterStudio({
               >
                 <div className="flex items-center gap-2.5">
                   <span
-                    className="px-2 py-0.5 rounded text-[10px] font-mono font-black"
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono font-black"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
                     {activePair.code}
@@ -923,7 +924,7 @@ export function TransformationBeforeAfterStudio({
                       setInspectMode("split");
                       setSplitPercent(preset.val);
                     }}
-                    className="px-2.5 py-1 rounded text-[11px] font-mono font-semibold border transition-colors cursor-pointer hover:text-white"
+                    className="px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border transition-colors cursor-pointer hover:text-white"
                     style={{
                       background:
                         inspectMode === "split" && Math.abs(splitPercent - preset.val) <= 5
@@ -1090,7 +1091,7 @@ export function TransformationBeforeAfterStudio({
                       style={{ background: "#F3D37A" }}
                     />
                     <span
-                      className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-mono font-black"
+                      className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-black"
                       style={{
                         background: selected ? "#C9A84C" : "rgba(7,14,26,0.85)",
                         color: selected ? "#070E1A" : "#F3D37A",
@@ -1147,59 +1148,83 @@ export function DualTrackArchitecturalMarquee() {
       </div>
 
       {/* Selected Shot Quick Inspector Drawer */}
-      {selectedShot && (
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
-          onClick={() => setSelectedShot(null)}
-        >
+      <TaycoModalOverlay
+        isOpen={Boolean(selectedShot)}
+        onClose={() => setSelectedShot(null)}
+        onStepPrev={() => {
+          if (!selectedShot) return;
+          const allShots = [...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_BOTTOM];
+          const idx = allShots.findIndex((s) => s.id === selectedShot.id);
+          if (idx !== -1) {
+            const nextIdx = (idx - 1 + allShots.length) % allShots.length;
+            setSelectedShot(allShots[nextIdx] ?? null);
+          }
+        }}
+        onStepNext={() => {
+          if (!selectedShot) return;
+          const allShots = [...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_BOTTOM];
+          const idx = allShots.findIndex((s) => s.id === selectedShot.id);
+          if (idx !== -1) {
+            const nextIdx = (idx + 1) % allShots.length;
+            setSelectedShot(allShots[nextIdx] ?? null);
+          }
+        }}
+        ariaLabel={selectedShot?.title ?? "Architectural Discipline Photograph"}
+      >
+        {({ stageGestureHandlers }) => (
           <div
-            className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
+            {...stageGestureHandlers}
+            className="max-w-4xl w-full rounded-[26px] border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
             style={{
               background: "rgba(11, 22, 42, 0.98)",
               borderColor: "#C9A84C",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <ProtectedImage
-                src={selectedShot.image}
-                auditIgnore={true}
-                alt={selectedShot.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-white/10">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black"
-                    style={{ background: "#C9A84C", color: "#070E1A" }}
-                  >
-                    {selectedShot.csi}
-                  </span>
-                  <span className="text-xs font-mono text-amber-200">
-                    {selectedShot.trade} · {selectedShot.sector}
-                  </span>
+            {selectedShot && (
+              <>
+                <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <ProtectedImage
+                    src={selectedShot.image}
+                    auditIgnore={true}
+                    alt={selectedShot.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="text-lg font-black text-white mt-1">
-                  {selectedShot.title}
+                <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-white/10">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black"
+                        style={{ background: "#C9A84C", color: "#070E1A" }}
+                      >
+                        {selectedShot.csi}
+                      </span>
+                      <span className="text-xs font-mono text-amber-200">
+                        {selectedShot.trade} · {selectedShot.sector}
+                      </span>
+                    </div>
+                    <div className="text-lg font-black text-white mt-1">
+                      {selectedShot.title}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      data-magnetic
+                      onClick={() => setSelectedShot(null)}
+                      className="tayco-atelier-btn-gold px-5 py-2.5 text-xs tracking-wider cursor-pointer"
+                    >
+                      Close Full-Screen View ✕
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2.5 shrink-0">
-                <button
-                  type="button"
-                  data-magnetic
-                  onClick={() => setSelectedShot(null)}
-                  className="tayco-atelier-btn-gold px-5 py-2.5 text-xs tracking-wider cursor-pointer"
-                >
-                  Close Full-Screen View ✕
-                </button>
-              </div>
-            </div>
+              </>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </TaycoModalOverlay>
 
       {/* Track 1: Exterior / Structural / Envelope */}
       <div className="tayco-filmstrip-wrapper mb-4">
@@ -1222,7 +1247,7 @@ export function DualTrackArchitecturalMarquee() {
               <div className="tayco-filmstrip-overlay">
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className="px-2 py-0.5 rounded text-[9px] font-mono font-black"
+                    className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
                     {shot.csi}
@@ -1266,7 +1291,7 @@ export function DualTrackArchitecturalMarquee() {
               <div className="tayco-filmstrip-overlay">
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className="px-2 py-0.5 rounded text-[9px] font-mono font-black"
+                    className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black"
                     style={{ background: "#F3D37A", color: "#070E1A" }}
                   >
                     {shot.csi}
@@ -1363,7 +1388,7 @@ export function RegionalStateFootprintStrip() {
                 {currentHub.name} ({currentHub.state})
               </span>
               <span
-                className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded"
+                className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full"
                 style={{ background: "rgba(201, 168, 76, 0.2)", color: "#F3D37A" }}
               >
                 {currentHub.mobilization}
@@ -1465,7 +1490,7 @@ export function ServiceCardTriptych({
             {badge}
           </span>
           <span
-            className="px-2 py-0.5 rounded text-[10px] font-mono font-bold"
+            className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold"
             style={{
               background: "rgba(7, 14, 26, 0.8)",
               color: "#E2E8F0",

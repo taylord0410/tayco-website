@@ -12,6 +12,7 @@ import {
   type PropertyListing,
 } from "@/lib/property-catalog";
 import { COMPANY } from "@/lib/company";
+import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
 
 export interface WalkthroughHotspot {
   id: string;
@@ -1098,7 +1099,7 @@ export function buildSpecialtyWalkthroughStops(
       title: photo.label,
       src: photo.src,
       nightSrc: resolveNightImageSrc(photo.src),
-      spatialNarrative: `${service.summary} (${photo.caption})`,
+      spatialNarrative: `${service.summary} (${(photo as unknown as { caption?: string }).caption ?? photo.label})`,
       portalButtonLabel:
         idx < service.triptych.length - 1
           ? `Next ${service.specialtyLabel} View (0${idx + 2}) →`
@@ -1130,8 +1131,11 @@ export function buildSpecialtyWalkthroughStops(
           yPercent: 38,
           title: service.deliverables[0] ?? service.title,
           csiDivision: `${service.csiDivision} · PRIMARY ASSEMBLY`,
-          materialSpec: photo.tag,
-          detail: photo.caption,
+          materialSpec:
+            (photo as unknown as { tag?: string }).tag ?? photo.label,
+          detail:
+            (photo as unknown as { caption?: string }).caption ??
+            service.summary,
         },
         {
           id: `${service.id}-spec-${idx}-2`,
@@ -1267,18 +1271,10 @@ export function PropertyWalkthroughStudioModal({
     [activeStopIdx, stops.length, allWalkthroughUrls]
   );
 
-  // Keyboard navigation: Left/Right arrows, 1-5 keys, C for Compare, F for Cinema, Esc to close
+  // Keyboard navigation: 1-5 keys, C for Compare, F for Cinema (Esc, Left/Right owned by TaycoModalOverlay)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        handleStepChange(activeStopIdx + 1);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        handleStepChange(activeStopIdx - 1);
-      } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
+      if (["1", "2", "3", "4", "5"].includes(e.key)) {
         const idx = Number(e.key) - 1;
         if (idx < stops.length) {
           handleStepChange(idx);
@@ -1291,7 +1287,7 @@ export function PropertyWalkthroughStudioModal({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeStopIdx, stops.length, handleStepChange, onClose]);
+  }, [stops.length, handleStepChange]);
 
   const selectTimePreset = (preset: TimeOfDayPreset) => {
     setIsAutoCyclingDay(false);
@@ -1358,291 +1354,309 @@ export function PropertyWalkthroughStudioModal({
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="walkthrough-studio-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-[#02050B]/90 backdrop-blur-2xl animate-[fadeIn_280ms_cubic-bezier(0.16,1,0.3,1)]"
-      onClick={onClose}
+    <TaycoModalOverlay
+      isOpen={true}
+      onClose={onClose}
+      onStepPrev={() => handleStepChange(activeStopIdx - 1)}
+      onStepNext={() => handleStepChange(activeStopIdx + 1)}
+      enableStageWheelStep={!splitCompareMode}
+      enableStageSwipe={!splitCompareMode}
+      ariaLabel={
+        studioMode === "specialty" && activeSpecialty
+          ? `${activeSpecialty.title} — ${property.title}`
+          : `${property.title} Interactive Architectural Studio`
+      }
     >
-      <div
-        data-walkthrough-studio-modal
-        className="relative w-full max-w-[1440px] rounded-3xl border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] max-h-[95svh] flex flex-col bg-[#050A14]"
-        style={{
-          borderColor: "rgba(201, 168, 76, 0.38)",
-          boxShadow:
-            "0 40px 120px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.08)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── LUXURY EDITORIAL TOP HEADER BAR ── */}
+      {({ stageGestureHandlers }) => (
         <div
-          className="px-4 sm:px-6 py-4 border-b flex flex-col items-center text-center gap-3 shrink-0"
+          data-walkthrough-studio-modal
+          className="relative w-full max-w-[1460px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(6,12,24,0.98) 0%, rgba(12,25,48,0.94) 50%, rgba(6,12,24,0.98) 100%)",
-            borderColor: "rgba(255, 255, 255, 0.08)",
+            borderColor: "rgba(201, 168, 76, 0.38)",
+            boxShadow:
+              "0 40px 120px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.08)",
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex flex-col items-center text-center gap-1.5 min-w-0">
-            <div className="flex items-center justify-center gap-2 text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-              <span
-                className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-black tracking-wider shrink-0 shadow-sm"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)",
-                  color: "#050A14",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-                }}
-              >
-                {studioMode === "specialty" && activeSpecialty
-                  ? activeSpecialty.code
-                  : property.code}
-              </span>
-              <span>
-                {studioMode === "specialty" && activeSpecialty
-                  ? `${activeSpecialty.specialtyLabel.toUpperCase()} · MARKET SPECIALTY STUDIO`
-                  : "ARCHITECTURAL 5-ROOM WALKTHROUGH & BESPOKE ATELIER"}
-              </span>
-              <span className="hidden sm:inline text-white/25">•</span>
-              <span className="hidden sm:inline text-slate-300">
-                {property.location}
-              </span>
-            </div>
-            <h2
-              id="walkthrough-studio-title"
-              className="tayco-card-title text-xl sm:text-2xl text-white tracking-tight"
-            >
-              {studioMode === "specialty" && activeSpecialty
-                ? `${activeSpecialty.title} (${property.title})`
-                : property.title}
-            </h2>
-          </div>
-
-          {/* Sleek Luxury Action Bar: Centered row with Plus Jakarta Sans and data-magnetic */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              data-compare-toggle
-              data-magnetic
-              onClick={() => setSplitCompareMode((v) => !v)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                background: splitCompareMode
-                  ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                  : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
-                color: splitCompareMode ? "#050A14" : "#F8FAFC",
-                borderColor: splitCompareMode
-                  ? "#F3D37A"
-                  : "rgba(243, 211, 122, 0.38)",
-                boxShadow: splitCompareMode
-                  ? "0 6px 18px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.7)"
-                  : "inset 0 1px 0 rgba(255,255,255,0.12)",
-              }}
-            >
-              <StudioActionIcon
-                kind={splitCompareMode ? "check" : "compare"}
-                className="w-3.5 h-3.5"
-              />
-              <span>
-                {splitCompareMode
-                  ? "Before / After Split Active"
-                  : "Compare Before / After"}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              data-magnetic
-              onClick={() => setShowHotspots((v) => !v)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-medium border cursor-pointer transition-all duration-300"
-              style={{
-                background: showHotspots
-                  ? "rgba(201, 168, 76, 0.18)"
-                  : "rgba(255, 255, 255, 0.04)",
-                borderColor: showHotspots
-                  ? "rgba(243, 211, 122, 0.52)"
-                  : "rgba(255, 255, 255, 0.14)",
-                color: showHotspots ? "#F3D37A" : "#94A3B8",
-              }}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  showHotspots ? "bg-[#F3D37A]" : "border border-slate-400"
-                }`}
-              />
-              <span>{showHotspots ? "Spec Beacons (3)" : "Beacons Hidden"}</span>
-            </button>
-
-            <button
-              type="button"
-              data-cinema-toggle
-              data-magnetic
-              onClick={() => setCinemaMode((v) => !v)}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300"
-              style={{
-                background: cinemaMode
-                  ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                  : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
-                borderColor: cinemaMode
-                  ? "#F3D37A"
-                  : "rgba(243, 211, 122, 0.38)",
-                color: cinemaMode ? "#050A14" : "#F3D37A",
-              }}
-              title="Toggle Widescreen Cinema Canvas (Shortcut: F)"
-            >
-              <StudioActionIcon
-                kind={cinemaMode ? "exit-cinema" : "cinema"}
-                className="w-3.5 h-3.5"
-              />
-              <span>{cinemaMode ? "Exit Cinema" : "Expand Cinema View"}</span>
-            </button>
-
-            <button
-              type="button"
-              data-magnetic
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
-            >
-              <StudioActionIcon kind="close" className="w-3.5 h-3.5" />
-              <span>Close</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
-        {marketSpecialties.length > 0 && (
+          {/* ── LUXURY EDITORIAL TOP HEADER BAR ── */}
           <div
-            className="px-4 sm:px-6 py-3 border-b flex flex-col items-center justify-center gap-2.5 text-center shrink-0"
+            className="px-4 sm:px-6 py-2.5 sm:py-3 border-b flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 shrink-0"
             style={{
               background:
-                "linear-gradient(90deg, rgba(4,9,18,0.98) 0%, rgba(10,20,38,0.96) 100%)",
-              borderColor: "rgba(201, 168, 76, 0.2)",
+                "linear-gradient(90deg, rgba(6,12,24,0.98) 0%, rgba(12,25,48,0.94) 50%, rgba(6,12,24,0.98) 100%)",
+              borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
-            {/* Centered 2-Mode Switcher */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-full bg-[#03060D] border border-white/12">
-              <button
-                type="button"
-                data-studio-mode="walkthrough"
-                data-magnetic
-                onClick={() => {
-                  setStudioMode("walkthrough");
-                  setActiveStopIdx(0);
-                }}
-                className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
-                style={{
-                  background:
-                    studioMode === "walkthrough"
-                      ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                      : "transparent",
-                  color: studioMode === "walkthrough" ? "#050A14" : "#CBD5E1",
-                  boxShadow:
-                    studioMode === "walkthrough"
-                      ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
-                      : "none",
-                }}
-              >
-                <span>01 · 5-Space Connected Project Tour</span>
-              </button>
-
-              <button
-                type="button"
-                data-studio-mode="specialty"
-                data-magnetic
-                onClick={() => {
-                  setStudioMode("specialty");
-                  setActiveStopIdx(0);
-                }}
-                className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
-                style={{
-                  background:
-                    studioMode === "specialty"
-                      ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                      : "transparent",
-                  color: studioMode === "specialty" ? "#050A14" : "#CBD5E1",
-                  boxShadow:
-                    studioMode === "specialty"
-                      ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
-                      : "none",
-                }}
-              >
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left gap-1 min-w-0">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
+                <span
+                  className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black tracking-wider shrink-0 shadow-sm"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)",
+                    color: "#050A14",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
+                  }}
+                >
+                  {studioMode === "specialty" && activeSpecialty
+                    ? activeSpecialty.code
+                    : property.code}
+                </span>
                 <span>
-                  02 · 8 Construction Specialties ({marketSpecialties.length})
+                  {studioMode === "specialty" && activeSpecialty
+                    ? `${activeSpecialty.specialtyLabel.toUpperCase()} · MARKET SPECIALTY STUDIO`
+                    : "ARCHITECTURAL 5-ROOM WALKTHROUGH & BESPOKE ATELIER"}
+                </span>
+                <span className="hidden sm:inline text-white/25">•</span>
+                <span className="hidden sm:inline text-slate-300">
+                  {property.location}
+                </span>
+              </div>
+              <h2
+                id="walkthrough-studio-title"
+                className="tayco-card-title text-lg sm:text-xl lg:text-[1.35rem] text-white tracking-tight truncate max-w-full"
+              >
+                {studioMode === "specialty" && activeSpecialty
+                  ? `${activeSpecialty.title} (${property.title})`
+                  : property.title}
+              </h2>
+            </div>
+
+            {/* Sleek Luxury Action Bar: Capsule buttons with data-magnetic */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-1.5 shrink-0">
+              <button
+                type="button"
+                data-compare-toggle
+                data-magnetic
+                onClick={() => setSplitCompareMode((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  background: splitCompareMode
+                    ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                    : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
+                  color: splitCompareMode ? "#050A14" : "#F8FAFC",
+                  borderColor: splitCompareMode
+                    ? "#F3D37A"
+                    : "rgba(243, 211, 122, 0.38)",
+                  boxShadow: splitCompareMode
+                    ? "0 6px 18px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.7)"
+                    : "inset 0 1px 0 rgba(255,255,255,0.12)",
+                }}
+              >
+                <StudioActionIcon
+                  kind={splitCompareMode ? "check" : "compare"}
+                  className="w-3.5 h-3.5"
+                />
+                <span>
+                  {splitCompareMode
+                    ? "Before / After Split Active"
+                    : "Compare Before / After"}
                 </span>
               </button>
-            </div>
 
-            {/* Centered 8 Specialty Selector Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {marketSpecialties.map((spec) => {
-                const isSelected =
-                  studioMode === "specialty" &&
-                  activeSpecialty?.specialtyId === spec.specialtyId;
-                return (
-                  <button
-                    key={spec.id}
-                    type="button"
-                    data-studio-specialty-pill={spec.specialtyId}
-                    data-magnetic
-                    onClick={() => {
-                      setSelectedSpecialtyId(spec.specialtyId);
-                      setStudioMode("specialty");
-                      setActiveStopIdx(0);
-                    }}
-                    className="px-3 py-1 rounded-full text-[11px] font-sans font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.03]"
-                    style={{
-                      background: isSelected
-                        ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                        : "rgba(15, 30, 56, 0.65)",
-                      borderColor: isSelected
-                        ? "#F3D37A"
-                        : "rgba(255, 255, 255, 0.14)",
-                      color: isSelected ? "#050A14" : "#CBD5E1",
-                      boxShadow: isSelected
-                        ? "0 4px 12px rgba(201,168,76,0.35)"
-                        : "none",
-                    }}
-                  >
-                    {spec.specialtyLabel}
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                data-magnetic
+                onClick={() => setShowHotspots((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-medium border cursor-pointer transition-all duration-300"
+                style={{
+                  background: showHotspots
+                    ? "rgba(201, 168, 76, 0.18)"
+                    : "rgba(255, 255, 255, 0.04)",
+                  borderColor: showHotspots
+                    ? "rgba(243, 211, 122, 0.52)"
+                    : "rgba(255, 255, 255, 0.14)",
+                  color: showHotspots ? "#F3D37A" : "#94A3B8",
+                }}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    showHotspots ? "bg-[#F3D37A]" : "border border-slate-400"
+                  }`}
+                />
+                <span>{showHotspots ? "Spec Beacons (3)" : "Beacons Hidden"}</span>
+              </button>
+
+              <button
+                type="button"
+                data-cinema-toggle
+                data-magnetic
+                onClick={() => setCinemaMode((v) => !v)}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300"
+                style={{
+                  background: cinemaMode
+                    ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                    : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
+                  borderColor: cinemaMode
+                    ? "#F3D37A"
+                    : "rgba(243, 211, 122, 0.38)",
+                  color: cinemaMode ? "#050A14" : "#F3D37A",
+                }}
+                title="Toggle Widescreen Cinema Canvas (Shortcut: F)"
+              >
+                <StudioActionIcon
+                  kind={cinemaMode ? "exit-cinema" : "cinema"}
+                  className="w-3.5 h-3.5"
+                />
+                <span>{cinemaMode ? "Exit Cinema" : "Expand Cinema View"}</span>
+              </button>
+
+              <button
+                type="button"
+                data-magnetic
+                onClick={onClose}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+              >
+                <StudioActionIcon kind="close" className="w-3.5 h-3.5" />
+                <span>Close</span>
+              </button>
             </div>
           </div>
-        )}
 
-        {/* ── MAIN INTERACTIVE BODY (NO UGLY SCROLLBARS, LUXURY PROPORTIONS) ── */}
-        <div className="flex-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(201,168,76,0.25)_transparent] grid grid-cols-1 lg:grid-cols-12 items-stretch">
-          {/* LEFT STAGE (8 COLS OR 12 COLS IN CINEMA MODE): SILKY CROSSFADE VIEWPORT + FILMSTRIP DOCK */}
-          <div
-            className={`${
-              cinemaMode ? "lg:col-span-12" : "lg:col-span-8"
-            } flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/8 bg-[#03060D] transition-all duration-500`}
-          >
-            {/* 1. CINEMATIC MULTI-LAYER VIEWPORT WITH 720ms CROSSFADE & DOLLY ZOOM */}
+          {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
+          {marketSpecialties.length > 0 && (
             <div
-              ref={viewportRef}
-              onPointerDown={(e) => {
-                if (!splitCompareMode) return;
-                setIsDraggingSplit(true);
-                updateSplitFromPointer(e.clientX);
+              className="px-4 sm:px-6 py-2 border-b flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2 shrink-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(4,9,18,0.98) 0%, rgba(10,20,38,0.96) 100%)",
+                borderColor: "rgba(201, 168, 76, 0.2)",
               }}
-              onPointerMove={(e) => {
-                if (!splitCompareMode || !isDraggingSplit) return;
-                updateSplitFromPointer(e.clientX);
-              }}
-              onPointerUp={() => setIsDraggingSplit(false)}
-              onPointerLeave={() => setIsDraggingSplit(false)}
-              className={`relative flex-1 min-h-[360px] sm:min-h-[440px] ${
-                cinemaMode
-                  ? "h-[420px] sm:h-[580px]"
-                  : "h-[360px] sm:h-[480px]"
-              } w-full overflow-hidden select-none bg-[#03060D] transition-all duration-500 ${
-                splitCompareMode ? "cursor-ew-resize" : ""
-              }`}
-              style={{ isolation: "isolate" }}
             >
+              {/* Left/Center 2-Mode Switcher */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-full bg-[#03060D] border border-white/12 shrink-0">
+                <button
+                  type="button"
+                  data-studio-mode="walkthrough"
+                  data-magnetic
+                  onClick={() => {
+                    setStudioMode("walkthrough");
+                    setActiveStopIdx(0);
+                  }}
+                  className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
+                  style={{
+                    background:
+                      studioMode === "walkthrough"
+                        ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                        : "transparent",
+                    color: studioMode === "walkthrough" ? "#050A14" : "#CBD5E1",
+                    boxShadow:
+                      studioMode === "walkthrough"
+                        ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
+                        : "none",
+                  }}
+                >
+                  <span>01 · 5-Space Connected Project Tour</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-studio-mode="specialty"
+                  data-magnetic
+                  onClick={() => {
+                    setStudioMode("specialty");
+                    setActiveStopIdx(0);
+                  }}
+                  className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
+                  style={{
+                    background:
+                      studioMode === "specialty"
+                        ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                        : "transparent",
+                    color: studioMode === "specialty" ? "#050A14" : "#CBD5E1",
+                    boxShadow:
+                      studioMode === "specialty"
+                        ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
+                        : "none",
+                  }}
+                >
+                  <span>
+                    02 · 8 Construction Specialties ({marketSpecialties.length})
+                  </span>
+                </button>
+              </div>
+
+              {/* Right: 8 Specialty Selector Pills inside a sleek horizontal-capable container */}
+              <div className="flex items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-scrollbar-sleek">
+                {marketSpecialties.map((spec) => {
+                  const isSelected =
+                    studioMode === "specialty" &&
+                    activeSpecialty?.specialtyId === spec.specialtyId;
+                  return (
+                    <button
+                      key={spec.id}
+                      type="button"
+                      data-studio-specialty-pill={spec.specialtyId}
+                      data-magnetic
+                      onClick={() => {
+                        setSelectedSpecialtyId(spec.specialtyId);
+                        setStudioMode("specialty");
+                        setActiveStopIdx(0);
+                      }}
+                      className="px-3 py-1 rounded-full text-[11px] font-sans font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.03] shrink-0"
+                      style={{
+                        background: isSelected
+                          ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                          : "rgba(15, 30, 56, 0.65)",
+                        borderColor: isSelected
+                          ? "#F3D37A"
+                          : "rgba(255, 255, 255, 0.14)",
+                        color: isSelected ? "#050A14" : "#CBD5E1",
+                        boxShadow: isSelected
+                          ? "0 4px 12px rgba(201,168,76,0.35)"
+                          : "none",
+                      }}
+                    >
+                      {spec.specialtyLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── MAIN INTERACTIVE BODY (NO UGLY SCROLLBARS, LUXURY PROPORTIONS) ── */}
+          <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain tayco-scrollbar-sleek grid grid-cols-1 lg:grid-cols-12 items-stretch">
+            {/* LEFT STAGE (8 COLS OR 12 COLS IN CINEMA MODE): SILKY CROSSFADE VIEWPORT + FILMSTRIP DOCK */}
+            <div
+              className={`${
+                cinemaMode ? "lg:col-span-12" : "lg:col-span-8"
+              } lg:h-full lg:min-h-0 lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/8 bg-[#03060D] transition-all duration-500`}
+            >
+              {/* 1. CINEMATIC MULTI-LAYER VIEWPORT WITH 720ms CROSSFADE & DOLLY ZOOM */}
+              <div
+                ref={viewportRef}
+                data-tayco-wheel-stage="true"
+                onWheel={stageGestureHandlers.onWheel}
+                onPointerDown={(e) => {
+                  if (splitCompareMode) {
+                    setIsDraggingSplit(true);
+                    updateSplitFromPointer(e.clientX);
+                  } else {
+                    stageGestureHandlers.onPointerDown(e);
+                  }
+                }}
+                onPointerMove={(e) => {
+                  if (!splitCompareMode || !isDraggingSplit) return;
+                  updateSplitFromPointer(e.clientX);
+                }}
+                onPointerUp={(e) => {
+                  if (splitCompareMode) {
+                    setIsDraggingSplit(false);
+                  } else {
+                    stageGestureHandlers.onPointerUp(e);
+                  }
+                }}
+                onPointerLeave={() => {
+                  if (splitCompareMode) {
+                    setIsDraggingSplit(false);
+                  }
+                }}
+                className={`relative flex-1 min-h-[260px] sm:min-h-[340px] lg:min-h-[300px] w-full overflow-hidden select-none bg-[#03060D] transition-all duration-500 ${
+                  splitCompareMode ? "cursor-ew-resize" : "cursor-grab active:cursor-grabbing"
+                }`}
+                style={{ isolation: "isolate" }}
+              >
               {/* STACKED 5-ROOM LAYERED PHOTOS (DAY + REAL AI-GENERATED NIGHT) FOR SILKY-SMOOTH 720ms CROSSFADE + CAMERA DOLLY */}
               {stops.map((stop, idx) => {
                 const isCurrent = idx === activeStopIdx;
@@ -2087,7 +2101,7 @@ export function PropertyWalkthroughStudioModal({
                           }}
                         />
                         <span
-                          className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold backdrop-blur-md"
+                          className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold backdrop-blur-md"
                           style={{
                             background: isCurrent
                               ? "#E5C97B"
@@ -2136,7 +2150,7 @@ export function PropertyWalkthroughStudioModal({
                   }}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-mono font-black bg-[#C9A84C]/20 text-[#F3D37A] border border-[#C9A84C]/40">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black bg-[#C9A84C]/20 text-[#F3D37A] border border-[#C9A84C]/40">
                       BEACON SPEC
                     </span>
                     <span className="text-[10px] font-mono text-slate-400">
@@ -2159,7 +2173,7 @@ export function PropertyWalkthroughStudioModal({
 
           {/* RIGHT ATELIER PANEL (4 COLS, HIDDEN WHEN CINEMA MODE IS ON) */}
           {!cinemaMode && (
-            <div className="lg:col-span-4 p-4 sm:p-5 flex flex-col justify-between gap-4 bg-[#060C18]">
+            <div className="lg:col-span-4 lg:h-full lg:min-h-0 lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek p-3.5 sm:p-4 flex flex-col justify-between gap-3.5 bg-[#060C18]">
               <div className="space-y-4">
                 {/* ── SECTION A: NATURAL SOLAR & TWILIGHT LIGHTING ATELIER ── */}
                 <div
@@ -2170,13 +2184,13 @@ export function PropertyWalkthroughStudioModal({
                     borderColor: "rgba(255, 255, 255, 0.1)",
                   }}
                 >
-                  <div className="flex flex-col items-center text-center gap-2">
-                    <div className="text-center">
-                      <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-center">
+                  <div className="flex items-center justify-between gap-2 text-left">
+                    <div className="min-w-0">
+                      <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-start text-[10px]">
                         24H SOLAR LIGHTING
                       </div>
-                      <div className="tayco-card-title text-sm sm:text-base text-white mt-0.5">
-                        Natural Daylight &amp; 2700K Night Illumination
+                      <div className="tayco-card-title text-xs sm:text-sm text-white mt-0.5 truncate">
+                        Natural Daylight &amp; 2700K Night
                       </div>
                     </div>
                     <button
@@ -2184,7 +2198,7 @@ export function PropertyWalkthroughStudioModal({
                       data-auto-day-cycle
                       data-magnetic
                       onClick={() => setIsAutoCyclingDay((v) => !v)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[10px] font-sans font-bold border cursor-pointer transition-all duration-300 shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-sans font-bold border cursor-pointer transition-all duration-300 shrink-0"
                       style={{
                         background: isAutoCyclingDay
                           ? "#E5C97B"
@@ -2299,22 +2313,24 @@ export function PropertyWalkthroughStudioModal({
 
                 {/* ── SECTION B: BESPOKE ARCHITECTURAL FINISH & COLOR ATELIER ── */}
                 <div className="space-y-2">
-                  <div className="flex flex-col items-center text-center gap-1 mb-2">
-                    <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-center">
-                      CURATED DESIGNER MATERIAL PACKAGES
-                    </div>
-                    <div className="tayco-card-title text-sm sm:text-base text-white">
-                      Curated Designer Material Packages
+                  <div className="flex items-center justify-between gap-2 text-left mb-2">
+                    <div className="min-w-0">
+                      <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-start text-[10px]">
+                        MATERIAL PACKAGES
+                      </div>
+                      <div className="tayco-card-title text-xs sm:text-sm text-white truncate">
+                        Curated Designer Palettes
+                      </div>
                     </div>
                     {selectedPaletteId !== "as-built" && (
                       <button
                         type="button"
                         data-magnetic
                         onClick={() => setSelectedPaletteId("as-built")}
-                        className="inline-flex items-center gap-1 text-[10px] font-sans font-bold text-[#F3D37A] hover:underline cursor-pointer mt-0.5"
+                        className="inline-flex items-center gap-1 text-[10px] font-sans font-bold text-[#F3D37A] hover:underline cursor-pointer shrink-0"
                       >
                         <StudioActionIcon kind="reset" className="w-3 h-3" />
-                        <span>Reset to As-Built</span>
+                        <span>Reset As-Built</span>
                       </button>
                     )}
                   </div>
@@ -2343,7 +2359,7 @@ export function PropertyWalkthroughStudioModal({
                             <div className="text-xs font-bold text-white flex items-center gap-1.5">
                               <span className="truncate">{pal.name}</span>
                               <span
-                                className="px-1.5 py-0.2 rounded text-[9px] font-mono font-medium shrink-0"
+                                className="px-2 py-0.5 rounded-full text-[9px] font-mono font-medium shrink-0"
                                 style={{
                                   background: isSelected
                                     ? "rgba(229,201,123,0.25)"
@@ -2478,8 +2494,9 @@ export function PropertyWalkthroughStudioModal({
               </div>
             </div>
           )}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </TaycoModalOverlay>
   );
 }

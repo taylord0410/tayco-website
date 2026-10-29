@@ -96,6 +96,20 @@ export default function EditorialLivingEngine() {
       rafId = 0;
       if (document.hidden || document.visibilityState === "hidden") return;
 
+      // V46 Umbra Event Ownership: freeze background 3D surface tilt whenever a modal/gallery is open
+      if (document.body.dataset.modalOpen === "true") {
+        hasPendingPointer = false;
+        if (hoveredSurface) {
+          resetSurface(hoveredSurface);
+          hoveredSurface = null;
+        }
+        if (hoveredMagnetic && !hoveredMagnetic.closest('[data-tayco-modal-root="true"]')) {
+          resetMagnetic(hoveredMagnetic);
+          hoveredMagnetic = null;
+        }
+        return;
+      }
+
       if (hasPendingPointer) {
         pointerX = pendingPointerX;
         pointerY = pendingPointerY;
@@ -247,6 +261,7 @@ export default function EditorialLivingEngine() {
       }
       const target = e.target instanceof Element ? e.target : null;
       if (!target) return;
+      if (document.body.dataset.modalOpen === "true" && !target.closest('[data-tayco-modal-root="true"]')) return;
       if (target.closest(".workspace-shell")) return;
 
       const surface = target.closest<HTMLElement>(SURFACE_SELECTOR);

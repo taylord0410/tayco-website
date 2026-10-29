@@ -2,6 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  TaycoPillDock,
+  TaycoCardMetaBar,
+  TaycoDeliverableGrid,
+  TaycoSpecGrid,
+  TaycoCardFooterBar,
+} from "@/components/ui/TaycoDesignSystem";
 import ProtectedImage, {
   preloadProtectedImages,
   waitForDecodedSurfaces,
@@ -239,7 +246,7 @@ function MarketSpecialtyInteractiveCard({
       data-specialty-card={service.code}
       data-response-kind="surface"
       onPointerEnter={() => preloadProtectedImages(allUrls)}
-      className="relative rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.72)]"
+      className="relative rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.72)]"
       style={{
         background:
           "linear-gradient(165deg, rgba(15, 32, 64, 0.95) 0%, rgba(7, 14, 26, 0.99) 100%)",
@@ -442,76 +449,69 @@ function MarketSpecialtyInteractiveCard({
           </div>
         </div>
 
-        {/* Centered Specialty Details */}
-        <div className="p-6 text-center flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span
-              className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black"
-              style={{
-                background: "rgba(201, 168, 76, 0.18)",
-                color: "#F3D37A",
-                border: "1px solid rgba(201, 168, 76, 0.42)",
-              }}
-            >
-              {service.code} · {service.csiDivision}
-            </span>
-          </div>
+        {/* V46 Balanced Space-Utilizing Interior Body */}
+        <div className="p-5 sm:p-6 flex flex-col text-left">
+          <TaycoCardMetaBar
+            leftBadge={
+              <span
+                className="px-3 py-1 rounded-full text-[10px] font-mono font-bold"
+                style={{
+                  background: "rgba(201, 168, 76, 0.18)",
+                  color: "#F3D37A",
+                  border: "1px solid rgba(201, 168, 76, 0.42)",
+                }}
+              >
+                {service.code}
+              </span>
+            }
+            rightMeta={<span>{service.csiDivision}</span>}
+          />
 
-          <h3 className="tayco-card-title text-2xl sm:text-[1.7rem] text-white leading-snug">
+          <h3 className="tayco-card-title text-2xl sm:text-[1.65rem] text-white leading-snug mt-3.5">
             {service.title}
           </h3>
-          <p className="text-xs sm:text-sm font-medium text-[#F3D37A] mt-1.5">
+          <p className="text-xs sm:text-sm font-medium text-[#F3D37A] mt-1">
             {service.subtitle}
           </p>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed my-4 max-w-lg mx-auto">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed my-3.5">
             {service.summary}
           </p>
 
-          <div className="flex flex-wrap justify-center gap-2">
-            {service.deliverables.map((deliv) => (
-              <span
-                key={deliv}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#050A14]/70 border border-[#C9A84C]/25 text-[11px] text-slate-200"
-              >
-                <span
-                  className="text-[#C9A84C] font-bold"
-                  aria-hidden="true"
-                >
-                  ◆
-                </span>
-                <span>{deliv}</span>
-              </span>
-            ))}
-          </div>
+          <TaycoDeliverableGrid items={service.deliverables} columns={2} className="mt-1" />
         </div>
       </div>
 
-      {/* Centered Footer CTA */}
-      <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-col items-center justify-center text-center gap-2.5">
-        <button
-          type="button"
-          data-magnetic
-          data-specialty-studio-trigger={service.code}
-          onClick={() =>
-            onOpenSpecialtyStudio?.(
-              service.specialtyId,
-              activeIdx,
-              moodSolarHour
-            )
+      {/* V46 Horizontal Space-Utilizing Footer */}
+      <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+        <TaycoCardFooterBar
+          leftMeta={
+            <span className="text-[10px] font-mono text-[#F3D37A]/85 tracking-wider">
+              3 Views · 24h Solar · #{currentAssetId}
+            </span>
           }
-          className="tayco-atelier-btn-gold group/btn"
         >
-          <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-          <span>Expand {service.specialtyLabel} Studio</span>
-          <StudioActionIcon
-            kind="arrow-right"
-            className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
-          />
-        </button>
-        <span className="text-[10px] font-mono text-[#F3D37A]/80 tracking-wider">
-          3 Market Photos · 24h Solar · #{currentAssetId}
-        </span>
+          <button
+            type="button"
+            data-magnetic
+            data-specialty-studio-trigger={service.code}
+            onClick={() =>
+              onOpenSpecialtyStudio?.(
+                service.specialtyId,
+                activeIdx,
+                moodSolarHour
+              )
+            }
+            className="tayco-atelier-btn-gold group/btn"
+          >
+            <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+            <span>Expand {service.specialtyLabel} Studio</span>
+            <StudioActionIcon
+              kind="arrow-right"
+              className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+            />
+          </button>
+        </TaycoCardFooterBar>
       </div>
     </article>
   );
@@ -819,7 +819,7 @@ export function LandingPropertyCategoriesSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Top Executive Header */}
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto pb-8 mb-6 border-b border-[#C9A84C]/25">
+        <div className="flex flex-col items-center text-center max-w-6xl mx-auto pb-8 mb-6 border-b border-[#C9A84C]/25">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-4 tayco-atelier-eyebrow">
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#F3D37A]">
@@ -857,27 +857,31 @@ export function LandingPropertyCategoriesSection() {
           </p>
 
           {/* Direct Market Quick-Links + View All */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
+          <TaycoPillDock ariaLabel="Choose your construction market" className="mt-6">
+            <Link
+              href="/properties"
+              data-magnetic
+              className="tayco-atelier-btn-gold !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
+              title="All 4 Markets (24 Projects)"
+            >
+              <span>All 4 Markets</span>
+              <span className="rounded-full bg-black/20 px-2 py-0.5 text-[10px] font-mono font-bold">24</span>
+              <span aria-hidden="true">↗</span>
+            </Link>
             {PROPERTY_CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/properties/${cat.slug}`}
                 data-magnetic
-                className="tayco-atelier-btn-obsidian"
+                className="tayco-atelier-btn-obsidian !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
+                title={`${cat.label} (8 Specialties · 6 Projects)`}
               >
                 <span>{cat.label}</span>
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">8 · 6</span>
                 <span aria-hidden="true">→</span>
               </Link>
             ))}
-            <Link
-              href="/properties"
-              data-magnetic
-              className="tayco-atelier-btn-gold"
-            >
-              <span>All 4 Markets</span>
-              <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
+          </TaycoPillDock>
         </div>
 
         {/* Live Image Identifier & Duplicate Detector HUD */}
@@ -907,7 +911,7 @@ export function LandingPropertyCategoriesSection() {
                 key={cat.slug}
                 data-category-card={cat.slug}
                 data-response-kind="surface"
-                className="group relative rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+                className="group relative rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
                 style={{
                   background:
                     "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
@@ -978,17 +982,17 @@ export function LandingPropertyCategoriesSection() {
                   {/* Top-Left Category Order + Top-Right Day/Sunset/Night Switcher */}
                   <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
                     <span
-                      className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest border backdrop-blur-sm pointer-events-none"
+                      className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest border backdrop-blur-sm pointer-events-none whitespace-nowrap truncate max-w-[55%]"
                       style={{
                         background: "rgba(7, 14, 26, 0.84)",
                         borderColor: "rgba(201, 168, 76, 0.55)",
                         color: "#F3D37A",
                       }}
                     >
-                      {cat.eyebrow} · #{currentAssetId}
+                      {cat.eyebrow.split("·")[0]?.trim() || cat.eyebrow} · #{currentAssetId}
                     </span>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <div
                         className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-sm border border-white/15"
                         onClick={(e) => e.stopPropagation()}
@@ -1029,15 +1033,6 @@ export function LandingPropertyCategoriesSection() {
                           );
                         })}
                       </div>
-                      <span
-                        className="hidden sm:inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-wider shadow-md pointer-events-none"
-                        style={{
-                          background: "#C9A84C",
-                          color: "#070E1A",
-                        }}
-                      >
-                        {cat.totalAvailableBadge}
-                      </span>
                     </div>
                   </div>
 
@@ -1092,44 +1087,44 @@ export function LandingPropertyCategoriesSection() {
                   </div>
                 </div>
 
-                {/* Card Body — Description, Specs & Clickable Property Tour Chips */}
-                <div className="p-6 flex-1 flex flex-col justify-between gap-5 text-center">
-                  <div className="flex flex-col items-center">
-                    <p className="text-slate-300 text-sm leading-relaxed mb-4 max-w-xl mx-auto text-center">
+                {/* V46 Balanced Interior Body */}
+                <div className="p-6 flex-1 flex flex-col justify-between gap-5 text-left">
+                  <div className="flex flex-col">
+                    <TaycoCardMetaBar
+                      leftBadge={
+                        <span
+                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
+                          style={{
+                            background: "rgba(201, 168, 76, 0.18)",
+                            color: "#F3D37A",
+                            border: "1px solid rgba(201, 168, 76, 0.42)",
+                          }}
+                        >
+                          {cat.eyebrow}
+                        </span>
+                      }
+                      rightMeta={<span>8 Specialties · 6 Projects</span>}
+                      className="mb-4"
+                    />
+
+                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left">
                       {cat.description}
                     </p>
 
-                    {/* Specs Strip */}
-                    <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-[#070E1A]/80 border border-white/10 mb-4 w-full text-center">
-                      <div className="text-center">
-                        <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          Typical Footprint
-                        </div>
-                        <div className="text-xs font-bold text-[#F3D37A] mt-0.5">
-                          {cat.typicalSqftRange}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          Configuration
-                        </div>
-                        <div className="text-xs font-bold text-white mt-0.5">
-                          {cat.typicalConfigLabel}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                          Scope Divisions
-                        </div>
-                        <div className="text-xs font-mono font-bold text-[#C9A84C] mt-0.5">
-                          {cat.csiDivisions}
-                        </div>
-                      </div>
-                    </div>
+                    {/* Specs Grid */}
+                    <TaycoSpecGrid
+                      columns={3}
+                      className="mb-4"
+                      items={[
+                        { label: "Typical Footprint", value: cat.typicalSqftRange },
+                        { label: "Configuration", value: cat.typicalConfigLabel },
+                        { label: "Scope Divisions", value: cat.csiDivisions },
+                      ]}
+                    />
 
                     {/* Market Specialties Strip — Click any specialty to launch its Full-Screen Specialty Studio! */}
-                    <div className="mb-4 w-full flex flex-col items-center">
-                      <div className="inline-flex items-center justify-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-center">
+                    <div className="mb-4 w-full flex flex-col">
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-left">
                         <StudioActionIcon
                           kind="sparkle"
                           className="w-3 h-3 text-[#F3D37A]"
@@ -1138,7 +1133,7 @@ export function LandingPropertyCategoriesSection() {
                           {cat.label} Services by Specialty (Click to Expand Studio):
                         </span>
                       </div>
-                      <div className="flex flex-wrap justify-center gap-1.5">
+                      <div className="flex flex-wrap gap-1.5">
                         {marketSpecialties.map((spec) => (
                           <button
                             key={spec.id}
@@ -1166,8 +1161,8 @@ export function LandingPropertyCategoriesSection() {
                     </div>
 
                     {/* Clickable Properties — Click any chip to launch its 5-Room Walkthrough & Day/Night Studio! */}
-                    <div className="w-full flex flex-col items-center">
-                      <div className="inline-flex items-center justify-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-center">
+                    <div className="w-full flex flex-col">
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-left">
                         <StudioActionIcon
                           kind="sparkle"
                           className="w-3 h-3 text-[#F3D37A]"
@@ -1206,29 +1201,31 @@ export function LandingPropertyCategoriesSection() {
                     </div>
                   </div>
 
-                  {/* Action Footer: Launch Interactive Studio OR Open Full Category Page */}
-                  <div className="pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-center gap-3">
-                    {flagshipProperty && (
-                      <button
-                        type="button"
-                        data-magnetic
-                        onClick={() =>
-                          openCategoryStudio(
-                            flagshipProperty,
-                            catMood,
-                            undefined
-                          )
-                        }
-                        className="tayco-atelier-btn-obsidian"
-                      >
-                        <StudioActionIcon
-                          kind="sparkle"
-                          className="w-3.5 h-3.5 text-[#F3D37A]"
-                        />
-                        <span>Launch Interactive Studio</span>
-                      </button>
-                    )}
-
+                  {/* V46 Balanced Horizontal Footer */}
+                  <TaycoCardFooterBar
+                    leftMeta={
+                      flagshipProperty ? (
+                        <button
+                          type="button"
+                          data-magnetic
+                          onClick={() =>
+                            openCategoryStudio(
+                              flagshipProperty,
+                              catMood,
+                              undefined
+                            )
+                          }
+                          className="tayco-atelier-btn-obsidian"
+                        >
+                          <StudioActionIcon
+                            kind="sparkle"
+                            className="w-3.5 h-3.5 text-[#F3D37A]"
+                          />
+                          <span>Launch Interactive Studio</span>
+                        </button>
+                      ) : undefined
+                    }
+                  >
                     <Link
                       href={`/properties/${cat.slug}`}
                       data-magnetic
@@ -1237,7 +1234,7 @@ export function LandingPropertyCategoriesSection() {
                       <span>Explore {cat.label}</span>
                       <span aria-hidden="true">→</span>
                     </Link>
-                  </div>
+                  </TaycoCardFooterBar>
                 </div>
               </article>
             );
@@ -1442,11 +1439,7 @@ export function DivisionInteractivePropertyAtelier({
         {/* Category / Sector Filter Tabs */}
         <div className="flex flex-col items-center justify-center gap-4 mb-8 text-center max-w-5xl mx-auto">
           {isResidential ? (
-            <div
-              className="flex flex-wrap items-center justify-center gap-2"
-              role="group"
-              aria-label="Filter residential properties"
-            >
+            <TaycoPillDock ariaLabel="Filter residential properties">
               {[
                 {
                   id: "featured" as const,
@@ -1483,13 +1476,9 @@ export function DivisionInteractivePropertyAtelier({
                   </button>
                 );
               })}
-            </div>
+            </TaycoPillDock>
           ) : (
-            <div
-              className="flex flex-wrap items-center justify-center gap-2"
-              role="group"
-              aria-label="Filter commercial properties"
-            >
+            <TaycoPillDock ariaLabel="Filter commercial properties">
               {[
                 {
                   id: "all" as const,
@@ -1522,7 +1511,7 @@ export function DivisionInteractivePropertyAtelier({
                   </button>
                 );
               })}
-            </div>
+            </TaycoPillDock>
           )}
 
           <div className="text-xs font-mono text-slate-300">
@@ -1544,7 +1533,7 @@ export function DivisionInteractivePropertyAtelier({
                 key={prop.id}
                 data-division-property-card={prop.code}
                 data-response-kind="surface"
-                className="w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative"
+                className="w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative"
                 style={{
                   background:
                     "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
@@ -1560,37 +1549,42 @@ export function DivisionInteractivePropertyAtelier({
                     }
                   />
 
-                  <div className="p-6 text-center flex flex-col items-center">
-                    <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-                      <div className="flex items-center gap-2">
+                  <div className="p-5 sm:p-6 text-left flex flex-col">
+                    <TaycoCardMetaBar
+                      leftBadge={
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black"
+                            style={{
+                              background: "rgba(201, 168, 76, 0.2)",
+                              color: "#F3D37A",
+                              border: "1px solid rgba(201, 168, 76, 0.45)",
+                            }}
+                          >
+                            {prop.code}
+                          </span>
+                          <span className="text-xs font-mono font-semibold text-slate-300">
+                            {prop.location}
+                          </span>
+                        </div>
+                      }
+                      rightMeta={
                         <span
-                          className="px-2.5 py-0.5 rounded text-[11px] font-mono font-black"
+                          className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
                           style={{
-                            background: "rgba(201, 168, 76, 0.2)",
-                            color: "#F3D37A",
-                            border: "1px solid rgba(201, 168, 76, 0.45)",
+                            background: "rgba(16, 185, 129, 0.16)",
+                            color: "#6EE7B7",
+                            border: "1px solid rgba(16, 185, 129, 0.4)",
                           }}
                         >
-                          {prop.code}
+                          ● {prop.availability}
                         </span>
-                        <span className="text-xs font-mono font-semibold text-slate-300">
-                          {prop.location}
-                        </span>
-                      </div>
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                        style={{
-                          background: "rgba(16, 185, 129, 0.16)",
-                          color: "#6EE7B7",
-                          border: "1px solid rgba(16, 185, 129, 0.4)",
-                        }}
-                      >
-                        ● {prop.availability}
-                      </span>
-                    </div>
+                      }
+                      className="mb-3"
+                    />
 
                     {catMeta && (
-                      <div className="mb-1.5 text-center">
+                      <div className="mb-1.5 text-left">
                         <Link
                           href={`/properties/${catMeta.slug}`}
                           className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
@@ -1607,26 +1601,16 @@ export function DivisionInteractivePropertyAtelier({
                       {prop.subtitle}
                     </p>
 
-                    <div className="grid grid-cols-2 gap-2.5 my-4 p-3 rounded-xl bg-[#070E1A]/85 border border-white/10 w-full text-center">
-                      <div className="text-center">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">
-                          Total Area
-                        </div>
-                        <div className="text-xs font-mono font-bold text-white mt-0.5">
-                          {prop.sqft}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">
-                          Layout / Specs
-                        </div>
-                        <div className="text-xs font-bold text-[#F3D37A] mt-0.5">
-                          {prop.configuration}
-                        </div>
-                      </div>
-                    </div>
+                    <TaycoSpecGrid
+                      columns={2}
+                      className="my-3.5"
+                      items={[
+                        { label: "Total Area", value: prop.sqft },
+                        { label: "Layout / Specs", value: prop.configuration },
+                      ]}
+                    />
 
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 max-w-md mx-auto text-center">
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 text-left">
                       {prop.summary}
                     </p>
 
@@ -1640,9 +1624,9 @@ export function DivisionInteractivePropertyAtelier({
                           openModal(prop, 0);
                         }
                       }}
-                      className="p-3 rounded-xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-center"
+                      className="p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
                     >
-                      <div className="min-w-0 text-center sm:text-left">
+                      <div className="min-w-0 text-left">
                         <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
                           <StudioActionIcon
                             kind="sparkle"
@@ -1650,7 +1634,7 @@ export function DivisionInteractivePropertyAtelier({
                           />
                           <span>5-SPACE TOUR · REAL NIGHT · 6 PALETTES</span>
                         </div>
-                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
+                        <div className="flex flex-wrap items-center justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
                           <span className="inline-flex items-center gap-1">
                             <SolarPhaseIcon
                               phase="morning"
@@ -1700,24 +1684,29 @@ export function DivisionInteractivePropertyAtelier({
                   </div>
                 </div>
 
-                <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-col items-center justify-center text-center gap-2.5">
-                  <button
-                    type="button"
-                    data-magnetic
-                    data-division-walkthrough-trigger={prop.code}
-                    onClick={() => openModal(prop, 0)}
-                    className="tayco-atelier-btn-gold group/btn"
+                <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                  <TaycoCardFooterBar
+                    leftMeta={
+                      <span className="text-[10px] font-mono text-slate-400">
+                        5 Connected Rooms · 24h Solar
+                      </span>
+                    }
                   >
-                    <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                    <span>Step Inside · 5-Room Studio</span>
-                    <StudioActionIcon
-                      kind="arrow-right"
-                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
-                    />
-                  </button>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    5 Connected Rooms · 24h Solar
-                  </span>
+                    <button
+                      type="button"
+                      data-magnetic
+                      data-division-walkthrough-trigger={prop.code}
+                      onClick={() => openModal(prop, 0)}
+                      className="tayco-atelier-btn-gold group/btn"
+                    >
+                      <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+                      <span>Step Inside · 5-Room Studio</span>
+                      <StudioActionIcon
+                        kind="arrow-right"
+                        className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                      />
+                    </button>
+                  </TaycoCardFooterBar>
                 </div>
               </article>
             );
@@ -2020,46 +2009,46 @@ export function PropertyCategoryPageView({
           </div>
 
           {/* ── 5-MARKET NAVIGATION BAR (CENTERED SYMMETRIC LAYOUT) ── */}
-          <div
-            className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 max-w-6xl mx-auto"
-            role="navigation"
-            aria-label="Primary construction markets navigation"
-          >
-            <Link
-              href="/properties"
-              aria-current={!activeCategory ? "page" : undefined}
-              data-active={!activeCategory ? "true" : "false"}
-              data-magnetic
-              className="tayco-atelier-pill flex flex-col items-center justify-center text-center py-2.5 px-3 min-h-[58px]"
-            >
-              <span className="text-xs sm:text-[13px] font-bold tracking-wide">
-                All 4 Markets
-              </span>
-              <span className="text-[10px] opacity-80 font-medium mt-0.5">
-                {PROPERTY_LISTINGS.length} Turnkey Projects
-              </span>
-            </Link>
-            {PROPERTY_CATEGORIES.map((cat) => {
-              const isCurrent = activeCategory?.slug === cat.slug;
-              const count = getPropertiesByCategory(cat.slug).length;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/properties/${cat.slug}`}
-                  aria-current={isCurrent ? "page" : undefined}
-                  data-active={isCurrent ? "true" : "false"}
-                  data-magnetic
-                  className="tayco-atelier-pill flex flex-col items-center justify-center text-center py-2.5 px-3 min-h-[58px]"
-                >
-                  <span className="text-xs sm:text-[13px] font-bold tracking-wide truncate max-w-full">
-                    {cat.label}
-                  </span>
-                  <span className="text-[10px] opacity-80 font-medium mt-0.5">
-                    8 Specialties · {count} Projects
-                  </span>
-                </Link>
-              );
-            })}
+          <div className="mt-10 pt-6 border-t border-white/15 flex justify-center">
+            <TaycoPillDock ariaLabel="Primary construction markets navigation">
+              <Link
+                href="/properties"
+                aria-current={!activeCategory ? "page" : undefined}
+                data-active={!activeCategory ? "true" : "false"}
+                data-magnetic
+                className="tayco-atelier-pill inline-flex items-center gap-2 py-2 px-3.5"
+                title="All 4 Markets (24 Turnkey Projects)"
+              >
+                <span className="text-xs sm:text-[13px] font-bold tracking-wide">
+                  All 4 Markets
+                </span>
+                <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-mono font-bold">
+                  24
+                </span>
+              </Link>
+              {PROPERTY_CATEGORIES.map((cat) => {
+                const isCurrent = activeCategory?.slug === cat.slug;
+                const count = getPropertiesByCategory(cat.slug).length;
+                return (
+                  <Link
+                    key={cat.slug}
+                    href={`/properties/${cat.slug}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                    data-active={isCurrent ? "true" : "false"}
+                    data-magnetic
+                    className="tayco-atelier-pill inline-flex items-center gap-2 py-2 px-3.5"
+                    title={`${cat.label} (8 Specialties · ${count} Projects)`}
+                  >
+                    <span className="text-xs sm:text-[13px] font-bold tracking-wide">
+                      {cat.label}
+                    </span>
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">
+                      8 · {count}
+                    </span>
+                  </Link>
+                );
+              })}
+            </TaycoPillDock>
           </div>
         </div>
       </section>
@@ -2383,7 +2372,7 @@ export function PropertyCategoryPageView({
                     id={prop.id}
                     data-property-card={prop.code}
                     data-response-kind="surface"
-                    className="w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative"
+                    className="w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative"
                     style={{
                       background:
                         "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
@@ -2400,39 +2389,44 @@ export function PropertyCategoryPageView({
                         }
                       />
 
-                      <div className="p-6 text-center flex flex-col items-center">
+                      <div className="p-5 sm:p-6 text-left flex flex-col">
                         {/* Top Badges: Code + Availability + State */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-                          <div className="flex items-center gap-2">
+                        <TaycoCardMetaBar
+                          leftBadge={
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black"
+                                style={{
+                                  background: "rgba(201, 168, 76, 0.2)",
+                                  color: "#F3D37A",
+                                  border: "1px solid rgba(201, 168, 76, 0.45)",
+                                }}
+                              >
+                                {prop.code}
+                              </span>
+                              <span className="text-xs font-mono font-semibold text-slate-300">
+                                {prop.location}
+                              </span>
+                            </div>
+                          }
+                          rightMeta={
                             <span
-                              className="px-2.5 py-0.5 rounded text-[11px] font-mono font-black"
+                              className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
                               style={{
-                                background: "rgba(201, 168, 76, 0.2)",
-                                color: "#F3D37A",
-                                border: "1px solid rgba(201, 168, 76, 0.45)",
+                                background: "rgba(16, 185, 129, 0.16)",
+                                color: "#6EE7B7",
+                                border: "1px solid rgba(16, 185, 129, 0.4)",
                               }}
                             >
-                              {prop.code}
+                              ● {prop.availability}
                             </span>
-                            <span className="text-xs font-mono font-semibold text-slate-300">
-                              {prop.location}
-                            </span>
-                          </div>
-                          <span
-                            className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                            style={{
-                              background: "rgba(16, 185, 129, 0.16)",
-                              color: "#6EE7B7",
-                              border: "1px solid rgba(16, 185, 129, 0.4)",
-                            }}
-                          >
-                            ● {prop.availability}
-                          </span>
-                        </div>
+                          }
+                          className="mb-3"
+                        />
 
                         {/* Category Pill when viewing All */}
                         {!activeCategory && catMeta && (
-                          <div className="mb-2 text-center">
+                          <div className="mb-2 text-left">
                             <Link
                               href={`/properties/${catMeta.slug}`}
                               className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
@@ -2451,32 +2445,22 @@ export function PropertyCategoryPageView({
                         </p>
 
                         {/* Specs Strip */}
-                        <div className="grid grid-cols-2 gap-2.5 my-4 p-3 rounded-xl bg-[#070E1A]/85 border border-white/10 w-full text-center">
-                          <div className="text-center">
-                            <div className="text-[10px] font-mono uppercase text-slate-400">
-                              Total Area
-                            </div>
-                            <div className="text-xs font-mono font-bold text-white mt-0.5">
-                              {prop.sqft}
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-[10px] font-mono uppercase text-slate-400">
-                              Layout / Specs
-                            </div>
-                            <div className="text-xs font-bold text-[#F3D37A] mt-0.5">
-                              {prop.configuration}
-                            </div>
-                          </div>
-                        </div>
+                        <TaycoSpecGrid
+                          columns={2}
+                          className="my-3.5"
+                          items={[
+                            { label: "Total Area", value: prop.sqft },
+                            { label: "Layout / Specs", value: prop.configuration },
+                          ]}
+                        />
 
                         {/* Summary */}
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 max-w-md mx-auto text-center">
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 text-left">
                           {prop.summary}
                         </p>
 
                         {/* 3 Highlights */}
-                        <div className="flex flex-wrap justify-center gap-2 text-xs text-slate-200 mb-4">
+                        <div className="flex flex-wrap gap-2 text-xs text-slate-200 mb-4">
                           {prop.highlights.map((hl) => (
                             <span
                               key={hl}
@@ -2504,9 +2488,9 @@ export function PropertyCategoryPageView({
                               openModal(prop, 0, 12.5, undefined);
                             }
                           }}
-                          className="p-3 rounded-xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-center"
+                          className="p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
                         >
-                          <div className="min-w-0 text-center sm:text-left">
+                          <div className="min-w-0 text-left">
                             <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
                               <StudioActionIcon
                                 kind="sparkle"
@@ -2516,7 +2500,7 @@ export function PropertyCategoryPageView({
                                 5-ROOM TOUR · DAY/NIGHT LIGHT · 6 COLORS
                               </span>
                             </div>
-                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
+                            <div className="flex flex-wrap items-center justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
                               <span className="inline-flex items-center gap-1">
                                 <SolarPhaseIcon
                                   phase="morning"
@@ -2567,24 +2551,29 @@ export function PropertyCategoryPageView({
                     </div>
 
                     {/* Action Footer — Bespoke Burnished Champagne-Gold Capsule Button */}
-                    <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-col items-center justify-center text-center gap-2.5">
-                      <button
-                        type="button"
-                        data-magnetic
-                        data-walkthrough-trigger={prop.code}
-                        onClick={() => openModal(prop, 0, 12.5, undefined)}
-                        className="tayco-atelier-btn-gold group/btn"
+                    <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                      <TaycoCardFooterBar
+                        leftMeta={
+                          <span className="text-[10px] font-mono text-slate-400">
+                            5 Connected Rooms · 24h Solar
+                          </span>
+                        }
                       >
-                        <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                        <span>Step Inside · 5-Room Studio</span>
-                        <StudioActionIcon
-                          kind="arrow-right"
-                          className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
-                        />
-                      </button>
-                      <span className="text-[10px] font-mono text-slate-400">
-                        5 Connected Rooms · 24h Solar
-                      </span>
+                        <button
+                          type="button"
+                          data-magnetic
+                          data-walkthrough-trigger={prop.code}
+                          onClick={() => openModal(prop, 0, 12.5, undefined)}
+                          className="tayco-atelier-btn-gold group/btn"
+                        >
+                          <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+                          <span>Step Inside · 5-Room Studio</span>
+                          <StudioActionIcon
+                            kind="arrow-right"
+                            className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                          />
+                        </button>
+                      </TaycoCardFooterBar>
                     </div>
                   </article>
                 );

@@ -271,7 +271,7 @@ export default function PublicCookieBanner() {
                 visual stream protection.
               </p>
             </div>
-            <span className="shrink-0 rounded bg-[#C9A84C]/20 px-2 py-0.5 font-mono text-[10px] font-bold text-[#F3D37A]">
+            <span className="shrink-0 rounded-full bg-[#C9A84C]/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#F3D37A]">
               Always Active
             </span>
           </div>
@@ -291,7 +291,7 @@ export default function PublicCookieBanner() {
               checked={functional}
               onChange={(e) => setFunctional(e.target.checked)}
               aria-label="Functional and display preferences"
-              className="mt-1 h-4 w-4 rounded border-slate-500 accent-[#C9A84C] cursor-pointer"
+              className="mt-1 h-4 w-4 rounded-md border-slate-500 accent-[#C9A84C] cursor-pointer"
             />
           </label>
 
@@ -310,7 +310,7 @@ export default function PublicCookieBanner() {
               checked={analytics}
               onChange={(e) => setAnalytics(e.target.checked)}
               aria-label="Optional interaction analytics"
-              className="mt-1 h-4 w-4 rounded border-slate-500 accent-[#C9A84C] cursor-pointer"
+              className="mt-1 h-4 w-4 rounded-md border-slate-500 accent-[#C9A84C] cursor-pointer"
             />
           </label>
         </div>

@@ -484,15 +484,15 @@ export default function EstimatePage() {
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-1.5 mt-2 text-[10px] font-mono">
-                    <div className="p-1.5 rounded bg-white/5 border border-amber-400/25">
+                    <div className="p-2 rounded-xl bg-white/5 border border-amber-400/25">
                       <span className="text-amber-300 block font-bold">Material 54.8%</span>
                       <span className="text-white">${estMaterialsUsd.toLocaleString()}</span>
                     </div>
-                    <div className="p-1.5 rounded bg-white/5 border border-sky-400/25">
+                    <div className="p-2 rounded-xl bg-white/5 border border-sky-400/25">
                       <span className="text-sky-300 block font-bold">Labor 31.2%</span>
                       <span className="text-white">${estLaborUsd.toLocaleString()}</span>
                     </div>
-                    <div className="p-1.5 rounded bg-white/5 border border-emerald-400/25">
+                    <div className="p-2 rounded-xl bg-white/5 border border-emerald-400/25">
                       <span className="text-emerald-300 block font-bold">Equip 14.0%</span>
                       <span className="text-white">${estEquipmentUsd.toLocaleString()}</span>
                     </div>

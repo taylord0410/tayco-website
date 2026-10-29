@@ -399,7 +399,7 @@ export default function InvestorPage() {
                       {m.icon}
                     </span>
                     <span
-                      className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded"
+                      className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full"
                       style={{
                         background: "rgba(201, 168, 76, 0.14)",
                         color: "#F3D37A",

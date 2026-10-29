@@ -605,7 +605,7 @@ export default function CommercialPage() {
                   <SolarPhaseIcon phase="day" className="w-3.5 h-3.5 text-amber-300" />
                   <span>Raking Light Angle: {lightAngle}°</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300">
                   0°–90°
                 </span>
               </label>

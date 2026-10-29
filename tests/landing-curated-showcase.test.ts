@@ -581,3 +581,167 @@ test("V45 Architectural Atelier Typography, 60fps 3D Tilt Living Surfaces, Cente
   );
 });
 
+test("V46 Unified Design System (Astralis + Umbra), Soft-Rounded Geometry, Elevated Navbar, Balanced Card Equilibrium & Gallery Scroll/Event Isolation", () => {
+  const dsContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/ui/TaycoDesignSystem.tsx"),
+    "utf-8"
+  );
+  const globalsContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/globals.css"),
+    "utf-8"
+  );
+  const engineContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/EditorialLivingEngine.tsx"),
+    "utf-8"
+  );
+  const navbarContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/Navbar.tsx"),
+    "utf-8"
+  );
+  const footerContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/Footer.tsx"),
+    "utf-8"
+  );
+  const contractingContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/ContractingOpportunities.tsx"),
+    "utf-8"
+  );
+  const studioContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyWalkthroughStudio.tsx"),
+    "utf-8"
+  );
+  const showcaseContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyCategoryShowcase.tsx"),
+    "utf-8"
+  );
+  const tradeGalleryContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/TradeGallery.tsx"),
+    "utf-8"
+  );
+  const livingShowcaseContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/LandingLivingShowcase.tsx"),
+    "utf-8"
+  );
+  const homeContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/page.tsx"),
+    "utf-8"
+  );
+
+  // 1. Canonical V46 Design System primitives & hooks
+  for (const sym of [
+    "TAYCO_DESIGN_SYSTEM_V46",
+    "export function useTaycoGalleryLock",
+    "export function TaycoModalOverlay",
+    "export function TaycoSectionHeader",
+    "export function TaycoPillDock",
+    "export function TaycoCardMetaBar",
+    "export function TaycoSpecGrid",
+    "export function TaycoDeliverableGrid",
+    "export function TaycoCardFooterBar",
+  ]) {
+    assert.ok(
+      dsContent.includes(sym),
+      `components/ui/TaycoDesignSystem.tsx must define "${sym}"`
+    );
+  }
+
+  // 2. CSS Tokens, Navbar Typography Restoration (zero Arial), and Global Modal Lock
+  assert.ok(
+    globalsContent.includes("--tayco-r-lg") &&
+      globalsContent.includes("--tayco-r-pill") &&
+      globalsContent.includes("--tayco-scrollbar-comp") &&
+      globalsContent.includes(".tayco-nav-pill-dock") &&
+      globalsContent.includes(".tayco-scrollbar-sleek") &&
+      globalsContent.includes('body[data-modal-open="true"]'),
+    "app/globals.css must define V46 soft-radius tokens, .tayco-nav-pill-dock, .tayco-scrollbar-sleek, and modal scroll lock"
+  );
+  assert.ok(
+    !globalsContent.includes("Arial, Helvetica"),
+    "app/globals.css must not hardcode Arial, Helvetica in navigation or UI controls"
+  );
+  assert.ok(
+    navbarContent.includes("tayco-nav-pill-dock") &&
+      navbarContent.includes("useTaycoGalleryLock"),
+    "components/Navbar.tsx must use the 3-zone .tayco-nav-pill-dock command bar and useTaycoGalleryLock for mobile drawer isolation"
+  );
+  assert.ok(
+    !footerContent.includes("🔒"),
+    "components/Footer.tsx must use a vector SVG lock icon instead of raw lock emoji"
+  );
+
+  // 3. Strict Gallery/Lightbox Scroll Lock & Background Event Isolation (Umbra Ownership)
+  assert.ok(
+    engineContent.includes('document.body.dataset.modalOpen === "true"'),
+    "EditorialLivingEngine.tsx must freeze background 3D tilt tracking when a modal/gallery is open"
+  );
+  for (const [label, src] of [
+    ["PropertyWalkthroughStudio.tsx", studioContent],
+    ["TradeGallery.tsx", tradeGalleryContent],
+    ["LandingLivingShowcase.tsx", livingShowcaseContent],
+    ["app/page.tsx", homeContent],
+  ] as const) {
+    assert.ok(
+      src.includes("TaycoModalOverlay"),
+      `${label} must render its interactive gallery/lightbox inside TaycoModalOverlay for 100% scroll & event isolation`
+    );
+  }
+
+  // 4. Independent Laptop (100dvh) Stage vs. Right Sidebar Scrolling in Walkthrough Studio
+  assert.ok(
+    studioContent.includes("lg:overflow-hidden") &&
+      studioContent.includes("lg:overflow-y-auto") &&
+      studioContent.includes("94dvh"),
+    "PropertyWalkthroughStudio.tsx must isolate Left Stage and Right Atelier Sidebar scrolling within 94dvh so top solar controls never clip"
+  );
+
+  // 5. Balanced Space-Utilizing Card Interiors + Pill Dock Equilibrium
+  assert.ok(
+    showcaseContent.includes("TaycoPillDock") &&
+      showcaseContent.includes("TaycoCardMetaBar") &&
+      showcaseContent.includes("TaycoDeliverableGrid") &&
+      showcaseContent.includes("TaycoCardFooterBar"),
+    "PropertyCategoryShowcase.tsx must combine centered macro PillDocks/grids with space-utilizing TaycoCardMetaBar, TaycoDeliverableGrid, and TaycoCardFooterBar"
+  );
+
+  // 6. Zero Sharp / Pointed Corners Across Refactored Public Components
+  const sharpCornerPattern =
+    /(?:^|[\s"'`])(?:rounded|rounded-none|rounded-xs|rounded-sm)(?=$|[\s"'`])/;
+  const softGeometryTargets = [
+    "components/Navbar.tsx",
+    "components/Footer.tsx",
+    "components/ContractingOpportunities.tsx",
+    "components/ProtectedImage.tsx",
+    "components/PropertyWalkthroughStudio.tsx",
+    "components/TradeGallery.tsx",
+    "components/PropertyCategoryShowcase.tsx",
+    "components/LandingLivingShowcase.tsx",
+    "app/page.tsx",
+    "app/commercial/page.tsx",
+    "app/residential/page.tsx",
+    "app/investor/page.tsx",
+    "app/estimate/page.tsx",
+    "app/vendor-application/page.tsx",
+    "app/privacy/page.tsx",
+    "components/SiteFrame.tsx",
+    "components/PublicCookieBanner.tsx",
+  ];
+  for (const rel of softGeometryTargets) {
+    const src = fs.readFileSync(path.resolve(process.cwd(), rel), "utf-8");
+    const lines = src.split("\n");
+    lines.forEach((line, idx) => {
+      // Only inspect className / template strings, ignoring comments
+      const trimmed = line.trim();
+      if (trimmed.startsWith("//") || trimmed.startsWith("*")) return;
+      assert.ok(
+        !sharpCornerPattern.test(line),
+        `${rel}:${idx + 1} contains sharp corner class ("rounded" / "rounded-sm" / "rounded-xs" / "rounded-none"): ${trimmed}`
+      );
+    });
+  }
+  assert.ok(
+    !contractingContent.includes("border-l-2"),
+    "ContractingOpportunities.tsx must replace sharp border-l-2 rule with soft-rounded milestone bento cards"
+  );
+});
+
+

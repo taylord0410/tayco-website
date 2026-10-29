@@ -470,7 +470,7 @@ export default function ResidentialPage() {
                   />
                   <span>Raking Light Angle: {lightAngle}°</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-300">
+                <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300">
                   0°–90°
                 </span>
               </label>

@@ -728,7 +728,7 @@ export function VisualAssetIntegrityHud({
             </span>
           </div>
 
-          <div className="max-h-64 overflow-y-auto pr-1">
+          <div className="max-h-64 overflow-y-auto overscroll-contain pr-1">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {slots.map((slot) => (
                 <button
@@ -808,7 +808,7 @@ export function VisualAssetIntegrityHud({
                 <span className="text-slate-400">·</span>
                 <span className="text-[9px] text-slate-300">{slot.contentHash}</span>
                 <span
-                  className={`ml-1 rounded px-1 py-0.2 text-[8px] ${
+                  className={`ml-1 rounded-full px-1.5 py-0.5 text-[8px] ${
                     slot.isDuplicate
                       ? "bg-amber-400/30 text-amber-100"
                       : "bg-emerald-500/20 text-emerald-300"

@@ -69,15 +69,12 @@ export default function ContractingOpportunities({ compact = false }: { compact?
             <Heading id={`${sectionId}-title`} className={compact ? "mt-3 text-xl font-black leading-tight text-white" : "tayco-display-title mt-4 max-w-xl text-3xl sm:text-4xl leading-tight text-white"}>
               {update.title}
             </Heading>
-            <dl
-              className="mt-7 grid gap-5 border-l-2 pl-5 sm:grid-cols-2"
-              style={{ borderColor: "#C9A84C" }}
-            >
-              <div>
+            <dl className="mt-7 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[#C9A84C]/35 bg-[#070E1A]/65 px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <dt className="text-xs font-medium uppercase tracking-wider text-slate-300">{update.milestone.label}</dt>
                 <dd className="mt-1 text-lg font-bold text-white"><time dateTime={update.milestone.dateTime}>{update.milestone.period}</time></dd>
               </div>
-              <div>
+              <div className="rounded-2xl border border-[#C9A84C]/35 bg-[#070E1A]/65 px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <dt className="text-xs font-medium uppercase tracking-wider text-slate-300">{update.expansion.label}</dt>
                 <dd className="mt-1 text-lg font-bold" style={{ color: "#F3D37A" }}><time dateTime={update.expansion.dateTime}>{update.expansion.period}</time></dd>
               </div>
@@ -88,7 +85,7 @@ export default function ContractingOpportunities({ compact = false }: { compact?
               href={COMPANY.emailHref}
               data-magnetic
               className={compact
-                ? "mt-7 inline-flex min-h-11 items-center gap-3 rounded-xl border px-5 py-3 text-sm font-bold transition-all duration-200 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4"
+                ? "mt-7 inline-flex min-h-11 items-center gap-3 rounded-full border px-5 py-3 text-sm font-bold transition-all duration-200 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4"
                 : "tayco-atelier-btn-gold mt-7 inline-flex items-center gap-3 text-xs sm:text-sm font-bold"}
               style={compact ? {
                 background: "rgba(201, 168, 76, 0.14)",
@@ -114,44 +111,38 @@ export default function ContractingOpportunities({ compact = false }: { compact?
               <li
                 key={program.id}
                 data-response-kind="surface"
-                className="relative min-w-0 rounded-2xl border p-5 transition-all duration-200 hover:border-[#E2C675]/60 text-center flex flex-col items-center justify-between"
+                className="relative min-w-0 rounded-[22px] border p-5 transition-all duration-200 hover:border-[#E2C675]/60 flex flex-col justify-between text-left"
                 style={{
                   background: "linear-gradient(150deg, rgba(27, 58, 107, 0.28) 0%, rgba(7, 14, 26, 0.72) 100%)",
                   borderColor: "rgba(201, 168, 76, 0.32)",
                 }}
               >
-                <div className="flex flex-col items-center gap-2.5 w-full">
-                  <div className="flex items-center justify-center gap-2">
+                <div>
+                  <div className="flex items-center justify-between gap-2 w-full pb-3 border-b border-white/[0.08]">
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm"
+                        style={{
+                          background: "rgba(7, 14, 26, 0.75)",
+                          borderColor: "rgba(201, 168, 76, 0.45)",
+                        }}
+                      >
+                        <ProgramIcon id={program.id} />
+                      </span>
+                      <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#F3D37A]">
+                        {program.category}
+                      </span>
+                    </div>
                     <span
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm"
-                      style={{
-                        background: "rgba(7, 14, 26, 0.75)",
-                        borderColor: "rgba(201, 168, 76, 0.45)",
-                      }}
-                    >
-                      <ProgramIcon id={program.id} />
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        padding: "0.18rem 0.52rem",
-                        borderRadius: "999px",
-                        background: "rgba(16, 185, 129, 0.16)",
-                        border: "1px solid rgba(16, 185, 129, 0.42)",
-                        color: "#6ee7b7",
-                      }}
+                      className="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300 shrink-0"
                     >
                       ● Active
                     </span>
                   </div>
-                  <p className="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: "#F3D37A" }}>
-                    {program.category}
+                  <p className="mt-3.5 text-base font-semibold leading-snug text-white">
+                    {program.label}
                   </p>
                 </div>
-                <p className="mt-3 text-base font-bold leading-relaxed text-white">
-                  {program.label}
-                </p>
                 <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
               </li>
             ))}

@@ -1,6 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  TaycoModalOverlay,
+  TaycoCardMetaBar,
+  TaycoCardFooterBar,
+} from "@/components/ui/TaycoDesignSystem";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
@@ -535,9 +540,9 @@ export default function Home() {
           setResSceneIdx(nextResIdx);
           setHeroSyncPulse((p) => p + 1);
         });
-      } else if (hovered !== "commercial") {
+      } else if (hovered === "residential") {
         selectComScene((comSceneIdx + 1) % COMMERCIAL_HERO_SCENES.length);
-      } else if (hovered !== "residential") {
+      } else if (hovered === "commercial") {
         selectResScene((resSceneIdx + 1) % RESIDENTIAL_HERO_SCENES.length);
       }
     }, 6000);
@@ -665,11 +670,11 @@ export default function Home() {
 
           {/* Gold accent line */}
           <div
-            className="absolute left-0 top-0 bottom-0 hidden md:block w-1.5 z-10"
+            className="absolute left-0 top-0 bottom-0 hidden md:block w-1.5 rounded-full z-10"
             style={{ background: "#C9A84C" }}
           />
           <div
-            className="absolute left-0 right-0 top-0 md:hidden h-1.5 z-10"
+            className="absolute left-0 right-0 top-0 md:hidden h-1.5 rounded-full z-10"
             style={{ background: "#C9A84C" }}
           />
 
@@ -805,7 +810,7 @@ export default function Home() {
                 </div>
               </div>
               <span
-                className="text-[10px] font-mono font-black px-2 py-0.5 rounded shrink-0"
+                className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full shrink-0"
                 style={{ background: "rgba(201,168,76,0.22)", color: "#F3D37A" }}
               >
                 0{comSceneIdx + 1}/06
@@ -937,7 +942,7 @@ export default function Home() {
 
           {/* Right Champagne Gold Accent Line */}
           <div
-            className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5 z-10"
+            className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5 rounded-full z-10"
             style={{ background: "#E2C675" }}
           />
 
@@ -1060,7 +1065,7 @@ export default function Home() {
                 </div>
               </div>
               <span
-                className="text-[10px] font-mono font-black px-2 py-0.5 rounded shrink-0"
+                className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full shrink-0"
                 style={{ background: "rgba(243,211,122,0.22)", color: "#F3D37A" }}
               >
                 0{resSceneIdx + 1}/06
@@ -1197,7 +1202,7 @@ export default function Home() {
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                 <span>TAYCO LLC · FULL-SERVICE CONSTRUCTION</span>
                 <span
-                  className="text-xs font-mono font-bold px-2 py-0.5 rounded"
+                  className="text-xs font-mono font-bold px-2 py-0.5 rounded-full"
                   style={{
                     background: "rgba(201, 168, 76, 0.16)",
                     color: "#F3D37A",
@@ -1453,7 +1458,7 @@ export default function Home() {
                           }}
                         />
                         <span
-                          className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider"
+                          className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-black uppercase tracking-wider"
                           style={{
                             background: "rgba(7, 14, 26, 0.85)",
                             color: "#F3D37A",
@@ -1463,7 +1468,7 @@ export default function Home() {
                           {currentFrame.csi}
                         </span>
                         <span
-                          className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded text-[9px] font-mono font-bold"
+                          className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold"
                           style={{
                             background: "#C9A84C",
                             color: "#070E1A",
@@ -1768,7 +1773,7 @@ export default function Home() {
                     </span>
                     <output
                       htmlFor="tayco-light-angle-slider"
-                      className="font-black text-sm px-2.5 py-0.5 rounded"
+                      className="font-black text-sm px-2.5 py-0.5 rounded-full"
                       style={{
                         background: "rgba(201, 168, 76, 0.18)",
                         color: "#F3D37A",
@@ -1925,7 +1930,7 @@ export default function Home() {
                   </div>
                   <div className="light-beam" />
 
-                  <span className="absolute top-4 left-5 font-mono text-xs font-bold px-2.5 py-1 rounded bg-[#070E1A]/80 text-amber-200 border border-amber-400/30">
+                  <span className="absolute top-4 left-5 font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-[#070E1A]/80 text-amber-200 border border-amber-400/30">
                     {currentStudy.csi}
                   </span>
                   <span
@@ -2172,7 +2177,7 @@ export default function Home() {
                   }}
                 />
                 <span
-                  className="absolute top-3 left-3 px-2.5 py-1 rounded text-[10px] font-mono font-black"
+                  className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-mono font-black"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
                   PHASE {activeStep.code} / 05 · {activeStep.csiTag}
@@ -2241,7 +2246,7 @@ export default function Home() {
                 key={contract.code}
                 data-response-kind="surface"
                 onClick={() => setActiveStepIdx(idx)}
-                className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-2xl flex flex-col justify-between items-center text-center group cursor-pointer"
+                className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group cursor-pointer"
                 style={{
                   background:
                     "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
@@ -2257,7 +2262,7 @@ export default function Home() {
                   <i />
                 </div>
 
-                <div className="relative z-10 w-full flex flex-col items-center text-center">
+                <div className="relative z-10 w-full flex flex-col text-left">
                   {/* Phase Card Architectural Photo Header */}
                   <div
                     className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
@@ -2299,52 +2304,60 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <h3 className="tayco-card-title text-lg font-black text-white leading-snug text-center mx-auto">
+                  <TaycoCardMetaBar
+                    leftBadge={
+                      <span className="text-xs font-mono font-bold text-[#F3D37A]">
+                        {contract.location} · {contract.sqft}
+                      </span>
+                    }
+                    rightMeta={<span>{contract.phase}</span>}
+                    className="mb-2.5"
+                  />
+
+                  <h3 className="tayco-card-title text-lg font-black text-white leading-snug text-left">
                     {contract.code} · {contract.name}
                   </h3>
-                  <div
-                    className="text-xs font-mono mt-1 text-center"
-                    style={{ color: "#F3D37A" }}
-                  >
-                    {contract.location} · {contract.sqft}
-                  </div>
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed text-center max-w-xs mx-auto">
+                  <p className="text-xs text-slate-300 mt-2 leading-relaxed text-left">
                     {contract.division} — {contract.phase}
                   </p>
                 </div>
 
-                <div className="relative z-10 mt-5 pt-4 border-t border-white/10 w-full flex flex-col items-center text-center">
-                  <div className="flex flex-col items-center justify-center gap-1 mb-3.5 w-full text-center">
-                    <div
-                      className="text-xl font-black font-mono text-center"
-                      style={{ color: "#F3D37A" }}
-                    >
-                      {contract.headline}
+                <div className="relative z-10 mt-5 pt-4 border-t border-white/10 w-full">
+                  <TaycoCardFooterBar
+                    leftMeta={
+                      <div className="flex flex-col text-left">
+                        <span
+                          className="text-base font-black font-mono text-left"
+                          style={{ color: "#F3D37A" }}
+                        >
+                          {contract.headline}
+                        </span>
+                        <span
+                          className="text-[10px] font-mono uppercase tracking-wider text-left"
+                          style={{ color: "#DFC06C" }}
+                        >
+                          {contract.status}
+                        </span>
+                      </div>
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={contract.requestHref}
+                        data-magnetic
+                        className="tayco-atelier-btn-gold text-[10px] py-1.5 px-3 text-center justify-center"
+                      >
+                        Request estimate →
+                      </Link>
+                      <Link
+                        href={contract.loginHref}
+                        data-magnetic
+                        className="tayco-atelier-btn-obsidian text-[10px] py-1.5 px-3 text-center justify-center"
+                      >
+                        Sign in →
+                      </Link>
                     </div>
-                    <div
-                      className="text-[10px] font-mono uppercase tracking-wider text-center"
-                      style={{ color: "#DFC06C" }}
-                    >
-                      {contract.status}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 w-full">
-                    <Link
-                      href={contract.requestHref}
-                      data-magnetic
-                      className="tayco-atelier-btn-gold text-[10px] py-2 px-2 text-center justify-center"
-                    >
-                      Request estimate →
-                    </Link>
-                    <Link
-                      href={contract.loginHref}
-                      data-magnetic
-                      className="tayco-atelier-btn-obsidian text-[10px] py-2 px-2 text-center justify-center"
-                    >
-                      Client sign in →
-                    </Link>
-                  </div>
+                  </TaycoCardFooterBar>
                 </div>
               </div>
             ))}
@@ -2352,7 +2365,7 @@ export default function Home() {
             {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-2xl flex flex-col justify-between items-center text-center group"
+              className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
@@ -2365,7 +2378,7 @@ export default function Home() {
                 <i />
               </div>
 
-              <div className="relative z-10 w-full flex flex-col items-center text-center">
+              <div className="relative z-10 w-full flex flex-col text-left">
                 <div
                   className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
                   style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
@@ -2392,39 +2405,53 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="tayco-atelier-eyebrow mb-2 justify-center" style={{ color: "#F3D37A" }}>
-                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                  SERVING EIGHT STATES
-                </div>
-                <h3 className="tayco-card-title text-xl font-black text-white leading-snug text-center mx-auto">
+                <TaycoCardMetaBar
+                  leftBadge={
+                    <div className="tayco-atelier-eyebrow" style={{ color: "#F3D37A" }}>
+                      <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                      SERVING EIGHT STATES
+                    </div>
+                  }
+                  rightMeta={<span>8 States Active</span>}
+                  className="mb-2.5"
+                />
+                <h3 className="tayco-card-title text-xl font-black text-white leading-snug text-left">
                   Your next project{" "}
                   <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
                     Across 8 States
                   </em>
                 </h3>
-                <p className="text-xs text-slate-200 mt-2 leading-relaxed text-center max-w-xs mx-auto">
+                <p className="text-xs text-slate-200 mt-2 leading-relaxed text-left">
                   We serve WI, IL, IA, IN, MN, MI, MO and TX. Contact us to
                   confirm your location, project scope and scheduling.
                 </p>
               </div>
 
-              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 space-y-2 w-full flex flex-col items-center">
-                <Link
-                  href="/commercial"
-                  data-magnetic
-                  className="tayco-atelier-btn-gold w-full text-center justify-center text-xs"
+              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 w-full">
+                <TaycoCardFooterBar
+                  leftMeta={
+                    <span className="text-[10px] font-mono text-slate-300">
+                      Turnkey Delivery
+                    </span>
+                  }
                 >
-                  <span>Explore Commercial Division</span>
-                  <span>→</span>
-                </Link>
-                <Link
-                  href="/residential"
-                  data-magnetic
-                  className="tayco-atelier-btn-obsidian w-full text-center justify-center text-xs"
-                >
-                  <span>Explore Residential Services</span>
-                  <span>→</span>
-                </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href="/commercial"
+                      data-magnetic
+                      className="tayco-atelier-btn-gold text-xs py-1.5 px-3 text-center justify-center"
+                    >
+                      <span>Commercial →</span>
+                    </Link>
+                    <Link
+                      href="/residential"
+                      data-magnetic
+                      className="tayco-atelier-btn-obsidian text-xs py-1.5 px-3 text-center justify-center"
+                    >
+                      <span>Residential →</span>
+                    </Link>
+                  </div>
+                </TaycoCardFooterBar>
               </div>
             </div>
           </div>
@@ -2432,55 +2459,61 @@ export default function Home() {
       </section>
 
       {/* Full-Screen Architectural Image Lightbox */}
-      {expandedLightbox && (
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
-          onClick={() => setExpandedLightbox(null)}
-        >
+      <TaycoModalOverlay
+        isOpen={Boolean(expandedLightbox)}
+        onClose={() => setExpandedLightbox(null)}
+        ariaLabel={expandedLightbox?.title ?? "Expanded Architectural Photograph"}
+      >
+        {({ stageGestureHandlers }) => (
           <div
-            className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
+            {...stageGestureHandlers}
+            className="max-w-4xl w-full rounded-[26px] border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
             style={{
               background: "rgba(11, 22, 42, 0.98)",
               borderColor: "#C9A84C",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
-              <ProtectedImage
-                src={expandedLightbox.src}
-                auditIgnore={true}
-                alt={expandedLightbox.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
-              <div>
-                {expandedLightbox.subtitle && (
-                  <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
-                    {expandedLightbox.subtitle}
-                  </div>
-                )}
-                <div className="text-lg font-black text-white mt-0.5">
-                  {expandedLightbox.title}
+            {expandedLightbox && (
+              <>
+                <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
+                  <ProtectedImage
+                    src={expandedLightbox.src}
+                    auditIgnore={true}
+                    alt={expandedLightbox.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setExpandedLightbox(null)}
-                className="px-5 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
-                  borderColor: "#FFF3C4",
-                  color: "#050A14",
-                }}
-              >
-                Close Full-Screen View ✕
-              </button>
-            </div>
+                <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
+                  <div>
+                    {expandedLightbox.subtitle && (
+                      <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
+                        {expandedLightbox.subtitle}
+                      </div>
+                    )}
+                    <div className="text-lg font-black text-white mt-0.5">
+                      {expandedLightbox.title}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedLightbox(null)}
+                    className="px-5 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                      borderColor: "#FFF3C4",
+                      color: "#050A14",
+                    }}
+                  >
+                    Close Full-Screen View ✕
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </TaycoModalOverlay>
     </main>
   );
 }

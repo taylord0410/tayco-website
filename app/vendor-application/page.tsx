@@ -809,7 +809,7 @@ export default function VendorApplicationPage() {
                         }
                       >
                         <span
-                          className="w-4 h-4 rounded flex items-center justify-center shrink-0 border"
+                          className="w-4 h-4 rounded-md flex items-center justify-center shrink-0 border"
                           style={
                             isSelected
                               ? {
