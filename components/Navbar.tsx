@@ -7,9 +7,11 @@ import { usePathname } from "next/navigation";
 import { COMPANY } from "@/lib/company";
 
 const links = [
-  { href: "/properties", label: "Properties" },
-  { href: "/commercial", label: "Commercial" },
-  { href: "/residential", label: "Residential" },
+  { href: "/properties/single-family", label: "Single-Family Homes" },
+  { href: "/properties/duplexes", label: "Multifamily" },
+  { href: "/properties/townhouses", label: "Townhomes" },
+  { href: "/properties/commercial", label: "Commercial" },
+  { href: "/properties", label: "All Markets" },
   { href: "/investor", label: "Investors" },
   { href: "/vendor-application", label: "Trade partners" },
 ] as const;

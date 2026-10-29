@@ -14,8 +14,13 @@ import {
   PROPERTY_CATEGORIES,
   PROPERTY_LISTINGS,
   getPropertiesByCategory,
+  getPropertyCategoryBySlug,
+  getMarketSpecialtiesByCategory,
 } from "../lib/property-catalog";
-import { buildCoherentWalkthrough } from "../components/PropertyWalkthroughStudio";
+import {
+  buildCoherentWalkthrough,
+  resolveNightImageSrc,
+} from "../components/PropertyWalkthroughStudio";
 
 const publicDir = path.resolve(process.cwd(), "public");
 
@@ -238,7 +243,7 @@ test("Image-to-title concordance: residential page excludes commercial-only phot
   }
 });
 
-test("4-Category Property Catalog (Single-Family Homes, Duplexes, Townhouses, Commercial Properties) has verified images and dedicated routes", () => {
+test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial) have 8 specialties each + verified Day/Night images", () => {
   assert.equal(PROPERTY_CATEGORIES.length, 4);
   assert.deepEqual(
     PROPERTY_CATEGORIES.map((c) => c.slug),
@@ -246,14 +251,77 @@ test("4-Category Property Catalog (Single-Family Homes, Duplexes, Townhouses, Co
   );
   assert.deepEqual(
     PROPERTY_CATEGORIES.map((c) => c.label),
-    ["Single-Family Homes", "Duplexes", "Townhouses", "Commercial Properties"]
+    ["Single-Family Homes", "Multifamily", "Townhomes", "Commercial"]
   );
 
+  // Verify slug aliases for /properties/multifamily and /properties/townhomes
+  assert.equal(getPropertyCategoryBySlug("multifamily")?.slug, "duplexes");
+  assert.equal(getPropertyCategoryBySlug("townhomes")?.slug, "townhouses");
+  assert.equal(getPropertiesByCategory("multifamily").length, 6);
+  assert.equal(getPropertiesByCategory("townhomes").length, 6);
+  assert.equal(getMarketSpecialtiesByCategory("multifamily").length, 8);
+  assert.equal(getMarketSpecialtiesByCategory("townhomes").length, 8);
+
   for (const cat of PROPERTY_CATEGORIES) {
-    assertPublicImageExists(cat.heroImage, `Category Hero (${cat.slug})`);
+    assertPublicImageExists(cat.heroImage, `Market Hero (${cat.slug})`);
+    assertPublicImageExists(
+      resolveNightImageSrc(cat.heroImage),
+      `Market Hero Night (${cat.slug})`
+    );
     for (const sec of cat.secondaryImages) {
-      assertPublicImageExists(sec, `Category Secondary (${cat.slug})`);
+      assertPublicImageExists(sec, `Market Secondary (${cat.slug})`);
+      assertPublicImageExists(
+        resolveNightImageSrc(sec),
+        `Market Secondary Night (${cat.slug})`
+      );
     }
+
+    // Verify 8 Market-Specific Specialties (Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone, Carpentry/TI)
+    const specialties = getMarketSpecialtiesByCategory(cat.slug);
+    assert.equal(
+      specialties.length,
+      8,
+      `Market "${cat.label}" (${cat.slug}) must have 8 specialty services`
+    );
+    assert.deepEqual(
+      specialties.map((s) => s.specialtyId),
+      [
+        "roofing",
+        "siding",
+        "framing",
+        "drywall",
+        "flooring",
+        "concrete",
+        "stone",
+        "carpentry",
+      ]
+    );
+    const marketSeenImages = new Set<string>();
+    for (const spec of specialties) {
+      assert.equal(spec.triptych.length, 3);
+      for (const frame of spec.triptych) {
+        assert.ok(
+          !marketSeenImages.has(frame.src),
+          `Duplicate image "${frame.src}" within market "${cat.label}" at ${spec.code}`
+        );
+        marketSeenImages.add(frame.src);
+        assertPublicImageExists(
+          frame.src,
+          `Specialty Day ${spec.code} (${cat.label})`
+        );
+        const nightSrc = resolveNightImageSrc(frame.src);
+        assertPublicImageExists(
+          nightSrc,
+          `Specialty Night ${spec.code} (${cat.label})`
+        );
+      }
+    }
+    assert.equal(
+      marketSeenImages.size,
+      24,
+      `Market "${cat.label}" must have 24 distinct images across its 8 specialty 3-step panels`
+    );
+
     const items = getPropertiesByCategory(cat.slug);
     assert.equal(
       items.length,
@@ -313,6 +381,13 @@ test("4-Category Property Catalog (Single-Family Homes, Duplexes, Townhouses, Co
     pageContent.includes("LandingPropertyCategoriesSection"),
     "app/page.tsx must render LandingPropertyCategoriesSection"
   );
+  // Verify the 4 markets section appears FIRST in <main> before the split hero
+  const marketsIdx = pageContent.indexOf("<LandingPropertyCategoriesSection />");
+  const splitHeroIdx = pageContent.indexOf("SPLIT HERO 50/50");
+  assert.ok(
+    marketsIdx > 0 && marketsIdx < splitHeroIdx,
+    "LandingPropertyCategoriesSection must appear FIRST in <main> before the construction services hero"
+  );
   for (const slug of ["single-family", "duplexes", "townhouses", "commercial"]) {
     assert.ok(
       pageContent.includes(`/properties/${slug}`),
@@ -320,12 +395,31 @@ test("4-Category Property Catalog (Single-Family Homes, Duplexes, Townhouses, Co
     );
   }
 
+  // Verify all 96 specialty panel photos across all 4 markets are 100% globally unique (0 cross-market duplicates)
+  const globalSpecialtyImages = new Set<string>();
+  for (const cat of PROPERTY_CATEGORIES) {
+    for (const spec of getMarketSpecialtiesByCategory(cat.slug)) {
+      for (const frame of spec.triptych) {
+        assert.ok(
+          !globalSpecialtyImages.has(frame.src),
+          `Cross-market duplicate specialty image "${frame.src}" found in ${spec.code}`
+        );
+        globalSpecialtyImages.add(frame.src);
+      }
+    }
+  }
+  assert.equal(
+    globalSpecialtyImages.size,
+    96,
+    "All 96 specialty photo slots (4 markets × 8 specialties × 3 steps) must use 96 globally unique Day/Night image pairs"
+  );
+
   const protectedImageContent = fs.readFileSync(
     path.resolve(process.cwd(), "components/ProtectedImage.tsx"),
     "utf-8"
   );
   assert.ok(
-    protectedImageContent.includes("v=pf20261028"),
-    "ProtectedImage.tsx must include cache-busting version query parameter v=pf20261028"
+    protectedImageContent.includes("v=pf20261029"),
+    "ProtectedImage.tsx must include cache-busting version query parameter v=pf20261029"
   );
 });

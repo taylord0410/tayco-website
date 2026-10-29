@@ -18,10 +18,462 @@ import {
   PROPERTY_CATEGORIES,
   PROPERTY_LISTINGS,
   getPropertiesByCategory,
+  getMarketSpecialtiesByCategory,
   type PropertyCategoryMeta,
   type PropertyListing,
+  type MarketSpecialtyService,
+  type MarketSpecialtyId,
+  type MarketSpecialtyGroup,
 } from "@/lib/property-catalog";
 import { COMPANY } from "@/lib/company";
+
+function SpecialtyVectorIcon({
+  specialtyId,
+  className = "w-4 h-4",
+}: {
+  specialtyId: MarketSpecialtyId;
+  className?: string;
+}) {
+  switch (specialtyId) {
+    case "roofing":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M3 13 12 4l9 9" />
+          <path d="M6 10v10h12V10" />
+          <path d="M9 14h6" />
+        </svg>
+      );
+    case "siding":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M3 14h18" />
+        </svg>
+      );
+    case "framing":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M4 20V6l8-3 8 3v14" />
+          <path d="M4 12h16" />
+          <path d="M12 3v17" />
+          <path d="m4 12 8-9 8 9" />
+        </svg>
+      );
+    case "drywall":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <rect x="4" y="4" width="16" height="16" rx="1.5" />
+          <path d="M12 4v16" />
+          <path d="M4 12h8" />
+        </svg>
+      );
+    case "flooring":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M3 10h18" />
+          <path d="M3 15h18" />
+          <path d="M9 4v6" />
+          <path d="M15 10v5" />
+          <path d="M11 15v5" />
+        </svg>
+      );
+    case "concrete":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <polygon points="12 3 21 8 12 13 3 8 12 3" />
+          <polyline points="3 13 12 18 21 13" />
+          <polyline points="3 17 12 22 21 17" />
+        </svg>
+      );
+    case "stone":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <rect x="3" y="5" width="18" height="14" rx="1.5" />
+          <path d="M3 10h18" />
+          <path d="M3 14h18" />
+          <path d="M10 5v5" />
+          <path d="M14 10v4" />
+          <path d="M8 14v5" />
+          <path d="M16 14v5" />
+        </svg>
+      );
+    default:
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M4 6h16v12H4z" />
+          <path d="M4 12h16" />
+          <path d="M10 6v12" />
+          <path d="M15 6v6" />
+        </svg>
+      );
+  }
+}
+
+/**
+ * Interactive 3-Photo Day/Sunset/Night Card for a Market-Specific Construction Specialty
+ * (Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone, Carpentry/TI).
+ */
+function MarketSpecialtyInteractiveCard({
+  service,
+  marketLabel,
+}: {
+  service: MarketSpecialtyService;
+  marketLabel: string;
+}) {
+  const [activeIdx, setActiveIdx] = useState<number>(0);
+  const [mood, setMood] = useState<"day" | "sunset" | "night">("day");
+
+  const frames = service.triptych;
+  const allUrls = React.useMemo(
+    () =>
+      frames.flatMap((f) => [f.src, resolveNightImageSrc(f.src)]),
+    [frames]
+  );
+  const currentFrame = frames[activeIdx] ?? frames[0];
+
+  const selectFrame = (idx: number) => {
+    const target = frames[idx] ?? frames[0];
+    preloadProtectedImages(allUrls);
+    waitForDecodedSurfaces([target.src, resolveNightImageSrc(target.src)]).then(
+      () => {
+        setActiveIdx(idx);
+      }
+    );
+  };
+
+  const cardFilter =
+    mood === "sunset"
+      ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
+      : "none";
+
+  return (
+    <article
+      id={service.id}
+      data-specialty-card={service.code}
+      onPointerEnter={() => preloadProtectedImages(allUrls)}
+      className="rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)]"
+      style={{
+        background:
+          "linear-gradient(165deg, rgba(15, 32, 64, 0.94) 0%, rgba(7, 14, 26, 0.98) 100%)",
+        borderColor: "rgba(201, 168, 76, 0.42)",
+      }}
+    >
+      <div>
+        {/* 3-Photo Day / Sunset / Night Interactive Triptych Stage */}
+        <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#03060D] select-none group/specphoto">
+          {frames.map((frame, idx) => {
+            const isCurrent = idx === activeIdx;
+            const nightSrc = resolveNightImageSrc(frame.src);
+            return (
+              <div
+                key={`${service.id}-${idx}`}
+                aria-hidden={!isCurrent}
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                style={{
+                  opacity: isCurrent ? 1 : 0,
+                  transform: isCurrent ? "scale(1.0)" : "scale(1.05)",
+                  filter: cardFilter,
+                  transition:
+                    "opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 850ms cubic-bezier(0.16, 1, 0.3, 1), filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
+              >
+                <ProtectedImage
+                  src={frame.src}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  alt={`${service.title} — ${frame.label}`}
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
+                />
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  style={{
+                    opacity: mood === "night" ? 1 : 0,
+                    transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  }}
+                >
+                  <ProtectedImage
+                    src={nightSrc}
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    alt={`${service.title} — ${frame.label} (Night)`}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
+                  />
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Sunset Warmth Overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+            style={{
+              opacity: mood === "sunset" ? 1 : 0,
+              background:
+                "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
+              mixBlendMode: "soft-light",
+            }}
+          />
+
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(4,8,17,0.62) 0%, transparent 45%, rgba(4,8,17,0.92) 100%)",
+            }}
+          />
+
+          {/* Top Bar: Specialty Badge + Day/Sunset/Night Lighting Switcher */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+            <span
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border backdrop-blur-xl"
+              style={{
+                background: "rgba(5, 10, 20, 0.84)",
+                borderColor: "rgba(201, 168, 76, 0.55)",
+                color: "#F3D37A",
+              }}
+            >
+              <SpecialtyVectorIcon
+                specialtyId={service.specialtyId}
+                className="w-3.5 h-3.5 text-[#F3D37A]"
+              />
+              <span>{service.specialtyLabel}</span>
+            </span>
+
+            <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-xl border border-white/15">
+              {(
+                [
+                  { id: "day", label: "Day" },
+                  { id: "sunset", label: "Sunset" },
+                  { id: "night", label: "Night" },
+                ] as const
+              ).map((m) => {
+                const active = mood === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setMood(m.id)}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                    style={{
+                      background: active ? "#E5C97B" : "transparent",
+                      color: active ? "#050A14" : "#CBD5E1",
+                    }}
+                    title={`Preview ${m.label} photography`}
+                  >
+                    <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
+                    <span>{m.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom Caption + 3-Photo Triptych Switcher */}
+          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 z-10">
+            <div className="text-xs font-bold text-white drop-shadow truncate">
+              {currentFrame.label}
+            </div>
+            <div
+              className="flex items-center gap-1 bg-[#050A14]/85 p-1 rounded-xl border border-[#C9A84C]/40 backdrop-blur-md shrink-0"
+              role="group"
+              aria-label={`Switch ${service.title} photographs`}
+            >
+              {frames.map((f, idx) => {
+                const isSelected = idx === activeIdx;
+                return (
+                  <button
+                    key={f.label}
+                    type="button"
+                    onClick={() => selectFrame(idx)}
+                    onPointerEnter={() => selectFrame(idx)}
+                    className="w-6 h-6 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
+                    style={{
+                      background: isSelected
+                        ? "#C9A84C"
+                        : "rgba(15, 32, 64, 0.9)",
+                      color: isSelected ? "#070E1A" : "#E2E8F0",
+                    }}
+                    title={f.label}
+                  >
+                    0{idx + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 3-Photo Caption Strip directly below the photo */}
+        <div className="grid grid-cols-3 gap-1 p-1.5 bg-[#050A14] border-b border-white/10">
+          {frames.map((f, idx) => {
+            const isCurrent = idx === activeIdx;
+            return (
+              <button
+                key={f.label}
+                type="button"
+                onClick={() => selectFrame(idx)}
+                onPointerEnter={() => selectFrame(idx)}
+                className="px-2 py-1.5 rounded-lg text-left transition-all duration-300 cursor-pointer border"
+                style={{
+                  background: isCurrent
+                    ? "rgba(201, 168, 76, 0.20)"
+                    : "rgba(12, 24, 46, 0.45)",
+                  borderColor: isCurrent
+                    ? "#E5C97B"
+                    : "rgba(255, 255, 255, 0.06)",
+                }}
+              >
+                <div className="text-[9px] font-mono font-bold text-[#C9A84C]">
+                  PHOTO 0{idx + 1}
+                </div>
+                <div className="text-[10px] font-semibold text-white truncate">
+                  {f.label}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Specialty Details */}
+        <div className="p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span
+              className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black"
+              style={{
+                background: "rgba(201, 168, 76, 0.18)",
+                color: "#F3D37A",
+                border: "1px solid rgba(201, 168, 76, 0.42)",
+              }}
+            >
+              {service.code} · {marketLabel.toUpperCase()}
+            </span>
+            <span className="text-[10px] font-mono font-bold text-slate-400">
+              {service.csiDivision}
+            </span>
+          </div>
+
+          <h3 className="text-xl font-black text-white tracking-tight leading-snug">
+            {service.title}
+          </h3>
+          <p className="text-xs font-semibold text-[#F3D37A] mt-1">
+            {service.subtitle}
+          </p>
+
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed my-4">
+            {service.summary}
+          </p>
+
+          <ul className="space-y-1.5 text-xs text-slate-200">
+            {service.deliverables.map((deliv) => (
+              <li key={deliv} className="flex items-start gap-2">
+                <span
+                  className="text-[#C9A84C] font-bold mt-0.5"
+                  aria-hidden="true"
+                >
+                  ◆
+                </span>
+                <span>{deliv}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Footer CTA */}
+      <div className="px-6 pb-6 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[10px] font-mono text-slate-400">
+          3 Market Photos · Day &amp; Night View
+        </span>
+        <Link
+          href={`/estimate?service=${encodeURIComponent(
+            `${service.title} (${marketLabel})`
+          )}&category=${encodeURIComponent(service.market)}`}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-mono font-black border transition-all hover:scale-105 shadow-md"
+          style={{
+            background: "#C9A84C",
+            borderColor: "#F3D37A",
+            color: "#070E1A",
+          }}
+        >
+          <span>Request {service.specialtyLabel} Estimate</span>
+          <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </article>
+  );
+}
 
 /**
  * Interactive 5-Room Card Header used on `/properties/[category]` and `/properties`.
@@ -321,37 +773,41 @@ export function LandingPropertyCategoriesSection() {
             <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-4">
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#F3D37A]">
-                PROPERTY PORTFOLIO BY CATEGORY · 8 STATES
+                FOUR PRIMARY CONSTRUCTION MARKETS · 8 STATES
               </span>
             </div>
             <h2
               id="property-categories-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.08]"
             >
-              Browse Properties by{" "}
+              Choose Your{" "}
               <em
                 className="tayco-serif-em font-normal"
                 style={{ color: "#F3D37A" }}
               >
-                Architectural Category.
+                Construction Market.
               </em>
             </h2>
             <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
-              Select a category below to open its dedicated page (
+              Select your market below (
               <strong className="text-white">Single-Family Homes</strong>,{" "}
-              <strong className="text-white">Duplexes</strong>,{" "}
-              <strong className="text-white">Townhouses</strong>,{" "}
-              <strong className="text-white">Commercial Properties</strong>) or
-              launch the{" "}
+              <strong className="text-white">Multifamily</strong>,{" "}
+              <strong className="text-white">Townhomes</strong>, or{" "}
+              <strong className="text-white">Commercial</strong>) to explore all
+              of our construction services organized by specialty (
               <strong className="text-[#F3D37A]">
-                Interactive 5-Room Walkthrough, Day/Night Solar Lighting &amp;
-                Color Studio
-              </strong>{" "}
-              on any residence.
+                Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone
+                &amp; Millwork
+              </strong>
+              ) alongside market-specific project galleries and{" "}
+              <strong className="text-[#F3D37A]">
+                Day/Night Solar Walkthroughs
+              </strong>
+              .
             </p>
           </div>
 
-          {/* Direct Category Quick-Links + View All */}
+          {/* Direct Market Quick-Links + View All */}
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             {PROPERTY_CATEGORIES.map((cat) => (
               <Link
@@ -375,15 +831,16 @@ export function LandingPropertyCategoriesSection() {
                 color: "#070E1A",
               }}
             >
-              All 24 Properties ↗
+              All 4 Markets ↗
             </Link>
           </div>
         </div>
 
-        {/* 4-Category Architectural Grid (2x2 on Desktop) */}
+        {/* 4-Market Architectural Grid (2x2 on Desktop) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           {PROPERTY_CATEGORIES.map((cat) => {
             const categoryListings = getPropertiesByCategory(cat.slug);
+            const marketSpecialties = getMarketSpecialtiesByCategory(cat.slug);
             const flagshipProperty = categoryListings[0];
             const galleryUrls = [cat.heroImage, ...cat.secondaryImages];
             const activeIdx = activeThumbMap[cat.slug] ?? 0;
@@ -620,6 +1077,34 @@ export function LandingPropertyCategoriesSection() {
                       </div>
                     </div>
 
+                    {/* Market Specialties Strip — Click any specialty to jump straight to that market's specialty section */}
+                    <div className="mb-4">
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2">
+                        <StudioActionIcon
+                          kind="sparkle"
+                          className="w-3 h-3 text-[#F3D37A]"
+                        />
+                        <span>
+                          {cat.label} Services by Specialty (8):
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {marketSpecialties.map((spec) => (
+                          <Link
+                            key={spec.id}
+                            href={`/properties/${cat.slug}#${spec.id}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all"
+                          >
+                            <SpecialtyVectorIcon
+                              specialtyId={spec.specialtyId}
+                              className="w-3 h-3 text-[#F3D37A]"
+                            />
+                            <span>{spec.specialtyLabel}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Clickable Properties — Click any chip to launch its 5-Room Walkthrough & Day/Night Studio! */}
                     <div>
                       <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2">
@@ -628,7 +1113,7 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          Click Any Property for 5-Room Tour, Day/Night Light &amp; Colors:
+                          {cat.label} Project Gallery (5-Room Tour &amp; Day/Night):
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -1226,6 +1711,9 @@ export function PropertyCategoryPageView({
   const [selectedState, setSelectedState] = useState<string>("ALL");
   const [selectedAvailability, setSelectedAvailability] =
     useState<string>("ALL");
+  const [specialtyGroupFilter, setSpecialtyGroupFilter] = useState<
+    "all" | MarketSpecialtyGroup
+  >("all");
   const [inspectedProperty, setInspectedProperty] =
     useState<PropertyListing | null>(null);
   const [modalFrameIdx, setModalFrameIdx] = useState<number>(0);
@@ -1234,6 +1722,24 @@ export function PropertyCategoryPageView({
   const baseListings = activeCategory
     ? getPropertiesByCategory(activeCategory.slug)
     : PROPERTY_LISTINGS;
+
+  const marketSpecialties = React.useMemo(
+    () =>
+      activeCategory
+        ? getMarketSpecialtiesByCategory(activeCategory.slug)
+        : [],
+    [activeCategory]
+  );
+
+  const filteredSpecialties = React.useMemo(
+    () =>
+      specialtyGroupFilter === "all"
+        ? marketSpecialties
+        : marketSpecialties.filter(
+            (s) => s.specialtyGroup === specialtyGroupFilter
+          ),
+    [marketSpecialties, specialtyGroupFilter]
+  );
 
   const availableStates = Array.from(
     new Set(baseListings.map((item) => item.stateCode))
@@ -1255,8 +1761,13 @@ export function PropertyCategoryPageView({
         urls.push(frame.src);
       }
     }
+    for (const spec of marketSpecialties) {
+      for (const frame of spec.triptych) {
+        urls.push(frame.src, resolveNightImageSrc(frame.src));
+      }
+    }
     preloadProtectedImages(urls);
-  }, [baseListings]);
+  }, [baseListings, marketSpecialties]);
 
   // If navigated with #property-id hash, automatically open its Walkthrough Studio
   useEffect(() => {
@@ -1387,46 +1898,72 @@ export function PropertyCategoryPageView({
 
             {/* Category Summary Telemetry Card */}
             <div
-              className="p-5 rounded-2xl border backdrop-blur-md shrink-0 w-full lg:w-80"
+              className="p-5 rounded-2xl border backdrop-blur-md shrink-0 w-full lg:w-88"
               style={{
                 background: "rgba(7, 14, 26, 0.84)",
                 borderColor: "rgba(201, 168, 76, 0.45)",
               }}
             >
               <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-1">
-                {activeCategory ? activeCategory.label : "Full Portfolio"}
+                {activeCategory ? activeCategory.label : "All 4 Primary Markets"}
               </div>
               <div className="text-2xl font-black text-white mb-3">
-                {baseListings.length} Available Properties
+                {activeCategory
+                  ? `${marketSpecialties.length} Specialties · ${baseListings.length} Projects`
+                  : `4 Markets · ${PROPERTY_LISTINGS.length} Projects`}
               </div>
               <div className="space-y-1.5 text-xs text-slate-300 border-t border-white/10 pt-3">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Interactive Tour:</span>
+                  <span className="text-slate-400">Market Services:</span>
                   <span className="font-mono font-bold text-[#F3D37A]">
-                    5 Connected Spaces / Property
+                    Roofing · Siding · Framing · Drywall
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Solar Lighting:</span>
+                  <span className="text-slate-400">Core Trades:</span>
                   <span className="font-bold text-white">
-                    Morning · Noon · Sunset · Night
+                    Flooring · Concrete · Stone · Millwork
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Color Customizer:</span>
+                  <span className="text-slate-400">Project Gallery:</span>
                   <span className="font-mono text-slate-200">
-                    6 Palettes + 50/50 Compare
+                    5-Room Tour + Day/Night Lighting
                   </span>
                 </div>
               </div>
+              {activeCategory && (
+                <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
+                  <a
+                    href="#market-services"
+                    className="px-3 py-2 rounded-xl text-[11px] font-mono font-black text-center transition-all hover:scale-105"
+                    style={{
+                      background: "#C9A84C",
+                      color: "#070E1A",
+                    }}
+                  >
+                    01 · Specialties ({marketSpecialties.length}) ↓
+                  </a>
+                  <a
+                    href="#market-projects"
+                    className="px-3 py-2 rounded-xl text-[11px] font-mono font-bold text-center border transition-all hover:bg-white/10"
+                    style={{
+                      borderColor: "rgba(243, 211, 122, 0.5)",
+                      color: "#F3D37A",
+                    }}
+                  >
+                    02 · Projects ({baseListings.length}) ↓
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* ── 4-CATEGORY NAVIGATION BAR (SWITCH BETWEEN CATEGORIES) ── */}
+          {/* ── 4-MARKET NAVIGATION BAR (SWITCH BETWEEN THE 4 PRIMARY MARKETS) ── */}
           <div
             className="mt-10 pt-6 border-t border-white/15 flex flex-wrap items-center gap-2.5"
             role="navigation"
-            aria-label="Property categories navigation"
+            aria-label="Primary construction markets navigation"
           >
             <Link
               href="/properties"
@@ -1442,7 +1979,7 @@ export function PropertyCategoryPageView({
                   : "rgba(201, 168, 76, 0.35)",
               }}
             >
-              All Categories ({PROPERTY_LISTINGS.length})
+              All 4 Markets ({PROPERTY_LISTINGS.length})
             </Link>
             {PROPERTY_CATEGORIES.map((cat) => {
               const isCurrent = activeCategory?.slug === cat.slug;
@@ -1463,7 +2000,7 @@ export function PropertyCategoryPageView({
                       : "rgba(201, 168, 76, 0.4)",
                   }}
                 >
-                  {cat.label} ({count})
+                  {cat.label} (8 Specialties · {count} Projects)
                 </Link>
               );
             })}
@@ -1471,8 +2008,143 @@ export function PropertyCategoryPageView({
         </div>
       </section>
 
-      {/* ── FILTER BAR (STATE + AVAILABILITY) ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
+      {/* ── SECTION 1: MARKET-SPECIFIC SERVICES BY SPECIALTY (WHEN INSIDE ANY OF THE 4 MARKETS) ── */}
+      {activeCategory && marketSpecialties.length > 0 && (
+        <section
+          id="market-services"
+          aria-labelledby="market-services-heading"
+          className="max-w-7xl mx-auto px-4 sm:px-8 pt-12 pb-12 border-b border-[#C9A84C]/25"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
+                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
+                  SECTION 01 · {activeCategory.label.toUpperCase()} SERVICES BY SPECIALTY
+                </span>
+              </div>
+              <h2
+                id="market-services-heading"
+                className="text-2xl sm:text-4xl font-black text-white tracking-tight"
+              >
+                {activeCategory.label} Construction{" "}
+                <em
+                  className="tayco-serif-em font-normal"
+                  style={{ color: "#F3D37A" }}
+                >
+                  Specialties.
+                </em>
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+                Every service TAYCO performs for{" "}
+                <strong className="text-white">{activeCategory.label}</strong>
+                —organized by specialty with 3 dedicated photographs per trade
+                and real Day, Sunset &amp; Night lighting views.
+              </p>
+            </div>
+
+            {/* Specialty Group Filter Tabs */}
+            <div
+              className="flex flex-wrap items-center gap-1.5"
+              role="group"
+              aria-label="Filter specialties by trade group"
+            >
+              {(
+                [
+                  { id: "all", label: `All Specialties (${marketSpecialties.length})` },
+                  { id: "envelope", label: "Roofing & Siding" },
+                  { id: "structural", label: "Framing, Concrete & Stone" },
+                  { id: "interiors", label: "Drywall, Flooring & Interiors" },
+                ] as const
+              ).map((tab) => {
+                const isSelected = specialtyGroupFilter === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSpecialtyGroupFilter(tab.id)}
+                    className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border cursor-pointer transition-all"
+                    style={{
+                      background: isSelected
+                        ? "#C9A84C"
+                        : "rgba(15, 32, 64, 0.8)",
+                      color: isSelected ? "#070E1A" : "#F3D37A",
+                      borderColor: isSelected
+                        ? "#F3D37A"
+                        : "rgba(201, 168, 76, 0.35)",
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick-Jump Specialty Anchor Strip */}
+          <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#0F2040]/70 border border-[#C9A84C]/30 mb-8">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-1">
+              Jump to Specialty:
+            </span>
+            {marketSpecialties.map((spec) => (
+              <a
+                key={spec.id}
+                href={`#${spec.id}`}
+                onClick={() => setSpecialtyGroupFilter("all")}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] text-xs font-semibold text-white transition-all"
+              >
+                <SpecialtyVectorIcon
+                  specialtyId={spec.specialtyId}
+                  className="w-3.5 h-3.5 text-[#F3D37A]"
+                />
+                <span>{spec.specialtyLabel}</span>
+              </a>
+            ))}
+          </div>
+
+          {/* 8 Market-Specific Specialty Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+            {filteredSpecialties.map((spec) => (
+              <MarketSpecialtyInteractiveCard
+                key={spec.id}
+                service={spec}
+                marketLabel={activeCategory.label}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── SECTION 2: PROJECT GALLERY & FILTER BAR ── */}
+      <section
+        id="market-projects"
+        className="max-w-7xl mx-auto px-4 sm:px-8 pt-10"
+      >
+        {activeCategory && (
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
+              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+              <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
+                SECTION 02 · {activeCategory.label.toUpperCase()} PROJECT GALLERY &amp; 5-ROOM TOURS
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              {activeCategory.label} Completed{" "}
+              <em
+                className="tayco-serif-em font-normal"
+                style={{ color: "#F3D37A" }}
+              >
+                Project Gallery.
+              </em>
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-slate-300">
+              Explore {baseListings.length} turnkey{" "}
+              <strong className="text-white">{activeCategory.label}</strong>{" "}
+              projects with interactive 5-Room Walkthroughs, Day/Night Solar
+              Lighting and 6 Designer Palettes.
+            </p>
+          </div>
+        )}
         <div
           className="p-4 sm:p-5 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
           style={{

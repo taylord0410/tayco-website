@@ -8,9 +8,14 @@ import {
 import { COMPANY } from "@/lib/company";
 
 export function generateStaticParams() {
-  return PROPERTY_CATEGORIES.map((cat) => ({
+  const baseSlugs = PROPERTY_CATEGORIES.map((cat) => ({
     category: cat.slug,
   }));
+  return [
+    ...baseSlugs,
+    { category: "multifamily" },
+    { category: "townhomes" },
+  ];
 }
 
 export async function generateMetadata({
@@ -22,11 +27,11 @@ export async function generateMetadata({
   const meta = getPropertyCategoryBySlug(category);
   if (!meta) {
     return {
-      title: `Properties | ${COMPANY.name}`,
+      title: `Markets & Services | ${COMPANY.name}`,
     };
   }
   return {
-    title: `${meta.label} · Available Properties | ${COMPANY.name}`,
+    title: `${meta.label} · Services by Specialty & Project Gallery | ${COMPANY.name}`,
     description: meta.description,
   };
 }

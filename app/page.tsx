@@ -583,8 +583,11 @@ export default function Home() {
       }
     >
       <h1 className="sr-only">
-        {COMPANY.name} · Construction, renovation &amp; restoration
+        {COMPANY.name} · Single-Family Homes, Multifamily, Townhomes &amp; Commercial Construction
       </h1>
+
+      {/* ── 01 / FOUR PRIMARY CONSTRUCTION MARKETS FIRST (SINGLE-FAMILY HOMES, MULTIFAMILY, TOWNHOMES, COMMERCIAL) ── */}
+      <LandingPropertyCategoriesSection />
 
       {/* ── SPLIT HERO 50/50 WITH CURATED 12-SCENE ARCHITECTURAL CYCLER ── */}
       <div
@@ -1097,7 +1100,7 @@ export default function Home() {
                     color: "#F3D37A",
                   }}
                 >
-                  Duplexes ↗
+                  Multifamily ↗
                 </Link>
                 <Link
                   href="/properties/townhouses"
@@ -1108,7 +1111,7 @@ export default function Home() {
                     color: "#F3D37A",
                   }}
                 >
-                  Townhouses ↗
+                  Townhomes ↗
                 </Link>
               </div>
             </div>
@@ -1162,7 +1165,7 @@ export default function Home() {
           <i aria-hidden="true" style={{ color: "#C9A84C" }}>
             ◆
           </i>
-          <span>Commercial &amp; Residential</span>
+          <span>Single-Family · Multifamily · Townhomes · Commercial</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
@@ -1170,7 +1173,7 @@ export default function Home() {
           <i aria-hidden="true" style={{ color: "#C9A84C" }}>
             ◆
           </i>
-          <span>Fire &amp; Water Restoration</span>
+          <span>Roofing · Siding · Framing · Drywall · Flooring · Concrete · Stone</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
@@ -1178,7 +1181,7 @@ export default function Home() {
           <i aria-hidden="true" style={{ color: "#C9A84C" }}>
             ◆
           </i>
-          <span>Commercial &amp; Residential</span>
+          <span>Single-Family · Multifamily · Townhomes · Commercial</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
@@ -1186,15 +1189,12 @@ export default function Home() {
           <i aria-hidden="true" style={{ color: "#C9A84C" }}>
             ◆
           </i>
-          <span>Fire &amp; Water Restoration</span>
+          <span>Roofing · Siding · Framing · Drywall · Flooring · Concrete · Stone</span>
           <i className="gold-star" aria-hidden="true" style={{ color: "#F3D37A" }}>
             ◆
           </i>
         </div>
       </div>
-
-      {/* ── 4-CATEGORY PROPERTY PORTFOLIO SHOWCASE (SINGLE-FAMILY, DUPLEXES, TOWNHOUSES, COMMERCIAL) ── */}
-      <LandingPropertyCategoriesSection />
 
       {/* Project services and resources + Interactive 8-State Footprint */}
       <section
