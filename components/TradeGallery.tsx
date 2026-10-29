@@ -267,7 +267,7 @@ export default function TradeGallery() {
 
       {/* 3 Sector Photo Cards per Trade */}
       <div
-        className="grid md:grid-cols-3 gap-6"
+        className="grid md:grid-cols-3 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
         role="tabpanel"
         aria-label={trade.name}
       >
@@ -279,7 +279,7 @@ export default function TradeGallery() {
             <figure
               key={s.key}
               data-response-kind="surface"
-              className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between group shadow-xl"
+              className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between group shadow-xl max-md:w-[84vw] max-md:shrink-0 max-md:snap-center"
               style={{
                 background:
                   "linear-gradient(155deg, #0B172A 0%, #0F2040 55%, #070E1A 100%)",

@@ -1048,7 +1048,7 @@ export function TransformationBeforeAfterStudio({
               Click any card to load Before ↔ After pair
             </span>
           </div>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:pb-2 tayco-no-scrollbar">
               {visiblePairs.map((pair) => {
               const selected = pair.id === pendingPairId || pair.id === activePair.id;
               return (
@@ -1057,7 +1057,7 @@ export function TransformationBeforeAfterStudio({
                   type="button"
                   data-magnetic
                   onClick={() => selectPairHarmonized(pair.id)}
-                  className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] md:w-[calc(25%-0.6rem)] lg:w-[calc(16.666%-0.65rem)]"
+                  className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer max-sm:w-[40vw] max-sm:shrink-0 max-sm:snap-start w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] md:w-[calc(25%-0.6rem)] lg:w-[calc(16.666%-0.65rem)]"
                   style={{
                     background: "#0B172A",
                     borderColor: selected ? "#F3D37A" : "rgba(201, 168, 76, 0.25)",

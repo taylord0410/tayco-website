@@ -808,7 +808,7 @@ export function LandingPropertyCategoriesSection() {
     <section
       id="tayco-property-categories"
       aria-labelledby="property-categories-heading"
-      className="relative py-16 sm:py-22 px-4 sm:px-8 border-b overflow-hidden"
+      className="relative py-10 sm:py-22 px-4 sm:px-8 border-b overflow-hidden"
       style={{
         background:
           "linear-gradient(180deg, #070E1A 0%, #0B172A 52%, #070E1A 100%)",
@@ -1390,7 +1390,7 @@ export function DivisionInteractivePropertyAtelier({
           ? "Interactive Residential Properties Walkthrough & Day/Night Lighting Studio"
           : "Interactive Commercial Properties Walkthrough & Day/Night Lighting Studio"
       }
-      className="relative py-16 sm:py-22 px-4 sm:px-8 border-b overflow-hidden"
+      className="relative py-10 sm:py-22 px-4 sm:px-8 border-b overflow-hidden"
       style={{
         background:
           "linear-gradient(180deg, #050A14 0%, #0B172A 50%, #070E1A 100%)",

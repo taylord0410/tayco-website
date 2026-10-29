@@ -1376,7 +1376,7 @@ export default function Home() {
           </div>
 
           {/* 6 Interactive Ivory Triptych Cards */}
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:-mx-4 max-sm:px-4 max-sm:pb-3 tayco-no-scrollbar">
             {filteredCards.map((card) => {
               const activeFrameIdx = cardFrameMap[card.id] ?? 0;
               const currentFrame = card.frames[activeFrameIdx] ?? card.frames[0];
@@ -1385,7 +1385,7 @@ export default function Home() {
                 <div
                   key={card.id}
                   data-response-kind="surface"
-                  className="tayco-living-card editorial-ivory-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 flex flex-col justify-between items-center text-center group"
+                  className="tayco-living-card editorial-ivory-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 flex flex-col justify-between items-center text-center group"
                 >
                   <div className="preview-orbits" aria-hidden="true">
                     <i />
@@ -2240,13 +2240,13 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:-mx-4 max-sm:px-4 max-sm:pb-3 tayco-no-scrollbar">
             {PROJECT_STEPS.map((contract, idx) => (
               <div
                 key={contract.code}
                 data-response-kind="surface"
                 onClick={() => setActiveStepIdx(idx)}
-                className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group cursor-pointer"
+                className="tayco-living-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group cursor-pointer"
                 style={{
                   background:
                     "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
@@ -2365,7 +2365,7 @@ export default function Home() {
             {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group"
+              className="tayco-living-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
