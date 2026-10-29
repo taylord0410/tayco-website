@@ -632,8 +632,8 @@ export function TransformationBeforeAfterStudio({
     >
       <div className="max-w-7xl mx-auto">
         {/* Top Eyebrow Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-8 border-b border-white/10">
-          <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+        <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-8 border-b border-white/10 text-center">
+          <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             {eyebrowLabel}
           </span>
@@ -643,10 +643,10 @@ export function TransformationBeforeAfterStudio({
         </div>
 
         {/* Heading + Division Filter Tabs */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        <div className="flex flex-col items-center justify-center text-center gap-6 mb-10 max-w-4xl mx-auto">
           <div>
             <h2
-              className="font-black text-white tracking-tight"
+              className="tayco-display-title text-white tracking-tight text-center mx-auto"
               style={{ fontSize: "clamp(2rem, 4.2vw, 3.4rem)", lineHeight: 1.04 }}
             >
               From raw condition to{" "}
@@ -654,7 +654,7 @@ export function TransformationBeforeAfterStudio({
                 finished execution.
               </em>
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl mx-auto text-center leading-relaxed">
               Slide the 50/50 comparison curtain or switch to{" "}
               <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
                 Structural X-Ray Lens
@@ -665,7 +665,7 @@ export function TransformationBeforeAfterStudio({
 
           {/* Division Tabs */}
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex flex-wrap items-center justify-center gap-2"
             role="group"
             aria-label="Filter transformations by division"
           >
@@ -681,6 +681,8 @@ export function TransformationBeforeAfterStudio({
                 <button
                   key={tab.id}
                   type="button"
+                  data-magnetic
+                  data-active={active ? "true" : "false"}
                   onClick={() => {
                     const nextDiv = tab.id as TransformationDivision;
                     setActiveDivision(nextDiv);
@@ -692,12 +694,7 @@ export function TransformationBeforeAfterStudio({
                       selectPairHarmonized(nextList[0].id);
                     }
                   }}
-                  className="px-3.5 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer border"
-                  style={{
-                    background: active ? "#C9A84C" : "rgba(15, 32, 64, 0.72)",
-                    color: active ? "#070E1A" : "#E2E8F0",
-                    borderColor: active ? "#F3D37A" : "rgba(201, 168, 76, 0.32)",
-                  }}
+                  className="tayco-atelier-pill cursor-pointer"
                 >
                   {tab.label}{" "}
                   <span className="opacity-75 text-[10px]">({tab.count})</span>
@@ -946,15 +943,18 @@ export function TransformationBeforeAfterStudio({
           {/* Right 4 Columns: Active Transformation Specification & Highlights */}
           <div className="lg:col-span-4 flex flex-col justify-between">
             <div
-              className="p-6 rounded-2xl border h-full flex flex-col justify-between"
+              className="tayco-living-card p-6 rounded-2xl border h-full flex flex-col justify-between items-center text-center relative overflow-hidden"
+              data-response-kind="surface"
+              data-magnetic
               style={{
                 background:
                   "linear-gradient(155deg, rgba(15, 32, 64, 0.9) 0%, rgba(7, 14, 26, 0.96) 100%)",
                 borderColor: "rgba(201, 168, 76, 0.38)",
               }}
             >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
+              <div className="w-full flex flex-col items-center">
+                <div className="flex items-center justify-center gap-2 mb-3">
                   <span
                     className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full border"
                     style={{
@@ -970,28 +970,28 @@ export function TransformationBeforeAfterStudio({
                   </span>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-black text-white leading-snug">
+                <h3 className="tayco-card-title text-xl sm:text-2xl text-white leading-snug text-center">
                   {activePair.title}
                 </h3>
                 <p
-                  className="text-xs font-mono font-bold uppercase tracking-wider mt-1.5"
+                  className="text-xs font-mono font-bold uppercase tracking-wider mt-1.5 text-center"
                   style={{ color: "#C9A84C" }}
                 >
                   {activePair.subtitle}
                 </p>
 
-                <p className="text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed text-center">
                   {activePair.summary}
                 </p>
 
-                <div className="mt-5 pt-4 border-t border-white/10">
+                <div className="mt-5 pt-4 border-t border-white/10 w-full">
                   <div
-                    className="text-[10px] font-mono font-bold uppercase tracking-widest mb-2.5"
+                    className="text-[10px] font-mono font-bold uppercase tracking-widest mb-2.5 text-center"
                     style={{ color: "#F3D37A" }}
                   >
                     Verified Field Execution Scope
                   </div>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 inline-flex flex-col items-start mx-auto">
                     {activePair.highlights.map((item) => (
                       <li
                         key={item}
@@ -1008,28 +1008,26 @@ export function TransformationBeforeAfterStudio({
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5">
+              <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
                 <Link
                   href="/estimate"
                   data-magnetic
-                  className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-transform hover:scale-[1.02]"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                  className="tayco-atelier-btn-gold w-full text-center py-3 text-xs tracking-wider"
                 >
-                  <span>Request Estimate for Similar Scope</span>
-                  <span>→</span>
+                  <span>Request Estimate for Similar Scope →</span>
                 </Link>
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/commercial"
-                    className="px-3 py-2 rounded-xl text-[11px] font-bold text-center text-white border hover:bg-white/10 transition-colors"
-                    style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
+                    data-magnetic
+                    className="tayco-atelier-btn-obsidian w-full text-center py-2 text-[11px]"
                   >
                     Commercial Scope →
                   </Link>
                   <Link
                     href="/residential"
-                    className="px-3 py-2 rounded-xl text-[11px] font-bold text-center text-white border hover:bg-white/10 transition-colors"
-                    style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
+                    data-magnetic
+                    className="tayco-atelier-btn-obsidian w-full text-center py-2 text-[11px]"
                   >
                     Residential Scope →
                   </Link>
@@ -1041,7 +1039,7 @@ export function TransformationBeforeAfterStudio({
 
         {/* 12-Pair Thumbnail Filmstrip Selector */}
         <div className="mt-6">
-          <div className="flex items-center justify-between mb-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
               Select a transformation case study ({visiblePairs.length} available in current filter):
             </span>
@@ -1049,15 +1047,16 @@ export function TransformationBeforeAfterStudio({
               Click any card to load Before ↔ After pair
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="flex flex-wrap justify-center gap-3">
               {visiblePairs.map((pair) => {
               const selected = pair.id === pendingPairId || pair.id === activePair.id;
               return (
                 <button
                   key={pair.id}
                   type="button"
+                  data-magnetic
                   onClick={() => selectPairHarmonized(pair.id)}
-                  className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer"
+                  className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] md:w-[calc(25%-0.6rem)] lg:w-[calc(16.666%-0.65rem)]"
                   style={{
                     background: "#0B172A",
                     borderColor: selected ? "#F3D37A" : "rgba(201, 168, 76, 0.25)",
@@ -1129,20 +1128,20 @@ export function DualTrackArchitecturalMarquee() {
 
   return (
     <div className="py-12 border-t border-white/10 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-6 flex flex-col items-center justify-center text-center gap-3">
         <div>
-          <div className="tayco-eyebrow mb-1.5" style={{ color: "#F3D37A" }}>
+          <div className="tayco-atelier-eyebrow justify-center mb-1.5" style={{ color: "#F3D37A" }}>
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             FIELD EXECUTION ARCHIVE · 16 CURATED DISCIPLINES IN MOTION
           </div>
-          <h3 className="text-xl sm:text-2xl font-black text-white">
+          <h3 className="tayco-display-title text-xl sm:text-2xl text-white text-center">
             From excavation &amp; steel framing to{" "}
             <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
               architectural millwork.
             </em>
           </h3>
         </div>
-        <span className="text-xs font-mono text-slate-400">
+        <span className="text-xs font-mono text-slate-400 text-center">
           Hover any frame to pause · Click to inspect specification
         </span>
       </div>
@@ -1190,14 +1189,9 @@ export function DualTrackArchitecturalMarquee() {
               <div className="flex items-center gap-2.5 shrink-0">
                 <button
                   type="button"
+                  data-magnetic
                   onClick={() => setSelectedShot(null)}
-                  className="px-5 py-2.5 rounded-full text-xs font-mono font-black uppercase tracking-wider cursor-pointer border"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
-                    borderColor: "#FFF3C4",
-                    color: "#050A14",
-                  }}
+                  className="tayco-atelier-btn-gold px-5 py-2.5 text-xs tracking-wider cursor-pointer"
                 >
                   Close Full-Screen View ✕
                 </button>
@@ -1427,6 +1421,8 @@ export function ServiceCardTriptych({
       <div
         role="button"
         tabIndex={0}
+        data-response-kind="surface"
+        data-magnetic
         onClick={() => setExpandedOpen(true)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -1434,13 +1430,14 @@ export function ServiceCardTriptych({
             setExpandedOpen(true);
           }
         }}
-        className="relative w-full overflow-hidden rounded-xl border shadow-md group cursor-pointer"
+        className="tayco-living-card relative w-full overflow-hidden rounded-xl border shadow-md group cursor-pointer"
         style={{
           aspectRatio: "16 / 9",
           borderColor: "rgba(15, 32, 64, 0.16)",
           background: "#070E1A",
         }}
       >
+        <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <ProtectedImage
           src={current.src}
@@ -1487,35 +1484,26 @@ export function ServiceCardTriptych({
         </div>
       </div>
 
-      {/* 3-Photo Caption Selector Strip (No duplicate image rendering) */}
+      {/* 3-Photo Caption Selector Strip — Centered Capsule Switcher */}
       {safeFrames.length > 1 && (
-        <div className="grid grid-cols-3 gap-2 mt-2">
+        <div className="flex items-center justify-center gap-2 mt-3">
           {safeFrames.map((frame, i) => {
             const isSel = i === activeIdx;
             return (
               <button
                 key={`${frame.src}-${i}`}
                 type="button"
+                data-magnetic
                 onClick={() => selectTriptychFrame(i)}
                 onPointerEnter={() => selectTriptychFrame(i)}
-                className="px-2.5 py-2 rounded-lg border text-left transition-all cursor-pointer"
-                style={{
-                  background: isSel
-                    ? "linear-gradient(135deg, rgba(15, 32, 64, 0.96) 0%, rgba(7, 14, 26, 0.98) 100%)"
-                    : "rgba(7, 14, 26, 0.82)",
-                  borderColor: isSel ? accentColor : "rgba(15, 32, 64, 0.25)",
-                  boxShadow: isSel
-                    ? "0 0 0 1px rgba(201, 168, 76, 0.45)"
-                    : "none",
-                }}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-mono font-bold transition-all cursor-pointer border ${
+                  isSel
+                    ? "bg-[#C9A84C] text-[#070E1A] border-[#F3D37A] shadow-[0_0_12px_rgba(201,168,76,0.35)]"
+                    : "bg-[#070E1A]/80 text-slate-300 border-white/10 hover:border-[#C9A84C]/50 hover:text-white"
+                }`}
                 aria-label={`Show ${frame.label}`}
               >
-                <div className="text-[9px] font-mono font-bold text-[#F3D37A]">
-                  PHOTO 0{i + 1}
-                </div>
-                <div className="text-[10px] font-semibold text-white truncate">
-                  {frame.label}
-                </div>
+                0{i + 1} · {frame.label}
               </button>
             );
           })}
@@ -1579,14 +1567,9 @@ export function ServiceCardTriptych({
                 ))}
                 <button
                   type="button"
+                  data-magnetic
                   onClick={() => setExpandedOpen(false)}
-                  className="px-4 py-1.5 rounded-full text-xs font-mono font-black uppercase border cursor-pointer"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
-                    borderColor: "#FFF3C4",
-                    color: "#050A14",
-                  }}
+                  className="tayco-atelier-btn-gold px-4 py-1.5 text-xs tracking-wider cursor-pointer"
                 >
                   Close ✕
                 </button>
@@ -1598,3 +1581,5 @@ export function ServiceCardTriptych({
     </div>
   );
 }
+
+export const CuratedTriptychShowcaseSection = ServiceCardTriptych;

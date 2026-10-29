@@ -514,3 +514,70 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
     "PropertyWalkthroughStudio.tsx must support full-screen Specialty Studio inspection and 8-specialty switching"
   );
 });
+
+test("V45 Architectural Atelier Typography, 60fps 3D Tilt Living Surfaces, Centered Capsules, and Zero-Hole Symmetric Grids", () => {
+  const layoutContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/layout.tsx"),
+    "utf-8"
+  );
+  const globalsContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/globals.css"),
+    "utf-8"
+  );
+  const engineContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/EditorialLivingEngine.tsx"),
+    "utf-8"
+  );
+  const showcaseContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyCategoryShowcase.tsx"),
+    "utf-8"
+  );
+  const homeContent = fs.readFileSync(
+    path.resolve(process.cwd(), "app/page.tsx"),
+    "utf-8"
+  );
+  const walkthroughContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyWalkthroughStudio.tsx"),
+    "utf-8"
+  );
+
+  // 1. Luxury Editorial Typography Triad
+  assert.ok(
+    layoutContent.includes("Cormorant_Garamond") &&
+      layoutContent.includes("Plus_Jakarta_Sans") &&
+      layoutContent.includes("JetBrains_Mono"),
+    "app/layout.tsx must load Cormorant Garamond, Plus Jakarta Sans, and JetBrains Mono"
+  );
+  assert.ok(
+    globalsContent.includes(".tayco-display-title") &&
+      globalsContent.includes(".tayco-card-title") &&
+      globalsContent.includes(".tayco-atelier-btn-gold") &&
+      globalsContent.includes(".tayco-atelier-btn-obsidian") &&
+      globalsContent.includes(".tayco-atelier-pill"),
+    "app/globals.css must define V45 Architectural Atelier typography and centered button/pill classes"
+  );
+
+  // 2. 60fps 3D Tilt & Magnetic Living Surfaces wired across all modules
+  assert.ok(
+    engineContent.includes("--response-lift") &&
+      showcaseContent.includes('data-response-kind="surface"') &&
+      showcaseContent.includes("data-magnetic") &&
+      homeContent.includes('data-response-kind="surface"') &&
+      homeContent.includes("data-magnetic"),
+    "All Market, Specialty, Property, and Home cards/buttons must wire into EditorialLivingEngine 3D tilt & magnetic surfaces"
+  );
+
+  // 3. Centered Layout, Removed Redundant PHOTO 01..03 Strip, and Zero-Hole Symmetric Grids
+  assert.ok(
+    !showcaseContent.includes("PHOTO 0{idx + 1}"),
+    "MarketSpecialtyInteractiveCard must not render the redundant truncated PHOTO 01..03 caption box row"
+  );
+  assert.ok(
+    showcaseContent.includes("flex flex-wrap justify-center gap-7") &&
+      homeContent.includes("flex flex-wrap justify-center gap-6") &&
+      homeContent.includes("items-stretch") &&
+      walkthroughContent.includes("items-stretch"),
+    "Showcase, Home, and Studio Modal grids must use centered symmetric flex-wrap and items-stretch to eliminate column/bottom holes"
+  );
+});
+

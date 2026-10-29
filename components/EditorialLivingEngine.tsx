@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 const SURFACE_SELECTOR =
-  '[data-response-kind="surface"], .tayco-living-card, [data-living-card], [data-tilt]';
+  '[data-response-kind="surface"], .tayco-living-card, .tayco-bento-card, [data-living-card], [data-tilt]';
 const MAGNETIC_SELECTOR = "[data-magnetic]";
 
 export default function EditorialLivingEngine() {
@@ -72,6 +72,7 @@ export default function EditorialLivingEngine() {
         "transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s, border-color 0.35s";
       el.style.setProperty("--response-rx", "0deg");
       el.style.setProperty("--response-ry", "0deg");
+      el.style.setProperty("--response-lift", "0px");
       delete el.dataset.responseHover;
       surfaceRect = null;
     };
@@ -173,7 +174,7 @@ export default function EditorialLivingEngine() {
           const r = hoveredSurface.getBoundingClientRect();
           surfaceRect = { left: r.left, top: r.top, width: r.width, height: r.height };
         }
-        const tiltDeg = liteMode ? 1.8 : 4;
+        const tiltDeg = liteMode ? 2.2 : 6.8;
         const relX = Math.max(
           -0.5,
           Math.min(0.5, (pointerX - surfaceRect.left) / Math.max(1, surfaceRect.width) - 0.5)
@@ -191,6 +192,7 @@ export default function EditorialLivingEngine() {
         hoveredSurface.style.setProperty("--response-py", py);
         hoveredSurface.style.setProperty("--response-rx", rx);
         hoveredSurface.style.setProperty("--response-ry", ry);
+        hoveredSurface.style.setProperty("--response-lift", liteMode ? "-1.5px" : "-3.5px");
       }
 
       if (hoveredMagnetic) {

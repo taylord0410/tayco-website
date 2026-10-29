@@ -1,9 +1,32 @@
 import type { Metadata } from "next";
+import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EditorialLivingEngine from "@/components/EditorialLivingEngine";
 import SiteFrame from "@/components/SiteFrame";
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "TAYCO LLC | Full-Service Construction Company | Wisconsin & Illinois",
@@ -31,7 +54,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${jakarta.variable} ${jetbrains.variable}`}
+    >
       <body>
         <EditorialLivingEngine />
         <SiteFrame publicHeader={<Navbar />} publicFooter={<Footer />}>{children}</SiteFrame>

@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", Consolas, monospace;
+}
+
 @property --shine {
   syntax: "<angle>";
   inherits: false;
@@ -28,8 +34,9 @@
   --tayco-gold: #C9A84C;
   --tayco-emerald: #10B981;
   --tayco-glacier: #38BDF8;
-  --mono: "Cascadia Code", Consolas, "Courier New", monospace;
-  --serif: Georgia, "Times New Roman", serif;
+  --sans: var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: var(--font-jetbrains), "JetBrains Mono", Consolas, monospace;
+  --serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
 }
 
 html {
@@ -37,7 +44,10 @@ html {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   color: #1E293B;
   background: #ffffff;
 }
@@ -190,34 +200,42 @@ body {
    ============================================================================ */
 
 [data-response-kind="surface"],
+.tayco-living-card,
 .tayco-bento-card,
+[data-living-card],
 [data-tilt] {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   border-radius: 22px;
-  border: 1px solid rgba(201, 168, 76, 0.24);
+  border: 1px solid rgba(201, 168, 76, 0.28);
   --response-rx: 0deg;
   --response-ry: 0deg;
+  --response-lift: 0px;
   --response-px: 50%;
   --response-py: 50%;
-  transform: perspective(1000px) rotateX(var(--response-rx, 0deg)) rotateY(var(--response-ry, 0deg));
+  transform: perspective(1100px) translate3d(0, var(--response-lift, 0px), 0) rotateX(var(--response-rx, 0deg)) rotateY(var(--response-ry, 0deg));
   transition:
-    transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1),
-    box-shadow 0.35s,
-    border-color 0.35s;
+    transform 0.52s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
-
-
 
 /* Remove transform transition collision while actively tracking or hovering with tilt */
 [data-response-kind="surface"]:hover,
+.tayco-living-card:hover,
 .tayco-bento-card:hover,
+[data-living-card]:hover,
 [data-tilt]:hover,
 [data-response-kind="surface"][data-response-hover="true"],
+.tayco-living-card[data-response-hover="true"],
 .tayco-bento-card[data-response-hover="true"],
+[data-living-card][data-response-hover="true"],
 [data-tilt][data-response-hover="true"] {
-  transition: box-shadow 0.35s, border-color 0.35s;
+  will-change: transform;
+  border-color: rgba(243, 211, 122, 0.68);
+  box-shadow: 0 26px 58px -20px rgba(3, 8, 20, 0.78), 0 0 28px -12px rgba(201, 168, 76, 0.28);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 [data-magnetic][data-magnetic-active="true"] {
@@ -247,8 +265,10 @@ body {
 }
 
 [data-response-kind="surface"][data-response-hover="true"] > .response-wash,
+.tayco-living-card[data-response-hover="true"] > .response-wash,
 .tayco-bento-card[data-response-hover="true"] > .response-wash,
 [data-response-kind="surface"]:hover > .response-wash,
+.tayco-living-card:hover > .response-wash,
 .tayco-bento-card:hover > .response-wash {
   opacity: 0.85;
 }
@@ -279,6 +299,7 @@ body {
 }
 
 [data-response-kind="surface"]::after,
+.tayco-living-card::after,
 .tayco-bento-card::after {
   content: "";
   position: absolute;
@@ -289,8 +310,8 @@ body {
   background: conic-gradient(
       from var(--shine),
       transparent 28%,
-      rgba(201, 168, 76, 0.48) 48%,
-      rgba(243, 211, 122, 0.36) 54%,
+      rgba(201, 168, 76, 0.52) 48%,
+      rgba(243, 211, 122, 0.4) 54%,
       transparent 68%
     )
     border-box;
@@ -307,6 +328,8 @@ body {
 
 [data-response-kind="surface"]:hover::after,
 [data-response-kind="surface"]:focus-visible::after,
+.tayco-living-card:hover::after,
+.tayco-living-card:focus-visible::after,
 .tayco-bento-card:hover::after,
 .tayco-bento-card:focus-visible::after {
   opacity: 1;
@@ -1006,5 +1029,150 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
 .tayco-harmonic-sync {
   animation: tayco-harmonic-reveal 520ms cubic-bezier(0.32, 0, 0.24, 1) both;
 }
+
+/* ============================================================================
+   V45 — ARCHITECTURAL ATELIER TYPOGRAPHY, CENTERED CAPSULES & SYMMETRIC GRIDS
+   ============================================================================ */
+
+.tayco-display-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -0.014em;
+  line-height: 1.06;
+}
+
+.tayco-card-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.14;
+}
+
+.tayco-atelier-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.tayco-atelier-btn-gold {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 0.68rem 1.35rem;
+  border-radius: 9999px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: #060D1A;
+  background: linear-gradient(135deg, #FAF0D1 0%, #DFBE72 52%, #B68C38 100%);
+  border: 1px solid rgba(255, 246, 214, 0.92);
+  box-shadow:
+    0 12px 26px -10px rgba(0, 0, 0, 0.55),
+    0 0 20px -8px rgba(212, 175, 90, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  transition:
+    transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.26s ease,
+    filter 0.26s ease;
+}
+
+.tayco-atelier-btn-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 16px 32px -10px rgba(0, 0, 0, 0.65),
+    0 0 28px -4px rgba(232, 198, 112, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.tayco-atelier-btn-obsidian {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 0.68rem 1.35rem;
+  border-radius: 9999px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: #F6E6B8;
+  background: linear-gradient(155deg, rgba(16, 32, 60, 0.94) 0%, rgba(7, 14, 26, 0.98) 100%);
+  border: 1px solid rgba(212, 175, 90, 0.48);
+  box-shadow:
+    0 10px 24px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition:
+    transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.26s ease,
+    box-shadow 0.26s ease,
+    color 0.26s ease;
+}
+
+.tayco-atelier-btn-obsidian:hover {
+  transform: translateY(-2px);
+  color: #FFF7DE;
+  border-color: rgba(247, 228, 163, 0.88);
+  box-shadow:
+    0 14px 28px -10px rgba(0, 0, 0, 0.65),
+    0 0 22px -6px rgba(201, 168, 76, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.tayco-atelier-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  font-family: var(--sans);
+  border: 1px solid rgba(212, 175, 90, 0.38);
+  background: linear-gradient(155deg, rgba(14, 27, 50, 0.9) 0%, rgba(7, 14, 26, 0.95) 100%);
+  color: #F4EFE4;
+  cursor: pointer;
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.24s ease,
+    box-shadow 0.24s ease,
+    background 0.24s ease;
+}
+
+.tayco-atelier-pill:hover {
+  transform: translateY(-1.5px);
+  border-color: rgba(243, 211, 122, 0.8);
+}
+
+.tayco-atelier-pill[data-active="true"] {
+  background: linear-gradient(135deg, #FAF0D1 0%, #DFBE72 52%, #B68C38 100%);
+  border-color: rgba(255, 246, 214, 0.95);
+  color: #060D1A;
+  box-shadow:
+    0 12px 26px -10px rgba(0, 0, 0, 0.55),
+    0 0 22px -6px rgba(226, 198, 117, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 
 

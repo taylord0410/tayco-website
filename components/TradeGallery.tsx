@@ -148,7 +148,7 @@ export default function TradeGallery() {
 
       {/* Interactive CSI Trade Selection Pills */}
       <div
-        className="flex flex-wrap justify-center gap-2.5"
+        className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5"
         role="group"
         aria-label="Choose a trade"
       >
@@ -158,33 +158,19 @@ export default function TradeGallery() {
             <button
               key={t.slug}
               type="button"
-              aria-pressed={active === t.slug}
+              aria-pressed={on}
+              data-active={on ? "true" : "false"}
               data-magnetic
               onClick={() => setActive(t.slug)}
-              className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center gap-2"
-              style={
-                on
-                  ? {
-                      background:
-                        "linear-gradient(135deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)",
-                      borderColor: "#C9A84C",
-                      color: "#F3D37A",
-                      boxShadow: "0 12px 26px -10px rgba(201, 168, 76, 0.58)",
-                    }
-                  : {
-                      background: "rgba(11, 23, 42, 0.84)",
-                      borderColor: "rgba(201, 168, 76, 0.3)",
-                      color: "#F4F2EA",
-                    }
-              }
+              className="tayco-atelier-pill flex-row gap-2 py-2 px-3.5 sm:px-4 text-xs font-sans font-bold"
             >
               <span
-                className="font-mono text-[10px] px-2 py-0.5 rounded font-black tracking-wider"
+                className="text-[10px] font-mono px-1.5 py-0.5 rounded tracking-wider font-bold"
                 style={{
                   background: on
-                    ? "linear-gradient(135deg, #C9A84C 0%, #DFC06C 100%)"
+                    ? "rgba(6, 13, 26, 0.22)"
                     : "rgba(201, 168, 76, 0.16)",
-                  color: on ? "#070E1A" : "#F3D37A",
+                  color: on ? "#060D1A" : "#F3D37A",
                 }}
               >
                 {t.csi}
@@ -198,45 +184,35 @@ export default function TradeGallery() {
       {/* Active CSI Division Specification Banner */}
       <div
         data-response-kind="surface"
-        className="tayco-living-card p-5 sm:p-6 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-2xl"
+        className="tayco-living-card p-5 sm:p-6 rounded-2xl border flex flex-col lg:flex-row items-center justify-between text-center lg:text-left gap-4 shadow-2xl"
         style={{
           background:
             "linear-gradient(135deg, #070E1A 0%, #0F2040 58%, #1B3A6B 100%)",
           borderColor: "rgba(201, 168, 76, 0.48)",
         }}
       >
-        <div>
-          <div className="tayco-eyebrow mb-1.5" style={{ color: "#F3D37A" }}>
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+          <div className="tayco-atelier-eyebrow mb-1.5" style={{ color: "#F3D37A" }}>
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
           </div>
-          <p className="text-xs sm:text-sm font-medium" style={{ color: "#F4F2EA" }}>
+          <p className="text-xs sm:text-sm font-sans font-medium" style={{ color: "#F4F2EA" }}>
             {trade.spec}. Explore residential, multifamily and commercial applications.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 shrink-0">
           <Link
             href={`/estimate?trade=${encodeURIComponent(trade.csi)}`}
             data-magnetic
-            className="px-4 py-2.5 rounded-xl text-xs font-black transition-transform hover:scale-105 border"
-            style={{
-              background:
-                "linear-gradient(135deg, #C9A84C 0%, #DFC06C 55%, #F3D37A 100%)",
-              borderColor: "rgba(243, 211, 122, 0.75)",
-              color: "#070E1A",
-            }}
+            className="tayco-atelier-btn-gold text-xs font-bold"
           >
             Discuss {trade.name.toLowerCase()} →
           </Link>
           <Link
             href="/login"
             data-magnetic
-            className="px-4 py-2.5 rounded-xl text-xs font-bold border hover:bg-white/10 transition-colors"
-            style={{
-              borderColor: "rgba(201, 168, 76, 0.52)",
-              color: "#F3D37A",
-            }}
+            className="tayco-atelier-btn-obsidian text-xs font-bold"
           >
             Client sign in →
           </Link>
@@ -257,55 +233,55 @@ export default function TradeGallery() {
             <figure
               key={s.key}
               data-response-kind="surface"
-              className="tayco-living-card m-0 rounded-2xl overflow-hidden border p-4 flex flex-col justify-between group shadow-xl"
+              className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between group shadow-xl"
               style={{
                 background:
                   "linear-gradient(155deg, #0B172A 0%, #0F2040 55%, #070E1A 100%)",
                 borderColor: "rgba(201, 168, 76, 0.38)",
               }}
             >
-              <div className="flex items-center justify-between gap-2 mb-3 px-1">
-                <div>
-                  <figcaption
-                    className="text-xs font-black uppercase tracking-[0.18em] flex items-center gap-1.5"
-                    style={{ color: "#F3D37A" }}
+              <div className="flex flex-col items-center text-center gap-1 mb-3 px-1">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-mono text-[11px]" style={{ color: "#C9A84C" }}>
+                    {sectorIndex}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-300">
+                    {trade.csi}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setZoom({ src, alt, csi: trade.csi })}
+                    aria-label={`Zoom ${alt}`}
+                    className="project-open cursor-pointer w-8 h-8 rounded-lg border flex items-center justify-center transition-colors"
+                    style={{
+                      background: "rgba(7, 14, 26, 0.72)",
+                      borderColor: "rgba(201, 168, 76, 0.42)",
+                    }}
                   >
-                    <span className="font-mono text-[11px]" style={{ color: "#C9A84C" }}>
-                      {sectorIndex}
-                    </span>
-                    <span>{s.label}</span>
-                  </figcaption>
-                  <div className="text-[10px] font-mono text-slate-300 mt-0.5">
-                    {trade.csi} · {s.badge}
-                  </div>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#F3D37A"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="15 3 21 3 21 9" />
+                      <polyline points="9 21 3 21 3 15" />
+                      <line x1="21" y1="3" x2="14" y2="10" />
+                      <line x1="3" y1="21" x2="10" y2="14" />
+                    </svg>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setZoom({ src, alt, csi: trade.csi })}
-                  aria-label={`Zoom ${alt}`}
-                  className="project-open cursor-pointer w-8 h-8 rounded-lg border flex items-center justify-center transition-colors"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.72)",
-                    borderColor: "rgba(201, 168, 76, 0.42)",
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#F3D37A"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <polyline points="15 3 21 3 21 9" />
-                    <polyline points="9 21 3 21 3 15" />
-                    <line x1="21" y1="3" x2="14" y2="10" />
-                    <line x1="3" y1="21" x2="10" y2="14" />
-                  </svg>
-                </button>
+                <figcaption className="tayco-card-title text-xl sm:text-2xl text-white tracking-tight mt-1 text-center">
+                  {s.label}
+                </figcaption>
+                <div className="text-[11px] font-sans font-medium text-slate-300 text-center">
+                  {s.badge}
+                </div>
               </div>
 
               <button
@@ -349,7 +325,7 @@ export default function TradeGallery() {
               </button>
 
               <div
-                className="flex items-center justify-between gap-2 mt-3.5 pt-2.5 border-t text-[11px] font-mono"
+                className="flex items-center justify-between gap-2 mt-3.5 pt-2.5 border-t text-xs font-sans"
                 style={{ borderColor: "rgba(201, 168, 76, 0.2)" }}
               >
                 <Link
@@ -381,6 +357,7 @@ export default function TradeGallery() {
                   </svg>
                 </Link>
               </div>
+              <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
             </figure>
           );
         })}
@@ -394,13 +371,13 @@ export default function TradeGallery() {
         >
           <div className="text-center mb-8">
             <div
-              className="tayco-eyebrow justify-center mb-1.5"
+              className="tayco-atelier-eyebrow justify-center mb-1.5"
               style={{ color: "#F3D37A" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               CSI 09 60 00 / 03 35 43 FLOORING MATERIAL MATRIX
             </div>
-            <h3 className="text-xl sm:text-2xl font-black" style={{ color: "#F4F2EA" }}>
+            <h3 className="tayco-card-title text-xl sm:text-2xl font-bold text-center" style={{ color: "#F4F2EA" }}>
               Explore 15 flooring options
             </h3>
           </div>
@@ -410,7 +387,7 @@ export default function TradeGallery() {
               <figure
                 key={f.slug}
                 data-response-kind="surface"
-                className="tayco-living-card m-0 p-4 rounded-2xl border shadow-lg"
+                className="tayco-living-card relative m-0 p-4 rounded-2xl border shadow-lg text-center"
                 style={{
                   background:
                     "linear-gradient(145deg, rgba(11, 23, 42, 0.94) 0%, rgba(15, 32, 64, 0.9) 100%)",
@@ -419,7 +396,7 @@ export default function TradeGallery() {
               >
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <figcaption
-                    className="text-xs font-black uppercase tracking-wider"
+                    className="tayco-card-title text-sm sm:text-base font-bold text-center flex-1"
                     style={{ color: "#F3D37A" }}
                   >
                     {f.name}
@@ -459,6 +436,7 @@ export default function TradeGallery() {
                     );
                   })}
                 </div>
+                <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
               </figure>
             ))}
           </div>

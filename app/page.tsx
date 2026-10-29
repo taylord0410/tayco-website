@@ -725,7 +725,7 @@ export default function Home() {
 
             <Link href="/commercial" className="inline-block">
               <h2
-                className="font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
+                className="tayco-display-title font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
                 style={{
                   fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
                   lineHeight: 1.04,
@@ -812,23 +812,18 @@ export default function Home() {
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/commercial"
                 data-magnetic
-                className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                className="tayco-atelier-btn-gold text-center"
               >
                 View Commercial Services <span>→</span>
               </Link>
               <Link
                 href="/properties/commercial"
-                className="inline-flex items-center gap-1.5 font-mono font-bold px-4 py-3 rounded-xl text-xs transition-all duration-200 hover:scale-105 border backdrop-blur-md"
-                style={{
-                  background: "rgba(7, 14, 26, 0.82)",
-                  borderColor: "rgba(201, 168, 76, 0.55)",
-                  color: "#F3D37A",
-                }}
+                data-magnetic
+                className="tayco-atelier-btn-obsidian text-center"
               >
                 Commercial Properties (6) <span>↗</span>
               </Link>
@@ -985,7 +980,7 @@ export default function Home() {
 
             <Link href="/residential" className="inline-block">
               <h2
-                className="font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
+                className="tayco-display-title font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
                 style={{
                   fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
                   lineHeight: 1.04,
@@ -1076,46 +1071,29 @@ export default function Home() {
               <Link
                 href="/residential"
                 data-magnetic
-                className="inline-flex items-center gap-2 font-black px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:scale-105 shadow-lg border backdrop-blur-md"
-                style={{
-                  background: "rgba(201, 168, 76, 0.24)",
-                  borderColor: "rgba(243, 211, 122, 0.75)",
-                  color: "#F3D37A",
-                }}
+                className="tayco-atelier-btn-gold text-center"
               >
                 View Residential Services <span>→</span>
               </Link>
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Link
                   href="/properties/single-family"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.82)",
-                    borderColor: "rgba(243, 211, 122, 0.42)",
-                    color: "#F3D37A",
-                  }}
+                  data-magnetic
+                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
                 >
                   Single-Family Homes ↗
                 </Link>
                 <Link
                   href="/properties/duplexes"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.82)",
-                    borderColor: "rgba(243, 211, 122, 0.42)",
-                    color: "#F3D37A",
-                  }}
+                  data-magnetic
+                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
                 >
                   Multifamily ↗
                 </Link>
                 <Link
                   href="/properties/townhouses"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border backdrop-blur-md hover:border-[#F3D37A] transition-colors"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.82)",
-                    borderColor: "rgba(243, 211, 122, 0.42)",
-                    color: "#F3D37A",
-                  }}
+                  data-magnetic
+                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
                 >
                   Townhomes ↗
                 </Link>
@@ -1213,13 +1191,11 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div className="text-center lg:text-left">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-1">
-                <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                  TAYCO LLC · FULL-SERVICE CONSTRUCTION
-                </span>
+          <div className="flex flex-col items-center justify-center text-center gap-4">
+            <div className="flex flex-col items-center text-center max-w-3xl">
+              <div className="tayco-atelier-eyebrow flex flex-wrap items-center justify-center gap-2 mb-2" style={{ color: "#F3D37A" }}>
+                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                <span>TAYCO LLC · FULL-SERVICE CONSTRUCTION</span>
                 <span
                   className="text-xs font-mono font-bold px-2 py-0.5 rounded"
                   style={{
@@ -1230,38 +1206,31 @@ export default function Home() {
                   {COMPANY.coverage}
                 </span>
               </div>
-              <p className="text-white font-bold text-sm sm:text-base">
+              <p className="text-white font-bold text-sm sm:text-base text-center">
                 Commercial construction, home renovations and restoration. Tell us
                 what you need and where you need it.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/login"
                 data-magnetic
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-transform hover:scale-105 shadow-md"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                className="tayco-atelier-btn-gold text-center"
               >
                 Project portal sign in →
               </Link>
               <Link
                 href="/estimate"
                 data-magnetic
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white border transition-colors hover:bg-white/10"
-                style={{ borderColor: "rgba(201,168,76,0.55)" }}
+                className="tayco-atelier-btn-obsidian text-center"
               >
                 Request a free estimate
               </Link>
               <Link
                 href="/login"
                 data-magnetic
-                className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-white border transition-colors"
-                style={{
-                  background: "rgba(201, 168, 76, 0.14)",
-                  borderColor: "rgba(201, 168, 76, 0.45)",
-                  color: "#F3D37A",
-                }}
+                className="tayco-atelier-btn-obsidian text-center"
               >
                 Trade partner sign in
               </Link>
@@ -1300,18 +1269,19 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           {/* Editorial Top Row */}
           <div
-            className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-8 border-b"
+            className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-8 border-b text-center"
             style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
           >
             <span
-              className="tayco-eyebrow font-bold"
+              className="tayco-atelier-eyebrow font-bold justify-center"
               style={{ color: "#1B3A6B" }}
             >
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               01 / TYPES OF WORK WE PERFORM
             </span>
+            <span className="hidden sm:inline text-slate-400">·</span>
             <span
-              className="text-[11px] font-mono uppercase tracking-widest"
+              className="text-[11px] font-mono uppercase tracking-widest text-center"
               style={{ color: "#1B3A6B" }}
             >
               18 CURATED FIELD PHOTOGRAPHS · 3 INTERACTIVE FRAMES PER SERVICE
@@ -1319,10 +1289,10 @@ export default function Home() {
           </div>
 
           {/* Editorial Heading + Filter Pills */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
-            <div>
+          <div className="flex flex-col items-center justify-center text-center mb-12 gap-6">
+            <div className="text-center max-w-3xl mx-auto">
               <h2
-                className="font-black tracking-tight"
+                className="tayco-display-title text-center mx-auto"
                 style={{
                   color: "#0F2040",
                   fontSize: "clamp(2.2rem, 4.5vw, 3.75rem)",
@@ -1338,7 +1308,7 @@ export default function Home() {
                 </em>
               </h2>
               <p
-                className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
+                className="text-sm sm:text-base mt-3 max-w-2xl mx-auto text-center leading-relaxed"
                 style={{ color: "#334155" }}
               >
                 From a single room to a commercial property, find the right team
@@ -1349,7 +1319,7 @@ export default function Home() {
 
             {/* Interactive Filter Pills */}
             <div
-              className="flex flex-wrap items-center gap-2"
+              className="flex flex-wrap items-center justify-center gap-2.5"
               role="group"
               aria-label="Filter TAYCO services"
             >
@@ -1373,11 +1343,12 @@ export default function Home() {
                     key={pill.id}
                     type="button"
                     data-magnetic
+                    data-active={active}
                     aria-pressed={active}
                     onClick={() => setActiveFilter(pill.id as ServiceFilter)}
-                    className="px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer border"
+                    className="tayco-atelier-pill text-xs font-bold"
                     style={{
-                      background: active ? "#0F2040" : "rgba(255,255,255,0.75)",
+                      background: active ? "#0F2040" : "rgba(255,255,255,0.85)",
                       color: active ? "#F3D37A" : "#0F2040",
                       borderColor: active
                         ? "#0F2040"
@@ -1387,10 +1358,12 @@ export default function Home() {
                         : "none",
                     }}
                   >
-                    {pill.label}
-                    <sup className="ml-1 text-[10px] opacity-80">
-                      ({pill.count})
-                    </sup>
+                    <span>
+                      {pill.label}
+                      <sup className="ml-1 text-[10px] opacity-80">
+                        ({pill.count})
+                      </sup>
+                    </span>
                   </button>
                 );
               })}
@@ -1398,7 +1371,7 @@ export default function Home() {
           </div>
 
           {/* 6 Interactive Ivory Triptych Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {filteredCards.map((card) => {
               const activeFrameIdx = cardFrameMap[card.id] ?? 0;
               const currentFrame = card.frames[activeFrameIdx] ?? card.frames[0];
@@ -1407,7 +1380,7 @@ export default function Home() {
                 <div
                   key={card.id}
                   data-response-kind="surface"
-                  className="tayco-living-card editorial-ivory-card p-5 flex flex-col justify-between group"
+                  className="tayco-living-card editorial-ivory-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 flex flex-col justify-between items-center text-center group"
                 >
                   <div className="preview-orbits" aria-hidden="true">
                     <i />
@@ -1415,10 +1388,10 @@ export default function Home() {
                     <i />
                   </div>
 
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="relative z-10 w-full flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3 w-full">
                       <div
-                        className="tayco-eyebrow font-bold"
+                        className="tayco-atelier-eyebrow font-bold justify-center"
                         style={{ color: "#1B3A6B" }}
                       >
                         <span
@@ -1437,7 +1410,7 @@ export default function Home() {
                     </div>
 
                     {/* Interactive 3-Photo Triptych Stage */}
-                    <div className="mb-4">
+                    <div className="mb-4 w-full">
                       <div
                         role="button"
                         tabIndex={0}
@@ -1445,7 +1418,7 @@ export default function Home() {
                           setExpandedLightbox({
                             src: currentFrame.src,
                             title: currentFrame.caption,
-                            subtitle: `${card.code} · ${currentFrame.csi}`,
+                            subtitle: `${(card as any).code ?? card.id} · ${currentFrame.csi}`,
                           })
                         }
                         onKeyDown={(e) => {
@@ -1454,7 +1427,7 @@ export default function Home() {
                             setExpandedLightbox({
                               src: currentFrame.src,
                               title: currentFrame.caption,
-                              subtitle: `${card.code} · ${currentFrame.csi}`,
+                              subtitle: `${(card as any).code ?? card.id} · ${currentFrame.csi}`,
                             });
                           }
                         }}
@@ -1498,19 +1471,20 @@ export default function Home() {
                         >
                           0{activeFrameIdx + 1}/03 · Expand ↗
                         </span>
-                        <div className="absolute bottom-2 left-2.5 right-2.5 text-[11px] font-bold text-white line-clamp-1 drop-shadow">
+                        <div className="absolute bottom-2 left-2.5 right-2.5 text-[11px] font-bold text-white text-center line-clamp-1 drop-shadow">
                           {currentFrame.caption}
                         </div>
                       </div>
 
-                      {/* 3 Triptych Caption Switchers (No duplicate mini images) */}
-                      <div className="grid grid-cols-3 gap-2 mt-2">
+                      {/* Sleek centered 01 · 02 · 03 capsule switcher */}
+                      <div className="flex items-center justify-center gap-2 mt-2.5">
                         {card.frames.map((frame, fIdx) => {
                           const isSelected = fIdx === activeFrameIdx;
                           return (
                             <button
                               key={frame.src}
                               type="button"
+                              data-magnetic
                               onClick={() =>
                                 selectCardFrame(
                                   card.id,
@@ -1525,26 +1499,22 @@ export default function Home() {
                                   card.frames.map((f) => f.src)
                                 )
                               }
-                              className="px-2 py-1.5 rounded-lg border text-left transition-all cursor-pointer"
+                              className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border"
                               style={{
                                 background: isSelected
                                   ? "#0F2040"
-                                  : "rgba(7, 14, 26, 0.85)",
+                                  : "rgba(15, 32, 64, 0.08)",
+                                color: isSelected ? "#F3D37A" : "#1B3A6B",
                                 borderColor: isSelected
                                   ? "#C9A84C"
-                                  : "rgba(15, 32, 64, 0.25)",
+                                  : "rgba(27, 58, 107, 0.2)",
                                 boxShadow: isSelected
-                                  ? "0 0 0 1px #C9A84C"
+                                  ? "0 4px 12px -2px rgba(15, 32, 64, 0.35)"
                                   : "none",
                               }}
-                              aria-label={`Preview ${frame.caption}`}
+                              aria-label={`Preview frame 0${fIdx + 1}: ${frame.caption}`}
                             >
-                              <div className="text-[9px] font-mono font-bold text-[#F3D37A]">
-                                PHOTO 0{fIdx + 1}
-                              </div>
-                              <div className="text-[10px] font-semibold text-white truncate">
-                                {frame.caption}
-                              </div>
+                              0{fIdx + 1}
                             </button>
                           );
                         })}
@@ -1552,7 +1522,7 @@ export default function Home() {
                     </div>
 
                     <h3
-                      className="text-xl font-black leading-snug"
+                      className="tayco-card-title text-xl font-black leading-snug text-center mx-auto"
                       style={{ color: "#0F2040" }}
                     >
                       {card.title}{" "}
@@ -1564,13 +1534,13 @@ export default function Home() {
                       </em>
                     </h3>
                     <div
-                      className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1"
+                      className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1 text-center"
                       style={{ color: "#B8922F" }}
                     >
                       {card.subtitle}
                     </div>
                     <p
-                      className="text-xs mt-2 leading-relaxed font-medium"
+                      className="text-xs mt-2 leading-relaxed font-medium text-center max-w-sm mx-auto"
                       style={{ color: "#334155" }}
                     >
                       {card.summary}
@@ -1578,23 +1548,21 @@ export default function Home() {
                   </div>
 
                   <div
-                    className="relative z-10 mt-5 pt-4 border-t"
+                    className="relative z-10 mt-5 pt-4 border-t w-full flex flex-col items-center text-center"
                     style={{ borderColor: "rgba(27, 58, 107, 0.14)" }}
                   >
-                    <div className="flex items-end justify-between gap-2 mb-3.5">
-                      <div>
-                        <div
-                          className="text-lg font-black font-mono"
-                          style={{ color: card.stroke }}
-                        >
-                          {card.metric}
-                        </div>
-                        <div
-                          className="text-[10px] font-mono uppercase tracking-wider font-semibold"
-                          style={{ color: "#475569" }}
-                        >
-                          {card.metricLabel}
-                        </div>
+                    <div className="flex flex-col items-center justify-center gap-1 mb-3.5 w-full text-center">
+                      <div
+                        className="text-lg font-black font-mono text-center"
+                        style={{ color: card.stroke }}
+                      >
+                        {card.metric}
+                      </div>
+                      <div
+                        className="text-[10px] font-mono uppercase tracking-wider font-semibold text-center"
+                        style={{ color: "#475569" }}
+                      >
+                        {card.metricLabel}
                       </div>
                       <svg
                         width="116"
@@ -1602,7 +1570,7 @@ export default function Home() {
                         viewBox="0 0 116 34"
                         fill="none"
                         aria-hidden="true"
-                        className="shrink-0"
+                        className="mx-auto mt-1"
                       >
                         <path
                           d={card.sparkPath}
@@ -1617,12 +1585,7 @@ export default function Home() {
                     <Link
                       href={card.href}
                       data-magnetic
-                      className="inline-flex items-center justify-between w-full text-xs font-extrabold px-4 py-2.5 rounded-xl border transition-all"
-                      style={{
-                        background: "#0F2040",
-                        color: "#F3D37A",
-                        borderColor: "#1B3A6B",
-                      }}
+                      className="tayco-atelier-btn-obsidian w-full text-center justify-center text-xs"
                     >
                       <span>{card.cta}</span>
                       <span style={{ color: "#C9A84C" }}>→</span>
@@ -1669,46 +1632,50 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
-            <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+          <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-10 border-b border-white/10 text-center">
+            <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               02 / MATERIALS IN A DIFFERENT LIGHT
             </span>
+            <span className="hidden sm:inline text-slate-500">·</span>
             <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
               6 REAL ARCHITECTURAL SURFACES · RAKING ANGLE (0°–90°) + KELVIN STUDIO
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <h2
+              className="tayco-display-title font-black text-white tracking-tight text-center mx-auto"
+              style={{
+                fontSize: "clamp(2rem, 4vw, 3.2rem)",
+                lineHeight: 1.05,
+              }}
+            >
+              Every slab &amp; finish changes{" "}
+              <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
+                under raking light.
+              </em>
+            </h2>
+            <p className="text-sm text-slate-300 mt-3 leading-relaxed text-center mx-auto max-w-2xl">
+              Select one of the{" "}
+              <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
+                6 architectural surface textures
+              </span>
+              , sweep the raking light from{" "}
+              <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
+                0°
+              </span>{" "}
+              to{" "}
+              <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
+                90°
+              </span>{" "}
+              and switch Kelvin color temperature to see how grain, relief and specular sheen respond.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Left Controls Column */}
-            <div className="lg:col-span-5">
-              <h2
-                className="font-black text-white tracking-tight"
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 3.2rem)",
-                  lineHeight: 1.05,
-                }}
-              >
-                Every slab &amp; finish changes{" "}
-                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  under raking light.
-                </em>
-              </h2>
-              <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                Select one of the{" "}
-                <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
-                  6 architectural surface textures
-                </span>
-                , sweep the raking light from{" "}
-                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
-                  0°
-                </span>{" "}
-                to{" "}
-                <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
-                  90°
-                </span>{" "}
-                and switch Kelvin color temperature to see how grain, relief and specular sheen respond.
-              </p>
+            <div className="lg:col-span-5 flex flex-col justify-between">
 
               {/* 6 Real Material Texture Switcher Buttons */}
               <div
@@ -1739,20 +1706,18 @@ export default function Home() {
                       }}
                     >
                       <span className="flex items-center gap-3 min-w-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <ProtectedImage
-                          src={study.image}
-                          alt=""
-                          loading="lazy"
-                          className="w-10 h-8 rounded-lg object-cover border shrink-0"
-                          style={{
-                            borderColor: selected
-                              ? study.color
-                              : "rgba(255,255,255,0.2)",
-                          }}
-                        />
                         <span
-                          className="text-xs font-mono font-bold leading-snug truncate"
+                          className="w-8 h-8 rounded-full border flex items-center justify-center shrink-0 font-mono text-[10px] font-bold"
+                          style={{
+                            borderColor: study.color,
+                            color: study.color,
+                            background: selected ? `${study.color}33` : "rgba(7, 14, 26, 0.8)",
+                          }}
+                        >
+                          0{study.index + 1}
+                        </span>
+                        <span
+                          className="text-xs font-semibold leading-snug truncate"
                           style={{
                             color: selected ? "#ffffff" : "#CBD5E1",
                           }}
@@ -1884,10 +1849,10 @@ export default function Home() {
             </div>
 
             {/* Right Interactive Surface Stage with Real Material Photograph */}
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 flex flex-col">
               <div
                 data-response-kind="surface"
-                className="tayco-living-card light-experiment"
+                className="tayco-living-card light-experiment h-full flex flex-col justify-between"
                 style={
                   {
                     "--study-color": currentStudy.color,
@@ -1899,8 +1864,7 @@ export default function Home() {
                 }
               >
                 <div
-                  className="light-surface relative overflow-hidden"
-                  style={{ minHeight: "390px" }}
+                  className="light-surface relative overflow-hidden flex-1 min-h-[380px]"
                 >
                   {/* Real High-Relief Surface Photograph */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2006,8 +1970,7 @@ export default function Home() {
                   <Link
                     href="/estimate"
                     data-magnetic
-                    className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-transform hover:scale-105 text-center"
-                    style={{ background: "#C9A84C", color: "#070E1A" }}
+                    className="tayco-atelier-btn-gold shrink-0 text-center"
                   >
                     Discuss your finishes →
                   </Link>
@@ -2053,23 +2016,24 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
-            <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
+          <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-10 border-b border-white/10 text-center">
+            <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               03 / FROM FIRST CONVERSATION TO FINISHED SPACE
             </span>
+            <span className="hidden sm:inline text-slate-500">·</span>
             <span
-              className="text-[11px] font-mono uppercase tracking-widest"
+              className="text-[11px] font-mono uppercase tracking-widest text-center"
               style={{ color: "#F3D37A" }}
             >
               5-PHASE FIELD PROGRESSION · SITE PREP TO FINAL HANDOVER
             </span>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
-            <div>
+          <div className="flex flex-col items-center justify-center text-center mb-10 gap-6">
+            <div className="text-center max-w-3xl mx-auto">
               <h2
-                className="font-black text-white tracking-tight"
+                className="tayco-display-title font-black text-white tracking-tight text-center mx-auto"
                 style={{
                   fontSize: "clamp(2rem, 4vw, 3.25rem)",
                   lineHeight: 1.05,
@@ -2080,27 +2044,25 @@ export default function Home() {
                   a shared plan.
                 </em>
               </h2>
-              <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl mx-auto text-center leading-relaxed">
                 Explore how a TAYCO project progresses from initial site survey
                 and structural framing to rough-in, custom millwork and final
                 turnkey handover.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/estimate"
                 data-magnetic
-                className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-transform hover:scale-105"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
+                className="tayco-atelier-btn-gold text-center"
               >
                 Start a project conversation →
               </Link>
               <Link
                 href="/login"
                 data-magnetic
-                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white border hover:bg-white/10 transition-colors"
-                style={{ borderColor: "rgba(201, 168, 76, 0.5)" }}
+                className="tayco-atelier-btn-obsidian text-center"
               >
                 Existing client sign in →
               </Link>
@@ -2125,8 +2087,9 @@ export default function Home() {
                     <button
                       key={step.code}
                       type="button"
+                      data-magnetic
                       onClick={() => setActiveStepIdx(idx)}
-                      className="p-2.5 rounded-xl border text-left transition-all cursor-pointer"
+                      className="p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition-all cursor-pointer"
                       style={{
                         background: selected
                           ? "rgba(201, 168, 76, 0.22)"
@@ -2136,7 +2099,7 @@ export default function Home() {
                           : "rgba(201, 168, 76, 0.25)",
                       }}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-center gap-1.5 w-full">
                         <span
                           className="font-mono text-xs font-black"
                           style={{ color: selected ? "#F3D37A" : "#C9A84C" }}
@@ -2145,12 +2108,12 @@ export default function Home() {
                         </span>
                         {selected && (
                           <span
-                            className="w-2 h-2 rounded-full"
+                            className="w-1.5 h-1.5 rounded-full"
                             style={{ background: "#F3D37A" }}
                           />
                         )}
                       </div>
-                      <div className="text-xs font-bold text-white truncate mt-0.5">
+                      <div className="text-xs font-bold text-white truncate mt-0.5 text-center">
                         {step.name}
                       </div>
                     </button>
@@ -2272,13 +2235,13 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {PROJECT_STEPS.map((contract, idx) => (
               <div
                 key={contract.code}
                 data-response-kind="surface"
                 onClick={() => setActiveStepIdx(idx)}
-                className="tayco-living-card p-5 rounded-2xl flex flex-col justify-between group cursor-pointer"
+                className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-2xl flex flex-col justify-between items-center text-center group cursor-pointer"
                 style={{
                   background:
                     "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
@@ -2294,7 +2257,7 @@ export default function Home() {
                   <i />
                 </div>
 
-                <div className="relative z-10">
+                <div className="relative z-10 w-full flex flex-col items-center text-center">
                   {/* Phase Card Architectural Photo Header */}
                   <div
                     className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
@@ -2331,57 +2294,53 @@ export default function Home() {
                     >
                       ↗
                     </Link>
-                    <span className="absolute bottom-2 left-2.5 text-[10px] font-mono text-amber-200 font-bold">
+                    <span className="absolute bottom-2 left-2.5 right-2.5 text-[10px] font-mono text-amber-200 font-bold text-center">
                       {contract.csiTag}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-black text-white leading-snug">
+                  <h3 className="tayco-card-title text-lg font-black text-white leading-snug text-center mx-auto">
                     {contract.code} · {contract.name}
                   </h3>
                   <div
-                    className="text-xs font-mono mt-1"
+                    className="text-xs font-mono mt-1 text-center"
                     style={{ color: "#F3D37A" }}
                   >
                     {contract.location} · {contract.sqft}
                   </div>
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  <p className="text-xs text-slate-300 mt-2 leading-relaxed text-center max-w-xs mx-auto">
                     {contract.division} — {contract.phase}
                   </p>
                 </div>
 
-                <div className="relative z-10 mt-5 pt-4 border-t border-white/10">
-                  <div className="flex items-baseline justify-between gap-2 mb-3">
-                    <div>
-                      <div
-                        className="text-xl font-black font-mono"
-                        style={{ color: "#F3D37A" }}
-                      >
-                        {contract.headline}
-                      </div>
-                      <div
-                        className="text-[10px] font-mono uppercase tracking-wider"
-                        style={{ color: "#DFC06C" }}
-                      >
-                        {contract.status}
-                      </div>
+                <div className="relative z-10 mt-5 pt-4 border-t border-white/10 w-full flex flex-col items-center text-center">
+                  <div className="flex flex-col items-center justify-center gap-1 mb-3.5 w-full text-center">
+                    <div
+                      className="text-xl font-black font-mono text-center"
+                      style={{ color: "#F3D37A" }}
+                    >
+                      {contract.headline}
+                    </div>
+                    <div
+                      className="text-[10px] font-mono uppercase tracking-wider text-center"
+                      style={{ color: "#DFC06C" }}
+                    >
+                      {contract.status}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 w-full">
                     <Link
                       href={contract.requestHref}
                       data-magnetic
-                      className="px-3 py-2 rounded-xl text-[11px] font-black text-center transition-transform hover:scale-105"
-                      style={{ background: "#C9A84C", color: "#070E1A" }}
+                      className="tayco-atelier-btn-gold text-[10px] py-2 px-2 text-center justify-center"
                     >
-                      Request an estimate →
+                      Request estimate →
                     </Link>
                     <Link
                       href={contract.loginHref}
                       data-magnetic
-                      className="px-3 py-2 rounded-xl text-[11px] font-bold text-center text-white border hover:bg-white/10 transition-colors"
-                      style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
+                      className="tayco-atelier-btn-obsidian text-[10px] py-2 px-2 text-center justify-center"
                     >
                       Client sign in →
                     </Link>
@@ -2393,7 +2352,7 @@ export default function Home() {
             {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card p-5 rounded-2xl flex flex-col justify-between group"
+              className="tayco-living-card w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-2xl flex flex-col justify-between items-center text-center group"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
@@ -2406,7 +2365,7 @@ export default function Home() {
                 <i />
               </div>
 
-              <div className="relative z-10">
+              <div className="relative z-10 w-full flex flex-col items-center text-center">
                 <div
                   className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
                   style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
@@ -2426,35 +2385,34 @@ export default function Home() {
                     }}
                   />
                   <span
-                    className="absolute bottom-2 left-2.5 text-[10px] font-mono font-bold"
+                    className="absolute bottom-2 left-2.5 right-2.5 text-[10px] font-mono font-bold text-center"
                     style={{ color: "#F3D37A" }}
                   >
                     WI · IL · IA · IN · MN · MI · MO · TX
                   </span>
                 </div>
 
-                <div className="tayco-eyebrow mb-2" style={{ color: "#F3D37A" }}>
+                <div className="tayco-atelier-eyebrow mb-2 justify-center" style={{ color: "#F3D37A" }}>
                   <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                   SERVING EIGHT STATES
                 </div>
-                <h3 className="text-xl font-black text-white leading-snug">
+                <h3 className="tayco-card-title text-xl font-black text-white leading-snug text-center mx-auto">
                   Your next project{" "}
                   <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
                     Across 8 States
                   </em>
                 </h3>
-                <p className="text-xs text-slate-200 mt-2 leading-relaxed">
+                <p className="text-xs text-slate-200 mt-2 leading-relaxed text-center max-w-xs mx-auto">
                   We serve WI, IL, IA, IN, MN, MI, MO and TX. Contact us to
                   confirm your location, project scope and scheduling.
                 </p>
               </div>
 
-              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 space-y-2">
+              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 space-y-2 w-full flex flex-col items-center">
                 <Link
                   href="/commercial"
                   data-magnetic
-                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
+                  className="tayco-atelier-btn-gold w-full text-center justify-center text-xs"
                 >
                   <span>Explore Commercial Division</span>
                   <span>→</span>
@@ -2462,12 +2420,7 @@ export default function Home() {
                 <Link
                   href="/residential"
                   data-magnetic
-                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-black border"
-                  style={{
-                    background: "rgba(201, 168, 76, 0.16)",
-                    borderColor: "rgba(243, 211, 122, 0.55)",
-                    color: "#F3D37A",
-                  }}
+                  className="tayco-atelier-btn-obsidian w-full text-center justify-center text-xs"
                 >
                   <span>Explore Residential Services</span>
                   <span>→</span>
