@@ -798,6 +798,8 @@ html {
 .tayco-nav-bar {
   min-height: 4.5rem;
   width: min(100%, 90rem);
+  max-width: 100%;
+  box-sizing: border-box;
   margin-inline: auto;
   padding-inline: clamp(0.875rem, 2.2vw, 2rem);
   display: flex;
@@ -808,7 +810,9 @@ html {
 .tayco-brand {
   display: inline-flex;
   align-items: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
   gap: 0.7rem;
   min-height: 44px;
   text-decoration: none;
@@ -986,13 +990,17 @@ html {
   color: #f3d37a;
 }
 .tayco-mobile-actions {
-  display: flex;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   gap: 0.45rem;
 }
 .tayco-menu-toggle {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
   color: #f8e7b5;
   border: 1px solid rgba(212, 175, 90, 0.45);
   background: linear-gradient(155deg, rgba(16, 32, 60, 0.92), rgba(7, 14, 26, 0.96));
@@ -1105,6 +1113,18 @@ html {
     display: none;
   }
 }
+@media (max-width: 520px) {
+  .tayco-nav-bar { gap: 0.5rem; padding-inline: 0.75rem; min-height: 4rem; }
+  .tayco-brand-name > span { display: none !important; }
+  .tayco-brand-name strong { white-space: nowrap; }
+  .tayco-nav-signin { padding-inline: 0.65rem; font-size: 0.66rem; min-height: 40px; white-space: nowrap; }
+}
+@media (max-width: 1079px) {
+  .tayco-site-header { background: rgba(7, 13, 25, 0.97); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+}
+.tayco-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.tayco-no-scrollbar::-webkit-scrollbar { display: none; }
+[data-tayco-modal-open="true"] [data-testid="public-cookie-trigger"] { display: none !important; }
 @media (max-width: 389px) {
   .tayco-nav-bar { gap: 0.4rem; padding-inline: 0.75rem; }
   .tayco-brand { gap: 0.45rem; }

@@ -1269,7 +1269,7 @@ export default function Home() {
       {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION WITH 3-PHOTO TRIPTYCHS ── */}
       <section
         id="tayco-operations-showcase"
-        className="section-editorial-ivory py-16 sm:py-20 px-4 sm:px-8"
+        className="section-editorial-ivory py-10 sm:py-20 px-4 sm:px-8"
       >
         <div className="max-w-7xl mx-auto">
           {/* Editorial Top Row */}
@@ -1629,7 +1629,7 @@ export default function Home() {
         id="tayco-light-studio"
         data-light-table
         data-study={activeStudy}
-        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
+        className="py-10 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
         style={{
           background:
             "radial-gradient(circle at 18% 20%, rgba(201, 168, 76, 0.14), transparent 55%), radial-gradient(circle at 85% 80%, rgba(27, 58, 107, 0.45), transparent 60%), #070E1A",
@@ -2013,7 +2013,7 @@ export default function Home() {
       {/* ── 03 / INTERACTIVE 5-PHASE CONSTRUCTION TIMELINE & VERIFIED TRACK RECORD ── */}
       <section
         id="tayco-verified-track-record"
-        className="py-16 sm:py-24 px-4 sm:px-8 border-t relative z-10"
+        className="py-10 sm:py-24 px-4 sm:px-8 border-t relative z-10"
         style={{
           background:
             "linear-gradient(180deg, #070E1A 0%, #0F2040 55%, #070E1A 100%)",

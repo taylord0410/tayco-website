@@ -348,7 +348,13 @@ function MarketSpecialtyInteractiveCard({
                 specialtyId={service.specialtyId}
                 className="w-3.5 h-3.5 text-[#F3D37A]"
               />
-              <span>{service.specialtyLabel}</span>
+              <span>
+                {service.specialtyLabel === "Siding"
+                  ? "Exterior Siding"
+                  : service.specialtyLabel === "Framing"
+                    ? "Structural Framing"
+                    : service.specialtyLabel}
+              </span>
             </span>
 
             <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-sm border border-white/15">
@@ -369,7 +375,7 @@ function MarketSpecialtyInteractiveCard({
                       e.stopPropagation();
                       setMood(m.id);
                     }}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                    className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                     style={{
                       background: active ? "#E5C97B" : "transparent",
                       color: active ? "#050A14" : "#CBD5E1",
@@ -407,8 +413,8 @@ function MarketSpecialtyInteractiveCard({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="min-w-0 flex items-center gap-2">
-              <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
-                #{currentAssetId} · 0{activeIdx + 1}/03
+              <span translate="no" className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
+                <span className="hidden sm:inline">#{currentAssetId} · </span>0{activeIdx + 1}/03
               </span>
               <span className="text-white/40 text-[10px] hidden sm:inline" aria-hidden="true">·</span>
               <span className="text-xs font-semibold text-white drop-shadow truncate max-w-[150px] sm:max-w-xs">
@@ -432,7 +438,7 @@ function MarketSpecialtyInteractiveCard({
                       selectFrame(idx);
                     }}
                     onPointerEnter={() => selectFrame(idx)}
-                    className="w-6 h-6 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
+                    className="min-w-[34px] min-h-[34px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
                     style={{
                       background: isSelected
                         ? "linear-gradient(135deg, #F6E29C 0%, #C9A84C 100%)"
@@ -441,7 +447,7 @@ function MarketSpecialtyInteractiveCard({
                     }}
                     title={f.label}
                   >
-                    0{idx + 1}
+                    <span translate="no">0{idx + 1}</span>
                   </button>
                 );
               })}
@@ -450,7 +456,7 @@ function MarketSpecialtyInteractiveCard({
         </div>
 
         {/* V46 Balanced Space-Utilizing Interior Body */}
-        <div className="p-5 sm:p-6 flex flex-col text-left">
+        <div className="p-4 sm:p-6 flex flex-col text-left">
           <TaycoCardMetaBar
             leftBadge={
               <span
@@ -464,21 +470,21 @@ function MarketSpecialtyInteractiveCard({
                 {service.code}
               </span>
             }
-            rightMeta={<span>{service.csiDivision}</span>}
+            rightMeta={<span translate="no">{service.csiDivision}</span>}
           />
 
-          <h3 className="tayco-card-title text-2xl sm:text-[1.65rem] text-white leading-snug mt-3.5">
+          <h3 className="tayco-card-title text-xl sm:text-[1.65rem] text-white leading-snug mt-3">
             {service.title}
           </h3>
-          <p className="text-xs sm:text-sm font-medium text-[#F3D37A] mt-1">
+          <p className="text-xs sm:text-sm font-medium text-[#F3D37A] mt-1 line-clamp-2 sm:line-clamp-none">
             {service.subtitle}
           </p>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed my-3.5">
+          <p className="hidden sm:block text-sm text-slate-300 leading-relaxed my-3.5">
             {service.summary}
           </p>
 
-          <TaycoDeliverableGrid items={service.deliverables} columns={2} className="mt-1" />
+          <TaycoDeliverableGrid items={service.deliverables} columns={2} className="mt-3 sm:mt-1" />
         </div>
       </div>
 
@@ -486,8 +492,8 @@ function MarketSpecialtyInteractiveCard({
       <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
         <TaycoCardFooterBar
           leftMeta={
-            <span className="text-[10px] font-mono text-[#F3D37A]/85 tracking-wider">
-              3 Views · 24h Solar · #{currentAssetId}
+            <span className="text-[10px] font-mono text-[#F3D37A]/85 tracking-wider" translate="no">
+              3 Views · 24h Solar<span className="hidden sm:inline"> · #{currentAssetId}</span>
             </span>
           }
         >
@@ -505,7 +511,7 @@ function MarketSpecialtyInteractiveCard({
             className="tayco-atelier-btn-gold group/btn"
           >
             <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-            <span>Expand {service.specialtyLabel} Studio</span>
+            <span>Expand {service.specialtyLabel === "Siding" ? "Exterior Siding" : service.specialtyLabel === "Framing" ? "Structural Framing" : service.specialtyLabel} Studio</span>
             <StudioActionIcon
               kind="arrow-right"
               className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
@@ -665,7 +671,7 @@ function PropertyCardInteractiveStage({
                     e.stopPropagation();
                     setCardMood(m.id);
                   }}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                  className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                   style={{
                     background: active ? "#E5C97B" : "transparent",
                     color: active ? "#050A14" : "#CBD5E1",
@@ -767,6 +773,9 @@ export function LandingPropertyCategoriesSection() {
     string | undefined
   >(undefined);
   const [studioSolarHour, setStudioSolarHour] = useState<number>(12.5);
+  const [mobileMarketSlug, setMobileMarketSlug] = useState<string>(
+    PROPERTY_CATEGORIES[0].slug
+  );
 
   useEffect(() => {
     const allPreviewUrls: string[] = [];
@@ -838,26 +847,42 @@ export function LandingPropertyCategoriesSection() {
               Construction Market.
             </em>
           </h2>
-          <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Select your market below (
-            <strong className="text-white">Single-Family Homes</strong>,{" "}
-            <strong className="text-white">Multifamily</strong>,{" "}
-            <strong className="text-white">Townhomes</strong>, or{" "}
-            <strong className="text-white">Commercial</strong>) to explore all
-            of our construction services organized by specialty (
-            <strong className="text-[#F3D37A]">
-              Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone
-              &amp; Millwork
-            </strong>
-            ) alongside market-specific project galleries and{" "}
-            <strong className="text-[#F3D37A]">
-              Day/Night Solar Walkthroughs
-            </strong>
-            .
+          <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto line-clamp-3 sm:line-clamp-none">
+            Pick a market to explore{" "}
+            <strong className="text-[#F3D37A]">eight specialties</strong>, curated project
+            galleries and{" "}
+            <strong className="text-[#F3D37A]">day/night solar walkthroughs</strong>.
           </p>
 
+          {/* Mobile market switcher — one market at a time */}
+          <div
+            role="tablist"
+            aria-label="Choose your construction market"
+            className="mt-5 grid w-full max-w-md grid-cols-2 gap-2 md:hidden"
+          >
+            {PROPERTY_CATEGORIES.map((cat) => {
+              const active = cat.slug === mobileMarketSlug;
+              return (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setMobileMarketSlug(cat.slug)}
+                  className={`min-h-[44px] rounded-xl border px-3 text-xs font-semibold transition-all ${
+                    active
+                      ? "border-[#F3D37A] bg-gradient-to-br from-[#f6e29c] via-[#d9b14a] to-[#b58928] text-slate-950"
+                      : "border-[#C9A84C]/35 bg-[#0F2040]/80 text-[#F3D37A]"
+                  }`}
+                >
+                  {cat.label.replace(" Homes", "")}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Direct Market Quick-Links + View All */}
-          <TaycoPillDock ariaLabel="Choose your construction market" className="mt-6">
+          <TaycoPillDock ariaLabel="Choose your construction market" className="mt-6 max-md:hidden">
             <Link
               href="/properties"
               data-magnetic
@@ -884,11 +909,6 @@ export function LandingPropertyCategoriesSection() {
           </TaycoPillDock>
         </div>
 
-        {/* Live Image Identifier & Duplicate Detector HUD */}
-        <div className="mb-8">
-          <VisualAssetIntegrityHud scopeLabel="4 PRIMARY MARKETS · LIVE VIEWPORT" />
-        </div>
-
         {/* 4-Market Architectural Grid (2x2 on Desktop) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           {PROPERTY_CATEGORIES.map((cat) => {
@@ -911,7 +931,9 @@ export function LandingPropertyCategoriesSection() {
                 key={cat.slug}
                 data-category-card={cat.slug}
                 data-response-kind="surface"
-                className="group relative rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+                className={`group relative rounded-[24px] border overflow-hidden flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.65)] ${
+                  cat.slug === mobileMarketSlug ? "flex" : "hidden md:flex"
+                }`}
                 style={{
                   background:
                     "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
@@ -989,7 +1011,7 @@ export function LandingPropertyCategoriesSection() {
                         color: "#F3D37A",
                       }}
                     >
-                      {cat.eyebrow.split("·")[0]?.trim() || cat.eyebrow} · #{currentAssetId}
+                      {cat.eyebrow.split("·")[0]?.trim() || cat.eyebrow}<span translate="no" className="hidden sm:inline"> · #{currentAssetId}</span>
                     </span>
 
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -1018,7 +1040,7 @@ export function LandingPropertyCategoriesSection() {
                                   [cat.slug]: m.id,
                                 }));
                               }}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                              className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                               style={{
                                 background: active ? "#E5C97B" : "transparent",
                                 color: active ? "#050A14" : "#CBD5E1",
@@ -1070,7 +1092,7 @@ export function LandingPropertyCategoriesSection() {
                             onPointerEnter={() =>
                               handleSelectPreview(cat.slug, idx, galleryUrls)
                             }
-                            className="w-6 h-6 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
+                            className="min-w-[34px] min-h-[34px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
                             style={{
                               background: isSelected
                                 ? "#C9A84C"
@@ -1079,7 +1101,7 @@ export function LandingPropertyCategoriesSection() {
                             }}
                             title={`View ${cat.label} photo ${idx + 1}`}
                           >
-                            0{idx + 1}
+                            <span translate="no">0{idx + 1}</span>
                           </button>
                         );
                       })}
@@ -1088,7 +1110,7 @@ export function LandingPropertyCategoriesSection() {
                 </div>
 
                 {/* V46 Balanced Interior Body */}
-                <div className="p-6 flex-1 flex flex-col justify-between gap-5 text-left">
+                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-4 sm:gap-5 text-left">
                   <div className="flex flex-col">
                     <TaycoCardMetaBar
                       leftBadge={
@@ -1103,15 +1125,16 @@ export function LandingPropertyCategoriesSection() {
                           {cat.eyebrow}
                         </span>
                       }
-                      rightMeta={<span>8 Specialties · 6 Projects</span>}
-                      className="mb-4"
+                      rightMeta={<span translate="no">8 Specialties · 6 Projects</span>}
+                      className="mb-3 sm:mb-4"
                     />
 
-                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left">
+                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left line-clamp-2 sm:line-clamp-none">
                       {cat.description}
                     </p>
 
                     {/* Specs Grid */}
+                    <div className="hidden sm:block">
                     <TaycoSpecGrid
                       columns={3}
                       className="mb-4"
@@ -1121,6 +1144,7 @@ export function LandingPropertyCategoriesSection() {
                         { label: "Scope Divisions", value: cat.csiDivisions },
                       ]}
                     />
+                    </div>
 
                     {/* Market Specialties Strip — Click any specialty to launch its Full-Screen Specialty Studio! */}
                     <div className="mb-4 w-full flex flex-col">
@@ -1130,10 +1154,10 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          {cat.label} Services by Specialty (Click to Expand Studio):
+                          {cat.label} Specialties:
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex gap-1.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:pb-1 tayco-no-scrollbar sm:flex-wrap">
                         {marketSpecialties.map((spec) => (
                           <button
                             key={spec.id}
@@ -1148,13 +1172,19 @@ export function LandingPropertyCategoriesSection() {
                                 );
                               }
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/45 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer shadow-sm"
+                            className="inline-flex shrink-0 whitespace-nowrap min-h-[36px] items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/45 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer shadow-sm"
                           >
                             <SpecialtyVectorIcon
                               specialtyId={spec.specialtyId}
                               className="w-3 h-3 text-[#F3D37A]"
                             />
-                            <span>{spec.specialtyLabel}</span>
+                            <span>
+                              {spec.specialtyLabel === "Siding"
+                                ? "Exterior Siding"
+                                : spec.specialtyLabel === "Framing"
+                                  ? "Structural Framing"
+                                  : spec.specialtyLabel}
+                            </span>
                           </button>
                         ))}
                       </div>
@@ -1172,7 +1202,7 @@ export function LandingPropertyCategoriesSection() {
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 w-full">
-                        {categoryListings.slice(0, 4).map((prop) => (
+                        {categoryListings.slice(0, 4).map((prop, propIdx) => (
                           <button
                             key={prop.id}
                             type="button"
@@ -1180,10 +1210,10 @@ export function LandingPropertyCategoriesSection() {
                             onClick={() =>
                               openCategoryStudio(prop, catMood, undefined)
                             }
-                            className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#070E1A]/85 border border-[#C9A84C]/35 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs transition-all cursor-pointer text-left"
+                            className={`${propIdx >= 2 ? "hidden sm:flex" : "flex"} min-h-[40px] items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#070E1A]/85 border border-[#C9A84C]/35 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs transition-all cursor-pointer text-left`}
                           >
                             <span className="font-semibold text-slate-100 truncate">
-                              <strong className="font-mono text-[#F3D37A] mr-1.5">
+                              <strong translate="no" className="font-mono text-[#F3D37A] mr-1.5">
                                 {prop.code}
                               </strong>
                               {prop.title}
@@ -1239,6 +1269,11 @@ export function LandingPropertyCategoriesSection() {
               </article>
             );
           })}
+        </div>
+
+        {/* Live Image Identifier & Duplicate Detector HUD */}
+        <div className="mt-8">
+          <VisualAssetIntegrityHud scopeLabel="4 PRIMARY MARKETS · LIVE VIEWPORT" />
         </div>
       </div>
 
@@ -1549,7 +1584,7 @@ export function DivisionInteractivePropertyAtelier({
                     }
                   />
 
-                  <div className="p-5 sm:p-6 text-left flex flex-col">
+                  <div className="p-4 sm:p-6 text-left flex flex-col">
                     <TaycoCardMetaBar
                       leftBadge={
                         <div className="flex items-center gap-2">
@@ -1624,7 +1659,7 @@ export function DivisionInteractivePropertyAtelier({
                           openModal(prop, 0);
                         }
                       }}
-                      className="p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
+                      className="hidden sm:flex p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
                     >
                       <div className="min-w-0 text-left">
                         <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
@@ -1751,6 +1786,7 @@ export function PropertyCategoryPageView({
     string | undefined
   >(undefined);
 
+  const [mobileListingsExpanded, setMobileListingsExpanded] = useState(false);
   const baseListings = activeCategory
     ? getPropertiesByCategory(activeCategory.slug)
     : PROPERTY_LISTINGS;
@@ -1940,7 +1976,7 @@ export function PropertyCategoryPageView({
               )}
             </h1>
 
-            <p className="mt-4 text-slate-200 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+            <p className="mt-3 sm:mt-4 text-slate-200 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto line-clamp-3 sm:line-clamp-none">
               {activeCategory
                 ? activeCategory.description
                 : "Browse all available Single-Family Homes, Duplexes, Townhouses, and Commercial Properties constructed, renovated, and delivered turnkey across our 8-state footprint."}
@@ -1948,7 +1984,7 @@ export function PropertyCategoryPageView({
 
             {/* Category Summary Telemetry Card */}
             <div
-              className="mt-8 p-5 rounded-2xl border backdrop-blur-sm shrink-0 w-full max-w-2xl mx-auto text-center"
+              className="mt-5 sm:mt-8 p-4 sm:p-5 rounded-2xl border backdrop-blur-sm shrink-0 w-full max-w-2xl mx-auto text-center"
               style={{
                 background: "rgba(7, 14, 26, 0.88)",
                 borderColor: "rgba(201, 168, 76, 0.48)",
@@ -1963,7 +1999,7 @@ export function PropertyCategoryPageView({
                   ? `${marketSpecialties.length} Specialties · ${baseListings.length} Projects`
                   : `4 Markets · ${PROPERTY_LISTINGS.length} Projects`}
               </div>
-              <div className="flex flex-wrap items-center justify-around gap-3 text-xs text-slate-300 border-t border-white/10 pt-3">
+              <div className="hidden sm:flex flex-wrap items-center justify-around gap-3 text-xs text-slate-300 border-t border-white/10 pt-3">
                 <div className="text-center">
                   <span className="text-slate-400 block text-[10px] uppercase font-mono">Market Services</span>
                   <span className="font-mono font-bold text-[#F3D37A]">
@@ -2009,7 +2045,7 @@ export function PropertyCategoryPageView({
           </div>
 
           {/* ── 5-MARKET NAVIGATION BAR (CENTERED SYMMETRIC LAYOUT) ── */}
-          <div className="mt-10 pt-6 border-t border-white/15 flex justify-center">
+          <div className="mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-white/15 flex justify-center">
             <TaycoPillDock ariaLabel="Primary construction markets navigation">
               <Link
                 href="/properties"
@@ -2022,7 +2058,7 @@ export function PropertyCategoryPageView({
                 <span className="text-xs sm:text-[13px] font-bold tracking-wide">
                   All 4 Markets
                 </span>
-                <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-mono font-bold">
+                <span translate="no" className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-mono font-bold">
                   24
                 </span>
               </Link>
@@ -2042,7 +2078,7 @@ export function PropertyCategoryPageView({
                     <span className="text-xs sm:text-[13px] font-bold tracking-wide">
                       {cat.label}
                     </span>
-                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">
+                    <span translate="no" className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">
                       8 · {count}
                     </span>
                   </Link>
@@ -2054,19 +2090,7 @@ export function PropertyCategoryPageView({
       </section>
 
       {/* ── LIVE IMAGE IDENTIFIER & DUPLICATE DETECTOR + EXPERIENCE MODE SWITCHER ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
-        <VisualAssetIntegrityHud
-          scopeLabel={
-            activeCategory
-              ? `${activeCategory.label.toUpperCase()} · ${
-                  experienceMode === "specialties"
-                    ? "8 SPECIALTIES VIEW"
-                    : "6 PROJECT TOURS VIEW"
-                }`
-              : "ALL 4 MARKETS PORTFOLIO"
-          }
-        />
-
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 sm:pt-8">
         {activeCategory && marketSpecialties.length > 0 && (
           <div
             data-testid="market-experience-mode-switcher"
@@ -2362,7 +2386,7 @@ export function PropertyCategoryPageView({
             className="max-w-7xl mx-auto px-4 sm:px-8 pt-8"
           >
             <div className="flex flex-wrap justify-center gap-7">
-              {filteredListings.map((prop) => {
+              {filteredListings.map((prop, listingIdx) => {
                 const catMeta = PROPERTY_CATEGORIES.find(
                   (c) => c.slug === prop.category
                 );
@@ -2372,7 +2396,9 @@ export function PropertyCategoryPageView({
                     id={prop.id}
                     data-property-card={prop.code}
                     data-response-kind="surface"
-                    className="w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative"
+                    className={`${
+                      !mobileListingsExpanded && listingIdx >= 6 ? "max-md:hidden" : ""
+                    } w-full md:w-[calc(50%-0.875rem)] lg:w-[calc(33.333%-1.25rem)] rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)] relative`}
                     style={{
                       background:
                         "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
@@ -2389,7 +2415,7 @@ export function PropertyCategoryPageView({
                         }
                       />
 
-                      <div className="p-5 sm:p-6 text-left flex flex-col">
+                      <div className="p-4 sm:p-6 text-left flex flex-col">
                         {/* Top Badges: Code + Availability + State */}
                         <TaycoCardMetaBar
                           leftBadge={
@@ -2404,7 +2430,7 @@ export function PropertyCategoryPageView({
                               >
                                 {prop.code}
                               </span>
-                              <span className="text-xs font-mono font-semibold text-slate-300">
+                              <span translate="no" className="text-xs font-mono font-semibold text-slate-300">
                                 {prop.location}
                               </span>
                             </div>
@@ -2455,12 +2481,12 @@ export function PropertyCategoryPageView({
                         />
 
                         {/* Summary */}
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 text-left">
+                        <p className="hidden sm:block text-sm text-slate-300 leading-relaxed mb-4 text-left">
                           {prop.summary}
                         </p>
 
                         {/* 3 Highlights */}
-                        <div className="flex flex-wrap gap-2 text-xs text-slate-200 mb-4">
+                        <div className="hidden sm:flex flex-wrap gap-2 text-xs text-slate-200 mb-4">
                           {prop.highlights.map((hl) => (
                             <span
                               key={hl}
@@ -2488,7 +2514,7 @@ export function PropertyCategoryPageView({
                               openModal(prop, 0, 12.5, undefined);
                             }
                           }}
-                          className="p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
+                          className="hidden sm:flex p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
                         >
                           <div className="min-w-0 text-left">
                             <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
@@ -2578,6 +2604,26 @@ export function PropertyCategoryPageView({
                   </article>
                 );
               })}
+            </div>
+            {filteredListings.length > 6 && !mobileListingsExpanded && (
+              <div className="mt-6 flex justify-center md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileListingsExpanded(true)}
+                  className="tayco-atelier-btn-obsidian min-h-[44px]"
+                >
+                  <span>View All {filteredListings.length} Projects</span>
+                </button>
+              </div>
+            )}
+            <div className="mt-8">
+              <VisualAssetIntegrityHud
+                scopeLabel={
+                  activeCategory
+                    ? activeCategory.label.toUpperCase()
+                    : "ALL 4 MARKETS PORTFOLIO"
+                }
+              />
             </div>
           </section>
         </>

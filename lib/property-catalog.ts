@@ -83,7 +83,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     subtitle:
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Carpentry for Single-Family Residences.",
     description:
-      "Explore every construction specialty TAYCO delivers for single-family homes—from architectural shingle and standing-seam metal roofing, fiber-cement and cedar siding, and structural framing to drywall, hardwood flooring, concrete patios, stone hearths and custom kitchens—followed by our gallery of completed single-family residences.",
+      "Eight specialties from roofing to custom kitchens, plus a gallery of completed single-family residences.",
     heroImage: "/curated/properties/mkt-sfh-stone-exterior.jpg",
     secondaryImages: [
       "/curated/properties/mkt-sfh-framing.jpg",
@@ -107,7 +107,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     subtitle:
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Unit Finishes for Multifamily Developments.",
     description:
-      "Explore TAYCO's full construction capabilities for multifamily buildings, duplexes and multi-unit residential complexes—including multi-ridge roofing systems, masonry and fiber-cement envelopes, multi-story timber framing, acoustic STC-rated corridor drywall, durable LVT and concrete flooring, courtyard flatwork and turnkey unit interiors.",
+      "Multi-unit envelopes, acoustic corridors and turnkey unit interiors across eight specialties.",
     heroImage: "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg",
     secondaryImages: [
       "/curated/properties/duplex-02-limestone-stucco-asymmetric.jpg",
@@ -131,7 +131,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     subtitle:
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Millwork for Attached Townhome Communities.",
     description:
-      "Browse TAYCO's dedicated townhome construction services—featuring mansard, flat-deck and multi-gable townhome roofing, brick and cedar bay-window facades, UL fire-rated party-wall framing and drywall, three-story white-oak stair and flooring packages, concrete stoops and rooftop terraces, and parlor-level kitchens.",
+      "Fire-rated party walls, brick facades and white-oak stair packages built for townhome living.",
     heroImage: "/curated/properties/townhouse-01-brick-limestone-row.jpg",
     secondaryImages: [
       "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
@@ -155,7 +155,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     subtitle:
       "Commercial Roofing, Cladding, Structural Steel Framing, Commercial Drywall, Flooring, Concrete, Stone & Tenant Buildouts.",
     description:
-      "Discover all commercial construction specialties delivered by TAYCO—including commercial TPO and standing-seam roofing, aluminum curtain-wall and metal panel siding, structural steel and heavy-gauge metal stud framing, acoustical ceilings and commercial drywall, terrazzo and polished concrete flooring, structural plaza flatwork and stone masonry.",
+      "Curtain wall, structural steel and polished interiors delivered for commercial properties.",
     heroImage: "/curated/properties/mkt-com-roofing-tpo.jpg",
     secondaryImages: [
       "/curated/properties/mkt-com-concrete-stone.jpg",
@@ -1268,7 +1268,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/pairs/div03_02_despues.jpg",
-          label: "Single-Family White Shaker Chef's Kitchen & Quartz Island",
+          label: "Custom Walnut Cabinetry & Built-In Millwork",
         },
         {
           src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
@@ -1276,7 +1276,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/hero/res-navy-kitchen.jpg",
-          label: "Custom Navy Shaker Island, Brass Hardware & Coffered Kitchen Millwork",
+          label: "Custom White Shaker Chef's Kitchen & Quartz Island",
         },
       ],
     },

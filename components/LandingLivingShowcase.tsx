@@ -624,7 +624,7 @@ export function TransformationBeforeAfterStudio({
   return (
     <section
       id="tayco-transformation-studio"
-      className="py-16 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
+      className="py-10 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
       style={{
         background:
           "radial-gradient(circle at 82% 16%, rgba(201, 168, 76, 0.14), transparent 50%), radial-gradient(circle at 14% 85%, rgba(27, 58, 107, 0.48), transparent 58%), #070E1A",

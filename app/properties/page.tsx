@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import {
-  LandingPropertyCategoriesSection,
-  PropertyCategoryPageView,
-} from "@/components/PropertyCategoryShowcase";
+import { PropertyCategoryPageView } from "@/components/PropertyCategoryShowcase";
 import { COMPANY } from "@/lib/company";
 
 export const metadata: Metadata = {
@@ -12,10 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function PropertiesIndexPage() {
-  return (
-    <>
-      <PropertyCategoryPageView />
-      <LandingPropertyCategoriesSection />
-    </>
-  );
+  return <PropertyCategoryPageView />;
 }

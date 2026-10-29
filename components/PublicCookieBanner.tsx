@@ -157,7 +157,7 @@ export default function PublicCookieBanner() {
 
   if (!isOpen && consent) {
     return (
-      <div className="fixed bottom-4 right-4 z-40 print:hidden">
+      <div className="fixed bottom-3 left-3 sm:bottom-4 sm:left-auto sm:right-4 z-40 print:hidden">
         <button
           type="button"
           data-testid="public-cookie-trigger"
@@ -166,7 +166,7 @@ export default function PublicCookieBanner() {
             setCustomizeOpen(false);
           }}
           aria-label="Open cookie and privacy preferences"
-          className="group inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/45 bg-[#070E1A]/92 px-3.5 py-2 text-xs font-semibold text-[#F3D37A] shadow-[0_10px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl transition-all hover:border-[#F3D37A] hover:bg-[#0F2040] hover:text-white cursor-pointer"
+          className="group inline-flex h-9 w-9 items-center justify-center gap-2 rounded-full border border-[#C9A84C]/45 bg-[#070E1A]/92 text-xs font-semibold opacity-70 hover:opacity-100 sm:h-auto sm:w-auto sm:px-3.5 sm:py-2 sm:opacity-100 text-[#F3D37A] shadow-[0_10px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl transition-all hover:border-[#F3D37A] hover:bg-[#0F2040] hover:text-white cursor-pointer"
         >
           <svg
             className="h-3.5 w-3.5 text-[#C9A84C] transition-transform group-hover:rotate-12"
@@ -180,7 +180,7 @@ export default function PublicCookieBanner() {
           >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
-          <span>Privacy &amp; Cookies</span>
+          <span className="hidden sm:inline">Privacy &amp; Cookies</span>
         </button>
       </div>
     );
@@ -190,7 +190,7 @@ export default function PublicCookieBanner() {
     <aside
       aria-label="Cookie and privacy consent notice"
       data-testid="public-cookie-banner"
-      className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 z-50 sm:w-[430px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#C9A84C]/55 bg-[#070E1A]/96 p-5 text-slate-100 shadow-[0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl print:hidden"
+      className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-auto sm:right-5 z-50 sm:w-[430px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#C9A84C]/55 bg-[#070E1A]/96 p-3.5 sm:p-5 text-slate-100 shadow-[0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl print:hidden"
     >
       {/* Top gold accent bar */}
       <div
@@ -219,11 +219,11 @@ export default function PublicCookieBanner() {
             </svg>
           </div>
           <div>
-            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
+            <p translate="no" className="hidden sm:block text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
               TAYCO LLC · Data &amp; Cookie Governance
             </p>
             <h2 className="text-sm font-black tracking-tight text-white">
-              Privacy, Security &amp; Cookie Preferences
+              Cookie Preferences
             </h2>
           </div>
         </div>
@@ -252,11 +252,9 @@ export default function PublicCookieBanner() {
         )}
       </div>
 
-      <p className="mt-2.5 text-xs leading-relaxed text-slate-300">
-        We use essential security cookies to protect client sessions, encrypt
-        project intake forms, and safeguard architectural visuals. With your
-        consent, we also enable functional preferences and interaction
-        analytics. We never sell or share personal or project data.
+      <p className="mt-2 text-xs leading-relaxed text-slate-300">
+        Essential cookies secure your session; optional analytics help us
+        refine site performance. We never sell your data.
       </p>
 
       {customizeOpen && (
@@ -316,12 +314,12 @@ export default function PublicCookieBanner() {
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-3 grid grid-cols-2 items-center gap-2 sm:mt-4 sm:flex sm:flex-wrap">
         <button
           type="button"
           data-testid="cookie-accept-all"
           onClick={handleAcceptAll}
-          className="flex-1 min-w-[125px] rounded-xl bg-[#C9A84C] px-3.5 py-2 text-xs font-black text-[#070E1A] shadow-md transition-all hover:bg-[#F3D37A] cursor-pointer"
+          className="min-h-[42px] sm:flex-1 sm:min-w-[125px] rounded-xl bg-[#C9A84C] px-3.5 py-2 text-xs font-black text-[#070E1A] shadow-md transition-all hover:bg-[#F3D37A] cursor-pointer"
         >
           Accept All
         </button>
@@ -329,7 +327,7 @@ export default function PublicCookieBanner() {
           type="button"
           data-testid="cookie-essential-only"
           onClick={handleEssentialOnly}
-          className="flex-1 min-w-[120px] rounded-xl border border-[#C9A84C]/45 bg-[#0F2040]/85 px-3.5 py-2 text-xs font-bold text-[#F3D37A] transition-all hover:border-[#F3D37A] hover:text-white cursor-pointer"
+          className="min-h-[42px] sm:flex-1 sm:min-w-[120px] rounded-xl border border-[#C9A84C]/45 bg-[#0F2040]/85 px-3.5 py-2 text-xs font-bold text-[#F3D37A] transition-all hover:border-[#F3D37A] hover:text-white cursor-pointer"
         >
           Essential Only
         </button>
@@ -338,7 +336,7 @@ export default function PublicCookieBanner() {
             type="button"
             data-testid="cookie-save-custom"
             onClick={handleSaveCustom}
-            className="rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-white/20 cursor-pointer"
+            className="col-span-2 min-h-[38px] sm:col-span-1 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-white/20 cursor-pointer"
           >
             Save Choices
           </button>
@@ -347,14 +345,14 @@ export default function PublicCookieBanner() {
             type="button"
             data-testid="cookie-customize"
             onClick={() => setCustomizeOpen(true)}
-            className="rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 transition-all hover:border-white/40 hover:text-white cursor-pointer"
+            className="col-span-2 min-h-[38px] sm:col-span-1 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 transition-all hover:border-white/40 hover:text-white cursor-pointer"
           >
             Customize
           </button>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2.5 text-[11px] text-slate-400">
+      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2 text-[11px] text-slate-400 sm:mt-3 sm:pt-2.5">
         <div className="flex items-center gap-3">
           <Link
             href="/privacy"
@@ -372,7 +370,7 @@ export default function PublicCookieBanner() {
             Client Confidentiality
           </Link>
         </div>
-        <span className="font-mono text-[10px] text-slate-500">
+        <span translate="no" className="hidden sm:inline font-mono text-[10px] text-slate-500">
           v{GUEST_PRIVACY_VERSION}
         </span>
       </div>

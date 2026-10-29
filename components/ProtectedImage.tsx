@@ -641,10 +641,11 @@ export function VisualAssetIntegrityHud({
         data-total-slots={totalCount}
         data-unique-slots={uniqueCount}
         data-duplicate-slots={duplicateCount}
-        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5c158]/28 bg-[linear-gradient(135deg,rgba(11,17,30,0.92)_0%,rgba(17,27,46,0.88)_100%)] px-4 py-2.5 shadow-[0_14px_36px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
+        translate="no"
+        className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-[#e5c158]/28 bg-[linear-gradient(135deg,rgba(11,17,30,0.92)_0%,rgba(17,27,46,0.88)_100%)] px-3 py-1.5 shadow-[0_10px_26px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl sm:gap-3 sm:px-4 sm:py-2"
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#e5c158]/35 bg-[#e5c158]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f3d98b]">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#f3d98b]">
             <span
               className={`h-2 w-2 rounded-full ${
                 duplicateCount === 0
@@ -652,16 +653,17 @@ export function VisualAssetIntegrityHud({
                   : "bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]"
               }`}
             />
-            Asset Integrity Radar · {scopeLabel}
+            <span className="hidden sm:inline">Asset Integrity Radar · {scopeLabel}</span>
+            <span className="sm:hidden">Verified Visuals</span>
           </span>
 
           <div className="flex items-center gap-2 text-xs font-medium text-slate-200">
             <span className="font-mono text-[11px] font-semibold text-white">
               {uniqueCount}/{totalCount} UNIQUE
             </span>
-            <span className="text-slate-600">·</span>
+            <span className="hidden text-slate-600 sm:inline">·</span>
             <span
-              className={`font-mono text-[11px] font-bold ${
+              className={`hidden font-mono text-[11px] font-bold sm:inline ${
                 duplicateCount === 0 ? "text-emerald-300" : "text-amber-300"
               }`}
             >
@@ -669,10 +671,15 @@ export function VisualAssetIntegrityHud({
                 ? "0 REPEATED IMAGES DETECTED"
                 : `${duplicateCount} DUPLICATE SLOTS DETECTED`}
             </span>
+            {duplicateCount > 0 && (
+              <span className="font-mono text-[11px] font-bold text-amber-300 sm:hidden">
+                {duplicateCount} DUP
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => {
@@ -680,7 +687,7 @@ export function VisualAssetIntegrityHud({
               setShowBadges(next);
               setTimeout(scanDomAssets, 30);
             }}
-            className={`group inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] transition-all duration-300 ${
+            className={`group hidden items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] transition-all duration-300 sm:inline-flex ${
               showBadges
                 ? "border-[#f3d98b] bg-[linear-gradient(135deg,#f6e29c_0%,#d9b14a_52%,#b58928_100%)] text-slate-950 shadow-[0_0_22px_rgba(229,193,88,0.45)]"
                 : "border-[#e5c158]/35 bg-slate-900/80 text-[#f3d98b] hover:border-[#e5c158]/70 hover:bg-[#e5c158]/15"
@@ -703,7 +710,7 @@ export function VisualAssetIntegrityHud({
             <svg className="h-3.5 w-3.5 text-[#e5c158]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            {drawerOpen ? "Close Audit Log" : `Inspect All (${totalCount})`}
+            {drawerOpen ? "Close Audit Log" : <><span className="sm:hidden">Inspect</span><span className="hidden sm:inline">Inspect All ({totalCount})</span></>}
           </button>
         </div>
       </div>

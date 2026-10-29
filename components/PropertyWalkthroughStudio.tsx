@@ -480,7 +480,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Original As-Built",
     shortLabel: "Original As-Built",
     tierBadge: "Included Turnkey",
-    subtitle: "Acabado original de fábrica (5600K)",
+    subtitle: "Factory Turnkey · 5600K",
     cabinetryAndTrim: "Factory Turnkey Spec · As Photographed",
     countertopAndStone: "Natural Quarry Stone & Honed Quartz",
     flooringAndWood: "Select-Grade Natural White Oak",
@@ -497,7 +497,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Alabaster & Warm Honey Oak",
     shortLabel: "Alabaster & Honey Oak",
     tierBadge: "Signature Collection",
-    subtitle: "SW 7008 Alabaster · Cuarzo Calacatta · Roble Miel",
+    subtitle: "SW 7008 Alabaster · Calacatta Quartz · Honey Oak",
     cabinetryAndTrim: "Sherwin-Williams Alabaster (SW 7008) Inset Millwork",
     countertopAndStone: "3cm Calacatta Gold Vein Waterfall Quartz",
     flooringAndWood: "Warm Honey-Stained 7\" Wide-Plank White Oak",
@@ -516,7 +516,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Hale Navy & Brushed Brass",
     shortLabel: "Hale Navy & Brass",
     tierBadge: "Designer Bespoke",
-    subtitle: "BM HC-154 Azul Naval · Mármol Carrara · Latón",
+    subtitle: "BM HC-154 Hale Navy · Carrara Marble · Brass",
     cabinetryAndTrim: "Benjamin Moore Hale Navy (HC-154) & Crisp White Trim",
     countertopAndStone: "Honed Carrara Marble & Buff Indiana Limestone",
     flooringAndWood: "Nordic Raw-Finish Quarter-Sawn White Oak",
@@ -535,7 +535,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Charcoal Slate & American Walnut",
     shortLabel: "Charcoal & Walnut",
     tierBadge: "Executive Reserve",
-    subtitle: "SW 7069 Iron Ore · Nogal Americano · Granito Negro",
+    subtitle: "SW 7069 Iron Ore · American Walnut · Black Granite",
     cabinetryAndTrim: "Iron Ore Graphite (SW 7069) & Rift-Cut Walnut Panels",
     countertopAndStone: "Leathered Nero Mist Granite & Pietra Grey Quartz",
     flooringAndWood: "Smoked American Walnut & Acoustic Underlayment",
@@ -554,7 +554,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Forest Sage & Honed Limestone",
     shortLabel: "Forest Sage & Stone",
     tierBadge: "Organic Luxury",
-    subtitle: "SW 6208 Verde Salvia · Cuarcita Taj Mahal · Piedra",
+    subtitle: "SW 6208 Sage · Taj Mahal Quartzite · Limestone",
     cabinetryAndTrim: "Pewter Green (SW 6208) Millwork & Cream Stone Trim",
     countertopAndStone: "Honed Taj Mahal Quartzite & Quarry Limestone",
     flooringAndWood: "Natural Clear-Coat White Oak Plank",
@@ -573,7 +573,7 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
     name: "Warm Terracotta & Western Red Cedar",
     shortLabel: "Terracotta & Cedar",
     tierBadge: "Artisan Estate",
-    subtitle: "SW 6333 Terracota · Cedro Natural · Bronce Cálido",
+    subtitle: "SW 6333 Terracotta · Natural Cedar · Warm Bronze",
     cabinetryAndTrim: "Cavern Clay Terracotta (SW 6333) & Clear Western Cedar",
     countertopAndStone: "Warm Breccia Capraia Marble & Honed Travertine",
     flooringAndWood: "Select Red-Oak & Warm Cedar Architectural Planks",
@@ -1219,7 +1219,9 @@ export function PropertyWalkthroughStudioModal({
   const [isAutoCyclingDay, setIsAutoCyclingDay] = useState<boolean>(false);
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
   const [hoveredHotspotId, setHoveredHotspotId] = useState<string | null>(null);
-  const [showHotspots, setShowHotspots] = useState<boolean>(true);
+  const [showHotspots, setShowHotspots] = useState<boolean>(() =>
+    typeof window === "undefined" ? true : window.innerWidth >= 768
+  );
   const [splitCompareMode, setSplitCompareMode] = useState<boolean>(false);
   const [splitPercent, setSplitPercent] = useState<number>(50);
   const [cinemaMode, setCinemaMode] = useState<boolean>(false);
@@ -1380,16 +1382,17 @@ export function PropertyWalkthroughStudioModal({
         >
           {/* ── LUXURY EDITORIAL TOP HEADER BAR ── */}
           <div
-            className="px-4 sm:px-6 py-2.5 sm:py-3 border-b flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 shrink-0"
+            className="px-3 sm:px-6 py-2 sm:py-3 border-b flex flex-row items-center justify-between gap-2 shrink-0"
             style={{
               background:
                 "linear-gradient(90deg, rgba(6,12,24,0.98) 0%, rgba(12,25,48,0.94) 50%, rgba(6,12,24,0.98) 100%)",
               borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
-            <div className="flex flex-col items-center text-center lg:items-start lg:text-left gap-1 min-w-0">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
+            <div className="flex flex-col items-start text-left gap-1 min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-start gap-2 text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
                 <span
+                  translate="no"
                   className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black tracking-wider shrink-0 shadow-sm"
                   style={{
                     background:
@@ -1402,7 +1405,7 @@ export function PropertyWalkthroughStudioModal({
                     ? activeSpecialty.code
                     : property.code}
                 </span>
-                <span>
+                <span className="hidden sm:inline">
                   {studioMode === "specialty" && activeSpecialty
                     ? `${activeSpecialty.specialtyLabel.toUpperCase()} · MARKET SPECIALTY STUDIO`
                     : "ARCHITECTURAL 5-ROOM WALKTHROUGH & BESPOKE ATELIER"}
@@ -1414,7 +1417,7 @@ export function PropertyWalkthroughStudioModal({
               </div>
               <h2
                 id="walkthrough-studio-title"
-                className="tayco-card-title text-lg sm:text-xl lg:text-[1.35rem] text-white tracking-tight truncate max-w-full"
+                className="tayco-card-title text-sm sm:text-xl lg:text-[1.35rem] text-white tracking-tight truncate max-w-full"
               >
                 {studioMode === "specialty" && activeSpecialty
                   ? `${activeSpecialty.title} (${property.title})`
@@ -1423,13 +1426,14 @@ export function PropertyWalkthroughStudioModal({
             </div>
 
             {/* Sleek Luxury Action Bar: Capsule buttons with data-magnetic */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-1.5 shrink-0">
+            <div className="flex items-center justify-end gap-1.5 shrink-0">
               <button
                 type="button"
                 data-compare-toggle
                 data-magnetic
+                aria-label="Compare before and after"
                 onClick={() => setSplitCompareMode((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3.5 sm:py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
                 style={{
                   background: splitCompareMode
                     ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
@@ -1447,7 +1451,7 @@ export function PropertyWalkthroughStudioModal({
                   kind={splitCompareMode ? "check" : "compare"}
                   className="w-3.5 h-3.5"
                 />
-                <span>
+                <span className="hidden sm:inline">
                   {splitCompareMode
                     ? "Before / After Split Active"
                     : "Compare Before / After"}
@@ -1458,7 +1462,8 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 data-magnetic
                 onClick={() => setShowHotspots((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-medium border cursor-pointer transition-all duration-300"
+                aria-label="Toggle spec beacons"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3 sm:py-1.5 rounded-full text-xs font-sans font-medium border cursor-pointer transition-all duration-300"
                 style={{
                   background: showHotspots
                     ? "rgba(201, 168, 76, 0.18)"
@@ -1474,7 +1479,7 @@ export function PropertyWalkthroughStudioModal({
                     showHotspots ? "bg-[#F3D37A]" : "border border-slate-400"
                   }`}
                 />
-                <span>{showHotspots ? "Spec Beacons (3)" : "Beacons Hidden"}</span>
+                <span className="hidden sm:inline">{showHotspots ? "Spec Beacons (3)" : "Beacons Hidden"}</span>
               </button>
 
               <button
@@ -1505,10 +1510,11 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 data-magnetic
                 onClick={onClose}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+                aria-label="Close studio"
+                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3.5 sm:py-1.5 rounded-full text-xs font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
               >
                 <StudioActionIcon kind="close" className="w-3.5 h-3.5" />
-                <span>Close</span>
+                <span className="hidden sm:inline" translate="no">Close</span>
               </button>
             </div>
           </div>
@@ -1546,7 +1552,7 @@ export function PropertyWalkthroughStudioModal({
                         : "none",
                   }}
                 >
-                  <span>01 · 5-Space Connected Project Tour</span>
+                  <span><span translate="no">01 · </span><span className="sm:hidden">5-Space Tour</span><span className="hidden sm:inline">5-Space Connected Project Tour</span></span>
                 </button>
 
                 <button
@@ -1571,13 +1577,13 @@ export function PropertyWalkthroughStudioModal({
                   }}
                 >
                   <span>
-                    02 · 8 Construction Specialties ({marketSpecialties.length})
+                    <span translate="no">02 · </span><span className="sm:hidden">{marketSpecialties.length} Specialties</span><span className="hidden sm:inline">8 Construction Specialties ({marketSpecialties.length})</span>
                   </span>
                 </button>
               </div>
 
               {/* Right: 8 Specialty Selector Pills inside a sleek horizontal-capable container */}
-              <div className="flex items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-scrollbar-sleek">
+              <div className={`${studioMode === "specialty" ? "flex" : "max-sm:hidden flex"} items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-no-scrollbar`}>
                 {marketSpecialties.map((spec) => {
                   const isSelected =
                     studioMode === "specialty" &&
@@ -1593,7 +1599,7 @@ export function PropertyWalkthroughStudioModal({
                         setStudioMode("specialty");
                         setActiveStopIdx(0);
                       }}
-                      className="px-3 py-1 rounded-full text-[11px] font-sans font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.03] shrink-0"
+                      className="px-3 py-1 min-h-[36px] whitespace-nowrap rounded-full text-[11px] font-sans font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.03] shrink-0"
                       style={{
                         background: isSelected
                           ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
@@ -1607,7 +1613,11 @@ export function PropertyWalkthroughStudioModal({
                           : "none",
                       }}
                     >
-                      {spec.specialtyLabel}
+                      {spec.specialtyLabel === "Siding"
+                        ? "Exterior Siding"
+                        : spec.specialtyLabel === "Framing"
+                          ? "Structural Framing"
+                          : spec.specialtyLabel}
                     </button>
                   );
                 })}
@@ -1652,7 +1662,7 @@ export function PropertyWalkthroughStudioModal({
                     setIsDraggingSplit(false);
                   }
                 }}
-                className={`relative flex-1 min-h-[260px] sm:min-h-[340px] lg:min-h-[300px] w-full overflow-hidden select-none bg-[#03060D] transition-all duration-500 ${
+                className={`relative flex-1 min-h-[300px] sm:min-h-[340px] lg:min-h-[300px] w-full overflow-hidden select-none bg-[#03060D] transition-all duration-500 ${
                   splitCompareMode ? "cursor-ew-resize" : "cursor-grab active:cursor-grabbing"
                 }`}
                 style={{ isolation: "isolate" }}
@@ -1857,7 +1867,7 @@ export function PropertyWalkthroughStudioModal({
                 </div>
 
                 {/* Active Solar & Palette Glass Pills */}
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="hidden sm:flex flex-wrap items-center gap-1.5">
                   <span
                     data-active-lighting-badge={lighting.phaseId}
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border backdrop-blur-xl"
@@ -1950,7 +1960,7 @@ export function PropertyWalkthroughStudioModal({
                               : "bg-[#050A14]/75 text-white border-white/45 hover:border-[#F3D37A] hover:scale-110"
                           }`}
                         >
-                          0{idx + 1}
+                          <span translate="no">0{idx + 1}</span>
                         </span>
                       </span>
 
@@ -1973,17 +1983,17 @@ export function PropertyWalkthroughStudioModal({
 
               {/* Bottom Editorial Overlay: Room Title + Sleek Floating Portal Pill */}
               <div
-                className="absolute bottom-0 inset-x-0 p-4 sm:px-8 sm:py-5 flex flex-col items-center text-center gap-2.5 z-20"
+                className="absolute bottom-0 inset-x-0 px-3 py-2.5 sm:px-8 sm:py-5 flex flex-col items-center text-center gap-1.5 sm:gap-2.5 z-20"
                 style={{
                   background:
                     "linear-gradient(180deg, transparent 0%, rgba(5, 10, 20, 0.72) 48%, rgba(5, 10, 20, 0.95) 100%)",
                 }}
               >
                 <div className="max-w-2xl flex flex-col items-center text-center">
-                  <div className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#F6E6B8] drop-shadow">
+                  <div className="hidden sm:block text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#F6E6B8] drop-shadow">
                     {activeStop.floorLevel}
                   </div>
-                  <h3 className="tayco-card-title text-lg sm:text-2xl text-white tracking-tight leading-snug mt-0.5 drop-shadow">
+                  <h3 className="tayco-card-title text-sm sm:text-2xl text-white tracking-tight leading-snug mt-0.5 drop-shadow line-clamp-1 sm:line-clamp-none">
                     {activeStop.title}
                   </h3>
                 </div>
@@ -1993,7 +2003,7 @@ export function PropertyWalkthroughStudioModal({
                   data-portal-next-room
                   data-magnetic
                   onClick={() => handleStepChange(activeStopIdx + 1)}
-                  className="tayco-atelier-btn-gold px-5 py-2 text-xs font-bold"
+                  className="tayco-atelier-btn-gold px-4 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold min-h-[40px]"
                 >
                   <span>{activeStop.portalButtonLabel}</span>
                 </button>

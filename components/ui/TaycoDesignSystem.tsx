@@ -501,7 +501,7 @@ export function TaycoSectionHeader({
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-3.5 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300 line-clamp-3 sm:mt-3.5 sm:line-clamp-none sm:text-base">
           {subtitle}
         </p>
       )}
@@ -527,7 +527,7 @@ export function TaycoPillDock({
     <div
       role={ariaLabel ? "group" : undefined}
       aria-label={ariaLabel}
-      className={`mx-auto inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-[24px] border border-[#d4af5a]/30 bg-[#071020]/90 p-1.5 shadow-[0_16px_38px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.07)] xl:rounded-full ${className}`}
+      className={`mx-auto inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 max-sm:w-full max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto tayco-no-scrollbar [&>*]:max-sm:shrink-0 [&>*]:max-sm:whitespace-nowrap rounded-[24px] border border-[#d4af5a]/30 bg-[#071020]/90 p-1.5 shadow-[0_16px_38px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.07)] xl:rounded-full ${className}`}
     >
       {children}
     </div>
@@ -574,11 +574,11 @@ export function TaycoSpecGrid({
       : "grid-cols-2 sm:grid-cols-3";
 
   return (
-    <div className={`grid ${colClass} gap-2 ${className}`}>
+    <div className={`grid ${colClass} gap-1.5 sm:gap-2 ${className}`}>
       {items.map((item, idx) => (
         <div
           key={`${item.label}-${idx}`}
-          className="rounded-2xl border border-white/[0.09] bg-[#070f1d]/80 px-3 py-2.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+          className="rounded-2xl border border-white/[0.09] bg-[#070f1d]/80 px-2.5 py-2 sm:px-3 sm:py-2.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
         >
           <p className="font-mono text-[9.5px] font-semibold uppercase tracking-[0.16em] text-slate-400">
             {item.label}
@@ -604,10 +604,10 @@ export function TaycoDeliverableGrid({
   const gridCols = columns === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
   return (
     <ul className={`grid ${gridCols} gap-2 text-left ${className}`}>
-      {items.map((item) => (
+      {items.map((item, idx) => (
         <li
           key={item}
-          className="flex items-start gap-2.5 rounded-xl border border-white/[0.07] bg-[#081224]/70 px-3 py-2 text-xs leading-snug text-slate-200/95"
+          className={`${idx >= 2 ? "hidden sm:flex" : "flex"} items-start gap-2.5 rounded-xl border border-white/[0.07] bg-[#081224]/70 px-3 py-2 text-xs leading-snug text-slate-200/95`}
         >
           <span
             aria-hidden="true"

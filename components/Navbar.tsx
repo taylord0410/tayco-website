@@ -109,7 +109,7 @@ export default function Navbar() {
             className="tayco-brand-mark"
             auditIgnore={true}
           />
-          <span className="tayco-brand-name">
+          <span className="tayco-brand-name" translate="no">
             <strong>{COMPANY.name}</strong>
             <span>Construction &amp; restoration</span>
           </span>
@@ -196,6 +196,7 @@ export default function Navbar() {
           <Link
             href={workspace ? "/portal" : "/login"}
             className="tayco-nav-signin"
+            translate="no"
             onClick={() => setOpen(false)}
           >
             {workspace ? "Workspace" : "Sign in"}
