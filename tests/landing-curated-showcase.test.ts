@@ -422,4 +422,95 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
     protectedImageContent.includes("v=pf20261029"),
     "ProtectedImage.tsx must include cache-busting version query parameter v=pf20261029"
   );
+  assert.ok(
+    protectedImageContent.includes("export function VisualAssetIntegrityHud") &&
+      protectedImageContent.includes("export function computeVisualAssetId") &&
+      protectedImageContent.includes("export function computeVisualByteFingerprint"),
+    "ProtectedImage.tsx must export VisualAssetIntegrityHud, computeVisualAssetId, and computeVisualByteFingerprint"
+  );
+
+  // Verify 96/96 unique binary SHA256 hashes across all 96 specialty Day and Night files
+  const crypto = require("node:crypto");
+  const globalSpecialtyDayHashes = new Set<string>();
+  const globalSpecialtyNightHashes = new Set<string>();
+  for (const cat of PROPERTY_CATEGORIES) {
+    for (const spec of getMarketSpecialtiesByCategory(cat.slug)) {
+      for (const frame of spec.triptych) {
+        const dayDisk = path.resolve(
+          process.cwd(),
+          "public",
+          frame.src.replace(/^\//, "")
+        );
+        const nightUrl = resolveNightImageSrc(frame.src);
+        const nightDisk = path.resolve(
+          process.cwd(),
+          "public",
+          nightUrl.replace(/^\//, "")
+        );
+        const daySha = crypto
+          .createHash("sha256")
+          .update(fs.readFileSync(dayDisk))
+          .digest("hex");
+        const nightSha = crypto
+          .createHash("sha256")
+          .update(fs.readFileSync(nightDisk))
+          .digest("hex");
+        assert.ok(
+          !globalSpecialtyDayHashes.has(daySha),
+          `Binary SHA256 collision on Specialty Day image ${frame.src} (${spec.code})`
+        );
+        assert.ok(
+          !globalSpecialtyNightHashes.has(nightSha),
+          `Binary SHA256 collision on Specialty Night image ${nightUrl} (${spec.code})`
+        );
+        globalSpecialtyDayHashes.add(daySha);
+        globalSpecialtyNightHashes.add(nightSha);
+      }
+    }
+  }
+  assert.equal(globalSpecialtyDayHashes.size, 96);
+  assert.equal(globalSpecialtyNightHashes.size, 96);
+
+  // Verify 24/24 unique exterior SHA256 hashes across PROPERTY_LISTINGS
+  const propertyExteriorHashes = new Set<string>();
+  for (const prop of PROPERTY_LISTINGS) {
+    const extDisk = path.resolve(
+      process.cwd(),
+      "public",
+      prop.triptych[0].src.replace(/^\//, "")
+    );
+    const extSha = crypto
+      .createHash("sha256")
+      .update(fs.readFileSync(extDisk))
+      .digest("hex");
+    assert.ok(
+      !propertyExteriorHashes.has(extSha),
+      `Binary SHA256 collision on Property Exterior ${prop.id} (${prop.triptych[0].src})`
+    );
+    propertyExteriorHashes.add(extSha);
+  }
+  assert.equal(propertyExteriorHashes.size, 24);
+
+  // Verify PropertyCategoryShowcase.tsx mounts VisualAssetIntegrityHud, Experience Mode Switcher, and Specialty Studio triggers
+  const showcaseComponentContent = fs.readFileSync(
+    path.resolve(process.cwd(), "components/PropertyCategoryShowcase.tsx"),
+    "utf-8"
+  );
+  assert.ok(
+    showcaseComponentContent.includes("<VisualAssetIntegrityHud"),
+    "PropertyCategoryShowcase.tsx must mount VisualAssetIntegrityHud"
+  );
+  assert.ok(
+    showcaseComponentContent.includes('data-testid="market-experience-mode-switcher"'),
+    "PropertyCategoryShowcase.tsx must include the unified market experience mode switcher"
+  );
+  assert.ok(
+    showcaseComponentContent.includes("data-specialty-studio-trigger="),
+    "MarketSpecialtyInteractiveCard must include a trigger button to expand the full-screen Specialty Studio"
+  );
+  assert.ok(
+    walkthroughStudioContent.includes("export function buildSpecialtyWalkthroughStops") &&
+      walkthroughStudioContent.includes("initialSpecialtyId"),
+    "PropertyWalkthroughStudio.tsx must support full-screen Specialty Studio inspection and 8-specialty switching"
+  );
 });

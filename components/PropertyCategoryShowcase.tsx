@@ -5,6 +5,8 @@ import Link from "next/link";
 import ProtectedImage, {
   preloadProtectedImages,
   waitForDecodedSurfaces,
+  VisualAssetIntegrityHud,
+  computeVisualAssetId,
 } from "@/components/ProtectedImage";
 import {
   PropertyWalkthroughStudioModal,
@@ -190,9 +192,15 @@ function SpecialtyVectorIcon({
 function MarketSpecialtyInteractiveCard({
   service,
   marketLabel,
+  onOpenSpecialtyStudio,
 }: {
   service: MarketSpecialtyService;
   marketLabel: string;
+  onOpenSpecialtyStudio?: (
+    specialtyId: MarketSpecialtyId,
+    stepIdx: number,
+    solarHour: number
+  ) => void;
 }) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [mood, setMood] = useState<"day" | "sunset" | "night">("day");
@@ -204,6 +212,8 @@ function MarketSpecialtyInteractiveCard({
     [frames]
   );
   const currentFrame = frames[activeIdx] ?? frames[0];
+  const currentNightSrc = resolveNightImageSrc(currentFrame.src);
+  const currentAssetId = computeVisualAssetId(currentFrame.src);
 
   const selectFrame = (idx: number) => {
     const target = frames[idx] ?? frames[0];
@@ -220,60 +230,78 @@ function MarketSpecialtyInteractiveCard({
       ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
       : "none";
 
+  const moodSolarHour =
+    mood === "night" ? 21.5 : mood === "sunset" ? 18.5 : 13.5;
+
   return (
     <article
       id={service.id}
       data-specialty-card={service.code}
       onPointerEnter={() => preloadProtectedImages(allUrls)}
-      className="rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)]"
+      className="rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.72)]"
       style={{
         background:
-          "linear-gradient(165deg, rgba(15, 32, 64, 0.94) 0%, rgba(7, 14, 26, 0.98) 100%)",
-        borderColor: "rgba(201, 168, 76, 0.42)",
+          "linear-gradient(165deg, rgba(15, 32, 64, 0.95) 0%, rgba(7, 14, 26, 0.99) 100%)",
+        borderColor: "rgba(201, 168, 76, 0.45)",
       }}
     >
       <div>
-        {/* 3-Photo Day / Sunset / Night Interactive Triptych Stage */}
-        <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#03060D] select-none group/specphoto">
-          {frames.map((frame, idx) => {
-            const isCurrent = idx === activeIdx;
-            const nightSrc = resolveNightImageSrc(frame.src);
-            return (
-              <div
-                key={`${service.id}-${idx}`}
-                aria-hidden={!isCurrent}
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{
-                  opacity: isCurrent ? 1 : 0,
-                  transform: isCurrent ? "scale(1.0)" : "scale(1.05)",
-                  filter: cardFilter,
-                  transition:
-                    "opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 850ms cubic-bezier(0.16, 1, 0.3, 1), filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              >
-                <ProtectedImage
-                  src={frame.src}
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  alt={`${service.title} — ${frame.label}`}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
-                />
-                <div
-                  className="absolute inset-0 w-full h-full pointer-events-none"
-                  style={{
-                    opacity: mood === "night" ? 1 : 0,
-                    transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                  }}
-                >
-                  <ProtectedImage
-                    src={nightSrc}
-                    loading={idx === 0 ? "eager" : "lazy"}
-                    alt={`${service.title} — ${frame.label} (Night)`}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
-                  />
-                </div>
-              </div>
-            );
-          })}
+        {/* Clickable 3-Photo Day / Sunset / Night Interactive Triptych Stage */}
+        <div
+          role="button"
+          tabIndex={0}
+          data-visual-slot={service.id}
+          onClick={() =>
+            onOpenSpecialtyStudio?.(
+              service.specialtyId,
+              activeIdx,
+              moodSolarHour
+            )
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onOpenSpecialtyStudio?.(
+                service.specialtyId,
+                activeIdx,
+                moodSolarHour
+              );
+            }
+          }}
+          aria-label={`Expand full-screen ${service.title} studio at ${currentFrame.label}`}
+          className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#03060D] select-none cursor-pointer group/specphoto"
+        >
+          <div
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{
+              filter: cardFilter,
+              transition: "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
+            <ProtectedImage
+              src={currentFrame.src}
+              syncUrls={allUrls}
+              loading="eager"
+              alt={`${service.title} — ${currentFrame.label}`}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
+            />
+            <div
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{
+                opacity: mood === "night" ? 1 : 0,
+                transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            >
+              <ProtectedImage
+                src={currentNightSrc}
+                syncUrls={allUrls}
+                auditIgnore={true}
+                loading="lazy"
+                alt={`${service.title} — ${currentFrame.label} (Night)`}
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
+              />
+            </div>
+          </div>
 
           {/* Sunset Warmth Overlay */}
           <div
@@ -295,7 +323,10 @@ function MarketSpecialtyInteractiveCard({
           />
 
           {/* Top Bar: Specialty Badge + Day/Sunset/Night Lighting Switcher */}
-          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+          <div
+            className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border backdrop-blur-xl"
               style={{
@@ -324,7 +355,10 @@ function MarketSpecialtyInteractiveCard({
                   <button
                     key={m.id}
                     type="button"
-                    onClick={() => setMood(m.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMood(m.id);
+                    }}
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                     style={{
                       background: active ? "#E5C97B" : "transparent",
@@ -340,13 +374,38 @@ function MarketSpecialtyInteractiveCard({
             </div>
           </div>
 
+          {/* Center Hover Expand Pill */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover/specphoto:opacity-100 transition-opacity duration-300 z-10">
+            <span
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-mono font-black uppercase tracking-wider shadow-[0_12px_32px_rgba(0,0,0,0.75)] border"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(246, 226, 156, 0.96) 0%, rgba(201, 168, 76, 0.96) 100%)",
+                borderColor: "#FFF3C4",
+                color: "#050A14",
+              }}
+            >
+              <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+              <span>Click to Expand Full-Screen Studio</span>
+              <StudioActionIcon kind="arrow-right" className="w-3.5 h-3.5" />
+            </span>
+          </div>
+
           {/* Bottom Caption + 3-Photo Triptych Switcher */}
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 z-10">
-            <div className="text-xs font-bold text-white drop-shadow truncate">
-              {currentFrame.label}
+          <div
+            className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="min-w-0">
+              <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]/90">
+                #{currentAssetId} · ANGLE 0{activeIdx + 1}/03
+              </div>
+              <div className="text-xs font-bold text-white drop-shadow truncate">
+                {currentFrame.label}
+              </div>
             </div>
             <div
-              className="flex items-center gap-1 bg-[#050A14]/85 p-1 rounded-xl border border-[#C9A84C]/40 backdrop-blur-md shrink-0"
+              className="flex items-center gap-1 bg-[#050A14]/90 p-1 rounded-xl border border-[#C9A84C]/45 backdrop-blur-md shrink-0"
               role="group"
               aria-label={`Switch ${service.title} photographs`}
             >
@@ -356,12 +415,15 @@ function MarketSpecialtyInteractiveCard({
                   <button
                     key={f.label}
                     type="button"
-                    onClick={() => selectFrame(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      selectFrame(idx);
+                    }}
                     onPointerEnter={() => selectFrame(idx)}
                     className="w-6 h-6 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
                     style={{
                       background: isSelected
-                        ? "#C9A84C"
+                        ? "linear-gradient(135deg, #F6E29C 0%, #C9A84C 100%)"
                         : "rgba(15, 32, 64, 0.9)",
                       color: isSelected ? "#070E1A" : "#E2E8F0",
                     }}
@@ -388,7 +450,7 @@ function MarketSpecialtyInteractiveCard({
                 className="px-2 py-1.5 rounded-lg text-left transition-all duration-300 cursor-pointer border"
                 style={{
                   background: isCurrent
-                    ? "rgba(201, 168, 76, 0.20)"
+                    ? "linear-gradient(135deg, rgba(201, 168, 76, 0.24) 0%, rgba(15, 32, 64, 0.85) 100%)"
                     : "rgba(12, 24, 46, 0.45)",
                   borderColor: isCurrent
                     ? "#E5C97B"
@@ -451,25 +513,43 @@ function MarketSpecialtyInteractiveCard({
         </div>
       </div>
 
-      {/* Footer CTA */}
-      <div className="px-6 pb-6 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[10px] font-mono text-slate-400">
-          3 Market Photos · Day &amp; Night View
-        </span>
-        <Link
-          href={`/estimate?service=${encodeURIComponent(
-            `${service.title} (${marketLabel})`
-          )}&category=${encodeURIComponent(service.market)}`}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-mono font-black border transition-all hover:scale-105 shadow-md"
+      {/* Footer CTA — Bespoke Burnished Champagne-Gold Capsule Button to Expand Full-Screen Studio */}
+      <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
+            3 Market Photos · 24h Solar
+          </span>
+          <span className="text-[10px] font-mono text-slate-400">
+            Asset ID #{currentAssetId}
+          </span>
+        </div>
+        <button
+          type="button"
+          data-specialty-studio-trigger={service.code}
+          onClick={() =>
+            onOpenSpecialtyStudio?.(
+              service.specialtyId,
+              activeIdx,
+              moodSolarHour
+            )
+          }
+          className="group/btn inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,193,88,0.48)]"
           style={{
-            background: "#C9A84C",
-            borderColor: "#F3D37A",
-            color: "#070E1A",
+            background:
+              "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+            borderColor: "#FFF3C4",
+            color: "#050A14",
+            boxShadow:
+              "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
           }}
         >
-          <span>Request {service.specialtyLabel} Estimate</span>
-          <span aria-hidden="true">→</span>
-        </Link>
+          <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+          <span>Expand {service.specialtyLabel} Studio</span>
+          <StudioActionIcon
+            kind="arrow-right"
+            className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+          />
+        </button>
       </div>
     </article>
   );
@@ -498,6 +578,7 @@ function PropertyCardInteractiveStage({
     [stops]
   );
   const currentStop = stops[activeIdx] ?? stops[0];
+  const currentAssetId = computeVisualAssetId(currentStop.src);
 
   const selectRoomPreview = (idx: number) => {
     const target = stops[idx] ?? stops[0];
@@ -520,10 +601,11 @@ function PropertyCardInteractiveStage({
       className="bg-[#040811] border-b border-white/8"
       onPointerEnter={() => preloadProtectedImages(allUrls)}
     >
-      {/* Main Clickable Photo Stage with Stacked 5-Room + Real Night Silky Crossfade */}
+      {/* Main Clickable Photo Stage with Active Stop + Real Night Silky Crossfade */}
       <div
         role="button"
         tabIndex={0}
+        data-visual-slot={property.id}
         onClick={() => onOpenStudio(activeIdx, moodSolarHour)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -534,45 +616,38 @@ function PropertyCardInteractiveStage({
         aria-label={`Open 5-room interactive tour, day/night lighting, and color studio for ${property.title}`}
         className="relative h-60 sm:h-64 w-full overflow-hidden cursor-pointer group/photo select-none bg-[#03060D]"
       >
-        {stops.map((st, idx) => {
-          const isCurrent = idx === activeIdx;
-          return (
-            <div
-              key={st.stepNumber}
-              aria-hidden={!isCurrent}
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{
-                opacity: isCurrent ? 1 : 0,
-                transform: isCurrent ? "scale(1.0)" : "scale(1.05)",
-                filter: cardFilter,
-                transition:
-                  "opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 850ms cubic-bezier(0.16, 1, 0.3, 1), filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            >
-              <ProtectedImage
-                src={st.src}
-                loading={idx === 0 ? "eager" : "lazy"}
-                alt={`${property.title} — ${st.title}`}
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
-              />
-              {/* True AI-Generated Nighttime Photograph (`nightSrc`) with Logical 2700K Interior Illumination */}
-              <div
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{
-                  opacity: cardMood === "night" ? 1 : 0,
-                  transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              >
-                <ProtectedImage
-                  src={st.nightSrc}
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  alt={`${property.title} — ${st.title} (Night)`}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
-                />
-              </div>
-            </div>
-          );
-        })}
+        <div
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{
+            filter: cardFilter,
+            transition: "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          <ProtectedImage
+            src={currentStop.src}
+            syncUrls={allUrls}
+            loading="eager"
+            alt={`${property.title} — ${currentStop.title}`}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
+          />
+          {/* True AI-Generated Nighttime Photograph (`nightSrc`) with Logical 2700K Interior Illumination */}
+          <div
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{
+              opacity: cardMood === "night" ? 1 : 0,
+              transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
+            <ProtectedImage
+              src={currentStop.nightSrc}
+              syncUrls={allUrls}
+              auditIgnore={true}
+              loading="lazy"
+              alt={`${property.title} — ${currentStop.title} (Night)`}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
+            />
+          </div>
+        </div>
 
         {/* Ambient Golden Sunset Card Preview Overlay (Only for Sunset; Night uses real generated Night photo) */}
         <div
@@ -644,19 +719,26 @@ function PropertyCardInteractiveStage({
 
         {/* Bottom Caption + Hover Glass Pill inside Photo */}
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 pointer-events-none">
-          <div className="text-xs font-bold text-white drop-shadow truncate">
-            {currentStop.title}
+          <div className="min-w-0">
+            <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]/90">
+              #{currentAssetId} · CONNECTED PROJECT TOUR
+            </div>
+            <div className="text-xs font-bold text-white drop-shadow truncate">
+              {currentStop.title}
+            </div>
           </div>
           <span
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold shrink-0 transition-transform duration-300 group-hover/photo:scale-105 shadow-lg"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-wider shrink-0 transition-transform duration-300 group-hover/photo:scale-105 shadow-lg border"
             style={{
-              background: "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",
+              background:
+                "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+              borderColor: "#FFF3C4",
               color: "#050A14",
             }}
           >
-            <StudioActionIcon kind="sparkle" className="w-2.5 h-2.5" />
-            <span>Enter Studio</span>
-            <StudioActionIcon kind="arrow-right" className="w-2.5 h-2.5" />
+            <StudioActionIcon kind="sparkle" className="w-3 h-3" />
+            <span>Expand Studio</span>
+            <StudioActionIcon kind="arrow-right" className="w-3 h-3" />
           </span>
         </div>
       </div>
@@ -717,6 +799,9 @@ export function LandingPropertyCategoriesSection() {
   const [studioProperty, setStudioProperty] = useState<PropertyListing | null>(
     null
   );
+  const [studioSpecialtyId, setStudioSpecialtyId] = useState<
+    string | undefined
+  >(undefined);
   const [studioSolarHour, setStudioSolarHour] = useState<number>(12.5);
 
   useEffect(() => {
@@ -737,10 +822,12 @@ export function LandingPropertyCategoriesSection() {
 
   const openCategoryStudio = (
     prop: PropertyListing,
-    mood: "day" | "sunset" | "night" = "day"
+    mood: "day" | "sunset" | "night" = "day",
+    specialtyId?: string
   ) => {
     const hour = mood === "night" ? 21.5 : mood === "sunset" ? 18.5 : 12.5;
     setStudioSolarHour(hour);
+    setStudioSpecialtyId(specialtyId);
     setStudioProperty(prop);
   };
 
@@ -768,7 +855,7 @@ export function LandingPropertyCategoriesSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Top Executive Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 mb-10 border-b border-[#C9A84C]/25">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 mb-6 border-b border-[#C9A84C]/25">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-4">
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
@@ -813,11 +900,13 @@ export function LandingPropertyCategoriesSection() {
               <Link
                 key={cat.slug}
                 href={`/properties/${cat.slug}`}
-                className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-all hover:scale-105"
+                className="px-4 py-2 rounded-full text-xs font-mono font-bold border transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3D37A]"
                 style={{
-                  background: "rgba(15, 32, 64, 0.85)",
-                  borderColor: "rgba(201, 168, 76, 0.45)",
+                  background:
+                    "linear-gradient(135deg, rgba(16, 26, 46, 0.92) 0%, rgba(9, 15, 28, 0.96) 100%)",
+                  borderColor: "rgba(201, 168, 76, 0.48)",
                   color: "#F3D37A",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
                 }}
               >
                 {cat.label} →
@@ -825,15 +914,24 @@ export function LandingPropertyCategoriesSection() {
             ))}
             <Link
               href="/properties"
-              className="px-4 py-2 rounded-xl text-xs font-mono font-black transition-all hover:scale-105 shadow-md"
+              className="px-4 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
               style={{
-                background: "#C9A84C",
-                color: "#070E1A",
+                background:
+                  "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                borderColor: "#FFF3C4",
+                color: "#050A14",
+                boxShadow:
+                  "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
               }}
             >
               All 4 Markets ↗
             </Link>
           </div>
+        </div>
+
+        {/* Live Image Identifier & Duplicate Detector HUD */}
+        <div className="mb-8">
+          <VisualAssetIntegrityHud scopeLabel="4 PRIMARY MARKETS · LIVE VIEWPORT" />
         </div>
 
         {/* 4-Market Architectural Grid (2x2 on Desktop) */}
@@ -844,6 +942,9 @@ export function LandingPropertyCategoriesSection() {
             const flagshipProperty = categoryListings[0];
             const galleryUrls = [cat.heroImage, ...cat.secondaryImages];
             const activeIdx = activeThumbMap[cat.slug] ?? 0;
+            const currentUrl = galleryUrls[activeIdx] ?? galleryUrls[0];
+            const currentNightUrl = resolveNightImageSrc(currentUrl);
+            const currentAssetId = computeVisualAssetId(currentUrl);
             const catMood = categoryMoodMap[cat.slug] ?? "day";
             const catFilter =
               catMood === "sunset"
@@ -861,53 +962,47 @@ export function LandingPropertyCategoriesSection() {
                   borderColor: "rgba(201, 168, 76, 0.42)",
                 }}
               >
-                {/* Top Visual Stage — Clickable to Category Page with Stacked 650ms Crossfade + Real Night */}
-                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#040811]">
+                {/* Top Visual Stage — Clickable to Category Page with Active Slot + Real Night */}
+                <div
+                  data-visual-slot={`cat-${cat.slug}`}
+                  className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#040811]"
+                >
                   <Link
                     href={`/properties/${cat.slug}`}
                     aria-label={`Open ${cat.label} page`}
                     className="block w-full h-full relative"
                   >
-                    {galleryUrls.map((url, idx) => {
-                      const isSelected = idx === activeIdx;
-                      const nightUrl = resolveNightImageSrc(url);
-                      return (
-                        <div
-                          key={url}
-                          aria-hidden={!isSelected}
-                          className="absolute inset-0 w-full h-full pointer-events-none"
-                          style={{
-                            opacity: isSelected ? 1 : 0,
-                            transform: isSelected ? "scale(1.0)" : "scale(1.05)",
-                            filter: catFilter,
-                            transition:
-                              "opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 850ms cubic-bezier(0.16, 1, 0.3, 1), filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                          }}
-                        >
-                          <ProtectedImage
-                            src={url}
-                            syncUrls={galleryUrls}
-                            alt={cat.label}
-                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          />
-                          <div
-                            className="absolute inset-0 w-full h-full pointer-events-none"
-                            style={{
-                              opacity: catMood === "night" ? 1 : 0,
-                              transition:
-                                "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                            }}
-                          >
-                            <ProtectedImage
-                              src={nightUrl}
-                              syncUrls={galleryUrls}
-                              alt={`${cat.label} (Night)`}
-                              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                    <div
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      style={{
+                        filter: catFilter,
+                        transition:
+                          "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      }}
+                    >
+                      <ProtectedImage
+                        src={currentUrl}
+                        syncUrls={galleryUrls}
+                        alt={cat.label}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                      <div
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        style={{
+                          opacity: catMood === "night" ? 1 : 0,
+                          transition:
+                            "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                        }}
+                      >
+                        <ProtectedImage
+                          src={currentNightUrl}
+                          syncUrls={galleryUrls}
+                          auditIgnore={true}
+                          alt={`${cat.label} (Night)`}
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                      </div>
+                    </div>
                     {/* Sunset golden ambient wash */}
                     <div
                       className="absolute inset-0 pointer-events-none transition-opacity duration-700"
@@ -937,7 +1032,7 @@ export function LandingPropertyCategoriesSection() {
                         color: "#F3D37A",
                       }}
                     >
-                      {cat.eyebrow}
+                      {cat.eyebrow} · #{currentAssetId}
                     </span>
 
                     <div className="flex items-center gap-1.5">
@@ -1077,7 +1172,7 @@ export function LandingPropertyCategoriesSection() {
                       </div>
                     </div>
 
-                    {/* Market Specialties Strip — Click any specialty to jump straight to that market's specialty section */}
+                    {/* Market Specialties Strip — Click any specialty to launch its Full-Screen Specialty Studio! */}
                     <div className="mb-4">
                       <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2">
                         <StudioActionIcon
@@ -1085,22 +1180,31 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          {cat.label} Services by Specialty (8):
+                          {cat.label} Services by Specialty (Click to Expand Studio):
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {marketSpecialties.map((spec) => (
-                          <Link
+                          <button
                             key={spec.id}
-                            href={`/properties/${cat.slug}#${spec.id}`}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all"
+                            type="button"
+                            onClick={() => {
+                              if (flagshipProperty) {
+                                openCategoryStudio(
+                                  flagshipProperty,
+                                  catMood,
+                                  spec.specialtyId
+                                );
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/45 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer shadow-sm"
                           >
                             <SpecialtyVectorIcon
                               specialtyId={spec.specialtyId}
                               className="w-3 h-3 text-[#F3D37A]"
                             />
                             <span>{spec.specialtyLabel}</span>
-                          </Link>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -1113,7 +1217,7 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          {cat.label} Project Gallery (5-Room Tour &amp; Day/Night):
+                          {cat.label} Project Gallery (5-Room Connected Tour):
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -1121,8 +1225,10 @@ export function LandingPropertyCategoriesSection() {
                           <button
                             key={prop.id}
                             type="button"
-                            onClick={() => openCategoryStudio(prop, catMood)}
-                            className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-[#070E1A]/85 border border-[#C9A84C]/35 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs transition-all cursor-pointer text-left"
+                            onClick={() =>
+                              openCategoryStudio(prop, catMood, undefined)
+                            }
+                            className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#070E1A]/85 border border-[#C9A84C]/35 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs transition-all cursor-pointer text-left"
                           >
                             <span className="font-semibold text-slate-100 truncate">
                               <strong className="font-mono text-[#F3D37A] mr-1.5">
@@ -1144,38 +1250,51 @@ export function LandingPropertyCategoriesSection() {
                   </div>
 
                   {/* Action Footer: Launch Interactive Studio OR Open Full Category Page */}
-                  <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+                  <div className="pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
                     {flagshipProperty && (
                       <button
                         type="button"
                         onClick={() =>
-                          openCategoryStudio(flagshipProperty, catMood)
+                          openCategoryStudio(
+                            flagshipProperty,
+                            catMood,
+                            undefined
+                          )
                         }
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold border cursor-pointer transition-all hover:bg-white/10"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F3D37A]"
                         style={{
-                          background: "rgba(7, 14, 26, 0.9)",
+                          background:
+                            "linear-gradient(135deg, rgba(16, 26, 46, 0.92) 0%, rgba(9, 15, 28, 0.96) 100%)",
                           borderColor: "rgba(243, 211, 122, 0.55)",
                           color: "#F3D37A",
+                          boxShadow:
+                            "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.14)",
                         }}
                       >
                         <StudioActionIcon
                           kind="sparkle"
                           className="w-3.5 h-3.5 text-[#F3D37A]"
                         />
-                        <span>5-Room Tour &amp; Day/Night Studio</span>
+                        <span>5-Room Tour &amp; Studio</span>
                       </button>
                     )}
 
                     <Link
                       href={`/properties/${cat.slug}`}
                       data-magnetic
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 hover:scale-105 shadow-lg"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono font-black uppercase tracking-wider border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,193,88,0.48)]"
                       style={{
-                        background: "#C9A84C",
-                        color: "#070E1A",
+                        background:
+                          "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                        borderColor: "#FFF3C4",
+                        color: "#050A14",
+                        boxShadow:
+                          "0 12px 28px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.65)",
                       }}
                     >
-                      {cat.ctaLabel} ({categoryListings.length}){" "}
+                      <span>
+                        {cat.ctaLabel} ({categoryListings.length})
+                      </span>
                       <span aria-hidden="true">→</span>
                     </Link>
                   </div>
@@ -1192,7 +1311,11 @@ export function LandingPropertyCategoriesSection() {
           property={studioProperty}
           initialStepIndex={0}
           initialSolarHour={studioSolarHour}
-          onClose={() => setStudioProperty(null)}
+          initialSpecialtyId={studioSpecialtyId}
+          onClose={() => {
+            setStudioProperty(null);
+            setStudioSpecialtyId(undefined);
+          }}
         />
       )}
     </section>
@@ -1654,33 +1777,31 @@ export function DivisionInteractivePropertyAtelier({
                   </div>
                 </div>
 
-                <div className="px-6 pb-6 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                    5 Connected Rooms · 24h Solar
+                  </span>
                   <button
                     type="button"
                     data-division-walkthrough-trigger={prop.code}
                     onClick={() => openModal(prop, 0)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-mono font-black border cursor-pointer transition-all hover:scale-105 shadow-md"
+                    className="group/btn inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,193,88,0.48)]"
                     style={{
-                      background: "#C9A84C",
-                      borderColor: "#F3D37A",
-                      color: "#070E1A",
+                      background:
+                        "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                      borderColor: "#FFF3C4",
+                      color: "#050A14",
+                      boxShadow:
+                        "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
                     }}
                   >
                     <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                    <span>Step Inside · Tour, Light &amp; Colors</span>
+                    <span>Step Inside · 5-Room Studio</span>
+                    <StudioActionIcon
+                      kind="arrow-right"
+                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                    />
                   </button>
-                  <Link
-                    href={`/estimate?property=${encodeURIComponent(
-                      `${prop.code} - ${prop.title}`
-                    )}&category=${encodeURIComponent(prop.category)}`}
-                    className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-colors hover:bg-white/10"
-                    style={{
-                      borderColor: "rgba(201, 168, 76, 0.45)",
-                      color: "#F3D37A",
-                    }}
-                  >
-                    Estimate →
-                  </Link>
                 </div>
               </article>
             );
@@ -1714,10 +1835,16 @@ export function PropertyCategoryPageView({
   const [specialtyGroupFilter, setSpecialtyGroupFilter] = useState<
     "all" | MarketSpecialtyGroup
   >("all");
+  const [experienceMode, setExperienceMode] = useState<
+    "specialties" | "projects"
+  >("specialties");
   const [inspectedProperty, setInspectedProperty] =
     useState<PropertyListing | null>(null);
   const [modalFrameIdx, setModalFrameIdx] = useState<number>(0);
   const [modalSolarHour, setModalSolarHour] = useState<number>(12.5);
+  const [modalSpecialtyId, setModalSpecialtyId] = useState<
+    string | undefined
+  >(undefined);
 
   const baseListings = activeCategory
     ? getPropertiesByCategory(activeCategory.slug)
@@ -1769,22 +1896,40 @@ export function PropertyCategoryPageView({
     preloadProtectedImages(urls);
   }, [baseListings, marketSpecialties]);
 
-  // If navigated with #property-id hash, automatically open its Walkthrough Studio
+  // If navigated with #property-id or #market-projects hash, automatically route & open
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash.replace("#", "").trim().toLowerCase();
     if (!hash) return;
+    if (hash === "market-projects") {
+      setExperienceMode("projects");
+      return;
+    }
+    if (hash === "market-services") {
+      setExperienceMode("specialties");
+      return;
+    }
+    const foundSpec = marketSpecialties.find(
+      (s) => s.id.toLowerCase() === hash || s.specialtyId.toLowerCase() === hash
+    );
+    if (foundSpec) {
+      setExperienceMode("specialties");
+      return;
+    }
     const found = baseListings.find((p) => p.id.toLowerCase() === hash);
     if (found) {
+      setExperienceMode("projects");
       setModalFrameIdx(0);
+      setModalSpecialtyId(undefined);
       setInspectedProperty(found);
     }
-  }, [baseListings]);
+  }, [baseListings, marketSpecialties]);
 
   const openModal = (
     prop: PropertyListing,
     stepIdx = 0,
-    solarHour = 12.5
+    solarHour = 12.5,
+    specialtyId?: string
   ) => {
     const stops = buildCoherentWalkthrough(prop);
     const urls = stops.flatMap((f) => [f.src, f.nightSrc]);
@@ -1793,6 +1938,7 @@ export function PropertyCategoryPageView({
     waitForDecodedSurfaces([target.src, target.nightSrc]).then(() => {
       setModalFrameIdx(stepIdx);
       setModalSolarHour(solarHour);
+      setModalSpecialtyId(specialtyId);
       setInspectedProperty(prop);
     });
   };
@@ -1815,6 +1961,7 @@ export function PropertyCategoryPageView({
             src={
               activeCategory?.heroImage ?? "/curated/hero/res-farmhouse-metal.jpg"
             }
+            auditIgnore={true}
             alt=""
             loading="eager"
             className="w-full h-full object-cover opacity-35 tayco-hero-kenburns"
@@ -1898,10 +2045,11 @@ export function PropertyCategoryPageView({
 
             {/* Category Summary Telemetry Card */}
             <div
-              className="p-5 rounded-2xl border backdrop-blur-md shrink-0 w-full lg:w-88"
+              className="p-5 rounded-2xl border backdrop-blur-md shrink-0 w-full lg:w-92"
               style={{
-                background: "rgba(7, 14, 26, 0.84)",
-                borderColor: "rgba(201, 168, 76, 0.45)",
+                background: "rgba(7, 14, 26, 0.88)",
+                borderColor: "rgba(201, 168, 76, 0.48)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.55)",
               }}
             >
               <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-1">
@@ -1926,34 +2074,56 @@ export function PropertyCategoryPageView({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Project Gallery:</span>
+                  <span className="text-slate-400">Interactive Studio:</span>
                   <span className="font-mono text-slate-200">
-                    5-Room Tour + Day/Night Lighting
+                    Click Any Photo to Expand
                   </span>
                 </div>
               </div>
               {activeCategory && (
                 <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
-                  <a
-                    href="#market-services"
-                    className="px-3 py-2 rounded-xl text-[11px] font-mono font-black text-center transition-all hover:scale-105"
-                    style={{
-                      background: "#C9A84C",
-                      color: "#070E1A",
-                    }}
+                  <button
+                    type="button"
+                    onClick={() => setExperienceMode("specialties")}
+                    className="px-3 py-2 rounded-full text-[11px] font-mono font-black uppercase tracking-wider text-center border cursor-pointer transition-all duration-300"
+                    style={
+                      experienceMode === "specialties"
+                        ? {
+                            background:
+                              "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                            borderColor: "#FFF3C4",
+                            color: "#050A14",
+                          }
+                        : {
+                            background: "rgba(15, 32, 64, 0.8)",
+                            borderColor: "rgba(243, 211, 122, 0.45)",
+                            color: "#F3D37A",
+                          }
+                    }
                   >
-                    01 · Specialties ({marketSpecialties.length}) ↓
-                  </a>
-                  <a
-                    href="#market-projects"
-                    className="px-3 py-2 rounded-xl text-[11px] font-mono font-bold text-center border transition-all hover:bg-white/10"
-                    style={{
-                      borderColor: "rgba(243, 211, 122, 0.5)",
-                      color: "#F3D37A",
-                    }}
+                    01 · Specialties ({marketSpecialties.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExperienceMode("projects")}
+                    className="px-3 py-2 rounded-full text-[11px] font-mono font-black uppercase tracking-wider text-center border cursor-pointer transition-all duration-300"
+                    style={
+                      experienceMode === "projects"
+                        ? {
+                            background:
+                              "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                            borderColor: "#FFF3C4",
+                            color: "#050A14",
+                          }
+                        : {
+                            background: "rgba(15, 32, 64, 0.8)",
+                            borderColor: "rgba(243, 211, 122, 0.45)",
+                            color: "#F3D37A",
+                          }
+                    }
                   >
-                    02 · Projects ({baseListings.length}) ↓
-                  </a>
+                    02 · 5-Room Tours ({baseListings.length})
+                  </button>
                 </div>
               )}
             </div>
@@ -1968,16 +2138,22 @@ export function PropertyCategoryPageView({
             <Link
               href="/properties"
               aria-current={!activeCategory ? "page" : undefined}
-              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-bold border transition-all"
-              style={{
-                background: !activeCategory
-                  ? "#C9A84C"
-                  : "rgba(7, 14, 26, 0.78)",
-                color: !activeCategory ? "#070E1A" : "#E2E8F0",
-                borderColor: !activeCategory
-                  ? "#F3D37A"
-                  : "rgba(201, 168, 76, 0.35)",
-              }}
+              className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-mono font-bold border transition-all duration-300 hover:-translate-y-0.5"
+              style={
+                !activeCategory
+                  ? {
+                      background:
+                        "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                      color: "#050A14",
+                      borderColor: "#FFF3C4",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.45)",
+                    }
+                  : {
+                      background: "rgba(7, 14, 26, 0.82)",
+                      color: "#E2E8F0",
+                      borderColor: "rgba(201, 168, 76, 0.38)",
+                    }
+              }
             >
               All 4 Markets ({PROPERTY_LISTINGS.length})
             </Link>
@@ -1989,16 +2165,22 @@ export function PropertyCategoryPageView({
                   key={cat.slug}
                   href={`/properties/${cat.slug}`}
                   aria-current={isCurrent ? "page" : undefined}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-bold border transition-all"
-                  style={{
-                    background: isCurrent
-                      ? "#C9A84C"
-                      : "rgba(7, 14, 26, 0.78)",
-                    color: isCurrent ? "#070E1A" : "#F3D37A",
-                    borderColor: isCurrent
-                      ? "#F3D37A"
-                      : "rgba(201, 168, 76, 0.4)",
-                  }}
+                  className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-mono font-bold border transition-all duration-300 hover:-translate-y-0.5"
+                  style={
+                    isCurrent
+                      ? {
+                          background:
+                            "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                          color: "#050A14",
+                          borderColor: "#FFF3C4",
+                          boxShadow: "0 10px 24px rgba(0,0,0,0.45)",
+                        }
+                      : {
+                          background: "rgba(7, 14, 26, 0.82)",
+                          color: "#F3D37A",
+                          borderColor: "rgba(201, 168, 76, 0.42)",
+                        }
+                  }
                 >
                   {cat.label} (8 Specialties · {count} Projects)
                 </Link>
@@ -2008,458 +2190,615 @@ export function PropertyCategoryPageView({
         </div>
       </section>
 
-      {/* ── SECTION 1: MARKET-SPECIFIC SERVICES BY SPECIALTY (WHEN INSIDE ANY OF THE 4 MARKETS) ── */}
-      {activeCategory && marketSpecialties.length > 0 && (
-        <section
-          id="market-services"
-          aria-labelledby="market-services-heading"
-          className="max-w-7xl mx-auto px-4 sm:px-8 pt-12 pb-12 border-b border-[#C9A84C]/25"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
-                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-                  SECTION 01 · {activeCategory.label.toUpperCase()} SERVICES BY SPECIALTY
-                </span>
-              </div>
-              <h2
-                id="market-services-heading"
-                className="text-2xl sm:text-4xl font-black text-white tracking-tight"
+      {/* ── LIVE IMAGE IDENTIFIER & DUPLICATE DETECTOR + EXPERIENCE MODE SWITCHER ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
+        <VisualAssetIntegrityHud
+          scopeLabel={
+            activeCategory
+              ? `${activeCategory.label.toUpperCase()} · ${
+                  experienceMode === "specialties"
+                    ? "8 SPECIALTIES VIEW"
+                    : "6 PROJECT TOURS VIEW"
+                }`
+              : "ALL 4 MARKETS PORTFOLIO"
+          }
+        />
+
+        {activeCategory && marketSpecialties.length > 0 && (
+          <div
+            data-testid="market-experience-mode-switcher"
+            className="mt-5 p-2 rounded-2xl border flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 backdrop-blur-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(11, 20, 38, 0.94) 0%, rgba(6, 11, 22, 0.98) 100%)",
+              borderColor: "rgba(201, 168, 76, 0.42)",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
+              <button
+                type="button"
+                onClick={() => setExperienceMode("specialties")}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left border cursor-pointer transition-all duration-300"
+                style={
+                  experienceMode === "specialties"
+                    ? {
+                        background:
+                          "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                        borderColor: "#FFF3C4",
+                        color: "#050A14",
+                        boxShadow:
+                          "0 10px 26px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
+                      }
+                    : {
+                        background: "rgba(15, 32, 64, 0.55)",
+                        borderColor: "rgba(201, 168, 76, 0.3)",
+                        color: "#E2E8F0",
+                      }
+                }
               >
-                {activeCategory.label} Construction{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#F3D37A" }}
-                >
-                  Specialties.
-                </em>
-              </h2>
-              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
-                Every service TAYCO performs for{" "}
-                <strong className="text-white">{activeCategory.label}</strong>
-                —organized by specialty with 3 dedicated photographs per trade
-                and real Day, Sunset &amp; Night lighting views.
-              </p>
+                <div>
+                  <div className="text-[10px] font-mono font-black uppercase tracking-widest opacity-80">
+                    MODE 01 · SERVICES BY SPECIALTY
+                  </div>
+                  <div className="text-sm font-black tracking-tight mt-0.5">
+                    {activeCategory.label} 8 Construction Specialties
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-black bg-black/20">
+                  24 Photos
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExperienceMode("projects")}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left border cursor-pointer transition-all duration-300"
+                style={
+                  experienceMode === "projects"
+                    ? {
+                        background:
+                          "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                        borderColor: "#FFF3C4",
+                        color: "#050A14",
+                        boxShadow:
+                          "0 10px 26px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
+                      }
+                    : {
+                        background: "rgba(15, 32, 64, 0.55)",
+                        borderColor: "rgba(201, 168, 76, 0.3)",
+                        color: "#E2E8F0",
+                      }
+                }
+              >
+                <div>
+                  <div className="text-[10px] font-mono font-black uppercase tracking-widest opacity-80">
+                    MODE 02 · CONNECTED 5-ROOM WALKTHROUGHS
+                  </div>
+                  <div className="text-sm font-black tracking-tight mt-0.5">
+                    {activeCategory.label} Completed Project Tours (
+                    {baseListings.length})
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-black bg-black/20">
+                  5 Rooms Each
+                </span>
+              </button>
             </div>
 
-            {/* Specialty Group Filter Tabs */}
+            {baseListings[0] && (
+              <button
+                type="button"
+                onClick={() =>
+                  openModal(
+                    baseListings[0],
+                    0,
+                    12.5,
+                    experienceMode === "specialties"
+                      ? marketSpecialties[0]?.specialtyId
+                      : undefined
+                  )
+                }
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-mono font-black uppercase tracking-wider border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 shrink-0"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(18, 34, 64, 0.95) 0%, rgba(9, 17, 34, 0.98) 100%)",
+                  borderColor: "#F3D37A",
+                  color: "#F3D37A",
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.45)",
+                }}
+              >
+                <StudioActionIcon kind="sparkle" className="w-4 h-4" />
+                <span>Launch Full-Screen Studio</span>
+              </button>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* ── SECTION 1: MARKET-SPECIFIC SERVICES BY SPECIALTY (WHEN IN SPECIALTIES MODE) ── */}
+      {activeCategory &&
+        marketSpecialties.length > 0 &&
+        experienceMode === "specialties" && (
+          <section
+            id="market-services"
+            aria-labelledby="market-services-heading"
+            className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-12"
+          >
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
+                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
+                    MODE 01 · {activeCategory.label.toUpperCase()} SERVICES BY SPECIALTY
+                  </span>
+                </div>
+                <h2
+                  id="market-services-heading"
+                  className="text-2xl sm:text-4xl font-black text-white tracking-tight"
+                >
+                  {activeCategory.label} Construction{" "}
+                  <em
+                    className="tayco-serif-em font-normal"
+                    style={{ color: "#F3D37A" }}
+                  >
+                    Specialties.
+                  </em>
+                </h2>
+                <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+                  Click any photograph or{" "}
+                  <strong className="text-[#F3D37A]">Expand Studio</strong> button
+                  below to inspect all 3 market angles at full screen with our{" "}
+                  <strong className="text-white">24-Hour Solar Lighting</strong>{" "}
+                  and{" "}
+                  <strong className="text-white">6 Designer Finish Palettes</strong>.
+                </p>
+              </div>
+
+              {/* Specialty Group Filter Tabs */}
+              <div
+                className="flex flex-wrap items-center gap-1.5"
+                role="group"
+                aria-label="Filter specialties by trade group"
+              >
+                {(
+                  [
+                    { id: "all", label: `All Specialties (${marketSpecialties.length})` },
+                    { id: "envelope", label: "Roofing & Siding" },
+                    { id: "structural", label: "Framing, Concrete & Stone" },
+                    { id: "interiors", label: "Drywall, Flooring & Interiors" },
+                  ] as const
+                ).map((tab) => {
+                  const isSelected = specialtyGroupFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setSpecialtyGroupFilter(tab.id)}
+                      className="px-3.5 py-2 rounded-full text-xs font-mono font-bold border cursor-pointer transition-all duration-300"
+                      style={
+                        isSelected
+                          ? {
+                              background:
+                                "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                              color: "#050A14",
+                              borderColor: "#FFF3C4",
+                            }
+                          : {
+                              background: "rgba(15, 32, 64, 0.8)",
+                              color: "#F3D37A",
+                              borderColor: "rgba(201, 168, 76, 0.35)",
+                            }
+                      }
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick-Jump Specialty Anchor Strip */}
+            <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#0F2040]/70 border border-[#C9A84C]/30 mb-8">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-1">
+                Expand Specialty in Studio:
+              </span>
+              {marketSpecialties.map((spec) => (
+                <button
+                  key={spec.id}
+                  type="button"
+                  onClick={() => {
+                    if (baseListings[0]) {
+                      openModal(baseListings[0], 0, 13.5, spec.specialtyId);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] text-xs font-semibold text-white transition-all cursor-pointer"
+                >
+                  <SpecialtyVectorIcon
+                    specialtyId={spec.specialtyId}
+                    className="w-3.5 h-3.5 text-[#F3D37A]"
+                  />
+                  <span>{spec.specialtyLabel}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* 8 Market-Specific Specialty Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+              {filteredSpecialties.map((spec) => (
+                <MarketSpecialtyInteractiveCard
+                  key={spec.id}
+                  service={spec}
+                  marketLabel={activeCategory.label}
+                  onOpenSpecialtyStudio={(specialtyId, stepIdx, solarHour) => {
+                    if (baseListings[0]) {
+                      openModal(baseListings[0], stepIdx, solarHour, specialtyId);
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+      {/* ── SECTION 2: PROJECT GALLERY & FILTER BAR (WHEN IN PROJECTS MODE OR ALL MARKETS) ── */}
+      {(!activeCategory || experienceMode === "projects") && (
+        <>
+          <section
+            id="market-projects"
+            className="max-w-7xl mx-auto px-4 sm:px-8 pt-10"
+          >
+            {activeCategory && (
+              <div className="mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
+                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
+                    MODE 02 · {activeCategory.label.toUpperCase()} PROJECT GALLERY &amp; 5-ROOM TOURS
+                  </span>
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                  {activeCategory.label} Completed{" "}
+                  <em
+                    className="tayco-serif-em font-normal"
+                    style={{ color: "#F3D37A" }}
+                  >
+                    Project Gallery.
+                  </em>
+                </h2>
+                <p className="mt-2 text-sm sm:text-base text-slate-300">
+                  Explore {baseListings.length} turnkey{" "}
+                  <strong className="text-white">{activeCategory.label}</strong>{" "}
+                  projects with interactive 5-Room Connected Walkthroughs,
+                  Day/Night Solar Lighting and 6 Designer Palettes.
+                </p>
+              </div>
+            )}
             <div
-              className="flex flex-wrap items-center gap-1.5"
-              role="group"
-              aria-label="Filter specialties by trade group"
+              className="p-4 sm:p-5 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
+              style={{
+                background: "rgba(15, 32, 64, 0.72)",
+                borderColor: "rgba(201, 168, 76, 0.3)",
+              }}
             >
-              {(
-                [
-                  { id: "all", label: `All Specialties (${marketSpecialties.length})` },
-                  { id: "envelope", label: "Roofing & Siding" },
-                  { id: "structural", label: "Framing, Concrete & Stone" },
-                  { id: "interiors", label: "Drywall, Flooring & Interiors" },
-                ] as const
-              ).map((tab) => {
-                const isSelected = specialtyGroupFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setSpecialtyGroupFilter(tab.id)}
-                    className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border cursor-pointer transition-all"
-                    style={{
-                      background: isSelected
+              {/* State Filter */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
+                  Filter by State:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedState("ALL")}
+                  className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer transition-colors"
+                  style={{
+                    background:
+                      selectedState === "ALL"
                         ? "#C9A84C"
-                        : "rgba(15, 32, 64, 0.8)",
-                      color: isSelected ? "#070E1A" : "#F3D37A",
-                      borderColor: isSelected
+                        : "rgba(7, 14, 26, 0.8)",
+                    color: selectedState === "ALL" ? "#070E1A" : "#E2E8F0",
+                    borderColor:
+                      selectedState === "ALL"
                         ? "#F3D37A"
-                        : "rgba(201, 168, 76, 0.35)",
+                        : "rgba(201, 168, 76, 0.3)",
+                  }}
+                >
+                  All States ({baseListings.length})
+                </button>
+                {availableStates.map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setSelectedState(st)}
+                    className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer transition-colors"
+                    style={{
+                      background:
+                        selectedState === st
+                          ? "#C9A84C"
+                          : "rgba(7, 14, 26, 0.8)",
+                      color: selectedState === st ? "#070E1A" : "#F3D37A",
+                      borderColor:
+                        selectedState === st
+                          ? "#F3D37A"
+                          : "rgba(201, 168, 76, 0.3)",
                     }}
                   >
-                    {tab.label}
+                    {st}
                   </button>
+                ))}
+              </div>
+
+              {/* Availability Filter */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
+                  Delivery Status:
+                </span>
+                {[
+                  { id: "ALL", label: "All Available" },
+                  { id: "Available · Move-In Ready", label: "Move-In Ready" },
+                  {
+                    id: "Available · Turnkey Delivery",
+                    label: "Turnkey Delivery",
+                  },
+                  { id: "Available · Multiple Units", label: "Multiple Units" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setSelectedAvailability(opt.id)}
+                    className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer transition-colors"
+                    style={{
+                      background:
+                        selectedAvailability === opt.id
+                          ? "#C9A84C"
+                          : "rgba(7, 14, 26, 0.8)",
+                      color:
+                        selectedAvailability === opt.id
+                          ? "#070E1A"
+                          : "#E2E8F0",
+                      borderColor:
+                        selectedAvailability === opt.id
+                          ? "#F3D37A"
+                          : "rgba(201, 168, 76, 0.3)",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── PROPERTY LISTINGS GRID ── */}
+          <section
+            aria-label={
+              activeCategory
+                ? `${activeCategory.label} listings`
+                : "All property listings"
+            }
+            className="max-w-7xl mx-auto px-4 sm:px-8 pt-8"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+              {filteredListings.map((prop) => {
+                const catMeta = PROPERTY_CATEGORIES.find(
+                  (c) => c.slug === prop.category
+                );
+                return (
+                  <article
+                    key={prop.id}
+                    id={prop.id}
+                    data-property-card={prop.code}
+                    className="rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)]"
+                    style={{
+                      background:
+                        "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
+                      borderColor: "rgba(201, 168, 76, 0.38)",
+                    }}
+                  >
+                    <div>
+                      {/* Clickable 5-Room Preview Header + 5-Room Switcher Strip */}
+                      <PropertyCardInteractiveStage
+                        property={prop}
+                        onOpenStudio={(stepIdx, solarHour) =>
+                          openModal(prop, stepIdx, solarHour, undefined)
+                        }
+                      />
+
+                      <div className="p-6">
+                        {/* Top Badges: Code + Availability + State */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="px-2.5 py-0.5 rounded text-[11px] font-mono font-black"
+                              style={{
+                                background: "rgba(201, 168, 76, 0.2)",
+                                color: "#F3D37A",
+                                border: "1px solid rgba(201, 168, 76, 0.45)",
+                              }}
+                            >
+                              {prop.code}
+                            </span>
+                            <span className="text-xs font-mono font-semibold text-slate-300">
+                              {prop.location}
+                            </span>
+                          </div>
+                          <span
+                            className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                            style={{
+                              background: "rgba(16, 185, 129, 0.16)",
+                              color: "#6EE7B7",
+                              border: "1px solid rgba(16, 185, 129, 0.4)",
+                            }}
+                          >
+                            ● {prop.availability}
+                          </span>
+                        </div>
+
+                        {/* Category Pill when viewing All */}
+                        {!activeCategory && catMeta && (
+                          <div className="mb-2">
+                            <Link
+                              href={`/properties/${catMeta.slug}`}
+                              className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
+                            >
+                              {catMeta.label} →
+                            </Link>
+                          </div>
+                        )}
+
+                        {/* Title & Subtitle */}
+                        <h2 className="text-xl font-black text-white tracking-tight leading-snug">
+                          {prop.title}
+                        </h2>
+                        <p className="text-xs font-semibold text-[#F3D37A] mt-1">
+                          {prop.subtitle}
+                        </p>
+
+                        {/* Specs Strip */}
+                        <div className="grid grid-cols-2 gap-2.5 my-4 p-3 rounded-xl bg-[#070E1A]/85 border border-white/10">
+                          <div>
+                            <div className="text-[10px] font-mono uppercase text-slate-400">
+                              Total Area
+                            </div>
+                            <div className="text-xs font-mono font-bold text-white mt-0.5">
+                              {prop.sqft}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-[10px] font-mono uppercase text-slate-400">
+                              Layout / Specs
+                            </div>
+                            <div className="text-xs font-bold text-[#F3D37A] mt-0.5">
+                              {prop.configuration}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Summary */}
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                          {prop.summary}
+                        </p>
+
+                        {/* 3 Highlights */}
+                        <ul className="space-y-1.5 text-xs text-slate-200 mb-4">
+                          {prop.highlights.map((hl) => (
+                            <li key={hl} className="flex items-start gap-2">
+                              <span
+                                className="text-[#C9A84C] font-bold mt-0.5"
+                                aria-hidden="true"
+                              >
+                                ◆
+                              </span>
+                              <span>{hl}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Interactive Continuity, Day/Night & Color Studio Bar */}
+                        <div
+                          onClick={() => openModal(prop, 0, 12.5, undefined)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openModal(prop, 0, 12.5, undefined);
+                            }
+                          }}
+                          className="p-3 rounded-xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex items-center justify-between gap-2"
+                        >
+                          <div className="min-w-0">
+                            <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
+                              <StudioActionIcon
+                                kind="sparkle"
+                                className="w-3 h-3 text-[#F3D37A]"
+                              />
+                              <span>
+                                5-ROOM TOUR · DAY/NIGHT LIGHT · 6 COLORS
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 truncate mt-1">
+                              <span className="inline-flex items-center gap-1">
+                                <SolarPhaseIcon
+                                  phase="morning"
+                                  className="w-3 h-3 text-[#F3D37A]"
+                                />
+                                Morning
+                              </span>
+                              <span className="text-slate-600">·</span>
+                              <span className="inline-flex items-center gap-1">
+                                <SolarPhaseIcon
+                                  phase="midday"
+                                  className="w-3 h-3 text-[#F3D37A]"
+                                />
+                                Noon
+                              </span>
+                              <span className="text-slate-600">·</span>
+                              <span className="inline-flex items-center gap-1">
+                                <SolarPhaseIcon
+                                  phase="sunset"
+                                  className="w-3 h-3 text-[#F3D37A]"
+                                />
+                                Sunset
+                              </span>
+                              <span className="text-slate-600">·</span>
+                              <span className="inline-flex items-center gap-1">
+                                <SolarPhaseIcon
+                                  phase="night"
+                                  className="w-3 h-3 text-[#F3D37A]"
+                                />
+                                Night Lamps
+                              </span>
+                            </div>
+                          </div>
+                          <div
+                            className="flex items-center -space-x-1.5 shrink-0"
+                            title="6 Interactive Designer Finish Palettes"
+                          >
+                            {DESIGNER_PALETTES.map((pal) => (
+                              <span
+                                key={pal.id}
+                                className="w-4 h-4 rounded-full border border-white/70 shadow-sm"
+                                style={{ background: pal.swatches[0] }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Footer — Bespoke Burnished Champagne-Gold Capsule Button */}
+                    <div className="px-6 pb-6 pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                        5 Connected Rooms · 24h Solar
+                      </span>
+                      <button
+                        type="button"
+                        data-walkthrough-trigger={prop.code}
+                        onClick={() => openModal(prop, 0, 12.5, undefined)}
+                        className="group/btn inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(229,193,88,0.48)]"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                          borderColor: "#FFF3C4",
+                          color: "#050A14",
+                          boxShadow:
+                            "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.65)",
+                        }}
+                      >
+                        <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
+                        <span>Step Inside · 5-Room Studio</span>
+                        <StudioActionIcon
+                          kind="arrow-right"
+                          className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                        />
+                      </button>
+                    </div>
+                  </article>
                 );
               })}
             </div>
-          </div>
-
-          {/* Quick-Jump Specialty Anchor Strip */}
-          <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#0F2040]/70 border border-[#C9A84C]/30 mb-8">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-1">
-              Jump to Specialty:
-            </span>
-            {marketSpecialties.map((spec) => (
-              <a
-                key={spec.id}
-                href={`#${spec.id}`}
-                onClick={() => setSpecialtyGroupFilter("all")}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] text-xs font-semibold text-white transition-all"
-              >
-                <SpecialtyVectorIcon
-                  specialtyId={spec.specialtyId}
-                  className="w-3.5 h-3.5 text-[#F3D37A]"
-                />
-                <span>{spec.specialtyLabel}</span>
-              </a>
-            ))}
-          </div>
-
-          {/* 8 Market-Specific Specialty Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {filteredSpecialties.map((spec) => (
-              <MarketSpecialtyInteractiveCard
-                key={spec.id}
-                service={spec}
-                marketLabel={activeCategory.label}
-              />
-            ))}
-          </div>
-        </section>
+          </section>
+        </>
       )}
-
-      {/* ── SECTION 2: PROJECT GALLERY & FILTER BAR ── */}
-      <section
-        id="market-projects"
-        className="max-w-7xl mx-auto px-4 sm:px-8 pt-10"
-      >
-        {activeCategory && (
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3">
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-                SECTION 02 · {activeCategory.label.toUpperCase()} PROJECT GALLERY &amp; 5-ROOM TOURS
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              {activeCategory.label} Completed{" "}
-              <em
-                className="tayco-serif-em font-normal"
-                style={{ color: "#F3D37A" }}
-              >
-                Project Gallery.
-              </em>
-            </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-300">
-              Explore {baseListings.length} turnkey{" "}
-              <strong className="text-white">{activeCategory.label}</strong>{" "}
-              projects with interactive 5-Room Walkthroughs, Day/Night Solar
-              Lighting and 6 Designer Palettes.
-            </p>
-          </div>
-        )}
-        <div
-          className="p-4 sm:p-5 rounded-2xl border flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
-          style={{
-            background: "rgba(15, 32, 64, 0.72)",
-            borderColor: "rgba(201, 168, 76, 0.3)",
-          }}
-        >
-          {/* State Filter */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
-              Filter by State:
-            </span>
-            <button
-              type="button"
-              onClick={() => setSelectedState("ALL")}
-              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold border cursor-pointer transition-colors"
-              style={{
-                background:
-                  selectedState === "ALL" ? "#C9A84C" : "rgba(7, 14, 26, 0.8)",
-                color: selectedState === "ALL" ? "#070E1A" : "#E2E8F0",
-                borderColor:
-                  selectedState === "ALL"
-                    ? "#F3D37A"
-                    : "rgba(201, 168, 76, 0.3)",
-              }}
-            >
-              All States ({baseListings.length})
-            </button>
-            {availableStates.map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setSelectedState(st)}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold border cursor-pointer transition-colors"
-                style={{
-                  background:
-                    selectedState === st ? "#C9A84C" : "rgba(7, 14, 26, 0.8)",
-                  color: selectedState === st ? "#070E1A" : "#F3D37A",
-                  borderColor:
-                    selectedState === st
-                      ? "#F3D37A"
-                      : "rgba(201, 168, 76, 0.3)",
-                }}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
-
-          {/* Availability Filter */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
-              Delivery Status:
-            </span>
-            {[
-              { id: "ALL", label: "All Available" },
-              { id: "Available · Move-In Ready", label: "Move-In Ready" },
-              { id: "Available · Turnkey Delivery", label: "Turnkey Delivery" },
-              { id: "Available · Multiple Units", label: "Multiple Units" },
-            ].map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setSelectedAvailability(opt.id)}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold border cursor-pointer transition-colors"
-                style={{
-                  background:
-                    selectedAvailability === opt.id
-                      ? "#C9A84C"
-                      : "rgba(7, 14, 26, 0.8)",
-                  color:
-                    selectedAvailability === opt.id ? "#070E1A" : "#E2E8F0",
-                  borderColor:
-                    selectedAvailability === opt.id
-                      ? "#F3D37A"
-                      : "rgba(201, 168, 76, 0.3)",
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PROPERTY LISTINGS GRID ── */}
-      <section
-        aria-label={
-          activeCategory
-            ? `${activeCategory.label} listings`
-            : "All property listings"
-        }
-        className="max-w-7xl mx-auto px-4 sm:px-8 pt-8"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-          {filteredListings.map((prop) => {
-            const catMeta = PROPERTY_CATEGORIES.find(
-              (c) => c.slug === prop.category
-            );
-            return (
-              <article
-                key={prop.id}
-                id={prop.id}
-                data-property-card={prop.code}
-                className="rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.65)]"
-                style={{
-                  background:
-                    "linear-gradient(165deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.98) 100%)",
-                  borderColor: "rgba(201, 168, 76, 0.38)",
-                }}
-              >
-                <div>
-                  {/* Clickable 5-Room Preview Header + 5-Room Switcher Strip */}
-                  <PropertyCardInteractiveStage
-                    property={prop}
-                    onOpenStudio={(stepIdx, solarHour) =>
-                      openModal(prop, stepIdx, solarHour)
-                    }
-                  />
-
-                  <div className="p-6">
-                    {/* Top Badges: Code + Availability + State */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="px-2.5 py-0.5 rounded text-[11px] font-mono font-black"
-                          style={{
-                            background: "rgba(201, 168, 76, 0.2)",
-                            color: "#F3D37A",
-                            border: "1px solid rgba(201, 168, 76, 0.45)",
-                          }}
-                        >
-                          {prop.code}
-                        </span>
-                        <span className="text-xs font-mono font-semibold text-slate-300">
-                          {prop.location}
-                        </span>
-                      </div>
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                        style={{
-                          background: "rgba(16, 185, 129, 0.16)",
-                          color: "#6EE7B7",
-                          border: "1px solid rgba(16, 185, 129, 0.4)",
-                        }}
-                      >
-                        ● {prop.availability}
-                      </span>
-                    </div>
-
-                    {/* Category Pill when viewing All */}
-                    {!activeCategory && catMeta && (
-                      <div className="mb-2">
-                        <Link
-                          href={`/properties/${catMeta.slug}`}
-                          className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
-                        >
-                          {catMeta.label} →
-                        </Link>
-                      </div>
-                    )}
-
-                    {/* Title & Subtitle */}
-                    <h2 className="text-xl font-black text-white tracking-tight leading-snug">
-                      {prop.title}
-                    </h2>
-                    <p className="text-xs font-semibold text-[#F3D37A] mt-1">
-                      {prop.subtitle}
-                    </p>
-
-                    {/* Specs Strip */}
-                    <div className="grid grid-cols-2 gap-2.5 my-4 p-3 rounded-xl bg-[#070E1A]/85 border border-white/10">
-                      <div>
-                        <div className="text-[10px] font-mono uppercase text-slate-400">
-                          Total Area
-                        </div>
-                        <div className="text-xs font-mono font-bold text-white mt-0.5">
-                          {prop.sqft}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-mono uppercase text-slate-400">
-                          Layout / Specs
-                        </div>
-                        <div className="text-xs font-bold text-[#F3D37A] mt-0.5">
-                          {prop.configuration}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-                      {prop.summary}
-                    </p>
-
-                    {/* 3 Highlights */}
-                    <ul className="space-y-1.5 text-xs text-slate-200 mb-4">
-                      {prop.highlights.map((hl) => (
-                        <li key={hl} className="flex items-start gap-2">
-                          <span
-                            className="text-[#C9A84C] font-bold mt-0.5"
-                            aria-hidden="true"
-                          >
-                            ◆
-                          </span>
-                          <span>{hl}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* Interactive Continuity, Day/Night & Color Studio Bar */}
-                    <div
-                      onClick={() => openModal(prop, 0)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          openModal(prop, 0);
-                        }
-                      }}
-                      className="p-3 rounded-xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex items-center justify-between gap-2"
-                    >
-                      <div className="min-w-0">
-                        <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
-                          <StudioActionIcon
-                            kind="sparkle"
-                            className="w-3 h-3 text-[#F3D37A]"
-                          />
-                          <span>5-ROOM TOUR · DAY/NIGHT LIGHT · 6 COLORS</span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 truncate mt-1">
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="morning"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Morning
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="midday"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Noon
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="sunset"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Sunset
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="night"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Night Lamps
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className="flex items-center -space-x-1.5 shrink-0"
-                        title="6 Interactive Designer Finish Palettes"
-                      >
-                        {DESIGNER_PALETTES.map((pal) => (
-                          <span
-                            key={pal.id}
-                            className="w-4 h-4 rounded-full border border-white/70 shadow-sm"
-                            style={{ background: pal.swatches[0] }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Footer */}
-                <div className="px-6 pb-6 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    data-walkthrough-trigger={prop.code}
-                    onClick={() => openModal(prop, 0)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-mono font-black border cursor-pointer transition-all hover:scale-105 shadow-md"
-                    style={{
-                      background: "#C9A84C",
-                      borderColor: "#F3D37A",
-                      color: "#070E1A",
-                    }}
-                  >
-                    <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                    <span>Step Inside · Tour, Light &amp; Colors</span>
-                  </button>
-                  <Link
-                    href={`/estimate?property=${encodeURIComponent(
-                      `${prop.code} - ${prop.title}`
-                    )}&category=${encodeURIComponent(prop.category)}`}
-                    className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-colors hover:bg-white/10"
-                    style={{
-                      borderColor: "rgba(201, 168, 76, 0.45)",
-                      color: "#F3D37A",
-                    }}
-                  >
-                    Estimate →
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
 
       {/* ── OTHER CATEGORIES EXPLORER AT BOTTOM OF PAGE ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-20">
@@ -2531,7 +2870,11 @@ export function PropertyCategoryPageView({
           property={inspectedProperty}
           initialStepIndex={modalFrameIdx}
           initialSolarHour={modalSolarHour}
-          onClose={() => setInspectedProperty(null)}
+          initialSpecialtyId={modalSpecialtyId}
+          onClose={() => {
+            setInspectedProperty(null);
+            setModalSpecialtyId(undefined);
+          }}
         />
       )}
     </main>

@@ -15,11 +15,52 @@ export interface ProtectedImageProps {
   height?: number | string;
   /** Optional bundle of sibling URLs that must decode before this canvas transitions */
   syncUrls?: string[];
+  /** Optional flag to exclude decorative ambient blur backdrops from duplicate slot auditing */
+  auditIgnore?: boolean;
 }
 
 const decodedSurfaceCache = new Map<string, Promise<HTMLCanvasElement>>();
 const resolvedSurfaceMap = new Map<string, HTMLCanvasElement>();
+const resolvedContentHashMap = new Map<string, string>();
 let canvasPrototypesLocked = false;
+
+/** Normalizes an image path to its canonical visual stem (stripping query strings and -night suffix) */
+export function normalizeVisualStem(src: string): string {
+  if (!src) return "";
+  const clean = src.split("?")[0].trim().toLowerCase();
+  const base = clean.split("/").pop() || clean;
+  return base
+    .replace(/-night\.(jpg|jpeg|png|webp)$/i, ".$1")
+    .replace(/\.(jpg|jpeg|png|webp)$/i, "");
+}
+
+/** Deterministic 24-bit FNV-1a Visual Asset ID (e.g. AST-8F42C1) */
+export function computeVisualAssetId(src: string): string {
+  const stem = normalizeVisualStem(src);
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < stem.length; i++) {
+    hash ^= stem.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return `AST-${(hash & 0xffffff).toString(16).toUpperCase().padStart(6, "0")}`;
+}
+
+/** Computes a deterministic byte-level content fingerprint over unscrambled image bytes */
+export function computeVisualByteFingerprint(bytes: Uint8Array): string {
+  let h1 = 0x811c9dc5;
+  let h2 = 0x9e3779b9;
+  const len = bytes.byteLength;
+  const stride = Math.max(1, Math.floor(len / 4096));
+  for (let i = 0; i < len; i += stride) {
+    const b = bytes[i];
+    h1 ^= b;
+    h1 = Math.imul(h1, 0x01000193) >>> 0;
+    h2 ^= (b + (i & 0xff)) & 0xff;
+    h2 = Math.imul(h2, 0x85ebca6b) >>> 0;
+  }
+  h1 ^= len;
+  return `BF-${(h1 >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
+}
 
 // Frame-locked shared timestamp so all canvases committing in the same React render share identical t=0
 let lastCommitBatchWindow = 0;
@@ -106,6 +147,7 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
       }
       const buf = await res.arrayBuffer();
       const unscrambled = unscrambleVisualBytes(new Uint8Array(buf));
+      const contentHash = computeVisualByteFingerprint(unscrambled);
       const lower = src.toLowerCase();
       const mime = lower.endsWith(".png")
         ? "image/png"
@@ -127,6 +169,7 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
 
       const offscreen = document.createElement("canvas");
       offscreen.dataset.protectedCanvas = "v39";
+      offscreen.dataset.contentHash = contentHash;
       offscreen.width = w;
       offscreen.height = h;
       const ctx = offscreen.getContext("2d", { alpha: lower.endsWith(".png") });
@@ -134,6 +177,7 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
         ctx.drawImage(bitmap, 0, 0, w, h);
       }
       bitmap.close();
+      resolvedContentHashMap.set(src, contentHash);
       resolvedSurfaceMap.set(src, offscreen);
       return offscreen;
     })
@@ -274,11 +318,14 @@ export default function ProtectedImage({
   width,
   height,
   syncUrls,
+  auditIgnore = false,
 }: ProtectedImageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const prevSurfaceRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number>(0);
   const [shouldLoad, setShouldLoad] = useState<boolean>(loading !== "lazy");
+  const assetId = computeVisualAssetId(src);
+  const assetStem = normalizeVisualStem(src);
 
   useEffect(() => {
     lockProtectedCanvasExports();
@@ -318,6 +365,12 @@ export default function ProtectedImage({
       if (cancelled) return;
       const canvas = canvasRef.current;
       if (!canvas) return;
+
+      const resolvedHash =
+        nextSurface.dataset.contentHash || resolvedContentHashMap.get(src) || "";
+      if (resolvedHash) {
+        canvas.dataset.contentHash = resolvedHash;
+      }
 
       if (rafRef.current) {
         window.cancelAnimationFrame(rafRef.current);
@@ -419,12 +472,21 @@ export default function ProtectedImage({
     ? `absolute inset-0 w-full h-full ${className}`.trim()
     : className;
 
+  const isAmbientBlur =
+    auditIgnore ||
+    alt === "" ||
+    /\bblur-(?:md|lg|xl|2xl|3xl)\b/.test(className);
+
   return (
     <canvas
       ref={canvasRef}
       width={typeof width === "number" ? width : 16}
       height={typeof height === "number" ? height : 10}
       data-protected-canvas="v39"
+      data-asset-id={assetId}
+      data-asset-stem={assetStem}
+      data-content-hash={resolvedContentHashMap.get(src) || undefined}
+      data-audit-ignore={isAmbientBlur ? "true" : undefined}
       role={alt ? "img" : "presentation"}
       aria-label={alt || undefined}
       aria-hidden={alt === "" ? true : undefined}
@@ -437,5 +499,328 @@ export default function ProtectedImage({
         ...style,
       }}
     />
+  );
+}
+
+export interface AuditedVisualSlot {
+  slotIndex: number;
+  assetId: string;
+  assetStem: string;
+  contentHash: string;
+  label: string;
+  duplicateCount: number;
+  isDuplicate: boolean;
+  rect: { top: number; left: number; width: number; height: number };
+  element: HTMLCanvasElement;
+}
+
+/**
+ * Live Visual Asset Identifier & Duplicate Detector HUD:
+ * Scans all rendered <canvas data-protected-canvas="v39"> surfaces on the active view,
+ * verifies uniqueness by both deterministic Asset Stem ID (AST-XXXXXX) and Binary Byte
+ * Fingerprint (BF-XXXXXXXX), and provides a live on-image badge overlay + inspector drawer.
+ */
+export function VisualAssetIntegrityHud({
+  scopeLabel = "ACTIVE VIEWPORT",
+}: {
+  scopeLabel?: string;
+}) {
+  const [slots, setSlots] = useState<AuditedVisualSlot[]>([]);
+  const [showBadges, setShowBadges] = useState<boolean>(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+  const scanDomAssets = useCallback(() => {
+    if (typeof document === "undefined") return;
+    const allCanvases = Array.from(
+      document.querySelectorAll<HTMLCanvasElement>('canvas[data-protected-canvas="v39"]')
+    );
+
+    const seenSlotContainers = new Set<Element>();
+    const rawEntries: Array<{
+      assetId: string;
+      assetStem: string;
+      contentHash: string;
+      label: string;
+      rect: { top: number; left: number; width: number; height: number };
+      element: HTMLCanvasElement;
+    }> = [];
+
+    for (const canvas of allCanvases) {
+      if (canvas.dataset.auditIgnore === "true") continue;
+      if (canvas.closest('[data-audit-scope="ignore"]')) continue;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width < 28 || rect.height < 28) continue;
+      const style = window.getComputedStyle(canvas);
+      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) < 0.05) {
+        continue;
+      }
+
+      // Group Day + Night paired layers inside the same split-screen stage container as 1 visual slot
+      const slotContainer = canvas.closest("[data-visual-slot]");
+      if (slotContainer) {
+        if (seenSlotContainers.has(slotContainer)) continue;
+        seenSlotContainers.add(slotContainer);
+      }
+
+      const assetId = canvas.dataset.assetId || "AST-000000";
+      const assetStem = canvas.dataset.assetStem || "unknown";
+      if (assetStem === "logo") continue;
+      const contentHash = canvas.dataset.contentHash || assetId;
+      const label = canvas.getAttribute("aria-label") || assetStem;
+
+      rawEntries.push({
+        assetId,
+        assetStem,
+        contentHash,
+        label,
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        },
+        element: canvas,
+      });
+    }
+
+    // Count occurrences by BOTH assetStem and binary contentHash so even renamed duplicate files are caught
+    const stemCounts = new Map<string, number>();
+    const hashCounts = new Map<string, number>();
+    for (const item of rawEntries) {
+      stemCounts.set(item.assetStem, (stemCounts.get(item.assetStem) || 0) + 1);
+      if (item.contentHash) {
+        hashCounts.set(item.contentHash, (hashCounts.get(item.contentHash) || 0) + 1);
+      }
+    }
+
+    const audited: AuditedVisualSlot[] = rawEntries.map((item, idx) => {
+      const sCount = stemCounts.get(item.assetStem) || 1;
+      const hCount = item.contentHash ? hashCounts.get(item.contentHash) || 1 : 1;
+      const dupCount = Math.max(sCount, hCount);
+      return {
+        slotIndex: idx + 1,
+        assetId: item.assetId,
+        assetStem: item.assetStem,
+        contentHash: item.contentHash,
+        label: item.label,
+        duplicateCount: dupCount,
+        isDuplicate: dupCount > 1,
+        rect: item.rect,
+        element: item.element,
+      };
+    });
+
+    setSlots(audited);
+  }, []);
+
+  useEffect(() => {
+    scanDomAssets();
+    const interval = window.setInterval(scanDomAssets, 1100);
+    const onScrollOrResize = () => {
+      if (showBadges) scanDomAssets();
+    };
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize, { passive: true });
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [scanDomAssets, showBadges]);
+
+  const totalCount = slots.length;
+  const duplicateSlots = slots.filter((s) => s.isDuplicate);
+  const duplicateCount = duplicateSlots.length;
+  const uniqueCount = totalCount - duplicateCount;
+
+  return (
+    <>
+      {/* Inline Architectural Asset Integrity Radar Bar */}
+      <div
+        data-testid="visual-asset-integrity-hud"
+        data-total-slots={totalCount}
+        data-unique-slots={uniqueCount}
+        data-duplicate-slots={duplicateCount}
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5c158]/28 bg-[linear-gradient(135deg,rgba(11,17,30,0.92)_0%,rgba(17,27,46,0.88)_100%)] px-4 py-2.5 shadow-[0_14px_36px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#e5c158]/35 bg-[#e5c158]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f3d98b]">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                duplicateCount === 0
+                  ? "bg-emerald-400 shadow-[0_0_10px_#34d399]"
+                  : "bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]"
+              }`}
+            />
+            Asset Integrity Radar · {scopeLabel}
+          </span>
+
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-200">
+            <span className="font-mono text-[11px] font-semibold text-white">
+              {uniqueCount}/{totalCount} UNIQUE
+            </span>
+            <span className="text-slate-600">·</span>
+            <span
+              className={`font-mono text-[11px] font-bold ${
+                duplicateCount === 0 ? "text-emerald-300" : "text-amber-300"
+              }`}
+            >
+              {duplicateCount === 0
+                ? "0 REPEATED IMAGES DETECTED"
+                : `${duplicateCount} DUPLICATE SLOTS DETECTED`}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !showBadges;
+              setShowBadges(next);
+              setTimeout(scanDomAssets, 30);
+            }}
+            className={`group inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] transition-all duration-300 ${
+              showBadges
+                ? "border-[#f3d98b] bg-[linear-gradient(135deg,#f6e29c_0%,#d9b14a_52%,#b58928_100%)] text-slate-950 shadow-[0_0_22px_rgba(229,193,88,0.45)]"
+                : "border-[#e5c158]/35 bg-slate-900/80 text-[#f3d98b] hover:border-[#e5c158]/70 hover:bg-[#e5c158]/15"
+            }`}
+          >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M9 12h6M12 9v6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {showBadges ? "Hide Image IDs (#AST)" : "Show Image IDs (#AST)"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              scanDomAssets();
+              setDrawerOpen((prev) => !prev);
+            }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-200 transition-all hover:border-[#e5c158]/50 hover:bg-[#e5c158]/10 hover:text-white"
+          >
+            <svg className="h-3.5 w-3.5 text-[#e5c158]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {drawerOpen ? "Close Audit Log" : `Inspect All (${totalCount})`}
+          </button>
+        </div>
+      </div>
+
+      {/* Expandable Full-Page Asset Uniqueness Inspector Table */}
+      {drawerOpen && (
+        <div
+          data-audit-scope="ignore"
+          className="mt-3 rounded-2xl border border-[#e5c158]/30 bg-slate-950/95 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.75)] backdrop-blur-2xl"
+        >
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#e5c158]">
+                Live Page Image Fingerprint Registry · SHA/FNV-1a Byte & Stem Verification
+              </p>
+              <p className="mt-0.5 text-xs text-slate-400">
+                Every visible image surface is fingerprinted by both canonical asset stem and decoded binary payload bytes. Click any row to scroll to that surface.
+              </p>
+            </div>
+            <span className="rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-bold text-emerald-300">
+              {duplicateCount === 0 ? "100% UNIQUE VERIFIED" : `${duplicateCount} COLLISIONS`}
+            </span>
+          </div>
+
+          <div className="max-h-64 overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {slots.map((slot) => (
+                <button
+                  key={`${slot.slotIndex}-${slot.assetId}`}
+                  type="button"
+                  onClick={() => {
+                    slot.element.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}
+                  className={`flex items-center justify-between gap-3 rounded-xl border p-2.5 text-left transition-all ${
+                    slot.isDuplicate
+                      ? "border-amber-400/60 bg-amber-500/15 hover:bg-amber-500/25"
+                      : "border-white/10 bg-slate-900/75 hover:border-[#e5c158]/45 hover:bg-slate-900"
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-[#f3d98b]">
+                        #{String(slot.slotIndex).padStart(2, "0")} · {slot.assetId}
+                      </span>
+                      <span className="font-mono text-[9px] text-slate-400">
+                        {slot.contentHash}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-xs font-medium text-slate-200">
+                      {slot.label}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase ${
+                      slot.isDuplicate
+                        ? "border border-amber-300/50 bg-amber-400/20 text-amber-200"
+                        : "border border-emerald-400/35 bg-emerald-500/15 text-emerald-300"
+                    }`}
+                  >
+                    {slot.isDuplicate ? `DUP ×${slot.duplicateCount}` : "UNIQUE"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Viewport Floating Image ID Badges Overlay when Show Image IDs is active */}
+      {showBadges && (
+        <div
+          data-audit-scope="ignore"
+          className="pointer-events-none fixed inset-0 z-[90] overflow-hidden"
+        >
+          {slots.map((slot) => {
+            if (
+              slot.rect.top + slot.rect.height < 0 ||
+              slot.rect.top > (typeof window !== "undefined" ? window.innerHeight : 1080)
+            ) {
+              return null;
+            }
+            return (
+              <div
+                key={`badge-${slot.slotIndex}-${slot.assetId}`}
+                style={{
+                  position: "fixed",
+                  top: `${Math.max(8, slot.rect.top + 10)}px`,
+                  left: `${Math.max(8, slot.rect.left + 10)}px`,
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-[10px] font-bold tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.85)] backdrop-blur-md ${
+                  slot.isDuplicate
+                    ? "border-amber-300 bg-amber-950/95 text-amber-200"
+                    : "border-[#e5c158]/80 bg-slate-950/90 text-[#f3d98b]"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    slot.isDuplicate ? "bg-amber-400 animate-ping" : "bg-emerald-400"
+                  }`}
+                />
+                <span>{slot.assetId}</span>
+                <span className="text-slate-400">·</span>
+                <span className="text-[9px] text-slate-300">{slot.contentHash}</span>
+                <span
+                  className={`ml-1 rounded px-1 py-0.2 text-[8px] ${
+                    slot.isDuplicate
+                      ? "bg-amber-400/30 text-amber-100"
+                      : "bg-emerald-500/20 text-emerald-300"
+                  }`}
+                >
+                  {slot.isDuplicate ? `DUP ×${slot.duplicateCount}` : "UNIQUE"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }

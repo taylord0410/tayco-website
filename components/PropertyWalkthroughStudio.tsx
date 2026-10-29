@@ -6,7 +6,11 @@ import ProtectedImage, {
   preloadProtectedImages,
   waitForDecodedSurfaces,
 } from "@/components/ProtectedImage";
-import type { PropertyListing } from "@/lib/property-catalog";
+import {
+  getMarketSpecialtiesByCategory,
+  type MarketSpecialtyService,
+  type PropertyListing,
+} from "@/lib/property-catalog";
 import { COMPANY } from "@/lib/company";
 
 export interface WalkthroughHotspot {
@@ -1074,21 +1078,133 @@ export function buildCoherentWalkthrough(
 
 type FinishSurfaceKey = "cabinetry" | "stone" | "flooring" | "hardware";
 
+export function buildSpecialtyWalkthroughStops(
+  service: MarketSpecialtyService
+): WalkthroughStop[] {
+  const isUncoveredFraming = service.specialtyId === "framing";
+  return service.triptych.map((photo, idx) => {
+    const stepNumber = `0${idx + 1}`;
+    const shortWords = photo.label
+      .replace(/—/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .join(" ");
+    return {
+      stepNumber,
+      shortRoomName: shortWords || `View ${stepNumber}`,
+      zoneLabel: `${service.code} · ${service.specialtyLabel}`,
+      floorLevel: `STEP ${stepNumber} OF 03 · ${service.csiDivision} · ${service.title.toUpperCase()}`,
+      title: photo.label,
+      src: photo.src,
+      nightSrc: resolveNightImageSrc(photo.src),
+      spatialNarrative: `${service.summary} (${photo.caption})`,
+      portalButtonLabel:
+        idx < service.triptych.length - 1
+          ? `Next ${service.specialtyLabel} View (0${idx + 2}) →`
+          : `Return to View 01 · ${service.specialtyLabel} →`,
+      sunDirectionX: idx === 0 ? 74 : idx === 1 ? 30 : 58,
+      sunDirectionY: 22,
+      lightFixtures: isUncoveredFraming
+        ? []
+        : [
+            {
+              xPercent: 32,
+              yPercent: 44,
+              radiusPx: 120,
+              intensity: 0.72,
+              label: `${service.specialtyLabel} Primary Illumination`,
+            },
+            {
+              xPercent: 68,
+              yPercent: 48,
+              radiusPx: 115,
+              intensity: 0.68,
+              label: `${service.specialtyLabel} Architectural Wash`,
+            },
+          ],
+      hotspots: [
+        {
+          id: `${service.id}-spec-${idx}-1`,
+          xPercent: 30,
+          yPercent: 38,
+          title: service.deliverables[0] ?? service.title,
+          csiDivision: `${service.csiDivision} · PRIMARY ASSEMBLY`,
+          materialSpec: photo.tag,
+          detail: photo.caption,
+        },
+        {
+          id: `${service.id}-spec-${idx}-2`,
+          xPercent: 56,
+          yPercent: 52,
+          title: service.deliverables[1] ?? service.specialtyLabel,
+          csiDivision: `${service.csiDivision} · FIELD EXECUTION`,
+          materialSpec: service.subtitle,
+          detail: service.summary,
+        },
+        {
+          id: `${service.id}-spec-${idx}-3`,
+          xPercent: 74,
+          yPercent: 36,
+          title: service.deliverables[2] ?? "Quality Assurance",
+          csiDivision: `${service.csiDivision} · INSPECTION VERIFIED`,
+          materialSpec: photo.label,
+          detail: `Use the Solar & Twilight slider or Compare Before/After curtain to inspect surface details under 24-hour lighting.`,
+        },
+      ],
+    };
+  });
+}
+
 export function PropertyWalkthroughStudioModal({
   property,
   initialStepIndex = 0,
   initialSolarHour = 12.5,
+  initialSpecialtyId,
   onClose,
 }: {
   property: PropertyListing;
   initialStepIndex?: number;
   initialSolarHour?: number;
+  initialSpecialtyId?: string;
   onClose: () => void;
 }) {
-  const stops = React.useMemo(
+  const marketSpecialties = React.useMemo(
+    () => getMarketSpecialtiesByCategory(property.category),
+    [property.category]
+  );
+
+  const [studioMode, setStudioMode] = useState<"walkthrough" | "specialty">(
+    initialSpecialtyId ? "specialty" : "walkthrough"
+  );
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>(
+    initialSpecialtyId ?? marketSpecialties[0]?.specialtyId ?? "roofing"
+  );
+
+  const activeSpecialty = React.useMemo(
+    () =>
+      marketSpecialties.find(
+        (s) =>
+          s.specialtyId === selectedSpecialtyId || s.id === selectedSpecialtyId
+      ) ?? marketSpecialties[0],
+    [marketSpecialties, selectedSpecialtyId]
+  );
+
+  const walkthroughStops = React.useMemo(
     () => buildCoherentWalkthrough(property),
     [property]
   );
+
+  const specialtyStops = React.useMemo(
+    () =>
+      activeSpecialty ? buildSpecialtyWalkthroughStops(activeSpecialty) : [],
+    [activeSpecialty]
+  );
+
+  const stops =
+    studioMode === "specialty" && specialtyStops.length > 0
+      ? specialtyStops
+      : walkthroughStops;
 
   const [activeStopIdx, setActiveStopIdx] = useState<number>(
     Math.max(0, Math.min(stops.length - 1, initialStepIndex))
@@ -1164,7 +1280,9 @@ export function PropertyWalkthroughStudioModal({
         handleStepChange(activeStopIdx - 1);
       } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
         const idx = Number(e.key) - 1;
-        handleStepChange(idx);
+        if (idx < stops.length) {
+          handleStepChange(idx);
+        }
       } else if (e.key === "c" || e.key === "C") {
         setSplitCompareMode((v) => !v);
       } else if (e.key === "f" || e.key === "F") {
@@ -1173,7 +1291,7 @@ export function PropertyWalkthroughStudioModal({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeStopIdx, handleStepChange, onClose]);
+  }, [activeStopIdx, stops.length, handleStepChange, onClose]);
 
   const selectTimePreset = (preset: TimeOfDayPreset) => {
     setIsAutoCyclingDay(false);
@@ -1271,15 +1389,22 @@ export function PropertyWalkthroughStudioModal({
               className="px-3 py-1 rounded-lg text-[11px] font-mono font-black tracking-wider shrink-0 shadow-sm"
               style={{
                 background:
-                  "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",
+                  "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)",
                 color: "#050A14",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
               }}
             >
-              {property.code}
+              {studioMode === "specialty" && activeSpecialty
+                ? activeSpecialty.code
+                : property.code}
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[#C9A84C]">
-                <span>ARCHITECTURAL WALKTHROUGH &amp; BESPOKE ATELIER</span>
+                <span>
+                  {studioMode === "specialty" && activeSpecialty
+                    ? `${activeSpecialty.specialtyLabel.toUpperCase()} · MARKET SPECIALTY STUDIO`
+                    : "ARCHITECTURAL 5-ROOM WALKTHROUGH & BESPOKE ATELIER"}
+                </span>
                 <span className="hidden sm:inline text-white/25">•</span>
                 <span className="hidden sm:inline text-slate-300">
                   {property.location}
@@ -1289,7 +1414,9 @@ export function PropertyWalkthroughStudioModal({
                 id="walkthrough-studio-title"
                 className="text-base sm:text-xl font-black text-white tracking-tight truncate"
               >
-                {property.title}
+                {studioMode === "specialty" && activeSpecialty
+                  ? `${activeSpecialty.title} (${property.title})`
+                  : property.title}
               </h2>
             </div>
           </div>
@@ -1303,12 +1430,15 @@ export function PropertyWalkthroughStudioModal({
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
               style={{
                 background: splitCompareMode
-                  ? "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)"
-                  : "rgba(255, 255, 255, 0.05)",
+                  ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                  : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
                 color: splitCompareMode ? "#050A14" : "#F8FAFC",
                 borderColor: splitCompareMode
                   ? "#F3D37A"
-                  : "rgba(255, 255, 255, 0.14)",
+                  : "rgba(243, 211, 122, 0.38)",
+                boxShadow: splitCompareMode
+                  ? "0 6px 18px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.7)"
+                  : "inset 0 1px 0 rgba(255,255,255,0.12)",
               }}
             >
               <StudioActionIcon
@@ -1328,11 +1458,11 @@ export function PropertyWalkthroughStudioModal({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer transition-all duration-300"
               style={{
                 background: showHotspots
-                  ? "rgba(201, 168, 76, 0.16)"
+                  ? "rgba(201, 168, 76, 0.18)"
                   : "rgba(255, 255, 255, 0.04)",
                 borderColor: showHotspots
-                  ? "rgba(201, 168, 76, 0.45)"
-                  : "rgba(255, 255, 255, 0.12)",
+                  ? "rgba(243, 211, 122, 0.52)"
+                  : "rgba(255, 255, 255, 0.14)",
                 color: showHotspots ? "#F3D37A" : "#94A3B8",
               }}
             >
@@ -1348,15 +1478,15 @@ export function PropertyWalkthroughStudioModal({
               type="button"
               data-cinema-toggle
               onClick={() => setCinemaMode((v) => !v)}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer transition-all duration-300"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer transition-all duration-300"
               style={{
                 background: cinemaMode
-                  ? "rgba(201, 168, 76, 0.22)"
-                  : "rgba(255, 255, 255, 0.04)",
+                  ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                  : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
                 borderColor: cinemaMode
                   ? "#F3D37A"
-                  : "rgba(255, 255, 255, 0.12)",
-                color: cinemaMode ? "#F3D37A" : "#CBD5E1",
+                  : "rgba(243, 211, 122, 0.38)",
+                color: cinemaMode ? "#050A14" : "#F3D37A",
               }}
               title="Toggle Widescreen Cinema Canvas (Shortcut: F)"
             >
@@ -1364,7 +1494,7 @@ export function PropertyWalkthroughStudioModal({
                 kind={cinemaMode ? "exit-cinema" : "cinema"}
                 className="w-3.5 h-3.5"
               />
-              <span>{cinemaMode ? "Exit Cinema" : "Cinema View"}</span>
+              <span>{cinemaMode ? "Exit Cinema" : "Expand Cinema View"}</span>
             </button>
 
             <button
@@ -1377,6 +1507,104 @@ export function PropertyWalkthroughStudioModal({
             </button>
           </div>
         </div>
+
+        {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
+        {marketSpecialties.length > 0 && (
+          <div
+            className="px-4 sm:px-6 py-2.5 border-b flex flex-wrap items-center justify-between gap-2.5 shrink-0"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(4,9,18,0.98) 0%, rgba(10,20,38,0.96) 100%)",
+              borderColor: "rgba(201, 168, 76, 0.2)",
+            }}
+          >
+            {/* Left: 2-Mode Switcher (5-Space Project Tour vs. 8 Market Specialties) */}
+            <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-full bg-[#03060D] border border-white/12">
+              <button
+                type="button"
+                data-studio-mode="walkthrough"
+                onClick={() => {
+                  setStudioMode("walkthrough");
+                  setActiveStopIdx(0);
+                }}
+                className="px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
+                style={{
+                  background:
+                    studioMode === "walkthrough"
+                      ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                      : "transparent",
+                  color: studioMode === "walkthrough" ? "#050A14" : "#CBD5E1",
+                  boxShadow:
+                    studioMode === "walkthrough"
+                      ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
+                      : "none",
+                }}
+              >
+                <span className="font-mono text-[10px]">01</span>
+                <span>5-Space Connected Project Tour</span>
+              </button>
+
+              <button
+                type="button"
+                data-studio-mode="specialty"
+                onClick={() => {
+                  setStudioMode("specialty");
+                  setActiveStopIdx(0);
+                }}
+                className="px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
+                style={{
+                  background:
+                    studioMode === "specialty"
+                      ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
+                      : "transparent",
+                  color: studioMode === "specialty" ? "#050A14" : "#CBD5E1",
+                  boxShadow:
+                    studioMode === "specialty"
+                      ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
+                      : "none",
+                }}
+              >
+                <span className="font-mono text-[10px]">02</span>
+                <span>
+                  8 Construction Specialties ({marketSpecialties.length})
+                </span>
+              </button>
+            </div>
+
+            {/* Right: Instant Specialty Selector Pills */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {marketSpecialties.map((spec) => {
+                const isSelected =
+                  studioMode === "specialty" &&
+                  activeSpecialty?.specialtyId === spec.specialtyId;
+                return (
+                  <button
+                    key={spec.id}
+                    type="button"
+                    data-studio-specialty-pill={spec.specialtyId}
+                    onClick={() => {
+                      setSelectedSpecialtyId(spec.specialtyId);
+                      setStudioMode("specialty");
+                      setActiveStopIdx(0);
+                    }}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-all duration-200 cursor-pointer hover:scale-[1.03]"
+                    style={{
+                      background: isSelected
+                        ? "rgba(229, 201, 123, 0.24)"
+                        : "rgba(15, 30, 56, 0.65)",
+                      borderColor: isSelected
+                        ? "#F3D37A"
+                        : "rgba(255, 255, 255, 0.14)",
+                      color: isSelected ? "#F3D37A" : "#CBD5E1",
+                    }}
+                  >
+                    {spec.specialtyLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ── MAIN INTERACTIVE BODY (NO UGLY SCROLLBARS, LUXURY PROPORTIONS) ── */}
         <div className="flex-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(201,168,76,0.25)_transparent] grid grid-cols-1 lg:grid-cols-12">
@@ -1744,11 +1972,14 @@ export function PropertyWalkthroughStudioModal({
                   type="button"
                   data-portal-next-room
                   onClick={() => handleStepChange(activeStopIdx + 1)}
-                  className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold cursor-pointer transition-all duration-300 hover:scale-[1.03] shadow-[0_10px_30px_rgba(201,168,76,0.35)] flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-black tracking-wide cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 flex items-center gap-2.5 border"
                   style={{
                     background:
-                      "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",
+                      "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 46%, #B68522 100%)",
                     color: "#050A14",
+                    borderColor: "rgba(255, 244, 198, 0.78)",
+                    boxShadow:
+                      "0 12px 30px -6px rgba(201, 168, 76, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(5, 10, 20, 0.35)",
                   }}
                 >
                   <span>{activeStop.portalButtonLabel}</span>
@@ -1778,26 +2009,30 @@ export function PropertyWalkthroughStudioModal({
               </div>
             )}
 
-            {/* 2. LUXURY GLASSMORPHIC 5-ROOM FILMSTRIP DOCK */}
+            {/* 2. LUXURY GLASSMORPHIC FILMSTRIP DOCK (5 ROOMS OR 3 SPECIALTY VIEWS) */}
             <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/8">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-                    CONNECTED 5-SPACE WALKTHROUGH
+                    {studioMode === "specialty" && activeSpecialty
+                      ? `${activeSpecialty.csiDivision} · ${activeSpecialty.specialtyLabel.toUpperCase()} 3-VIEW GALLERY`
+                      : "CONNECTED 5-SPACE PROJECT WALKTHROUGH"}
                   </span>
                   <span className="hidden sm:inline text-[11px] text-slate-400">
-                    — Click any room or press ← / → arrows for smooth transition
+                    — Click any view or press ← / → arrows for smooth transition
                   </span>
                 </div>
                 <span className="text-[10px] font-mono text-slate-400">
-                  Space {activeStop.stepNumber} of 05
+                  View {activeStop.stepNumber} of 0{stops.length}
                 </span>
               </div>
 
               <div
-                className="grid grid-cols-5 gap-2.5"
+                className={`grid ${
+                  stops.length === 3 ? "grid-cols-3" : "grid-cols-5"
+                } gap-2.5`}
                 role="tablist"
-                aria-label="5-room visual walkthrough filmstrip"
+                aria-label="Visual walkthrough filmstrip"
               >
                 {stops.map((stop, idx) => {
                   const isCurrent = idx === activeStopIdx;
@@ -2223,14 +2458,22 @@ export function PropertyWalkthroughStudioModal({
                   )}&lighting=${encodeURIComponent(
                     `${formatSolarHourLabel(solarHour)} (${lighting.phaseBadge})`
                   )}`}
-                  className="w-full py-2.5 px-4 rounded-full text-xs sm:text-sm font-bold text-center block transition-all duration-300 hover:scale-[1.02] shadow-[0_10px_28px_rgba(201,168,76,0.3)]"
+                  className="w-full py-2.5 px-4 rounded-full text-xs sm:text-sm font-black tracking-wide text-center flex items-center justify-center gap-2 border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
                   style={{
                     background:
-                      "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",
+                      "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 46%, #B68522 100%)",
                     color: "#050A14",
+                    borderColor: "rgba(255, 244, 198, 0.8)",
+                    boxShadow:
+                      "0 12px 28px -6px rgba(201, 168, 76, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(5, 10, 20, 0.35)",
                   }}
                 >
-                  Request Specification &amp; Estimate ({activePalette.shortLabel}) →
+                  <span>
+                    Request Specification &amp; Estimate ({activePalette.shortLabel})
+                  </span>
+                  <span className="w-5 h-5 rounded-full bg-[#050A14]/90 text-[#F3D37A] text-[11px] flex items-center justify-center">
+                    →
+                  </span>
                 </Link>
                 <div className="text-[10px] font-mono text-center text-slate-400">
                   Private Architectural Desk · {COMPANY.phoneDisplay}

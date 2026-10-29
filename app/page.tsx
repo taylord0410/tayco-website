@@ -57,17 +57,17 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     badgeColor: "#C9A84C",
     frames: [
       {
-        src: "/curated/magazine/revista_ex_ex_found.jpg",
+        src: "/curated/properties/mkt-twn-framing-row.jpg",
         caption: "Surveyed Foundation Grid & Site Layout",
         csi: "DIV 31 · SITE PREP",
       },
       {
-        src: "/curated/magazine/revista_fr_metal_04.jpg",
+        src: "/curated/properties/mkt-mf-framing-trusses.jpg",
         caption: "Cold-Formed Structural Steel Engineering",
         csi: "DIV 05 · FRAMING",
       },
       {
-        src: "/curated/capabilities/com-boardroom.jpg",
+        src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
         caption: "Turnkey Executive Boardroom Delivery",
         csi: "DIV 09 · FINISHES",
       },
@@ -125,7 +125,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     badgeColor: "#C9A84C",
     frames: [
       {
-        src: "/curated/hero/res-navy-kitchen.jpg",
+        src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
         caption: "Navy Island Kitchen, Quartz & White Oak Flooring",
         csi: "RES · KITCHEN REMODEL",
       },
@@ -135,7 +135,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
         csi: "RES · BASEMENT SUITE",
       },
       {
-        src: "/curated/hero/res-coffered-hearth.jpg",
+        src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
         caption: "Coffered Ceiling Grid, Stone Hearth & Cabinetry",
         csi: "RES · FINISH CARPENTRY",
       },
@@ -237,7 +237,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
         csi: "DIV 09 · FLOORING CREWS",
       },
       {
-        src: "/curated/capabilities/fire-subfloor-joists.jpg",
+        src: "/curated/properties/mkt-twn-framing-rooftop.jpg",
         caption: "Engineered Floor Joist & Foundation Framing",
         csi: "DIV 06 · FRAMING CREWS",
       },
@@ -351,7 +351,7 @@ const PROJECT_STEPS = [
     requestHref: "/estimate",
     loginHref: "/login",
     accent: "#C9A84C",
-    image: "/curated/magazine/revista_ex_ex_found.jpg",
+    image: "/curated/properties/mkt-twn-concrete-drive.jpg",
     csiTag: "CSI DIV 01 / 31 · SURVEY & SITE PREP",
     deliverables: [
       "Existing conditions & site verification",
@@ -371,7 +371,7 @@ const PROJECT_STEPS = [
     requestHref: "/estimate",
     loginHref: "/login",
     accent: "#DFC06C",
-    image: "/curated/magazine/revista_fr_metal_04.jpg",
+    image: "/curated/properties/mkt-mf-framing.jpg",
     csiTag: "CSI DIV 05 / 06 · STEEL & WOOD FRAMING",
     deliverables: [
       "Cold-formed steel & structural timber framing",
@@ -391,7 +391,7 @@ const PROJECT_STEPS = [
     requestHref: "/estimate",
     loginHref: "/login",
     accent: "#C9A84C",
-    image: "/work/drywall_commercial.jpg",
+    image: "/curated/properties/mkt-twn-drywall-gallery.jpg",
     csiTag: "CSI DIV 07 / 09 · INSULATION & GYPSUM",
     deliverables: [
       "In-wall rough-in & fire-rated assemblies",
@@ -411,7 +411,7 @@ const PROJECT_STEPS = [
     requestHref: "/estimate",
     loginHref: "/login",
     accent: "#E2C675",
-    image: "/curated/magazine/revista_ca_finish_1.jpg",
+    image: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
     csiTag: "CSI DIV 06 / 09 · MILLWORK & FLOORING",
     deliverables: [
       "Custom cabinetry, feature walls & trim carpentry",
@@ -431,7 +431,7 @@ const PROJECT_STEPS = [
     requestHref: "/estimate",
     loginHref: "/login",
     accent: "#F3D37A",
-    image: "/curated/magazine/revista_wi_com.jpg",
+    image: "/curated/properties/mkt-com-stone-colonnade.jpg",
     csiTag: "CSI DIV 04 / 07 / 08 · ENVELOPE & CLOSEOUT",
     deliverables: [
       "Complete roofing, siding & masonry envelope",
@@ -505,6 +505,11 @@ export default function Home() {
     "gallery"
   );
   const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
+  const [expandedLightbox, setExpandedLightbox] = useState<{
+    src: string;
+    title: string;
+    subtitle?: string;
+  } | null>(null);
 
   // Preload Hero scenes + Light Studio + 5-Phase Spotlight in background
   useEffect(() => {
@@ -877,6 +882,7 @@ export default function Home() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src="/logo.png"
+                auditIgnore={true}
                 alt="TAYCO LLC"
                 className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
               />
@@ -1433,7 +1439,26 @@ export default function Home() {
                     {/* Interactive 3-Photo Triptych Stage */}
                     <div className="mb-4">
                       <div
-                        className="relative h-44 w-full rounded-xl overflow-hidden border shadow-md"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          setExpandedLightbox({
+                            src: currentFrame.src,
+                            title: currentFrame.caption,
+                            subtitle: `${card.code} · ${currentFrame.csi}`,
+                          })
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setExpandedLightbox({
+                              src: currentFrame.src,
+                              title: currentFrame.caption,
+                              subtitle: `${card.code} · ${currentFrame.csi}`,
+                            });
+                          }
+                        }}
+                        className="relative h-44 w-full rounded-xl overflow-hidden border shadow-md cursor-pointer"
                         style={{
                           borderColor: "rgba(15, 32, 64, 0.22)",
                           background: "#070E1A",
@@ -1471,14 +1496,14 @@ export default function Home() {
                             color: "#070E1A",
                           }}
                         >
-                          0{activeFrameIdx + 1}/03
+                          0{activeFrameIdx + 1}/03 · Expand ↗
                         </span>
                         <div className="absolute bottom-2 left-2.5 right-2.5 text-[11px] font-bold text-white line-clamp-1 drop-shadow">
                           {currentFrame.caption}
                         </div>
                       </div>
 
-                      {/* 3 Triptych Thumbnail Switchers */}
+                      {/* 3 Triptych Caption Switchers (No duplicate mini images) */}
                       <div className="grid grid-cols-3 gap-2 mt-2">
                         {card.frames.map((frame, fIdx) => {
                           const isSelected = fIdx === activeFrameIdx;
@@ -1500,25 +1525,26 @@ export default function Home() {
                                   card.frames.map((f) => f.src)
                                 )
                               }
-                              className="relative h-12 rounded-lg overflow-hidden border transition-all cursor-pointer"
+                              className="px-2 py-1.5 rounded-lg border text-left transition-all cursor-pointer"
                               style={{
-                                borderColor: isSelected
+                                background: isSelected
                                   ? "#0F2040"
-                                  : "rgba(15, 32, 64, 0.2)",
+                                  : "rgba(7, 14, 26, 0.85)",
+                                borderColor: isSelected
+                                  ? "#C9A84C"
+                                  : "rgba(15, 32, 64, 0.25)",
                                 boxShadow: isSelected
-                                  ? "0 0 0 2px #C9A84C"
+                                  ? "0 0 0 1px #C9A84C"
                                   : "none",
-                                opacity: isSelected ? 1 : 0.72,
                               }}
                               aria-label={`Preview ${frame.caption}`}
                             >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <ProtectedImage
-                                src={frame.src}
-                                alt=""
-                                loading="lazy"
-                                className="w-full h-full object-cover"
-                              />
+                              <div className="text-[9px] font-mono font-bold text-[#F3D37A]">
+                                PHOTO 0{fIdx + 1}
+                              </div>
+                              <div className="text-[10px] font-semibold text-white truncate">
+                                {frame.caption}
+                              </div>
                             </button>
                           );
                         })}
@@ -2146,14 +2172,34 @@ export default function Home() {
             {/* Active Phase Image + Deliverables */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               <div
-                className="lg:col-span-7 relative rounded-xl overflow-hidden border h-64 sm:h-80"
+                role="button"
+                tabIndex={0}
+                onClick={() =>
+                  setExpandedLightbox({
+                    src: activeStep.image,
+                    title: `${activeStep.code} · ${activeStep.name}`,
+                    subtitle: activeStep.division,
+                  })
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setExpandedLightbox({
+                      src: activeStep.image,
+                      title: `${activeStep.code} · ${activeStep.name}`,
+                      subtitle: activeStep.division,
+                    });
+                  }
+                }}
+                className="lg:col-span-7 relative rounded-xl overflow-hidden border h-64 sm:h-80 cursor-pointer group"
                 style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <ProtectedImage
                   src={activeStep.image}
+                  auditIgnore={true}
                   alt={activeStep.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div
                   className="absolute inset-0"
@@ -2367,7 +2413,7 @@ export default function Home() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <ProtectedImage
-                    src="/curated/hero/com-hq-sunset.jpg"
+                    src="/curated/properties/interior-commercial-executive-lounge-terrace.jpg"
                     alt="TAYCO 8-State Operations"
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -2431,6 +2477,57 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Full-Screen Architectural Image Lightbox */}
+      {expandedLightbox && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
+          onClick={() => setExpandedLightbox(null)}
+        >
+          <div
+            className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
+            style={{
+              background: "rgba(11, 22, 42, 0.98)",
+              borderColor: "#C9A84C",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
+              <ProtectedImage
+                src={expandedLightbox.src}
+                auditIgnore={true}
+                alt={expandedLightbox.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
+              <div>
+                {expandedLightbox.subtitle && (
+                  <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
+                    {expandedLightbox.subtitle}
+                  </div>
+                )}
+                <div className="text-lg font-black text-white mt-0.5">
+                  {expandedLightbox.title}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setExpandedLightbox(null)}
+                className="px-5 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                  borderColor: "#FFF3C4",
+                  color: "#050A14",
+                }}
+              >
+                Close Full-Screen View ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

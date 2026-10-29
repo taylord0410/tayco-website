@@ -84,10 +84,10 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Carpentry for Single-Family Residences.",
     description:
       "Explore every construction specialty TAYCO delivers for single-family homes—from architectural shingle and standing-seam metal roofing, fiber-cement and cedar siding, and structural framing to drywall, hardwood flooring, concrete patios, stone hearths and custom kitchens—followed by our gallery of completed single-family residences.",
-    heroImage: "/curated/hero/res-farmhouse-metal.jpg",
+    heroImage: "/curated/properties/mkt-sfh-stone-exterior.jpg",
     secondaryImages: [
-      "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
-      "/curated/hero/res-estate-roofing.jpg",
+      "/curated/properties/mkt-sfh-framing.jpg",
+      "/curated/properties/mkt-sfh-concrete.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Homes",
     typicalSqftRange: "2,650 – 4,400 Sq. Ft.",
@@ -110,8 +110,8 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Explore TAYCO's full construction capabilities for multifamily buildings, duplexes and multi-unit residential complexes—including multi-ridge roofing systems, masonry and fiber-cement envelopes, multi-story timber framing, acoustic STC-rated corridor drywall, durable LVT and concrete flooring, courtyard flatwork and turnkey unit interiors.",
     heroImage: "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg",
     secondaryImages: [
-      "/curated/properties/mkt-mf-roofing.jpg",
-      "/curated/properties/mkt-mf-drywall.jpg",
+      "/curated/properties/duplex-02-limestone-stucco-asymmetric.jpg",
+      "/curated/properties/duplex-03-columbus-lplan-brick.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Projects",
     typicalSqftRange: "3,600 – 45,000+ Sq. Ft.",
@@ -132,10 +132,10 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Millwork for Attached Townhome Communities.",
     description:
       "Browse TAYCO's dedicated townhome construction services—featuring mansard, flat-deck and multi-gable townhome roofing, brick and cedar bay-window facades, UL fire-rated party-wall framing and drywall, three-story white-oak stair and flooring packages, concrete stoops and rooftop terraces, and parlor-level kitchens.",
-    heroImage: "/curated/capabilities/mf-townhomes-row.jpg",
+    heroImage: "/curated/properties/townhouse-01-brick-limestone-row.jpg",
     secondaryImages: [
-      "/curated/properties/mkt-twn-roofing-siding.jpg",
-      "/curated/properties/interior-townhouse-living-bay.jpg",
+      "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
+      "/curated/properties/townhouse-03-brownstone-mansard-row.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Row Developments",
     typicalSqftRange: "2,250 – 3,300 Sq. Ft. / Unit",
@@ -156,9 +156,9 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Commercial Roofing, Cladding, Structural Steel Framing, Commercial Drywall, Flooring, Concrete, Stone & Tenant Buildouts.",
     description:
       "Discover all commercial construction specialties delivered by TAYCO—including commercial TPO and standing-seam roofing, aluminum curtain-wall and metal panel siding, structural steel and heavy-gauge metal stud framing, acoustical ceilings and commercial drywall, terrazzo and polished concrete flooring, structural plaza flatwork and stone masonry.",
-    heroImage: "/curated/hero/com-hq-sunset.jpg",
+    heroImage: "/curated/properties/mkt-com-roofing-tpo.jpg",
     secondaryImages: [
-      "/curated/properties/mkt-com-roofing-tpo.jpg",
+      "/curated/properties/mkt-com-concrete-stone.jpg",
       "/curated/properties/mkt-com-drywall-ceilings.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Facilities",
@@ -978,7 +978,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
         label: "32-Foot Clear Structural Steel Frame & Mezzanine Deck",
       },
       {
-        src: "/work/flooring_commercial.jpg",
+        src: "/curated/commercial/com_03_2.jpg",
         label: "Heavy-Duty Diamond-Polished Reinforced Concrete Slab",
       },
     ],
@@ -1005,11 +1005,11 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     ],
     triptych: [
       {
-        src: "/curated/commercial/com_02_2.jpg",
+        src: "/curated/properties/mkt-com-stone-masonry.jpg",
         label: "Architectural Stone Veneer & Insulated Storefront Glazing",
       },
       {
-        src: "/curated/hero/com-plaza-stone.jpg",
+        src: "/curated/properties/mkt-com-stone-colonnade.jpg",
         label: "Covered Commercial Entry Canopy & Masonry Facade",
       },
       {
@@ -1825,7 +1825,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Commercial Standing-Seam Metal Canopy, Parapet Roof & Terrace Deck",
         },
         {
-          src: "/curated/commercial/com_02_2.jpg",
+          src: "/curated/commercial/com_04_2.jpg",
           label: "Commercial Retail & Office Parapet Roof & Canopy Overhang",
         },
       ],

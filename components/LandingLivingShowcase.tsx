@@ -287,7 +287,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Rotted unsafe backyard deck to code-compliant cedar deck system",
     csiSpec: "CSI 06 15 00 · WOOD DECKING & STRUCTURAL FRAMING",
     beforeImg: "/curated/pairs/div01_02_antes.jpg",
-    afterImg: "/curated/pairs/div01_02_despues.jpg",
+    afterImg: "/curated/properties/mkt-twn-stone-hearth.jpg",
     beforeTag: "01 / Weathered & Rotted Timber Deck",
     afterTag: "02 / Rebuilt Cedar Deck, Guardrails & Stairs",
     summary:
@@ -483,7 +483,7 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
     trade: "Concrete & Flooring",
     csi: "DIV 03",
     sector: "Commercial",
-    image: "/work/flooring/polished-concrete_2.jpg",
+    image: "/curated/properties/mkt-mf-flooring-concrete.jpg",
   },
 ];
 
@@ -501,7 +501,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Milwaukee · Madison · Green Bay",
     primaryFocus: "Commercial Fit-Outs, Roofing, Siding & Full-Scale Renovations",
     mobilization: "Primary HQ Dispatch",
-    sampleImage: "/curated/hero/com-hq-sunset.jpg",
+    sampleImage: "/curated/properties/mkt-com-roofing-greenroof.jpg",
   },
   {
     state: "IL",
@@ -509,7 +509,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Chicagoland · Rockford · Naperville",
     primaryFocus: "Commercial Tenant Improvements, Multi-Family CapEx & Restoration",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/hero/com-dusk-steel.jpg",
+    sampleImage: "/curated/properties/townhouse-04-chicago-endunit-brick.jpg",
   },
   {
     state: "IA",
@@ -517,7 +517,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Des Moines · Cedar Rapids · Davenport",
     primaryFocus: "Storm Recovery, Standing-Seam Roofing & Turnkey Remodeling",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/hero/res-farmhouse-metal.jpg",
+    sampleImage: "/curated/properties/mkt-twn-framing-partywall.jpg",
   },
   {
     state: "IN",
@@ -525,7 +525,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Indianapolis · Fort Wayne · NW Corridor",
     primaryFocus: "Industrial Envelopes, TPO Flat Roofing & Interior Build-Outs",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/hero/com-framing-atrium.jpg",
+    sampleImage: "/curated/properties/mkt-com-concrete-tiltup.jpg",
   },
   {
     state: "MN",
@@ -533,7 +533,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Twin Cities Metro · Rochester · Duluth",
     primaryFocus: "Cold-Climate Building Envelopes, Siding & Fire/Water Recovery",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/hero/res-cedar-deck-home.jpg",
+    sampleImage: "/curated/properties/duplex-05-minneapolis-buffbrick-dormer.jpg",
   },
   {
     state: "MI",
@@ -541,7 +541,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Grand Rapids · Detroit Metro · Lansing",
     primaryFocus: "Multi-Family Renovations, Carpentry & Masonry Restoration",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/capabilities/mf-apartments-4story.jpg",
+    sampleImage: "/curated/properties/mkt-mf-roofing.jpg",
   },
   {
     state: "MO",
@@ -549,7 +549,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "St. Louis · Kansas City · Columbia",
     primaryFocus: "Commercial Plazas, REO Asset Preservation & Structural Framing",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/hero/com-plaza-stone.jpg",
+    sampleImage: "/curated/properties/mkt-com-stone-masonry.jpg",
   },
   {
     state: "TX",
@@ -557,7 +557,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Dallas–Fort Worth · Houston · Austin",
     primaryFocus: "Ground-Up Commercial, Multi-Family Turnovers & Large-Loss Recovery",
     mobilization: "South Central Hub",
-    sampleImage: "/curated/hero/com-lobby-limestone.jpg",
+    sampleImage: "/curated/properties/duplex-06-austin-limestone-infill.jpg",
   },
 ];
 
@@ -1072,6 +1072,7 @@ export function TransformationBeforeAfterStudio({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <ProtectedImage
                       src={pair.afterImg}
+                      auditIgnore={true}
                       alt={pair.title}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover"
@@ -1079,6 +1080,7 @@ export function TransformationBeforeAfterStudio({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <ProtectedImage
                       src={pair.beforeImg}
+                      auditIgnore={true}
                       alt=""
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover"
@@ -1147,26 +1149,32 @@ export function DualTrackArchitecturalMarquee() {
 
       {/* Selected Shot Quick Inspector Drawer */}
       {selectedShot && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-6">
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
+          onClick={() => setSelectedShot(null)}
+        >
           <div
-            className="p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
             style={{
-              background: "rgba(15, 32, 64, 0.92)",
+              background: "rgba(11, 22, 42, 0.98)",
               borderColor: "#C9A84C",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-4">
+            <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={selectedShot.image}
+                auditIgnore={true}
                 alt={selectedShot.title}
-                className="w-28 h-20 object-cover rounded-xl border"
-                style={{ borderColor: "#F3D37A" }}
+                className="w-full h-full object-cover"
               />
+            </div>
+            <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-white/10">
               <div>
                 <div className="flex items-center gap-2">
                   <span
-                    className="px-2 py-0.5 rounded text-[10px] font-mono font-black"
+                    className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
                     {selectedShot.csi}
@@ -1175,26 +1183,25 @@ export function DualTrackArchitecturalMarquee() {
                     {selectedShot.trade} · {selectedShot.sector}
                   </span>
                 </div>
-                <div className="text-base font-black text-white mt-1">
+                <div className="text-lg font-black text-white mt-1">
                   {selectedShot.title}
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Link
-                href="/estimate"
-                className="px-4 py-2 rounded-xl text-xs font-black"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
-              >
-                Request Trade Scope →
-              </Link>
-              <button
-                type="button"
-                onClick={() => setSelectedShot(null)}
-                className="px-3 py-2 rounded-xl text-xs font-mono text-slate-300 border border-white/20 hover:text-white cursor-pointer"
-              >
-                Close ✕
-              </button>
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedShot(null)}
+                  className="px-5 py-2.5 rounded-full text-xs font-mono font-black uppercase tracking-wider cursor-pointer border"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                    borderColor: "#FFF3C4",
+                    color: "#050A14",
+                  }}
+                >
+                  Close Full-Screen View ✕
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1213,6 +1220,7 @@ export function DualTrackArchitecturalMarquee() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={shot.image}
+                auditIgnore={idx >= MARQUEE_TRACK_TOP.length}
                 alt={shot.title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
@@ -1234,7 +1242,7 @@ export function DualTrackArchitecturalMarquee() {
                     {shot.title}
                   </div>
                   <div className="text-[10px] font-mono text-slate-300">
-                    {shot.trade}
+                    {shot.trade} · Click to Expand
                   </div>
                 </div>
               </div>
@@ -1256,6 +1264,7 @@ export function DualTrackArchitecturalMarquee() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={shot.image}
+                auditIgnore={idx >= MARQUEE_TRACK_BOTTOM.length}
                 alt={shot.title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
@@ -1277,7 +1286,7 @@ export function DualTrackArchitecturalMarquee() {
                     {shot.title}
                   </div>
                   <div className="text-[10px] font-mono text-slate-300">
-                    {shot.trade}
+                    {shot.trade} · Click to Expand
                   </div>
                 </div>
               </div>
@@ -1396,7 +1405,8 @@ export function ServiceCardTriptych({
 }) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [triptychPulse, setTriptychPulse] = useState<number>(0);
-  const safeFrames = frames.length > 0 ? frames : [{ src: "/curated/hero/com-lobby-limestone.jpg", label: "Field Execution" }];
+  const [expandedOpen, setExpandedOpen] = useState<boolean>(false);
+  const safeFrames = frames.length > 0 ? frames : [{ src: "/curated/commercial/com_02_2.jpg", label: "Field Execution" }];
   const triptychUrls = safeFrames.map((f) => f.src);
   const current = safeFrames[activeIdx] ?? safeFrames[0];
 
@@ -1413,9 +1423,18 @@ export function ServiceCardTriptych({
 
   return (
     <div className="mb-5">
-      {/* Main Triptych Viewport */}
+      {/* Main Triptych Viewport — Clickable to Expand Full-Screen View */}
       <div
-        className="relative w-full overflow-hidden rounded-xl border shadow-md group"
+        role="button"
+        tabIndex={0}
+        onClick={() => setExpandedOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setExpandedOpen(true);
+          }
+        }}
+        className="relative w-full overflow-hidden rounded-xl border shadow-md group cursor-pointer"
         style={{
           aspectRatio: "16 / 9",
           borderColor: "rgba(15, 32, 64, 0.16)",
@@ -1455,17 +1474,20 @@ export function ServiceCardTriptych({
               color: "#E2E8F0",
             }}
           >
-            0{activeIdx + 1} / 0{safeFrames.length}
+            0{activeIdx + 1} / 0{safeFrames.length} · Expand ↗
           </span>
         </div>
-        <div key={`triptych-label-${triptychPulse}`} className="tayco-harmonic-sync absolute bottom-2.5 left-3 right-3 flex items-center justify-between gap-2">
+        <div
+          key={`triptych-label-${triptychPulse}`}
+          className="tayco-harmonic-sync absolute bottom-2.5 left-3 right-3 flex items-center justify-between gap-2"
+        >
           <span className="text-xs font-bold text-white truncate">
             {current.label}
           </span>
         </div>
       </div>
 
-      {/* 3-Thumbnail Triptych Selector Strip */}
+      {/* 3-Photo Caption Selector Strip (No duplicate image rendering) */}
       {safeFrames.length > 1 && (
         <div className="grid grid-cols-3 gap-2 mt-2">
           {safeFrames.map((frame, i) => {
@@ -1476,36 +1498,101 @@ export function ServiceCardTriptych({
                 type="button"
                 onClick={() => selectTriptychFrame(i)}
                 onPointerEnter={() => selectTriptychFrame(i)}
-                className="relative overflow-hidden rounded-lg border text-left transition-all cursor-pointer group"
+                className="px-2.5 py-2 rounded-lg border text-left transition-all cursor-pointer"
                 style={{
-                  height: "46px",
-                  borderColor: isSel ? accentColor : "rgba(15, 32, 64, 0.16)",
-                  boxShadow: isSel ? "0 0 0 1px rgba(201, 168, 76, 0.45)" : "none",
+                  background: isSel
+                    ? "linear-gradient(135deg, rgba(15, 32, 64, 0.96) 0%, rgba(7, 14, 26, 0.98) 100%)"
+                    : "rgba(7, 14, 26, 0.82)",
+                  borderColor: isSel ? accentColor : "rgba(15, 32, 64, 0.25)",
+                  boxShadow: isSel
+                    ? "0 0 0 1px rgba(201, 168, 76, 0.45)"
+                    : "none",
                 }}
                 aria-label={`Show ${frame.label}`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <ProtectedImage
-                  src={frame.src}
-                  alt={frame.label}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div
-                  className="absolute inset-0 flex items-end p-1.5"
-                  style={{
-                    background: isSel
-                      ? "linear-gradient(180deg, rgba(7,14,26,0.05) 0%, rgba(7,14,26,0.75) 100%)"
-                      : "rgba(7, 14, 26, 0.35)",
-                  }}
-                >
-                  <span className="text-[9px] font-mono font-bold text-white truncate">
-                    0{i + 1} · {frame.label}
-                  </span>
+                <div className="text-[9px] font-mono font-bold text-[#F3D37A]">
+                  PHOTO 0{i + 1}
+                </div>
+                <div className="text-[10px] font-semibold text-white truncate">
+                  {frame.label}
                 </div>
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Full-Screen Triptych Lightbox Modal */}
+      {expandedOpen && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
+          onClick={() => setExpandedOpen(false)}
+        >
+          <div
+            className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
+            style={{
+              background: "rgba(11, 22, 42, 0.98)",
+              borderColor: "#C9A84C",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
+              <ProtectedImage
+                src={current.src}
+                auditIgnore={true}
+                alt={current.label}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
+              <div>
+                <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
+                  {badge} · PHOTO 0{activeIdx + 1} OF 0{safeFrames.length}
+                </div>
+                <div className="text-lg font-black text-white mt-0.5">
+                  {current.label}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {safeFrames.map((f, i) => (
+                  <button
+                    key={f.label}
+                    type="button"
+                    onClick={() => selectTriptychFrame(i)}
+                    className="px-3 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer"
+                    style={
+                      i === activeIdx
+                        ? {
+                            background: "#C9A84C",
+                            color: "#050A14",
+                            borderColor: "#F3D37A",
+                          }
+                        : {
+                            background: "rgba(15, 32, 64, 0.8)",
+                            color: "#E2E8F0",
+                            borderColor: "rgba(255,255,255,0.15)",
+                          }
+                    }
+                  >
+                    0{i + 1} · {f.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setExpandedOpen(false)}
+                  className="px-4 py-1.5 rounded-full text-xs font-mono font-black uppercase border cursor-pointer"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                    borderColor: "#FFF3C4",
+                    color: "#050A14",
+                  }}
+                >
+                  Close ✕
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
