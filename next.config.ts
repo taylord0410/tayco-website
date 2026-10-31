@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   output: "standalone",
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // Runtime databases, source packages and review evidence are private mounted data.
   outputFileTracingExcludes: { "/*": ["./.data/**/*"] },

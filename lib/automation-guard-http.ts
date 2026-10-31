@@ -39,9 +39,20 @@ export function inspectAutomationRequest(request: Request): { response?: NextRes
   const labPage = pathname === '/security-lab' && labEnabled(request.url);
   if (!guardedApi && !labPage) return {};
   const documentRequest = request.method === 'GET' && request.headers.get('accept')?.includes('text/html') && !request.headers.has('rsc') && !request.headers.has('next-router-prefetch') && (!request.headers.get('sec-fetch-dest') || request.headers.get('sec-fetch-dest') === 'document');
+  if (guardedApi && guardMode() === 'observe') return {};
   let visitor = readGuardCookie(request, 'visitor'), cookie: string | undefined;
   const debug = readGuardCookie(request, 'debug'), origin = guardOrigin(request), lab = labEnabled(request.url);
   const headlessSignal = /HeadlessChrome|PhantomJS/i.test(request.headers.get('user-agent') || '');
+  let apiState: GuardState | undefined;
+  if (guardedApi) {
+    if(request.headers.get('origin')!==origin)return {response:NextResponse.json({error:'Use the configured website origin.'},{status:403})};
+    if(!request.headers.get('content-type')?.startsWith('application/json'))return {response:NextResponse.json({error:'Send JSON.'},{status:415})};
+    if(Number(request.headers.get('content-length')||0)>20_000)return {response:NextResponse.json({error:'Request too large.'},{status:413})};
+    apiState=guardStatus(visitor,debug,origin,lab);
+    if(apiState.mode!=='enforce')return {};
+    const checked=ensureVisitor(visitor);
+    if(checked.fresh)return {cookie:guardCookie('visitor',checked.token),response:NextResponse.json({error:'Browser session started. Your form is kept. Please submit again.',code:'automation_verification'},{status:428,headers:{'Cache-Control':'private, no-store'}})};
+  }
   if (!visitor && documentRequest && headlessSignal) {
     const created = ensureVisitor(); visitor = created.token; cookie = guardCookie('visitor', visitor);
     flagVisitor(visitor, 'browser_automation');
@@ -50,7 +61,7 @@ export function inspectAutomationRequest(request: Request): { response?: NextRes
     if (headlessSignal) flagVisitor(visitor, 'browser_automation');
   }
   if (!visitor) return {};
-  const state = guardStatus(visitor, debug, origin, lab);
+  const state = apiState || guardStatus(visitor, debug, origin, lab);
   if (state.mode !== 'enforce' || state.state === 'authorized' || state.state === 'clear') return { cookie };
   // Headers classify retries, but never authorize access: alternate Accept/RSC headers cannot bypass the page gate.
   const pageRequest = ['GET','HEAD'].includes(request.method) && !pathname.startsWith('/api/');

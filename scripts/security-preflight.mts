@@ -1,0 +1,10 @@
+import nextEnv from '@next/env';
+const {loadEnvConfig}=nextEnv;
+import {requiredSecret,SUBMISSION_SECRET_NAMES,SECURITY_LOG_SECRET_NAMES} from '../lib/required-secret';
+import {assertGuardDeployment} from '../lib/guard-preflight';
+loadEnvConfig(process.cwd());
+const production=process.argv.includes('--production');
+const check=(fn:()=>unknown)=>{try{fn();return true;}catch{return false;}};
+const report={profile:production?'Production requirements against LOCAL configuration; not a Railway audit':'Local configuration',sessionKey:check(()=>requiredSecret(['TAYCO_SESSION_SECRET'])),submissionKey:check(()=>requiredSecret(SUBMISSION_SECRET_NAMES)),securityLogKey:check(()=>requiredSecret(SECURITY_LOG_SECRET_NAMES)),ingressContract:!production||process.env.TAYCO_TRUSTED_INGRESS==='railway-public-edge',riskDeployment:check(()=>assertGuardDeployment(production)),httpsOrigin:!production||check(()=>{if(new URL(process.env.TAYCO_APP_URL||'').protocol!=='https:')throw new Error();})};
+console.log(JSON.stringify(report,null,2));
+if(Object.values(report).some(v=>v===false))process.exitCode=1;

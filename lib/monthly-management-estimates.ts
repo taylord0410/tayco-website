@@ -86,7 +86,7 @@ function database() {
       COMMIT;`);
     try {
       const c = (db.prepare('SELECT count(*) AS c FROM monthly_management_estimates').get() as { c: number } | undefined)?.c ?? 0;
-      if (c === 0) {
+      if (c === 0 && !(!process.env.RAILWAY_ENVIRONMENT && (process.env.NODE_ENV === 'test' || Boolean(process.env.TAYCO_ERP_DB_PATH)))) {
         const seedPath = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'erp-seed.json');
         if (existsSync(seedPath)) {
           const seed = JSON.parse(readFileSync(seedPath, 'utf-8')) as {

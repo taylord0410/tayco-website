@@ -121,8 +121,8 @@ export function withGuestRequestAudit<Args extends [Request,...unknown[]]>(
      responseKind:request.method==='HEAD'?'head':statusCode===206?'range':statusCode===304?'not_modified':statusCode>=300?'redirect':'none',
     });
     recordGuestSecurityByContext(frame.context,request.headers,{
-     eventType:frame.securityEventType??'request.access',
-     surface,
+     eventType:frame.securityEventType??'http.request',
+     surface: surface==='summary'||surface==='activity'?'workspace':surface,
      targetId:frame.securityTargetId??frame.resourceId,
      detail:frame.securityDetail,
      statusCode,

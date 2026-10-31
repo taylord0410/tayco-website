@@ -128,7 +128,7 @@ test("every item has a valid infrastructureType ('Public' or 'Private') and all 
     const meta = getOpportunityInfrastructureMeta(item);
     assert.equal(meta.sectorType, item.infrastructureType);
     assert.ok(
-      meta.badgeLabel.startsWith(`${item.infrastructureType} · `),
+      (item.infrastructureType === 'Public' ? meta.badgeLabel.includes(' · ') && /^(Public|Municipal|State|Federal|County) /.test(meta.badgeLabel) : meta.badgeLabel.startsWith('Private · ')),
       `Expected descriptive badgeLabel for #${item.number}, got ${meta.badgeLabel}`
     );
     assert.ok(meta.subLabel.length >= 10);

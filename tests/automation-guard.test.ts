@@ -1,3 +1,4 @@
+const runtimeEnv: Record<string,string|undefined> = process.env;
 import {randomUUID} from 'node:crypto';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,12 +14,12 @@ import { requireActor } from '../lib/auth';
 test('automation guard: persisted counters, bounded exceptions and HTTP boundaries',async t=>{
   const folder=mkdtempSync(path.join(tmpdir(),'tayco-guard-'));
   const keys=['TAYCO_GUARD_DB_PATH','TAYCO_AUTOMATION_GUARD','TAYCO_SECURITY_LAB','NODE_ENV','TAYCO_APP_URL'] as const;
-  const old=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
-  process.env.TAYCO_GUARD_DB_PATH=path.join(folder,'guard.sqlite');
-  process.env.TAYCO_AUTOMATION_GUARD='enforce';
-  process.env.TAYCO_SECURITY_LAB='1';
-  process.env.NODE_ENV='development';
-  process.env.TAYCO_APP_URL='http://127.0.0.1:3102';
+  const old=Object.fromEntries(keys.map(k=>[k,runtimeEnv[k]]));
+  runtimeEnv.TAYCO_GUARD_DB_PATH=path.join(folder,'guard.sqlite');
+  runtimeEnv.TAYCO_AUTOMATION_GUARD='enforce';
+  runtimeEnv.TAYCO_SECURITY_LAB='1';
+  runtimeEnv.NODE_ENV='development';
+  runtimeEnv.TAYCO_APP_URL='http://127.0.0.1:3102';
   const origin='http://127.0.0.1:3102';
   const cookie=(visitor:string,debug?:string)=>guardCookieName('visitor')+'='+visitor+(debug?'; '+guardCookieName('debug')+'='+debug:'');
   const document=(visitor:string,debug?:string,extra:Record<string,string>={})=>new Request(origin+'/security-lab',{headers:{accept:'text/html','sec-fetch-dest':'document',cookie:cookie(visitor,debug),...extra}});
@@ -53,7 +54,7 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
       const result=inspectAutomationRequest(document(v));
       assert.equal(result.response?.status,429);
       assert.ok(Number(result.response?.headers.get('retry-after'))>0);
-      const db=new DatabaseSync(process.env.TAYCO_GUARD_DB_PATH!);
+      const db=new DatabaseSync(runtimeEnv.TAYCO_GUARD_DB_PATH!);
       try{assert.equal((db.prepare('SELECT retries FROM guard_visitors WHERE retries=4').get() as {retries:number}).retries,4);}finally{db.close();}
       const state=guardStatus(v,undefined,origin);
       assert.equal(state.state,'blocked');
@@ -77,7 +78,7 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
       const sessionGrant=issueDebugGrant(v,origin,'fixture-admin','Session expiry',now+10);
       const session=exchangeDebugGrant(sessionGrant.token,v,origin,now+11);
       assert.notEqual(guardStatus(v,session.session,origin,false,session.expiresAt+1).state,'authorized');
-      const bytes=readFileSync(process.env.TAYCO_GUARD_DB_PATH!);
+      const bytes=readFileSync(runtimeEnv.TAYCO_GUARD_DB_PATH!);
       assert.equal(bytes.includes(Buffer.from(grant.token)),false);
       assert.equal(bytes.includes(Buffer.from(auth.session)),false);
     });
@@ -101,29 +102,29 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
       await assert.rejects(()=>requireActor(new Request(origin+'/api/auth/session',{headers:{cookie:cookie(v,session.session)}})),e=>e instanceof Error&&'status' in e&&e.status===401);
     });
     await t.test('production forbids lab actions even when flag is set; production cookies are Secure',async()=>{
-      process.env.NODE_ENV='production';
-      process.env.TAYCO_APP_URL='https://127.0.0.1:3102';
+      runtimeEnv.NODE_ENV='production';
+      runtimeEnv.TAYCO_APP_URL='https://127.0.0.1:3102';
       assert.equal(labEnabled(origin),false);
       assert.match(guardCookie('debug','fixture'),/^__Host-.*; Secure$/);
       const response=await POST(post({op:'authorize-test'},undefined,{url:'https://127.0.0.1:3102',origin:'https://127.0.0.1:3102'}));
       assert.equal(response.status,404);
-      process.env.NODE_ENV='development';
-      process.env.TAYCO_APP_URL=origin;
+      runtimeEnv.NODE_ENV='development';
+      runtimeEnv.TAYCO_APP_URL=origin;
       assert.equal(labEnabled('http://remote.test'),false);
     });
     await t.test('observe records without blocking and feature is off unless explicitly enabled',async()=>{
-      process.env.TAYCO_AUTOMATION_GUARD='observe';
+      runtimeEnv.TAYCO_AUTOMATION_GUARD='observe';
       const v=ensureVisitor().token;flagVisitor(v,'lab_simulation');
       for(let i=0;i<5;i++){countGuardRetry(v,undefined,origin,Date.now(),randomUUID());assert.equal(inspectAutomationRequest(document(v)).response,undefined);}
       assert.equal(guardStatus(v,undefined,origin).state,'blocked');
-      delete process.env.TAYCO_AUTOMATION_GUARD;
+      delete runtimeEnv.TAYCO_AUTOMATION_GUARD;
       assert.equal(guardMode(),'off');
       assert.equal(inspectAutomationRequest(document(v)).response,undefined);
       assert.equal((await POST(post({op:'authorize-test'},v))).status,404);
       assert.equal((await (await GET(new Request(origin+'/api/automation-guard'))).json()).mode,'off');
     });
   }finally{
-    for(const key of keys){if(old[key]===undefined)delete process.env[key];else process.env[key]=old[key];}
+    for(const key of keys){if(old[key]===undefined)delete runtimeEnv[key];else runtimeEnv[key]=old[key];}
     rmSync(folder,{recursive:true,force:true});
   }
 });

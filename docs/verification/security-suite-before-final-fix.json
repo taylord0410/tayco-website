@@ -1,0 +1,652 @@
+{
+  "generatedAt": "2026-10-31T00:49:31.179Z",
+  "scope": "Local unit/integration files, separate processes and disposable databases with random fixture keys; no real provider/browser certification",
+  "files": 80,
+  "tests": 807,
+  "passed": 801,
+  "failed": 2,
+  "skipped": 4,
+  "processFailures": 1,
+  "results": [
+    {
+      "file": "tests/admin-website-submissions.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/auth-accounts.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/auth-additional-admin.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/auth-http.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/auth.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/authorization-regression.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/automation-guard.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/backend-boundaries.test.ts",
+      "exit": 0,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/backup-restore.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/business-operations.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/business-overview.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/commercial-details.test.ts",
+      "exit": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/commercial-stages.test.ts",
+      "exit": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/commercial-workflow.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/corporate-agenda.test.ts",
+      "exit": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/dashboard-agenda.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/document-download.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/document-lifecycle.test.ts",
+      "exit": 1,
+      "tests": 15,
+      "pass": 13,
+      "fail": 2,
+      "skipped": 0
+    },
+    {
+      "file": "tests/erp.test.ts",
+      "exit": 0,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/estimate-image-references.test.ts",
+      "exit": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/estimate-recovery.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/finance-export.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/financial-forecast.test.ts",
+      "exit": 0,
+      "tests": 19,
+      "pass": 19,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/financial-periods.test.ts",
+      "exit": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guard-admin.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guard-fast-path.test.ts",
+      "exit": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guard-faults.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guard-verification.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-activity.test.ts",
+      "exit": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-auth-migration.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-boundaries.test.ts",
+      "exit": 0,
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-module-projection.test.ts",
+      "exit": 0,
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-privacy.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-security-log.test.ts",
+      "exit": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-workspace-route.test.ts",
+      "exit": 0,
+      "tests": 94,
+      "pass": 94,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/guest-workspace.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/hours-export.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/insurer-review.test.ts",
+      "exit": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/landing-curated-showcase.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/m02-intake.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 0,
+      "fail": 0,
+      "skipped": 1
+    },
+    {
+      "file": "tests/m02-text-codec.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/m02-text-correction.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 0,
+      "fail": 0,
+      "skipped": 1
+    },
+    {
+      "file": "tests/monthly-financial-detail.test.ts",
+      "exit": 0,
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/monthly-management-estimates.test.ts",
+      "exit": 0,
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/notifications.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/operations.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/planning-operations.test.ts",
+      "exit": 0,
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/private-source-upload-client.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/private-source-upload-e2e.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 0,
+      "fail": 0,
+      "skipped": 1
+    },
+    {
+      "file": "tests/private-source-upload-http.test.ts",
+      "exit": 0,
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/private-source-upload.test.ts",
+      "exit": 0,
+      "tests": 24,
+      "pass": 23,
+      "fail": 0,
+      "skipped": 1
+    },
+    {
+      "file": "tests/profile-a-review-presentation.test.ts",
+      "exit": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/profile-a-review.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/project-classification.test.ts",
+      "exit": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/project-estimates.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/project-reuse.test.ts",
+      "exit": 0,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/project-workflows.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/reconciled-auth-environment.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/reconciled-pending-review.test.ts",
+      "exit": 0,
+      "tests": 11,
+      "pass": 11,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-access-audit.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-access.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-audit-auth.test.ts",
+      "exit": 0,
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-audit.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-interaction-queue.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-interactions.test.ts",
+      "exit": 0,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-reconciliation.test.ts",
+      "exit": 0,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/review-request-audit.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/security-foundation.test.ts",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/site-shield.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/source-consumer-cohort.test.ts",
+      "exit": 0,
+      "tests": 71,
+      "pass": 71,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/takeoff-registration-route.test.ts",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/takeoff-source-extension.test.ts",
+      "exit": 0,
+      "tests": 51,
+      "pass": 51,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/takeoff-source-registration.test.ts",
+      "exit": 0,
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/takeoff-viewer-access.test.ts",
+      "exit": 0,
+      "tests": 30,
+      "pass": 30,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/takeoff-viewer-gateway.test.ts",
+      "exit": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/verified-bidding-opportunities.test.ts",
+      "exit": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/viewer-bridge-boundary.test.ts",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/viewer-interaction-bridge.test.ts",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/work-log-report.test.ts",
+      "exit": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "file": "tests/workspace-navigation.test.ts",
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    }
+  ]
+}

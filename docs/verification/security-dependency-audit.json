@@ -1,0 +1,7 @@
+{
+  "status": "not_run",
+  "reason": "Automatic approval review rejected npm audit external dependency metadata egress; no workaround attempted.",
+  "productionDependencyFilesChanged": false,
+  "requires": "Explicit user approval for registry metadata query",
+  "localChecksAreNotCVEAudit": true
+}

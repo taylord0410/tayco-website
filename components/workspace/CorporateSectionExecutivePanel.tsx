@@ -450,7 +450,7 @@ export default function CorporateSectionExecutivePanel({
                     <td data-label="Status">
                       <span
                         className="dcc-badge"
-                        data-tone={item.status === "In Progress" ? "amber" : "emerald"}
+                        data-tone={String(item.status) === "In Progress" ? "amber" : "emerald"}
                       >
                         {item.status}
                       </span>

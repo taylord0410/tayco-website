@@ -231,6 +231,8 @@ function policies(guest?: Actor, projectId?: string) {
   const defaultMapping = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'mapping.json');
   const defaultRelations = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'relations.json');
   const defaultManifest = path.join(process.cwd(), 'lib', 'viewer-bundle-meta', 'manifest.json');
+  const explicit = process.env.TAYCO_TAKEOFF_MAPPING_PATH || process.env.TAYCO_TAKEOFF_RELATIONS_PATH || process.env.TAYCO_TAKEOFF_MANIFEST_PATH;
+  if(explicit && (!process.env.TAYCO_TAKEOFF_MAPPING_PATH || !process.env.TAYCO_TAKEOFF_RELATIONS_PATH)) throw guest ? guestDenied() : unavailable();
   const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH || (existsSync(defaultMapping) ? defaultMapping : undefined);
   const relationsPath = process.env.TAYCO_TAKEOFF_RELATIONS_PATH || (existsSync(defaultRelations) ? defaultRelations : undefined);
   const manifestPath = process.env.TAYCO_TAKEOFF_MANIFEST_PATH || (existsSync(defaultManifest) ? defaultManifest : undefined);

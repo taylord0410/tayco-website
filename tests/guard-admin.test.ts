@@ -41,7 +41,7 @@ test('SG B4 admin authority, browser-bound reviews, revocation and rollback',asy
   const bytes=readFileSync(env.TAYCO_GUARD_DB_PATH);assert.equal(bytes.includes(Buffer.from(grant!.token)),false);assert.equal(bytes.includes(Buffer.from(debug.session)),false);
  });
  await t.test('persisted rollback only disables risk enforcement, not account authorization',async()=>{
-  const headers={cookie:guardCookieName('visitor')+'='+v};const req=new Request(origin+'/api/estimate',{method:'POST',headers});
+  const headers={cookie:guardCookieName('visitor')+'='+v,origin,'content-type':'application/json'};const req=new Request(origin+'/api/estimate',{method:'POST',headers});
   assert.equal(inspectAutomationRequest(req).response?.status,403);
   assert.equal((await POST(request({op:'mode',mode:'observe'},cookie))).status,200);
   assert.equal(inspectAutomationRequest(req).response,undefined);assert.equal(guardStatus(v,undefined,origin).mode,'observe');
@@ -54,6 +54,17 @@ test('SG B4 admin authority, browser-bound reviews, revocation and rollback',asy
   assert.equal((await GET(request(undefined,cookie))).status,503);assert.equal((await POST(request({op:'issue',reviewId:review.id,purpose:'Must fail'},cookie))).status,503);
   assert.throws(()=>exchangeDebugGrant(grant!.token,v,origin));assert.deepEqual(inspectAutomationRequest(new Request(origin+'/')),{});
   process.env.TAYCO_GUARD_DB_PATH=env.TAYCO_GUARD_DB_PATH;
+ });
+ await t.test('ordinary manual recovery clears only the reviewed browser, without issuing a debug grant',async()=>{
+  const visitor=ensureVisitor().token;flagVisitor(visitor,'lab_simulation');const review=requestGuardReview(visitor,origin);
+  const incidentId=guardStatus(visitor,undefined,origin).incidentId;
+  const decision={op:'resolve',reviewId:review.id,incidentId,purpose:'Synthetic false positive reviewed'};
+  const resolved=await POST(request(decision,cookie));assert.equal(resolved.status,200);assert.equal((await resolved.json()).token,undefined);
+  assert.equal(guardStatus(visitor,undefined,origin).state,'clear');
+  flagVisitor(visitor,'lab_simulation');const next=guardStatus(visitor,undefined,origin).incidentId;assert.notEqual(next,incidentId);
+  assert.equal((await POST(request(decision,cookie))).status,200);assert.equal(guardStatus(visitor,undefined,origin).incidentId,next);
+  assert.equal((await POST(request({...decision,incidentId:'stale-incident'},cookie))).status,409);
+  assert.equal((await session(new Request(origin+'/api/auth/session'))).status,401);
  });
  await t.test('revoked administrator session cannot issue or switch mode',async()=>{
   await signOut(request({},cookie));assert.equal((await POST(request({op:'mode',mode:'observe'},cookie))).status,401);assert.equal((await GET(request(undefined,cookie))).status,401);

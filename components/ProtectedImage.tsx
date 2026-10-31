@@ -80,7 +80,7 @@ function lockProtectedCanvasExports(): void {
   canvasPrototypesLocked = true;
 
   const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
-  HTMLCanvasElement.prototype.toDataURL = function (...args: [type?: string, quality?: unknown]) {
+  HTMLCanvasElement.prototype.toDataURL = function (...args: [type?: string, quality?: number]) {
     if (this.dataset?.protectedCanvas === "v39") {
       return "data:,";
     }
@@ -91,7 +91,7 @@ function lockProtectedCanvasExports(): void {
   HTMLCanvasElement.prototype.toBlob = function (
     callback: BlobCallback,
     type?: string,
-    quality?: unknown
+    quality?: number
   ) {
     if (this.dataset?.protectedCanvas === "v39") {
       callback(null);

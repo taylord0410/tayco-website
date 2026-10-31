@@ -160,7 +160,7 @@ test("guest workspace HTTP sessions enforce current detail and historical summar
       const workspace = body.workspace;
       assert.deepEqual(Object.keys(workspace).sort(), ["actor", "currentPeriod", "period", "asOf", "detailAllowed", "historicalSummary", "projects", "estimates", "documents", "moduleRecords", "review"].sort());
       assert.deepEqual(Object.keys(workspace.review).sort(),["id","detailPeriod","createdAt","expiresAt"].sort());
-      assert.equal(workspace.review.expiresAt-workspace.review.createdAt,4*3600_000);
+      assert.equal(workspace.review.expiresAt-workspace.review.createdAt,12*3600_000);
       assert.ok(Array.isArray(workspace.moduleRecords));
       assert.deepEqual(workspace.actor, { id: guest.id, email: guestEmail, role: "guest" });
       assert.equal(workspace.currentPeriod, period);

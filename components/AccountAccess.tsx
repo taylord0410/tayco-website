@@ -72,6 +72,24 @@ async function request(path: string, body?: unknown, method = 'POST') {
   return data;
 }
 
+// Validate unknown JSON before it becomes account UI state. Server auth remains authoritative.
+function accountActor(value:unknown):Actor{
+ if(!value||typeof value!=='object')throw new Error('Account response is unavailable.');
+ const v=value as Record<string,unknown>;
+ if(typeof v.id!=='string'||typeof v.email!=='string'||typeof v.tenantId!=='string'||!['admin','staff','client','vendor','guest'].includes(String(v.role))||!Array.isArray(v.projectIds)||!v.projectIds.every(x=>typeof x==='string'))throw new Error('Account response is unavailable.');
+ return value as Actor;
+}
+function invitationList(value:unknown):Invitation[]{
+ if(!Array.isArray(value)||!value.every(v=>v&&typeof v==='object'&&typeof v.id==='string'&&typeof v.email==='string'&&typeof v.role==='string'&&typeof v.expiresAt==='number'))throw new Error('Invitation response is unavailable.');
+ return value as Invitation[];
+}
+function issuedInvitation(value:unknown):{expiresAt:number;path?:string;linkState?:string}{
+ if(!value||typeof value!=='object')throw new Error('Invitation response is unavailable.');
+ const v=value as Record<string,unknown>;
+ if(typeof v.expiresAt!=='number'||!Number.isFinite(v.expiresAt)||(v.path!==undefined&&(typeof v.path!=='string'||!v.path.startsWith('/login#')))||(v.linkState!==undefined&&typeof v.linkState!=='string'))throw new Error('Invitation response is unavailable.');
+ return v as {expiresAt:number;path?:string;linkState?:string};
+}
+
 function ExecutiveTopBar({ showConsoleLink = false }: { showConsoleLink?: boolean }) {
   return (
     <header className="relative z-20 border-b border-[#d4af37]/20 bg-[#050b16]/90 backdrop-blur-md">
@@ -645,7 +663,7 @@ export function AccountSettings() {
 
   useEffect(() => {
     request('session', undefined, 'GET')
-      .then(({ actor }) => setActor(actor))
+      .then(({ actor }) => setActor(accountActor(actor)))
       .catch(() => router.replace('/login'))
       .finally(() => setLoading(false));
   }, [router]);
@@ -654,8 +672,8 @@ export function AccountSettings() {
     if (actor?.role === 'admin')
       request('invitations', undefined, 'GET')
         .then((data) => {
-          setInvitations(data.invitations);
-          setLoadedAt(Number.isFinite(data.asOf) ? data.asOf : Number.MAX_SAFE_INTEGER);
+          setInvitations(invitationList(data.invitations));
+          setLoadedAt(typeof data.asOf === 'number' && Number.isFinite(data.asOf) ? data.asOf : Number.MAX_SAFE_INTEGER);
         })
         .catch((e) => setError(e.message));
   }, [actor]);
@@ -743,17 +761,18 @@ export function AccountSettings() {
         }
       }
       const data = await request('invitations', { ...body, ...(creationRequestId ? { creationRequestId } : {}) });
-      setLinkExpiresAt(data.invitation.expiresAt);
-      if (data.invitation.path) setLink(window.location.origin + data.invitation.path);
+      const invitation = issuedInvitation(data.invitation);
+      setLinkExpiresAt(invitation.expiresAt);
+      if (invitation.path) setLink(window.location.origin + invitation.path);
       else
         setInvitationNotice(
-          data.invitation.linkState === 'link_not_recoverable'
+          invitation.linkState === 'link_not_recoverable'
             ? 'This request already created an invitation. The original link cannot be recovered. Use Replace link below to invalidate it and issue a replacement.'
-            : 'This invitation is ' + data.invitation.linkState + '. Use New invitation request only when you intend to generate a separate invitation.'
+            : 'This invitation is ' + invitation.linkState + '. Use New invitation request only when you intend to generate a separate invitation.'
         );
       const listing = await request('invitations', undefined, 'GET');
-      setInvitations(listing.invitations);
-      setLoadedAt(Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
+      setInvitations(invitationList(listing.invitations));
+      setLoadedAt(typeof listing.asOf === 'number' && Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -767,11 +786,12 @@ export function AccountSettings() {
     setLink('');
     try {
       const data = await request('invitations', { action: 'rotate', id, creationRequestId: crypto.randomUUID() });
-      setLinkExpiresAt(data.invitation.expiresAt);
-      if (data.invitation.path) setLink(window.location.origin + data.invitation.path);
+      const invitation = issuedInvitation(data.invitation);
+      setLinkExpiresAt(invitation.expiresAt);
+      if (invitation.path) setLink(window.location.origin + invitation.path);
       const listing = await request('invitations', undefined, 'GET');
-      setInvitations(listing.invitations);
-      setLoadedAt(Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
+      setInvitations(invitationList(listing.invitations));
+      setLoadedAt(typeof listing.asOf === 'number' && Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -785,8 +805,8 @@ export function AccountSettings() {
     try {
       await request('invitations', { id }, 'DELETE');
       const listing = await request('invitations', undefined, 'GET');
-      setInvitations(listing.invitations);
-      setLoadedAt(Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
+      setInvitations(invitationList(listing.invitations));
+      setLoadedAt(typeof listing.asOf === 'number' && Number.isFinite(listing.asOf) ? listing.asOf : Number.MAX_SAFE_INTEGER);
     } catch (e) {
       setError((e as Error).message);
     } finally {

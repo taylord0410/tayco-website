@@ -1,0 +1,59 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "bytes": 238064,
+    "ms": 1095,
+    "cache": "no-store"
+  },
+  {
+    "path": "/estimate",
+    "status": 200,
+    "bytes": 44529,
+    "ms": 2870,
+    "cache": "no-store"
+  },
+  {
+    "path": "/security-lab",
+    "status": 200,
+    "bytes": 27289,
+    "ms": 308,
+    "cache": "no-store"
+  },
+  {
+    "path": "/admin/security",
+    "status": 200,
+    "bytes": 26478,
+    "ms": 1576,
+    "cache": "no-store"
+  },
+  {
+    "path": "/api/health",
+    "status": 200,
+    "bytes": 18,
+    "ms": 204,
+    "cache": "no-store"
+  },
+  {
+    "path": "/api/automation-guard",
+    "status": 200,
+    "bytes": 135,
+    "ms": 201,
+    "cache": "private, no-store"
+  },
+  {
+    "path": "/api/auth/session",
+    "status": 401
+  },
+  {
+    "path": "/api/admin/security",
+    "status": 401
+  },
+  {
+    "path": "/api/visual-stream?p=/logo.png",
+    "status": 200,
+    "bytes": 130850,
+    "ms": 271,
+    "cache": "private, max-age=86400, stale-while-revalidate=604800, no-transform"
+  }
+]

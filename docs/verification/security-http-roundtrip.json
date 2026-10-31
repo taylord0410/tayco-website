@@ -1,0 +1,103 @@
+{
+  "scope": "HTTP on local3102, observe mode, separate disposable browser cookie jar, lab-only controls; no submitted estimate or private account",
+  "records": [
+    {
+      "route": "/api/automation-guard",
+      "op": "bootstrap",
+      "status": 200,
+      "state": "clear",
+      "retries": 0
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "simulate",
+      "status": 200,
+      "state": "challenge",
+      "retries": 0
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "invalid-test",
+      "status": 200,
+      "state": "challenge",
+      "retries": 1
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "invalid-test",
+      "status": 200,
+      "state": "challenge",
+      "retries": 1
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "invalid-test",
+      "status": 200,
+      "state": "challenge",
+      "retries": 2
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "invalid-test",
+      "status": 200,
+      "state": "challenge",
+      "retries": 3
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "invalid-test",
+      "status": 200,
+      "state": "blocked",
+      "retries": 4
+    },
+    {
+      "route": "/",
+      "op": null,
+      "status": 200,
+      "state": null,
+      "retries": null
+    },
+    {
+      "route": "/api/auth/session",
+      "op": null,
+      "status": 401,
+      "state": null,
+      "retries": null
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "authorize-test",
+      "status": 200,
+      "state": null,
+      "retries": null
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": null,
+      "status": 200,
+      "state": "authorized",
+      "retries": 4
+    },
+    {
+      "route": "/api/admin/security",
+      "op": null,
+      "status": 401,
+      "state": null,
+      "retries": null
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": "reset-test",
+      "status": 200,
+      "state": "clear",
+      "retries": 0
+    },
+    {
+      "route": "/api/automation-guard",
+      "op": null,
+      "status": 200,
+      "state": "clear",
+      "retries": 0
+    }
+  ]
+}

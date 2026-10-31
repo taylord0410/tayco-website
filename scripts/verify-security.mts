@@ -1,0 +1,21 @@
+import {spawn} from 'node:child_process';
+import {mkdtemp,readdir,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {randomBytes} from 'node:crypto';
+const base=await mkdtemp(path.join(tmpdir(),'tayco-security-tests-'));
+const wanted=process.argv.slice(2);
+const files=wanted.length?wanted:(await readdir('tests')).filter(f=>f.endsWith('.test.ts')).sort().map(f=>'tests/'+f);
+const results:{file:string;exit:number;tests:number;pass:number;fail:number;skipped:number}[]=[];
+let cursor=0;
+async function worker(){for(;;){const file=files[cursor++];if(!file)return;const stem=path.basename(file,'.test.ts');
+ const env={...process.env,NODE_ENV:'test' as const,TAYCO_AUTH_DB_PATH:path.join(base,stem+'-auth.sqlite'),TAYCO_ERP_DB_PATH:path.join(base,stem+'-erp.sqlite'),TAYCO_GUARD_DB_PATH:path.join(base,stem+'-guard.sqlite'),TAYCO_SESSION_SECRET:randomBytes(48).toString('hex'),TAYCO_DATA_ENCRYPTION_KEY:randomBytes(48).toString('hex'),TAYCO_SUBMISSIONS_KEY:randomBytes(48).toString('hex'),TAYCO_AUTOMATION_GUARD:'off'};
+ let output='';const exit=await new Promise<number>(resolve=>{const p=spawn(process.execPath,['--import','tsx','--test',file],{env,windowsHide:true,timeout:180000});p.stdout.on('data',b=>output+=b);p.stderr.on('data',b=>output+=b);p.on('error',()=>resolve(1));p.on('close',code=>resolve(code??1));});
+ const n=(label:string)=>Number(output.match(new RegExp('(?:ℹ|#) '+label+' (\\d+)'))?.[1]||0);
+ results.push({file,exit,tests:n('tests'),pass:n('pass'),fail:n('fail'),skipped:n('skipped')});
+ await writeFile(path.join(base,stem+'.log'),output);console.log((exit?'FAIL ':'PASS ')+file);
+}}
+await Promise.all(Array.from({length:4},()=>worker()));
+const summary={generatedAt:new Date().toISOString(),scope:'Local unit/integration files, separate processes and disposable databases with random fixture keys; no real provider/browser certification',files:results.length,tests:results.reduce((a,r)=>a+r.tests,0),passed:results.reduce((a,r)=>a+r.pass,0),failed:results.reduce((a,r)=>a+r.fail,0),skipped:results.reduce((a,r)=>a+r.skipped,0),processFailures:results.filter(r=>r.exit).length,results:results.sort((a,b)=>a.file.localeCompare(b.file))};
+await writeFile('docs/verification/security-suite.json',JSON.stringify(summary,null,2));console.log(JSON.stringify({...summary,results:undefined}));console.log('Temporary logs: '+base);
+if(summary.processFailures)process.exitCode=1;

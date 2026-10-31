@@ -4,6 +4,7 @@ import {get} from '@vercel/blob';
 import {NextRequest,NextResponse} from 'next/server';
 import {requireActor,AuthError} from '@/lib/auth';
 import {ErpError} from '@/lib/erp';
+import {configuredViewerOrigin} from '@/lib/takeoff-viewer-gateway';
 import {getReadableDocument} from '@/lib/document-lifecycle';
 import {guestConsoleDocument} from '@/lib/guest-workspace';
 import {VIEWER_PREFIX,TakeoffViewerAccessError,viewerScope} from '@/lib/takeoff-viewer-access';
@@ -16,6 +17,7 @@ async function handleGET(request:NextRequest,context:{params:Promise<{id:string}
   const readable=async()=>{const fresh=await requireActor(request);if(fresh.id!==actor.id||fresh.tenantId!==actor.tenantId||fresh.role!==actor.role)throw new AuthError('Document access changed.',403);return fresh.role==='guest'?guestConsoleDocument(fresh,id):getReadableDocument(fresh,id);};
   const entry=await readable();
   if(entry.data.storage==='takeoff_viewer'){
+    configuredViewerOrigin(); // Do not issue a reader redirect with missing/invalid upstream configuration.
     const {viewerDocumentId,bundleId,contextKey,manifestSha256,relationsId}=entry.data;
     if(!entry.projectId||!sourceId(viewerDocumentId)||!sourceId(bundleId)||!sourceId(contextKey)||
       typeof manifestSha256!=='string'||!/^[a-f0-9]{64}$/.test(manifestSha256)||

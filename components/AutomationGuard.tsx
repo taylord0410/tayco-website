@@ -71,6 +71,7 @@ export default function AutomationGuard() {
     {state.state==='challenge'&&state.incidentId&&<VerificationChallenge incidentId={state.incidentId} siteKey={state.siteKey} onVerified={refresh}/>}
     <button type="button" className="secondary" onClick={()=>setDismissed(state.incidentId||null)}>Keep editing my form</button>
     <form onSubmit={submit}><input type="hidden" name="op" value="review"/><button type="submit">Request a review</button></form>
+    {state.reviewCode&&<button type="button" onClick={refresh}>Check review status</button>}
     {state.reviewCode&&<p className="tayco-guard-details" role="status">Review reference: <span>{state.reviewCode}</span></p>}
     <p><a href={"mailto:"+COMPANY.email}>Contact TAYCO for a review</a></p>
     <details><summary>Authorized investigation</summary><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="exchange"/><label htmlFor="tayco-guard-token">Temporary authorization token</label><input id="tayco-guard-token" type="password" name="token" required maxLength={128} autoComplete="off"/><button type="submit">Authorize this browser</button></form></details>

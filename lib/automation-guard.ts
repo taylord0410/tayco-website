@@ -40,6 +40,7 @@ function withStore<T>(work: (db: DatabaseSync) => T): T {
       CREATE TABLE IF NOT EXISTS guard_visitors(hash TEXT PRIMARY KEY,incident TEXT,retries INTEGER NOT NULL,window_end INTEGER NOT NULL,blocked_until INTEGER NOT NULL,expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_grants(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,issuer TEXT NOT NULL,purpose TEXT NOT NULL,expires INTEGER NOT NULL,used INTEGER NOT NULL DEFAULT 0,revoked INTEGER NOT NULL DEFAULT 0);
       CREATE TABLE IF NOT EXISTS guard_settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS guard_review_resolutions(review_id TEXT PRIMARY KEY,issuer TEXT NOT NULL,purpose TEXT NOT NULL,created INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_reviews(id TEXT PRIMARY KEY,visitor_hash TEXT UNIQUE NOT NULL,origin TEXT NOT NULL,created INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_attempts(visitor_hash TEXT NOT NULL,incident TEXT NOT NULL,id TEXT NOT NULL,token_hash TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(visitor_hash,id));
       CREATE TABLE IF NOT EXISTS guard_sessions(hash TEXT PRIMARY KEY,grant_id TEXT NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,expires INTEGER NOT NULL);
@@ -57,6 +58,7 @@ function cleanup(db: DatabaseSync, now: number) {
   db.prepare('DELETE FROM guard_events WHERE created<?').run(now - VISITOR_TTL);
   db.prepare('DELETE FROM guard_attempts WHERE created<?').run(now - VISITOR_TTL);
   db.prepare('DELETE FROM guard_reviews WHERE created<?').run(now - VISITOR_TTL);
+  db.prepare('DELETE FROM guard_review_resolutions WHERE created<?').run(now - VISITOR_TTL);
 }
 function note(db: DatabaseSync, hash: string, kind: string, now: number) {
   // Bounded retention; no user fields, raw cookies, tokens or payloads in events.
@@ -222,7 +224,7 @@ export function guardAdminSnapshot(now=Date.now()) {
   cleanup(db,now);
   const override=db.prepare("SELECT value FROM guard_settings WHERE key='mode'").get() as {value:string}|undefined;
   return {configuredMode:guardMode(),effectiveMode:guardMode()==='enforce'&&override?.value==='observe'?'observe':guardMode(),ruleVersion:'SG-2026-10-31.1',
-   reviews:db.prepare('SELECT r.id,r.created,v.incident,v.retries,v.blocked_until FROM guard_reviews r JOIN guard_visitors v ON v.hash=r.visitor_hash WHERE v.expires>? ORDER BY r.created DESC LIMIT 100').all(now),
+   reviews:db.prepare("SELECT r.id,r.created,v.incident,v.retries,v.blocked_until,(SELECT MAX(x.created) FROM guard_review_resolutions x WHERE x.review_id LIKE r.id||':%') AS resolved_at FROM guard_reviews r JOIN guard_visitors v ON v.hash=r.visitor_hash WHERE v.expires>? ORDER BY r.created DESC LIMIT 100").all(now),
    grants:db.prepare('SELECT id,issuer,purpose,expires,used,revoked FROM guard_grants ORDER BY expires DESC LIMIT 100').all(),
    events:db.prepare('SELECT id,kind,created FROM guard_events ORDER BY created DESC LIMIT 100').all()};
  });
@@ -233,5 +235,20 @@ export function setGuardMode(mode: unknown, issuer: string, now=Date.now()) {
  return withStore(db=>{
   db.prepare("INSERT INTO guard_settings VALUES('mode',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(mode);
   note(db,digest(issuer),'mode_'+mode,now);return {mode};
+ });
+}
+
+/** Ordinary false-positive recovery: clears one reviewed incident, without any debug exception. */
+export function resolveGuardReview(reviewId:string,origin:string,issuer:string,purpose:string,expectedIncident:string|null,now=Date.now()){
+ if(!purpose.trim()||purpose.length>160)throw new GuardError('Record a short review reason.');
+ return withStore(db=>{
+  const review=db.prepare('SELECT r.visitor_hash,v.incident FROM guard_reviews r JOIN guard_visitors v ON v.hash=r.visitor_hash WHERE r.id=? AND r.origin=? AND r.created>? AND v.expires>?').get(reviewId,origin,now-VISITOR_TTL,now) as {visitor_hash:string;incident:string|null}|undefined;
+  if(!review)throw new GuardError('Active review not found.',404);
+  const key=reviewId+':'+(expectedIncident||'clear');
+  if(db.prepare('SELECT 1 FROM guard_review_resolutions WHERE review_id=?').get(key))return {resolved:true};
+  if(review.incident!==expectedIncident)throw new GuardError('This incident changed. Refresh and review it again.',409);
+  db.prepare('INSERT INTO guard_review_resolutions VALUES(?,?,?,?)').run(key,issuer,purpose.trim(),now);
+  db.prepare('UPDATE guard_visitors SET incident=NULL,retries=0,window_end=0,blocked_until=0 WHERE hash=?').run(review.visitor_hash);
+  note(db,review.visitor_hash,'manual_review_resolved',now);return {resolved:true};
  });
 }
