@@ -176,6 +176,27 @@ export function useTaycoGalleryLock({
         return;
       }
 
+      // Keep keyboard navigation inside the topmost visible portal, including
+      // short landscape panels whose captions scroll independently.
+      if (e.key === "Tab" && !e.defaultPrevented) {
+        const roots = Array.from(document.querySelectorAll<HTMLElement>('[data-tayco-modal-root="true"]'));
+        const root = roots.filter(element => element.getClientRects().length > 0).at(-1);
+        if (root) {
+          const controls = Array.from(root.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )).filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden");
+          const first = controls[0];
+          const last = controls[controls.length - 1];
+          if (!root.contains(document.activeElement)) {
+            e.preventDefault(); (e.shiftKey ? last : first)?.focus();
+          } else if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault(); last?.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault(); first?.focus();
+          }
+        }
+      }
+
       const activeTag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
       const isFormControl =
         activeTag === "input" ||

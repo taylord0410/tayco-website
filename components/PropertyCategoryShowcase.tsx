@@ -1110,29 +1110,15 @@ export function LandingPropertyCategoriesSection() {
                 </div>
 
                 {/* V46 Balanced Interior Body */}
-                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-4 sm:gap-5 text-left">
+                <div className="home-market-panel p-4 sm:p-6 flex-1 flex flex-col justify-between gap-4 sm:gap-5 text-left">
                   <div className="flex flex-col">
-                    <TaycoCardMetaBar
-                      leftBadge={
-                        <span
-                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
-                          style={{
-                            background: "rgba(201, 168, 76, 0.18)",
-                            color: "#F3D37A",
-                            border: "1px solid rgba(201, 168, 76, 0.42)",
-                          }}
-                        >
-                          {cat.eyebrow}
-                        </span>
-                      }
-                      rightMeta={<span translate="no">8 Specialties · 6 Projects</span>}
-                      className="mb-3 sm:mb-4"
-                    />
-
-                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left line-clamp-2 sm:line-clamp-none">
+                    <p className="home-editorial-eyebrow mb-3">8 specialties · 6 projects</p>
+                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left home-market-description">
                       {cat.description}
                     </p>
 
+                    <details className="home-reading-details">
+                      <summary>Specialties &amp; projects <span aria-hidden="true">＋</span></summary>
                     {/* Specs Grid */}
                     <div className="hidden sm:block">
                     <TaycoSpecGrid
@@ -1154,7 +1140,7 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          {cat.label} Specialties:
+                          Specialties:
                         </span>
                       </div>
                       <div className="flex gap-1.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:pb-1 tayco-no-scrollbar sm:flex-wrap">
@@ -1198,7 +1184,7 @@ export function LandingPropertyCategoriesSection() {
                           className="w-3 h-3 text-[#F3D37A]"
                         />
                         <span>
-                          {cat.label} Project Gallery (5-Room Connected Tour):
+                          Project tours:
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 w-full">
@@ -1229,6 +1215,7 @@ export function LandingPropertyCategoriesSection() {
                         ))}
                       </div>
                     </div>
+                    </details>
                   </div>
 
                   {/* V46 Balanced Horizontal Footer */}
@@ -1245,13 +1232,13 @@ export function LandingPropertyCategoriesSection() {
                               undefined
                             )
                           }
-                          className="tayco-atelier-btn-obsidian"
+                          className="home-text-action"
                         >
                           <StudioActionIcon
                             kind="sparkle"
                             className="w-3.5 h-3.5 text-[#F3D37A]"
                           />
-                          <span>Launch Interactive Studio</span>
+                          <span>Open gallery</span>
                         </button>
                       ) : undefined
                     }
@@ -1259,9 +1246,9 @@ export function LandingPropertyCategoriesSection() {
                     <Link
                       href={`/properties/${cat.slug}`}
                       data-magnetic
-                      className="tayco-atelier-btn-gold"
+                      className="home-text-action"
                     >
-                      <span>Explore {cat.label}</span>
+                      <span>View market</span>
                       <span aria-hidden="true">→</span>
                     </Link>
                   </TaycoCardFooterBar>

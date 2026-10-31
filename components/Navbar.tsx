@@ -1,5 +1,6 @@
 "use client";
 
+import "@/components/navbar-responsive.css";
 import { useEffect, useRef, useState } from "react";
 import Image from "@/components/ProtectedImage";
 import Link from "next/link";
@@ -70,7 +71,7 @@ export default function Navbar() {
     const dismiss = (event: PointerEvent) => {
       if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setOpen(false);
     };
-    const desktop = window.matchMedia("(min-width: 1080px)");
+    const desktop = window.matchMedia("(min-width: 1440px)");
     const onResize = () => {
       if (desktop.matches) {
         const focusedInPanel = document.activeElement?.closest("#tayco-mobile-navigation");

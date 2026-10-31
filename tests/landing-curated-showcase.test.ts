@@ -381,17 +381,22 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
     pageContent.includes("LandingPropertyCategoriesSection"),
     "app/page.tsx must render LandingPropertyCategoriesSection"
   );
-  // Verify the 4 markets section appears FIRST in <main> before the split hero
+  // Markets lead directly into the existing editorial transition.
   const marketsIdx = pageContent.indexOf("<LandingPropertyCategoriesSection />");
-  const splitHeroIdx = pageContent.indexOf("SPLIT HERO 50/50");
+  const tickerIdx = pageContent.indexOf('className="tayco-editorial-ticker"');
   assert.ok(
-    marketsIdx > 0 && marketsIdx < splitHeroIdx,
-    "LandingPropertyCategoriesSection must appear FIRST in <main> before the construction services hero"
+    marketsIdx > 0 && marketsIdx < tickerIdx,
+    "The four markets must lead into the editorial ticker"
+  );
+  assert.ok(
+    !pageContent.includes("COMMERCIAL_HERO_SCENES") &&
+      !pageContent.includes("RESIDENTIAL_HERO_SCENES"),
+    "Home must not load the retired split hero scenes"
   );
   for (const slug of ["single-family", "duplexes", "townhouses", "commercial"]) {
     assert.ok(
-      pageContent.includes(`/properties/${slug}`),
-      `app/page.tsx must include direct link to /properties/${slug}`
+      PROPERTY_CATEGORIES.some((category) => category.slug === slug),
+      `The market navigation must retain ${slug}`
     );
   }
 
@@ -574,10 +579,9 @@ test("V45 Architectural Atelier Typography, 60fps 3D Tilt Living Surfaces, Cente
   );
   assert.ok(
     showcaseContent.includes("flex flex-wrap justify-center gap-7") &&
-      homeContent.includes("flex flex-wrap justify-center gap-6") &&
-      homeContent.includes("items-stretch") &&
+      homeContent.includes('className="home-editorial-grid"') &&
       walkthroughContent.includes("items-stretch"),
-    "Showcase, Home, and Studio Modal grids must use centered symmetric flex-wrap and items-stretch to eliminate column/bottom holes"
+    "Showcase and Studio use symmetric flex layouts; Home uses the responsive editorial grid"
   );
 });
 

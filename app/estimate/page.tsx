@@ -2,6 +2,7 @@
 import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { EstimateReferencePanel, useEstimateReferences, removeSubmittedReferences } from "@/components/EstimateReferences";
 import { COMPANY } from "@/lib/company";
 
 const PROJECT_TYPES = [
@@ -16,69 +17,6 @@ const PROJECT_TYPES = [
   "Flooring",
   "Other",
 ];
-
-const CALCULATOR_DIVISIONS = [
-  {
-    id: "Commercial Ground-Up",
-    label: "🏢 Commercial Ground-Up Construction",
-    projectTypeMatch: "Commercial Project",
-    baseLowSqft: 151.69,
-    baseHighSqft: 245,
-    materialsShare: 0.548,
-    laborShare: 0.312,
-    equipmentShare: 0.14,
-  },
-  {
-    id: "Commercial Tenant Improvement",
-    label: "🏬 Commercial Tenant Improvement (TI)",
-    projectTypeMatch: "Commercial Tenant Improvement (TI)",
-    baseLowSqft: 85,
-    baseHighSqft: 145,
-    materialsShare: 0.548,
-    laborShare: 0.312,
-    equipmentShare: 0.14,
-  },
-  {
-    id: "Residential Remodel",
-    label: "🏠 Residential Remodel & Additions",
-    projectTypeMatch: "Residential Renovation",
-    baseLowSqft: 110,
-    baseHighSqft: 175,
-    materialsShare: 0.548,
-    laborShare: 0.312,
-    equipmentShare: 0.14,
-  },
-  {
-    id: "Fire/Water Restoration",
-    label: "🔥 Fire & Water Restoration",
-    projectTypeMatch: "Fire Damage Restoration",
-    baseLowSqft: 70,
-    baseHighSqft: 130,
-    materialsShare: 0.548,
-    laborShare: 0.312,
-    equipmentShare: 0.14,
-  },
-];
-
-const FINISH_TIERS = [
-  { id: "standard", label: "Standard Commercial / Turnkey Grade (1.00x)", multiplier: 1.0 },
-  { id: "executive", label: "Hospitality Finish Grade (1.18x)", multiplier: 1.18 },
-  { id: "industrial", label: "Heavy Industrial / Cold-Storage Spec (1.28x)", multiplier: 1.28 },
-];
-
-const STATE_MODIFIERS: Record<
-  string,
-  { name: string; costFactor: number; salesTaxPct: number; defaultCity: string }
-> = {
-  WI: { name: "Wisconsin", costFactor: 1.0, salesTaxPct: 5.5, defaultCity: "Milwaukee, WI" },
-  IL: { name: "Illinois", costFactor: 1.12, salesTaxPct: 8.5, defaultCity: "Chicago, IL" },
-  IA: { name: "Iowa", costFactor: 0.94, salesTaxPct: 7.0, defaultCity: "Des Moines, IA" },
-  IN: { name: "Indiana", costFactor: 0.96, salesTaxPct: 7.0, defaultCity: "Indianapolis, IN" },
-  MN: { name: "Minnesota", costFactor: 1.05, salesTaxPct: 7.375, defaultCity: "Minneapolis, MN" },
-  MI: { name: "Michigan", costFactor: 0.98, salesTaxPct: 6.0, defaultCity: "Detroit, MI" },
-  MO: { name: "Missouri", costFactor: 0.95, salesTaxPct: 7.5, defaultCity: "St. Louis, MO" },
-  TX: { name: "Texas", costFactor: 0.93, salesTaxPct: 8.25, defaultCity: "Dallas, TX" },
-};
 
 /** Query context is reviewed explicitly; it never overwrites a visitor's draft. */
 function RequestedService({ onApply }: { onApply: (description: string, projectType: string) => void }) {
@@ -99,35 +37,7 @@ function RequestedService({ onApply }: { onApply: (description: string, projectT
 
 export default function EstimatePage() {
   const [lightAngle, setLightAngle] = useState(42);
-  const [calcDivision, setCalcDivision] = useState(CALCULATOR_DIVISIONS[0].id);
-  const [calcState, setCalcState] = useState("WI");
-  const [calcArea, setCalcArea] = useState("2000");
-  const parsedArea = Number(calcArea);
-  const isAreaValid = calcArea.trim() !== "" && Number.isFinite(parsedArea) && Number.isInteger(parsedArea) && parsedArea >= 250 && parsedArea <= 250000;
-  const calcSqft = isAreaValid ? parsedArea : 0;
-  const [calcTier, setCalcTier] = useState("standard");
-
-  const selectedDiv =
-    CALCULATOR_DIVISIONS.find((d) => d.id === calcDivision) || CALCULATOR_DIVISIONS[0];
-  const selectedStateInfo = STATE_MODIFIERS[calcState] || STATE_MODIFIERS.WI;
-  const selectedTierObj = FINISH_TIERS.find((t) => t.id === calcTier) || FINISH_TIERS[0];
-
-  const lowEstimateUsd = Math.round(
-    calcSqft * selectedDiv.baseLowSqft * selectedStateInfo.costFactor * selectedTierObj.multiplier
-  );
-  const highEstimateUsd = Math.round(
-    calcSqft * selectedDiv.baseHighSqft * selectedStateInfo.costFactor * selectedTierObj.multiplier
-  );
-  const midpointUsd = Math.round((lowEstimateUsd + highEstimateUsd) / 2);
-  const estMaterialsUsd = Math.round(midpointUsd * selectedDiv.materialsShare);
-  const estLaborUsd = Math.round(midpointUsd * selectedDiv.laborShare);
-  const estEquipmentUsd = Math.round(midpointUsd * selectedDiv.equipmentShare);
-  const estStateMaterialsTaxUsd = Math.round(
-    (estMaterialsUsd * selectedStateInfo.salesTaxPct) / 100
-  );
-  const estManHours = Math.max(80, Math.round(estLaborUsd / 32.63));
-  const estWeeks = Math.max(3, Math.min(52, Math.round(calcSqft / 650) + 4));
-
+  const selectedImages = useEstimateReferences();
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
@@ -142,27 +52,10 @@ export default function EstimatePage() {
   const [referenceId, setReferenceId] = useState<string | null>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
   const requestRef = useRef<{ key: string; payload: string } | null>(null);
-  const previousIllustration = useRef("");
   const loadedAt = useRef<number | null>(null);
   useEffect(() => {
     loadedAt.current = Date.now();
   }, []);
-
-  const budgetSummaryText = isAreaValid ? `Budget planning illustration only — not a quote or agreed scope. ${selectedDiv.id}, ${selectedTierObj.label}, ${calcSqft.toLocaleString()} sq ft in ${calcState}. Illustrative range $${lowEstimateUsd.toLocaleString()}–$${highEstimateUsd.toLocaleString()}; assumptions require project review.` : "";
-
-  function applyCalculatorToForm() {
-    if (!isAreaValid) return;
-    const summaryText = budgetSummaryText;
-    const previousSummary = previousIllustration.current;
-    previousIllustration.current = summaryText;
-    setForm((prev) => ({
-      ...prev,
-      projectType: selectedDiv.projectTypeMatch,
-      projectLocation: prev.projectLocation || selectedStateInfo.defaultCity,
-      projectDetails: [previousSummary ? prev.projectDetails.replace(previousSummary, "").trim() : prev.projectDetails.trim(), summaryText].filter(Boolean).join("\n\n"),
-    }));
-  }
-
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -176,8 +69,7 @@ export default function EstimatePage() {
     setStatus("sending");
     setErrorMsg("");
     try {
-      const includedIllustration = isAreaValid && budgetSummaryText !== "" && form.projectDetails.includes(budgetSummaryText);
-      const payload = JSON.stringify({ ...form, ...(includedIllustration ? { sqft: calcSqft, budgetIllustrationUsd: midpointUsd } : {}), _loadedAt: loadedAt.current });
+      const payload = JSON.stringify({ ...form, referenceImageIds: selectedImages.map(image => image.id), _loadedAt: loadedAt.current });
       if (requestRef.current?.payload !== payload) requestRef.current = { key: crypto.randomUUID(), payload };
       const res = await fetch("/api/estimate", {
         method: "POST",
@@ -191,6 +83,7 @@ export default function EstimatePage() {
         setReferenceId(data.referenceId);
         setNotificationStatus(data.notificationStatus || "pending");
         requestRef.current = null;
+        removeSubmittedReferences(selectedImages.map(image => image.id));
         setStatus("success");
         setForm({
           fullName: "",
@@ -333,225 +226,9 @@ export default function EstimatePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-12 gap-8 items-start">
-        {/* ── INSTANT PARAMETRIC ESTIMATOR (#tayco-instant-estimator) ── */}
-        <section
-          id="tayco-instant-estimator"
-          data-surface-mode="crystal"
-          className="tayco-living-card order-2 lg:order-1 lg:col-span-5 p-6 sm:p-7 text-white"
-        >
-          <div className="preview-orbits" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="tayco-eyebrow">Optional budget illustration</span>
-              <span className="text-xs text-emerald-300 font-mono font-semibold">
-                PLANNING ONLY
-              </span>
-            </div>
-
-            <h2 className="text-xl font-extrabold mb-1">
-              Explore an illustrative{" "}
-              <em className="tayco-serif-em">Estimator</em>
-            </h2>
-            <p className="text-xs text-slate-300 mb-5">
-              This illustration uses general assumptions, not TAYCO project pricing. It is not a quote, tax calculation or schedule commitment. Site conditions, permits, local requirements and selections can change the outcome. Request a reviewed estimate below.
-            </p>
-
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="calc-select-division" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                  Project Division &amp; Scope
-                </label>
-                <select
-                  id="calc-select-division"
-                  value={calcDivision}
-                  onChange={(e) => setCalcDivision(e.target.value)}
-                  className="w-full rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white focus:outline-none"
-                >
-                  {CALCULATOR_DIVISIONS.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="calc-select-state" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Target state
-                  </label>
-                  <select
-                    id="calc-select-state"
-                    value={calcState}
-                    onChange={(e) => setCalcState(e.target.value)}
-                    className="w-full rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-900 bg-white focus:outline-none"
-                  >
-                    {Object.entries(STATE_MODIFIERS).map(([code, info]) => (
-                      <option key={code} value={code}>
-                        {code} — {info.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="calc-input-sqft" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Approximate Area (Sq Ft)
-                  </label>
-                  <input
-                    id="calc-input-sqft"
-                    type="number"
-                    min={250}
-                    max={250000}
-                    step={1}
-                    value={calcArea}
-                    onChange={(e) => setCalcArea(e.target.value)}
-                    aria-invalid={!isAreaValid}
-                    aria-describedby={!isAreaValid ? "calc-area-error" : undefined}
-                    className="w-full rounded-lg px-3 py-2.5 text-sm font-bold text-slate-900 bg-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="calc-select-tier" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                  Quality &amp; Finish Tier
-                </label>
-                <select
-                  id="calc-select-tier"
-                  value={calcTier}
-                  onChange={(e) => setCalcTier(e.target.value)}
-                  className="w-full rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white focus:outline-none"
-                >
-                  {FINISH_TIERS.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {isAreaValid ? (
-              <div
-                className="rounded-xl p-4 mt-4 border"
-                style={{
-                  background: "rgba(7, 14, 26, 0.82)",
-                  borderColor: "rgba(201,168,76,0.38)",
-                }}
-              >
-                <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
-                  Illustrative budget range ({calcState} — {selectedStateInfo.defaultCity})
-                </div>
-                <div
-                  className="text-2xl sm:text-3xl font-black mt-1 font-mono"
-                  style={{ color: "#C9A84C" }}
-                >
-                  ${lowEstimateUsd.toLocaleString()} – ${highEstimateUsd.toLocaleString()}
-                </div>
-                <div className="text-xs text-slate-300 mt-1">
-                  Illustrative midpoint:{" "}
-                  <strong className="text-white font-mono">
-                    ${midpointUsd.toLocaleString()} USD
-                  </strong>
-                </div>
-
-                {/* Visual Cost Breakdown Bar (54.8% Materials · 31.2% Field Labor · 14.0% Equipment) */}
-                <div className="mt-4 pt-3 border-t border-white/10">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-300 mb-1.5">
-                    <span>Illustrative cost allocation</span>
-                    <span className="text-amber-300">
-                      Assumed allowance: {selectedStateInfo.salesTaxPct}%
-                    </span>
-                  </div>
-                  <div className="w-full h-3 rounded-full overflow-hidden flex bg-slate-900 p-0.5 gap-0.5 border border-white/10">
-                    <div
-                      className="h-full rounded-l-full transition-all duration-300"
-                      style={{ width: "54.8%", background: "#C9A84C" }}
-                      title="Materials 54.8%"
-                    />
-                    <div
-                      className="h-full transition-all duration-300"
-                      style={{ width: "31.2%", background: "#38BDF8" }}
-                      title="Illustrative labor share 31.2%"
-                    />
-                    <div
-                      className="h-full rounded-r-full transition-all duration-300"
-                      style={{ width: "14%", background: "#10B981" }}
-                      title="Equipment 14.0%"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5 mt-2 text-[10px] font-mono">
-                    <div className="p-2 rounded-xl bg-white/5 border border-amber-400/25">
-                      <span className="text-amber-300 block font-bold">Material 54.8%</span>
-                      <span className="text-white">${estMaterialsUsd.toLocaleString()}</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-sky-400/25">
-                      <span className="text-sky-300 block font-bold">Labor 31.2%</span>
-                      <span className="text-white">${estLaborUsd.toLocaleString()}</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-emerald-400/25">
-                      <span className="text-emerald-300 block font-bold">Equip 14.0%</span>
-                      <span className="text-white">${estEquipmentUsd.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-xs">
-                  <div>
-                    <span className="text-slate-400 block">Illustrative labor hours</span>
-                    <strong className="text-white font-mono">
-                      {estManHours.toLocaleString()} MH
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">
-                      Assumed allowance ({selectedStateInfo.salesTaxPct}%)
-                    </span>
-                    <strong className="text-amber-300 font-mono">
-                      ${estStateMaterialsTaxUsd.toLocaleString()}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Illustrative duration</span>
-                    <strong className="text-emerald-300 font-mono">~{estWeeks} weeks</strong>
-                  </div>
-                </div>
-              </div>
-
-              ) : <p id="calc-area-error" role="status" className="rounded-xl border border-amber-300/50 bg-amber-100/10 p-4 text-sm text-amber-100">Enter a whole area between 250 and 250,000 sq ft to see an illustration. You can request an estimate without using this optional calculator.</p>}
-
-              <button
-                type="button"
-                id="btn-preload-estimate-form"
-                disabled={!isAreaValid}
-                data-magnetic
-                onClick={applyCalculatorToForm}
-                className="w-full py-3 rounded-xl font-extrabold text-sm transition-transform hover:scale-[1.01] shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
-              >
-                Add this illustration to my request →
-              </button>
-
-              <div className="pt-1 text-center">
-                <Link
-                  href="/login"
-                  className="text-xs font-bold underline hover:text-white"
-                  style={{ color: "#C9A84C" }}
-                >
-                  Existing client project sign in →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
+      <div className="max-w-3xl mx-auto px-4 py-8">
         {/* ── ESTIMATE REQUEST FORM ── */}
-        <div className="order-1 lg:order-2 lg:col-span-7">
+        <div className="w-full">
           {status === "success" ? (
             <div
               data-surface-mode="mineral"
@@ -603,7 +280,7 @@ export default function EstimatePage() {
             <form
               onSubmit={handleSubmit}
               data-surface-mode="mineral"
-              className="tayco-living-card editorial-ivory-card p-5 sm:p-8 space-y-5 bg-white"
+              className="estimate-request-form tayco-living-card editorial-ivory-card p-5 sm:p-8 space-y-5 bg-white"
             >
               <div className="preview-orbits" aria-hidden="true" />
               <div className="relative z-10 space-y-5">
@@ -624,6 +301,8 @@ export default function EstimatePage() {
                     <div>{COMPANY.email}</div>
                   </div>
                 </div>
+
+                <EstimateReferencePanel />
 
                 {/* Honeypot field */}
                 <div style={{ display: "none" }} aria-hidden="true">

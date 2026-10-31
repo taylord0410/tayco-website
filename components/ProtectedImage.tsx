@@ -360,6 +360,8 @@ export default function ProtectedImage({
   useEffect(() => {
     if (!shouldLoad || !src) return;
     let cancelled = false;
+    let resizeRaf = 0;
+    let repaintCurrentSurface: ((now: number) => void) | null = null;
 
     const paintAndCrossfade = (nextSurface: HTMLCanvasElement, sharedStart: number) => {
       if (cancelled) return;
@@ -377,7 +379,7 @@ export default function ProtectedImage({
         rafRef.current = 0;
       }
 
-      const { w: targetW, h: targetH } = computeTargetDimensions(canvas, nextSurface);
+      let { w: targetW, h: targetH } = computeTargetDimensions(canvas, nextSurface);
       const prevSurface = prevSurfaceRef.current;
 
       if (canvas.width !== targetW || canvas.height !== targetH) {
@@ -404,8 +406,7 @@ export default function ProtectedImage({
       if (prevSurface && prevSurface !== nextSurface && !motionReduced) {
         const durationMs = 520;
 
-        const animateBlend = (now: number) => {
-          if (cancelled) return;
+        const paintBlendFrame = (now: number) => {
           const elapsed = Math.max(0, now - sharedStart);
           const progress = Math.min(1, elapsed / durationMs);
           // Smooth harmonic cubic ease-in-out
@@ -419,7 +420,12 @@ export default function ProtectedImage({
           ctx.globalAlpha = eased;
           ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
           ctx.globalAlpha = 1;
+          return progress;
+        };
 
+        const animateBlend = (now: number) => {
+          if (cancelled) return;
+          const progress = paintBlendFrame(now);
           if (progress < 1) {
             rafRef.current = window.requestAnimationFrame(animateBlend);
           } else {
@@ -428,14 +434,50 @@ export default function ProtectedImage({
           }
         };
 
+        repaintCurrentSurface = (now) => {
+          const dimensions = computeTargetDimensions(canvas, nextSurface);
+          if (canvas.width === dimensions.w && canvas.height === dimensions.h) return;
+          targetW = dimensions.w;
+          targetH = dimensions.h;
+          canvas.width = targetW;
+          canvas.height = targetH;
+          // Resize clears the backing store; restore this exact blend within the
+          // same animation frame, keeping its original shared start time.
+          paintBlendFrame(now);
+        };
         rafRef.current = window.requestAnimationFrame(animateBlend);
       } else {
         ctx.globalAlpha = 1;
         ctx.clearRect(0, 0, targetW, targetH);
         ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
         prevSurfaceRef.current = nextSurface;
+        repaintCurrentSurface = () => {
+          const dimensions = computeTargetDimensions(canvas, nextSurface);
+          if (canvas.width === dimensions.w && canvas.height === dimensions.h) return;
+          targetW = dimensions.w;
+          targetH = dimensions.h;
+          canvas.width = targetW;
+          canvas.height = targetH;
+          ctx.globalAlpha = 1;
+          ctx.drawImage(nextSurface, 0, 0, targetW, targetH);
+        };
       }
     };
+
+    const requestResizePaint = () => {
+      if (cancelled || resizeRaf) return;
+      resizeRaf = window.requestAnimationFrame((now) => {
+        resizeRaf = 0;
+        if (!cancelled) repaintCurrentSurface?.(now);
+      });
+    };
+    const canvas = canvasRef.current;
+    const resizeObserver = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(requestResizePaint)
+      : null;
+    if (canvas) resizeObserver?.observe(canvas);
+    // Also covers DPR changes when moving between displays, and browsers without RO.
+    window.addEventListener("resize", requestResizePaint);
 
     // Fast synchronous path: if surface (and any syncUrls) are already in resolvedSurfaceMap,
     // start the crossfade on this exact synchronous React commit tick (delta_ms = 0 across all siblings!)
@@ -461,6 +503,9 @@ export default function ProtectedImage({
 
     return () => {
       cancelled = true;
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", requestResizePaint);
+      if (resizeRaf) window.cancelAnimationFrame(resizeRaf);
       if (rafRef.current) {
         window.cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
@@ -610,21 +655,66 @@ export function VisualAssetIntegrityHud({
       };
     });
 
-    setSlots(audited);
-  }, []);
+    // Preserve the array identity when nothing visible in the inspector changed.
+    setSlots((previous) => {
+      const unchanged = previous.length === audited.length && previous.every((slot, index) => {
+        const next = audited[index];
+        return slot.element === next.element && slot.assetId === next.assetId &&
+          slot.assetStem === next.assetStem && slot.contentHash === next.contentHash &&
+          slot.label === next.label && slot.duplicateCount === next.duplicateCount &&
+          (!showBadges || (slot.rect.top === next.rect.top && slot.rect.left === next.rect.left &&
+            slot.rect.width === next.rect.width && slot.rect.height === next.rect.height));
+      });
+      return unchanged ? previous : audited;
+    });
+  }, [showBadges]);
 
   useEffect(() => {
-    scanDomAssets();
-    const interval = window.setInterval(scanDomAssets, 1100);
-    const onScrollOrResize = () => {
-      if (showBadges) scanDomAssets();
+    let frame = 0;
+    const scheduleScan = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        scanDomAssets();
+      });
     };
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", onScrollOrResize, { passive: true });
+    const selector = 'canvas[data-protected-canvas="v39"]';
+    const hasCanvas = (node: Node) => node instanceof Element &&
+      (node.matches(selector) || Boolean(node.querySelector(selector)));
+    const observer = new MutationObserver((records) => {
+      if (records.some((record) => {
+        const target = record.target;
+        if (target instanceof Element &&
+          target.closest('[data-audit-scope="ignore"], [data-testid="visual-asset-integrity-hud"]')) return false;
+        return record.type === "childList"
+          ? [...record.addedNodes, ...record.removedNodes].some(hasCanvas)
+          : hasCanvas(target);
+      })) scheduleScan();
+    });
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-asset-id", "data-asset-stem", "data-content-hash",
+        "data-audit-ignore", "data-audit-scope", "data-visual-slot", "aria-label",
+        "class", "hidden", "aria-hidden"],
+    });
+    const onScroll = () => { if (showBadges) scheduleScan(); };
+    const onTransitionEnd = (event: Event) => {
+      if (event.target instanceof Node && hasCanvas(event.target)) scheduleScan();
+    };
+    scheduleScan();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", scheduleScan, { passive: true });
+    document.addEventListener("transitionend", onTransitionEnd);
+    document.addEventListener("animationend", onTransitionEnd);
     return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("scroll", onScrollOrResize);
-      window.removeEventListener("resize", onScrollOrResize);
+      observer.disconnect();
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", scheduleScan);
+      document.removeEventListener("transitionend", onTransitionEnd);
+      document.removeEventListener("animationend", onTransitionEnd);
     };
   }, [scanDomAssets, showBadges]);
 
@@ -685,7 +775,7 @@ export function VisualAssetIntegrityHud({
             onClick={() => {
               const next = !showBadges;
               setShowBadges(next);
-              setTimeout(scanDomAssets, 30);
+              // The effect schedules fresh badge positions after this state change.
             }}
             className={`group hidden items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] transition-all duration-300 sm:inline-flex ${
               showBadges

@@ -15,6 +15,10 @@
 
 # next.js
 /.next/
+# Isolated local security trial and build caches
+/.next-guard-*/
+/.next-security-*/
+/*.log
 /out/
 
 # production

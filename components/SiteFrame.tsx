@@ -1,7 +1,9 @@
 "use client";
+import "@/components/public-responsive.css";
 
 import { useEffect, type ReactNode, type MouseEvent, type DragEvent } from "react";
 import { usePathname } from "next/navigation";
+import { EstimateReferenceTray } from "@/components/EstimateReferences";
 import PublicCookieBanner from "@/components/PublicCookieBanner";
 import AutomationGuard from "@/components/AutomationGuard";
 
@@ -78,6 +80,7 @@ export default function SiteFrame({ children, publicHeader, publicFooter }: { ch
       <div id="main-content" tabIndex={-1} className="relative outline-none">{children}</div>
       {publicSurface && publicFooter}
       {publicSurface && <PublicCookieBanner />}
+      {publicSurface && <EstimateReferenceTray />}
       {(publicSurface || pathname === "/security-lab") && <AutomationGuard />}
     </div>
   );

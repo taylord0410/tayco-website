@@ -1,0 +1,272 @@
+.home-editorial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.home-editorial-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border: 1px solid rgba(201, 168, 76, .2);
+  border-radius: 22px;
+  background: linear-gradient(155deg, rgba(28, 44, 66, .62), rgba(7, 14, 26, .88));
+}
+.home-editorial-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 15px;
+  background: #081120;
+  cursor: pointer;
+}
+.home-editorial-photo canvas { transition: transform 240ms ease; }
+.home-editorial-number, .home-editorial-photo-hint {
+  position: absolute;
+  padding: 6px 10px;
+  border: 1px solid rgba(201, 168, 76, .35);
+  border-radius: 9px;
+  background: rgba(7, 14, 26, .88);
+  color: #e1c572;
+  font: 500 12px/1.4 var(--font-mono);
+}
+.home-editorial-number { top: 12px; left: 12px; }
+.home-editorial-photo-hint { right: 12px; bottom: 12px; color: #f4f0e7; }
+.home-editorial-panel {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px 8px;
+  margin-top: 8px;
+  border: 1px solid rgba(210, 224, 244, .10);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(33, 50, 73, .55), rgba(8, 17, 32, .76));
+  text-align: left;
+}
+.home-editorial-eyebrow {
+  margin: 0;
+  color: #dfc575;
+  font: 500 12px/1.5 var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.home-editorial-title {
+  margin: 0;
+  color: #f4f0e7;
+  font: 600 22px/1.2 var(--font-serif);
+  text-wrap: balance;
+}
+.home-editorial-description {
+  margin: 0;
+  color: #bac7d8;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.home-editorial-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  margin-top: auto;
+  padding: 14px 0 8px;
+  border-top: 1px solid rgba(210, 224, 244, .16);
+  color: #f4f0e7;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+}
+.home-editorial-action > span:last-child { color: #dfc575; font-size: 24px; }
+.home-editorial-action { min-height: 44px; padding-block: 9px; }
+.home-editorial-action > span:last-child { font-size: 22px; line-height: 1; }
+
+/* Home control scale: compact labels with a consistent touch area. */
+.tayco-home :is(.tayco-atelier-btn-gold, .tayco-atelier-btn-obsidian, .tayco-atelier-pill) {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 14px;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  letter-spacing: .02em;
+  text-transform: none;
+  border-radius: 12px;
+}
+.tayco-home .tayco-atelier-pill { font-size: 12px; white-space: nowrap; }
+.tayco-home :is(.tayco-atelier-pill, .tayco-atelier-btn-gold, .tayco-atelier-btn-obsidian) sup {
+  font-size: 10px;
+}
+.tayco-home [aria-label="Choose Architectural Light Study"] button {
+  min-height: 44px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.tayco-home [aria-label="Choose Architectural Light Study"] button > span > span:first-child {
+  width: 24px;
+  height: 24px;
+}
+.home-text-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  gap: 8px;
+  padding: 8px 4px;
+  color: #e1c572;
+  font-size: 13px;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+}
+.home-text-action:focus-visible, .home-reading-details > summary:focus-visible {
+  outline: 2px solid #e1c572;
+  outline-offset: 3px;
+}
+.home-market-panel {
+  margin: 8px;
+  border: 1px solid #d2e0f41a;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #21324980, #081120b3);
+}
+.home-reading-details {
+  border-top: 1px solid #d2e0f426;
+  width: 100%;
+  text-align: left;
+}
+.home-reading-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding-block: 10px;
+  color: #dfc575;
+  font-size: 13px;
+  line-height: 1.5;
+  list-style: none;
+  cursor: pointer;
+}
+.home-reading-details > summary::-webkit-details-marker { display: none; }
+.home-reading-details[open] > summary { margin-bottom: 12px; }
+.home-reading-details[open] > summary > span { transform: rotate(45deg); }
+.tayco-home .home-market-description, .home-study-summary {
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+}
+.tayco-home [data-category-card] .tayco-card-meta-bar { border: 0; }
+.tayco-home [data-category-card] .home-text-action { white-space: nowrap; }
+.tayco-home [data-category-card] .home-reading-details button { min-height: 44px; }
+.tayco-home .home-compact-control {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.tayco-home .home-surface-copy {
+  padding: 20px 16px 12px;
+  margin-top: 8px;
+  border: 1px solid #d2e0f41a;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #21324980, #081120b3);
+}
+.tayco-home .home-surface-copy > a { align-self: flex-start; }
+.tayco-home .home-surface-copy p { font-size: 15px; line-height: 1.6; }
+.home-editorial-photo:focus-visible, .home-editorial-action:focus-visible,
+.home-gallery-control:focus-visible {
+  outline: 2px solid #e1c572;
+  outline-offset: 3px;
+}
+.home-editorial-gallery {
+  width: min(100%, 1080px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(201, 168, 76, .35);
+  border-radius: 22px;
+  background: #0b1627;
+  box-shadow: 0 24px 80px #0009;
+}
+.home-gallery-header, .home-gallery-footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+}
+.home-gallery-header { border-bottom: 1px solid #ffffff15; }
+.home-gallery-header h2 { margin: 2px 0 0; color: #f4f0e7; font-size: 16px; line-height: 1.4; }
+.home-gallery-control {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #c9a84c50;
+  border-radius: 12px;
+  color: #e1c572;
+  background: #ffffff05;
+  cursor: pointer;
+  font-size: 20px;
+}
+.home-gallery-stage {
+  flex: 0 1 auto;
+  min-height: 120px;
+  height: min(49dvh, 540px);
+  background: #040811;
+  touch-action: pan-y pinch-zoom;
+  overflow: hidden;
+}
+.home-gallery-copy {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.home-gallery-copy ul {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  color: #bac7d8;
+  font-size: 14px;
+  line-height: 1.6;
+  list-style: disc;
+}
+.home-gallery-footer { border-top: 1px solid #ffffff15; }
+.home-gallery-counter { color: #bac7d8; font: 500 12px/1.5 var(--font-mono); }
+@media (min-width: 640px) {
+  .home-editorial-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-editorial-panel { padding: 24px 20px 10px; }
+  .home-editorial-title { font-size: 24px; }
+  .home-editorial-description { font-size: 16px; }
+  .home-gallery-copy { padding: 20px 24px; }
+}
+@media (min-width: 1024px) {
+  .home-editorial-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .home-editorial-photo:hover canvas { transform: scale(1.025); }
+}
+@media (hover: hover) {
+  .home-editorial-action:hover, .home-gallery-control:hover { color: #f3d37a; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .home-gallery-stage { height: 32dvh; min-height: 80px; }
+  .home-gallery-header, .home-gallery-footer { padding-block: 4px; }
+}

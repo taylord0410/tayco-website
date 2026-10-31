@@ -1,3 +1,4 @@
+import { TaycoSectionHeader } from "@/components/ui/TaycoDesignSystem";
 import { COMPANY, COMPANY_CONTRACTING_UPDATE as update } from "@/lib/company";
 
 function ProgramIcon({ id }: { id: string }) {
@@ -55,13 +56,14 @@ export default function ContractingOpportunities({ compact = false }: { compact?
         ? "min-w-0 rounded-2xl border p-4 sm:p-6 shadow-[0_20px_48px_-20px_rgba(7,14,26,0.9)]"
         : "relative z-10 scroll-mt-24 border-y px-4 py-14 sm:px-8 sm:py-20 shadow-[0_24px_60px_-24px_rgba(7,14,26,0.95)]"}
       style={{
-        background: "linear-gradient(125deg, #0F2040 0%, #0B172A 48%, #070E1A 100%)",
+        background: "linear-gradient(125deg, #102039 0%, #081120 100%)",
         borderColor: compact ? "rgba(201, 168, 76, 0.35)" : "rgba(201, 168, 76, 0.28)",
       }}
     >
       <div className={compact ? "grid min-w-0 gap-6" : "mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-stretch lg:gap-16"}>
         <div className={compact ? "min-w-0" : "min-w-0 flex flex-col justify-between"}>
           <div>
+            {compact ? <>
             <p className={compact ? "tayco-eyebrow" : "tayco-atelier-eyebrow text-[#F3D37A]"} style={{ color: "#F3D37A" }}>
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               {compact ? "Company certifications & growth" : "Certifications & growth"}
@@ -69,6 +71,9 @@ export default function ContractingOpportunities({ compact = false }: { compact?
             <Heading id={`${sectionId}-title`} className={compact ? "mt-3 text-xl font-black leading-tight text-white" : "tayco-display-title mt-4 max-w-xl text-3xl sm:text-4xl leading-tight text-white"}>
               {update.title}
             </Heading>
+            </> : <div id={`${sectionId}-title`}>
+              <TaycoSectionHeader eyebrow="Certifications & growth" title={update.title} />
+            </div>}
             <dl className="mt-7 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-[#C9A84C]/35 bg-[#070E1A]/65 px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <dt className="text-xs font-medium uppercase tracking-wider text-slate-300">{update.milestone.label}</dt>
@@ -111,10 +116,10 @@ export default function ContractingOpportunities({ compact = false }: { compact?
               <li
                 key={program.id}
                 data-response-kind="surface"
-                className="relative min-w-0 rounded-[22px] border p-5 transition-all duration-200 hover:border-[#E2C675]/60 flex flex-col justify-between text-left"
+                className="relative min-w-0 rounded-[22px] border p-4 sm:p-5 transition-colors duration-200 hover:border-[#E2C675]/60 flex flex-col justify-between text-left"
                 style={{
                   background: "linear-gradient(150deg, rgba(27, 58, 107, 0.28) 0%, rgba(7, 14, 26, 0.72) 100%)",
-                  borderColor: "rgba(201, 168, 76, 0.32)",
+                  borderColor: "rgba(201, 168, 76, 0.24)",
                 }}
               >
                 <div>

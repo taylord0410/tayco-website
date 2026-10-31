@@ -1,3 +1,4 @@
+import { resolveReferenceImages } from '@/lib/reference-images';
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { ErpError, submitWebsite } from '@/lib/erp';
@@ -23,7 +24,7 @@ function validate(input:Record<string,unknown>,kind:string) {
  if(input.w9Path||input.insurancePath)throw new ErpError(422,'Please submit without attachments. Documents can be uploaded securely after account access is provided.');
  const out:Record<string,unknown>={};
   const common=['fullName','phone','email','company','notes'];
-  const fields=kind==='vendor'?['businessName','contactName','phone','email','stateServed','citiesServed','trades','crewSize','yearsInBusiness','insured','notes','docsPending','licenseNumber']:kind==='estimate'?[...common,'projectType','projectLocation','projectDetails','sqft','budgetIllustrationUsd']:[...common,'states','portfolioSize','propertyType','workNeeded','timeline','budget','investmentRange','preferredContact','properties','activeProjects'];
+  const fields=kind==='vendor'?['businessName','contactName','phone','email','stateServed','citiesServed','trades','crewSize','yearsInBusiness','insured','notes','docsPending','licenseNumber']:kind==='estimate'?[...common,'projectType','projectLocation','projectDetails','sqft','budgetIllustrationUsd','referenceImageIds']:[...common,'states','portfolioSize','propertyType','workNeeded','timeline','budget','investmentRange','preferredContact','properties','activeProjects'];
  for(const [key,value] of Object.entries(input)){
   if(key.startsWith('_')||key==='website')continue;
     if(!fields.includes(key))throw new ErpError(422,'This form changed. Please reload and review the fields.');
@@ -33,7 +34,14 @@ function validate(input:Record<string,unknown>,kind:string) {
   else if(Array.isArray(value)&&value.length<=50&&value.every(v=>typeof v==='string'))out[key]=value.map(v=>v.trim().slice(0,200));
   else throw new ErpError(422,'Check the submitted fields.');
  }
- for(const key of (kind==='vendor'?['businessName','contactName','phone','email']:['fullName','phone','email']))if(typeof out[key]!=='string'||!(out[key] as string).trim())throw new ErpError(422,'Please complete '+key.replace(/([A-Z])/g,' $1').toLowerCase()+'.');
+ if (kind === 'estimate') {
+    try {
+      const references = resolveReferenceImages(out.referenceImageIds);
+      out.referenceImageIds = references.map(image => image.id);
+      out.referenceImages = references;
+    } catch (error) { throw new ErpError(422, error instanceof Error ? error.message : 'Review your reference images.'); }
+  }
+  for(const key of (kind==='vendor'?['businessName','contactName','phone','email']:['fullName','phone','email']))if(typeof out[key]!=='string'||!(out[key] as string).trim())throw new ErpError(422,'Please complete '+key.replace(/([A-Z])/g,' $1').toLowerCase()+'.');
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(out.email))||String(out.email).length>254)throw new ErpError(422,'Check your email address.');
  return out;
 }

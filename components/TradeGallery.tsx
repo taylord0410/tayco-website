@@ -1,8 +1,9 @@
 "use client";
+import { ImageReferenceButton } from "@/components/EstimateReferences";
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "@/components/ProtectedImage";
-import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
+import { TaycoModalOverlay, TaycoPillDock } from "@/components/ui/TaycoDesignSystem";
 
 const SECTORS = [
   { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },
@@ -193,11 +194,8 @@ export default function TradeGallery() {
       </div>
 
       {/* Interactive CSI Trade Selection Pills */}
-      <div
-        className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5"
-        role="group"
-        aria-label="Choose a trade"
-      >
+      <div className="flex justify-center">
+      <TaycoPillDock ariaLabel="Choose a trade">
         {TRADES.map((t) => {
           const on = t.slug === active;
           return (
@@ -208,23 +206,13 @@ export default function TradeGallery() {
               data-active={on ? "true" : "false"}
               data-magnetic
               onClick={() => setActive(t.slug)}
-              className="tayco-atelier-pill flex-row gap-2 py-2 px-3.5 sm:px-4 text-xs font-sans font-bold"
+              className="tayco-atelier-pill flex-row gap-2 min-h-11 py-2 px-3.5 sm:px-4 text-xs font-sans font-bold"
             >
-              <span
-                className="text-[10px] font-mono px-2 py-0.5 rounded-full tracking-wider font-bold"
-                style={{
-                  background: on
-                    ? "rgba(6, 13, 26, 0.22)"
-                    : "rgba(201, 168, 76, 0.16)",
-                  color: on ? "#060D1A" : "#F3D37A",
-                }}
-              >
-                {t.csi}
-              </span>
               <span>{t.name}</span>
             </button>
           );
         })}
+      </TaycoPillDock>
       </div>
 
       {/* Active CSI Division Specification Banner */}
@@ -233,7 +221,7 @@ export default function TradeGallery() {
         className="tayco-living-card p-5 sm:p-6 rounded-2xl border flex flex-col lg:flex-row items-center justify-between text-center lg:text-left gap-4 shadow-2xl"
         style={{
           background:
-            "linear-gradient(135deg, #070E1A 0%, #0F2040 58%, #1B3A6B 100%)",
+            "linear-gradient(135deg, #081120 0%, #102039 100%)",
           borderColor: "rgba(201, 168, 76, 0.48)",
         }}
       >
@@ -255,20 +243,13 @@ export default function TradeGallery() {
           >
             Discuss {trade.name.toLowerCase()} →
           </Link>
-          <Link
-            href="/login"
-            data-magnetic
-            className="tayco-atelier-btn-obsidian text-xs font-bold"
-          >
-            Client sign in →
-          </Link>
         </div>
       </div>
 
       {/* 3 Sector Photo Cards per Trade */}
       <div
         className="grid md:grid-cols-3 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
-        role="tabpanel"
+        role="region"
         aria-label={trade.name}
       >
         {SECTORS.map((s, idx) => {
@@ -282,7 +263,7 @@ export default function TradeGallery() {
               className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between group shadow-xl max-md:w-[84vw] max-md:shrink-0 max-md:snap-center"
               style={{
                 background:
-                  "linear-gradient(155deg, #0B172A 0%, #0F2040 55%, #070E1A 100%)",
+                  "linear-gradient(155deg, #102039 0%, #081120 100%)",
                 borderColor: "rgba(201, 168, 76, 0.38)",
               }}
             >
@@ -311,7 +292,7 @@ export default function TradeGallery() {
                       type="button"
                       onClick={() => openZoom(sectorPhotos, idx)}
                       aria-label={`Zoom ${alt}`}
-                      className="project-open cursor-pointer w-8 h-8 rounded-full border flex items-center justify-center transition-all hover:scale-105"
+                      className="project-open cursor-pointer w-11 h-11 rounded-full border flex items-center justify-center transition-all hover:scale-105"
                       style={{
                         background: "rgba(7, 14, 26, 0.72)",
                         borderColor: "rgba(201, 168, 76, 0.42)",
@@ -396,27 +377,6 @@ export default function TradeGallery() {
                   style={{ color: "#F3D37A" }}
                 >
                   Discuss this service →
-                </Link>
-                <Link
-                  href="/login"
-                  className="hover:underline inline-flex items-center gap-1"
-                  style={{ color: "#E2C675" }}
-                >
-                  <span>/portal</span>
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#C9A84C"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <line x1="7" y1="17" x2="17" y2="7" />
-                    <polyline points="7 7 17 7 17 17" />
-                  </svg>
                 </Link>
               </div>
               <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
@@ -528,6 +488,7 @@ export default function TradeGallery() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
+<div className="mb-3"><ImageReferenceButton src={zoomItem.src} /></div>
               <div className="flex items-center justify-between gap-4 mb-3.5">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
@@ -642,16 +603,6 @@ export default function TradeGallery() {
                     }}
                   >
                     Ask about this trade →
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="px-3.5 py-1.5 rounded-full text-xs font-bold border hover:bg-white/10 transition-colors"
-                    style={{
-                      borderColor: "rgba(201, 168, 76, 0.48)",
-                      color: "#F3D37A",
-                    }}
-                  >
-                    Client sign in →
                   </Link>
                 </div>
               </div>

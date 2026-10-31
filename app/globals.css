@@ -574,6 +574,38 @@ svg.orbital-caption,
     inset 0 1px 0 #ffffff;
 }
 
+/* Home uses the Astralis/Umbra surfaces; other editorial pages retain ivory. */
+.tayco-home .section-editorial-ivory {
+  background-color: #081120;
+  background-image:
+    radial-gradient(ellipse at 85% 25%, rgba(201, 168, 76, 0.07), transparent 62%),
+    radial-gradient(ellipse at 10% 80%, rgba(27, 58, 107, 0.18), transparent 58%);
+  color: #E2E8F0;
+}
+
+.tayco-home .editorial-ivory-card,
+.tayco-home .tayco-living-card.editorial-ivory-card {
+  background: radial-gradient(
+    circle at var(--response-px, 50%) var(--response-py, 30%),
+    #15243B,
+    #0B1628 72%
+  ) !important; /* Overrides the legacy B85 ivory surface lock below. */
+  border-color: rgba(201, 168, 76, 0.24) !important;
+  color: #E2E8F0;
+  box-shadow: 0 20px 42px -28px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tayco-home .horizon-land {
+  fill: #081120;
+}
+
+.tayco-home .editorial-ivory-card:hover {
+  border-color: rgba(201, 168, 76, 0.55) !important;
+  box-shadow: 0 28px 54px -26px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(201, 168, 76, 0.12);
+}
+
 .light-experiment {
   padding: 14px;
   border-radius: 28px;
@@ -1449,7 +1481,3 @@ body[data-visibility="hidden"] *, body[data-visibility="hidden"] *::before, body
 .tayco-scrollbar-sleek::-webkit-scrollbar-thumb:hover {
   background: rgba(243, 211, 122, 0.72);
 }
-
-
-
-

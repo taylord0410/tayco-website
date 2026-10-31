@@ -1,0 +1,7 @@
+/* Privacy choices take priority over the optional saved-reference shortcut. */
+body:has([data-testid="public-cookie-banner"]) :is(.estimate-reference-tray, .estimate-reference-tray-spacer) {
+  display: none;
+}
+@media (max-width: 767px) {
+  .estimate-request-form :is(input, select, textarea) { font-size: 16px; }
+}

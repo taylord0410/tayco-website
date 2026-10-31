@@ -1,5 +1,6 @@
 "use client";
 
+import { ImageReferenceButton } from "@/components/EstimateReferences";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import ProtectedImage, {
@@ -1518,6 +1519,8 @@ export function PropertyWalkthroughStudioModal({
               </button>
             </div>
           </div>
+
+          <div className="shrink-0 border-b border-white/10 px-4 py-2"><ImageReferenceButton src={lighting.nightPhotoOpacity > 0.5 ? activeStop.nightSrc : activeStop.src} /></div>
 
           {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
           {marketSpecialties.length > 0 && (

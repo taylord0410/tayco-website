@@ -1,7 +1,8 @@
 "use client";
+import { ImageReferenceButton } from "@/components/EstimateReferences";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
+import { TaycoModalOverlay, TaycoSectionHeader, TaycoPillDock } from "@/components/ui/TaycoDesignSystem";
 import ProtectedImage, {
   preloadProtectedImages,
   waitForDecodedSurfaces,
@@ -373,11 +374,11 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
   },
   {
     id: "m-top-3",
-    title: "Multi-Family Structural Timber & OSB Decking",
+    title: "Townhome Rooftop Timber Framing & Decking",
     trade: "Wood Framing",
     csi: "DIV 06",
-    sector: "Multi-Family",
-    image: "/work/framing_multifamily.jpg",
+    sector: "Townhomes",
+    image: "/curated/properties/mkt-twn-framing-rooftop.jpg",
   },
   {
     id: "m-top-4",
@@ -424,11 +425,11 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
 export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   {
     id: "m-bot-1",
-    title: "Commercial Interior Steel Stud Partition Layout",
-    trade: "Interior Framing",
+    title: "Commercial Retail Millwork & Suspended Ceiling Fit-Out",
+    trade: "Interior Fit-Out",
     csi: "DIV 09",
     sector: "Commercial",
-    image: "/work/framing_commercial.jpg",
+    image: "/curated/commercial/cx_x1.jpg",
   },
   {
     id: "m-bot-2",
@@ -632,44 +633,15 @@ export function TransformationBeforeAfterStudio({
       }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Top Eyebrow Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-8 border-b border-white/10 text-center">
-          <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
-            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-            {eyebrowLabel}
-          </span>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-slate-300">
-            12 PIXEL-LOCKED FIELD TRANSFORMATIONS · 50/50 CURTAIN + X-RAY LOUPE
-          </span>
-        </div>
-
-        {/* Heading + Division Filter Tabs */}
-        <div className="flex flex-col items-center justify-center text-center gap-6 mb-10 max-w-4xl mx-auto">
-          <div>
-            <h2
-              className="tayco-display-title text-white tracking-tight text-center mx-auto"
-              style={{ fontSize: "clamp(2rem, 4.2vw, 3.4rem)", lineHeight: 1.04 }}
-            >
-              From raw condition to{" "}
-              <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                finished execution.
-              </em>
-            </h2>
-            <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl mx-auto text-center leading-relaxed">
-              Slide the 50/50 comparison curtain or switch to{" "}
-              <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
-                Structural X-Ray Lens
-              </span>{" "}
-              to inspect the underlying framing, substrate preparation and final turnkey finish across four core divisions.
-            </p>
-          </div>
-
+        <TaycoSectionHeader
+          eyebrow={eyebrowLabel}
+          title={<>From raw condition to <em className="tayco-serif-em text-[#F3D37A]">finished execution.</em></>}
+          subtitle="Compare twelve transformations with the before-and-after curtain or structural X-ray lens. Choose a division to explore its field execution."
+          className="mb-6"
+        />
+        <div className="flex flex-col items-center gap-6 mb-10">
           {/* Division Tabs */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-2"
-            role="group"
-            aria-label="Filter transformations by division"
-          >
+          <TaycoPillDock ariaLabel="Filter transformations by division">
             {[
               { id: "all", label: "All Divisions", count: 12 },
               { id: "div01", label: "Structural & Millwork", count: 3 },
@@ -684,6 +656,7 @@ export function TransformationBeforeAfterStudio({
                   type="button"
                   data-magnetic
                   data-active={active ? "true" : "false"}
+                  aria-pressed={active}
                   onClick={() => {
                     const nextDiv = tab.id as TransformationDivision;
                     setActiveDivision(nextDiv);
@@ -702,7 +675,7 @@ export function TransformationBeforeAfterStudio({
                 </button>
               );
             })}
-          </div>
+          </TaycoPillDock>
         </div>
 
         {/* Main Interactive Stage + Telemetry Panel */}
@@ -884,38 +857,38 @@ export function TransformationBeforeAfterStudio({
                 <button
                   type="button"
                   onClick={() => setInspectMode("split")}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer"
+                  className="home-compact-control px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer"
                   style={{
                     background: inspectMode === "split" ? "#C9A84C" : "rgba(7, 14, 26, 0.65)",
                     color: inspectMode === "split" ? "#070E1A" : "#E2E8F0",
                     borderColor: inspectMode === "split" ? "#F3D37A" : "rgba(201, 168, 76, 0.35)",
                   }}
                 >
-                  ↔ 50/50 Drag Curtain
+                  ↔ Compare
                 </button>
                 <button
                   type="button"
                   onClick={() => setInspectMode("xray")}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer"
+                  className="home-compact-control px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer"
                   style={{
                     background: inspectMode === "xray" ? "#C9A84C" : "rgba(7, 14, 26, 0.65)",
                     color: inspectMode === "xray" ? "#070E1A" : "#E2E8F0",
                     borderColor: inspectMode === "xray" ? "#F3D37A" : "rgba(201, 168, 76, 0.35)",
                   }}
                 >
-                  ◎ Structural X-Ray Loupe
+                  ◎ X-ray
                 </button>
               </div>
 
               {/* Quick Curtain Presets */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mr-1">
                   Quick Snap:
                 </span>
                 {[
-                  { label: "Raw (100% Before)", val: 96 },
-                  { label: "50 / 50 Split", val: 50 },
-                  { label: "Finished (100% After)", val: 4 },
+                  { label: "Before", val: 96 },
+                  { label: "50 / 50", val: 50 },
+                  { label: "After", val: 4 },
                 ].map((preset) => (
                   <button
                     key={preset.label}
@@ -924,7 +897,7 @@ export function TransformationBeforeAfterStudio({
                       setInspectMode("split");
                       setSplitPercent(preset.val);
                     }}
-                    className="px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border transition-colors cursor-pointer hover:text-white"
+                    className="home-compact-control px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border transition-colors cursor-pointer hover:text-white"
                     style={{
                       background:
                         inspectMode === "split" && Math.abs(splitPercent - preset.val) <= 5
@@ -974,24 +947,13 @@ export function TransformationBeforeAfterStudio({
                 <h3 className="tayco-card-title text-xl sm:text-2xl text-white leading-snug text-center">
                   {activePair.title}
                 </h3>
-                <p
-                  className="text-xs font-mono font-bold uppercase tracking-wider mt-1.5 text-center"
-                  style={{ color: "#C9A84C" }}
-                >
+                <p className="home-study-summary text-sm text-slate-300 mt-4 leading-relaxed text-left">
                   {activePair.subtitle}
                 </p>
 
-                <p className="text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed text-center">
-                  {activePair.summary}
-                </p>
-
-                <div className="mt-5 pt-4 border-t border-white/10 w-full">
-                  <div
-                    className="text-[10px] font-mono font-bold uppercase tracking-widest mb-2.5 text-center"
-                    style={{ color: "#F3D37A" }}
-                  >
-                    Verified Field Execution Scope
-                  </div>
+                <details className="home-reading-details mt-4 w-full">
+                  <summary>Scope details <span aria-hidden="true">＋</span></summary>
+                  <p className="text-sm text-slate-300 leading-relaxed mb-4">{activePair.summary}</p>
                   <ul className="space-y-2 inline-flex flex-col items-start mx-auto">
                     {activePair.highlights.map((item) => (
                       <li
@@ -1006,31 +968,32 @@ export function TransformationBeforeAfterStudio({
                       </li>
                     ))}
                   </ul>
-                </div>
+                </details>
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
+                <ImageReferenceButton src={activePair.afterImg} label="Save finished reference" />
                 <Link
                   href="/estimate"
                   data-magnetic
                   className="tayco-atelier-btn-gold w-full text-center py-3 text-xs tracking-wider"
                 >
-                  <span>Request Estimate for Similar Scope →</span>
+                  <span>Discuss this project →</span>
                 </Link>
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/commercial"
                     data-magnetic
-                    className="tayco-atelier-btn-obsidian w-full text-center py-2 text-[11px]"
+                    className="home-text-action"
                   >
-                    Commercial Scope →
+                    Commercial →
                   </Link>
                   <Link
                     href="/residential"
                     data-magnetic
-                    className="tayco-atelier-btn-obsidian w-full text-center py-2 text-[11px]"
+                    className="home-text-action"
                   >
-                    Residential Scope →
+                    Residential →
                   </Link>
                 </div>
               </div>
@@ -1173,8 +1136,7 @@ export function DualTrackArchitecturalMarquee() {
       >
         {({ stageGestureHandlers }) => (
           <div
-            {...stageGestureHandlers}
-            className="max-w-4xl w-full rounded-[26px] border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
+            className="max-w-4xl w-full max-h-[calc(100dvh-32px)] flex flex-col rounded-[26px] border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
             style={{
               background: "rgba(11, 22, 42, 0.98)",
               borderColor: "#C9A84C",
@@ -1183,16 +1145,20 @@ export function DualTrackArchitecturalMarquee() {
           >
             {selectedShot && (
               <>
-                <div className="relative h-72 sm:h-[460px] w-full bg-[#040811]">
+                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-2">
+                  <p className="text-xs text-slate-300">Photograph · {selectedShot.csi}</p>
+                  <button type="button" autoFocus onClick={() => setSelectedShot(null)} aria-label="Close photograph" className="min-h-11 rounded-xl border border-amber-200/30 px-3 text-sm text-amber-100 cursor-pointer">Close ✕</button>
+                </header>
+                <div {...stageGestureHandlers} className="relative h-[min(45dvh,460px)] shrink-0 w-full bg-[#040811]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <ProtectedImage
                     src={selectedShot.image}
                     auditIgnore={true}
                     alt={selectedShot.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-white/10">
+                <div tabIndex={0} className="min-h-0 overflow-y-auto overscroll-contain p-4 border-t border-white/10">
                   <div>
                     <div className="flex items-center gap-2">
                       <span
@@ -1205,19 +1171,10 @@ export function DualTrackArchitecturalMarquee() {
                         {selectedShot.trade} · {selectedShot.sector}
                       </span>
                     </div>
+                    <ImageReferenceButton src={selectedShot.image} />
                     <div className="text-lg font-black text-white mt-1">
                       {selectedShot.title}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <button
-                      type="button"
-                      data-magnetic
-                      onClick={() => setSelectedShot(null)}
-                      className="tayco-atelier-btn-gold px-5 py-2.5 text-xs tracking-wider cursor-pointer"
-                    >
-                      Close Full-Screen View ✕
-                    </button>
                   </div>
                 </div>
               </>
@@ -1324,7 +1281,6 @@ export function RegionalStateFootprintStrip() {
   const {
     displayIdx: hubIdx,
     targetIdx: selectedHubIdx,
-    syncPulse: hubPulse,
     selectScene: selectHubIdx,
   } = useSynchronizedScene(
     REGIONAL_STATE_HUBS.length,
@@ -1342,7 +1298,7 @@ export function RegionalStateFootprintStrip() {
       className="mt-5 pt-4 border-t border-white/15 flex flex-col lg:flex-row items-center justify-between gap-4"
       aria-label="Interactive 8-State Service Footprint"
     >
-      <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5">
+      <TaycoPillDock ariaLabel="Choose a service state">
         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-200/90 mr-1.5">
           8-State Dispatch:
         </span>
@@ -1352,9 +1308,10 @@ export function RegionalStateFootprintStrip() {
             <button
               key={hub.state}
               type="button"
+              aria-pressed={selected}
               onClick={() => selectHubIdx(hIdx)}
               onPointerEnter={() => selectHubIdx(hIdx)}
-              className="px-2.5 py-1 rounded-lg text-xs font-mono font-black transition-all cursor-pointer border"
+              className="min-h-11 min-w-11 px-2.5 py-2 rounded-full text-xs font-mono font-black transition-colors cursor-pointer border"
               style={{
                 background: selected ? "#C9A84C" : "rgba(7, 14, 26, 0.65)",
                 color: selected ? "#070E1A" : "#F3D37A",
@@ -1365,7 +1322,7 @@ export function RegionalStateFootprintStrip() {
             </button>
           );
         })}
-      </div>
+      </TaycoPillDock>
 
       <div
         className="flex items-center gap-3 px-3.5 py-2 rounded-xl border w-full lg:w-auto justify-between lg:justify-end"
@@ -1382,7 +1339,7 @@ export function RegionalStateFootprintStrip() {
             className="w-11 h-9 rounded-lg object-cover border shrink-0"
             style={{ borderColor: "rgba(201, 168, 76, 0.55)" }}
           />
-          <div key={`hub-copy-${hubPulse}`} className="tayco-harmonic-sync text-left min-w-0">
+          <div className="text-left min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-black text-white">
                 {currentHub.name} ({currentHub.state})

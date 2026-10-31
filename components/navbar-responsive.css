@@ -1,0 +1,59 @@
+/* The complete command bar needs room for the brand, seven links and actions.
+   Keep a compact navigation until that space is available instead of shrinking
+   the brand into an overflow-hidden slot. */
+.tayco-site-header .tayco-brand {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.tayco-site-header .tayco-brand-mark {
+  flex: 0 0 42px;
+  min-width: 42px;
+  min-height: 42px;
+}
+.tayco-site-header .tayco-brand-name {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.tayco-site-header .tayco-nav-bar {
+  padding-left: max(clamp(.75rem, 2.2vw, 2rem), env(safe-area-inset-left));
+  padding-right: max(clamp(.75rem, 2.2vw, 2rem), env(safe-area-inset-right));
+}
+.tayco-site-header .tayco-desktop-navigation {
+  display: none;
+}
+.tayco-site-header .tayco-mobile-actions {
+  display: inline-flex;
+}
+.tayco-site-header .tayco-mobile-navigation:not([hidden]) {
+  display: block;
+}
+.tayco-site-header :is(.tayco-nav-signin, .tayco-nav-estimate, .tayco-motion-control) {
+  min-height: 44px;
+}
+.tayco-site-header .tayco-mobile-navigation {
+  scroll-padding-block: 1rem;
+}
+@media (max-width: 359px) {
+  .tayco-site-header .tayco-brand-name strong {
+    font-size: 1.05rem;
+    letter-spacing: .04em;
+  }
+  .tayco-site-header .tayco-brand { gap: .4rem; }
+  .tayco-site-header .tayco-mobile-actions { gap: .35rem; }
+}
+@media (min-width: 1440px) {
+  .tayco-site-header .tayco-desktop-navigation {
+    display: flex;
+    min-width: 0;
+    gap: .5rem;
+    margin-left: 0;
+  }
+  .tayco-site-header .tayco-nav-pill-dock .tayco-nav-link {
+    padding-inline: .65rem;
+    flex-shrink: 0;
+  }
+  .tayco-site-header .tayco-mobile-actions,
+  .tayco-site-header .tayco-mobile-navigation:not([hidden]) {
+    display: none;
+  }
+}

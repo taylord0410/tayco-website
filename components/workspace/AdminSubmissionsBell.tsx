@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { referencesFromPayload } from "@/lib/reference-images";
+import { AdminReferenceImages } from "@/components/EstimateReferences";
 import type { WebsiteSubmissionItem } from "@/lib/erp";
 
 const FORM_BADGE: Record<
@@ -252,7 +254,9 @@ export function AdminSubmissionsBell({
                       {item.senderPhone ? ` · ${item.senderPhone}` : ""}
                       {item.location ? ` · ${item.location}` : ""}
                     </p>
-                    {item.summary && (
+                    {referencesFromPayload(item.payload).length > 0 && <p className="mt-2 text-xs text-amber-200">{referencesFromPayload(item.payload).length} image references attached</p>}
+
+                {item.summary && (
                       <p className="mt-1.5 line-clamp-2 text-xs text-slate-300/90">
                         {item.summary}
                       </p>
@@ -636,7 +640,7 @@ export function AdminSubmissionsInbox({
                         ? "Trades & Crew"
                         : item.formKind === "investor"
                           ? "Portfolio / Work Needed"
-                          : "Project Type & Estimator"}
+                          : "Project Type"}
                     </dt>
                     <dd className="mt-1 font-semibold text-amber-200">
                       {item.formKind === "vendor"
@@ -647,6 +651,8 @@ export function AdminSubmissionsInbox({
                     </dd>
                   </div>
                 </dl>
+
+<AdminReferenceImages payload={p} />
 
                 {item.summary && (
                   <div className="mt-4 rounded-xl border border-amber-200/20 bg-[#071326] p-4">

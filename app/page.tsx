@@ -1,18 +1,19 @@
 "use client";
+import { ImageReferenceButton } from "@/components/EstimateReferences";
+import "@/components/home-editorial.css";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   TaycoModalOverlay,
-  TaycoCardMetaBar,
-  TaycoCardFooterBar,
+  TaycoSectionHeader,
+  TaycoPillDock,
 } from "@/components/ui/TaycoDesignSystem";
+import { HomeEditorialCard, HomeEditorialGallery, type HomeGallerySelection } from "@/components/HomeEditorialCard";
 import { COMPANY } from "@/lib/company";
 import ContractingOpportunities from "@/components/ContractingOpportunities";
 import TradeGallery from "@/components/TradeGallery";
-import ProtectedImage, { preloadProtectedImages, waitForDecodedSurfaces } from "@/components/ProtectedImage";
+import ProtectedImage, { preloadProtectedImages } from "@/components/ProtectedImage";
 import {
-  COMMERCIAL_HERO_SCENES,
-  RESIDENTIAL_HERO_SCENES,
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
   RegionalStateFootprintStrip,
@@ -68,8 +69,8 @@ const TAYCO_SHOWCASE_CARDS: Array<{
       },
       {
         src: "/curated/properties/mkt-mf-framing-trusses.jpg",
-        caption: "Cold-Formed Structural Steel Engineering",
-        csi: "DIV 05 · FRAMING",
+        caption: "Engineered Timber Framing & Trusses",
+        csi: "DIV 06 · FRAMING",
       },
       {
         src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
@@ -354,7 +355,6 @@ const PROJECT_STEPS = [
     phase: "Initial inquiry & site survey",
     status: "Step 01 · Site & Scope",
     requestHref: "/estimate",
-    loginHref: "/login",
     accent: "#C9A84C",
     image: "/curated/properties/mkt-twn-concrete-drive.jpg",
     csiTag: "CSI DIV 01 / 31 · SURVEY & SITE PREP",
@@ -374,7 +374,6 @@ const PROJECT_STEPS = [
     phase: "Structural execution",
     status: "Step 02 · Framing & Structure",
     requestHref: "/estimate",
-    loginHref: "/login",
     accent: "#DFC06C",
     image: "/curated/properties/mkt-mf-framing.jpg",
     csiTag: "CSI DIV 05 / 06 · STEEL & WOOD FRAMING",
@@ -394,7 +393,6 @@ const PROJECT_STEPS = [
     phase: "Rough-in & drywall",
     status: "Step 03 · Drywall & Rough-In",
     requestHref: "/estimate",
-    loginHref: "/login",
     accent: "#C9A84C",
     image: "/curated/properties/mkt-twn-drywall-gallery.jpg",
     csiTag: "CSI DIV 07 / 09 · INSULATION & GYPSUM",
@@ -414,7 +412,6 @@ const PROJECT_STEPS = [
     phase: "Interior finishes",
     status: "Step 04 · Millwork & Surfaces",
     requestHref: "/estimate",
-    loginHref: "/login",
     accent: "#E2C675",
     image: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
     csiTag: "CSI DIV 06 / 09 · MILLWORK & FLOORING",
@@ -434,7 +431,6 @@ const PROJECT_STEPS = [
     phase: "Closeout & warranty",
     status: "Step 05 · Final Handover",
     requestHref: "/estimate",
-    loginHref: "/login",
     accent: "#F3D37A",
     image: "/curated/properties/mkt-com-stone-colonnade.jpg",
     csiTag: "CSI DIV 04 / 07 / 08 · ENVELOPE & CLOSEOUT",
@@ -477,90 +473,26 @@ const COLOR_TEMPERATURES: Array<{
 ];
 
 export default function Home() {
-  const [hovered, setHovered] = useState<"commercial" | "residential" | null>(
-    null
-  );
-  const [comSceneIdx, setComSceneIdx] = useState<number>(0);
-  const [resSceneIdx, setResSceneIdx] = useState<number>(0);
-  const [heroSyncPulse, setHeroSyncPulse] = useState<number>(0);
-  const selectComScene = (idx: number) => {
-    const target = COMMERCIAL_HERO_SCENES[idx] ?? COMMERCIAL_HERO_SCENES[0];
-    waitForDecodedSurfaces([target.image]).then(() => {
-      setComSceneIdx(idx);
-      setHeroSyncPulse((p) => p + 1);
-    });
-  };
-  const selectResScene = (idx: number) => {
-    const target = RESIDENTIAL_HERO_SCENES[idx] ?? RESIDENTIAL_HERO_SCENES[0];
-    waitForDecodedSurfaces([target.image]).then(() => {
-      setResSceneIdx(idx);
-      setHeroSyncPulse((p) => p + 1);
-    });
-  };
-  const selectCardFrame = (cardId: string, fIdx: number, urls: string[]) => {
-    waitForDecodedSurfaces(urls).then(() => {
-      setCardFrameMap((prev) => ({ ...prev, [cardId]: fIdx }));
-    });
-  };
   const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
-  const [cardFrameMap, setCardFrameMap] = useState<Record<string, number>>({});
+  const [gallery, setGallery] = useState<HomeGallerySelection | null>(null);
   const [activeStudy, setActiveStudy] = useState<number>(0);
   const [lightAngle, setLightAngle] = useState<number>(38);
   const [colorTemp, setColorTemp] = useState<"daylight" | "gallery" | "dusk">(
     "gallery"
   );
-  const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
   const [expandedLightbox, setExpandedLightbox] = useState<{
     src: string;
     title: string;
     subtitle?: string;
   } | null>(null);
 
-  // Preload Hero scenes + Light Studio + 5-Phase Spotlight in background
+  // Preload Light Studio + 5-Phase Spotlight in background
   useEffect(() => {
     preloadProtectedImages([
-      ...COMMERCIAL_HERO_SCENES.map((s) => s.image),
-      ...RESIDENTIAL_HERO_SCENES.map((s) => s.image),
       ...LIGHT_STUDIES.map((s) => s.image),
       ...PROJECT_STEPS.map((s) => s.image),
     ]);
   }, []);
-
-  // Auto-cycle Hero Commercial & Residential scenes when not hovered
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      if (hovered !== "commercial" && hovered !== "residential") {
-        const nextComIdx = (comSceneIdx + 1) % COMMERCIAL_HERO_SCENES.length;
-        const nextResIdx = (resSceneIdx + 1) % RESIDENTIAL_HERO_SCENES.length;
-        waitForDecodedSurfaces([
-          COMMERCIAL_HERO_SCENES[nextComIdx]?.image ?? "",
-          RESIDENTIAL_HERO_SCENES[nextResIdx]?.image ?? "",
-        ]).then(() => {
-          setComSceneIdx(nextComIdx);
-          setResSceneIdx(nextResIdx);
-          setHeroSyncPulse((p) => p + 1);
-        });
-      } else if (hovered === "residential") {
-        selectComScene((comSceneIdx + 1) % COMMERCIAL_HERO_SCENES.length);
-      } else if (hovered === "commercial") {
-        selectResScene((resSceneIdx + 1) % RESIDENTIAL_HERO_SCENES.length);
-      }
-    }, 6000);
-    return () => window.clearInterval(id);
-  }, [hovered, comSceneIdx, resSceneIdx]);
-
-  const commercialFlex =
-    hovered === "residential"
-      ? "0 0 38%"
-      : hovered === "commercial"
-        ? "0 0 62%"
-        : "0 0 50%";
-  const residentialFlex =
-    hovered === "commercial"
-      ? "0 0 38%"
-      : hovered === "residential"
-        ? "0 0 62%"
-        : "0 0 50%";
 
   const filteredCards =
     activeFilter === "all"
@@ -574,15 +506,9 @@ export default function Home() {
   const lightY = Math.round(66 - Math.sin((lightAngle * Math.PI) / 180) * 42);
   const beamX = Math.round(16 + (lightAngle / 90) * 68);
   const shadowContrast = (1.18 - (lightAngle / 90) * 0.22).toFixed(2);
-  const activeStep = PROJECT_STEPS[activeStepIdx] ?? PROJECT_STEPS[0];
-  const activeComScene =
-    COMMERCIAL_HERO_SCENES[comSceneIdx] ?? COMMERCIAL_HERO_SCENES[0];
-  const activeResScene =
-    RESIDENTIAL_HERO_SCENES[resSceneIdx] ?? RESIDENTIAL_HERO_SCENES[0];
-
   return (
     <main
-      className="relative flex flex-col"
+      className="tayco-home relative flex flex-col"
       style={
         {
           minHeight: "calc(100svh - 64px)",
@@ -598,551 +524,6 @@ export default function Home() {
 
       {/* ── 01 / FOUR PRIMARY CONSTRUCTION MARKETS FIRST (SINGLE-FAMILY HOMES, MULTIFAMILY, TOWNHOMES, COMMERCIAL) ── */}
       <LandingPropertyCategoriesSection />
-
-      {/* ── SPLIT HERO 50/50 WITH CURATED 12-SCENE ARCHITECTURAL CYCLER ── */}
-      <div
-        className="relative flex-1 flex flex-col md:flex-row overflow-hidden"
-        style={{ minHeight: "80svh" }}
-        onPointerMove={(e) => {
-          if (typeof window !== "undefined" && window.innerWidth >= 768) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            if (rect.width > 0) {
-              const ratio = (e.clientX - rect.left) / rect.width;
-              if (ratio < 0.46) {
-                if (hovered !== "commercial") setHovered("commercial");
-              } else if (ratio > 0.54) {
-                if (hovered !== "residential") setHovered("residential");
-              }
-            }
-          }
-        }}
-        onPointerLeave={() => setHovered(null)}
-      >
-        {/* ── COMMERCIAL (LEFT / TOP) ── */}
-        <div
-          role="region"
-          aria-label="Commercial Construction Division"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 pb-20 min-w-0"
-          style={{
-            flex: commercialFlex,
-            background: "#070E1A",
-            transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
-            minHeight: "50%",
-            willChange: "flex",
-          }}
-          onFocus={() => setHovered("commercial")}
-          onBlur={() => setHovered(null)}
-        >
-          {/* Curated 6-Scene Commercial Backdrop Cycler */}
-          <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-            <ProtectedImage
-              src={activeComScene.image}
-              syncUrls={[activeComScene.image, activeResScene.image]}
-              alt=""
-              loading="eager"
-              className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
-            />
-            {/* Calibrated Navy & Gold Architectural Vignette */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(155deg, rgba(7, 14, 26, 0.88) 0%, rgba(15, 32, 64, 0.68) 48%, rgba(7, 14, 26, 0.92) 100%)",
-              }}
-            />
-          </div>
-
-          <div className="preview-orbits" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-
-          {/* Blueprint grid */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(201,168,76,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.07) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-
-          {/* Gold accent line */}
-          <div
-            className="absolute left-0 top-0 bottom-0 hidden md:block w-1.5 rounded-full z-10"
-            style={{ background: "#C9A84C" }}
-          />
-          <div
-            className="absolute left-0 right-0 top-0 md:hidden h-1.5 rounded-full z-10"
-            style={{ background: "#C9A84C" }}
-          />
-
-          <div className="relative z-10 text-center px-6 sm:px-10 w-full max-w-xl shrink-0">
-            <div
-              className="tayco-eyebrow mb-3 mx-auto justify-center"
-              style={{ color: "#F3D37A" }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F3D37A"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                className="inline-block shrink-0"
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              Primary Service · Commercial Construction
-            </div>
-
-            <div
-              className="w-13 h-13 rounded-2xl border flex items-center justify-center mx-auto mb-4 shadow-inner backdrop-blur-md"
-              style={{
-                background: "rgba(7, 14, 26, 0.72)",
-                borderColor: "rgba(201, 168, 76, 0.55)",
-              }}
-              aria-hidden="true"
-            >
-              <svg
-                width="25"
-                height="25"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F3D37A"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 21h18" />
-                <path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16" />
-                <path d="M15 21V9h4a1 1 0 0 1 1 1v11" />
-                <path d="M8 7h4" />
-                <path d="M8 11h4" />
-                <path d="M8 15h4" />
-              </svg>
-            </div>
-
-            <Link href="/commercial" className="inline-block">
-              <h2
-                className="tayco-display-title font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
-                style={{
-                  fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-                  lineHeight: 1.04,
-                }}
-              >
-                COMMERCIAL
-              </h2>
-            </Link>
-
-            <p
-              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3"
-              style={{ color: "#C9A84C" }}
-            >
-              Ground-Up, Turnkey &amp;{" "}
-              <em
-                className="tayco-serif-em text-sm"
-                style={{ color: "#F3D37A" }}
-              >
-                Tenant Improvements
-              </em>
-            </p>
-
-            <p className="text-slate-100 text-xs sm:text-sm leading-relaxed mb-5 max-w-[380px] mx-auto drop-shadow">
-              Ground-Up Construction · Design-Build Services · General
-              Contracting · Tenant Improvements · Multi-Family &amp; Industrial
-            </p>
-
-            {/* Interactive 6-Scene Commercial Discipline Selector Chips */}
-            <div
-              className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
-              role="group"
-              aria-label="Preview commercial construction disciplines"
-            >
-              {COMMERCIAL_HERO_SCENES.map((scene, idx) => {
-                const active = idx === comSceneIdx;
-                return (
-                  <button
-                    key={scene.id}
-                    type="button"
-                    onClick={() => selectComScene(idx)}
-                    onPointerEnter={() => selectComScene(idx)}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
-                    style={{
-                      background: active
-                        ? "rgba(201, 168, 76, 0.92)"
-                        : "rgba(7, 14, 26, 0.72)",
-                      color: active ? "#070E1A" : "#E2E8F0",
-                      borderColor: active
-                        ? "#F3D37A"
-                        : "rgba(201, 168, 76, 0.35)",
-                    }}
-                  >
-                    {scene.chip}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Live Active Scene Telemetry HUD */}
-            <div
-              key={`com-hud-${comSceneIdx}-${heroSyncPulse}`}
-              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3 tayco-harmonic-sync"
-              style={{
-                background: "rgba(7, 14, 26, 0.78)",
-                borderColor: "rgba(201, 168, 76, 0.42)",
-              }}
-            >
-              <div className="min-w-0">
-                <div
-                  className="text-[9px] font-mono font-bold uppercase tracking-widest truncate"
-                  style={{ color: "#F3D37A" }}
-                >
-                  {activeComScene.csiCode}
-                </div>
-                <div className="text-xs font-bold text-white truncate">
-                  {activeComScene.title}
-                </div>
-              </div>
-              <span
-                className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(201,168,76,0.22)", color: "#F3D37A" }}
-              >
-                0{comSceneIdx + 1}/06
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/commercial"
-                data-magnetic
-                className="tayco-atelier-btn-gold text-center"
-              >
-                View Commercial Services <span>→</span>
-              </Link>
-              <Link
-                href="/properties/commercial"
-                data-magnetic
-                className="tayco-atelier-btn-obsidian text-center"
-              >
-                Commercial Properties (6) <span>↗</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div
-          className="hidden md:block w-px shrink-0 z-20"
-          style={{ background: "rgba(201,168,76,0.45)" }}
-        />
-        <div
-          className="md:hidden h-px shrink-0 z-20"
-          style={{ background: "rgba(201,168,76,0.45)" }}
-        />
-
-        {/* ── ROTATING ORBITAL EDITORIAL STAMP (CENTER / TOP-RIGHT) ── */}
-        <div
-          className="hidden md:flex position-absolute items-center justify-center pointer-events-none"
-          style={{
-            position: "absolute",
-            top: "24px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 25,
-          }}
-          aria-hidden="true"
-        >
-          <div
-            className="orbital-caption rounded-full backdrop-blur-md border shadow-2xl p-1"
-            style={{
-              background: "rgba(7, 14, 26, 0.88)",
-              borderColor: "rgba(201, 168, 76, 0.5)",
-            }}
-          >
-            <svg viewBox="0 0 120 120">
-              <defs>
-                <path
-                  id="tayco-orbit-path"
-                  d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"
-                />
-              </defs>
-              <text>
-                <textPath href="#tayco-orbit-path" startOffset="0%">
-                  TAYCO LLC · CONSTRUCTION &amp; RENOVATION · 8 STATES ·
-                </textPath>
-              </text>
-            </svg>
-            <span aria-hidden="true" style={{ color: "#F3D37A" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <ProtectedImage
-                src="/logo.png"
-                auditIgnore={true}
-                alt="TAYCO LLC"
-                className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(201,168,76,0.45)]"
-              />
-            </span>
-          </div>
-        </div>
-
-        {/* ── RESIDENTIAL (RIGHT / BOTTOM) ── */}
-        <div
-          role="region"
-          aria-label="Residential Renovation & Restoration Division"
-          className="relative flex flex-col items-center justify-center overflow-hidden group py-12 pb-20 min-w-0"
-          style={{
-            flex: residentialFlex,
-            background: "#0B172A",
-            transition: "flex 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)",
-            minHeight: "50%",
-            willChange: "flex",
-          }}
-          onFocus={() => setHovered("residential")}
-          onBlur={() => setHovered(null)}
-        >
-          {/* Curated 6-Scene Residential Backdrop Cycler */}
-          <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-            <ProtectedImage
-              src={activeResScene.image}
-              syncUrls={[activeComScene.image, activeResScene.image]}
-              alt=""
-              loading="eager"
-              className="absolute inset-0 w-full h-full object-cover tayco-hero-kenburns opacity-55"
-            />
-            {/* Calibrated Deep Navy & Warm Champagne Vignette */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(155deg, rgba(11, 23, 42, 0.88) 0%, rgba(19, 39, 71, 0.66) 50%, rgba(7, 14, 26, 0.92) 100%)",
-              }}
-            />
-          </div>
-
-          <div className="preview-orbits" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-
-          {/* Architectural grid */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(243,211,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(243,211,122,0.05) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-
-          {/* Right Champagne Gold Accent Line */}
-          <div
-            className="absolute right-0 top-0 bottom-0 hidden md:block w-1.5 rounded-full z-10"
-            style={{ background: "#E2C675" }}
-          />
-
-          <div className="relative z-10 text-center px-6 sm:px-10 w-full max-w-xl shrink-0">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] mb-3 backdrop-blur-md"
-              style={{
-                background: "rgba(201, 168, 76, 0.18)",
-                color: "#F3D37A",
-                border: "1px solid rgba(201, 168, 76, 0.48)",
-              }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#E2C675" }} />
-              Residential Division · Fire &amp; Water Restoration
-            </div>
-
-            <div
-              className="w-13 h-13 rounded-2xl border flex items-center justify-center mx-auto mb-4 shadow-inner backdrop-blur-md"
-              style={{
-                background: "rgba(7, 14, 26, 0.72)",
-                borderColor: "rgba(226, 198, 117, 0.55)",
-              }}
-              aria-hidden="true"
-            >
-              <svg
-                width="25"
-                height="25"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F3D37A"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 10.5 12 3l9 7.5" />
-                <path d="M5 9.5V21h14V9.5" />
-                <path d="M9 21v-6h6v6" />
-              </svg>
-            </div>
-
-            <Link href="/residential" className="inline-block">
-              <h2
-                className="tayco-display-title font-black tracking-tight text-white mb-1.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.65)]"
-                style={{
-                  fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-                  lineHeight: 1.04,
-                }}
-              >
-                RESIDENTIAL
-              </h2>
-            </Link>
-
-            <p
-              className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3"
-              style={{ color: "#C9A84C" }}
-            >
-              Renovation &amp;{" "}
-              <em
-                className="tayco-serif-em text-sm"
-                style={{ color: "#F3D37A" }}
-              >
-                Rapid Recovery
-              </em>
-            </p>
-
-            <p className="text-slate-100 text-xs sm:text-sm leading-relaxed mb-5 max-w-[380px] mx-auto drop-shadow">
-              Full-scale home renovations · Kitchen &amp; bath remodels · Custom
-              carpentry &amp; decks · Certified fire &amp; water damage restoration
-            </p>
-
-            {/* Interactive 6-Scene Residential Discipline Selector Chips */}
-            <div
-              className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
-              role="group"
-              aria-label="Preview residential construction disciplines"
-            >
-              {RESIDENTIAL_HERO_SCENES.map((scene, idx) => {
-                const active = idx === resSceneIdx;
-                return (
-                  <button
-                    key={scene.id}
-                    type="button"
-                    onClick={() => selectResScene(idx)}
-                    onPointerEnter={() => selectResScene(idx)}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border backdrop-blur-md"
-                    style={{
-                      background: active
-                        ? "rgba(243, 211, 122, 0.92)"
-                        : "rgba(7, 14, 26, 0.72)",
-                      color: active ? "#070E1A" : "#E2E8F0",
-                      borderColor: active
-                        ? "#F3D37A"
-                        : "rgba(243, 211, 122, 0.35)",
-                    }}
-                  >
-                    {scene.chip}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Live Active Scene Telemetry HUD */}
-            <div
-              key={`res-hud-${resSceneIdx}-${heroSyncPulse}`}
-              className="mb-5 px-3.5 py-2 rounded-xl border backdrop-blur-md text-left mx-auto max-w-md flex items-center justify-between gap-3 tayco-harmonic-sync"
-              style={{
-                background: "rgba(7, 14, 26, 0.78)",
-                borderColor: "rgba(243, 211, 122, 0.42)",
-              }}
-            >
-              <div className="min-w-0">
-                <div
-                  className="text-[9px] font-mono font-bold uppercase tracking-widest truncate"
-                  style={{ color: "#F3D37A" }}
-                >
-                  {activeResScene.csiCode}
-                </div>
-                <div className="text-xs font-bold text-white truncate">
-                  {activeResScene.title}
-                </div>
-              </div>
-              <span
-                className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(243,211,122,0.22)", color: "#F3D37A" }}
-              >
-                0{resSceneIdx + 1}/06
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center gap-2.5">
-              <Link
-                href="/residential"
-                data-magnetic
-                className="tayco-atelier-btn-gold text-center"
-              >
-                View Residential Services <span>→</span>
-              </Link>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <Link
-                  href="/properties/single-family"
-                  data-magnetic
-                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
-                >
-                  Single-Family Homes ↗
-                </Link>
-                <Link
-                  href="/properties/duplexes"
-                  data-magnetic
-                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
-                >
-                  Multifamily ↗
-                </Link>
-                <Link
-                  href="/properties/townhouses"
-                  data-magnetic
-                  className="tayco-atelier-btn-obsidian text-[11px] py-1.5 px-3"
-                >
-                  Townhomes ↗
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project services and resources */}
-        <div
-          className="hidden xl:flex items-center gap-3 px-5 py-2.5 rounded-full border backdrop-blur-md shadow-2xl absolute bottom-4 left-1/2 -translate-x-1/2 z-20"
-          style={{
-            background: "rgba(15, 32, 64, 0.92)",
-            borderColor: "rgba(201, 168, 76, 0.5)",
-          }}
-        >
-          <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-          <span className="text-[11px] font-mono text-slate-200 font-semibold">
-            YOUR NEXT PROJECT STARTS HERE
-          </span>
-          <Link
-            href="/login"
-            className="text-[11px] font-mono font-bold hover:text-white underline"
-            style={{ color: "#F3D37A" }}
-          >
-            Client sign in
-          </Link>
-          <span className="text-slate-500">·</span>
-          <Link
-            href="/login"
-            className="text-[11px] font-mono font-bold hover:text-white underline"
-            style={{ color: "#C9A84C" }}
-          >
-            Team &amp; supplier sign in
-          </Link>
-          <span className="text-slate-500">·</span>
-          <Link
-            href="/estimate"
-            className="text-[11px] font-mono font-bold text-white hover:text-[#F3D37A] transition-colors underline"
-          >
-            Request an estimate
-          </Link>
-        </div>
-      </div>
 
       {/* ── EDITORIAL ITALIC KINETIC MARQUEE TICKER ── */}
       <div
@@ -1219,25 +600,11 @@ export default function Home() {
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/login"
-                data-magnetic
-                className="tayco-atelier-btn-gold text-center"
-              >
-                Project portal sign in →
-              </Link>
-              <Link
                 href="/estimate"
                 data-magnetic
                 className="tayco-atelier-btn-obsidian text-center"
               >
                 Request a free estimate
-              </Link>
-              <Link
-                href="/login"
-                data-magnetic
-                className="tayco-atelier-btn-obsidian text-center"
-              >
-                Trade partner sign in
               </Link>
             </div>
           </div>
@@ -1266,68 +633,21 @@ export default function Home() {
         </svg>
       </div>
 
-      {/* ── 01 / WARM EDITORIAL IVORY CAPABILITY COLLECTION WITH 3-PHOTO TRIPTYCHS ── */}
+      {/* ── 01 / ASTRALIS CAPABILITY COLLECTION WITH 3-PHOTO TRIPTYCHS ── */}
       <section
         id="tayco-operations-showcase"
         className="section-editorial-ivory py-10 sm:py-20 px-4 sm:px-8"
       >
         <div className="max-w-7xl mx-auto">
-          {/* Editorial Top Row */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-8 border-b text-center"
-            style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-          >
-            <span
-              className="tayco-atelier-eyebrow font-bold justify-center"
-              style={{ color: "#1B3A6B" }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              01 / TYPES OF WORK WE PERFORM
-            </span>
-            <span className="hidden sm:inline text-slate-400">·</span>
-            <span
-              className="text-[11px] font-mono uppercase tracking-widest text-center"
-              style={{ color: "#1B3A6B" }}
-            >
-              18 CURATED FIELD PHOTOGRAPHS · 3 INTERACTIVE FRAMES PER SERVICE
-            </span>
-          </div>
-
-          {/* Editorial Heading + Filter Pills */}
-          <div className="flex flex-col items-center justify-center text-center mb-12 gap-6">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2
-                className="tayco-display-title text-center mx-auto"
-                style={{
-                  color: "#0F2040",
-                  fontSize: "clamp(2.2rem, 4.5vw, 3.75rem)",
-                  lineHeight: 1.02,
-                }}
-              >
-                Blueprints that take{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#1B3A6B" }}
-                >
-                  physical form.
-                </em>
-              </h2>
-              <p
-                className="text-sm sm:text-base mt-3 max-w-2xl mx-auto text-center leading-relaxed"
-                style={{ color: "#334155" }}
-              >
-                From a single room to a commercial property, find the right team
-                for the work. Hover or click the three photo frames inside each
-                card to inspect representative field execution.
-              </p>
-            </div>
+          <div className="flex flex-col items-center text-center mb-10 gap-6">
+            <TaycoSectionHeader
+              eyebrow="01 / Types of work we perform"
+              title={<>Blueprints that take <em className="tayco-serif-em text-[#F3D37A]">physical form.</em></>}
+              subtitle="From a single room to a commercial property, explore six services and their three-frame field galleries."
+            />
 
             {/* Interactive Filter Pills */}
-            <div
-              className="flex flex-wrap items-center justify-center gap-2.5"
-              role="group"
-              aria-label="Filter TAYCO services"
-            >
+            <TaycoPillDock ariaLabel="Filter TAYCO services">
               {[
                 { id: "all", label: "All services", count: "06" },
                 {
@@ -1353,11 +673,11 @@ export default function Home() {
                     onClick={() => setActiveFilter(pill.id as ServiceFilter)}
                     className="tayco-atelier-pill text-xs font-bold"
                     style={{
-                      background: active ? "#0F2040" : "rgba(255,255,255,0.85)",
-                      color: active ? "#F3D37A" : "#0F2040",
+                      background: active ? "#0F2040" : "rgba(8,17,32,0.85)",
+                      color: active ? "#F3D37A" : "#CBD5E1",
                       borderColor: active
                         ? "#0F2040"
-                        : "rgba(27, 58, 107, 0.28)",
+                        : "rgba(201, 168, 76, 0.28)",
                       boxShadow: active
                         ? "0 10px 24px -10px rgba(15, 32, 64, 0.55)"
                         : "none",
@@ -1372,231 +692,23 @@ export default function Home() {
                   </button>
                 );
               })}
-            </div>
+            </TaycoPillDock>
           </div>
 
-          {/* 6 Interactive Ivory Triptych Cards */}
-          <div className="flex flex-wrap justify-center gap-6 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:-mx-4 max-sm:px-4 max-sm:pb-3 tayco-no-scrollbar">
+          <div className="home-editorial-grid">
             {filteredCards.map((card) => {
-              const activeFrameIdx = cardFrameMap[card.id] ?? 0;
-              const currentFrame = card.frames[activeFrameIdx] ?? card.frames[0];
-
+              const frames = card.frames.map((frame) => ({
+                src: frame.src, title: frame.caption, eyebrow: frame.csi,
+              }));
               return (
-                <div
-                  key={card.id}
-                  data-response-kind="surface"
-                  className="tayco-living-card editorial-ivory-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 flex flex-col justify-between items-center text-center group"
-                >
-                  <div className="preview-orbits" aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-
-                  <div className="relative z-10 w-full flex flex-col items-center text-center">
-                    <div className="flex items-center justify-center gap-2 mb-3 w-full">
-                      <div
-                        className="tayco-atelier-eyebrow font-bold justify-center"
-                        style={{ color: "#1B3A6B" }}
-                      >
-                        <span
-                          className="tayco-live-dot"
-                          style={{ color: card.badgeColor }}
-                        />
-                        {card.eyebrow}
-                      </div>
-                      <Link
-                        href={card.href}
-                        aria-label={card.cta}
-                        className="project-open"
-                      >
-                        ↗
-                      </Link>
-                    </div>
-
-                    {/* Interactive 3-Photo Triptych Stage */}
-                    <div className="mb-4 w-full">
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() =>
-                          setExpandedLightbox({
-                            src: currentFrame.src,
-                            title: currentFrame.caption,
-                            subtitle: `${(card as any).code ?? card.id} · ${currentFrame.csi}`,
-                          })
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setExpandedLightbox({
-                              src: currentFrame.src,
-                              title: currentFrame.caption,
-                              subtitle: `${(card as any).code ?? card.id} · ${currentFrame.csi}`,
-                            });
-                          }
-                        }}
-                        className="relative h-44 w-full rounded-xl overflow-hidden border shadow-md cursor-pointer"
-                        style={{
-                          borderColor: "rgba(15, 32, 64, 0.22)",
-                          background: "#070E1A",
-                        }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <ProtectedImage
-                          src={currentFrame.src}
-                          syncUrls={card.frames.map((f) => f.src)}
-                          alt={currentFrame.caption}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background:
-                              "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 45%, rgba(7,14,26,0.88) 100%)",
-                          }}
-                        />
-                        <span
-                          className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-black uppercase tracking-wider"
-                          style={{
-                            background: "rgba(7, 14, 26, 0.85)",
-                            color: "#F3D37A",
-                            border: "1px solid rgba(201, 168, 76, 0.45)",
-                          }}
-                        >
-                          {currentFrame.csi}
-                        </span>
-                        <span
-                          className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold"
-                          style={{
-                            background: "#C9A84C",
-                            color: "#070E1A",
-                          }}
-                        >
-                          0{activeFrameIdx + 1}/03 · Expand ↗
-                        </span>
-                        <div className="absolute bottom-2 left-2.5 right-2.5 text-[11px] font-bold text-white text-center line-clamp-1 drop-shadow">
-                          {currentFrame.caption}
-                        </div>
-                      </div>
-
-                      {/* Sleek centered 01 · 02 · 03 capsule switcher */}
-                      <div className="flex items-center justify-center gap-2 mt-2.5">
-                        {card.frames.map((frame, fIdx) => {
-                          const isSelected = fIdx === activeFrameIdx;
-                          return (
-                            <button
-                              key={frame.src}
-                              type="button"
-                              data-magnetic
-                              onClick={() =>
-                                selectCardFrame(
-                                  card.id,
-                                  fIdx,
-                                  card.frames.map((f) => f.src)
-                                )
-                              }
-                              onPointerEnter={() =>
-                                selectCardFrame(
-                                  card.id,
-                                  fIdx,
-                                  card.frames.map((f) => f.src)
-                                )
-                              }
-                              className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer border"
-                              style={{
-                                background: isSelected
-                                  ? "#0F2040"
-                                  : "rgba(15, 32, 64, 0.08)",
-                                color: isSelected ? "#F3D37A" : "#1B3A6B",
-                                borderColor: isSelected
-                                  ? "#C9A84C"
-                                  : "rgba(27, 58, 107, 0.2)",
-                                boxShadow: isSelected
-                                  ? "0 4px 12px -2px rgba(15, 32, 64, 0.35)"
-                                  : "none",
-                              }}
-                              aria-label={`Preview frame 0${fIdx + 1}: ${frame.caption}`}
-                            >
-                              0{fIdx + 1}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <h3
-                      className="tayco-card-title text-xl font-black leading-snug text-center mx-auto"
-                      style={{ color: "#0F2040" }}
-                    >
-                      {card.title}{" "}
-                      <em
-                        className="tayco-serif-em font-normal"
-                        style={{ color: "#1B3A6B" }}
-                      >
-                        {card.serifEm}
-                      </em>
-                    </h3>
-                    <div
-                      className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1 text-center"
-                      style={{ color: "#B8922F" }}
-                    >
-                      {card.subtitle}
-                    </div>
-                    <p
-                      className="text-xs mt-2 leading-relaxed font-medium text-center max-w-sm mx-auto"
-                      style={{ color: "#334155" }}
-                    >
-                      {card.summary}
-                    </p>
-                  </div>
-
-                  <div
-                    className="relative z-10 mt-5 pt-4 border-t w-full flex flex-col items-center text-center"
-                    style={{ borderColor: "rgba(27, 58, 107, 0.14)" }}
-                  >
-                    <div className="flex flex-col items-center justify-center gap-1 mb-3.5 w-full text-center">
-                      <div
-                        className="text-lg font-black font-mono text-center"
-                        style={{ color: card.stroke }}
-                      >
-                        {card.metric}
-                      </div>
-                      <div
-                        className="text-[10px] font-mono uppercase tracking-wider font-semibold text-center"
-                        style={{ color: "#475569" }}
-                      >
-                        {card.metricLabel}
-                      </div>
-                      <svg
-                        width="116"
-                        height="34"
-                        viewBox="0 0 116 34"
-                        fill="none"
-                        aria-hidden="true"
-                        className="mx-auto mt-1"
-                      >
-                        <path
-                          d={card.sparkPath}
-                          stroke={card.stroke}
-                          strokeWidth="2.4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-
-                    <Link
-                      href={card.href}
-                      data-magnetic
-                      className="tayco-atelier-btn-obsidian w-full text-center justify-center text-xs"
-                    >
-                      <span>{card.cta}</span>
-                      <span style={{ color: "#C9A84C" }}>→</span>
-                    </Link>
-                  </div>
-                </div>
+                <HomeEditorialCard key={card.id}
+                  number={card.eyebrow.slice(0, 2)}
+                  eyebrow={card.eyebrow.replace(" / ", " · ")}
+                  title={`${card.title} ${card.serifEm}`}
+                  description={card.summary}
+                  image={frames[0]} actionLabel={card.cta} href={card.href}
+                  onOpen={() => setGallery({ title: card.subtitle, frames, index: 0 })}
+                />
               );
             })}
           </div>
@@ -1637,46 +749,12 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-10 border-b border-white/10 text-center">
-            <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              02 / MATERIALS IN A DIFFERENT LIGHT
-            </span>
-            <span className="hidden sm:inline text-slate-500">·</span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
-              6 REAL ARCHITECTURAL SURFACES · RAKING ANGLE (0°–90°) + KELVIN STUDIO
-            </span>
-          </div>
-
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <h2
-              className="tayco-display-title font-black text-white tracking-tight text-center mx-auto"
-              style={{
-                fontSize: "clamp(2rem, 4vw, 3.2rem)",
-                lineHeight: 1.05,
-              }}
-            >
-              Every slab &amp; finish changes{" "}
-              <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                under raking light.
-              </em>
-            </h2>
-            <p className="text-sm text-slate-300 mt-3 leading-relaxed text-center mx-auto max-w-2xl">
-              Select one of the{" "}
-              <span className="font-mono font-bold" style={{ color: "#F3D37A" }}>
-                6 architectural surface textures
-              </span>
-              , sweep the raking light from{" "}
-              <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
-                0°
-              </span>{" "}
-              to{" "}
-              <span className="font-mono font-semibold" style={{ color: "#F3D37A" }}>
-                90°
-              </span>{" "}
-              and switch Kelvin color temperature to see how grain, relief and specular sheen respond.
-            </p>
-          </div>
+          <TaycoSectionHeader
+            className="mb-10"
+            eyebrow="02 / Materials in a different light"
+            title={<>Every slab &amp; finish changes <em className="tayco-serif-em text-[#F3D37A]">under raking light.</em></>}
+            subtitle="Explore six surfaces. Adjust the light angle and warmth to see the grain, texture and finish."
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Left Controls Column */}
@@ -1727,7 +805,7 @@ export default function Home() {
                             color: selected ? "#ffffff" : "#CBD5E1",
                           }}
                         >
-                          {study.buttonTitle}
+                          {study.buttonTitle.replace(/^\d+ \/ /, "")}
                         </span>
                       </span>
                       <span
@@ -1798,21 +876,21 @@ export default function Home() {
                       onClick={() => setLightAngle(12)}
                       className="hover:text-amber-200 cursor-pointer"
                     >
-                      12° Grazing Relief
+                      12° Grazing
                     </button>
                     <button
                       type="button"
                       onClick={() => setLightAngle(45)}
                       className="hover:text-amber-200 cursor-pointer"
                     >
-                      45° Oblique Studio
+                      45° Oblique
                     </button>
                     <button
                       type="button"
                       onClick={() => setLightAngle(82)}
                       className="hover:text-amber-200 cursor-pointer"
                     >
-                      82° Direct Specular
+                      82° Direct
                     </button>
                   </div>
                 </div>
@@ -1930,35 +1008,13 @@ export default function Home() {
                   </div>
                   <div className="light-beam" />
 
-                  <span className="absolute top-4 left-5 font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-[#070E1A]/80 text-amber-200 border border-amber-400/30">
-                    {currentStudy.csi}
+                  <span className="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg bg-[#070E1A]/85 text-xs text-amber-200 border border-white/15">
+                    {currentStudy.specMetric} · {currentTemp.kelvin}
                   </span>
-                  <span
-                    className="absolute top-4 right-5 font-mono text-[11px] font-bold px-2.5 py-1 rounded-full border"
-                    style={{
-                      background: "rgba(7, 14, 26, 0.85)",
-                      borderColor: currentStudy.color,
-                      color: currentStudy.color,
-                    }}
-                  >
-                    {currentStudy.specMetric} · {lightAngle}° · {currentTemp.kelvin}
-                  </span>
-
-                  {/* Bottom Surface Telemetry Readout Bar */}
-                  <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-[#070E1A]/85 border border-white/15 backdrop-blur-md">
-                    <span className="font-mono text-[10px] tracking-widest text-slate-200 uppercase">
-                      {currentStudy.code}
-                    </span>
-                    <div className="flex items-center gap-3 text-[10px] font-mono text-amber-200">
-                      <span>SHEEN: {currentStudy.sheenProfile}</span>
-                      <span>·</span>
-                      <span>RELIEF: {currentStudy.grainDepth}</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div
-                  className="pt-5 px-2 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="home-surface-copy pt-5 px-2 pb-2 flex flex-col gap-4"
                   aria-live="polite"
                 >
                   <div>
@@ -1971,6 +1027,15 @@ export default function Home() {
                     <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed max-w-2xl">
                       {currentStudy.note}
                     </p>
+                    <ImageReferenceButton src={currentStudy.image} />
+                    <details className="home-reading-details mt-4">
+                      <summary>Material specifications <span aria-hidden="true">＋</span></summary>
+                      <dl className="grid gap-3 text-sm text-slate-300">
+                        <div><dt className="home-editorial-eyebrow">Division</dt><dd>{currentStudy.csi}</dd></div>
+                        <div><dt className="home-editorial-eyebrow">Finish</dt><dd>{currentStudy.sheenProfile}</dd></div>
+                        <div><dt className="home-editorial-eyebrow">Surface relief</dt><dd>{currentStudy.grainDepth}</dd></div>
+                      </dl>
+                    </details>
                   </div>
                   <Link
                     href="/estimate"
@@ -2021,40 +1086,12 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-4 pb-5 mb-10 border-b border-white/10 text-center">
-            <span className="tayco-atelier-eyebrow justify-center" style={{ color: "#F3D37A" }}>
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              03 / FROM FIRST CONVERSATION TO FINISHED SPACE
-            </span>
-            <span className="hidden sm:inline text-slate-500">·</span>
-            <span
-              className="text-[11px] font-mono uppercase tracking-widest text-center"
-              style={{ color: "#F3D37A" }}
-            >
-              5-PHASE FIELD PROGRESSION · SITE PREP TO FINAL HANDOVER
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center justify-center text-center mb-10 gap-6">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2
-                className="tayco-display-title font-black text-white tracking-tight text-center mx-auto"
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 3.25rem)",
-                  lineHeight: 1.05,
-                }}
-              >
-                Good projects begin with{" "}
-                <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                  a shared plan.
-                </em>
-              </h2>
-              <p className="text-sm sm:text-base text-slate-300 mt-3 max-w-2xl mx-auto text-center leading-relaxed">
-                Explore how a TAYCO project progresses from initial site survey
-                and structural framing to rough-in, custom millwork and final
-                turnkey handover.
-              </p>
-            </div>
+          <div className="flex flex-col items-center text-center mb-10 gap-6">
+            <TaycoSectionHeader
+              eyebrow="03 / From first conversation to finished space"
+              title={<>Good projects begin with <em className="tayco-serif-em text-[#F3D37A]">a shared plan.</em></>}
+              subtitle="Follow five phases from site survey and structural framing to finishes and final handover."
+            />
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -2064,399 +1101,40 @@ export default function Home() {
               >
                 Start a project conversation →
               </Link>
-              <Link
-                href="/login"
-                data-magnetic
-                className="tayco-atelier-btn-obsidian text-center"
-              >
-                Existing client sign in →
-              </Link>
             </div>
           </div>
 
-          {/* Interactive 5-Phase Construction Progression Spotlight */}
-          <div
-            className="mb-10 p-5 sm:p-6 rounded-2xl border shadow-2xl"
-            style={{
-              background:
-                "linear-gradient(145deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
-              borderColor: "rgba(201, 168, 76, 0.42)",
-            }}
-          >
-            {/* Phase Stepper Bar + Progress Line */}
-            <div className="mb-6">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
-                {PROJECT_STEPS.map((step, idx) => {
-                  const selected = idx === activeStepIdx;
-                  return (
-                    <button
-                      key={step.code}
-                      type="button"
-                      data-magnetic
-                      onClick={() => setActiveStepIdx(idx)}
-                      className="p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition-all cursor-pointer"
-                      style={{
-                        background: selected
-                          ? "rgba(201, 168, 76, 0.22)"
-                          : "rgba(7, 14, 26, 0.65)",
-                        borderColor: selected
-                          ? "#F3D37A"
-                          : "rgba(201, 168, 76, 0.25)",
-                      }}
-                    >
-                      <div className="flex items-center justify-center gap-1.5 w-full">
-                        <span
-                          className="font-mono text-xs font-black"
-                          style={{ color: selected ? "#F3D37A" : "#C9A84C" }}
-                        >
-                          PHASE {step.code}
-                        </span>
-                        {selected && (
-                          <span
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: "#F3D37A" }}
-                          />
-                        )}
-                      </div>
-                      <div className="text-xs font-bold text-white truncate mt-0.5 text-center">
-                        {step.name}
-                      </div>
-                    </button>
-                  );
+          <div className="home-editorial-grid">
+            {PROJECT_STEPS.map((phase, idx) => (
+              <HomeEditorialCard key={phase.code} number={phase.code}
+                eyebrow={phase.sqft.replace("Phase ", "")}
+                title={phase.name} description={phase.division}
+                image={{ src: phase.image, title: phase.name, eyebrow: phase.csiTag }}
+                actionLabel="Explore this phase"
+                onOpen={() => setGallery({
+                  title: "From survey to handover", index: idx,
+                  frames: PROJECT_STEPS.map((step) => ({
+                    src: step.image, title: step.name, eyebrow: step.sqft,
+                    description: step.division, details: step.deliverables,
+                  })),
                 })}
-              </div>
-              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                <div
-                  className="h-full transition-all duration-300 rounded-full"
-                  style={{
-                    width: `${((activeStepIdx + 1) / PROJECT_STEPS.length) * 100}%`,
-                    background:
-                      "linear-gradient(90deg, #C9A84C 0%, #F3D37A 100%)",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Active Phase Image + Deliverables */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() =>
-                  setExpandedLightbox({
-                    src: activeStep.image,
-                    title: `${activeStep.code} · ${activeStep.name}`,
-                    subtitle: activeStep.division,
-                  })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setExpandedLightbox({
-                      src: activeStep.image,
-                      title: `${activeStep.code} · ${activeStep.name}`,
-                      subtitle: activeStep.division,
-                    });
-                  }
-                }}
-                className="lg:col-span-7 relative rounded-xl overflow-hidden border h-64 sm:h-80 cursor-pointer group"
-                style={{ borderColor: "rgba(201, 168, 76, 0.45)" }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <ProtectedImage
-                  src={activeStep.image}
-                  auditIgnore={true}
-                  alt={activeStep.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 45%, rgba(7,14,26,0.9) 100%)",
-                  }}
-                />
-                <span
-                  className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-mono font-black"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
-                >
-                  PHASE {activeStep.code} / 05 · {activeStep.csiTag}
-                </span>
-                <div className="absolute bottom-3 left-3.5 right-3.5">
-                  <div className="text-lg sm:text-xl font-black text-white">
-                    {activeStep.code} · {activeStep.name}
-                  </div>
-                  <div className="text-xs font-mono text-amber-200">
-                    {activeStep.division}
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 space-y-4">
-                <div
-                  className="text-xs font-mono font-bold uppercase tracking-widest"
-                  style={{ color: "#F3D37A" }}
-                >
-                  {activeStep.sqft} · {activeStep.location}
-                </div>
-                <h3 className="text-2xl font-black text-white">
-                  {activeStep.headline}
-                </h3>
-                <ul className="space-y-2.5">
-                  {activeStep.deliverables.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200"
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ background: "#C9A84C" }}
-                      />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="pt-2 flex flex-wrap gap-2">
-                  <Link
-                    href={activeStep.requestHref}
-                    className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider"
-                    style={{ background: "#C9A84C", color: "#070E1A" }}
-                  >
-                    Start Phase {activeStep.code} Conversation →
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveStepIdx(
-                        (activeStepIdx + 1) % PROJECT_STEPS.length
-                      )
-                    }
-                    className="px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold text-amber-200 border border-amber-400/40 hover:bg-white/5 cursor-pointer"
-                  >
-                    Next Phase 0{((activeStepIdx + 1) % PROJECT_STEPS.length) + 1} →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-6 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:-mx-4 max-sm:px-4 max-sm:pb-3 tayco-no-scrollbar">
-            {PROJECT_STEPS.map((contract, idx) => (
-              <div
-                key={contract.code}
-                data-response-kind="surface"
-                onClick={() => setActiveStepIdx(idx)}
-                className="tayco-living-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group cursor-pointer"
-                style={{
-                  background:
-                    "linear-gradient(155deg, rgba(15, 32, 64, 0.92) 0%, rgba(7, 14, 26, 0.96) 100%)",
-                  borderColor:
-                    idx === activeStepIdx
-                      ? "#F3D37A"
-                      : "rgba(201, 168, 76, 0.3)",
-                }}
-              >
-                <div className="preview-orbits" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-
-                <div className="relative z-10 w-full flex flex-col text-left">
-                  {/* Phase Card Architectural Photo Header */}
-                  <div
-                    className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
-                    style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <ProtectedImage
-                      src={contract.image}
-                      alt={contract.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(7,14,26,0.35) 0%, transparent 50%, rgba(7,14,26,0.88) 100%)",
-                      }}
-                    />
-                    <span
-                      className="absolute top-2.5 left-2.5 font-mono text-xs font-black px-2.5 py-0.5 rounded-full border"
-                      style={{
-                        background: "rgba(7, 14, 26, 0.85)",
-                        borderColor: contract.accent,
-                        color: "#F3D37A",
-                      }}
-                    >
-                      {contract.code}
-                    </span>
-                    <Link
-                      href={contract.requestHref}
-                      aria-label={`Discuss ${contract.name.toLowerCase()}`}
-                      className="project-open absolute top-2.5 right-2.5"
-                    >
-                      ↗
-                    </Link>
-                    <span className="absolute bottom-2 left-2.5 right-2.5 text-[10px] font-mono text-amber-200 font-bold text-center">
-                      {contract.csiTag}
-                    </span>
-                  </div>
-
-                  <TaycoCardMetaBar
-                    leftBadge={
-                      <span className="text-xs font-mono font-bold text-[#F3D37A]">
-                        {contract.location} · {contract.sqft}
-                      </span>
-                    }
-                    rightMeta={<span>{contract.phase}</span>}
-                    className="mb-2.5"
-                  />
-
-                  <h3 className="tayco-card-title text-lg font-black text-white leading-snug text-left">
-                    {contract.code} · {contract.name}
-                  </h3>
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed text-left">
-                    {contract.division} — {contract.phase}
-                  </p>
-                </div>
-
-                <div className="relative z-10 mt-5 pt-4 border-t border-white/10 w-full">
-                  <TaycoCardFooterBar
-                    leftMeta={
-                      <div className="flex flex-col text-left">
-                        <span
-                          className="text-base font-black font-mono text-left"
-                          style={{ color: "#F3D37A" }}
-                        >
-                          {contract.headline}
-                        </span>
-                        <span
-                          className="text-[10px] font-mono uppercase tracking-wider text-left"
-                          style={{ color: "#DFC06C" }}
-                        >
-                          {contract.status}
-                        </span>
-                      </div>
-                    }
-                  >
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={contract.requestHref}
-                        data-magnetic
-                        className="tayco-atelier-btn-gold text-[10px] py-1.5 px-3 text-center justify-center"
-                      >
-                        Request estimate →
-                      </Link>
-                      <Link
-                        href={contract.loginHref}
-                        data-magnetic
-                        className="tayco-atelier-btn-obsidian text-[10px] py-1.5 px-3 text-center justify-center"
-                      >
-                        Sign in →
-                      </Link>
-                    </div>
-                  </TaycoCardFooterBar>
-                </div>
-              </div>
+              />
             ))}
-
-            {/* 6th Summary Card: Multi-State Dispatch & Instant Estimate */}
-            <div
-              data-response-kind="surface"
-              className="tayco-living-card w-full max-sm:w-[82vw] max-sm:shrink-0 max-sm:snap-center md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] p-5 rounded-[24px] flex flex-col justify-between group"
-              style={{
-                background:
-                  "linear-gradient(145deg, rgba(27, 58, 107, 0.92) 0%, rgba(15, 32, 64, 0.98) 100%)",
-                borderColor: "rgba(201, 168, 76, 0.48)",
-              }}
-            >
-              <div className="preview-orbits" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </div>
-
-              <div className="relative z-10 w-full flex flex-col text-left">
-                <div
-                  className="relative h-36 w-full rounded-xl overflow-hidden mb-4 border"
-                  style={{ borderColor: "rgba(201, 168, 76, 0.4)" }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <ProtectedImage
-                    src="/curated/properties/interior-commercial-executive-lounge-terrace.jpg"
-                    alt="TAYCO 8-State Operations"
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(7,14,26,0.3) 0%, transparent 45%, rgba(7,14,26,0.88) 100%)",
-                    }}
-                  />
-                  <span
-                    className="absolute bottom-2 left-2.5 right-2.5 text-[10px] font-mono font-bold text-center"
-                    style={{ color: "#F3D37A" }}
-                  >
-                    WI · IL · IA · IN · MN · MI · MO · TX
-                  </span>
-                </div>
-
-                <TaycoCardMetaBar
-                  leftBadge={
-                    <div className="tayco-atelier-eyebrow" style={{ color: "#F3D37A" }}>
-                      <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                      SERVING EIGHT STATES
-                    </div>
-                  }
-                  rightMeta={<span>8 States Active</span>}
-                  className="mb-2.5"
-                />
-                <h3 className="tayco-card-title text-xl font-black text-white leading-snug text-left">
-                  Your next project{" "}
-                  <em className="tayco-serif-em" style={{ color: "#F3D37A" }}>
-                    Across 8 States
-                  </em>
-                </h3>
-                <p className="text-xs text-slate-200 mt-2 leading-relaxed text-left">
-                  We serve WI, IL, IA, IN, MN, MI, MO and TX. Contact us to
-                  confirm your location, project scope and scheduling.
-                </p>
-              </div>
-
-              <div className="relative z-10 mt-5 pt-4 border-t border-white/15 w-full">
-                <TaycoCardFooterBar
-                  leftMeta={
-                    <span className="text-[10px] font-mono text-slate-300">
-                      Turnkey Delivery
-                    </span>
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href="/commercial"
-                      data-magnetic
-                      className="tayco-atelier-btn-gold text-xs py-1.5 px-3 text-center justify-center"
-                    >
-                      <span>Commercial →</span>
-                    </Link>
-                    <Link
-                      href="/residential"
-                      data-magnetic
-                      className="tayco-atelier-btn-obsidian text-xs py-1.5 px-3 text-center justify-center"
-                    >
-                      <span>Residential →</span>
-                    </Link>
-                  </div>
-                </TaycoCardFooterBar>
-              </div>
-            </div>
+            <HomeEditorialCard number="06" eyebrow="Serving eight states"
+              title="Your next project. Within reach."
+              description="We serve WI, IL, IA, IN, MN, MI, MO and TX. Tell us your location, scope and priorities."
+              image={{ src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg", title: "Executive lounge and terrace", eyebrow: COMPANY.coverage }}
+              actionLabel="Request an estimate" href="/estimate"
+              onOpen={() => setGallery({ title: "Spaces we help create", index: 0, frames: [{
+                src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+                title: "Executive lounge and terrace", eyebrow: COMPANY.coverage,
+              }] })}
+            />
           </div>
         </div>
       </section>
+
+      {gallery && <HomeEditorialGallery selection={gallery} onClose={() => setGallery(null)} />}
 
       {/* Full-Screen Architectural Image Lightbox */}
       <TaycoModalOverlay
@@ -2494,6 +1172,7 @@ export default function Home() {
                     <div className="text-lg font-black text-white mt-0.5">
                       {expandedLightbox.title}
                     </div>
+                    <ImageReferenceButton src={expandedLightbox.src} />
                   </div>
                   <button
                     type="button"
