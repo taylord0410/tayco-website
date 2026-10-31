@@ -766,7 +766,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
         label: "Sunlit Townhome Kitchen & Hardwood Great Room",
       },
       {
-        src: "/curated/capabilities/reo-roof-3phase.jpg",
+        src: "/curated/properties/mkt-mf-roofing.jpg",
         label: "Continuous Townhome Roof Deck & Architectural Shingles",
       },
     ],

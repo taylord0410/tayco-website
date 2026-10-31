@@ -63,7 +63,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     badgeColor: "#C9A84C",
     frames: [
       {
-        src: "/curated/properties/mkt-twn-framing-row.jpg",
+        src: "/curated/properties/mkt-sfh-concrete.jpg",
         caption: "Surveyed Foundation Grid & Site Layout",
         csi: "DIV 31 · SITE PREP",
       },
@@ -394,7 +394,7 @@ const PROJECT_STEPS = [
     status: "Step 03 · Drywall & Rough-In",
     requestHref: "/estimate",
     accent: "#C9A84C",
-    image: "/curated/properties/mkt-twn-drywall-gallery.jpg",
+    image: "/curated/properties/mkt-twn-framing-drywall.jpg",
     csiTag: "CSI DIV 07 / 09 · INSULATION & GYPSUM",
     deliverables: [
       "In-wall rough-in & fire-rated assemblies",
