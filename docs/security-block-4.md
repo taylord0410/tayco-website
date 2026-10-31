@@ -1,0 +1,9 @@
+# SG B4 — Browser review and operator rollback
+
+/admin/security reads only authenticated admin data through/api/admin/security. Role and configured public tenant are verified from the current session; session is revalidated after bodyIO. Origin/body limits and admin quotas apply. Anonymous401, wrongrole/company403, revoked session401, unavailable authority503.
+
+A browser requests a durable review code, without storing contact fields. Admin selects that code and a purpose, issues a single-use3minute token for that exact visitor/origin. Only hashes are stored. Browser redemption yields30minuteHttpOnly/SameSiteStrict cookie (Secure/__Host inproduction). Authorization is checked online with revocation on every gated operation; it never supplies account permissions. Tokens are shown once in admin memory, cleared on refresh/action, and never placed in URLs. Manual secure transfer remains necessary; no automated email/messages sent.
+
+Rollback is persisted in the shared guard store and changes only optional risk decisions. Configuredobserve/off cannot be escalated by the GUI. Configuredenforce permits observation or deliberate resume. Existing auth/origin/body/idempotency controls stay active. Capacity:1000reviews/24h,5activegrants/browser,100rows in admin views. SQLite still requires a verified shared-volume/single-replica deployment contract; no independent-replica consistency claim.
+
+Local7tests exercise role/company/origin, target browser mismatch, no bearer in listings, token/session hash storage, private401 with exception, revocation, store outage, rollback persistence and revoked administrator session. New admin code scopedESLint0. Fullprojecttsc uncovered earlier errors in audit/account/canvas types and mutableNODE_ENVfixtures; these move toB5release verification, not silently ignored.

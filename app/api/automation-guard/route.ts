@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { assertSameOrigin, AuthError, requireActor, requireRole, revalidateRequestActor, rateLimit } from '@/lib/auth';
+import { assertSameOrigin, AuthError, revalidateRequestActor, rateLimit } from '@/lib/auth';
 import { readAuthBody } from '@/lib/auth-http';
-import { countGuardRetry, ensureVisitor, exchangeDebugGrant, flagVisitor, GuardError, guardCookie, guardMode, guardOrigin, guardStatus, issueDebugGrant, labEnabled, listGuardEvents, readGuardCookie, resetLabVisitor, revokeDebugGrant } from '@/lib/automation-guard';
+import { countGuardRetry, ensureVisitor, exchangeDebugGrant, flagVisitor, GuardError, guardCookie, guardMode, guardOrigin, guardStatus, issueDebugGrant, labEnabled, listGuardEvents, readGuardCookie, resetLabVisitor, requestGuardReview, revokeDebugGrant } from '@/lib/automation-guard';
+import { requireSecurityAdmin } from '@/lib/guard-admin';
 import { challengeSiteKey, verifyChallenge } from '@/lib/guard-verification';
 import { admitGuardRequest } from '@/lib/guard-budget';
 import { securityResponse } from '@/lib/automation-guard-http';
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
     if (op === 'bootstrap') {
       if (body.automation === true) flagVisitor(visitor.token,'browser_automation');
       response=json({...guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab),siteKey:challengeSiteKey()});
+    } else if (op === 'review') {
+      response=json({review:requestGuardReview(visitor.token,origin)},201);
     } else if (op === 'verify') {
       const verified=await verifyChallenge(request,visitor.token,body);
       const state=guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab);
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
       if(op === 'simulate')flagVisitor(visitor.token,'lab_simulation'); else resetLabVisitor(visitor.token);
       response=form ? NextResponse.redirect(new URL('/security-lab',origin),303) : json(guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab));
     } else if (op === 'issue' || op === 'revoke' || op === 'events') {
-      const actor=await requireActor(request); requireRole(actor,['admin']); rateLimit('automation-grant:'+actor.id,20,60_000);revalidateRequestActor(actor);
+      const actor=await requireSecurityAdmin(request); rateLimit('automation-grant:'+actor.id,20,60_000);revalidateRequestActor(actor);
       if(op==='issue')response=json(issueDebugGrant(visitor.token,origin,actor.id,typeof body.purpose==='string'?body.purpose:''),201);
       else if(op==='revoke'){if(typeof body.id!=='string')throw new GuardError('Choose an authorization.');revokeDebugGrant(body.id);response=json({revoked:true});}
       else response=json({events:listGuardEvents()});

@@ -22,9 +22,12 @@ export default function SecurityLab(){
     <div className="my-6 flex flex-wrap gap-3">
       <button onClick={()=>run('simulate')} className="min-h-11 rounded-lg bg-[#c9a84c] px-4 text-sm font-semibold text-slate-950">Simulate automation detection</button>
       <button onClick={()=>run('invalid-test')} className="min-h-11 rounded-lg border border-white/25 px-4 text-sm">Simulate one failed verification</button>
+      <button onClick={()=>run('review')} className="min-h-11 rounded-lg border border-white/25 px-4 text-sm">Request an admin review</button>
       <button onClick={()=>run('reset-test')} className="min-h-11 rounded-lg border border-white/25 px-4 text-sm">Reset local test</button>
       <Link href="/" className="flex min-h-11 items-center rounded-lg border border-white/25 px-4 text-sm">Open Home</Link>
     </div>
+    {status?.reviewCode&&<p className="my-4 break-all text-sm" role="status">Review reference: {status.reviewCode}</p>}
+    <Link href="/admin/security" className="text-sm text-amber-200">Open security administration →</Link>
     {error&&<p role="alert">{error}</p>}
     <p className="text-xs leading-6 text-slate-400">This lab is disabled in production. A browser signal alone cannot prove abuse. Turnstile verification is optional and requires configured keys. This lab uses explicit local simulations, not proof of human verification or network-wide bot protection.</p>
   </main>;

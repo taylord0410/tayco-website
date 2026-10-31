@@ -4,7 +4,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 export type GuardMode = 'off' | 'observe' | 'enforce';
-export type GuardState = { state: 'clear' | 'challenge' | 'blocked' | 'authorized'; incidentId?: string; retries: number; remaining: number; blockedUntil: number; mode: GuardMode; lab: boolean };
+export type GuardState = { reviewCode?: string; ruleVersion?: string; state: 'clear' | 'challenge' | 'blocked' | 'authorized'; incidentId?: string; retries: number; remaining: number; blockedUntil: number; mode: GuardMode; lab: boolean };
 type Visitor = { hash: string; incident: string | null; retries: number; window_end: number; blocked_until: number; expires: number };
 const WINDOW = 10 * 60_000, BLOCK = 15 * 60_000, SESSION = 30 * 60_000, VISITOR_TTL = 24 * 60 * 60_000;
 const digest = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -39,6 +39,8 @@ function withStore<T>(work: (db: DatabaseSync) => T): T {
     db.exec(`PRAGMA busy_timeout=100;
       CREATE TABLE IF NOT EXISTS guard_visitors(hash TEXT PRIMARY KEY,incident TEXT,retries INTEGER NOT NULL,window_end INTEGER NOT NULL,blocked_until INTEGER NOT NULL,expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_grants(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,issuer TEXT NOT NULL,purpose TEXT NOT NULL,expires INTEGER NOT NULL,used INTEGER NOT NULL DEFAULT 0,revoked INTEGER NOT NULL DEFAULT 0);
+      CREATE TABLE IF NOT EXISTS guard_settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS guard_reviews(id TEXT PRIMARY KEY,visitor_hash TEXT UNIQUE NOT NULL,origin TEXT NOT NULL,created INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_attempts(visitor_hash TEXT NOT NULL,incident TEXT NOT NULL,id TEXT NOT NULL,token_hash TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(visitor_hash,id));
       CREATE TABLE IF NOT EXISTS guard_sessions(hash TEXT PRIMARY KEY,grant_id TEXT NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_events(id TEXT PRIMARY KEY,visitor_hash TEXT NOT NULL,kind TEXT NOT NULL,created INTEGER NOT NULL);
@@ -54,6 +56,7 @@ function cleanup(db: DatabaseSync, now: number) {
   db.prepare('DELETE FROM guard_grants WHERE expires<?').run(now - VISITOR_TTL);
   db.prepare('DELETE FROM guard_events WHERE created<?').run(now - VISITOR_TTL);
   db.prepare('DELETE FROM guard_attempts WHERE created<?').run(now - VISITOR_TTL);
+  db.prepare('DELETE FROM guard_reviews WHERE created<?').run(now - VISITOR_TTL);
 }
 function note(db: DatabaseSync, hash: string, kind: string, now: number) {
   // Bounded retention; no user fields, raw cookies, tokens or payloads in events.
@@ -89,7 +92,10 @@ function authorized(db: DatabaseSync, visitor: Visitor, session: string | undefi
 export function guardStatus(visitorToken: string | undefined, debugToken: string | undefined, origin: string, lab = false, now = Date.now()): GuardState {
   return withStore(db => {
     const v = load(db, visitorToken, now);
-    const base = { retries: v?.retries || 0, remaining: Math.max(0, 3 - (v?.retries || 0)), blockedUntil: v?.blocked_until || 0, mode: guardMode(), lab };
+    const override=db.prepare("SELECT value FROM guard_settings WHERE key='mode'").get() as {value:string}|undefined;
+    const mode=guardMode()==='enforce'&&override?.value==='observe'?'observe':guardMode();
+    const review=db.prepare('SELECT id FROM guard_reviews WHERE visitor_hash=? AND created>?').get(v?.hash||'',now-VISITOR_TTL) as {id:string}|undefined;
+    const base = { ruleVersion:'SG-2026-10-31.1', reviewCode:review?.id, retries: v?.retries || 0, remaining: Math.max(0, 3 - (v?.retries || 0)), blockedUntil: v?.blocked_until || 0, mode, lab };
     if (!v) return { ...base, state: 'clear' };
     if (authorized(db, v, debugToken, origin, now)) return { ...base, state: 'authorized' };
     return { ...base, incidentId: v.incident || undefined, state: v.blocked_until > now ? 'blocked' : v.incident ? 'challenge' : 'clear' };
@@ -189,4 +195,43 @@ export function resetLabVisitor(token: string) {
 }
 export function listGuardEvents() {
   return withStore(db => db.prepare('SELECT id,kind,created FROM guard_events ORDER BY created DESC LIMIT 100').all());
+}
+
+export function requestGuardReview(token: string, origin: string, now=Date.now()) {
+ return withStore(db=>{
+  cleanup(db,now);const v=load(db,token,now);if(!v)throw new GuardError('Restart verification.',409);
+  const old=db.prepare('SELECT id FROM guard_reviews WHERE visitor_hash=?').get(v.hash) as {id:string}|undefined;if(old)return {id:old.id};
+  if(Number(db.prepare('SELECT COUNT(*) AS n FROM guard_reviews').get()?.n)>=1000)throw new GuardError('Review queue is busy. Contact TAYCO or retry later.',503);
+  const id=randomUUID();db.prepare('INSERT INTO guard_reviews VALUES(?,?,?,?)').run(id,v.hash,origin,now);note(db,v.hash,'review_requested',now);return {id};
+ });
+}
+export function issueReviewGrant(reviewId: string, origin: string, issuer: string, purpose: string, now=Date.now()) {
+ if(guardMode()==='off')throw new GuardError('The operator must enable the risk module first.',409);
+ if(!purpose.trim()||purpose.length>160)throw new GuardError('Provide a short investigation purpose.');
+ return withStore(db=>{
+  cleanup(db,now);
+  const review=db.prepare('SELECT r.visitor_hash FROM guard_reviews r JOIN guard_visitors v ON v.hash=r.visitor_hash WHERE r.id=? AND r.origin=? AND r.created>? AND v.expires>?').get(reviewId,origin,now-VISITOR_TTL,now) as {visitor_hash:string}|undefined;
+  if(!review)throw new GuardError('Active review not found.',404);
+  if(Number(db.prepare('SELECT COUNT(*) AS n FROM guard_grants WHERE visitor_hash=? AND expires>? AND revoked=0').get(review.visitor_hash,now)?.n)>=5)throw new GuardError('Revoke an existing authorization before issuing another.',429);
+  const token=opaque(),id=randomUUID();db.prepare('INSERT INTO guard_grants(id,token_hash,visitor_hash,origin,issuer,purpose,expires) VALUES(?,?,?,?,?,?,?)').run(id,digest(token),review.visitor_hash,origin,issuer,purpose.trim(),now+3*60_000);
+  note(db,review.visitor_hash,'debug_grant_issued',now);return {id,token,expiresAt:now+3*60_000};
+ });
+}
+export function guardAdminSnapshot(now=Date.now()) {
+ return withStore(db=>{
+  cleanup(db,now);
+  const override=db.prepare("SELECT value FROM guard_settings WHERE key='mode'").get() as {value:string}|undefined;
+  return {configuredMode:guardMode(),effectiveMode:guardMode()==='enforce'&&override?.value==='observe'?'observe':guardMode(),ruleVersion:'SG-2026-10-31.1',
+   reviews:db.prepare('SELECT r.id,r.created,v.incident,v.retries,v.blocked_until FROM guard_reviews r JOIN guard_visitors v ON v.hash=r.visitor_hash WHERE v.expires>? ORDER BY r.created DESC LIMIT 100').all(now),
+   grants:db.prepare('SELECT id,issuer,purpose,expires,used,revoked FROM guard_grants ORDER BY expires DESC LIMIT 100').all(),
+   events:db.prepare('SELECT id,kind,created FROM guard_events ORDER BY created DESC LIMIT 100').all()};
+ });
+}
+export function setGuardMode(mode: unknown, issuer: string, now=Date.now()) {
+ if(mode!=='observe'&&mode!=='enforce')throw new GuardError('Choose observation or configured enforcement.');
+ if(mode==='enforce'&&guardMode()!=='enforce')throw new GuardError('Enforcement must first be enabled by the operator configuration.',409);
+ return withStore(db=>{
+  db.prepare("INSERT INTO guard_settings VALUES('mode',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(mode);
+  note(db,digest(issuer),'mode_'+mode,now);return {mode};
+ });
 }
