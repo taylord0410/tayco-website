@@ -33,6 +33,7 @@ async function fixture(
     TAYCO_ERP_DB_PATH: path.join(folder, 'erp.sqlite'),
     TAYCO_SESSION_SECRET: randomBytes(48).toString('hex'),
     TAYCO_APP_URL: 'https://tayco.test',
+    TAYCO_TRUSTED_INGRESS: 'railway-public-edge', // Simulated public-edge fixture, not runtime auto-detection.
   };
   const old = Object.fromEntries(Object.keys(env).map((k) => [k, process.env[k]]));
   Object.assign(process.env, env);
@@ -80,7 +81,7 @@ test('tracks distinct IPs, distinct devices, Excel workbooks, restricted clicks,
         headers: {
           'content-type': 'application/json',
           origin: 'https://tayco.test',
-          'x-forwarded-for': '203.0.113.10, 10.0.0.1',
+          'x-real-ip': '203.0.113.10',
           'user-agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
           'sec-ch-ua-platform': '"Windows"',
@@ -102,7 +103,7 @@ test('tracks distinct IPs, distinct devices, Excel workbooks, restricted clicks,
             'content-type': 'application/json',
             origin: 'https://tayco.test',
             cookie: cookieHeader,
-            'x-forwarded-for': '203.0.113.10',
+            'x-real-ip': '203.0.113.10',
             'user-agent':
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
           },
@@ -151,7 +152,7 @@ test('tracks distinct IPs, distinct devices, Excel workbooks, restricted clicks,
             'content-type': 'application/json',
             origin: 'https://tayco.test',
             cookie: cookieHeader,
-            'x-forwarded-for': '203.0.113.10',
+            'x-real-ip': '203.0.113.10',
             'user-agent':
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
           },
@@ -169,7 +170,7 @@ test('tracks distinct IPs, distinct devices, Excel workbooks, restricted clicks,
           'content-type': 'application/json',
           origin: 'https://tayco.test',
           cookie: cookieHeader,
-          'x-forwarded-for': '198.51.100.25',
+          'x-real-ip': '198.51.100.25',
           'user-agent':
             'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
         },
@@ -243,7 +244,7 @@ test('tracks workspace section visits, 3rd/4th devices (macOS Safari + Android C
         new NextRequest(`https://tayco.test/api/guest-workspace?period=2026-10&section=${section}`, {
           headers: {
             cookie: cookieHeader,
-            'x-forwarded-for': '192.0.2.44',
+            'x-real-ip': '192.0.2.44',
             'user-agent':
               'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15',
           },
@@ -260,7 +261,7 @@ test('tracks workspace section visits, 3rd/4th devices (macOS Safari + Android C
           'content-type': 'application/json',
           origin: 'https://tayco.test',
           cookie: cookieHeader,
-          'x-forwarded-for': '198.51.100.99',
+          'x-real-ip': '198.51.100.99',
           'user-agent':
             'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
         },

@@ -1,17 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { evaluateSiteShield } from "./lib/site-shield";
+import { trustedClientIp } from "./lib/client-network";
 
 function extractClientIp(request: NextRequest): string {
-  const xff = request.headers.get("x-forwarded-for");
-  if (xff) {
-    const first = xff.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return (
-    request.headers.get("x-real-ip")?.trim() ||
-    request.headers.get("cf-connecting-ip")?.trim() ||
-    "127.0.0.1"
-  );
+  return trustedClientIp(request.headers);
 }
 
 export function proxy(request: NextRequest) {

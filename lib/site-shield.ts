@@ -1,4 +1,5 @@
 import { COMPANY } from "./company";
+import { developmentLoopback, normalizedClientIp } from "./client-network";
 
 export type ShieldDecision =
   | { action: "allow"; extraHeaders?: Record<string, string> }
@@ -186,9 +187,7 @@ export function isProtectedImageAsset(pathname: string): boolean {
 }
 
 export function isLocalhostIp(ip: string, hostHeader: string): boolean {
-  const cleanHost = (hostHeader || "").split(":")[0].toLowerCase();
-  if (cleanHost === "localhost" || cleanHost === "127.0.0.1") return true;
-  return ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
+  return developmentLoopback(ip, hostHeader);
 }
 
 function hasAllowedReferer(referer: string | null, currentHost: string): boolean {
@@ -301,7 +300,13 @@ export function evaluateSiteShield(input: EvaluateRequestInput): ShieldDecision 
   const method = (input.method || "GET").toUpperCase();
   const ua = input.userAgent || "";
   const isLocal = isLocalhostIp(input.clientIp, input.host);
-  const state = getIpState(input.clientIp || "unknown", now);
+  // Unknown is not a shared client identity: one scanner must not penalize all
+  // visitors whose ingress has not been attested. UA/path/method rules still run.
+  const knownIp = normalizedClientIp(input.clientIp);
+  const state = knownIp ? getIpState(knownIp, now) : {
+    blockedUntil: 0, trapHits: 0, invalidPosts: 0,
+    imageWindowStart: now, imageHits: 0, pageWindowStart: now, pageHits: 0,
+  };
 
   // 1. Check active IP penalty box (unless localhost)
   if (!isLocal && state.blockedUntil > now) {

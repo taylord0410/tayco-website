@@ -1,9 +1,20 @@
-import { test } from "node:test";
+import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomBytes } from "node:crypto";
+const securityEnvNames = ['TAYCO_DATA_ENCRYPTION_KEY','TAYCO_SUBMISSIONS_KEY','TAYCO_SESSION_SECRET','SESSION_SECRET','TAYCO_TRUSTED_INGRESS'] as const;
+let securityEnvBefore: Record<string,string|undefined>;
+beforeEach(() => {
+  securityEnvBefore=Object.fromEntries(securityEnvNames.map(name=>[name,process.env[name]]));
+  for(const name of securityEnvNames)delete process.env[name];
+  process.env.TAYCO_SESSION_SECRET=randomBytes(48).toString('hex');
+  process.env.TAYCO_TRUSTED_INGRESS='railway-public-edge'; // Simulated attested ingress fixture.
+});
+afterEach(() => {
+  for(const name of securityEnvNames){if(securityEnvBefore[name]===undefined)delete process.env[name];else process.env[name]=securityEnvBefore[name];}
+});
 import type { Actor } from "../lib/auth";
 import {
   database,
@@ -194,7 +205,7 @@ test("guest security logs encrypt client_ip, user_agent, and detail with AES-256
         actorRole: "guest",
       },
       {
-        "x-forwarded-for": "198.51.100.42",
+        "x-real-ip": "198.51.100.42",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
       },
       {

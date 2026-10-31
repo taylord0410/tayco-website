@@ -4,6 +4,8 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { Actor } from './auth';
 import type { ReviewAuditContext } from './review-audit';
+import { trustedClientIp, normalizedClientIp } from './client-network';
+import { requiredSecret, SECURITY_LOG_SECRET_NAMES } from './required-secret';
 
 export const GUEST_SECURITY_EVENT_TYPES = [
   'auth.login',
@@ -59,18 +61,15 @@ function openSecurityDb(): DatabaseSync {
 const ENC_PREFIX = 'enc:v1:';
 
 function getSecurityLogEncryptionKey(): Buffer {
-  const rawSecret =
-    process.env.TAYCO_SUBMISSIONS_KEY ||
-    process.env.TAYCO_SESSION_SECRET ||
-    'tayco-default-erp-submissions-vault-key-2026-aes256gcm';
+  const rawSecret = requiredSecret(SECURITY_LOG_SECRET_NAMES);
   return createHash('sha256')
     .update(`tayco-guest-security-log-v1:${rawSecret}`)
     .digest();
 }
 
 export function encryptSecurityField(plaintext: string): string {
-  if (plaintext.startsWith(ENC_PREFIX)) return plaintext;
   const key = getSecurityLogEncryptionKey();
+  if (plaintext.startsWith(ENC_PREFIX)) return plaintext;
   const iv = randomBytes(12);
   const cipher = createCipheriv('aes-256-gcm', key, iv);
   const encrypted = Buffer.concat([
@@ -82,12 +81,12 @@ export function encryptSecurityField(plaintext: string): string {
 }
 
 export function decryptSecurityField(stored: string): string {
+  const key = getSecurityLogEncryptionKey();
   if (!stored || !stored.startsWith(ENC_PREFIX)) return stored;
   try {
     const parts = stored.slice(ENC_PREFIX.length).split(':');
     if (parts.length !== 3) return '[redacted]';
     const [ivB64, tagB64, dataB64] = parts;
-    const key = getSecurityLogEncryptionKey();
     const decipher = createDecipheriv(
       'aes-256-gcm',
       key,
@@ -193,10 +192,7 @@ export function parseDeviceSummary(ua: string, chPlatform: string, chMobile: str
 export function extractRequestNetworkMetadata(
   headers: Headers | Record<string, string | undefined> | null | undefined
 ): RequestNetworkMetadata {
-  const xff = getHeader(headers, 'x-forwarded-for');
-  const firstForwarded = xff ? xff.split(',')[0]?.trim() || '' : '';
-  const realIp = getHeader(headers, 'x-real-ip') || getHeader(headers, 'cf-connecting-ip');
-  const clientIp = (firstForwarded || realIp || 'local').slice(0, 80);
+  const clientIp = trustedClientIp(headers);
 
   const userAgent = getHeader(headers, 'user-agent').slice(0, 300) || 'unknown';
   const chUa = getHeader(headers, 'sec-ch-ua').slice(0, 160);
@@ -223,6 +219,7 @@ export function recordGuestSecurityByContext(
   now = Date.now()
 ) {
   if (ctx.actorRole !== 'guest') return null;
+  requiredSecret(SECURITY_LOG_SECRET_NAMES); // A configuration failure must not look like a successfully omitted event.
   try {
     const net = extractRequestNetworkMetadata(headers);
     const db = openSecurityDb();
@@ -291,6 +288,7 @@ export function guestSecurityReport(
   if (actor.role !== 'admin') {
     throw new Error('Administrator access is required.');
   }
+  requiredSecret(SECURITY_LOG_SECRET_NAMES); // Misconfiguration is not an empty activity report.
   const now = Date.now();
   const cutoff = now - 90 * 86400000;
   try {
@@ -353,7 +351,8 @@ export function guestSecurityReport(
           byActorMap.set(ev.actorId, entry);
         }
         entry.totalEvents++;
-        entry.ips.add(ev.clientIp);
+        const identifiedIp = normalizedClientIp(ev.clientIp);
+        if (identifiedIp) entry.ips.add(identifiedIp);
         const existingDev = entry.devices.get(ev.deviceFingerprint);
         if (!existingDev) {
           entry.devices.set(ev.deviceFingerprint, {

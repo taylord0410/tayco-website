@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isAiBotUserAgent, isManualScraperUserAgent, isLocalhostIp } from "@/lib/site-shield";
+import { trustedClientIp } from "@/lib/client-network";
 
 const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
 
@@ -58,8 +59,8 @@ async function getScrambledAsset(rawPath: string, resolvedFile: string): Promise
 export async function GET(request: NextRequest) {
   const ua = request.headers.get("user-agent") || "";
   const host = request.headers.get("host") || request.nextUrl.host || "";
-  const xff = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
-  const isLocal = isLocalhostIp(xff, host);
+  const clientIp = trustedClientIp(request.headers);
+  const isLocal = isLocalhostIp(clientIp, host);
 
   if (isAiBotUserAgent(ua) || (!isLocal && isManualScraperUserAgent(ua))) {
     return new NextResponse("Forbidden.", {

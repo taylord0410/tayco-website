@@ -1,3 +1,4 @@
+import { requiredSecret, SUBMISSION_SECRET_NAMES } from './required-secret';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID, createHash, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -581,7 +582,7 @@ export type WebsiteSubmissionItem = {
   readBy: string | null;
 };
 function submissionCipherKey(): Buffer {
-  const secret = process.env.TAYCO_DATA_ENCRYPTION_KEY || process.env.TAYCO_SESSION_SECRET || process.env.SESSION_SECRET || 'tayco-default-dev-encryption-key-2026';
+  const secret = requiredSecret(SUBMISSION_SECRET_NAMES);
   return createHash('sha256').update(secret).digest();
 }
 function encryptSubmissionPayload(payload: Record<string, unknown>): string {
@@ -591,11 +592,11 @@ function encryptSubmissionPayload(payload: Record<string, unknown>): string {
   const tag = cipher.getAuthTag();
   return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
 }
-function decryptSubmissionPayload(cipherText: string): Record<string, unknown> {
+function decryptSubmissionPayload(cipherText: string, key: Buffer): Record<string, unknown> {
   try {
     const [ivHex, tagHex, dataHex] = cipherText.split(':');
     if (!ivHex || !tagHex || !dataHex) return {};
-    const decipher = createDecipheriv('aes-256-gcm', submissionCipherKey(), Buffer.from(ivHex, 'hex'));
+    const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivHex, 'hex'));
     decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
     const decrypted = Buffer.concat([decipher.update(Buffer.from(dataHex, 'hex')), decipher.final()]).toString('utf8');
     return JSON.parse(decrypted) as Record<string, unknown>;
@@ -605,6 +606,7 @@ function decryptSubmissionPayload(cipherText: string): Record<string, unknown> {
 }
 export function listWebsiteSubmissions(actor: Actor): WebsiteSubmissionItem[] {
   if (actor.role !== 'admin') throw new ErpError(403, 'Only an administrator can view website form submissions.');
+  const cipherKey = submissionCipherKey();
   const db = database();
   type SubRow = {
     id: string;
@@ -631,7 +633,7 @@ export function listWebsiteSubmissions(actor: Actor): WebsiteSubmissionItem[] {
     companyOrType: r.company_or_type,
     location: r.location,
     summary: r.summary,
-    payload: decryptSubmissionPayload(r.payload_encrypted),
+    payload: decryptSubmissionPayload(r.payload_encrypted, cipherKey),
     status: (r.status === 'read' || r.status === 'archived' ? r.status : 'unread') as 'unread' | 'read' | 'archived',
     createdAt: r.created_at,
     readAt: r.read_at,
@@ -663,6 +665,7 @@ export function updateWebsiteSubmissionStatus(actor: Actor, input: { action: 'ma
   });
 }
 export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record<string,unknown>,key:string) {
+  submissionCipherKey(); // Configuration is checked before reading cached results or creating records.
   const actor={id:'website',email:'',role:'staff',tenantId:process.env.TAYCO_PUBLIC_TENANT_ID||'tayco_llc',projectIds:[]} as Actor;
   const hash=createHash('sha256').update(JSON.stringify({kind,payload})).digest('hex');
   if(!/^[\w-]{16,100}$/.test(key))throw new ErpError(422,'Invalid request reference.');

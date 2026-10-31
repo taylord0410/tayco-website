@@ -1,3 +1,4 @@
+import { requiredSecret } from './required-secret';
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -149,7 +150,7 @@ function actorOf(user: UserRow): Actor {
   } catch { throw new AuthError('Account access is invalid. Please contact TAYCO.', 403); }
 }
 function accessVersion(user: UserRow) { return digest(JSON.stringify([user.role, user.project_ids, user.vendor_id, user.disabled])); }
-function secret() { const s = process.env.TAYCO_SESSION_SECRET; if (!s || s.length < 32) throw new AuthError('Account access is not configured. Please contact TAYCO.', 503); return s; }
+function secret() { try { return requiredSecret(['TAYCO_SESSION_SECRET']); } catch { throw new AuthError('Account access is not configured. Please contact TAYCO.', 503); } }
 export function normalizeEmail(value: unknown) { if (typeof value !== 'string' || value.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) throw new AuthError('Enter a valid email address.', 400); return value.trim().toLowerCase(); }
 function validatePassword(password: unknown): asserts password is string { if (typeof password !== 'string' || password.length < 12 || password.length > 128) throw new AuthError('Use a password with 12 to 128 characters.', 400); }
 export function assertSameOrigin(request: Request) {

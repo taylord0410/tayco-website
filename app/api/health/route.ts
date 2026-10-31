@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { accessSync, constants, mkdirSync } from "node:fs";
 import path from "node:path";
+import { requiredSecret, SUBMISSION_SECRET_NAMES, SECURITY_LOG_SECRET_NAMES } from "@/lib/required-secret";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +9,10 @@ export const dynamic = "force-dynamic";
 /** Readiness only: no record counts, credentials, paths or error details leave this endpoint. */
 export function GET() {
   try {
-    if (!process.env.TAYCO_SESSION_SECRET || process.env.TAYCO_SESSION_SECRET.length < 32) throw new Error("configuration");
+    requiredSecret(["TAYCO_SESSION_SECRET"]);
+    requiredSecret(SUBMISSION_SECRET_NAMES);
+    requiredSecret(SECURITY_LOG_SECRET_NAMES);
+    if (process.env.NODE_ENV === "production" && process.env.TAYCO_TRUSTED_INGRESS !== "railway-public-edge") throw new Error("configuration");
     const origin = new URL(process.env.TAYCO_APP_URL || "");
     if (process.env.NODE_ENV === "production" && origin.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(origin.hostname)) throw new Error("configuration");
     for (const file of [process.env.TAYCO_AUTH_DB_PATH || path.join(process.cwd(), ".data", "tayco-auth.sqlite"), process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), ".data", "tayco-erp.sqlite")]) {
