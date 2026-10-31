@@ -1,0 +1,527 @@
+{
+  "generatedAt": "2026-10-31T08:14:01.597Z",
+  "environment": "isolated localhost:3102 fixture; synthetic visitor/admin/request; no production changes",
+  "home": [
+    {
+      "dialogs": 0,
+      "height": 568,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 12,
+        "y": 11
+      },
+      "overflow": false,
+      "width": 320
+    },
+    {
+      "dialogs": 0,
+      "height": 800,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 12,
+        "y": 11
+      },
+      "overflow": false,
+      "width": 360
+    },
+    {
+      "dialogs": 0,
+      "height": 844,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 12,
+        "y": 11
+      },
+      "overflow": false,
+      "width": 390
+    },
+    {
+      "dialogs": 0,
+      "height": 390,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 18.5625,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 844
+    },
+    {
+      "dialogs": 0,
+      "height": 1024,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 16.890625,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 768
+    },
+    {
+      "dialogs": 0,
+      "height": 768,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 22.515625,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 1024
+    },
+    {
+      "dialogs": 0,
+      "height": 800,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 28.15625,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 1280
+    },
+    {
+      "dialogs": 0,
+      "height": 900,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 31.671875,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 1440
+    },
+    {
+      "dialogs": 0,
+      "height": 1080,
+      "logo": {
+        "display": "block",
+        "height": 42,
+        "visibility": "visible",
+        "width": 42,
+        "x": 264.5,
+        "y": 15
+      },
+      "overflow": false,
+      "width": 1920
+    }
+  ],
+  "modal": [
+    {
+      "actions": [
+        {
+          "bottom": 304.890625,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 358.890625,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 528,
+        "width": 280,
+        "x": 20,
+        "y": 20
+      },
+      "height": 568,
+      "overflow": false,
+      "width": 320
+    },
+    {
+      "actions": [
+        {
+          "bottom": 445.53125,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 445.53125,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 479.34375,
+        "width": 350,
+        "x": 20,
+        "y": 182.328125
+      },
+      "height": 844,
+      "overflow": false,
+      "width": 390
+    },
+    {
+      "actions": [
+        {
+          "bottom": 278.75,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 278.75,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 350,
+        "width": 520,
+        "x": 162,
+        "y": 20
+      },
+      "height": 390,
+      "overflow": false,
+      "width": 844
+    },
+    {
+      "actions": [
+        {
+          "bottom": 529.296875,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 529.296875,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 482.890625,
+        "width": 520,
+        "x": 124,
+        "y": 270.546875
+      },
+      "height": 1024,
+      "overflow": false,
+      "width": 768
+    },
+    {
+      "actions": [
+        {
+          "bottom": 401.296875,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 401.296875,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 482.890625,
+        "width": 520,
+        "x": 252,
+        "y": 142.546875
+      },
+      "height": 768,
+      "overflow": false,
+      "width": 1024
+    },
+    {
+      "actions": [
+        {
+          "bottom": 467.296875,
+          "height": 44,
+          "text": "Keep editing",
+          "visible": true
+        },
+        {
+          "bottom": 467.296875,
+          "height": 44,
+          "text": "Request review",
+          "visible": true
+        }
+      ],
+      "dialog": {
+        "height": 482.890625,
+        "width": 520,
+        "x": 460,
+        "y": 208.546875
+      },
+      "height": 900,
+      "overflow": false,
+      "width": 1440
+    }
+  ],
+  "admin": [
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 231
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 568,
+      "overflow": false,
+      "width": 320
+    },
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 301
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 844,
+      "overflow": false,
+      "width": 390
+    },
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 755
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 390,
+      "overflow": false,
+      "width": 844
+    },
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 694
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 1024,
+      "overflow": false,
+      "width": 768
+    },
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 935
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 768,
+      "overflow": false,
+      "width": 1024
+    },
+    {
+      "controls": [
+        {
+          "height": 44,
+          "text": "Return to observation",
+          "width": 176.09375
+        },
+        {
+          "height": 44,
+          "text": "Refresh status",
+          "width": 128.265625
+        },
+        {
+          "height": 44,
+          "text": "Select browser",
+          "width": 134.421875
+        },
+        {
+          "height": 44,
+          "text": "purpose",
+          "width": 950
+        },
+        {
+          "height": 44,
+          "text": "Issue investigation token",
+          "width": 197.25
+        },
+        {
+          "height": 44,
+          "text": "Resolve as legitimate visitor",
+          "width": 215.75
+        }
+      ],
+      "height": 900,
+      "overflow": false,
+      "width": 1440
+    }
+  ],
+  "flows": {
+    "threeReloadsDoNotIncrement": true,
+    "tabWrapsWithinVisibleDialog": true,
+    "shiftTabSkipsClosedDetails": true,
+    "escapeReturnsFocusToSubmit": true,
+    "retainedNameDetailsAndReference": true,
+    "manualReviewCreatesNoInvestigationGrant": true,
+    "recoveryDoesNotAutoSubmit": true,
+    "explicitSubmitReceived": true,
+    "adminInboxHasReference": true,
+    "adminReferencePreviewWorks": true
+  },
+  "reference": "REF-21E21414A177",
+  "receipt": "b3633220-ecf0-450c-8a96-26a6de58da87",
+  "limitations": [
+    "No real Turnstile keys/domain or human challenge completed",
+    "CSS viewports in one Chromium browser; no physical-device Safari/Firefox coverage",
+    "No field Web Vitals certified"
+  ]
+}

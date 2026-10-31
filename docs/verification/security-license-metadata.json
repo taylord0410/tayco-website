@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-10-31T08:22:14Z",
+  "packages": 471,
+  "forbiddenAGPLGPLSSPL": [],
+  "newOrUpdatedPackages": [
+    {
+      "path": "node_modules/zod",
+      "version": "4.6.7",
+      "license": "MIT"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch",
+      "version": "11.0.3",
+      "license": "BlueOak-1.0.0"
+    },
+    {
+      "path": "node_modules/@isaacs/nonrecursive-glob-match",
+      "version": "1.0.3",
+      "license": "BlueOak-1.0.0"
+    }
+  ],
+  "scope": "SPDX manifest metadata only; LGPL sharp binaries are present; this is not a legal compliance certification"
+}

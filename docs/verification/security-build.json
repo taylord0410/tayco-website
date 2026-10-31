@@ -1,7 +1,9 @@
 {
+  "generatedAt": "2026-10-31T08:21:41Z",
   "exit": 0,
-  "sourceFiles": 283,
+  "elapsedSeconds": 142.71,
+  "sourceFiles": 304,
   "changedDuringBuild": [],
   "ignoreTypeErrors": false,
-  "manualRecoveryReplayTest": true
+  "scope": "Full local working tree incl. preserved Home/reference features; isolated build data, guard off, no deploy"
 }

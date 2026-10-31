@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "tier": "diff",
+  "files_scanned": 48,
+  "elapsed_ms": 66.28,
+  "secrets_found": [],
+  "forbidden_licenses_found": [],
+  "scope": "Explicit48 candidate paths, including textual browser evidence; built-in secret regex and touched-manifest license scan only"
+}

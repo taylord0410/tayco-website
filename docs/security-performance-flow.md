@@ -243,3 +243,5 @@ Despliegue propuesto: local → entorno de prueba → observación → enforceme
 ## Implementación local posterior
 
 Bloques25663..25667: consultar docs/security-verification.md y los recibos en docs/verification/. Los diagramas anteriores describen la arquitectura objetivo; la entrega local no certifica proveedor, ingresoRailway, UXde campo, ni vulnerabilidades de dependencias. La recuperación humana normal se implementó separada de los tokens de investigación.
+
+Local browser/registry acceptance dated2026-10-31 now lives in docs/security-verification.md. This supersedes the pending-local-UI wording in the original proposal; the original diagrams retain their design provenance. Field/provider/Railway gates remain explicit.

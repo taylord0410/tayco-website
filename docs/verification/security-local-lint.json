@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "files": [
+    "components/AutomationGuard.tsx",
+    "components/VerificationChallenge.tsx",
+    "lib/automation-guard-http.ts",
+    "app/layout.tsx"
+  ],
+  "stdout": "",
+  "stderr": ""
+}

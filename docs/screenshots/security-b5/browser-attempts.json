@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-10-31T08:16:32.238Z",
+  "scope": "Explicit local failed-verification simulation; no CAPTCHA solved; lab counter caps visual fraction at3",
+  "attempts": [
+    {
+      "attempt": 1,
+      "state": "  - generic: \"Mode: enforce · State: challenge · Retries: 1 / 3\""
+    },
+    {
+      "attempt": 2,
+      "state": "challenge",
+      "retries": 2
+    },
+    {
+      "attempt": 3,
+      "state": "challenge",
+      "retries": 3
+    },
+    {
+      "attempt": 4,
+      "state": "blocked",
+      "displayedRetries": "3 / 3",
+      "details": "4 failed"
+    }
+  ]
+}

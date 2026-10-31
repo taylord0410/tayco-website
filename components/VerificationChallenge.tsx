@@ -35,5 +35,6 @@ export default function VerificationChallenge({incidentId,siteKey,onVerified}:{i
   }).catch(e=>{if(!gone)setError(e.message);});
   return()=>{gone=true;if(id)window.turnstile?.remove(id);};
  },[siteKey,incidentId,version]);
- return <div className="tayco-guard-details"><div ref={host}/>{!siteKey&&<p role="status">Automatic verification is unavailable. Your form is kept. Please request a review.</p>}{busy&&<p role="status">Checking verification…</p>}{error&&<p role="alert">{error}</p>}{siteKey&&<button type="button" disabled={busy} onClick={()=>{setError('');setVersion(v=>v+1);}}>Retry verification</button>}</div>;
+ if(!siteKey)return <p className="tayco-guard-notice" role="status">Verification is unavailable. Keep editing or request a review.</p>;
+ return <div className="tayco-guard-details"><div ref={host}/>{busy&&<p role="status">Checking verification…</p>}{error&&<p role="alert">{error}</p>}{siteKey&&<button type="button" disabled={busy} onClick={()=>{setError('');setVersion(v=>v+1);}}>Retry verification</button>}</div>;
 }

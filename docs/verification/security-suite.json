@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-31T00:49:31.179Z",
+  "generatedAt": "2026-10-31T08:18:05.497Z",
   "scope": "Local unit/integration files, separate processes and disposable databases with random fixture keys; no real provider/browser certification",
   "files": 80,
   "tests": 807,
@@ -648,16 +648,5 @@
       "fail": 0,
       "skipped": 0
     }
-  ],
-  "scopedRerun": {
-    "files": [
-      "tests/document-lifecycle.test.ts",
-      "tests/takeoff-viewer-access.test.ts",
-      "tests/takeoff-viewer-gateway.test.ts",
-      "tests/takeoff-source-registration.test.ts",
-      "tests/viewer-bridge-boundary.test.ts"
-    ],
-    "reason": "Explicit upstream before redirect and no mixed incomplete policy overrides",
-    "temporaryLogs": "C:\\Users\\rando\\AppData\\Local\\Temp\\tayco-sg-reader-recheck-0bdaypq4"
-  }
+  ]
 }

@@ -47,35 +47,45 @@ export default function AutomationGuard() {
   const visible=state?.mode==='enforce'&&(state.state==='challenge'||state.state==='blocked')&&dismissed!==state.incidentId;
   useEffect(()=>{
     if(!visible)return;
-    const before=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    const before=document.activeElement instanceof HTMLElement&&document.activeElement!==document.body?document.activeElement:document.querySelector<HTMLElement>('main form button[type="submit"]');
     const overflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
     panel.current?.focus();
     const onKey=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){event.preventDefault();setDismissed(state?.incidentId||null);return;}
       if(event.key!=='Tab')return;
-      const items=Array.from(panel.current?.querySelectorAll<HTMLElement>('a[href],button,input,summary,[tabindex="0"]')||[]).filter(e=>e.getClientRects().length>0);
+      const items=Array.from(panel.current?.querySelectorAll<HTMLElement>('a[href],button,input,summary,[tabindex="0"]')||[]).filter(e=>{
+        if(!e.getClientRects().length||e.matches(':disabled,[hidden],[inert]'))return false;
+        for(let parent=e.parentElement;parent&&parent!==panel.current;parent=parent.parentElement){
+          if(parent.hasAttribute('hidden')||parent.hasAttribute('inert'))return false;
+          if(parent instanceof HTMLDetailsElement&&!parent.open&&!parent.querySelector(':scope > summary')?.contains(e))return false;
+        }
+        return getComputedStyle(e).visibility!=='hidden';
+      });
       const first=items[0],last=items[items.length-1];
       if(!first){event.preventDefault();return;}
       if(!panel.current?.contains(document.activeElement)||(event.shiftKey&&document.activeElement===first)){event.preventDefault();(event.shiftKey?last:first).focus();}
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     };
     window.addEventListener('keydown',onKey);
-    return()=>{document.body.style.overflow=overflow;window.removeEventListener('keydown',onKey);before?.focus();};
-  },[visible]);
+    return()=>{document.body.style.overflow=overflow;window.removeEventListener('keydown',onKey);if(before?.isConnected)before.focus();};
+  },[visible,state?.incidentId]);
   if(!visible||!state)return null;
   return <div className="tayco-guard-overlay"><section ref={panel} tabIndex={-1} className="tayco-guard-card" role="dialog" aria-modal="true" aria-labelledby="tayco-guard-title">
     <div className="tayco-guard-eyebrow">TAYCO GROUP · SECURITY</div>
     <h1 id="tayco-guard-title">{state.state==='blocked'?'Access temporarily paused':'Browser verification'}</h1>
-    <p>This browser requires verification before continuing. Authorized investigators can use a temporary access token.</p>
-    <div className="tayco-guard-details"><div>Retries used: {Math.min(3,state.retries)} / 3</div><div>Incident: {state.incidentId}</div><div>Refreshing does not reset this verification.</div></div>
+    <p>{state.state==='blocked'?'Verification is paused. Your form is kept. Request a review or try again after the pause.':'Complete verification to continue. Your form and selected images stay here.'}</p>
     {state.state==='challenge'&&state.incidentId&&<VerificationChallenge incidentId={state.incidentId} siteKey={state.siteKey} onVerified={refresh}/>}
-    <button type="button" className="secondary" onClick={()=>setDismissed(state.incidentId||null)}>Keep editing my form</button>
-    <form onSubmit={submit}><input type="hidden" name="op" value="review"/><button type="submit">Request a review</button></form>
-    {state.reviewCode&&<button type="button" onClick={refresh}>Check review status</button>}
+    <div className="tayco-guard-actions">
+      <button type="button" className="secondary" onClick={()=>setDismissed(state.incidentId||null)}>Keep editing</button>
+      <form onSubmit={submit}><input type="hidden" name="op" value="review"/><button type="submit">Request review</button></form>
+      {state.reviewCode&&<button type="button" onClick={refresh}>Check review status</button>}
+    </div>
     {state.reviewCode&&<p className="tayco-guard-details" role="status">Review reference: <span>{state.reviewCode}</span></p>}
-    <p><a href={"mailto:"+COMPANY.email}>Contact TAYCO for a review</a></p>
+    <details><summary>Verification details · {state.retries} failed</summary><div className="tayco-guard-details"><div>Three failed verifications are tolerated before a temporary pause.</div><div>Incident: {state.incidentId}</div><div>Refreshing does not count as a failed verification.</div></div></details>
     <details><summary>Authorized investigation</summary><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="exchange"/><label htmlFor="tayco-guard-token">Temporary authorization token</label><input id="tayco-guard-token" type="password" name="token" required maxLength={128} autoComplete="off"/><button type="submit">Authorize this browser</button></form></details>
-    {state.lab&&<footer><small>LOCAL TEST · Simulation controls are unavailable in production.</small><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="authorize-test"/><button type="submit">Test temporary authorization</button></form><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="reset-test"/><button className="secondary" type="submit">Reset local test</button></form></footer>}
+    <p className="tayco-guard-contact"><a href={"mailto:"+COMPANY.email}>Contact TAYCO</a></p>
+    {state.lab&&<details className="tayco-guard-lab"><summary>Local test controls</summary><small>Simulation controls are unavailable in production.</small><div className="tayco-guard-actions"><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="authorize-test"/><button type="submit">Test temporary authorization</button></form><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="reset-test"/><button className="secondary" type="submit">Reset local test</button></form></div></details>}
     {formError&&<p role="alert">{formError}</p>}
   </section></div>;
 }
