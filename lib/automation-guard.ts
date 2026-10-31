@@ -39,6 +39,7 @@ function withStore<T>(work: (db: DatabaseSync) => T): T {
     db.exec(`PRAGMA busy_timeout=100;
       CREATE TABLE IF NOT EXISTS guard_visitors(hash TEXT PRIMARY KEY,incident TEXT,retries INTEGER NOT NULL,window_end INTEGER NOT NULL,blocked_until INTEGER NOT NULL,expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_grants(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,issuer TEXT NOT NULL,purpose TEXT NOT NULL,expires INTEGER NOT NULL,used INTEGER NOT NULL DEFAULT 0,revoked INTEGER NOT NULL DEFAULT 0);
+      CREATE TABLE IF NOT EXISTS guard_attempts(visitor_hash TEXT NOT NULL,incident TEXT NOT NULL,id TEXT NOT NULL,token_hash TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(visitor_hash,id));
       CREATE TABLE IF NOT EXISTS guard_sessions(hash TEXT PRIMARY KEY,grant_id TEXT NOT NULL,visitor_hash TEXT NOT NULL,origin TEXT NOT NULL,expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS guard_events(id TEXT PRIMARY KEY,visitor_hash TEXT NOT NULL,kind TEXT NOT NULL,created INTEGER NOT NULL);
       CREATE INDEX IF NOT EXISTS guard_events_time ON guard_events(created);`);
@@ -52,6 +53,7 @@ function cleanup(db: DatabaseSync, now: number) {
   db.prepare('DELETE FROM guard_sessions WHERE expires<=?').run(now);
   db.prepare('DELETE FROM guard_grants WHERE expires<?').run(now - VISITOR_TTL);
   db.prepare('DELETE FROM guard_events WHERE created<?').run(now - VISITOR_TTL);
+  db.prepare('DELETE FROM guard_attempts WHERE created<?').run(now - VISITOR_TTL);
 }
 function note(db: DatabaseSync, hash: string, kind: string, now: number) {
   // Bounded retention; no user fields, raw cookies, tokens or payloads in events.
@@ -104,15 +106,50 @@ export function flagVisitor(visitorToken: string, kind: 'browser_automation' | '
     note(db, v.hash, kind, now);
   });
 }
-/** Called only for top-level document requests after a challenge, never asset/API requests. */
-export function countGuardRetry(visitorToken: string, debugToken: string | undefined, origin: string, now = Date.now()) {
+/** Only a completed, explicit, provider-rejected attempt may consume tolerance. */
+export function countGuardRetry(visitorToken: string, debugToken: string | undefined, origin: string, now = Date.now(), attemptId?: string) {
+  if (!attemptId || !/^[a-f0-9-]{36}$/i.test(attemptId)) return;
   return withStore(db => {
     const v = load(db, visitorToken, now);
-    if (!v?.incident || v.blocked_until > now || authorized(db, v, debugToken, origin, now)) return;
-    const retries = v.retries + 1;
-    db.prepare('UPDATE guard_visitors SET retries=?,blocked_until=? WHERE hash=?').run(retries, retries > 3 ? now + BLOCK : 0, v.hash);
-    note(db, v.hash, retries > 3 ? 'temporary_block' : 'challenge_retry', now);
+    if (!v?.incident || v.blocked_until > now || authorized(db,v,debugToken,origin,now)) return;
+    const inserted=db.prepare("INSERT OR IGNORE INTO guard_attempts VALUES(?,?,?,?,?,?)").run(v.hash,v.incident,attemptId,'','invalid',now);
+    if (!inserted.changes) return;
+    const retries=v.retries+1;
+    db.prepare('UPDATE guard_visitors SET retries=?,blocked_until=? WHERE hash=?').run(retries,retries>3?now+BLOCK:0,v.hash);
+    note(db,v.hash,retries>3?'temporary_block':'challenge_retry',now);
   });
+}
+export function claimChallenge(visitorToken: string, incident: string, id: string, token: string, now=Date.now()) {
+  if (!/^[a-f0-9-]{36}$/i.test(id) || !/^[a-f0-9-]{36}$/i.test(incident)) throw new GuardError('Restart verification.',422);
+  return withStore(db=>{
+    const v=load(db,visitorToken,now);
+    const old=db.prepare('SELECT status,token_hash,incident,created FROM guard_attempts WHERE visitor_hash=? AND id=?').get(v?.hash||'',id) as {status:string;token_hash:string;incident:string;created:number}|undefined;
+    if(old){
+      if(v?.incident && v.incident!==incident)throw new GuardError('Restart verification.',409);
+      if(old.token_hash!==digest(token)||old.incident!==incident)throw new GuardError('This attempt already belongs to another verification.',409);
+      if(old.status==='valid'||old.status==='invalid')return old.status;
+      if(old.status==='pending' && now-old.created<10_000)throw new GuardError('Verification is still pending. Retry shortly.',503);
+    }
+    if(!v?.incident||v.incident!==incident)throw new GuardError('Restart verification.',409);
+    if(v.blocked_until>now)throw new GuardError('Please wait before retrying verification.',429);
+    const count=db.prepare('SELECT COUNT(*) AS n FROM guard_attempts WHERE visitor_hash=? AND created>?').get(v.hash,now-WINDOW) as {n:number};
+    if(!old&&count.n>=20)throw new GuardError('Please wait before retrying verification.',429);
+    db.prepare("INSERT INTO guard_attempts VALUES(?,?,?,?,?,?) ON CONFLICT(visitor_hash,id) DO UPDATE SET status='pending',created=excluded.created").run(v.hash,incident,id,digest(token),'pending',now);
+    return 'pending';
+  });
+}
+export function finishChallenge(visitorToken: string, incident: string, id: string, outcome:'valid'|'invalid'|'unavailable', now=Date.now()) {
+ return withStore(db=>{
+  const v=load(db,visitorToken,now);if(!v)throw new GuardError('Restart verification.',409);
+  const changed=db.prepare("UPDATE guard_attempts SET status=? WHERE visitor_hash=? AND id=? AND incident=? AND status='pending'").run(outcome,v.hash,id,incident);
+  if(!changed.changes)return;
+  if(v.incident!==incident)return;
+  if(outcome==='valid'){
+   db.prepare('UPDATE guard_visitors SET incident=NULL,retries=0,window_end=0,blocked_until=0 WHERE hash=?').run(v.hash);note(db,v.hash,'challenge_passed',now);
+  } else if(outcome==='invalid'){
+   const retries=v.retries+1;db.prepare('UPDATE guard_visitors SET retries=?,blocked_until=? WHERE hash=?').run(retries,retries>3?now+BLOCK:0,v.hash);note(db,v.hash,retries>3?'temporary_block':'challenge_retry',now);
+  } else note(db,v.hash,'challenge_unavailable',now);
+ });
 }
 export function issueDebugGrant(visitorToken: string, origin: string, issuer: string, purpose: string, now = Date.now()) {
   return withStore(db => {

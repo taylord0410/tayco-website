@@ -183,6 +183,7 @@ export default function EstimatePage() {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": requestRef.current.key },
         body: payload,
+        signal: AbortSignal.timeout(15000),
       });
       if (res.ok) {
         const data = await res.json();
@@ -202,6 +203,7 @@ export default function EstimatePage() {
         });
       } else {
         const data = await res.json().catch(() => ({}));
+        if(data.code === "automation_verification") window.dispatchEvent(new Event("tayco-guard-update"));
         setErrorMsg(data.error || data.message || "Something went wrong. Please try again.");
         setStatus("error");
       }

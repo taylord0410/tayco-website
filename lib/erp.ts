@@ -664,7 +664,7 @@ export function updateWebsiteSubmissionStatus(actor: Actor, input: { action: 'ma
     return listWebsiteSubmissions(actor);
   });
 }
-export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record<string,unknown>,key:string) {
+export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record<string,unknown>,key:string,rateNow?:number) {
   submissionCipherKey(); // Configuration is checked before reading cached results or creating records.
   const actor={id:'website',email:'',role:'staff',tenantId:process.env.TAYCO_PUBLIC_TENANT_ID||'tayco_llc',projectIds:[]} as Actor;
   const hash=createHash('sha256').update(JSON.stringify({kind,payload})).digest('hex');
@@ -672,6 +672,16 @@ export function submitWebsite(kind:'estimate'|'investor'|'vendor',payload:Record
   return transact(()=>{
     const old=database().prepare('SELECT hash,result FROM commands WHERE tenant_id=? AND actor_id=? AND key=?').get(actor.tenantId,actor.id,key) as {hash:string;result:string}|undefined;
     if(old){if(old.hash!==hash)throw new ErpError(409,'Request reference already used.');return JSON.parse(old.result) as Entry;}
+    // Replay is resolved above before consuming quota; receipt/outbox and quota commit together.
+    if(rateNow!==undefined){
+      const db=database();db.exec('CREATE TABLE IF NOT EXISTS public_rate(key TEXT PRIMARY KEY,count INTEGER,until_ms INTEGER)');
+      db.prepare('DELETE FROM public_rate WHERE until_ms<?').run(rateNow);
+      for(const [rateKey,limit] of [['global',100],['email:'+String(payload.email).toLowerCase(),5]] as const){
+        db.prepare('INSERT INTO public_rate VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1').run(rateKey,rateNow+60_000);
+        const rate=db.prepare('SELECT count FROM public_rate WHERE key=?').get(rateKey) as {count:number};
+        if(rate.count>limit)throw new ErpError(429,'Please wait a minute before trying again.');
+      }
+    }
     const senderName=String(payload.fullName||payload.contactName||payload.businessName||'Website Visitor').trim();
     const senderEmail=String(payload.email||'').trim();
     const senderPhone=String(payload.phone||'').trim();

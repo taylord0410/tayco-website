@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,readFileSync} from 'node:fs';
@@ -43,10 +44,12 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
       flagVisitor(v,'lab_simulation',now);
       assert.equal(guardStatus(v,undefined,origin,false,now).retries,0);
       for(let i=1;i<=3;i++){
+        countGuardRetry(v,undefined,origin,Date.now(),randomUUID());
         const result=inspectAutomationRequest(document(v));
         assert.equal(result.response?.status,403);
         assert.equal(guardStatus(v,undefined,origin).retries,i);
       }
+      countGuardRetry(v,undefined,origin,Date.now(),randomUUID());
       const result=inspectAutomationRequest(document(v));
       assert.equal(result.response?.status,429);
       assert.ok(Number(result.response?.headers.get('retry-after'))>0);
@@ -59,7 +62,7 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
     await t.test('single-use debug authorization is browser/origin bound, expires and can be revoked',()=>{
       const now=Date.now(),v=ensureVisitor(undefined,now).token,other=ensureVisitor(undefined,now).token;
       flagVisitor(v,'lab_simulation',now);
-      for(let i=0;i<4;i++)countGuardRetry(v,undefined,origin,now+1);
+      for(let i=0;i<4;i++)countGuardRetry(v,undefined,origin,now+1,randomUUID());
       const grant=issueDebugGrant(v,origin,'fixture-admin','Responsive audit',now+2);
       assert.throws(()=>exchangeDebugGrant(grant.token,other,origin,now+3));
       assert.throws(()=>exchangeDebugGrant(grant.token,v,'https://other.test',now+3));
@@ -111,7 +114,7 @@ test('automation guard: persisted counters, bounded exceptions and HTTP boundari
     await t.test('observe records without blocking and feature is off unless explicitly enabled',async()=>{
       process.env.TAYCO_AUTOMATION_GUARD='observe';
       const v=ensureVisitor().token;flagVisitor(v,'lab_simulation');
-      for(let i=0;i<5;i++)assert.equal(inspectAutomationRequest(document(v)).response,undefined);
+      for(let i=0;i<5;i++){countGuardRetry(v,undefined,origin,Date.now(),randomUUID());assert.equal(inspectAutomationRequest(document(v)).response,undefined);}
       assert.equal(guardStatus(v,undefined,origin).state,'blocked');
       delete process.env.TAYCO_AUTOMATION_GUARD;
       assert.equal(guardMode(),'off');

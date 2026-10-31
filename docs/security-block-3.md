@@ -1,0 +1,9 @@
+# SG B3 — Explicit verification and durable receipts
+
+Refresh/navigation does not consume tolerance. Only an explicit server-verified failed attempt, bound to visitor/incident and stableUUID, counts. Three distinct invalid attempts retain verification; fourth pauses15min. Duplicate/concurrent attempts share a durable outcome. Network/provider/internal/expired-token errors are recoverable without punitive increments. Unknown provider responses are unavailable.
+
+Turnstile adapter validates server-side with5s deadline and provider idempotency key, hostname, action and incident binding. Browser token max2048bytes; no raw token/provider payload in logs. Widget loads only on challenge; errors keep form fields and reference selection in memory. Closing returns focus to editing; no automatic form submission after success. A15s form timeout retains the same intent key. Replaying a durable submission returns the same receipt before quota; submission/outbox/quota commit together.
+
+Configuration is intentionally absent locally/production: TAYCO_TURNSTILE_SITE_KEY (public) and TAYCO_TURNSTILE_SECRET_KEY (private). Official dummy keys refused inproduction. Without credentials recovery remains explicit unavailable/manual review. CSP conditionally permits only challenges.cloudflare.com scripts/frames. When configured, top-levelCOEP is unsafe-none for third-party iframe compatibility; takeoff viewer retains require-corp. Authorization and origin checks stay active. Production provider/domain/CSP behavior must be exercised before enforcement.
+
+Sources: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/ ; https://developers.cloudflare.com/turnstile/reference/content-security-policy/ . Local provider tests inject controlled responses; they do not certify Cloudflare service or human accuracy. Local simulation actions remain disabled inproduction.

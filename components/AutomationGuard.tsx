@@ -3,12 +3,16 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import type { GuardState } from '@/lib/automation-guard';
 import './automation-guard.css';
+import { COMPANY } from '@/lib/company';
+import VerificationChallenge from './VerificationChallenge';
 
 export default function AutomationGuard() {
 
-  const [state,setState]=useState<GuardState|null>(null);
+  const [state,setState]=useState<(GuardState & {siteKey?:string|null})|null>(null);
   const panel=useRef<HTMLElement>(null);
   const [formError,setFormError]=useState('');
+  const [dismissed,setDismissed]=useState<string|null>(null);
+  const refresh=()=>window.dispatchEvent(new Event('tayco-guard-update'));
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();setFormError('');
     const form=event.currentTarget,data=new FormData(form);
@@ -17,7 +21,7 @@ export default function AutomationGuard() {
     try{
       const response=await fetch('/api/automation-guard',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(Object.fromEntries(data))});
       if(!response.ok){const failure=await response.json();throw new Error(failure.error||'Authorization could not be verified. Please check your token.');}
-      form.reset();window.location.assign(state?.lab?'/security-lab':'/');
+      form.reset();refresh();
     }catch(error){setFormError(error instanceof Error?error.message:'Verification unavailable.');}
   }
   useEffect(()=>{
@@ -36,11 +40,11 @@ export default function AutomationGuard() {
         if(current.mode!=='off')await check(true);
       }catch{/* Security decisions remain server-side. */}
     })();
-    const update=()=>{void check();};
+    const update=()=>{setDismissed(null);void check();};
     window.addEventListener('tayco-guard-update',update);
     return()=>{controller.abort();window.removeEventListener('tayco-guard-update',update);};
   },[]);
-  const visible=state?.mode==='enforce'&&(state.state==='challenge'||state.state==='blocked');
+  const visible=state?.mode==='enforce'&&(state.state==='challenge'||state.state==='blocked')&&dismissed!==state.incidentId;
   useEffect(()=>{
     if(!visible)return;
     const before=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -64,7 +68,9 @@ export default function AutomationGuard() {
     <h1 id="tayco-guard-title">{state.state==='blocked'?'Access temporarily paused':'Browser verification'}</h1>
     <p>This browser requires verification before continuing. Authorized investigators can use a temporary access token.</p>
     <div className="tayco-guard-details"><div>Retries used: {Math.min(3,state.retries)} / 3</div><div>Incident: {state.incidentId}</div><div>Refreshing does not reset this verification.</div></div>
-    {state.state!=='blocked'&&<a className="tayco-guard-button" href={state.lab?'/security-lab':'/'}>Retry verification</a>}
+    {state.state==='challenge'&&state.incidentId&&<VerificationChallenge incidentId={state.incidentId} siteKey={state.siteKey} onVerified={refresh}/>}
+    <button type="button" className="secondary" onClick={()=>setDismissed(state.incidentId||null)}>Keep editing my form</button>
+    <p><a href={"mailto:"+COMPANY.email}>Contact TAYCO for a review</a></p>
     <details><summary>Authorized investigation</summary><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="exchange"/><label htmlFor="tayco-guard-token">Temporary authorization token</label><input id="tayco-guard-token" type="password" name="token" required maxLength={128} autoComplete="off"/><button type="submit">Authorize this browser</button></form></details>
     {state.lab&&<footer><small>LOCAL TEST · Simulation controls are unavailable in production.</small><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="authorize-test"/><button type="submit">Test temporary authorization</button></form><form method="post" action="/api/automation-guard" onSubmit={submit}><input type="hidden" name="op" value="reset-test"/><button className="secondary" type="submit">Reset local test</button></form></footer>}
     {formError&&<p role="alert">{formError}</p>}

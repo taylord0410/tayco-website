@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { ErpError, database, submitWebsite } from '@/lib/erp';
+import { ErpError, submitWebsite } from '@/lib/erp';
 export async function readJson(request:Request):Promise<Record<string,unknown>> {
  if(!request.headers.get('content-type')?.startsWith('application/json'))throw new ErpError(415,'Send this request as JSON.');
  if(Number(request.headers.get('content-length')||0)>20_000)throw new ErpError(413,'Request is too large.');
@@ -41,18 +41,7 @@ export async function receive(request:NextRequest,kind:'estimate'|'investor'|'ve
  try {
   if(!originAllowed(request))throw new ErpError(403,'This request must be sent from the TAYCO website.');
   const payload=validate(await readJson(request),kind);
-  const db=database();db.exec('CREATE TABLE IF NOT EXISTS public_rate(key TEXT PRIMARY KEY,count INTEGER,until_ms INTEGER)');
-  const now=Date.now();db.exec('BEGIN IMMEDIATE');
-  try{
-    db.prepare('DELETE FROM public_rate WHERE until_ms<?').run(now);
-    for(const [key,limit] of [['global',100],['email:'+String(payload.email).toLowerCase(),5]] as const){
-      db.prepare('INSERT INTO public_rate VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1').run(key,now+60_000);
-      const rate=db.prepare('SELECT count FROM public_rate WHERE key=?').get(key) as {count:number};
-      if(rate.count>limit)throw new ErpError(429,'Please wait a minute before trying again.');
-    }
-    db.exec('COMMIT');
-  }catch(error){db.exec('ROLLBACK');throw error;}
-  const entry=submitWebsite(kind,payload,request.headers.get('Idempotency-Key')||randomUUID());
+  const entry=submitWebsite(kind,payload,request.headers.get('Idempotency-Key')||randomUUID(),Date.now());
   return NextResponse.json({success:true,referenceId:entry.id,notificationStatus:'pending'},{status:201,headers:{'Cache-Control':'no-store'}});
  }catch(error){if(error instanceof ErpError)return NextResponse.json({success:false,error:error.message},{status:error.status});console.error('TAYCO submission failed',{type:error instanceof Error?error.name:'unknown'});return NextResponse.json({success:false,error:'Your request could not be saved. Please retry or contact TAYCO directly.'},{status:503});}
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { countGuardRetry, ensureVisitor, flagVisitor, guardCookie, guardMode, guardOrigin, guardStatus, labEnabled, readGuardCookie, type GuardState } from './automation-guard';
+import { ensureVisitor, flagVisitor, guardCookie, guardMode, guardOrigin, guardStatus, labEnabled, readGuardCookie, type GuardState } from './automation-guard';
 
 export const GUARD_PATH = '/api/automation-guard';
 export function guardPage(state: GuardState, error = '') {
@@ -46,7 +46,7 @@ export function inspectAutomationRequest(request: Request): { response?: NextRes
     const created = ensureVisitor(); visitor = created.token; cookie = guardCookie('visitor', visitor);
     flagVisitor(visitor, 'browser_automation');
   } else if (visitor && documentRequest) {
-    countGuardRetry(visitor, debug, origin);
+    // Reload, prefetch and navigation never consume a verification attempt.
     if (headlessSignal) flagVisitor(visitor, 'browser_automation');
   }
   if (!visitor) return {};
@@ -56,6 +56,6 @@ export function inspectAutomationRequest(request: Request): { response?: NextRes
   const pageRequest = ['GET','HEAD'].includes(request.method) && !pathname.startsWith('/api/');
   if (pageRequest) return { response: securityResponse(state), cookie };
 
-  if (guardedApi) return { response: NextResponse.json({error:'Browser verification required.',code:'automation_verification',incidentId:state.incidentId}, {status:state.state === 'blocked' ? 429 : 403,headers:{'Cache-Control':'private, no-store'}}), cookie };
+  if (guardedApi) return { response: NextResponse.json({error:'Browser verification required.',code:'automation_verification',incidentId:state.incidentId}, {status:state.state === 'blocked' ? 429 : 403,headers:{'Cache-Control':'private, no-store',...(state.state==='blocked'?{'Retry-After':String(Math.max(1,Math.ceil((state.blockedUntil-Date.now())/1000)))}:{})}}), cookie };
   return { cookie };
 }

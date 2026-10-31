@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode, type MouseEvent, type DragEvent } from "react";
 import { usePathname } from "next/navigation";
 import PublicCookieBanner from "@/components/PublicCookieBanner";
+import AutomationGuard from "@/components/AutomationGuard";
 
 const publicPages = new Set([
   "/",
@@ -77,6 +78,7 @@ export default function SiteFrame({ children, publicHeader, publicFooter }: { ch
       <div id="main-content" tabIndex={-1} className="relative outline-none">{children}</div>
       {publicSurface && publicFooter}
       {publicSurface && <PublicCookieBanner />}
+      {(publicSurface || pathname === "/security-lab") && <AutomationGuard />}
     </div>
   );
 }

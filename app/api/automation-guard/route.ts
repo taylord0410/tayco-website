@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { assertSameOrigin, AuthError, requireActor, requireRole, revalidateRequestActor, rateLimit } from '@/lib/auth';
 import { readAuthBody } from '@/lib/auth-http';
-import { ensureVisitor, exchangeDebugGrant, flagVisitor, GuardError, guardCookie, guardMode, guardOrigin, guardStatus, issueDebugGrant, labEnabled, listGuardEvents, readGuardCookie, resetLabVisitor, revokeDebugGrant } from '@/lib/automation-guard';
+import { countGuardRetry, ensureVisitor, exchangeDebugGrant, flagVisitor, GuardError, guardCookie, guardMode, guardOrigin, guardStatus, issueDebugGrant, labEnabled, listGuardEvents, readGuardCookie, resetLabVisitor, revokeDebugGrant } from '@/lib/automation-guard';
+import { challengeSiteKey, verifyChallenge } from '@/lib/guard-verification';
 import { admitGuardRequest } from '@/lib/guard-budget';
 import { securityResponse } from '@/lib/automation-guard-http';
 export const runtime = 'nodejs';
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic';
 const json = (body: unknown, status = 200) => NextResponse.json(body, {status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
 export async function GET(request: Request) {
   if (guardMode() === 'off') return json({mode:'off',state:'clear',retries:0,remaining:3,blockedUntil:0,lab:false});
-  try { admitGuardRequest(request); return json(guardStatus(readGuardCookie(request,'visitor'),readGuardCookie(request,'debug'),guardOrigin(request),labEnabled(request.url))); }
+  try { admitGuardRequest(request); return json({...guardStatus(readGuardCookie(request,'visitor'),readGuardCookie(request,'debug'),guardOrigin(request),labEnabled(request.url)),siteKey:challengeSiteKey()}); }
   catch { return json({error:'Security verification is temporarily unavailable.'},503); }
 }
 export async function POST(request: Request) {
@@ -33,7 +34,12 @@ export async function POST(request: Request) {
     let response: NextResponse;
     if (op === 'bootstrap') {
       if (body.automation === true) flagVisitor(visitor.token,'browser_automation');
-      response=json(guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab));
+      response=json({...guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab),siteKey:challengeSiteKey()});
+    } else if (op === 'verify') {
+      const verified=await verifyChallenge(request,visitor.token,body);
+      const state=guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab);
+      response=json({verified,...state},verified?200:state.state==='blocked'?429:422);
+      if(state.state==='blocked')response.headers.set('Retry-After',String(Math.max(1,Math.ceil((state.blockedUntil-Date.now())/1000))));
     } else if (op === 'exchange' || op === 'authorize-test') {
       let token=body.token;
       if(op === 'authorize-test') {
@@ -43,6 +49,10 @@ export async function POST(request: Request) {
       const result=exchangeDebugGrant(token,visitor.token,origin);
       response=form ? NextResponse.redirect(new URL(lab?'/security-lab':'/',origin),303) : json({authorized:true,expiresAt:result.expiresAt});
       response.headers.append('Set-Cookie',guardCookie('debug',result.session));
+    } else if (op === 'invalid-test') {
+      if(!lab)throw new GuardError('Not found.',404);
+      countGuardRetry(visitor.token,undefined,origin,Date.now(),typeof body.attemptId==='string'?body.attemptId:undefined);
+      response=json(guardStatus(visitor.token,readGuardCookie(request,'debug'),origin,lab));
     } else if (op === 'simulate' || op === 'reset-test') {
       if(!lab)throw new GuardError('Not found.',404);
       if(op === 'simulate')flagVisitor(visitor.token,'lab_simulation'); else resetLabVisitor(visitor.token);
