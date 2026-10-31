@@ -566,7 +566,7 @@ export function TaycoCardMetaBar({
 }) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 ${className}`}
+      className={`tayco-card-meta-bar flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 ${className}`}
     >
       <div className="flex flex-wrap items-center gap-2">{leftBadge}</div>
       {rightMeta && (
@@ -652,7 +652,7 @@ export function TaycoCardFooterBar({
 }) {
   return (
     <div
-      className={`mt-auto flex flex-col items-stretch justify-between gap-3 border-t border-white/[0.09] pt-4 sm:flex-row sm:items-center ${className}`}
+      className={`tayco-card-footer-bar mt-auto flex flex-col items-stretch justify-between gap-3 border-t border-white/[0.09] pt-4 sm:flex-row sm:items-center ${className}`}
     >
       {leftMeta && (
         <div className="flex items-center justify-center gap-2 text-xs text-slate-300 sm:justify-start">

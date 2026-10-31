@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { isAiBotUserAgent, isManualScraperUserAgent, isLocalhostIp } from "@/lib/site-shield";
+import { isAiBotUserAgent, isManualScraperUserAgent, isLocalhostIp, scrambleVisualBytes } from "@/lib/site-shield";
 import { trustedClientIp } from "@/lib/client-network";
 
 const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
@@ -18,15 +18,6 @@ interface CachedScrambledAsset {
 // Server-side in-memory cache of XOR-scrambled assets so disk I/O + XOR run only once per asset version
 const scrambledAssetCache = new Map<string, CachedScrambledAsset>();
 const MAX_CACHE_ENTRIES = 260;
-
-export function scrambleVisualBytes(input: Uint8Array): Uint8Array {
-  const out = new Uint8Array(input.length);
-  for (let i = 0; i < input.length; i++) {
-    const mask = (0xa7 ^ ((i * 31) & 0xff) ^ ((i >> 8) & 0xff)) & 0xff;
-    out[i] = input[i] ^ mask;
-  }
-  return out;
-}
 
 function isAllowedAssetPath(assetPath: string): boolean {
   if (!assetPath || !assetPath.startsWith("/") || assetPath.includes("..")) {

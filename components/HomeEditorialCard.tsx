@@ -90,8 +90,10 @@ export function HomeEditorialGallery({ selection, onClose }: {
             <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
           </header>
           <div className="home-gallery-stage" {...stageGestureHandlers}>
-            <ProtectedImage src={frame.src} alt={frame.title} auditIgnore
-              className="h-full w-full object-contain" />
+            <ProtectedImage src={frame.src} alt="" auditIgnore loading="eager"
+              className="home-gallery-backdrop" />
+            <ProtectedImage src={frame.src} alt={frame.title} auditIgnore loading="eager"
+              className="home-gallery-main-image h-full w-full object-contain" />
           </div>
           <div className="home-gallery-copy" data-tayco-scroll-zone="true" tabIndex={0} aria-label="Photograph details">
             <ImageReferenceButton src={frame.src} />

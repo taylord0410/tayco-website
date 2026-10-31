@@ -784,7 +784,11 @@ export function LandingPropertyCategoriesSection() {
         allPreviewUrls.push(u, resolveNightImageSrc(u));
       }
     }
-    preloadProtectedImages(allPreviewUrls);
+    const timer = window.setTimeout(
+      () => preloadProtectedImages(allPreviewUrls),
+      1400
+    );
+    return () => window.clearTimeout(timer);
   }, []);
 
   const handleSelectPreview = (slug: string, idx: number, urls: string[]) => {
@@ -961,7 +965,7 @@ export function LandingPropertyCategoriesSection() {
                     >
                       <ProtectedImage
                         src={currentUrl}
-                        syncUrls={galleryUrls}
+                        syncUrls={activeIdx === 0 ? undefined : galleryUrls}
                         alt={cat.label}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />
@@ -1040,7 +1044,7 @@ export function LandingPropertyCategoriesSection() {
                                   [cat.slug]: m.id,
                                 }));
                               }}
-                              className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                              className="inline-flex items-center gap-1 px-3 min-h-[36px] sm:min-h-[38px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                               style={{
                                 background: active ? "#E5C97B" : "transparent",
                                 color: active ? "#050A14" : "#CBD5E1",
@@ -1092,7 +1096,7 @@ export function LandingPropertyCategoriesSection() {
                             onPointerEnter={() =>
                               handleSelectPreview(cat.slug, idx, galleryUrls)
                             }
-                            className="min-w-[34px] min-h-[34px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
+                            className="min-w-[38px] min-h-[38px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
                             style={{
                               background: isSelected
                                 ? "#C9A84C"

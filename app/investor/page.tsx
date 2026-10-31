@@ -306,14 +306,7 @@ export default function InvestorPage() {
       <div className="max-w-6xl mx-auto px-4 pt-10 pb-6 text-white">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="text-center lg:text-left max-w-3xl">
-            <span
-              className="tayco-eyebrow mb-4 px-3 py-1 rounded-full"
-              style={{
-                color: "#F3D37A",
-                background: "rgba(7, 14, 26, 0.65)",
-                border: "1px solid rgba(201, 168, 76, 0.42)",
-              }}
-            >
+            <span className="mb-4 inline-flex items-center gap-2 border border-[#C9A84C]/45 bg-[#0F2040]/85 text-[#F3D37A] px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold shadow-sm">
               <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
               PROPERTY OWNERS · INVESTORS · MANAGERS
             </span>
@@ -371,9 +364,26 @@ export default function InvestorPage() {
                 aria-label="Raking Light Angle"
               />
             </div>
-            <span className="text-[11px] font-mono text-slate-300">
-              {COMPANY.phoneDisplay}
-            </span>
+            <a
+              href={COMPANY.phoneHref}
+              className="min-h-[40px] inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold text-[#F3D37A] border border-[#C9A84C]/40 bg-[#0F2040]/85 hover:bg-[#0F2040] hover:border-[#C9A84C]/70 transition-all shadow-sm"
+              aria-label={`Call TAYCO LLC at ${COMPANY.phoneDisplay}`}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span>{COMPANY.phoneDisplay}</span>
+            </a>
           </div>
         </div>
       </div>

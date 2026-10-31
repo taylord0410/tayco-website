@@ -166,8 +166,27 @@
   text-align: left;
 }
 .tayco-home [data-category-card] .tayco-card-meta-bar { border: 0; }
+.tayco-home [data-category-card] .tayco-card-footer-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 .tayco-home [data-category-card] .home-text-action { white-space: nowrap; }
 .tayco-home [data-category-card] .home-reading-details button { min-height: 44px; }
+#tayco-light-studio #tayco-light-angle-slider + div button,
+.tayco-home #tayco-light-studio #tayco-light-angle-slider + div button {
+  padding: 6px 10px;
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 20, 36, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .tayco-home .home-compact-control {
   min-height: 44px;
   min-width: 44px;
@@ -223,12 +242,29 @@
   font-size: 20px;
 }
 .home-gallery-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 1 auto;
   min-height: 120px;
   height: min(49dvh, 540px);
   background: #040811;
   touch-action: pan-y pinch-zoom;
   overflow: hidden;
+}
+.home-gallery-backdrop {
+  position: absolute;
+  inset: -18px;
+  width: calc(100% + 36px);
+  height: calc(100% + 36px);
+  object-fit: cover;
+  filter: blur(26px) brightness(0.38) saturate(1.15);
+  pointer-events: none;
+}
+.home-gallery-main-image {
+  position: relative;
+  z-index: 1;
 }
 .home-gallery-copy {
   flex: 1 1 auto;

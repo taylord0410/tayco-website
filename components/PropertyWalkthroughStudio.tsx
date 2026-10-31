@@ -594,6 +594,12 @@ export const DESIGNER_PALETTES: readonly DesignerPalette[] = [
  * Computes continuous, physically plausible solar & interior lighting shaders
  * from `hour` (6.0 = 6:00 AM to 22.5 = 10:30 PM).
  */
+const NIGHT_IMAGE_FALLBACK_MAP: Record<string, string> = {
+  com_02_1: "com_02_2-night.jpg",
+  com_03_1: "com_03_2-night.jpg",
+  com_04_1: "com_04_2-night.jpg",
+};
+
 /**
  * Maps any daytime architectural photo path to its real generated nighttime (9:30 PM)
  * counterpart in `/curated/properties/*-night.jpg`.
@@ -602,6 +608,10 @@ export function resolveNightImageSrc(daySrc: string): string {
   const fileName = daySrc.split("/").pop() ?? "";
   const base = fileName.replace(/\.jpg$/i, "");
   if (!base) return daySrc;
+  const fallback = NIGHT_IMAGE_FALLBACK_MAP[base];
+  if (fallback) {
+    return `/curated/properties/${fallback}`;
+  }
   return `/curated/properties/${base}-night.jpg`;
 }
 

@@ -951,7 +951,7 @@ export function TransformationBeforeAfterStudio({
                   {activePair.subtitle}
                 </p>
 
-                <details className="home-reading-details mt-4 w-full">
+                <details open className="home-reading-details mt-4 w-full">
                   <summary>Scope details <span aria-hidden="true">＋</span></summary>
                   <p className="text-sm text-slate-300 leading-relaxed mb-4">{activePair.summary}</p>
                   <ul className="space-y-2 inline-flex flex-col items-start mx-auto">

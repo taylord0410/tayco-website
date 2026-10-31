@@ -128,7 +128,7 @@ export default function EstimatePage() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left max-w-3xl">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-3">
-                <span className="tayco-eyebrow">
+                <span className="inline-flex items-center gap-2 border border-[#C9A84C]/40 bg-[#0F2040]/85 text-[#F3D37A] px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold tracking-wide">
                   <span className="tayco-live-dot" />
                   BUILD · RENOVATE · RESTORE
                 </span>

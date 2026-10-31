@@ -38,6 +38,17 @@ export default function Navbar() {
   });
 
   useEffect(() => {
+    const isAuthOrPrivatePath =
+      pathname === "/portal" || pathname === "/account" || pathname === "/login";
+    const hasSessionCookie =
+      typeof document !== "undefined" &&
+      (document.cookie.includes("tayco_session") || document.cookie.includes("session"));
+
+    if (!isAuthOrPrivatePath && !hasSessionCookie) {
+      setAuthenticated(false);
+      return;
+    }
+
     const controller = new AbortController();
     fetch("/api/auth/session", { cache: "no-store", signal: controller.signal })
       .then((response) => {

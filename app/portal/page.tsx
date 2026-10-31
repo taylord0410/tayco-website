@@ -88,6 +88,6 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
     </div>
   </main>;
 }
-export default function AuditedPortalPage(props:Parameters<typeof PortalPage>[0]={}){
-  return withGuestRenderAudit("portal",()=>PortalPage(props));
+export default function AuditedPortalPage(props: { searchParams?: Promise<Search> }) {
+  return withGuestRenderAudit("portal", () => PortalPage(props));
 }

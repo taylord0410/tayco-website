@@ -186,6 +186,15 @@ export function isProtectedImageAsset(pathname: string): boolean {
   return /\.(png|jpe?g|webp|avif)$/i.test(lower);
 }
 
+export function scrambleVisualBytes(input: Uint8Array): Uint8Array {
+  const out = new Uint8Array(input.length);
+  for (let i = 0; i < input.length; i++) {
+    const mask = (0xa7 ^ ((i * 31) & 0xff) ^ ((i >> 8) & 0xff)) & 0xff;
+    out[i] = input[i] ^ mask;
+  }
+  return out;
+}
+
 export function isLocalhostIp(ip: string, hostHeader: string): boolean {
   return developmentLoopback(ip, hostHeader);
 }

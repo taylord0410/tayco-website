@@ -582,19 +582,20 @@ export default function ResidentialPage() {
             <div className="lg:col-span-5 flex flex-col">
               <div
                 data-response-kind="surface"
-                className="tayco-living-card rounded-2xl border overflow-hidden shadow-2xl flex-1 flex flex-col justify-between"
+                className="tayco-living-card rounded-2xl border overflow-hidden shadow-2xl flex-1 flex flex-col justify-start"
                 style={{
                   background: "rgba(7, 14, 26, 0.92)",
                   borderColor: "rgba(249, 115, 22, 0.52)",
                 }}
               >
-                <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-950">
+                <div className="relative w-full flex-1 min-h-[260px] sm:min-h-[340px] overflow-hidden bg-slate-950">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <ProtectedImage
                     src={currentHeroScene.image}
                     alt={currentHeroScene.title}
                     syncUrls={currentHeroBundle}
-                    className="w-full h-full object-cover transition-all duration-700"
+                    fill
+                    className="object-cover transition-all duration-700"
                     style={{
                       filter:
                         heroMood === "sunset"
@@ -675,7 +676,7 @@ export default function ResidentialPage() {
                         })}
                       </div>
                       <span
-                        className="hidden sm:inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-bold"
+                        className="hidden sm:inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-bold whitespace-nowrap shrink-0"
                         style={{
                           background: "rgba(201, 168, 76, 0.22)",
                           color: "#F3D37A",
