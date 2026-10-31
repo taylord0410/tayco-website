@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const resolvedFile = path.resolve(PUBLIC_ROOT, rawPath.replace(/^\/+/, ""));
+  const resolvedFile = path.resolve(PUBLIC_ROOT, (rawPath === "/logo.png" ? "/media/tayco-brand-mark.webp" : rawPath).replace(/^\/+/, ""));
   if (!resolvedFile.startsWith(PUBLIC_ROOT + path.sep) && resolvedFile !== PUBLIC_ROOT) {
     return new NextResponse("Forbidden path.", { status: 403 });
   }

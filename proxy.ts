@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { evaluateSiteShield } from "./lib/site-shield";
+import { inspectAutomationRequest, GUARD_PATH } from "./lib/automation-guard-http";
+import { guardMode } from "./lib/automation-guard";
 import { trustedClientIp } from "./lib/client-network";
 
 function extractClientIp(request: NextRequest): string {
@@ -7,6 +9,17 @@ function extractClientIp(request: NextRequest): string {
 }
 
 export function proxy(request: NextRequest) {
+  try {
+    const probe = inspectAutomationRequest(request);
+    const response = probe.response || (guardMode() !== 'off' && request.nextUrl.pathname === GUARD_PATH ? NextResponse.next() : siteProxy(request));
+    if (probe.cookie) response.headers.append('Set-Cookie', probe.cookie);
+    return response;
+  } catch {
+    return NextResponse.json({error: 'Security verification is temporarily unavailable.'}, {status: 503, headers: {'Cache-Control': 'private, no-store'}});
+  }
+}
+
+function siteProxy(request: NextRequest) {
   const decision = evaluateSiteShield({
     method: request.method,
     pathname: request.nextUrl.pathname,

@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-10-30T23:54:17.524Z",
+  "scope": "Pre-B2 guard-only microbenchmark, not HTTP/Web Vitals",
+  "stats": {
+    "off": {
+      "n": 200,
+      "p50Ms": 0.002,
+      "p95Ms": 0.003,
+      "maxMs": 0.072
+    },
+    "observe": {
+      "n": 200,
+      "p50Ms": 2.809,
+      "p95Ms": 4.879,
+      "maxMs": 12.126
+    }
+  }
+}
