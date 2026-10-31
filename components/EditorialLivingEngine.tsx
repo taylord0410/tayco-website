@@ -255,7 +255,8 @@ export default function EditorialLivingEngine() {
         paused ||
         document.hidden ||
         document.visibilityState === "hidden" ||
-        e.button !== 0
+        e.button !== 0 ||
+        e.pointerType === "touch"
       ) {
         return;
       }
@@ -263,6 +264,13 @@ export default function EditorialLivingEngine() {
       if (!target) return;
       if (document.body.dataset.modalOpen === "true" && !target.closest('[data-tayco-modal-root="true"]')) return;
       if (target.closest(".workspace-shell")) return;
+      if (
+        target.closest(
+          'button, a, input, select, textarea, summary, [role="button"], [data-visual-slot]'
+        )
+      ) {
+        return;
+      }
 
       const surface = target.closest<HTMLElement>(SURFACE_SELECTOR);
       if (!surface) return;
@@ -285,22 +293,13 @@ export default function EditorialLivingEngine() {
       surface.style.setProperty("--response-py", `${py.toFixed(1)}%`);
 
       try {
-        surface.animate(
-          [
-            { scale: "1" },
-            { scale: "0.992", offset: 0.22 },
-            { scale: "1.006", offset: 0.62 },
-            { scale: "1" },
-          ],
-          { duration: 460, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" }
-        );
         wash.animate(
           [
-            { opacity: 0.15, scale: "0.97" },
-            { opacity: 0.9, scale: "1", offset: 0.28 },
-            { opacity: 0.22, scale: "1.03" },
+            { opacity: 0.12 },
+            { opacity: 0.42, offset: 0.3 },
+            { opacity: 0 },
           ],
-          { duration: 540, easing: "ease-out" }
+          { duration: 420, easing: "ease-out" }
         );
       } catch {
         // Fallback if Web Animations API is unavailable

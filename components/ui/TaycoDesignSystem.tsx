@@ -548,7 +548,7 @@ export function TaycoPillDock({
     <div
       role={ariaLabel ? "group" : undefined}
       aria-label={ariaLabel}
-      className={`mx-auto inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 max-sm:w-full max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto tayco-no-scrollbar [&>*]:max-sm:shrink-0 [&>*]:max-sm:whitespace-nowrap rounded-[24px] border border-[#d4af5a]/30 bg-[#071020]/90 p-1.5 shadow-[0_16px_38px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.07)] xl:rounded-full ${className}`}
+      className={`mx-auto inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-[24px] border border-[#d4af5a]/30 bg-[#071020]/90 p-1.5 shadow-[0_16px_38px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.07)] xl:rounded-full ${className}`}
     >
       {children}
     </div>

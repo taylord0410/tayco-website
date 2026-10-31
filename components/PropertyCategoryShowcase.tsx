@@ -211,6 +211,21 @@ function MarketSpecialtyInteractiveCard({
 }) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [mood, setMood] = useState<"day" | "sunset" | "night">("day");
+  const [daylightMood, setDaylightMood] = useState<"day" | "sunset">("day");
+  const [animateDaylight, setAnimateDaylight] = useState<boolean>(true);
+
+  const handleSelectMood = (nextMood: "day" | "sunset" | "night") => {
+    if (nextMood === mood) return;
+    if (nextMood === "night") {
+      setAnimateDaylight(false);
+      setMood("night");
+      return;
+    }
+    const comingFromNight = mood === "night";
+    setAnimateDaylight(!comingFromNight);
+    setDaylightMood(nextMood);
+    setMood(nextMood);
+  };
 
   const frames = service.triptych;
   const allUrls = React.useMemo(
@@ -220,6 +235,10 @@ function MarketSpecialtyInteractiveCard({
   );
   const currentFrame = frames[activeIdx] ?? frames[0];
   const currentNightSrc = resolveNightImageSrc(currentFrame.src);
+  const currentPairUrls = React.useMemo(
+    () => [currentFrame.src, currentNightSrc],
+    [currentFrame.src, currentNightSrc]
+  );
   const currentAssetId = computeVisualAssetId(currentFrame.src);
 
   const selectFrame = (idx: number) => {
@@ -233,7 +252,7 @@ function MarketSpecialtyInteractiveCard({
   };
 
   const cardFilter =
-    mood === "sunset"
+    daylightMood === "sunset"
       ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
       : "none";
 
@@ -281,50 +300,57 @@ function MarketSpecialtyInteractiveCard({
           className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#03060D] select-none cursor-pointer group/specphoto"
         >
           <div
-            className="absolute inset-0 w-full h-full pointer-events-none"
+            className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
             style={{
               filter: cardFilter,
-              transition: "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+              transition: animateDaylight
+                ? "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                : "none",
             }}
           >
             <ProtectedImage
               src={currentFrame.src}
-              syncUrls={allUrls}
+              syncUrls={currentPairUrls}
               loading="eager"
               alt={`${service.title} — ${currentFrame.label}`}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/specphoto:scale-[1.02]"
             />
-            <div
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{
-                opacity: mood === "night" ? 1 : 0,
-                transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            >
-              <ProtectedImage
-                src={currentNightSrc}
-                syncUrls={allUrls}
-                auditIgnore={true}
-                loading="lazy"
-                alt={`${service.title} — ${currentFrame.label} (Night)`}
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/specphoto:scale-105"
-              />
-            </div>
           </div>
 
           {/* Sunset Warmth Overlay */}
           <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+            className="absolute inset-0 pointer-events-none z-[2]"
             style={{
-              opacity: mood === "sunset" ? 1 : 0,
+              opacity: daylightMood === "sunset" ? 1 : 0,
+              transition: animateDaylight
+                ? "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                : "none",
               background:
                 "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
               mixBlendMode: "soft-light",
             }}
           />
 
+          {/* Real Nighttime Architectural Layer (outside Day filter & above Sunset wash) */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
+            style={{
+              opacity: mood === "night" ? 1 : 0,
+              transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
+            <ProtectedImage
+              src={currentNightSrc}
+              syncUrls={currentPairUrls}
+              auditIgnore={true}
+              loading="eager"
+              alt={`${service.title} — ${currentFrame.label} (Night)`}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/specphoto:scale-[1.02]"
+            />
+          </div>
+
+          <div
+            className="absolute inset-0 pointer-events-none z-[4]"
             style={{
               background:
                 "linear-gradient(180deg, rgba(4,8,17,0.62) 0%, transparent 45%, rgba(4,8,17,0.92) 100%)",
@@ -373,7 +399,7 @@ function MarketSpecialtyInteractiveCard({
                     data-magnetic
                     onClick={(e) => {
                       e.stopPropagation();
-                      setMood(m.id);
+                      handleSelectMood(m.id);
                     }}
                     className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                     style={{
@@ -541,11 +567,31 @@ function PropertyCardInteractiveStage({
   );
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [cardMood, setCardMood] = useState<"day" | "sunset" | "night">("day");
+  const [daylightMood, setDaylightMood] = useState<"day" | "sunset">("day");
+  const [animateDaylight, setAnimateDaylight] = useState<boolean>(true);
+
+  const handleSelectCardMood = (nextMood: "day" | "sunset" | "night") => {
+    if (nextMood === cardMood) return;
+    if (nextMood === "night") {
+      setAnimateDaylight(false);
+      setCardMood("night");
+      return;
+    }
+    const comingFromNight = cardMood === "night";
+    setAnimateDaylight(!comingFromNight);
+    setDaylightMood(nextMood);
+    setCardMood(nextMood);
+  };
+
   const allUrls = React.useMemo(
     () => stops.flatMap((s) => [s.src, s.nightSrc]),
     [stops]
   );
   const currentStop = stops[activeIdx] ?? stops[0];
+  const currentPairUrls = React.useMemo(
+    () => [currentStop.src, currentStop.nightSrc],
+    [currentStop.src, currentStop.nightSrc]
+  );
   const currentAssetId = computeVisualAssetId(currentStop.src);
 
   const selectRoomPreview = (idx: number) => {
@@ -557,7 +603,7 @@ function PropertyCardInteractiveStage({
   };
 
   const cardFilter =
-    cardMood === "sunset"
+    daylightMood === "sunset"
       ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
       : "none";
 
@@ -585,51 +631,57 @@ function PropertyCardInteractiveStage({
         className="relative h-60 sm:h-64 w-full overflow-hidden cursor-pointer group/photo select-none bg-[#03060D]"
       >
         <div
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
           style={{
             filter: cardFilter,
-            transition: "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+            transition: animateDaylight
+              ? "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+              : "none",
           }}
         >
           <ProtectedImage
             src={currentStop.src}
-            syncUrls={allUrls}
+            syncUrls={currentPairUrls}
             loading="eager"
             alt={`${property.title} — ${currentStop.title}`}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/photo:scale-[1.02]"
           />
-          {/* True AI-Generated Nighttime Photograph (`nightSrc`) with Logical 2700K Interior Illumination */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{
-              opacity: cardMood === "night" ? 1 : 0,
-              transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-          >
-            <ProtectedImage
-              src={currentStop.nightSrc}
-              syncUrls={allUrls}
-              auditIgnore={true}
-              loading="lazy"
-              alt={`${property.title} — ${currentStop.title} (Night)`}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
-            />
-          </div>
         </div>
 
         {/* Ambient Golden Sunset Card Preview Overlay (Only for Sunset; Night uses real generated Night photo) */}
         <div
-          className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+          className="absolute inset-0 pointer-events-none z-[2]"
           style={{
-            opacity: cardMood === "sunset" ? 1 : 0,
+            opacity: daylightMood === "sunset" ? 1 : 0,
+            transition: animateDaylight
+              ? "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+              : "none",
             background:
               "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
             mixBlendMode: "soft-light",
           }}
         />
 
+        {/* True AI-Generated Nighttime Photograph (`nightSrc`) with Logical 2700K Interior Illumination */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
+          style={{
+            opacity: cardMood === "night" ? 1 : 0,
+            transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          <ProtectedImage
+            src={currentStop.nightSrc}
+            syncUrls={currentPairUrls}
+            auditIgnore={true}
+            loading="eager"
+            alt={`${property.title} — ${currentStop.title} (Night)`}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/photo:scale-[1.02]"
+          />
+        </div>
+
+        <div
+          className="absolute inset-0 pointer-events-none z-[4]"
           style={{
             background:
               "linear-gradient(180deg, rgba(4,8,17,0.58) 0%, transparent 42%, rgba(4,8,17,0.92) 100%)",
@@ -637,7 +689,7 @@ function PropertyCardInteractiveStage({
         />
 
         {/* Top Badge: Room Number + Quick Day/Sunset/Night Switcher */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
           <span
             className="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border backdrop-blur-sm pointer-events-none"
             style={{
@@ -669,7 +721,7 @@ function PropertyCardInteractiveStage({
                   data-magnetic
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCardMood(m.id);
+                    handleSelectCardMood(m.id);
                   }}
                   className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                   style={{
@@ -766,6 +818,32 @@ export function LandingPropertyCategoriesSection() {
   const [categoryMoodMap, setCategoryMoodMap] = useState<
     Record<string, "day" | "sunset" | "night">
   >({});
+  const [categoryDaylightMoodMap, setCategoryDaylightMoodMap] = useState<
+    Record<string, "day" | "sunset">
+  >({});
+  const [categoryAnimateDaylightMap, setCategoryAnimateDaylightMap] = useState<
+    Record<string, boolean>
+  >({});
+
+  const handleSelectCategoryMood = (
+    slug: string,
+    nextMood: "day" | "sunset" | "night"
+  ) => {
+    const prevMood = categoryMoodMap[slug] ?? "day";
+    if (nextMood === prevMood) return;
+    if (nextMood === "night") {
+      setCategoryAnimateDaylightMap((prev) => ({ ...prev, [slug]: false }));
+      setCategoryMoodMap((prev) => ({ ...prev, [slug]: "night" }));
+      return;
+    }
+    const comingFromNight = prevMood === "night";
+    setCategoryAnimateDaylightMap((prev) => ({
+      ...prev,
+      [slug]: !comingFromNight,
+    }));
+    setCategoryDaylightMoodMap((prev) => ({ ...prev, [slug]: nextMood }));
+    setCategoryMoodMap((prev) => ({ ...prev, [slug]: nextMood }));
+  };
   const [studioProperty, setStudioProperty] = useState<PropertyListing | null>(
     null
   );
@@ -792,7 +870,11 @@ export function LandingPropertyCategoriesSection() {
   }, []);
 
   const handleSelectPreview = (slug: string, idx: number, urls: string[]) => {
-    waitForDecodedSurfaces(urls).then(() => {
+    const targetUrl = urls[idx] ?? urls[0];
+    waitForDecodedSurfaces([
+      targetUrl,
+      resolveNightImageSrc(targetUrl),
+    ]).then(() => {
       setActiveThumbMap((prev) => ({ ...prev, [slug]: idx }));
     });
   };
@@ -924,9 +1006,13 @@ export function LandingPropertyCategoriesSection() {
             const currentUrl = galleryUrls[activeIdx] ?? galleryUrls[0];
             const currentNightUrl = resolveNightImageSrc(currentUrl);
             const currentAssetId = computeVisualAssetId(currentUrl);
+            const currentPairUrls = [currentUrl, currentNightUrl];
             const catMood = categoryMoodMap[cat.slug] ?? "day";
+            const catDaylightMood = categoryDaylightMoodMap[cat.slug] ?? "day";
+            const catAnimateDaylight =
+              categoryAnimateDaylightMap[cat.slug] ?? true;
             const catFilter =
-              catMood === "sunset"
+              catDaylightMood === "sunset"
                 ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
                 : "none";
 
@@ -956,48 +1042,55 @@ export function LandingPropertyCategoriesSection() {
                     className="block w-full h-full relative"
                   >
                     <div
-                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
                       style={{
                         filter: catFilter,
-                        transition:
-                          "filter 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                        transition: catAnimateDaylight
+                          ? "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                          : "none",
                       }}
                     >
                       <ProtectedImage
                         src={currentUrl}
-                        syncUrls={activeIdx === 0 ? undefined : galleryUrls}
+                        syncUrls={currentPairUrls}
+                        loading="eager"
                         alt={cat.label}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-[1.02]"
                       />
-                      <div
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                        style={{
-                          opacity: catMood === "night" ? 1 : 0,
-                          transition:
-                            "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                        }}
-                      >
-                        <ProtectedImage
-                          src={currentNightUrl}
-                          syncUrls={galleryUrls}
-                          auditIgnore={true}
-                          alt={`${cat.label} (Night)`}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                        />
-                      </div>
                     </div>
                     {/* Sunset golden ambient wash */}
                     <div
-                      className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+                      className="absolute inset-0 pointer-events-none z-[2]"
                       style={{
-                        opacity: catMood === "sunset" ? 1 : 0,
+                        opacity: catDaylightMood === "sunset" ? 1 : 0,
+                        transition: catAnimateDaylight
+                          ? "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                          : "none",
                         background:
                           "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
                         mixBlendMode: "soft-light",
                       }}
                     />
+                    {/* Real Nighttime Architectural Layer (outside Day filter & above Sunset wash) */}
                     <div
-                      className="absolute inset-0 pointer-events-none"
+                      className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
+                      style={{
+                        opacity: catMood === "night" ? 1 : 0,
+                        transition:
+                          "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      }}
+                    >
+                      <ProtectedImage
+                        src={currentNightUrl}
+                        syncUrls={currentPairUrls}
+                        loading="eager"
+                        auditIgnore={true}
+                        alt={`${cat.label} (Night)`}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <div
+                      className="absolute inset-0 pointer-events-none z-[4]"
                       style={{
                         background:
                           "linear-gradient(180deg, rgba(4,8,17,0.55) 0%, rgba(4,8,17,0.16) 45%, rgba(4,8,17,0.92) 100%)",
@@ -1006,7 +1099,7 @@ export function LandingPropertyCategoriesSection() {
                   </Link>
 
                   {/* Top-Left Category Order + Top-Right Day/Sunset/Night Switcher */}
-                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
+                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
                     <span
                       className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest border backdrop-blur-sm pointer-events-none whitespace-nowrap truncate max-w-[55%]"
                       style={{
@@ -1039,10 +1132,7 @@ export function LandingPropertyCategoriesSection() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setCategoryMoodMap((prev) => ({
-                                  ...prev,
-                                  [cat.slug]: m.id,
-                                }));
+                                handleSelectCategoryMood(cat.slug, m.id);
                               }}
                               className="inline-flex items-center gap-1 px-3 min-h-[36px] sm:min-h-[38px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                               style={{
@@ -1063,7 +1153,7 @@ export function LandingPropertyCategoriesSection() {
                   </div>
 
                   {/* Headline Overlay + 3-Photo Switcher */}
-                  <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between gap-3">
+                  <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between gap-3 z-10">
                     <Link
                       href={`/properties/${cat.slug}`}
                       className="min-w-0 group/title text-left"

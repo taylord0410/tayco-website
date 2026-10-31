@@ -647,14 +647,15 @@ export function computeSolarLightingState(hour: number) {
   }
 
   // 2. High Noon (10.5 to 16.0)
-  if (hour <= 16.0) {
+    if (hour <= 16.0) {
     return {
       phaseId: "midday" as const,
       phaseBadge: "High Noon · Natural Daylight (5600K)",
       kelvin: "5600K",
       baseFilter: "brightness(1.02) contrast(1.02) saturate(1.04)",
-      ambientOverlay: "transparent",
-      ambientBlendMode: "normal" as const,
+      ambientOverlay:
+        "linear-gradient(160deg, rgba(251,146,60,0.42) 0%, rgba(217,119,6,0.28) 48%, rgba(30,27,75,0.34) 100%)",
+      ambientBlendMode: "soft-light" as const,
       ambientOpacity: 0,
       sunbeamColor: "rgba(255, 255, 255, 0.18)",
       sunbeamOpacity: 0.16,
@@ -699,11 +700,12 @@ export function computeSolarLightingState(hour: number) {
     phaseId: "night" as const,
     phaseBadge: "Night & Lamps · Real 2700K Architectural Night View",
     kelvin: "2700K Lamps",
-    baseFilter: "none",
-    ambientOverlay: "transparent",
-    ambientBlendMode: "normal" as const,
+    baseFilter: "brightness(0.95) contrast(1.12) saturate(1.32) sepia(0.22)",
+    ambientOverlay:
+      "linear-gradient(160deg, rgba(251,146,60,0.42) 0%, rgba(217,119,6,0.28) 48%, rgba(30,27,75,0.34) 100%)",
+    ambientBlendMode: "soft-light" as const,
     ambientOpacity: 0,
-    sunbeamColor: "transparent",
+    sunbeamColor: "rgba(251, 191, 36, 0.58)",
     sunbeamOpacity: 0,
     lampGlowStrength: 0,
     nightPhotoOpacity: nightBlend,
@@ -1696,27 +1698,39 @@ export function PropertyWalkthroughStudioModal({
                     style={{
                       opacity: isCurrent ? 1 : 0,
                       transform: zoomScale,
-                      filter: combinedFilter,
                       transition:
-                        "opacity 720ms cubic-bezier(0.16, 1, 0.3, 1), transform 950ms cubic-bezier(0.16, 1, 0.3, 1), filter 750ms cubic-bezier(0.22, 1, 0.36, 1)",
+                        "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1), transform 720ms cubic-bezier(0.22, 1, 0.36, 1)",
                       zIndex: isCurrent ? 2 : 1,
                     }}
                   >
                     {/* Base Daytime Architectural Photograph */}
-                    <ProtectedImage
-                      src={stop.src}
-                      syncUrls={allWalkthroughUrls}
-                      alt={`${property.title} — ${stop.title}`}
-                      loading="eager"
-                      className="w-full h-full object-cover"
-                    />
+                    <div
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      style={{
+                        filter: combinedFilter,
+                        transition:
+                          "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      }}
+                    >
+                      <ProtectedImage
+                        src={stop.src}
+                        syncUrls={allWalkthroughUrls}
+                        alt={`${property.title} — ${stop.title}`}
+                        loading="eager"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     {/* Real AI-Generated Nighttime (9:30 PM) Photograph with Logical 2700K Interior Illumination */}
                     <div
                       className="absolute inset-0 w-full h-full pointer-events-none"
                       style={{
                         opacity: lighting.nightPhotoOpacity,
+                        filter:
+                          activePalette.cssFilter !== "none"
+                            ? activePalette.cssFilter
+                            : "none",
                         transition:
-                          "opacity 750ms cubic-bezier(0.22, 1, 0.36, 1)",
+                          "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1), filter 480ms cubic-bezier(0.22, 1, 0.36, 1)",
                       }}
                     >
                       <ProtectedImage

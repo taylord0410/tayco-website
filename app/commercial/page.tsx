@@ -423,6 +423,21 @@ const COMMERCIAL_PROJECT_STARTERS = [
 export default function CommercialPage() {
   const [lightAngle, setLightAngle] = useState<number>(42);
   const [heroMood, setHeroMood] = useState<"day" | "sunset" | "night">("day");
+  const [heroDaylightMood, setHeroDaylightMood] = useState<"day" | "sunset">("day");
+  const [animateHeroDaylight, setAnimateHeroDaylight] = useState<boolean>(true);
+
+  const handleSelectHeroMood = (nextMood: "day" | "sunset" | "night") => {
+    if (nextMood === heroMood) return;
+    if (nextMood === "night") {
+      setAnimateHeroDaylight(false);
+      setHeroMood("night");
+      return;
+    }
+    const comingFromNight = heroMood === "night";
+    setAnimateHeroDaylight(!comingFromNight);
+    setHeroDaylightMood(nextMood);
+    setHeroMood(nextMood);
+  };
   const [heroStudioOpen, setHeroStudioOpen] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] =
     useState<CommercialTradeCategory>("all");
@@ -727,39 +742,62 @@ export default function CommercialPage() {
                 }}
               >
                 <div className="relative w-full flex-1 min-h-[260px] sm:min-h-[340px] overflow-hidden bg-slate-950">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <ProtectedImage
-                    src={currentHeroScene.image}
-                    alt={currentHeroScene.title}
-                    syncUrls={currentHeroBundle}
-                    fill
-                    className="object-cover transition-all duration-700"
+                  <div
+                    className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
                     style={{
                       filter:
-                        heroMood === "sunset"
+                        heroDaylightMood === "sunset"
                           ? "brightness(0.92) contrast(1.09) saturate(1.24) sepia(0.16)"
                           : "brightness(1.01) contrast(1.03)",
+                      transition: animateHeroDaylight
+                        ? "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                        : "none",
+                    }}
+                  >
+                    <ProtectedImage
+                      src={currentHeroScene.image}
+                      alt={currentHeroScene.title}
+                      syncUrls={currentHeroBundle}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div
+                    className="absolute inset-0 pointer-events-none z-[2]"
+                    style={{
+                      opacity: heroDaylightMood === "sunset" ? 1 : 0,
+                      transition: animateHeroDaylight
+                        ? "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                        : "none",
+                      background:
+                        "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
+                      mixBlendMode: "soft-light",
                     }}
                   />
                   {/* Real Nighttime Architectural Lighting Layer */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <ProtectedImage
-                    src={currentHeroNightImage}
-                    alt={`${currentHeroScene.title} — Night Illumination`}
-                    syncUrls={currentHeroBundle}
-                    aria-hidden={heroMood !== "night"}
-                    className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 ${
-                      heroMood === "night" ? "opacity-100" : "opacity-0"
-                    }`}
-                  />
                   <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="absolute inset-0 pointer-events-none z-[3]"
+                    style={{
+                      opacity: heroMood === "night" ? 1 : 0,
+                      transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    }}
+                  >
+                    <ProtectedImage
+                      src={currentHeroNightImage}
+                      alt={`${currentHeroScene.title} — Night Illumination`}
+                      syncUrls={currentHeroBundle}
+                      aria-hidden={heroMood !== "night"}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div
+                    className="absolute inset-0 pointer-events-none z-[4]"
                     style={{
                       background:
                         "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
                     }}
                   />
-                  <div key={`com-stage-badges-${syncPulse}`} className="tayco-harmonic-sync absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                       style={{
@@ -784,7 +822,7 @@ export default function CommercialPage() {
                             <button
                               key={phase}
                               type="button"
-                              onClick={() => setHeroMood(phase)}
+                              onClick={() => handleSelectHeroMood(phase)}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-all cursor-pointer"
                               style={{
                                 background: active ? "#C9A84C" : "transparent",

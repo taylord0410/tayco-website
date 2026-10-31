@@ -157,7 +157,7 @@ export default function PublicCookieBanner() {
 
   if (!isOpen && consent) {
     return (
-      <div className="fixed bottom-3 left-3 sm:bottom-4 sm:left-auto sm:right-4 z-40 print:hidden">
+      <div className="hidden sm:block fixed bottom-4 right-4 z-40 print:hidden">
         <button
           type="button"
           data-testid="public-cookie-trigger"

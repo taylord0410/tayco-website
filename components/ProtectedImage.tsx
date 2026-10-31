@@ -292,11 +292,12 @@ function computeTargetDimensions(
   source: HTMLCanvasElement
 ): { w: number; h: number } {
   const aspect = source.width / Math.max(1, source.height);
-  const rect = canvas.getBoundingClientRect();
+  const layoutW = canvas.clientWidth || canvas.getBoundingClientRect().width;
+  const layoutH = canvas.clientHeight || canvas.getBoundingClientRect().height;
   const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.65);
 
-  if (rect.width > 16 && rect.height > 16) {
-    const neededLongEdge = Math.max(rect.width, rect.height * aspect) * dpr;
+  if (layoutW > 16 && layoutH > 16) {
+    const neededLongEdge = Math.max(layoutW, layoutH * aspect) * dpr;
     const clampedW = Math.min(
       source.width,
       Math.max(160, Math.round(neededLongEdge))
@@ -322,6 +323,8 @@ export default function ProtectedImage({
 }: ProtectedImageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const prevSurfaceRef = useRef<HTMLCanvasElement | null>(null);
+  const syncUrlsRef = useRef<string[] | undefined>(syncUrls);
+  syncUrlsRef.current = syncUrls;
   const rafRef = useRef<number>(0);
   const [shouldLoad, setShouldLoad] = useState<boolean>(loading !== "lazy");
   const assetId = computeVisualAssetId(src);
@@ -481,15 +484,16 @@ export default function ProtectedImage({
 
     // Fast synchronous path: if surface (and any syncUrls) are already in resolvedSurfaceMap,
     // start the crossfade on this exact synchronous React commit tick (delta_ms = 0 across all siblings!)
+    const activeSyncUrls = syncUrlsRef.current;
     const immediateSurface = resolvedSurfaceMap.get(src);
     const groupReady =
-      !syncUrls || syncUrls.length === 0 || syncUrls.every((u) => resolvedSurfaceMap.has(u));
+      !activeSyncUrls || activeSyncUrls.length === 0 || activeSyncUrls.every((u) => resolvedSurfaceMap.has(u));
 
     if (immediateSurface && groupReady) {
       const sharedStart = getSharedTransitionStartTime();
       paintAndCrossfade(immediateSurface, sharedStart);
     } else {
-      const bundle = syncUrls && syncUrls.length > 0 ? [src, ...syncUrls] : [src];
+      const bundle = activeSyncUrls && activeSyncUrls.length > 0 ? [src, ...activeSyncUrls] : [src];
       waitForDecodedSurfaces(bundle)
         .then(() => {
           if (cancelled) return;
@@ -511,7 +515,7 @@ export default function ProtectedImage({
         rafRef.current = 0;
       }
     };
-  }, [src, shouldLoad, syncUrls]);
+  }, [src, shouldLoad]);
 
   const computedClassName = fill
     ? `absolute inset-0 w-full h-full ${className}`.trim()

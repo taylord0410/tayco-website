@@ -286,6 +286,21 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
 export default function ResidentialPage() {
   const [lightAngle, setLightAngle] = useState<number>(48);
   const [heroMood, setHeroMood] = useState<"day" | "sunset" | "night">("day");
+  const [heroDaylightMood, setHeroDaylightMood] = useState<"day" | "sunset">("day");
+  const [animateHeroDaylight, setAnimateHeroDaylight] = useState<boolean>(true);
+
+  const handleSelectHeroMood = (nextMood: "day" | "sunset" | "night") => {
+    if (nextMood === heroMood) return;
+    if (nextMood === "night") {
+      setAnimateHeroDaylight(false);
+      setHeroMood("night");
+      return;
+    }
+    const comingFromNight = heroMood === "night";
+    setAnimateHeroDaylight(!comingFromNight);
+    setHeroDaylightMood(nextMood);
+    setHeroMood(nextMood);
+  };
   const [heroStudioProperty, setHeroStudioProperty] =
     useState<PropertyListing | null>(null);
   const [activeCategory, setActiveCategory] =
@@ -589,52 +604,61 @@ export default function ResidentialPage() {
                 }}
               >
                 <div className="relative w-full flex-1 min-h-[260px] sm:min-h-[340px] overflow-hidden bg-slate-950">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <ProtectedImage
-                    src={currentHeroScene.image}
-                    alt={currentHeroScene.title}
-                    syncUrls={currentHeroBundle}
-                    fill
-                    className="object-cover transition-all duration-700"
+                  <div
+                    className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
                     style={{
                       filter:
-                        heroMood === "sunset"
+                        heroDaylightMood === "sunset"
                           ? "brightness(0.96) contrast(1.12) saturate(1.28) sepia(0.20)"
                           : "none",
+                      transition: animateHeroDaylight
+                        ? "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                        : "none",
+                    }}
+                  >
+                    <ProtectedImage
+                      src={currentHeroScene.image}
+                      alt={currentHeroScene.title}
+                      syncUrls={currentHeroBundle}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div
+                    className="absolute inset-0 pointer-events-none z-[2]"
+                    style={{
+                      opacity: heroDaylightMood === "sunset" ? 1 : 0,
+                      transition: animateHeroDaylight
+                        ? "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)"
+                        : "none",
+                      background:
+                        "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
+                      mixBlendMode: "soft-light",
                     }}
                   />
                   {/* Real AI-Generated Nighttime (2700K) Crossfade Layer */}
                   <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="absolute inset-0 pointer-events-none z-[3]"
                     style={{
                       opacity: heroMood === "night" ? 1 : 0,
-                      transition: "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
                     }}
                   >
                     <ProtectedImage
                       src={currentHeroNightSrc}
                       alt={`${currentHeroScene.title} (Night)`}
                       syncUrls={currentHeroBundle}
-                      className="w-full h-full object-cover transition-all duration-700"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <div
-                    className="absolute inset-0 pointer-events-none transition-opacity duration-700"
-                    style={{
-                      opacity: heroMood === "sunset" ? 1 : 0,
-                      background:
-                        "linear-gradient(155deg, rgba(251,146,60,0.34) 0%, rgba(217,119,6,0.22) 55%, rgba(30,27,75,0.35) 100%)",
-                      mixBlendMode: "soft-light",
-                    }}
-                  />
-                  <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="absolute inset-0 pointer-events-none z-[4]"
                     style={{
                       background:
                         "linear-gradient(180deg, rgba(7,14,26,0.55) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
                     }}
                   />
-                  <div key={`res-stage-badges-${syncPulse}`} className="tayco-harmonic-sync absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <div className=" absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                       style={{
@@ -659,7 +683,7 @@ export default function ResidentialPage() {
                             <button
                               key={m.id}
                               type="button"
-                              onClick={() => setHeroMood(m.id)}
+                              onClick={() => handleSelectHeroMood(m.id)}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                               style={{
                                 background: active ? "#E5C97B" : "transparent",
