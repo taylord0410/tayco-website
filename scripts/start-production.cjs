@@ -25,9 +25,7 @@ if (!process.env.TAYCO_AUTH_DB_PATH || !process.env.TAYCO_AUTH_DB_PATH.startsWit
 if (!process.env.TAYCO_ERP_DB_PATH || !process.env.TAYCO_ERP_DB_PATH.startsWith(dataDir)) {
   process.env.TAYCO_ERP_DB_PATH = path.join(dataDir, "tayco-erp.sqlite");
 }
-if (!process.env.HOSTNAME) {
-  process.env.HOSTNAME = "0.0.0.0";
-}
+process.env.HOSTNAME = "0.0.0.0";
 if (process.env.RAILWAY_ENVIRONMENT_ID && !process.env.TAYCO_TRUSTED_INGRESS) {
   process.env.TAYCO_TRUSTED_INGRESS = "railway-public-edge";
 }
