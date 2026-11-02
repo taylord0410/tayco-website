@@ -353,7 +353,7 @@ function MarketSpecialtyInteractiveCard({
             className="absolute inset-0 pointer-events-none z-[4]"
             style={{
               background:
-                "linear-gradient(180deg, rgba(4,8,17,0.62) 0%, transparent 45%, rgba(4,8,17,0.92) 100%)",
+                "linear-gradient(180deg, rgba(4,8,17,0.48) 0%, transparent 32%, transparent 82%, rgba(4,8,17,0.35) 100%)",
             }}
           />
 
@@ -401,7 +401,7 @@ function MarketSpecialtyInteractiveCard({
                       e.stopPropagation();
                       handleSelectMood(m.id);
                     }}
-                    className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                    className="inline-flex items-center gap-1 px-2.5 min-h-[30px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                     style={{
                       background: active ? "#E5C97B" : "transparent",
                       color: active ? "#050A14" : "#CBD5E1",
@@ -415,69 +415,53 @@ function MarketSpecialtyInteractiveCard({
               })}
             </div>
           </div>
+        </div>
 
-          {/* Center Hover Expand Pill */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover/specphoto:opacity-100 transition-opacity duration-300 z-10">
-            <span
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-mono font-black uppercase tracking-wider shadow-[0_12px_32px_rgba(0,0,0,0.75)] border"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(246, 226, 156, 0.96) 0%, rgba(201, 168, 76, 0.96) 100%)",
-                borderColor: "#FFF3C4",
-                color: "#050A14",
-              }}
-            >
-              <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-              <span>Click to Expand Full-Screen Studio</span>
-              <StudioActionIcon kind="arrow-right" className="w-3.5 h-3.5" />
+        {/* Dedicated Sub-Photo Control Strip — keeps 100% of the photograph unobstructed */}
+        <div
+          className="flex items-center justify-between gap-2 bg-[#050A14] px-3.5 py-2 border-y border-white/[0.08]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="min-w-0 flex items-center gap-2">
+            <span translate="no" className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
+              <span className="hidden sm:inline">#{currentAssetId} · </span>0{activeIdx + 1}/03
+            </span>
+            <span className="text-white/35 text-[10px] shrink-0" aria-hidden="true">·</span>
+            <span className="text-xs font-semibold text-slate-100 truncate">
+              {currentFrame.label}
             </span>
           </div>
-
-          {/* Sleek Centered Bottom Control Bar */}
           <div
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 z-10 bg-[#050A14]/85 px-3 py-1.5 rounded-xl border border-[#C9A84C]/40 backdrop-blur-sm"
-            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 shrink-0"
+            role="group"
+            aria-label={`Switch ${service.title} photographs`}
           >
-            <div className="min-w-0 flex items-center gap-2">
-              <span translate="no" className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
-                <span className="hidden sm:inline">#{currentAssetId} · </span>0{activeIdx + 1}/03
-              </span>
-              <span className="text-white/40 text-[10px] hidden sm:inline" aria-hidden="true">·</span>
-              <span className="text-xs font-semibold text-white drop-shadow truncate max-w-[150px] sm:max-w-xs">
-                {currentFrame.label}
-              </span>
-            </div>
-            <div
-              className="flex items-center gap-1 shrink-0"
-              role="group"
-              aria-label={`Switch ${service.title} photographs`}
-            >
-              {frames.map((f, idx) => {
-                const isSelected = idx === activeIdx;
-                return (
-                  <button
-                    key={f.label}
-                    type="button"
-                    data-magnetic
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      selectFrame(idx);
-                    }}
-                    onPointerEnter={() => selectFrame(idx)}
-                    className="min-w-[34px] min-h-[34px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
-                    style={{
-                      background: isSelected
-                        ? "linear-gradient(135deg, #F6E29C 0%, #C9A84C 100%)"
-                        : "rgba(15, 32, 64, 0.9)",
-                      color: isSelected ? "#070E1A" : "#E2E8F0",
-                    }}
-                    title={f.label}
-                  >
-                    <span translate="no">0{idx + 1}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {frames.map((f, idx) => {
+              const isSelected = idx === activeIdx;
+              return (
+                <button
+                  key={f.label}
+                  type="button"
+                  data-magnetic
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    selectFrame(idx);
+                  }}
+                  onPointerEnter={() => selectFrame(idx)}
+                  className="min-w-[30px] min-h-[28px] px-2 shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center border"
+                  style={{
+                    background: isSelected
+                      ? "linear-gradient(135deg, #F6E29C 0%, #C9A84C 100%)"
+                      : "rgba(15, 32, 64, 0.85)",
+                    borderColor: isSelected ? "#FFF3C4" : "rgba(255,255,255,0.12)",
+                    color: isSelected ? "#070E1A" : "#E2E8F0",
+                  }}
+                  title={f.label}
+                >
+                  <span translate="no">0{idx + 1}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -514,12 +498,12 @@ function MarketSpecialtyInteractiveCard({
         </div>
       </div>
 
-      {/* V46 Horizontal Space-Utilizing Footer */}
+      {/* V46 Horizontal Space-Utilizing Footer — uniform single-line button height across all cards */}
       <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
         <TaycoCardFooterBar
           leftMeta={
-            <span className="text-[10px] font-mono text-[#F3D37A]/85 tracking-wider" translate="no">
-              3 Views · 24h Solar<span className="hidden sm:inline"> · #{currentAssetId}</span>
+            <span className="text-[10px] font-mono text-[#F3D37A]/90 tracking-wider whitespace-nowrap" translate="no">
+              3 Views · 24h Solar<span className="hidden lg:inline"> · #{currentAssetId}</span>
             </span>
           }
         >
@@ -534,13 +518,14 @@ function MarketSpecialtyInteractiveCard({
                 moodSolarHour
               )
             }
-            className="tayco-atelier-btn-gold group/btn"
+            title={`Expand ${service.title} Full-Screen Studio`}
+            className="tayco-atelier-btn-gold !min-h-[42px] !py-2 !px-4 whitespace-nowrap shrink-0 group/btn"
           >
-            <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-            <span>Expand {service.specialtyLabel === "Siding" ? "Exterior Siding" : service.specialtyLabel === "Framing" ? "Structural Framing" : service.specialtyLabel} Studio</span>
+            <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
+            <span>Open Studio (3 Views)</span>
             <StudioActionIcon
               kind="arrow-right"
-              className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+              className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
             />
           </button>
         </TaycoCardFooterBar>
@@ -684,7 +669,7 @@ function PropertyCardInteractiveStage({
           className="absolute inset-0 pointer-events-none z-[4]"
           style={{
             background:
-              "linear-gradient(180deg, rgba(4,8,17,0.58) 0%, transparent 42%, rgba(4,8,17,0.92) 100%)",
+              "linear-gradient(180deg, rgba(4,8,17,0.46) 0%, transparent 32%, transparent 82%, rgba(4,8,17,0.35) 100%)",
           }}
         />
 
@@ -723,7 +708,7 @@ function PropertyCardInteractiveStage({
                     e.stopPropagation();
                     handleSelectCardMood(m.id);
                   }}
-                  className="inline-flex items-center gap-1 px-2.5 min-h-[32px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                  className="inline-flex items-center gap-1 px-2.5 min-h-[30px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
                   style={{
                     background: active ? "#E5C97B" : "transparent",
                     color: active ? "#050A14" : "#CBD5E1",
@@ -737,34 +722,23 @@ function PropertyCardInteractiveStage({
             })}
           </div>
         </div>
-
-        {/* Bottom Caption + Hover Glass Pill inside Photo */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 pointer-events-none">
-          <div className="min-w-0">
-            <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]/90">
-              #{currentAssetId} · CONNECTED PROJECT TOUR
-            </div>
-            <div className="text-xs font-bold text-white drop-shadow truncate">
-              {currentStop.title}
-            </div>
-          </div>
-          <span
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-mono font-black uppercase tracking-wider shrink-0 transition-transform duration-300 group-hover/photo:scale-105 shadow-lg border"
-            style={{
-              background:
-                "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
-              borderColor: "#FFF3C4",
-              color: "#050A14",
-            }}
-          >
-            <StudioActionIcon kind="sparkle" className="w-3 h-3" />
-            <span>Expand Studio</span>
-            <StudioActionIcon kind="arrow-right" className="w-3 h-3" />
-          </span>
-        </div>
       </div>
 
-      {/* 5-Room Quick Switcher Strip directly below the photo */}
+      {/* Sub-Photo Room Caption & 5-Room Quick Switcher Strip directly below the photo */}
+      <div className="bg-[#050A14] border-y border-white/[0.08] px-3 py-1.5 flex items-center justify-between gap-2">
+        <div className="min-w-0 flex items-center gap-2">
+          <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
+            #{currentAssetId}
+          </span>
+          <span className="text-white/35 text-[10px] shrink-0" aria-hidden="true">·</span>
+          <span className="text-xs font-semibold text-slate-100 truncate">
+            {currentStop.title}
+          </span>
+        </div>
+        <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
+          5-Room Tour →
+        </span>
+      </div>
       <div
         className="grid grid-cols-5 gap-1 p-1.5 bg-[#050A14]"
         role="group"
@@ -2175,7 +2149,7 @@ export function PropertyCategoryPageView({
         {activeCategory && marketSpecialties.length > 0 && (
           <div
             data-testid="market-experience-mode-switcher"
-            className="mt-5 p-2.5 rounded-2xl border flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3 backdrop-blur-md max-w-4xl mx-auto"
+            className="mt-5 p-2 rounded-2xl lg:rounded-full border flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-2 backdrop-blur-md max-w-4xl mx-auto"
             style={{
               background:
                 "linear-gradient(135deg, rgba(11, 20, 38, 0.94) 0%, rgba(6, 11, 22, 0.98) 100%)",
@@ -2183,22 +2157,20 @@ export function PropertyCategoryPageView({
               boxShadow: "0 18px 44px rgba(0,0,0,0.5)",
             }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
               <button
                 type="button"
                 data-magnetic
                 onClick={() => setExperienceMode("specialties")}
-                className="tayco-atelier-pill flex items-center justify-center text-center gap-3 px-4 py-3 min-h-[56px]"
+                className="tayco-atelier-pill !min-h-[46px] !px-4 !py-2 flex items-center justify-center gap-2.5 whitespace-nowrap"
                 data-active={experienceMode === "specialties" ? "true" : "false"}
               >
-                <div className="text-center">
-                  <div className="text-[10px] font-mono font-bold uppercase tracking-widest opacity-80">
-                    MODE 01 · SERVICES BY SPECIALTY
-                  </div>
-                  <div className="text-sm font-bold tracking-tight mt-0.5">
-                    {activeCategory.label} 8 Construction Specialties
-                  </div>
-                </div>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider opacity-85">
+                  01
+                </span>
+                <span className="text-xs sm:text-[13px] font-bold tracking-tight">
+                  Construction Specialties (8)
+                </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/25">
                   24 Photos
                 </span>
@@ -2208,19 +2180,17 @@ export function PropertyCategoryPageView({
                 type="button"
                 data-magnetic
                 onClick={() => setExperienceMode("projects")}
-                className="tayco-atelier-pill flex items-center justify-center text-center gap-3 px-4 py-3 min-h-[56px]"
+                className="tayco-atelier-pill !min-h-[46px] !px-4 !py-2 flex items-center justify-center gap-2.5 whitespace-nowrap"
                 data-active={experienceMode === "projects" ? "true" : "false"}
               >
-                <div className="text-center">
-                  <div className="text-[10px] font-mono font-bold uppercase tracking-widest opacity-80">
-                    MODE 02 · CONNECTED 5-ROOM WALKTHROUGHS
-                  </div>
-                  <div className="text-sm font-bold tracking-tight mt-0.5">
-                    {activeCategory.label} Completed Project Tours ({baseListings.length})
-                  </div>
-                </div>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider opacity-85">
+                  02
+                </span>
+                <span className="text-xs sm:text-[13px] font-bold tracking-tight">
+                  5-Room Project Tours ({baseListings.length})
+                </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/25">
-                  5 Rooms Each
+                  5 Rooms
                 </span>
               </button>
             </div>
@@ -2239,9 +2209,9 @@ export function PropertyCategoryPageView({
                       : undefined
                   )
                 }
-                className="tayco-atelier-btn-gold shrink-0"
+                className="tayco-atelier-btn-gold !min-h-[46px] !px-5 !py-2 whitespace-nowrap shrink-0"
               >
-                <StudioActionIcon kind="sparkle" className="w-4 h-4" />
+                <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
                 <span>Launch Full-Screen Studio</span>
               </button>
             )}
@@ -2258,7 +2228,7 @@ export function PropertyCategoryPageView({
             aria-labelledby="market-services-heading"
             className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-12"
           >
-            <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-8">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3 tayco-atelier-eyebrow">
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                 <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
@@ -2279,14 +2249,14 @@ export function PropertyCategoryPageView({
               </h2>
               <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
                 Click any photograph or{" "}
-                <strong className="text-[#F3D37A]">Expand Studio</strong> button
+                <strong className="text-[#F3D37A]">Open Studio</strong> button
                 below to inspect all 3 market angles at full screen with our{" "}
                 <strong className="text-white">24-Hour Solar Lighting</strong>{" "}
                 and{" "}
                 <strong className="text-white">6 Designer Finish Palettes</strong>.
               </p>
 
-              {/* Specialty Group Filter Tabs */}
+              {/* Specialty Group Filter Tabs — uniform single-row capsule dock */}
               <div
                 className="flex flex-wrap items-center justify-center gap-2 mt-6"
                 role="group"
@@ -2307,7 +2277,7 @@ export function PropertyCategoryPageView({
                       type="button"
                       data-magnetic
                       onClick={() => setSpecialtyGroupFilter(tab.id)}
-                      className="tayco-atelier-pill"
+                      className="tayco-atelier-pill !min-h-[42px] !px-4 !py-2 text-xs sm:text-[13px] font-semibold whitespace-nowrap"
                       data-active={isSelected ? "true" : "false"}
                     >
                       {tab.label}

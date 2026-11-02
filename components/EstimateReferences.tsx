@@ -31,23 +31,62 @@ export function useEstimateReferences() {
   return restoreReferenceDraft(raw);
 }
 
-export function ImageReferenceButton({ src, label = 'Add reference' }: { src: string; label?: string }) {
+export function ImageReferenceButton({
+  src,
+  label = 'Add reference',
+  compact = false,
+}: {
+  src: string;
+  label?: string;
+  compact?: boolean;
+}) {
   const images = useEstimateReferences();
   const [notice, setNotice] = useState<{ src: string; text: string } | null>(null);
   const image = referenceForSource(src);
   if (!image) return null;
   const selected = images.some(item => item.id === image.id);
-  return <div className="min-w-0">
-    <button type="button" aria-pressed={selected} onClick={() => {
-      const current = restoreReferenceDraft(draftSnapshot());
-      if (current.some(item => item.id === image.id)) { writeSelection(current.filter(item => item.id !== image.id)); setNotice({ src, text: 'Reference removed.' }); }
-      else if (current.length >= MAX_REFERENCE_IMAGES) setNotice({ src, text: `Your request can include up to ${MAX_REFERENCE_IMAGES} images. Remove one in the estimate form to add another.` });
-      else { writeSelection([...current, image]); setNotice({ src, text: 'Added to your estimate request.' }); }
-    }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-amber-300/40 bg-[#0b172a] px-3 text-xs font-semibold text-amber-100 cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-200">
-      <span aria-hidden="true">{selected ? '✓' : '+'}</span>{selected ? 'Reference saved' : label}
-    </button>
-    <p role="status" className="mt-1 max-w-xs text-xs leading-relaxed text-slate-300">{notice?.src === src ? notice.text : ''}</p>
-  </div>;
+  const activeNotice = notice?.src === src ? notice.text : '';
+  return (
+    <div className={compact ? 'inline-flex items-center gap-2 shrink-0' : 'min-w-0'}>
+      <button
+        type="button"
+        aria-pressed={selected}
+        title={activeNotice || (selected ? 'Remove image from your estimate references' : 'Save this image to your estimate request')}
+        onClick={() => {
+          const current = restoreReferenceDraft(draftSnapshot());
+          if (current.some(item => item.id === image.id)) {
+            writeSelection(current.filter(item => item.id !== image.id));
+            setNotice({ src, text: 'Reference removed.' });
+          } else if (current.length >= MAX_REFERENCE_IMAGES) {
+            setNotice({
+              src,
+              text: `Your request can include up to ${MAX_REFERENCE_IMAGES} images. Remove one in the estimate form to add another.`,
+            });
+          } else {
+            writeSelection([...current, image]);
+            setNotice({ src, text: 'Added to your estimate request.' });
+          }
+        }}
+        className={
+          compact
+            ? `inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-sans font-semibold whitespace-nowrap cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:outline-amber-200 ${
+                selected
+                  ? 'border-[#F3D37A] bg-[#C9A84C]/25 text-[#FCEBA7]'
+                  : 'border-amber-300/40 bg-[#0b172a]/90 text-amber-100 hover:border-[#F3D37A]'
+              }`
+            : 'inline-flex min-h-[42px] items-center justify-center gap-2 rounded-full border border-amber-300/40 bg-[#0b172a] px-4 text-xs font-semibold whitespace-nowrap text-amber-100 cursor-pointer transition-all duration-300 hover:border-amber-200 focus-visible:outline-2 focus-visible:outline-amber-200'
+        }
+      >
+        <span aria-hidden="true">{selected ? '✓' : '+'}</span>
+        <span>{selected ? 'Reference saved' : label}</span>
+      </button>
+      {!compact && activeNotice && (
+        <p role="status" className="mt-1 max-w-xs text-xs leading-relaxed text-slate-300">
+          {activeNotice}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function EstimateReferenceTray() {

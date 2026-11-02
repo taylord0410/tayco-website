@@ -111,11 +111,11 @@ interface IpState {
 }
 
 const ipRegistry = new Map<string, IpState>();
-const PENALTY_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+const PENALTY_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const IMAGE_WINDOW_MS = 20 * 1000; // 20 seconds
-const MAX_IMAGES_PER_WINDOW = 130;
+const MAX_IMAGES_PER_WINDOW = 360;
 const PAGE_WINDOW_MS = 15 * 1000; // 15 seconds
-const MAX_PAGES_PER_WINDOW = 45;
+const MAX_PAGES_PER_WINDOW = 120;
 
 function getIpState(ip: string, now: number): IpState {
   if (ipRegistry.size > 5000) {
@@ -289,6 +289,208 @@ export function buildAiExecutiveSummaryHtml(pathname = "/"): string {
 </html>`;
 }
 
+export interface ShieldProtectionPageOptions {
+  status: number;
+  reason: string;
+  message: string;
+  pathname?: string;
+}
+
+export function buildShieldProtectionHtml({
+  status,
+  reason,
+  message,
+  pathname = "/",
+}: ShieldProtectionPageOptions): string {
+  const isImageProtection =
+    reason === "image_direct_navigation" ||
+    reason === "raw_portfolio_asset_disabled" ||
+    reason === "image_unverified_origin" ||
+    reason === "image_cross_site_hotlink";
+  const isRateLimit = reason === "page_rate_limit" || reason === "image_rate_limit" || status === 429;
+  const isPenalty = reason === "ip_penalized" || reason === "trap_path";
+
+  const eyebrow = isImageProtection
+    ? "TAYCO LLC · CLIENT PRIVACY & VISUAL ASSET SHIELD"
+    : isRateLimit
+      ? "TAYCO LLC · AUTOMATED TRAFFIC PACE PROTECTION"
+      : "TAYCO LLC · ARCHITECTURAL SECURITY SHIELD";
+
+  const heading = isImageProtection
+    ? "Protected Architectural Portfolio Visual"
+    : isRateLimit
+      ? "Browsing Pace Protection Active"
+      : isPenalty
+        ? "Temporary Security Pause Active"
+        : "Protected TAYCO Resource";
+
+  const detailCopy = isImageProtection
+    ? "To protect our residential and commercial clients' privacy and property security, TAYCO portfolio photographs are streamed exclusively inside our interactive on-page studio and cannot be opened or downloaded as standalone files."
+    : isRateLimit
+      ? "Our security shield detected an unusually rapid burst of requests from this connection. The website is online and operating normally—please wait a few seconds and continue browsing at a normal pace."
+      : isPenalty
+        ? "This connection triggered an automated security protection rule (such as probing restricted system paths) and has been temporarily paused."
+        : message;
+
+  const safeRetryHref =
+    isImageProtection || pathname.startsWith("/curated/") || pathname.startsWith("/work/") || pathname.startsWith("/api/")
+      ? "/properties/single-family"
+      : pathname.startsWith("/")
+        ? pathname.replace(/"/g, "")
+        : "/";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${heading} — TAYCO LLC</title>
+  <meta name="robots" content="noindex, nofollow, noimageindex" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201, 168, 76, 0.16) 0%, transparent 62%),
+        linear-gradient(165deg, #070E1A 0%, #0B1629 55%, #050A14 100%);
+      color: #F4F2EA;
+      font: 14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .shield-card {
+      width: min(100%, 540px);
+      padding: clamp(22px, 4vw, 32px);
+      border-radius: 24px;
+      background: linear-gradient(160deg, rgba(15, 32, 64, 0.94) 0%, rgba(7, 14, 26, 0.98) 100%);
+      border: 1px solid rgba(201, 168, 76, 0.48);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      background: rgba(201, 168, 76, 0.14);
+      border: 1px solid rgba(201, 168, 76, 0.42);
+      color: #F3D37A;
+      font: 700 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 9999px;
+      background: #C9A84C;
+      box-shadow: 0 0 10px #C9A84C;
+    }
+    h1 {
+      margin: 16px 0 10px;
+      font: 600 clamp(24px, 4.5vw, 31px)/1.15 Georgia, "Times New Roman", serif;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+    }
+    p {
+      margin: 0 0 14px;
+      color: #CBD5E1;
+      font-size: 14px;
+    }
+    .reason-box {
+      margin: 16px 0 20px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(5, 10, 20, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12.5px;
+      color: #E2E8F0;
+    }
+    .reason-code {
+      display: block;
+      margin-bottom: 4px;
+      font: 700 10px/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #F3D37A;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .btn-gold, .btn-obsidian {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 18px;
+      border-radius: 9999px;
+      font: 700 11.5px/1.2 system-ui, -apple-system, sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #FAF0D1 0%, #DFBE72 52%, #B68C38 100%);
+      color: #060D1A;
+      border: 1px solid rgba(255, 246, 214, 0.92);
+    }
+    .btn-obsidian {
+      background: rgba(15, 32, 64, 0.9);
+      color: #F3D37A;
+      border: 1px solid rgba(201, 168, 76, 0.45);
+    }
+    .btn-gold:hover, .btn-obsidian:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+    .footer-meta {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+    .footer-meta a {
+      color: #F3D37A;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main class="shield-card" role="main" data-tayco-shield-page="true">
+    <div class="eyebrow"><span class="dot" aria-hidden="true"></span><span>${eyebrow}</span></div>
+    <h1>${heading}</h1>
+    <p>${detailCopy}</p>
+    <div class="reason-box">
+      <span class="reason-code">PROTECTION REASON · HTTP ${status} (${reason.toUpperCase()})</span>
+      <span>${message}</span>
+    </div>
+    <div class="actions">
+      <a class="btn-gold" href="/">← Return to TAYCO Portfolio</a>
+      <a class="btn-obsidian" href="${safeRetryHref}">View Interactive Studio →</a>
+      <a class="btn-obsidian" href="/estimate">Request an Estimate</a>
+    </div>
+    <div class="footer-meta">
+      <span><strong>TAYCO LLC</strong> · Site Online &amp; Protected</span>
+      <span>Direct Dispatch: <a href="tel:${COMPANY.phoneHref}">${COMPANY.phoneDisplay}</a></span>
+    </div>
+  </main>
+</body>
+</html>`;
+}
+
 export interface EvaluateRequestInput {
   method: string;
   pathname: string;
@@ -300,6 +502,7 @@ export interface EvaluateRequestInput {
   secFetchMode: string | null;
   secFetchSite: string | null;
   accept: string | null;
+  isPrefetchOrRsc?: boolean;
   now?: number;
 }
 
@@ -351,7 +554,7 @@ export function evaluateSiteShield(input: EvaluateRequestInput): ShieldDecision 
     !pathname.startsWith("/api/")
   ) {
     state.invalidPosts += 1;
-    if (!isLocal && state.invalidPosts >= 3) {
+    if (!isLocal && state.invalidPosts >= 8) {
       state.blockedUntil = now + PENALTY_DURATION_MS;
     }
     return {
@@ -519,8 +722,8 @@ export function evaluateSiteShield(input: EvaluateRequestInput): ShieldDecision 
     };
   }
 
-  // 7. Page burst rate limit against rapid manual/automated crawlers
-  if (!isLocal && !pathname.startsWith("/_next/") && !pathname.startsWith("/api/")) {
+  // 7. Page burst rate limit against rapid manual/automated crawlers (never count background Next.js RSC/prefetch)
+  if (!isLocal && !input.isPrefetchOrRsc && !pathname.startsWith("/_next/") && !pathname.startsWith("/api/")) {
     if (now - state.pageWindowStart > PAGE_WINDOW_MS) {
       state.pageWindowStart = now;
       state.pageHits = 0;

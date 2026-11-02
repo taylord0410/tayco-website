@@ -1,7 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { isAiBotUserAgent, isManualScraperUserAgent, isLocalhostIp, scrambleVisualBytes } from "@/lib/site-shield";
+import {
+  isAiBotUserAgent,
+  isManualScraperUserAgent,
+  isLocalhostIp,
+  scrambleVisualBytes,
+  buildShieldProtectionHtml,
+} from "@/lib/site-shield";
 import { trustedClientIp } from "@/lib/client-network";
 
 const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
@@ -77,6 +83,33 @@ export async function GET(request: NextRequest) {
     secFetchMode === "navigate" ||
     secFetchSite === "cross-site"
   ) {
+    const accept = request.headers.get("accept") || "";
+    const isBrowserTabNavigation =
+      secFetchDest === "document" ||
+      secFetchMode === "navigate" ||
+      accept.includes("text/html");
+
+    if (isBrowserTabNavigation) {
+      return new NextResponse(
+        buildShieldProtectionHtml({
+          status: 403,
+          reason: "image_direct_navigation",
+          message:
+            "Direct visual stream access is disabled to protect client privacy. Assets can only be rendered via TAYCO protected studio canvas.",
+          pathname: "/properties/single-family",
+        }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-store",
+            "X-Tayco-Shield": "blocked-direct-stream",
+            "X-Robots-Tag": "noimageindex, noarchive, nosnippet, noai, noimageai",
+          },
+        }
+      );
+    }
+
     return new NextResponse(
       "Direct visual stream access is forbidden. Assets can only be rendered via TAYCO protected canvas.",
       {

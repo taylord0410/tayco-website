@@ -4,6 +4,7 @@ import {
   evaluateSiteShield,
   resetShieldStateForTests,
   buildAiExecutiveSummaryText,
+  buildShieldProtectionHtml,
   scrambleVisualBytes,
 } from "../lib/site-shield";
 
@@ -224,4 +225,39 @@ test("intercepts AI bots (ClaudeBot, GPTBot, OAI-SearchBot, PerplexityBot) with 
   assert.ok(summaryText.includes("TAYCO LLC"));
   assert.ok(summaryText.includes("Wisconsin & Illinois"));
   assert.ok(summaryText.includes("architectural recreations based on real TAYCO projects"));
+});
+
+test("excludes Next.js RSC/prefetch requests from page rate limits and renders a luxury branded TAYCO protection HTML page on blocks", () => {
+  resetShieldStateForTests();
+
+  // 200 background RSC/prefetch requests must never trip page_rate_limit
+  for (let i = 0; i < 200; i++) {
+    const res = evaluateSiteShield({
+      method: "GET",
+      pathname: "/properties/single-family",
+      clientIp: "198.51.100.42",
+      userAgent: HUMAN_UA,
+      host: "www.tayroofing.org",
+      referer: "https://www.tayroofing.org/",
+      secFetchDest: "empty",
+      secFetchMode: "cors",
+      secFetchSite: "same-origin",
+      accept: "*/*",
+      isPrefetchOrRsc: true,
+      now: 2_000_000,
+    });
+    assert.equal(res.action, "allow");
+  }
+
+  // Branded HTML page clearly explains the protection reason and offers navigation buttons
+  const html = buildShieldProtectionHtml({
+    status: 403,
+    reason: "image_direct_navigation",
+    message: "Direct image viewing and downloading are disabled to protect client privacy.",
+    pathname: "/curated/magazine/revista_fr_metal_04.jpg",
+  });
+  assert.ok(html.includes('data-tayco-shield-page="true"'));
+  assert.ok(html.includes("Protected Architectural Portfolio Visual"));
+  assert.ok(html.includes("PROTECTION REASON · HTTP 403 (IMAGE_DIRECT_NAVIGATION)"));
+  assert.ok(html.includes("Return to TAYCO Portfolio"));
 });

@@ -1439,7 +1439,11 @@ export function PropertyWalkthroughStudioModal({
             </div>
 
             {/* Sleek Luxury Action Bar: Capsule buttons with data-magnetic */}
-            <div className="flex items-center justify-end gap-1.5 shrink-0">
+            <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
+              <ImageReferenceButton
+                compact
+                src={lighting.nightPhotoOpacity > 0.5 ? activeStop.nightSrc : activeStop.src}
+              />
               <button
                 type="button"
                 data-compare-toggle
@@ -1531,8 +1535,6 @@ export function PropertyWalkthroughStudioModal({
               </button>
             </div>
           </div>
-
-          <div className="shrink-0 border-b border-white/10 px-4 py-2"><ImageReferenceButton src={lighting.nightPhotoOpacity > 0.5 ? activeStop.nightSrc : activeStop.src} /></div>
 
           {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
           {marketSpecialties.length > 0 && (
@@ -2007,34 +2009,6 @@ export function PropertyWalkthroughStudioModal({
                     </button>
                   );
                 })}
-
-              {/* Bottom Editorial Overlay: Room Title + Sleek Floating Portal Pill */}
-              <div
-                className="absolute bottom-0 inset-x-0 px-3 py-2.5 sm:px-8 sm:py-5 flex flex-col items-center text-center gap-1.5 sm:gap-2.5 z-20"
-                style={{
-                  background:
-                    "linear-gradient(180deg, transparent 0%, rgba(5, 10, 20, 0.72) 48%, rgba(5, 10, 20, 0.95) 100%)",
-                }}
-              >
-                <div className="max-w-2xl flex flex-col items-center text-center">
-                  <div className="hidden sm:block text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#F6E6B8] drop-shadow">
-                    {activeStop.floorLevel}
-                  </div>
-                  <h3 className="tayco-card-title text-sm sm:text-2xl text-white tracking-tight leading-snug mt-0.5 drop-shadow line-clamp-1 sm:line-clamp-none">
-                    {activeStop.title}
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  data-portal-next-room
-                  data-magnetic
-                  onClick={() => handleStepChange(activeStopIdx + 1)}
-                  className="tayco-atelier-btn-gold px-4 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold min-h-[40px]"
-                >
-                  <span>{activeStop.portalButtonLabel}</span>
-                </button>
-              </div>
             </div>
 
             {/* Split Compare Fine Scrubber Bar (Visible when Split Compare is enabled) */}
@@ -2059,8 +2033,27 @@ export function PropertyWalkthroughStudioModal({
               </div>
             )}
 
-            {/* 2. LUXURY GLASSMORPHIC FILMSTRIP DOCK (5 ROOMS OR 3 SPECIALTY VIEWS) */}
-            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/8">
+            {/* 2. LUXURY GLASSMORPHIC FILMSTRIP DOCK (5 ROOMS OR 3 SPECIALTY VIEWS) — WITH CLEAN CAPTION BAR BELOW PHOTO */}
+            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-white/10">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#F3D37A] truncate">
+                    {activeStop.floorLevel} · View {activeStop.stepNumber} of 0{stops.length}
+                  </div>
+                  <h3 className="tayco-card-title text-base sm:text-xl text-white tracking-tight leading-snug truncate">
+                    {activeStop.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  data-portal-next-room
+                  data-magnetic
+                  onClick={() => handleStepChange(activeStopIdx + 1)}
+                  className="tayco-atelier-btn-gold !min-h-[38px] !px-4 !py-1.5 text-xs font-bold whitespace-nowrap shrink-0 self-start sm:self-center"
+                >
+                  <span>{activeStop.portalButtonLabel}</span>
+                </button>
+              </div>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
@@ -2072,9 +2065,6 @@ export function PropertyWalkthroughStudioModal({
                     — Click any view or press ← / → arrows for smooth transition
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">
-                  View {activeStop.stepNumber} of 0{stops.length}
-                </span>
               </div>
 
               <div

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { evaluateSiteShield } from "./lib/site-shield";
+import { evaluateSiteShield, buildShieldProtectionHtml } from "./lib/site-shield";
 import { inspectAutomationRequest, GUARD_PATH } from "./lib/automation-guard-http";
 import { guardMode } from "./lib/automation-guard";
 import { trustedClientIp } from "./lib/client-network";
@@ -20,6 +20,17 @@ export function proxy(request: NextRequest) {
 }
 
 function siteProxy(request: NextRequest) {
+  const secPurpose = (request.headers.get("sec-purpose") || request.headers.get("purpose") || "").toLowerCase();
+  const isPrefetchOrRsc =
+    request.headers.has("rsc") ||
+    request.headers.has("next-router-prefetch") ||
+    secPurpose.includes("prefetch") ||
+    request.nextUrl.searchParams.has("_rsc");
+
+  const accept = request.headers.get("accept");
+  const secFetchDest = request.headers.get("sec-fetch-dest");
+  const secFetchMode = request.headers.get("sec-fetch-mode");
+
   const decision = evaluateSiteShield({
     method: request.method,
     pathname: request.nextUrl.pathname,
@@ -27,13 +38,42 @@ function siteProxy(request: NextRequest) {
     userAgent: request.headers.get("user-agent") || "",
     host: request.headers.get("host") || request.nextUrl.host || "",
     referer: request.headers.get("referer"),
-    secFetchDest: request.headers.get("sec-fetch-dest"),
-    secFetchMode: request.headers.get("sec-fetch-mode"),
+    secFetchDest,
+    secFetchMode,
     secFetchSite: request.headers.get("sec-fetch-site"),
-    accept: request.headers.get("accept"),
+    accept,
+    isPrefetchOrRsc,
   });
 
   if (decision.action === "block") {
+    const isBrowserHtmlNavigation =
+      !isPrefetchOrRsc &&
+      decision.reason !== "manual_bot_ua" &&
+      Boolean(
+        (accept && accept.includes("text/html")) ||
+          secFetchDest === "document" ||
+          secFetchMode === "navigate"
+      );
+
+    if (isBrowserHtmlNavigation) {
+      return new NextResponse(
+        buildShieldProtectionHtml({
+          status: decision.status,
+          reason: decision.reason,
+          message: decision.body,
+          pathname: request.nextUrl.pathname,
+        }),
+        {
+          status: decision.status,
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-store",
+            ...(decision.extraHeaders || {}),
+          },
+        }
+      );
+    }
+
     return new NextResponse(decision.body, {
       status: decision.status,
       headers: {

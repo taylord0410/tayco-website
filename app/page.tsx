@@ -1172,21 +1172,23 @@ export default function Home() {
                     <div className="text-lg font-black text-white mt-0.5">
                       {expandedLightbox.title}
                     </div>
-                    <ImageReferenceButton src={expandedLightbox.src} />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setExpandedLightbox(null)}
-                    className="px-5 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
-                      borderColor: "#FFF3C4",
-                      color: "#050A14",
-                    }}
-                  >
-                    Close Full-Screen View ✕
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <ImageReferenceButton compact src={expandedLightbox.src} />
+                    <button
+                      type="button"
+                      onClick={() => setExpandedLightbox(null)}
+                      className="min-h-[40px] px-5 py-2 rounded-full text-xs font-mono font-black uppercase tracking-wider border cursor-pointer"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #F6E29C 0%, #D9B14A 52%, #B58928 100%)",
+                        borderColor: "#FFF3C4",
+                        color: "#050A14",
+                      }}
+                    >
+                      Close Full-Screen View ✕
+                    </button>
+                  </div>
                 </div>
               </>
             )}

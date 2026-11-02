@@ -488,8 +488,7 @@ export default function TradeGallery() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-<div className="mb-3"><ImageReferenceButton src={zoomItem.src} /></div>
-              <div className="flex items-center justify-between gap-4 mb-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
                     className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black shrink-0"
@@ -514,10 +513,11 @@ export default function TradeGallery() {
                       {zoomIdx + 1} / {zoomItems.length}
                     </span>
                   )}
+                  <ImageReferenceButton compact src={zoomItem.src} />
                   <button
                     type="button"
                     onClick={handleCloseZoom}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold border hover:bg-white/10 cursor-pointer inline-flex items-center gap-1.5 transition-colors"
+                    className="min-h-[40px] px-3.5 py-1.5 rounded-full text-xs font-bold border hover:bg-white/10 cursor-pointer inline-flex items-center gap-1.5 transition-colors"
                     style={{
                       borderColor: "rgba(201, 168, 76, 0.45)",
                       color: "#F3D37A",

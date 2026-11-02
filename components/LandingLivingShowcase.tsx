@@ -1159,22 +1159,24 @@ export function DualTrackArchitecturalMarquee() {
                   />
                 </div>
                 <div tabIndex={0} className="min-h-0 overflow-y-auto overscroll-contain p-4 border-t border-white/10">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black"
-                        style={{ background: "#C9A84C", color: "#070E1A" }}
-                      >
-                        {selectedShot.csi}
-                      </span>
-                      <span className="text-xs font-mono text-amber-200">
-                        {selectedShot.trade} · {selectedShot.sector}
-                      </span>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black"
+                          style={{ background: "#C9A84C", color: "#070E1A" }}
+                        >
+                          {selectedShot.csi}
+                        </span>
+                        <span className="text-xs font-mono text-amber-200">
+                          {selectedShot.trade} · {selectedShot.sector}
+                        </span>
+                      </div>
+                      <div className="text-lg font-black text-white mt-1">
+                        {selectedShot.title}
+                      </div>
                     </div>
-                    <ImageReferenceButton src={selectedShot.image} />
-                    <div className="text-lg font-black text-white mt-1">
-                      {selectedShot.title}
-                    </div>
+                    <ImageReferenceButton compact src={selectedShot.image} />
                   </div>
                 </div>
               </>
