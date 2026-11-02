@@ -1067,7 +1067,7 @@ export function LandingPropertyCategoriesSection() {
                       className="absolute inset-0 pointer-events-none z-[4]"
                       style={{
                         background:
-                          "linear-gradient(180deg, rgba(4,8,17,0.55) 0%, rgba(4,8,17,0.16) 45%, rgba(4,8,17,0.92) 100%)",
+                          "linear-gradient(180deg, rgba(4,8,17,0.42) 0%, transparent 28%)",
                       }}
                     />
                   </Link>
@@ -1125,55 +1125,55 @@ export function LandingPropertyCategoriesSection() {
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Headline Overlay + 3-Photo Switcher */}
-                  <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between gap-3 z-10">
-                    <Link
-                      href={`/properties/${cat.slug}`}
-                      className="min-w-0 group/title text-left"
-                    >
-                      <h3 className="tayco-card-title text-2xl sm:text-3xl text-white drop-shadow-md group-hover/title:text-[#F3D37A] transition-colors">
-                        {cat.label}
-                      </h3>
-                      <p className="text-xs text-slate-200 font-medium truncate">
-                        {cat.subtitle}
-                      </p>
-                    </Link>
+                {/* Sub-Photo Headline & 3-Photo Switcher Bar (outside photo canvas) */}
+                <div className="bg-[#050A14] border-y border-white/10 px-4 py-2.5 flex items-center justify-between gap-3">
+                  <Link
+                    href={`/properties/${cat.slug}`}
+                    className="min-w-0 group/title text-left"
+                  >
+                    <h3 className="tayco-card-title text-xl sm:text-2xl text-white group-hover/title:text-[#F3D37A] transition-colors truncate">
+                      {cat.label}
+                    </h3>
+                    <p className="text-[11px] text-slate-300 font-medium truncate">
+                      {cat.subtitle}
+                    </p>
+                  </Link>
 
-                    {/* 3-Photo Synchronized Preview Switcher */}
-                    <div
-                      className="flex items-center gap-1.5 bg-[#070E1A]/85 p-1.5 rounded-xl border border-[#C9A84C]/40 backdrop-blur-sm shrink-0"
-                      role="group"
-                      aria-label={`Preview ${cat.label} photography`}
-                    >
-                      {galleryUrls.map((url, idx) => {
-                        const isSelected = idx === activeIdx;
-                        return (
-                          <button
-                            key={url}
-                            type="button"
-                            data-magnetic
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleSelectPreview(cat.slug, idx, galleryUrls);
-                            }}
-                            onPointerEnter={() =>
-                              handleSelectPreview(cat.slug, idx, galleryUrls)
-                            }
-                            className="min-w-[38px] min-h-[38px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
-                            style={{
-                              background: isSelected
-                                ? "#C9A84C"
-                                : "rgba(15, 32, 64, 0.9)",
-                              color: isSelected ? "#070E1A" : "#E2E8F0",
-                            }}
-                            title={`View ${cat.label} photo ${idx + 1}`}
-                          >
-                            <span translate="no">0{idx + 1}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                  {/* 3-Photo Synchronized Preview Switcher */}
+                  <div
+                    className="flex items-center gap-1 bg-[#070E1A]/90 p-1 rounded-xl border border-[#C9A84C]/35 shrink-0"
+                    role="group"
+                    aria-label={`Preview ${cat.label} photography`}
+                  >
+                    {galleryUrls.map((url, idx) => {
+                      const isSelected = idx === activeIdx;
+                      return (
+                        <button
+                          key={url}
+                          type="button"
+                          data-magnetic
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSelectPreview(cat.slug, idx, galleryUrls);
+                          }}
+                          onPointerEnter={() =>
+                            handleSelectPreview(cat.slug, idx, galleryUrls)
+                          }
+                          className="min-w-[32px] min-h-[30px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
+                          style={{
+                            background: isSelected
+                              ? "#C9A84C"
+                              : "rgba(15, 32, 64, 0.9)",
+                            color: isSelected ? "#070E1A" : "#E2E8F0",
+                          }}
+                          title={`View ${cat.label} photo ${idx + 1}`}
+                        >
+                          <span translate="no">0{idx + 1}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1777,8 +1777,8 @@ export function DivisionInteractivePropertyAtelier({
                 <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
                   <TaycoCardFooterBar
                     leftMeta={
-                      <span className="text-[10px] font-mono text-slate-400">
-                        5 Connected Rooms · 24h Solar
+                      <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap truncate">
+                        5 Rooms · 24h Solar
                       </span>
                     }
                   >
@@ -1787,13 +1787,13 @@ export function DivisionInteractivePropertyAtelier({
                       data-magnetic
                       data-division-walkthrough-trigger={prop.code}
                       onClick={() => openModal(prop, 0)}
-                      className="tayco-atelier-btn-gold group/btn"
+                      className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 !text-[11px] whitespace-nowrap shrink-0 group/btn"
                     >
-                      <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                      <span>Step Inside · 5-Room Studio</span>
+                      <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Open 5-Room Studio</span>
                       <StudioActionIcon
                         kind="arrow-right"
-                        className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                        className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
                       />
                     </button>
                   </TaycoCardFooterBar>
@@ -2631,8 +2631,8 @@ export function PropertyCategoryPageView({
                     <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
                       <TaycoCardFooterBar
                         leftMeta={
-                          <span className="text-[10px] font-mono text-slate-400">
-                            5 Connected Rooms · 24h Solar
+                          <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap truncate">
+                            5 Rooms · 24h Solar
                           </span>
                         }
                       >
@@ -2641,13 +2641,13 @@ export function PropertyCategoryPageView({
                           data-magnetic
                           data-walkthrough-trigger={prop.code}
                           onClick={() => openModal(prop, 0, 12.5, undefined)}
-                          className="tayco-atelier-btn-gold group/btn"
+                          className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 !text-[11px] whitespace-nowrap shrink-0 group/btn"
                         >
-                          <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                          <span>Step Inside · 5-Room Studio</span>
+                          <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
+                          <span>Open 5-Room Studio</span>
                           <StudioActionIcon
                             kind="arrow-right"
-                            className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                            className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
                           />
                         </button>
                       </TaycoCardFooterBar>

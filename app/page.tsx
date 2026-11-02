@@ -1027,7 +1027,6 @@ export default function Home() {
                     <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed max-w-2xl">
                       {currentStudy.note}
                     </p>
-                    <ImageReferenceButton src={currentStudy.image} />
                     <details className="home-reading-details mt-4">
                       <summary>Material specifications <span aria-hidden="true">＋</span></summary>
                       <dl className="grid gap-3 text-sm text-slate-300">
@@ -1037,13 +1036,16 @@ export default function Home() {
                       </dl>
                     </details>
                   </div>
-                  <Link
-                    href="/estimate"
-                    data-magnetic
-                    className="tayco-atelier-btn-gold shrink-0 text-center"
-                  >
-                    Discuss your finishes →
-                  </Link>
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-white/10">
+                    <ImageReferenceButton compact src={currentStudy.image} />
+                    <Link
+                      href="/estimate"
+                      data-magnetic
+                      className="tayco-atelier-btn-gold !min-h-[42px] !px-5 !py-2 shrink-0 text-center whitespace-nowrap"
+                    >
+                      Discuss your finishes →
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

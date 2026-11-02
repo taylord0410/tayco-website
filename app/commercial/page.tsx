@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
 import ProtectedImage, { preloadProtectedImages, useSynchronizedScene } from "@/components/ProtectedImage";
+import { ImageReferenceButton } from "@/components/EstimateReferences";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -794,7 +795,7 @@ export default function CommercialPage() {
                     className="absolute inset-0 pointer-events-none z-[4]"
                     style={{
                       background:
-                        "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
+                        "linear-gradient(180deg, rgba(7,14,26,0.42) 0%, transparent 28%)",
                     }}
                   />
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
@@ -849,13 +850,23 @@ export default function CommercialPage() {
                       </button>
                     </div>
                   </div>
-                  <div key={`com-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5">
-                    <div className="text-sm sm:text-base font-black text-white leading-snug">
+                </div>
+
+                {/* Sub-Photo Caption + Reference Bar (outside photo canvas) */}
+                <div
+                  key={`com-stage-copy-${syncPulse}`}
+                  className="tayco-harmonic-sync bg-[#050A14] border-t border-white/10 px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm sm:text-base font-black text-white leading-snug truncate">
                       {currentHeroScene.title}
                     </div>
-                    <p className="text-xs text-slate-300 mt-1 line-clamp-2">
+                    <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
                       {currentHeroScene.summary}
                     </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <ImageReferenceButton compact src={currentHeroScene.image} />
                   </div>
                 </div>
 

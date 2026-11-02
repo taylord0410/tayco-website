@@ -87,7 +87,10 @@ export function HomeEditorialGallery({ selection, onClose }: {
         }}>
           <header className="home-gallery-header">
             <div><p className="home-editorial-eyebrow">Gallery</p><h2>{selection.title}</h2></div>
-            <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
+            <div className="flex items-center gap-2">
+              <ImageReferenceButton compact src={frame.src} />
+              <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
+            </div>
           </header>
           <div className="home-gallery-stage" {...stageGestureHandlers}>
             <ProtectedImage src={frame.src} alt="" auditIgnore loading="eager"
@@ -96,7 +99,6 @@ export function HomeEditorialGallery({ selection, onClose }: {
               className="home-gallery-main-image h-full w-full object-contain" />
           </div>
           <div className="home-gallery-copy" data-tayco-scroll-zone="true" tabIndex={0} aria-label="Photograph details">
-            <ImageReferenceButton src={frame.src} />
             <div className="space-y-2" aria-live="polite" aria-atomic="true">
             <p className="home-editorial-eyebrow">{frame.eyebrow}</p>
             <h3 className="home-editorial-title">{frame.title}</h3>

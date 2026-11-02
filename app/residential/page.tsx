@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
 import ProtectedImage, { preloadProtectedImages, useSynchronizedScene } from "@/components/ProtectedImage";
+import { ImageReferenceButton } from "@/components/EstimateReferences";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -655,10 +656,10 @@ export default function ResidentialPage() {
                     className="absolute inset-0 pointer-events-none z-[4]"
                     style={{
                       background:
-                        "linear-gradient(180deg, rgba(7,14,26,0.55) 0%, rgba(7,14,26,0.08) 45%, rgba(7,14,26,0.92) 100%)",
+                        "linear-gradient(180deg, rgba(7,14,26,0.42) 0%, transparent 28%)",
                     }}
                   />
-                  <div className=" absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                       style={{
@@ -711,15 +712,23 @@ export default function ResidentialPage() {
                       </span>
                     </div>
                   </div>
-                  <div key={`res-stage-copy-${syncPulse}`} className="tayco-harmonic-sync absolute bottom-3 left-3.5 right-3.5 flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-sm sm:text-base font-black text-white leading-snug truncate">
-                        {currentHeroScene.title}
-                      </div>
-                      <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
-                        {currentHeroScene.summary}
-                      </p>
+                </div>
+
+                {/* Sub-Photo Caption + Studio & Reference Bar (outside photo canvas) */}
+                <div
+                  key={`res-stage-copy-${syncPulse}`}
+                  className="tayco-harmonic-sync bg-[#050A14] border-t border-white/10 px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm sm:text-base font-black text-white leading-snug truncate">
+                      {currentHeroScene.title}
                     </div>
+                    <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                      {currentHeroScene.summary}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <ImageReferenceButton compact src={currentHeroScene.image} />
                     <button
                       type="button"
                       onClick={() =>
@@ -729,7 +738,7 @@ export default function ResidentialPage() {
                           ) ?? PROPERTY_LISTINGS[0]
                         )
                       }
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-mono font-black shrink-0 cursor-pointer transition-transform hover:scale-105 shadow-lg"
+                      className="inline-flex items-center gap-1.5 px-3 min-h-[34px] rounded-full text-[10px] font-mono font-black shrink-0 whitespace-nowrap cursor-pointer transition-transform hover:scale-105 shadow-lg"
                       style={{
                         background:
                           "linear-gradient(135deg, #E5C97B 0%, #C9A84C 100%)",

@@ -816,16 +816,18 @@ export function TransformationBeforeAfterStudio({
                   {activePair.afterTag}
                 </span>
               </div>
+            </div>
 
-              {/* Bottom Telemetry HUD Bar */}
-              <div
-                className="absolute bottom-0 inset-x-0 z-20 px-4 py-3 flex flex-wrap items-center justify-between gap-2 backdrop-blur-md border-t"
-                style={{
-                  background: "linear-gradient(180deg, rgba(7,14,26,0.45) 0%, rgba(7,14,26,0.92) 100%)",
-                  borderColor: "rgba(201, 168, 76, 0.3)",
-                }}
-              >
-                <div className="flex items-center gap-2.5">
+            {/* Sub-Photo Telemetry & Interactive Control Strip Under Stage (outside photo canvas) */}
+            <div
+              className="mt-2.5 p-3 rounded-xl border flex flex-col gap-2.5"
+              style={{
+                background: "rgba(15, 32, 64, 0.78)",
+                borderColor: "rgba(201, 168, 76, 0.32)",
+              }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-white/10">
+                <div className="flex items-center gap-2">
                   <span
                     className="px-2 py-0.5 rounded-full text-[10px] font-mono font-black"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
@@ -838,20 +840,11 @@ export function TransformationBeforeAfterStudio({
                 </div>
                 <span className="text-[11px] font-mono text-amber-200/90">
                   {inspectMode === "split"
-                    ? `CURTAIN POSITION: ${splitPercent}% BEFORE / ${100 - splitPercent}% AFTER`
+                    ? `CURTAIN: ${splitPercent}% BEFORE / ${100 - splitPercent}% AFTER`
                     : `X-RAY LOUPE: X=${xrayPos.x}% · Y=${xrayPos.y}%`}
                 </span>
               </div>
-            </div>
-
-            {/* Interactive Control Strip Under Stage */}
-            <div
-              className="mt-3 p-3.5 rounded-xl border flex flex-wrap items-center justify-between gap-3"
-              style={{
-                background: "rgba(15, 32, 64, 0.72)",
-                borderColor: "rgba(201, 168, 76, 0.32)",
-              }}
-            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
               {/* Mode Switcher: 50/50 Curtain vs Structural X-Ray Lens */}
               <div className="flex items-center gap-2">
                 <button
@@ -910,6 +903,7 @@ export function TransformationBeforeAfterStudio({
                     {preset.label}
                   </button>
                 ))}
+              </div>
               </div>
             </div>
           </div>
