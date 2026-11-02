@@ -22,7 +22,7 @@ COPY . .
 RUN mkdir -p private-operator-inputs
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build -- --webpack
+RUN npm run build
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
