@@ -43,9 +43,9 @@ function Empty({ children }: { children: ReactNode }) {
 }
 
 const GUEST_ALLOWED_SECTIONS = new Set<string>([
-  "summary",
   "projects",
-  "lead",
+  "plans",
+  "takeoff",
 ]);
 
 const GUEST_MODULE_LABELS: Record<string, string> = {
@@ -72,7 +72,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
   const [display, setDisplay] = useWorkspaceDisplay();
   const [period, setPeriod] = useState(initial.period);
   const [section, setSection] = useState<GuestConsoleSection>(
-    GUEST_ALLOWED_SECTIONS.has(initialSection) ? initialSection : "summary"
+    GUEST_ALLOWED_SECTIONS.has(initialSection) ? initialSection : "projects"
   );
   const [adminOnlyModalLabel, setAdminOnlyModalLabel] = useState<string | null>(null);
   const [projectId, setProjectId] = useState("");
@@ -215,7 +215,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
       setAdminOnlyModalLabel(`Historical Period (${periodLabel(next)})`);
       return;
     }
-    setPeriod(next); setSection("summary"); setProjectId("");
+    setPeriod(next); setSection("projects"); setProjectId("");
     rememberView(next, "summary");
     void record("month.select", { period: next });
     void load(next, "summary", true);

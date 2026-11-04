@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { sealData, unsealData } from 'iron-session';
 import { appendReviewAudit,ReviewAuditError } from './review-audit';
 import { rememberReviewAuditContext } from './review-request-audit';
-import { installReviewSchema, ReviewGrantError, REVIEW_TTL_MS, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, claimPendingGuestReviewIfNeeded, type ReviewAccess } from './review-grants';
+import { installReviewSchema, ReviewGrantError, REVIEW_TTL_MS, GUEST_NO_EXPIRY_MS, createReviewInvitation, rotateReviewInvitation, revokeReviewInvitation, claimReviewGrant, reviewForSession, latestClaimedReview, claimPendingGuestReviewIfNeeded, type ReviewAccess } from './review-grants';
 
 import {insurerPolicy,insurerRouteAllowed,parseInsurerPolicy,readInsurerFile,readInsurerSource,InsurerReviewError} from './insurer-review-policy';
 export type AuthRole = 'admin' | 'staff' | 'client' | 'vendor' | 'guest';
@@ -16,6 +16,9 @@ type InviteRow = { id: string; token_hash: string; email: string; role: AuthRole
 export class AuthError extends Error { constructor(message: string, public status = 401, public reasonCode?: string) { super(message); this.name = 'AuthError'; } }
 export const SESSION_COOKIE = 'tayco_session';
 export const SESSION_TTL_SECONDS = 12 * 60 * 60;
+/** Accounts that are permanently blocked (lowercase). Seeding re-applies the block on every start. */
+export const BLOCKED_EMAILS: readonly string[] = ['harper@tayco.llc'];
+export const isBlockedEmail = (email: unknown) => typeof email === 'string' && BLOCKED_EMAILS.includes(email.trim().toLowerCase());
 // OWASP's 32 MiB configuration balances password cost and the small site's memory budget.
 const passwordKey = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => scrypt(password, salt, 64, { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 }, (error, key) => error ? reject(error) : resolve(key)));
 const digest = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -89,7 +92,7 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
     }
   }
   if (guestHash && guestHash.startsWith('scrypt')) {
-    const harperGuestHash = 'scrypt$32768$8$3$9c5e21a48f73d60b14e95c8a27b46d31$42ecf34b8b7547997fb4a8292237b4799a0abb00b4d4313990ba2d51ef86c0b5939de474b5870e3c81369ca1198035da546369e1aaf397b9683efd3319431373';
+    const marninGuestHash = 'scrypt$32768$8$3$e3f22c69ee3c7cf8f586e732165a82a7$551da95f2f0bbee98eece5c620f60bf3d73e997caf9dbe6b29f20e5fe5322d1c56bcccdbdede6bd56498a8573d0d0d4f8b853aea135f34d2f7b998ec2cdf5bc6';
     const guestAccounts: [string, string, string?][] = [
       ['0b8200f1-d244-4b9e-8cbe-cd7b6c23d88d', 'taylord@taycoturnkey.com'],
       ['1c9300f2-e355-4c0f-9dcf-de8c7d34e99e', 'invitado@taycoturnkey.com'],
@@ -99,7 +102,7 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
       ['5ad700f6-c799-4043-9103-12c0b1782dd2', 'evaluador1@taycoturnkey.com'],
       ['6be800f7-d8aa-4154-a214-23d1c2893ee3', 'evaluador2@taycoturnkey.com'],
       ['7cf900f8-e9bb-4265-b325-34e2d39a4ff4', 'evaluador3@taycoturnkey.com'],
-      ['8dfa00f9-f0cc-4376-a436-45f3e50b5115', 'harper@tayco.llc', harperGuestHash],
+      ['a1d20a0b-5e4c-4f6d-9b7e-6c3d2f1e0a9b', 'marnin@tayco.llc', marninGuestHash],
     ];
     for (const [guestId, guestEmail, customHash] of guestAccounts) {
       const effectiveHash = customHash ?? guestHash;
@@ -109,7 +112,7 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
          VALUES(?, ?, ?, 'guest', 'tayco_llc', '[]', NULL, 0, ?)
          ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, role='guest', tenant_id='tayco_llc', vendor_id=NULL, disabled=0`
       ).run(guestId, guestEmail, effectiveHash, now);
-      const autoRenew = guestEmail === 'harper@tayco.llc' ? 0 : 1;
+      const autoRenew = 1;
       db.prepare(
         `INSERT INTO auth_pending_guest_reviews(email, tenant_id, created_by, recipient_profile, recipient_policy_sha256, created_at, claimed_grant_id, claimed_at, auto_renew)
          VALUES(?, 'tayco_llc', '695937b9-780c-4046-b087-0e40687f0d4e', 'company', NULL, ?, NULL, NULL, ?)
@@ -120,8 +123,16 @@ function seedRailwayAccountsIfNeeded(db: DatabaseSync) {
         db.prepare('DELETE FROM auth_sessions WHERE user_id=?').run(existingGuest.id);
       }
     }
-    db.prepare('UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL, auto_renew=0 WHERE email=? AND claimed_at IS NOT NULL AND claimed_at <= 1793282000000').run('harper@tayco.llc');
-    db.prepare('DELETE FROM auth_sessions WHERE user_id=? AND created_at <= 1793282000000').run('8dfa00f9-f0cc-4376-a436-45f3e50b5115');
+    // Company guests are no-expiry: retire any older 12h grant so the next sign-in claims a no-expiry one.
+    db.prepare(`UPDATE auth_pending_guest_reviews SET claimed_grant_id=NULL, claimed_at=NULL WHERE recipient_profile='company' AND auto_renew=1 AND claimed_grant_id IN (SELECT id FROM auth_review_grants WHERE expires_at-created_at<>?)`).run(GUEST_NO_EXPIRY_MS);
+    // Permanent block: blocked accounts are never re-enabled by seeding, sign-in or an admin toggle.
+    for (const blocked of BLOCKED_EMAILS) {
+      db.prepare('UPDATE auth_users SET disabled=1 WHERE lower(email)=?').run(blocked);
+      db.prepare('DELETE FROM auth_sessions WHERE user_id IN (SELECT id FROM auth_users WHERE lower(email)=?)').run(blocked);
+      db.prepare('UPDATE auth_review_grants SET revoked_at=? WHERE lower(email)=? AND revoked_at IS NULL').run(now, blocked);
+      db.prepare('UPDATE auth_invites SET revoked_at=? WHERE lower(email)=? AND revoked_at IS NULL').run(now, blocked);
+      db.prepare('DELETE FROM auth_pending_guest_reviews WHERE lower(email)=?').run(blocked);
+    }
     db.prepare('DELETE FROM auth_rate_limits').run();
   }
 }
@@ -178,7 +189,7 @@ export async function createSession(userId: string, selectedReviewId?: string, e
   const password=secret(), token=randomBytes(32).toString('base64url');
   const selected=withDb(db=>{
     const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
-    if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
+    if(!user||user.disabled||isBlockedEmail(user.email)||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
     const actor=actorOf(user),grantId=actor.role==='guest'?(selectedReviewId??claimPendingGuestReviewIfNeeded(db,actor)??latestClaimedReview(db,userId)):undefined;
     let review:ReviewAccess|undefined;
     try{review=actor.role==='guest'?reviewForSession(db,actor,grantId):undefined;}
@@ -189,14 +200,14 @@ export async function createSession(userId: string, selectedReviewId?: string, e
       }
       throw error;
     }
-    return {grantId,expiresAt:Math.min(Date.now()+SESSION_TTL_SECONDS*1000,review?.expiresAt??Infinity)};
+    return {grantId,expiresAt:review?review.expiresAt:Date.now()+SESSION_TTL_SECONDS*1000};
   });
   const value=await sealData({token},{password,ttl:Math.max(1,Math.ceil((selected.expiresAt-Date.now())/1000))});
   withDb(db=>{
     db.exec('BEGIN IMMEDIATE');
     try{
       const user=db.prepare('SELECT * FROM auth_users WHERE id=?').get(userId) as UserRow|undefined;
-      if(!user||user.disabled||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
+      if(!user||user.disabled||isBlockedEmail(user.email)||(expectedPasswordHash!==undefined&&user.password_hash!==expectedPasswordHash))throw new AuthError('Account unavailable.');
       if(user.role==='guest')reviewForSession(db,actorOf(user),selected.grantId);
       else if(selected.grantId)throw new AuthError('Account access changed. Please sign in again.',403);
       const now=Date.now();if(selected.expiresAt<=now)throw new AuthError('This review access has ended.',403,'review_expired');
@@ -210,7 +221,7 @@ export async function createSession(userId: string, selectedReviewId?: string, e
   return value;
 }
 function cookieValue(request: Request) { return request.headers.get('cookie')?.split(';').map(c => c.trim()).find(c => c.startsWith(`${SESSION_COOKIE}=`))?.slice(SESSION_COOKIE.length + 1); }
-async function sessionToken(request: Request) { const value = cookieValue(request); if (!value) return null; try { const payload = await unsealData<{ token?: string }>(decodeURIComponent(value), { password: secret(), ttl: SESSION_TTL_SECONDS }); return typeof payload.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(payload.token) ? payload.token : null; } catch (e) { if (e instanceof AuthError) throw e; return null; } }
+async function sessionToken(request: Request) { const value = cookieValue(request); if (!value) return null; try { const payload = await unsealData<{ token?: string }>(decodeURIComponent(value), { password: secret(), ttl: GUEST_NO_EXPIRY_MS / 1000 }); return typeof payload.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(payload.token) ? payload.token : null; } catch (e) { if (e instanceof AuthError) throw e; return null; } }
 const guestRequestBindings=new WeakMap<Actor,()=>Actor>();
 const requestActorBindings=new WeakMap<Actor,()=>Actor>();
 /** Synchronous check of the exact persisted session after server IO or SQL locks.
@@ -282,7 +293,7 @@ export async function signOut(request: Request) {
   });
 }
 export function sessionCookie(value: string, clear = false, expiresAt?:number) {
-  const seconds=clear?0:expiresAt===undefined?SESSION_TTL_SECONDS:Math.max(0,Math.min(SESSION_TTL_SECONDS,Math.floor((expiresAt-Date.now())/1000)));
+  const seconds=clear?0:expiresAt===undefined?SESSION_TTL_SECONDS:Math.max(0,Math.min(GUEST_NO_EXPIRY_MS/1000,Math.floor((expiresAt-Date.now())/1000)));
   return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${clear?'; Expires=Thu, 01 Jan 1970 00:00:00 GMT':expiresAt!==undefined?'; Expires='+new Date(expiresAt).toUTCString():''}${process.env.NODE_ENV==='production'&&process.env.TAYCO_COOKIE_INSECURE!=='1'?'; Secure':''}`;
 }
 

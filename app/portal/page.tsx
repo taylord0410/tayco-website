@@ -26,7 +26,7 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
   let recipientInitial:{data:ReturnType<typeof insurerReviewData>;review:ReturnType<typeof reviewDisplayDeadline>}|undefined;
   let initial: DashboardData | undefined;
   let guestInitial: GuestConsoleData | undefined;
-  let guestSection: GuestConsoleSection = "summary";
+  let guestSection: GuestConsoleSection = "projects";
   let accessError = "";
   try {
     if (!process.env.TAYCO_SESSION_SECRET || process.env.TAYCO_SESSION_SECRET.length < 32)
@@ -41,7 +41,7 @@ async function PortalPage({ searchParams }: { searchParams?: Promise<Search> } =
           Array.isArray(query.period) || Array.isArray(query.section) ||
           (query.section !== undefined && !isGuestSection(query.section)))
         throw new ErpError(422, "Choose a valid review period and section.");
-      guestSection = query.section as GuestConsoleSection || "summary";
+      guestSection = query.section as GuestConsoleSection || "projects";
       try {
         guestInitial = guestConsoleSnapshot(actor, { period: query.period, section: guestSection });
       } catch (error) {

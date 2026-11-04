@@ -4,6 +4,8 @@ import type { Actor } from './auth';
 import { appendReviewAudit,installReviewAuditSchema,type ReviewAuditKind } from './review-audit';
 
 export const REVIEW_TTL_MS = 12 * 60 * 60 * 1000;
+/** Pre-registered company guests (password accounts) keep their session until an admin blocks or revokes them. */
+export const GUEST_NO_EXPIRY_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 export type RecipientProfile={kind:'insurer-a';policySha256:string};
 export type ReviewAccess = { id: string; detailPeriod: string; createdAt: number; expiresAt: number; recipient?:RecipientProfile };
 /** Server display metadata only; never grants access or extends the stored deadline. */
@@ -24,13 +26,13 @@ function emit(db:DatabaseSync,actor:Actor,event:string,id:string,now:number){
 
 export function ensureGrantSchema(db: DatabaseSync) {
   const master = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='auth_review_grants'").get() as { sql?: string } | undefined;
-  if (master && master.sql && !master.sql.includes('43200000')) {
+  if (master && master.sql && !master.sql.includes('315360000000')) {
     db.exec("DROP TRIGGER IF EXISTS auth_review_deadline_immutable; DROP TRIGGER IF EXISTS auth_review_recipient_immutable;");
     db.exec(`CREATE TABLE auth_review_grants_new(
       id TEXT PRIMARY KEY,invite_id TEXT UNIQUE NOT NULL,tenant_id TEXT NOT NULL,email TEXT NOT NULL,
       user_id TEXT REFERENCES auth_users(id),detail_period TEXT NOT NULL,created_by TEXT NOT NULL,
       creation_key TEXT NOT NULL,request_hash TEXT NOT NULL,created_at INTEGER NOT NULL,
-      expires_at INTEGER NOT NULL CHECK(expires_at=created_at+43200000 OR expires_at=created_at+10800000 OR expires_at=created_at+14400000),accepted_at INTEGER,revoked_at INTEGER,
+      expires_at INTEGER NOT NULL CHECK(expires_at=created_at+43200000 OR expires_at=created_at+10800000 OR expires_at=created_at+14400000 OR expires_at=created_at+315360000000),accepted_at INTEGER,revoked_at INTEGER,
       scope TEXT NOT NULL DEFAULT 'company_readonly' CHECK(scope='company_readonly'),policy_version INTEGER NOT NULL DEFAULT 1 CHECK(policy_version=1),
       recipient_profile TEXT NOT NULL DEFAULT 'company' CHECK(recipient_profile IN ('company','insurer-a')),
       recipient_policy_sha256 TEXT,
@@ -54,7 +56,7 @@ export function installReviewSchema(db: DatabaseSync) {
     id TEXT PRIMARY KEY,invite_id TEXT UNIQUE NOT NULL,tenant_id TEXT NOT NULL,email TEXT NOT NULL,
     user_id TEXT REFERENCES auth_users(id),detail_period TEXT NOT NULL,created_by TEXT NOT NULL,
     creation_key TEXT NOT NULL,request_hash TEXT NOT NULL,created_at INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL CHECK(expires_at=created_at+43200000 OR expires_at=created_at+10800000 OR expires_at=created_at+14400000),accepted_at INTEGER,revoked_at INTEGER,
+    expires_at INTEGER NOT NULL CHECK(expires_at=created_at+43200000 OR expires_at=created_at+10800000 OR expires_at=created_at+14400000 OR expires_at=created_at+315360000000),accepted_at INTEGER,revoked_at INTEGER,
     scope TEXT NOT NULL DEFAULT 'company_readonly' CHECK(scope='company_readonly'),policy_version INTEGER NOT NULL DEFAULT 1 CHECK(policy_version=1),
     UNIQUE(tenant_id,created_by,creation_key));
     CREATE TABLE IF NOT EXISTS auth_review_rotations(grant_id TEXT NOT NULL,request_key TEXT NOT NULL,
@@ -174,7 +176,7 @@ export function claimPendingGuestReviewIfNeeded(db:DatabaseSync,actor:Actor,now=
       const existing=db.prepare('SELECT id,expires_at,revoked_at,recipient_profile FROM auth_review_grants WHERE id=?').get(fresh.claimed_grant_id) as {id:string;expires_at:number;revoked_at:number|null;recipient_profile:string}|undefined;
       if(existing&&(existing.revoked_at!==null||((fresh.auto_renew===0||existing.expires_at>now)&&existing.recipient_profile===fresh.recipient_profile)))return existing.id;
     }
-    const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+REVIEW_TTL_MS,period=new Date(now).toISOString().slice(0,7);
+    const id=randomUUID(),grantId=randomUUID(),token=randomBytes(32).toString('base64url'),expiresAt=now+(fresh.recipient_profile==='company'&&fresh.auto_renew!==0?GUEST_NO_EXPIRY_MS:REVIEW_TTL_MS),period=new Date(now).toISOString().slice(0,7);
     const creationKey='pending_claim_'+grantId.replace(/-/g,'').slice(0,24);
     const recipient=fresh.recipient_profile==='insurer-a'&&fresh.recipient_policy_sha256?{kind:'insurer-a' as const,policySha256:fresh.recipient_policy_sha256}:undefined;
     const fingerprint=digest(JSON.stringify({email:actor.email,tenantId:actor.tenantId,role:'guest',scope:'company_readonly',policyVersion:1,...(recipient?{recipient}:{})}));

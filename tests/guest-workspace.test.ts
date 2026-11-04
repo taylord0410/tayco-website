@@ -95,24 +95,21 @@ test('guest console uses whitelisted current-period projections and fails closed
       assert.equal(data.projects.find(p => p.id === 'current-project')?.documentCount, 4);
       assert.equal(data.projects.find(p => p.id === 'explicit-current')?.progress, null);
       assert.equal(data.projects.find(p => p.id === 'explicit-current')?.name, 'Project');
-      assert.deepEqual(data.estimates.map(e => e.id).sort(), ['current-estimate', 'unknown-amount-estimate']);
-      assert.equal(data.estimates.find(e => e.id === 'unknown-amount-estimate')?.amountUsd, null);
-      assert.equal(data.estimates.find(e => e.id === 'unknown-amount-estimate')?.sourceLabel, null);
+      assert.deepEqual(data.estimates, []);
       assert.deepEqual(data.documents.map(d => d.id).sort(), ['current-doc', 'explicit-current-doc', 'missing-file-doc', 'unsafe-name-doc']);
       assert.equal(data.documents.find(d => d.id === 'unsafe-name-doc')?.name, 'Project document');
       assert.equal(data.documents.find(d => d.id === 'missing-file-doc')?.available, false);
       assert.equal(data.documents.find(d => d.id === 'current-doc')?.downloadHref, '/api/documents/current-doc');
       assert.equal(data.documents.find(d => d.id === 'current-doc')?.contentType, 'application/pdf');
-      assert.deepEqual(data.historicalSummary.months.map(m => m.period), ['2026-09']);
+      assert.deepEqual(data.historicalSummary.months, []);
       assert.doesNotMatch(JSON.stringify(data), /PRIVATE_|blobPath|sourceRef|clientEmail|budgetUsd|nextAction|ownerId|tenantId/);
       assert.deepEqual(Object.keys(data.projects[0]).sort(), ['id','name','period','status','progress','location','commercialStage','documentCount'].sort());
-      assert.deepEqual(Object.keys(data.estimates[0]).sort(), ['id','projectId','projectName','name','amountUsd','currency','estimatedOn','sourceLabel'].sort());
       assert.deepEqual(Object.keys(data.documents[0]).sort(), ['id','projectId','projectName','name','contentType','available','viewerHref','downloadHref'].sort());
     });
     await t.test('historical months expose general summary only and reject all detail requests', () => {
       const data = guestConsoleSnapshot(guest, { period: '2026-09', now });
       assert.equal(data.detailAllowed, false); assert.deepEqual(data.projects, []); assert.deepEqual(data.estimates, []); assert.deepEqual(data.documents, []);
-      assert.equal(data.historicalSummary.months[0].lowUsd, 100);
+      assert.deepEqual(data.historicalSummary.months, []);
       for (const section of ['projects','estimates','plans'] as const) assert.throws(() => guestConsoleSnapshot(guest, { period: '2026-09', section, now }), fails(403));
       assert.throws(() => guestConsoleSnapshot(guest, { period: '2026-11', now }), fails(403));
       assert.throws(() => guestConsoleSnapshot(guest, { period: '2026-99', now }), fails(422));

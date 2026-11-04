@@ -63,7 +63,7 @@ test('every new module projects current records using its canonical date and saf
   assert.equal(data.find(row => row.kind === 'hours')?.fields.find(field => field.label === 'Recorded hours')?.value, 8.5);
   assert.equal(data.find(row => row.kind === 'invoice')?.fields.find(field => field.label === 'Recorded amount (USD)')?.value, 1200);
   assert.doesNotMatch(JSON.stringify(data), /PRIVATE_|payload|email|phone|blobPath|sourceRef|accessToken|accountNumber|contacts|internalNotes|revenue|profit/i);
-  assert.deepEqual(guestConsoleSnapshot(actor, { now }).moduleRecords, data);
+  assert.deepEqual(guestConsoleSnapshot(actor, { now }).moduleRecords, []); /* guests see projects and plans only */
 }));
 
 test('all module kinds isolate tenant, current parent and source month, even with forged project candidates', () => fixture(f => {
@@ -196,20 +196,18 @@ test('historical deep links retain all completed months of that year and January
   for (const period of ['2026-08','2026-09']) {
     const data = guestConsoleSnapshot(actor, { now, period, section: 'summary' });
     assert.equal(data.period, period);
-    assert.deepEqual(data.historicalSummary.months.map(month => month.period), ['2026-08','2026-09']);
-    assert.ok(data.historicalSummary.availableYears.includes(2025));
+    assert.deepEqual(data.historicalSummary.months, []);
+    assert.deepEqual(data.historicalSummary.availableYears, []);
     assert.deepEqual(data.moduleRecords, []); assert.deepEqual(data.projects, []);
   }
   const priorYear = guestConsoleSnapshot(actor, { now, period: '2025-12' });
-  assert.equal(priorYear.historicalSummary.year, 2025);
-  assert.deepEqual(priorYear.historicalSummary.months.map(month => month.period), ['2025-12']);
+  assert.deepEqual(priorYear.historicalSummary.months, []);
   const january = guestConsoleSnapshot(actor, { now: new Date('2027-01-02T12:00:00Z') });
   assert.equal(january.currentPeriod, '2027-01');
-  assert.equal(january.historicalSummary.year, 2026);
-  assert.deepEqual(january.historicalSummary.months.map(month => month.period), ['2026-08','2026-09']);
+  assert.deepEqual(january.historicalSummary.months, []);
   assert.deepEqual(january.moduleRecords, []);
   const januaryLink = guestConsoleSnapshot(actor, { now: new Date('2026-01-02T12:00:00Z'), period: '2025-12' });
-  assert.deepEqual(januaryLink.historicalSummary.months.map(month => month.period), ['2025-12']);
+  assert.deepEqual(januaryLink.historicalSummary.months, []);
   assert.doesNotMatch(JSON.stringify(januaryLink), /PRIVATE_|sourceRef|blobPath|contacts/);
 }));
 

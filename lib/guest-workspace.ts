@@ -139,9 +139,10 @@ export function guestConsoleSnapshot(actor: Actor, options: Options = {}): Guest
   if (period > currentPeriod) throw new ErpError(403, 'Not authorized for future reporting periods.');
   const detailAllowed = period === currentPeriod;
   if (!detailAllowed && section !== 'summary') requireGuestPeriod(period, now);
-  const historicalSummary = guestMonthlyEstimateSummary(actor, detailAllowed ? undefined : { year: Number(period.slice(0, 4)) }, now);
+  // Guests only see projects and plans: no monthly figures, estimates or pending/follow-up records leave the server.
+  const historicalSummary: GuestMonthlyEstimateSummary = { currency: 'USD', asOf: now.toISOString(), reportingTimeZone: 'UTC', year: Number(currentPeriod.slice(0, 4)), availableYears: [], months: [] };
   const detail = detailAllowed ? projected(actor, now) : { projects: [], estimates: [], documents: [] };
-  return { actor: { id: actor.id, email: actor.email, role: 'guest' }, ...(actor.review?{review:actor.review}:{}), currentPeriod, period, asOf: now.toISOString(), detailAllowed, historicalSummary, projects: detail.projects, estimates: detail.estimates, documents: detail.documents, moduleRecords: detailAllowed ? guestModuleProjection(actor, detail.projects, now) : [] };
+  return { actor: { id: actor.id, email: actor.email, role: 'guest' }, ...(actor.review?{review:actor.review}:{}), currentPeriod, period, asOf: now.toISOString(), detailAllowed, historicalSummary, projects: detail.projects, estimates: [], documents: detail.documents, moduleRecords: [] };
 }
 
 /** SERVER ONLY: raw storage metadata is loaded only after exact current-period authorization. Never serialize this Entry. */
