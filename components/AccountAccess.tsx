@@ -100,7 +100,7 @@ function ExecutiveTopBar({ showConsoleLink = false }: { showConsoleLink?: boolea
           aria-label="TAYCO Turnkey — Return to Landing Page"
         >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d4af37]/35 bg-[#0b1629] p-1.5 shadow-[0_0_20px_rgba(212,175,55,0.12)]">
-            <Image
+            <Image unoptimized
               src="/logo.png"
               alt="TAYCO LLC Logo"
               width={36}
@@ -289,7 +289,7 @@ export function LoginAccess() {
 
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border border-[#d4af37]/40 bg-gradient-to-b from-[#0f1f38] to-[#081120] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.55)]">
-                <Image
+                <Image unoptimized
                   src="/logo.png"
                   alt="TAYCO Construction Group Crest"
                   width={80}

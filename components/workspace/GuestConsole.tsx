@@ -255,7 +255,7 @@ export default function GuestConsole({ initial, initialSection = "summary" }: { 
         <button ref={toggleRef} type="button" className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-amber-200/40 px-3 text-xs font-semibold text-amber-100" aria-controls="tayco-portal-module-tabs" aria-expanded={mobileOpen} onClick={() => {record("menu.toggle");setMobileOpen(!mobileOpen);}}>{mobileOpen ? "Close" : "Menu"}</button>
       </div>
       <div className="relative flex h-24 w-28 items-center justify-center rounded-2xl border border-[#C9A84C]/55 bg-gradient-to-b from-[#132847] to-[#081221] p-2 shadow-[0_10px_28px_rgba(0,0,0,0.65)]">
-        <Image src="/logo.png" alt="TAYCO Construction Group" width={110} height={90} className="h-20 w-auto object-contain drop-shadow-[0_4px_12px_rgba(201,168,76,0.45)]"/>
+        <Image unoptimized src="/logo.png" alt="TAYCO Construction Group" width={110} height={90} className="h-20 w-auto object-contain drop-shadow-[0_4px_12px_rgba(201,168,76,0.45)]"/>
       </div>
       <p className="mt-2.5 text-lg font-extrabold tracking-[0.14em] text-[#eab869]">TAYCO</p>
       <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-100/80">Construction Group</p>

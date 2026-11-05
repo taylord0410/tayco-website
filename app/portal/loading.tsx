@@ -21,7 +21,7 @@ export default function PortalLoading() {
         <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#b8860b] via-[#f3d37a] to-[#d4af37]" />
 
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-[#d4af37]/40 bg-gradient-to-b from-[#0f1f38] to-[#081120] p-3 shadow-lg">
-          <Image
+          <Image unoptimized
             src="/logo.png"
             alt="TAYCO Construction Group Crest"
             width={64}

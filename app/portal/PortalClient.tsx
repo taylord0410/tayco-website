@@ -480,7 +480,7 @@ export default function PortalClient({ initial }: { initial: DashboardData }) {
         <div>
           <div className="flex items-center justify-between gap-3 lg:flex-col lg:items-center lg:text-center">
             <div className="flex items-center gap-3 lg:flex-col lg:gap-2">
-              <Image src="/logo.png" alt="TAYCO Construction Group" width={88} height={88} className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_4px_12px_rgba(234,184,105,0.35)]" />
+              <Image unoptimized src="/logo.png" alt="TAYCO Construction Group" width={88} height={88} className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_4px_12px_rgba(234,184,105,0.35)]" />
               <div>
                 <p className="font-serif text-xl font-bold tracking-[0.14em] text-[#eab869]">TAYCO</p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#eab869]/80">Construction Group</p>
