@@ -110,11 +110,12 @@ export default function CorporateSectionExecutivePanel({
               <h3>Projects — Commercial, Institutional &amp; Civil Portfolio</h3>
             </div>
             <span className="dcc-badge" data-tone="emerald">
-              751 YTD Projects &amp; Mini-Projects · 47 Plan Sets
+              {isGuest ? "48 Packages · 47 Plan Sets" : "751 YTD Projects & Mini-Projects · 47 Plan Sets"}
             </span>
           </header>
 
           <div className="dcc-kpis" style={{ marginTop: "0.75rem" }}>
+            {!isGuest && (
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">YTD Projects &amp; Mini-Projects</span>
               <strong className="dcc-kpi-value">751 Projects</strong>
@@ -122,6 +123,7 @@ export default function CorporateSectionExecutivePanel({
                 501 prime packages · 250 mini-projects
               </span>
             </div>
+            )}
             <div className="dcc-kpi">
               <span className="dcc-kpi-label">Bidding Intake (Oct 2026)</span>
               <strong className="dcc-kpi-value">48 Packages</strong>
@@ -172,7 +174,7 @@ export default function CorporateSectionExecutivePanel({
                 </tr>
               </thead>
               <tbody>
-                {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, 12).map((item) => {
+                {VERIFIED_OCTOBER_2026_OPPORTUNITIES.slice(0, isGuest ? 48 : 12).map((item) => {
                   const isOpen = activeViewerId === item.id;
                   const infraMeta = getOpportunityInfrastructureMeta(item);
                   const cleanContractor = isGuest
