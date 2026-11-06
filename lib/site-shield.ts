@@ -217,8 +217,12 @@ export function buildAiExecutiveSummaryText(pathname = "/"): string {
     "/": "Overview of TAYCO LLC full-service commercial & residential construction, remodeling, and fire/water restoration across Wisconsin, Illinois, and the Midwest.",
     "/commercial":
       "Commercial Construction Division: Tenant improvements (TI), commercial roofing (TPO, EPDM, metal), exterior facades, structural steel & cold-formed framing, concrete slabs, healthcare/institutional buildouts, and multi-site property programs.",
-    "/residential":
-      "Residential Construction & Remodeling Division: Whole-home renovations, custom kitchens & baths, architectural roofing, siding/windows/doors, structural additions, concrete & foundations, and 24/7 fire & water damage restoration.",
+    "/single-family":
+      "Single-Family Homes Division: Whole-home renovations, custom kitchens & baths, architectural roofing, siding/windows/doors, structural additions, concrete & foundations, and 24/7 fire & water damage restoration.",
+    "/multifamily":
+      "Multifamily Division: Duplexes and multi-unit buildings: unit turnovers, fire-rated drywall and acoustic assemblies, roofing, cladding, common areas, and fire & water damage restoration.",
+    "/townhomes":
+      "Townhomes Division: Row homes and townhouse communities: framing and party walls, roofing and siding, interior finishes, outdoor living, and fire & water damage restoration.",
     "/investor":
       "Investor, REO & Portfolio Turnover Programs: Standardized scope-of-work execution, multi-property rehab, bank-owned/REO stabilization, and capex renovation programs across WI & IL.",
     "/estimate":
@@ -334,7 +338,7 @@ export function buildShieldProtectionHtml({
 
   const safeRetryHref =
     isImageProtection || pathname.startsWith("/curated/") || pathname.startsWith("/work/") || pathname.startsWith("/api/")
-      ? "/properties/single-family"
+      ? "/single-family"
       : pathname.startsWith("/")
         ? pathname.replace(/"/g, "")
         : "/";

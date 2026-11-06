@@ -9,10 +9,10 @@ import { COMPANY } from "@/lib/company";
 import { useTaycoGalleryLock } from "@/components/ui/TaycoDesignSystem";
 
 const primaryLinks = [
-  { href: "/properties/single-family", label: "Single-Family", mobileLabel: "Single-Family Homes" },
-  { href: "/properties/duplexes", label: "Multifamily", mobileLabel: "Multifamily" },
-  { href: "/properties/townhouses", label: "Townhomes", mobileLabel: "Townhomes" },
-  { href: "/properties/commercial", label: "Commercial", mobileLabel: "Commercial" },
+  { href: "/single-family", label: "Single-Family", mobileLabel: "Single-Family Homes" },
+  { href: "/multifamily", label: "Multifamily", mobileLabel: "Multifamily" },
+  { href: "/townhomes", label: "Townhomes", mobileLabel: "Townhomes" },
+  { href: "/commercial", label: "Commercial", mobileLabel: "Commercial" },
   { href: "/properties", label: "All Markets", mobileLabel: "All 4 Markets" },
 ] as const;
 
