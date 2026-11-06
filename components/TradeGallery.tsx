@@ -8,6 +8,7 @@ import { TaycoModalOverlay, TaycoPillDock } from "@/components/ui/TaycoDesignSys
 const SECTORS = [
   { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },
   { key: "multifamily", label: "Multifamily", badge: "Multi-Unit & Hospitality" },
+  { key: "townhomes", label: "Townhomes", badge: "Attached Rows & Party Walls" },
   { key: "commercial", label: "Commercial", badge: "Ground-Up & Tenant TI" },
 ] as const;
 
@@ -231,7 +232,7 @@ export default function TradeGallery() {
             {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
           </div>
           <p className="text-xs sm:text-sm font-sans font-medium" style={{ color: "#F4F2EA" }}>
-            {trade.spec}. Explore residential, multifamily and commercial applications.
+            {trade.spec}. Explore single-family, multifamily, townhome and commercial applications.
           </p>
         </div>
 
@@ -246,9 +247,9 @@ export default function TradeGallery() {
         </div>
       </div>
 
-      {/* 3 Sector Photo Cards per Trade */}
+      {/* One photo card per division (4) for the active trade */}
       <div
-        className="grid md:grid-cols-3 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
+        className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
         role="region"
         aria-label={trade.name}
       >
@@ -270,11 +271,11 @@ export default function TradeGallery() {
               <div className="flex flex-col gap-1.5 mb-3 px-1">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] font-bold" style={{ color: "#C9A84C" }}>
+                    <span className="font-mono text-[11px] font-bold whitespace-nowrap" style={{ color: "#C9A84C" }}>
                       {sectorIndex}
                     </span>
                     <span
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold whitespace-nowrap"
                       style={{
                         background: "rgba(201, 168, 76, 0.14)",
                         borderColor: "rgba(201, 168, 76, 0.38)",
@@ -285,7 +286,8 @@ export default function TradeGallery() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300">
+                    {/* Repeats the card title; dropped in the 4-column row where the header is tight. */}
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300 xl:hidden">
                       {s.label}
                     </span>
                     <button
@@ -335,7 +337,7 @@ export default function TradeGallery() {
               >
                 <Image
                   fill
-                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                  sizes="(min-width: 1280px) 23vw, (min-width: 768px) 45vw, 90vw"
                   src={src}
                   alt={alt}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

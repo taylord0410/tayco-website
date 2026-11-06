@@ -57,3 +57,19 @@ test('old URLs permanently redirect to the canonical division URL', async () => 
   for (const slug of DIVISIONS) assert.equal(target(`/${slug}`), undefined, `/${slug} is canonical and must not redirect`);
   assert.equal(target('/properties'), undefined, 'the all-markets index stays');
 });
+
+test('the trade gallery has a photo for every trade in every division, each in the reference catalog', () => {
+  const gallery = readFileSync(path.join(root, 'components', 'TradeGallery.tsx'), 'utf8');
+  const sectors = [...gallery.matchAll(/\{ key: "([a-z-]+)", label:/g)].map((m) => m[1]);
+  assert.deepEqual(sectors, ['residential', 'multifamily', 'townhomes', 'commercial']);
+  const trades = [...gallery.matchAll(/slug: "([a-z]+)",\r?\n\s+name:/g)].map((m) => m[1]);
+  assert.equal(trades.length, 8);
+  const catalog: { src: string }[] = JSON.parse(readFileSync(path.join(root, 'lib', 'reference-image-catalog.json'), 'utf8'));
+  for (const trade of trades) {
+    for (const sector of sectors) {
+      const src = `/work/${trade}_${sector}.jpg`;
+      assert.ok(existsSync(path.join(root, 'public', src)), `missing ${src}`);
+      assert.ok(catalog.some((image) => image.src === src), `${src} not in reference catalog`);
+    }
+  }
+});
