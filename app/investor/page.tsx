@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/company";
+import PageHeroBackdrop from "@/components/PageHeroBackdrop";
 
 const WORK_TYPES = [
   "Roofing",
@@ -303,7 +304,9 @@ export default function InvestorPage() {
       }}
     >
       {/* Header */}
-      <div className="max-w-6xl mx-auto px-4 pt-10 pb-6 text-white">
+      <div className="relative overflow-hidden">
+      <PageHeroBackdrop src="/work/pages/investor_hero.jpg" position="center 40%" />
+      <div className="relative max-w-6xl mx-auto px-4 pt-10 pb-6 text-white">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="text-center lg:text-left max-w-3xl">
             <span className="mb-4 inline-flex items-center gap-2 border border-[#C9A84C]/45 bg-[#0F2040]/85 text-[#F3D37A] px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold shadow-sm">
@@ -386,6 +389,7 @@ export default function InvestorPage() {
             </a>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Project services and resources */}

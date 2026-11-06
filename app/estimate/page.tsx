@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { EstimateReferencePanel, useEstimateReferences, removeSubmittedReferences } from "@/components/EstimateReferences";
 import { COMPANY } from "@/lib/company";
+import PageHeroBackdrop from "@/components/PageHeroBackdrop";
 
 const PROJECT_TYPES = [
   "Commercial Project",
@@ -118,13 +119,14 @@ export default function EstimatePage() {
     >
       {/* Project services and resources */}
       <div
-        className="py-12 border-b  relative overflow-hidden"
+        className="py-12 border-b relative overflow-hidden"
         style={{
           background: `linear-gradient(${115 + lightAngle * 0.45}deg, #070E1A 0%, #0F2040 55%, #1B3A6B 100%)`,
           borderColor: "rgba(201,168,76,0.38)",
         }}
       >
-        <div className="max-w-6xl mx-auto px-4">
+        <PageHeroBackdrop src="/work/pages/estimate_hero.jpg" />
+        <div className="relative max-w-6xl mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left max-w-3xl">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-3">
