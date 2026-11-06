@@ -17,7 +17,8 @@ export function divisionMetadata(slug: PropertyCategorySlug): Metadata {
   return {
     title: `${meta.label} · Services by Specialty & Project Gallery | ${COMPANY.name}`,
     description: meta.description,
-    alternates: { canonical: `/${slug}` },
+    // No <link rel="canonical"> yet: it needs the public domain (metadataBase), which is pending.
+    // Duplicates are already handled by the permanent redirects in next.config.ts.
   };
 }
 
