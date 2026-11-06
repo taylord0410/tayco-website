@@ -209,7 +209,7 @@ function Frame({
   );
 }
 
-export function LoginAccess() {
+export function LoginAccess({ connectUrl }: { connectUrl?: string } = {}) {
   const router = useRouter();
   const [token, setToken] = useState('');
   const [busy, setBusy] = useState(false);
@@ -595,6 +595,19 @@ export function LoginAccess() {
                   )}
                 </button>
               </form>
+
+              {connectUrl && !token && (
+                <a
+                  href={connectUrl}
+                  referrerPolicy="no-referrer"
+                  className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#d4af37]/40 px-4 py-3 text-sm font-semibold text-[#f3d37a] transition hover:bg-[#d4af37]/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f3d37a]"
+                >
+                  Go to TAYCO Connect
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </a>
+              )}
 
               <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
                 <button
