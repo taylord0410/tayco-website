@@ -176,7 +176,10 @@ export function isProtectedImageAsset(pathname: string): boolean {
   if (
     lower === "/favicon.ico" ||
     lower === "/icon.png" ||
-    lower === "/apple-icon.png"
+    lower === "/apple-icon.png" ||
+    // Share card: link-preview crawlers (WhatsApp, Facebook, LinkedIn) fetch it with no
+    // browser fetch headers or referer, so it must not need the embedded-image context.
+    lower === "/og-image.jpg"
   ) {
     return false;
   }

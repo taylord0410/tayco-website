@@ -5,6 +5,7 @@ import ResidentialDivisionContent from "@/components/division/ResidentialDivisio
 import CommercialDivisionContent from "@/components/division/CommercialDivisionContent";
 import { getPropertyCategoryBySlug, type PropertyCategorySlug } from "@/lib/property-catalog";
 import { COMPANY } from "@/lib/company";
+import { SITE_URL } from "@/lib/site-url";
 
 /**
  * The site is split into four divisions, each at its own URL: /single-family, /multifamily,
@@ -17,8 +18,9 @@ export function divisionMetadata(slug: PropertyCategorySlug): Metadata {
   return {
     title: `${meta.label} · Services by Specialty & Project Gallery | ${COMPANY.name}`,
     description: meta.description,
-    // No <link rel="canonical"> yet: it needs the public domain (metadataBase), which is pending.
-    // Duplicates are already handled by the permanent redirects in next.config.ts.
+    // The canonical needs the public origin; until NEXT_PUBLIC_SITE_URL is set, the permanent
+    // redirects in next.config.ts are what keep old URLs from competing with these.
+    ...(SITE_URL && { alternates: { canonical: `/${slug}` } }),
   };
 }
 
