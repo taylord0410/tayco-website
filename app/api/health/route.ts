@@ -16,6 +16,8 @@ export function GET() {
     requiredSecret(SUBMISSION_SECRET_NAMES);
     requiredSecret(SECURITY_LOG_SECRET_NAMES);
     if (process.env.NODE_ENV === "production" && process.env.TAYCO_TRUSTED_INGRESS !== "railway-public-edge") throw new Error("configuration");
+    // On Railway the databases must live on the persistent volume; /tmp would be wiped on every restart.
+    if ((process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_ID) && process.env.TAYCO_DATA_PERSISTENT !== "1") throw new Error("configuration");
     const origin = new URL(process.env.TAYCO_APP_URL || "");
     if (process.env.NODE_ENV === "production" && origin.protocol !== "https:") throw new Error("configuration");
     for (const file of [process.env.TAYCO_AUTH_DB_PATH || path.join(process.cwd(), ".data", "tayco-auth.sqlite"), process.env.TAYCO_ERP_DB_PATH || path.join(process.cwd(), ".data", "tayco-erp.sqlite")]) {

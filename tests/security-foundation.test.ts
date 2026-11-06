@@ -19,7 +19,7 @@ const human = 'Mozilla/5.0 Chrome/131.0.0.0 Safari/537.36';
 test('SG B1: trusted ingress, mandatory secrets and compatibility', async t => {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-security-foundation-'));
   const secretNames = [...new Set([...SUBMISSION_SECRET_NAMES, ...SECURITY_LOG_SECRET_NAMES])];
-  const names = [...secretNames, 'NODE_ENV', 'TAYCO_TRUSTED_INGRESS', 'RAILWAY_ENVIRONMENT', 'TAYCO_AUTH_DB_PATH', 'TAYCO_ERP_DB_PATH', 'TAYCO_APP_URL'];
+  const names = [...secretNames, 'NODE_ENV', 'TAYCO_TRUSTED_INGRESS', 'RAILWAY_ENVIRONMENT', 'TAYCO_DATA_PERSISTENT', 'TAYCO_AUTH_DB_PATH', 'TAYCO_ERP_DB_PATH', 'TAYCO_APP_URL'];
   const old = Object.fromEntries(names.map(n => [n, runtimeEnv[n]]));
   const clearSecrets = () => { for (const name of secretNames) delete runtimeEnv[name]; };
   const configured = () => { clearSecrets(); const secret = randomBytes(48).toString('hex'); runtimeEnv.TAYCO_SESSION_SECRET = secret; return secret; };
@@ -124,6 +124,11 @@ test('SG B1: trusted ingress, mandatory secrets and compatibility', async t => {
     });
     await t.test('readiness rejects invalid dedicated keys with a generic response', async () => {
       configured();
+      // RAILWAY_ENVIRONMENT is still set by an earlier subtest: readiness also needs the launcher's
+      // attestation that the databases are on the persistent volume (the fixture folder stands in for it).
+      runtimeEnv.TAYCO_DATA_PERSISTENT='0';
+      assert.equal(readiness().status,503,'On Railway, databases off the persistent volume are not ready.');
+      runtimeEnv.TAYCO_DATA_PERSISTENT='1';
       assert.equal(readiness().status,200);
       runtimeEnv.NODE_ENV='production';delete runtimeEnv.TAYCO_TRUSTED_INGRESS;
       assert.equal(readiness().status,503,'Production readiness requires an explicit ingress contract.');
