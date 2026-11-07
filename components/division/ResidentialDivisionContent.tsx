@@ -118,9 +118,9 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Painting and final touch-ups"
     ],
     "triptych": [
-      { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Smooth Level-5 Drywall Finishing" },
+      { "src": "/curated/residential/sf-drywall-level5-living.jpg", "label": "Smooth Level-5 Drywall Finishing" },
       { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Painted Trim Package" },
-      { "src": "/curated/magazine/revista_pa_01_a.jpg", "label": "Interior Wall Preparation & Finish Coat" }
+      { "src": "/curated/residential/sf-interior-painting-bedroom.jpg", "label": "Interior Wall Preparation & Finish Coat" }
     ]
   },
   {
@@ -166,7 +166,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
       { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
-      { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
+      { "src": "/curated/residential/sf-concrete-driveway-front-walk.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
     ]
   },
   {
@@ -188,7 +188,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     ],
     "triptych": [
       { "src": "/curated/capabilities/fire-wood-framing.jpg", "label": "Fire & Smoke Structural Wood Reconstruction" },
-      { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
+      { "src": "/curated/residential/sf-drywall-water-repair-bedroom.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
       { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
     ]
   },
@@ -210,7 +210,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Bank-owned property repairs"
     ],
     "triptych": [
-      { "src": "/curated/pairs/div03_04_despues.jpg", "label": "Finished Basement Living Suite & LVP" },
+      { "src": "/curated/residential/sf-finished-basement-lounge.jpg", "label": "Finished Basement Living Suite & LVP" },
       { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
       { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
     ]
@@ -633,8 +633,8 @@ export default function ResidentialDivisionContent() {
               <ServiceCardTriptych
                 frames={[
                   { src: "/curated/pairs/div03_04_antes.jpg", label: "Lower-Level Strip-Out & Structural Drying" },
-                  { src: "/curated/magazine/revista_dw_fin.jpg", label: "Post-Mitigation Drywall & Insulation" },
-                  { src: "/curated/pairs/div03_04_despues.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
+                  { src: "/curated/residential/sf-drywall-flood-basement.jpg", label: "Post-Mitigation Drywall & Insulation" },
+                  { src: "/curated/residential/sf-finished-basement-office.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
                 ]}
                 badge="WATER & STORM RECOVERY"
                 accentColor="#C9A84C"
