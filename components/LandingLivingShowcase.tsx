@@ -289,7 +289,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Rotted unsafe backyard deck to code-compliant cedar deck system",
     csiSpec: "CSI 06 15 00 · WOOD DECKING & STRUCTURAL FRAMING",
     beforeImg: "/curated/pairs/div01_02_antes.jpg",
-    afterImg: "/curated/properties/mkt-twn-stone-hearth.jpg",
+    afterImg: "/curated/pairs/tr09-after-cedar-deck.jpg",
     beforeTag: "01 / Weathered & Rotted Timber Deck",
     afterTag: "02 / Rebuilt Cedar Deck, Guardrails & Stairs",
     summary:

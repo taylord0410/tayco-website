@@ -613,7 +613,7 @@ const spot = (title: string, csiDivision: string, materialSpec: string, detail: 
 const COMMERCIAL_ROOM_TEXT: Record<string, RoomText> = {
   "01": {
     floorLevel: "Level 1 · Street Perspective (35° Oblique)",
-    lights: ["Storefront Glazing Glow", "Entry Canopy Downlights", "Upper-Floor Office Windows", "Facade Wash Lighting"],
+    lights: ["Storefront Glazing Glow", "Entry Lighting", "Upper-Floor Office Windows", "Facade Wash Lighting"],
     hotspots: [
       spot("Commercial Facade & Envelope System", "CSI DIV 04 & 07 · ENVELOPE", "Masonry, Metal Panel or EIFS per Project", "Air/water barrier and flashing details coordinated with the facade system."),
       spot("Storefront & Curtain-Wall Glazing", "CSI DIV 08 · GLAZING", "Thermally Broken Aluminum Framing", "Insulated low-E units sized to the tenant's daylight and energy targets."),
@@ -639,7 +639,7 @@ const COMMERCIAL_ROOM_TEXT: Record<string, RoomText> = {
     ],
   },
   "04": {
-    floorLevel: "Level 2 · Structural Envelope & Systems",
+    floorLevel: "Structure, Assemblies & Systems",
     lights: ["Space Ambient Lighting", "Task & Feature Lighting", "Perimeter Daylight"],
     hotspots: [
       spot("Structural Frame & Floor Assembly", "CSI DIV 03 & 05 · STRUCTURE", "Steel or Concrete Frame per Project", "Frame, slab and deck checked against the project's loads."),
@@ -648,12 +648,12 @@ const COMMERCIAL_ROOM_TEXT: Record<string, RoomText> = {
     ],
   },
   "05": {
-    floorLevel: "Level 1 · Outdoor Terrace & Site",
-    lights: ["Terrace Downlights", "Interior Glow Through Glazing", "Landscape & Paver Lighting"],
+    floorLevel: "Upper Level · Outdoor Terrace",
+    lights: ["Terrace Downlights", "Interior Glow Through Glazing", "Paver & Railing Lighting"],
     hotspots: [
       spot("Indoor-Outdoor Glazing Connection", "CSI DIV 08 · GLAZING", "Sliding or Storefront Doors to the Terrace", "Connects the interior space with the outdoor area."),
       spot("Overhead Canopy & Soffit", "CSI DIV 05 & 07 · CANOPY", "Steel or Wood Canopy with Finished Soffit", "Shade and weather protection for the outdoor area."),
-      spot("Commercial Pavers & Site Hardscape", "CSI DIV 03 & 32 · HARDSCAPE", "Pavers or Concrete on a Drained Base", "Built for foot traffic and drainage."),
+      spot("Pedestal Pavers & Glass Guardrail", "CSI DIV 05 & 32 · TERRACE", "Pedestal-Set Pavers over Waterproofing, Glass Guardrail", "Built for foot traffic, drainage and fall protection."),
     ],
   },
 };
@@ -859,8 +859,8 @@ export function buildCoherentWalkthrough(
       src: exteriorFrame.src,
       nightSrc: resolveNightImageSrc(exteriorFrame.src),
       spatialNarrative: isCommercial
-        ? `Vista exterior oblicua de ${prop.title}. Haz clic en el portal sobre la entrada o en las miniaturas inferiores para entrar al Atrio Principal con transición suave.`
-        : `Vista exterior en ángulo real de 35° de ${prop.title}. Cambia la Fase del Día para ver el atardecer dorado o la fotografía nocturna real con su iluminación interior de 2700K encendida.`,
+        ? `Oblique street view of ${prop.title}. Tap the portal over the entrance or a thumbnail below to walk into the main lobby.`
+        : `A 35° exterior view of ${prop.title}. Change the time of day to see golden-hour light or the night photograph with its 2700K interior lighting on.`,
       portalButtonLabel: isCommercial
         ? "Step Inside · 02 Atrium & Boardroom →"
         : "Step Inside · 02 Foyer & Living Room →",
@@ -922,8 +922,8 @@ export function buildCoherentWalkthrough(
       src: foyerLivingSrc,
       nightSrc: resolveNightImageSrc(foyerLivingSrc),
       spatialNarrative: isCommercial
-        ? "Acabas de entrar al atrio principal: la misma piedra caliza de la fachada continúa en el interior mientras los ventanales miran hacia los árboles de la calle."
-        : "Al cruzar la puerta principal, observa por los ventanales negros exactamente el mismo pilar de ladrillo/piedra del porche exterior del Paso 01, mientras el piso de roble blanco conduce directo a la cocina.",
+        ? "You have just entered the main lobby, with daylight from the entry glazing and the finishes that set the tone for the rest of the building."
+        : "Through the front door, the black-framed windows look back at the same brick or stone porch pier from Step 01, while the white-oak floor leads straight to the kitchen.",
       portalButtonLabel: isCommercial
         ? "Walk Ahead · 03 Tenant & MEP Core →"
         : "Walk into Kitchen · 03 Chef's Kitchen →",
@@ -980,8 +980,8 @@ export function buildCoherentWalkthrough(
       src: kitchenCoreSrc,
       nightSrc: resolveNightImageSrc(kitchenCoreSrc),
       spatialNarrative: isCommercial
-        ? `Avanzando hacia el núcleo operativo de ${prop.title}, inspecciona la distribución libre de columnas, iluminación arquitectónica LED y sistemas MEP integrados.`
-        : "Avanzas desde la sala hacia la cocina abierta: la isla de cuarzo en cascada, los gabinetes a medida y los colgantes cálidos mantienen el mismo piso de roble blanco y vista a la mampostería exterior.",
+        ? `Moving into the tenant core of ${prop.title}: interior finishes, architectural LED lighting and integrated MEP systems.`
+        : "From the living room into the open kitchen: the waterfall island, custom cabinetry and warm pendants share the same white-oak floor and the view to the exterior masonry.",
       portalButtonLabel: isCommercial
         ? "Take Elevator · 04 Structural & Bay →"
         : "Walk Upstairs · 04 Suite & Spa Bath →",
@@ -1040,8 +1040,8 @@ export function buildCoherentWalkthrough(
       src: upperSuiteSrc,
       nightSrc: resolveNightImageSrc(upperSuiteSrc),
       spatialNarrative: isCommercial
-        ? `En el segundo nivel de ${prop.title}, revisa la estructura de acero/concreto y aislamiento acústico de alto desempeño.`
-        : "Subiendo al segundo nivel por la escalera de roble blanco, encuentras la Suite Principal y el baño spa en porcelanato con ducha de cristal sin marco y vista a las copas de los árboles.",
+        ? `Inside ${prop.title}: the structural frame, rated assemblies and acoustic insulation behind the finished space.`
+        : "Up the white-oak stair to the primary suite and its porcelain spa bath, with a frameless glass shower and a view of the tree canopy.",
       portalButtonLabel: isCommercial
         ? "Step Outside · 05 Executive Terrace →"
         : isTownhouse
@@ -1110,10 +1110,10 @@ export function buildCoherentWalkthrough(
       src: patioTerraceSrc,
       nightSrc: resolveNightImageSrc(patioTerraceSrc),
       spatialNarrative: isCommercial
-        ? "Finalizamos el recorrido en la terraza corporativa techada con vista a los árboles de la avenida y conexión directa al lounge interior."
+        ? "The tour ends on the outdoor terrace, connected directly to the interior lounge."
         : isTownhouse
-        ? "En el último nivel salimos a la terraza privada con pergolado de cedro, cocina exterior en acero inoxidable y vista real a los techos escalonados de ladrillo del vecindario."
-        : "Salimos al patio trasero techado en ladrillo y cedro: a través de las puertas corredizas negras ves hacia adentro la misma cocina de roble blanco y sala del recorrido, cerrando el circuito interior-exterior.",
+        ? "On the top level, the private terrace with a cedar pergola, a stainless outdoor kitchen and a view across the neighborhood's stepped brick rooftops."
+        : "Out to the covered brick-and-cedar rear patio: through the black sliding doors you see the same white-oak kitchen and living room from the tour, closing the indoor-outdoor loop.",
       portalButtonLabel: "↺ Return to 01 · Curbside Exterior",
       sunDirectionX: 75,
       sunDirectionY: 18,
