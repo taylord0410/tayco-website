@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/company";
+import PageHeroBackdrop from "@/components/PageHeroBackdrop";
 
 const TRADES = [
   "Framing",
@@ -184,14 +185,15 @@ export default function VendorApplicationPage() {
     >
       {/* Architectural Header */}
       <div
-        className="py-14 border-b"
+        className="py-14 border-b relative overflow-hidden"
         style={{
           background:
             "linear-gradient(145deg, #070E1A 0%, #0B172A 45%, #0F2040 80%, #1B3A6B 100%)",
           borderColor: "rgba(201, 168, 76, 0.4)",
         }}
       >
-        <div className="max-w-5xl mx-auto px-4 text-center">
+        <PageHeroBackdrop src="/work/pages/vendor_hero.jpg" />
+        <div className="relative max-w-5xl mx-auto px-4 text-center">
           <span className="tayco-eyebrow mb-3" style={{ color: "#F3D37A" }}>
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
             {COPY.badge}
