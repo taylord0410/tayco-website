@@ -1140,10 +1140,22 @@ html {
     display: none;
   }
 }
+/* Phones: the estimate is the header action that stays; sign in lives in the menu panel. */
 @media (max-width: 639px) {
-  .tayco-mobile-actions .tayco-nav-estimate {
+  .tayco-mobile-actions .tayco-nav-signin {
     display: none;
   }
+  .tayco-mobile-actions .tayco-nav-estimate {
+    min-height: 40px;
+    padding-inline: 0.8rem;
+    font-size: 0.66rem;
+    white-space: nowrap;
+  }
+}
+.tayco-mobile-navigation > .tayco-mobile-menu-signin {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.6rem;
 }
 @media (max-width: 520px) {
   .tayco-nav-bar { gap: 0.5rem; padding-inline: 0.75rem; min-height: 4rem; }

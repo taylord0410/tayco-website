@@ -34,10 +34,10 @@ export const COMPANY_CONTRACTING_UPDATE = {
 
 export const COMPANY_SERVICES = [
   { label: "Commercial construction", href: "/commercial", detail: "Ground-up construction, design-build, tenant improvements and construction management." },
-  { label: "Residential renovation", href: "/residential", detail: "Home renovations, kitchens, bathrooms, additions and basement finishing." },
-  { label: "Fire & water restoration", href: "/residential#restoration", detail: "Damage assessment, restoration planning and reconstruction." },
+  { label: "Residential renovation", href: "/single-family", detail: "Home renovations, kitchens, bathrooms, additions and basement finishing." },
+  { label: "Fire & water restoration", href: "/single-family#restoration", detail: "Damage assessment, restoration planning and reconstruction." },
   { label: "Roofing & exterior", href: "/commercial#services", detail: "Roofing, siding, windows, doors and exterior improvements." },
-  { label: "Flooring & interiors", href: "/residential#services", detail: "Flooring, drywall, painting, cabinetry and finish carpentry." },
+  { label: "Flooring & interiors", href: "/single-family#services", detail: "Flooring, drywall, painting, cabinetry and finish carpentry." },
   { label: "Electrical & plumbing", href: "/commercial#services", detail: "Coordinated building services as part of your project scope." },
 ] as const;
 

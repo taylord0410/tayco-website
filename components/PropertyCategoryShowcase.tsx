@@ -780,7 +780,7 @@ function PropertyCardInteractiveStage({
 
 /**
  * Prominent 4-Category Property Showcase Section for the Landing Page (`/`),
- * `/residential`, and `/commercial`.
+ * `/single-family`, `/multifamily`, `/townhomes` and `/commercial`.
  * - Clicking a category opens `/properties/[category]`.
  * - Clicking "✦ Interactive Tour, Day/Night & Colors" or any featured property chip
  *   immediately launches the 5-Room Walkthrough & Lighting/Color Studio right on the page!
@@ -956,7 +956,7 @@ export function LandingPropertyCategoriesSection() {
             {PROPERTY_CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
-                href={`/properties/${cat.slug}`}
+                href={`/${cat.slug}`}
                 data-magnetic
                 className="tayco-atelier-btn-obsidian !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
                 title={`${cat.label} (8 Specialties · 6 Projects)`}
@@ -1011,7 +1011,7 @@ export function LandingPropertyCategoriesSection() {
                   className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#040811]"
                 >
                   <Link
-                    href={`/properties/${cat.slug}`}
+                    href={`/${cat.slug}`}
                     aria-label={`Open ${cat.label} page`}
                     className="block w-full h-full relative"
                   >
@@ -1130,7 +1130,7 @@ export function LandingPropertyCategoriesSection() {
                 {/* Sub-Photo Headline & 3-Photo Switcher Bar (outside photo canvas) */}
                 <div className="bg-[#050A14] border-y border-white/10 px-4 py-2.5 flex items-center justify-between gap-3">
                   <Link
-                    href={`/properties/${cat.slug}`}
+                    href={`/${cat.slug}`}
                     className="min-w-0 group/title text-left"
                   >
                     <h3 className="tayco-card-title text-xl sm:text-2xl text-white group-hover/title:text-[#F3D37A] transition-colors truncate">
@@ -1312,7 +1312,7 @@ export function LandingPropertyCategoriesSection() {
                     }
                   >
                     <Link
-                      href={`/properties/${cat.slug}`}
+                      href={`/${cat.slug}`}
                       data-magnetic
                       className="home-text-action"
                     >
@@ -1351,7 +1351,7 @@ export function LandingPropertyCategoriesSection() {
 
 /**
  * Division-Scoped Interactive Property Walkthrough, Real Day/Night Lighting & 6-Palette Color Studio
- * embedded directly inside `/residential` (`division="residential"`) and `/commercial` (`division="commercial"`).
+ * available for division="residential" and division="commercial" layouts.
  */
 export function DivisionInteractivePropertyAtelier({
   division,
@@ -1360,7 +1360,7 @@ export function DivisionInteractivePropertyAtelier({
 }) {
   const isResidential = division === "residential";
   const [resFilter, setResFilter] = useState<
-    "featured" | "all" | "single-family" | "duplexes" | "townhouses"
+    "featured" | "all" | "single-family" | "multifamily" | "townhomes"
   >("featured");
   const [comFilter, setComFilter] = useState<
     "all" | "office" | "retail" | "industrial"
@@ -1382,11 +1382,11 @@ export function DivisionInteractivePropertyAtelier({
   const visibleListings = React.useMemo(() => {
     if (isResidential) {
       if (resFilter === "featured") {
-        // Show 2 Single-Family + 2 Duplexes + 2 Townhouses (6 flagship residential properties)
+        // Show 2 Single-Family + 2 Multifamily + 2 Townhomes (6 flagship residential properties)
         return [
           ...getPropertiesByCategory("single-family").slice(0, 2),
-          ...getPropertiesByCategory("duplexes").slice(0, 2),
-          ...getPropertiesByCategory("townhouses").slice(0, 2),
+          ...getPropertiesByCategory("multifamily").slice(0, 2),
+          ...getPropertiesByCategory("townhomes").slice(0, 2),
         ];
       }
       if (resFilter === "all") return residentialListings;
@@ -1511,7 +1511,7 @@ export function DivisionInteractivePropertyAtelier({
           <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
             <Link
               href={
-                isResidential ? "/properties/single-family" : "/properties/commercial"
+                isResidential ? "/single-family" : "/commercial"
               }
               data-magnetic
               className="tayco-atelier-btn-gold"
@@ -1540,12 +1540,12 @@ export function DivisionInteractivePropertyAtelier({
                   label: "Single-Family Homes (6)",
                 },
                 {
-                  id: "duplexes" as const,
-                  label: "Duplexes (6)",
+                  id: "multifamily" as const,
+                  label: "Multifamily (6)",
                 },
                 {
-                  id: "townhouses" as const,
-                  label: "Townhouses (6)",
+                  id: "townhomes" as const,
+                  label: "Townhomes (6)",
                 },
                 {
                   id: "all" as const,
@@ -1676,7 +1676,7 @@ export function DivisionInteractivePropertyAtelier({
                     {catMeta && (
                       <div className="mb-1.5 text-left">
                         <Link
-                          href={`/properties/${catMeta.slug}`}
+                          href={`/${catMeta.slug}`}
                           className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
                         >
                           {catMeta.label} →
@@ -1821,8 +1821,11 @@ export function DivisionInteractivePropertyAtelier({
  */
 export function PropertyCategoryPageView({
   activeCategory,
+  children,
 }: {
   activeCategory?: PropertyCategoryMeta;
+  /** Division content rendered before the "other markets" explorer (see app/<division>/page.tsx). */
+  children?: React.ReactNode;
 }) {
   const [selectedState, setSelectedState] = useState<string>("ALL");
   const [selectedAvailability, setSelectedAvailability] =
@@ -2034,7 +2037,7 @@ export function PropertyCategoryPageView({
             <p className="mt-3 sm:mt-4 text-slate-200 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto line-clamp-3 sm:line-clamp-none">
               {activeCategory
                 ? activeCategory.description
-                : "Browse all available Single-Family Homes, Duplexes, Townhouses, and Commercial Properties constructed, renovated, and delivered turnkey across our 8-state footprint."}
+                : "Browse all available Single-Family Homes, Multifamily, Townhomes, and Commercial Properties constructed, renovated, and delivered turnkey across our 8-state footprint."}
             </p>
 
             {/* Category Summary Telemetry Card */}
@@ -2123,7 +2126,7 @@ export function PropertyCategoryPageView({
                 return (
                   <Link
                     key={cat.slug}
-                    href={`/properties/${cat.slug}`}
+                    href={`/${cat.slug}`}
                     aria-current={isCurrent ? "page" : undefined}
                     data-active={isCurrent ? "true" : "false"}
                     data-magnetic
@@ -2505,7 +2508,7 @@ export function PropertyCategoryPageView({
                         {!activeCategory && catMeta && (
                           <div className="mb-2 text-left">
                             <Link
-                              href={`/properties/${catMeta.slug}`}
+                              href={`/${catMeta.slug}`}
                               className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
                             >
                               {catMeta.label} →
@@ -2680,6 +2683,9 @@ export function PropertyCategoryPageView({
         </>
       )}
 
+      {/* ── DIVISION CONTENT (residential / commercial services, restoration, trade catalog, service area) ── */}
+      {children}
+
       {/* ── OTHER CATEGORIES EXPLORER AT BOTTOM OF PAGE ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-20">
         <div
@@ -2737,7 +2743,7 @@ export function PropertyCategoryPageView({
                     </div>
                   </div>
                   <Link
-                    href={`/properties/${cat.slug}`}
+                    href={`/${cat.slug}`}
                     data-magnetic
                     className="mt-4 w-full"
                   >
