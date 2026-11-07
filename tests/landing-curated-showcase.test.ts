@@ -209,12 +209,12 @@ test("Image-to-title concordance: residential division content excludes commerci
     "Commercial Exterior card must use verified exterior curtain-wall photo cx_o3.jpg"
   );
   assert.ok(
-    comContent.includes('"/curated/commercial/cx_x3.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing"'),
-    "Commercial Framing card must use verified people-free steel framing photo cx_x3.jpg"
+    comContent.includes('"/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing"'),
+    "Commercial Framing card must use the verified people-free cold-formed steel stud photo (cx_x3.jpg is a finished high bay, 2026-11-07 audit)"
   );
   assert.ok(
-    comContent.includes('"/curated/pairs/div02_02_antes.jpg", "label": "Poured Commercial Slab & Stem Walls"'),
-    "Commercial Concrete card must use verified people-free concrete slab photo div02_02_antes.jpg"
+    comContent.includes('"/curated/commercial/com-slab-stem-walls.jpg", "label": "Poured Commercial Slab & Stem Walls"'),
+    "Commercial Concrete card must use the verified people-free slab photo (div02_02_antes.jpg is a wood-frame house, 2026-11-07 audit)"
   );
   // Each division page is its market view (its projects open the walkthrough studio) plus its division content.
   const divisionPage = fs.readFileSync(path.resolve(process.cwd(), "components/division/DivisionPage.tsx"), "utf-8");

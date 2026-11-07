@@ -102,7 +102,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Inspections and sequencing"
     ],
     "triptych": [
-      { "src": "/curated/commercial/cx_x3.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
+      { "src": "/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
       { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
       { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Multi-Story Structural Envelope & Steel Framing" }
     ]
@@ -127,7 +127,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Installation sequencing"
     ],
     "triptych": [
-      { "src": "/curated/commercial/cx_i2.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
+      { "src": "/curated/commercial/com-lobby-porcelain-tile.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
       { "src": "/work/flooring_commercial.jpg", "label": "Diamond-Polished Commercial Concrete Slab" },
       { "src": "/curated/commercial/com_03_2.jpg", "label": "Commercial Corridor & High-Traffic Flooring" }
     ]
@@ -178,7 +178,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     ],
     "triptych": [
       { "src": "/curated/commercial/com_01_1.jpg", "label": "Restaurant & Hospitality Tenant Build-Out" },
-      { "src": "/curated/commercial/cx_x1.jpg", "label": "Retail White-Box & Custom Shelving Fit-Out" },
+      { "src": "/curated/commercial/com-retail-fitout-shelving.jpg", "label": "Retail White-Box & Custom Shelving Fit-Out" },
       { "src": "/curated/commercial/cx_y3.jpg", "label": "Corporate Cafe & Breakroom Millwork TI" }
     ]
   },
@@ -227,9 +227,9 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Finishing and curing plan"
     ],
     "triptych": [
-      { "src": "/curated/pairs/div02_02_antes.jpg", "label": "Poured Commercial Slab & Stem Walls" },
-      { "src": "/curated/pairs/div01_01_antes.jpg", "label": "Reinforced Concrete Foundation Pad" },
-      { "src": "/work/flooring_commercial.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }
+      { "src": "/curated/commercial/com-slab-stem-walls.jpg", "label": "Poured Commercial Slab & Stem Walls" },
+      { "src": "/curated/commercial/com-foundation-pad-rebar.jpg", "label": "Reinforced Concrete Foundation Pad" },
+      { "src": "/curated/commercial/com-warehouse-industrial-floor.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }
     ]
   },
   {
@@ -252,9 +252,9 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Handover and outstanding items"
     ],
     "triptych": [
-      { "src": "/curated/commercial/com_02_1.jpg", "label": "Multi-Family Apartment Exterior Program" },
-      { "src": "/curated/capabilities/mf-townhomes-row.jpg", "label": "Townhome Portfolio Exterior & Envelope Rehab" },
-      { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "Multi-Unit Corridor & Common-Area Turnover" }
+      { "src": "/curated/commercial/com-office-park-exterior-program.jpg", "label": "Office Building Exterior Maintenance Program" },
+      { "src": "/curated/commercial/com-retail-strip-envelope-rehab.jpg", "label": "Retail Center Portfolio Exterior & Envelope Rehab" },
+      { "src": "/curated/commercial/com-office-corridor-turnover.jpg", "label": "Commercial Corridor & Common-Area Turnover" }
     ]
   },
   {
@@ -279,7 +279,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/capabilities/fire-steel-ibeam.jpg", "label": "Structural Steel Frame Rebuild After Loss" },
       { "src": "/curated/pairs/div04_03_antes.jpg", "label": "Commercial Roof & Storm Damage Assessment" },
-      { "src": "/curated/pairs/div04_02_antes.jpg", "label": "Water Mitigation & Structural Deck Rebuild" }
+      { "src": "/curated/commercial/com-water-mitigation-office.jpg", "label": "Commercial Office Water Mitigation & Drywall Removal" }
     ]
   }
 ];
