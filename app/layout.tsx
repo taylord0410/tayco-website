@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EditorialLivingEngine from "@/components/EditorialLivingEngine";
 import SiteFrame from "@/components/SiteFrame";
+import { OG_IMAGE, SITE_URL } from "@/lib/site-url";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -42,10 +43,12 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico?v=tayco2026",
     apple: [{ url: "/apple-icon.png?v=tayco2026", sizes: "180x180", type: "image/png" }],
   },
-  robots: {
-    index: false,
-    follow: false,
-  },
+  // Public pages are indexable (Randhy, 7-nov-2026). Private routes (login, portal) set their own noindex.
+  ...(SITE_URL && {
+    metadataBase: SITE_URL,
+    openGraph: { type: "website", siteName: "TAYCO LLC", images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
+  }),
 };
 
 export default function RootLayout({

@@ -2,8 +2,8 @@ import type { TriptychFrame } from "@/components/LandingLivingShowcase";
 
 export type PropertyCategorySlug =
   | "single-family"
-  | "duplexes"
-  | "townhouses"
+  | "multifamily"
+  | "townhomes"
   | "commercial";
 
 export interface PropertyListing {
@@ -97,7 +97,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ctaLabel: "Explore Single-Family Services & Projects",
   },
   {
-    slug: "duplexes",
+    slug: "multifamily",
     order: "02",
     label: "Multifamily",
     shortLabel: "Multifamily",
@@ -121,7 +121,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ctaLabel: "Explore Multifamily Services & Projects",
   },
   {
-    slug: "townhouses",
+    slug: "townhomes",
     order: "03",
     label: "Townhomes",
     shortLabel: "Townhomes",
@@ -387,7 +387,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-201",
     code: "DPX-201",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Harborview Brick & Cedar Stepped Duplex",
     subtitle: "Asymmetric Two-Wing Residence · 2-Story Brick Colonial + 1.5-Story Cedar Wing",
     location: "Milwaukee, WI",
@@ -422,7 +422,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-202",
     code: "DPX-202",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Oakwood Limestone & Stucco Offset Duplex",
     subtitle: "Contemporary Offset-Volume Duplex · Forward Limestone Cube + Recessed Garage Wing",
     location: "Madison, WI",
@@ -457,7 +457,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-203",
     code: "DPX-203",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Meridian L-Plan Brick & Siding Duplex",
     subtitle: "L-Shaped Dual Residence · Projecting Brick Gable + Stepped Side-Porch Wing",
     location: "Indianapolis, IN",
@@ -492,7 +492,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-204",
     code: "DPX-204",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Evanston Corner Masonry Two-Flat",
     subtitle: "Classic Corner Two-Flat Duplex · Angled Window Bay & Limestone Entry Arch",
     location: "Chicago / Evanston, IL",
@@ -527,7 +527,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-205",
     code: "DPX-205",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Summit Buff-Brick & Dormer Duplex",
     subtitle: "Asymmetric Two-Unit Residence · Hip-Roof Buff Brick + Sage Dormer Wing",
     location: "Minneapolis, MN",
@@ -562,7 +562,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "dpx-206",
     code: "DPX-206",
-    category: "duplexes",
+    category: "multifamily",
     title: "The Oak Lawn Limestone & Cedar Infill Duplex",
     subtitle: "Modern Asymmetric Infill Duplex · Texas Limestone Cube + Shed-Roof Carport Wing",
     location: "Dallas / Austin, TX",
@@ -599,7 +599,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-301",
     code: "TWN-301",
-    category: "townhouses",
+    category: "townhomes",
     title: "The Lincoln Park Brick & Bay Rowhouses",
     subtitle: "Attached Masonry Townhouses · Stepped Parapets, Asymmetric Bays & Side Alley",
     location: "Chicago, IL",
@@ -634,7 +634,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-302",
     code: "TWN-302",
-    category: "townhouses",
+    category: "townhomes",
     title: "The West Loop Corner Limestone & Cedar Townhomes",
     subtitle: "Corner 3-Unit Townhouse Row · Charcoal Brick, Limestone & Corner Balconies",
     location: "Naperville / Chicago, IL",
@@ -669,7 +669,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-303",
     code: "TWN-303",
-    category: "townhouses",
+    category: "townhomes",
     title: "The Gold Coast Mansard & Brownstone Rowhomes",
     subtitle: "Renovated Brick & Brownstone Townhouses · Slate Mansard Roofs & Side Walk",
     location: "Milwaukee, WI",
@@ -704,7 +704,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-304",
     code: "TWN-304",
-    category: "townhouses",
+    category: "townhomes",
     title: "The North Avenue End-Unit Brick Townhouses",
     subtitle: "Corner End-Unit Rowhouse Block · Exposed Chimney Breast & Stepped Parapets",
     location: "Minneapolis, MN",
@@ -739,7 +739,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-305",
     code: "TWN-305",
-    category: "townhouses",
+    category: "townhomes",
     title: "The Highland Stepped-Grade Brick Rowhomes",
     subtitle: "Sloping-Street Attached Townhomes · Stepped Roofline & Off-Center Stoops",
     location: "St. Louis, MO",
@@ -774,7 +774,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
   {
     id: "twn-306",
     code: "TWN-306",
-    category: "townhouses",
+    category: "townhomes",
     title: "The Cedar & Stone Three-Story Townhome Row",
     subtitle: "Attached Multi-Unit Townhomes · Stone Base, Cedar Gables & Ground-Level Garages",
     location: "Grand Rapids, MI",
@@ -1281,11 +1281,11 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
     },
   ],
-  duplexes: [
+  multifamily: [
     {
       id: "mf-spec-roofing",
       code: "MF-ROOF",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "roofing",
       specialtyGroup: "envelope",
       specialtyLabel: "Roofing",
@@ -1317,7 +1317,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-siding",
       code: "MF-SIDE",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "siding",
       specialtyGroup: "envelope",
       specialtyLabel: "Siding",
@@ -1349,7 +1349,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-framing",
       code: "MF-FRAM",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "framing",
       specialtyGroup: "structural",
       specialtyLabel: "Framing",
@@ -1381,7 +1381,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-drywall",
       code: "MF-DRYW",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "drywall",
       specialtyGroup: "interiors",
       specialtyLabel: "Drywall",
@@ -1413,7 +1413,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-flooring",
       code: "MF-FLOR",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "flooring",
       specialtyGroup: "interiors",
       specialtyLabel: "Flooring",
@@ -1445,7 +1445,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-concrete",
       code: "MF-CONC",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "concrete",
       specialtyGroup: "structural",
       specialtyLabel: "Concrete",
@@ -1477,7 +1477,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-stone",
       code: "MF-STON",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "stone",
       specialtyGroup: "structural",
       specialtyLabel: "Stone",
@@ -1509,7 +1509,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "mf-spec-carpentry",
       code: "MF-CARP",
-      market: "duplexes",
+      market: "multifamily",
       specialtyId: "carpentry",
       specialtyGroup: "interiors",
       specialtyLabel: "Unit Kitchens & Finishes",
@@ -1539,11 +1539,11 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
     },
   ],
-  townhouses: [
+  townhomes: [
     {
       id: "twn-spec-roofing",
       code: "TWN-ROOF",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "roofing",
       specialtyGroup: "envelope",
       specialtyLabel: "Roofing",
@@ -1575,7 +1575,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-siding",
       code: "TWN-SIDE",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "siding",
       specialtyGroup: "envelope",
       specialtyLabel: "Siding",
@@ -1607,7 +1607,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-framing",
       code: "TWN-FRAM",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "framing",
       specialtyGroup: "structural",
       specialtyLabel: "Framing",
@@ -1639,7 +1639,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-drywall",
       code: "TWN-DRYW",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "drywall",
       specialtyGroup: "interiors",
       specialtyLabel: "Drywall",
@@ -1671,7 +1671,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-flooring",
       code: "TWN-FLOR",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "flooring",
       specialtyGroup: "interiors",
       specialtyLabel: "Flooring",
@@ -1703,7 +1703,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-concrete",
       code: "TWN-CONC",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "concrete",
       specialtyGroup: "structural",
       specialtyLabel: "Concrete",
@@ -1735,7 +1735,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-stone",
       code: "TWN-STON",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "stone",
       specialtyGroup: "structural",
       specialtyLabel: "Stone",
@@ -1767,7 +1767,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
     {
       id: "twn-spec-carpentry",
       code: "TWN-CARP",
-      market: "townhouses",
+      market: "townhomes",
       specialtyId: "carpentry",
       specialtyGroup: "interiors",
       specialtyLabel: "Kitchens & Millwork",
@@ -2064,11 +2064,12 @@ export function normalizeMarketCategorySlug(
   if (clean === "single-family" || clean === "single-family-homes") {
     return "single-family";
   }
-  if (clean === "duplexes" || clean === "multifamily" || clean === "multi-family") {
-    return "duplexes";
+  // "duplexes" and "townhouses" are the pre-November slugs; old links keep resolving.
+  if (clean === "multifamily" || clean === "duplexes" || clean === "multi-family") {
+    return "multifamily";
   }
-  if (clean === "townhouses" || clean === "townhomes") {
-    return "townhouses";
+  if (clean === "townhomes" || clean === "townhouses") {
+    return "townhomes";
   }
   if (clean === "commercial") {
     return "commercial";

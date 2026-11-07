@@ -261,3 +261,24 @@ test("excludes Next.js RSC/prefetch requests from page rate limits and renders a
   assert.ok(html.includes("PROTECTION REASON · HTTP 403 (IMAGE_DIRECT_NAVIGATION)"));
   assert.ok(html.includes("Return to TAYCO Portfolio"));
 });
+
+test("link-preview crawlers can fetch the share card, and only that image", () => {
+  resetShieldStateForTests();
+  const crawler = (pathname: string) =>
+    evaluateSiteShield({
+      method: "GET",
+      pathname,
+      clientIp: "31.13.103.5",
+      userAgent: "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+      host: "tayco.llc",
+      referer: null,
+      secFetchDest: null,
+      secFetchMode: null,
+      secFetchSite: null,
+      accept: "image/*",
+    });
+  assert.notEqual(crawler("/og-image.jpg").action, "block");
+  const other = crawler("/logo.png");
+  assert.equal(other.action, "block");
+  if (other.action === "block") assert.equal(other.reason, "image_unverified_origin");
+});

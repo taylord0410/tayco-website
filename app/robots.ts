@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "Bytespider",
           "Meta-ExternalAgent",
         ],
-        allow: ["/llms.txt", "/", "/commercial", "/residential", "/investor", "/estimate", "/privacy"],
+        allow: ["/llms.txt", "/", "/commercial", "/single-family", "/multifamily", "/townhomes", "/properties", "/investor", "/estimate", "/privacy"],
         disallow: ["/curated/", "/work/", "/images/", "/img_v16_web/", "/media/", "/login", "/portal", "/api/"],
       },
       {

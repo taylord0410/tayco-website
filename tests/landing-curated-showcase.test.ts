@@ -104,8 +104,8 @@ test("app/page.tsx references only existing curated/work images and excludes fla
   }
 });
 
-test("app/commercial/page.tsx and app/residential/page.tsx include curated triptychs, transformation studio, and verified images", () => {
-  for (const relPath of ["app/commercial/page.tsx", "app/residential/page.tsx"]) {
+test("Division content (residential and commercial) includes curated triptychs, transformation studio, and verified images", () => {
+  for (const relPath of ["components/division/CommercialDivisionContent.tsx", "components/division/ResidentialDivisionContent.tsx"]) {
     const content = fs.readFileSync(path.resolve(process.cwd(), relPath), "utf-8");
     assert.ok(content.includes("ServiceCardTriptych"), `${relPath} must use ServiceCardTriptych`);
     assert.ok(content.includes("TransformationBeforeAfterStudio"), `${relPath} must use TransformationBeforeAfterStudio`);
@@ -155,8 +155,8 @@ test("Privacy page contains client photography recreation notice and public page
 
   for (const relPath of [
     "app/page.tsx",
-    "app/commercial/page.tsx",
-    "app/residential/page.tsx",
+    "components/division/CommercialDivisionContent.tsx",
+    "components/division/ResidentialDivisionContent.tsx",
     "components/TradeGallery.tsx",
   ]) {
     const content = fs.readFileSync(path.resolve(process.cwd(), relPath), "utf-8");
@@ -168,9 +168,9 @@ test("Privacy page contains client photography recreation notice and public page
   }
 });
 
-test("Image-to-title concordance: residential page excludes commercial-only photos and commercial trades match visual audit", () => {
+test("Image-to-title concordance: residential division content excludes commercial-only photos and commercial trades match visual audit", () => {
   const resContent = fs.readFileSync(
-    path.resolve(process.cwd(), "app/residential/page.tsx"),
+    path.resolve(process.cwd(), "components/division/ResidentialDivisionContent.tsx"),
     "utf-8"
   );
   const commercialMisfiledInRes = [
@@ -191,12 +191,12 @@ test("Image-to-title concordance: residential page excludes commercial-only phot
   for (const bad of commercialMisfiledInRes) {
     assert.ok(
       !resContent.includes(bad),
-      `app/residential/page.tsx must not reference commercial-only image "${bad}"`
+      `components/division/ResidentialDivisionContent.tsx must not reference commercial-only image "${bad}"`
     );
   }
 
   const comContent = fs.readFileSync(
-    path.resolve(process.cwd(), "app/commercial/page.tsx"),
+    path.resolve(process.cwd(), "components/division/CommercialDivisionContent.tsx"),
     "utf-8"
   );
   // Verify visual audit alignment in Commercial page
@@ -216,13 +216,13 @@ test("Image-to-title concordance: residential page excludes commercial-only phot
     comContent.includes('"/curated/pairs/div02_02_antes.jpg", "label": "Poured Commercial Slab & Stem Walls"'),
     "Commercial Concrete card must use verified people-free concrete slab photo div02_02_antes.jpg"
   );
+  // Each division page is its market view (its projects open the walkthrough studio) plus its division content.
+  const divisionPage = fs.readFileSync(path.resolve(process.cwd(), "components/division/DivisionPage.tsx"), "utf-8");
   assert.ok(
-    resContent.includes('<DivisionInteractivePropertyAtelier division="residential" />'),
-    "app/residential/page.tsx must render DivisionInteractivePropertyAtelier"
-  );
-  assert.ok(
-    comContent.includes('<DivisionInteractivePropertyAtelier division="commercial" />'),
-    "app/commercial/page.tsx must render DivisionInteractivePropertyAtelier"
+    divisionPage.includes("<PropertyCategoryPageView activeCategory={meta}>") &&
+      divisionPage.includes("<CommercialDivisionContent />") &&
+      divisionPage.includes("<ResidentialDivisionContent />"),
+    "components/division/DivisionPage.tsx must render the market view with the division content"
   );
 
   // Verify zero emojis in walkthrough studio, category showcase, and division pages
@@ -230,8 +230,8 @@ test("Image-to-title concordance: residential page excludes commercial-only phot
   for (const rel of [
     "components/PropertyWalkthroughStudio.tsx",
     "components/PropertyCategoryShowcase.tsx",
-    "app/residential/page.tsx",
-    "app/commercial/page.tsx",
+    "components/division/ResidentialDivisionContent.tsx",
+    "components/division/CommercialDivisionContent.tsx",
   ]) {
     const src = fs.readFileSync(path.resolve(process.cwd(), rel), "utf-8");
     for (const emoji of forbiddenEmojis) {
@@ -247,16 +247,18 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
   assert.equal(PROPERTY_CATEGORIES.length, 4);
   assert.deepEqual(
     PROPERTY_CATEGORIES.map((c) => c.slug),
-    ["single-family", "duplexes", "townhouses", "commercial"]
+    ["single-family", "multifamily", "townhomes", "commercial"]
   );
   assert.deepEqual(
     PROPERTY_CATEGORIES.map((c) => c.label),
     ["Single-Family Homes", "Multifamily", "Townhomes", "Commercial"]
   );
 
-  // Verify slug aliases for /properties/multifamily and /properties/townhomes
-  assert.equal(getPropertyCategoryBySlug("multifamily")?.slug, "duplexes");
-  assert.equal(getPropertyCategoryBySlug("townhomes")?.slug, "townhouses");
+  // Canonical slugs, plus the pre-November slugs that old links still use
+  assert.equal(getPropertyCategoryBySlug("multifamily")?.slug, "multifamily");
+  assert.equal(getPropertyCategoryBySlug("townhomes")?.slug, "townhomes");
+  assert.equal(getPropertyCategoryBySlug("duplexes")?.slug, "multifamily");
+  assert.equal(getPropertyCategoryBySlug("townhouses")?.slug, "townhomes");
   assert.equal(getPropertiesByCategory("multifamily").length, 6);
   assert.equal(getPropertiesByCategory("townhomes").length, 6);
   assert.equal(getMarketSpecialtiesByCategory("multifamily").length, 8);
@@ -393,7 +395,7 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
       !pageContent.includes("RESIDENTIAL_HERO_SCENES"),
     "Home must not load the retired split hero scenes"
   );
-  for (const slug of ["single-family", "duplexes", "townhouses", "commercial"]) {
+  for (const slug of ["single-family", "multifamily", "townhomes", "commercial"]) {
     assert.ok(
       PROPERTY_CATEGORIES.some((category) => category.slug === slug),
       `The market navigation must retain ${slug}`
@@ -720,8 +722,8 @@ test("V46 Unified Design System (Astralis + Umbra), Soft-Rounded Geometry, Eleva
     "components/PropertyCategoryShowcase.tsx",
     "components/LandingLivingShowcase.tsx",
     "app/page.tsx",
-    "app/commercial/page.tsx",
-    "app/residential/page.tsx",
+    "components/division/CommercialDivisionContent.tsx",
+    "components/division/ResidentialDivisionContent.tsx",
     "app/investor/page.tsx",
     "app/estimate/page.tsx",
     "app/vendor-application/page.tsx",

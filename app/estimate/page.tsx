@@ -24,7 +24,7 @@ function RequestedService({ onApply }: { onApply: (description: string, projectT
   const trade = (searchParams.get("trade") || "").trim().slice(0, 120);
   const division = searchParams.get("division") === "residential" ? "Residential" : "";
   const rawSector = searchParams.get("sector");
-  const sector = rawSector === "residential" ? "Residential" : rawSector === "multifamily" ? "Multifamily" : rawSector === "commercial" ? "Commercial" : "";
+  const sector = rawSector === "residential" ? "Residential" : rawSector === "multifamily" ? "Multifamily" : rawSector === "townhomes" ? "Townhomes" : rawSector === "commercial" ? "Commercial" : "";
   if (!trade && !division && !sector) return null;
   const description = [trade, division || sector].filter(Boolean).join(" · ");
   const projectType = division === "Residential" || sector === "Residential" ? "Residential Renovation" : sector === "Commercial" ? "Commercial Project" : "";

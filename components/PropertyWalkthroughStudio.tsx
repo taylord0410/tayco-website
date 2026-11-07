@@ -732,7 +732,7 @@ export function buildCoherentWalkthrough(
 ] {
   const exteriorFrame = prop.triptych[0];
   const isCommercial = prop.category === "commercial";
-  const isTownhouse = prop.category === "townhouses";
+  const isTownhouse = prop.category === "townhomes";
 
   const isLimestoneOrModern =
     prop.id === "dpx-202" ||
