@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 type Account={email:string;username:string;role:'admin'|'member';active:boolean;version:number};
 type Invitation={email:string;username:string;role:string;expiresAt:number;version:string};
-type Directory={accounts:Account[];invitations:Invitation[];origin:string};
+type Directory={accounts:Account[];invitations:Invitation[];origin:string;entryUrl?:string};
 const field='mt-1 min-h-11 w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900';
 const button='min-h-11 rounded-xl bg-[#173252] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50';
 export default function ConnectAdministration(){
@@ -40,7 +40,7 @@ export default function ConnectAdministration(){
     <button className={button} disabled={busy}>{busy?'Verifying…':'Open Connect administration'}</button>
     <p className="text-sm text-slate-500">Activate your existing invitation first if you have not set up your Connect account. Your TAYCO password is not shared with Connect.</p>
    </form>:<>
-    <div className="mb-6 flex flex-wrap gap-3"><a href={directory.origin} className={button}>Open TAYCO Connect ↗</a><button disabled={busy} className={button} onClick={()=>void run({action:'logout'},'Connect administration locked. Your TAYCO session remains open.')}>Lock Connect administration</button><button disabled={busy} className={button} onClick={()=>{setError('');void refresh().catch(e=>setError(e.message));}}>Refresh</button></div>
+    <div className="mb-6 flex flex-wrap gap-3"><a href={directory.entryUrl||directory.origin} className={button}>Open TAYCO Connect ↗</a><button disabled={busy} className={button} onClick={()=>void run({action:'logout'},'Connect administration locked. Your TAYCO session remains open.')}>Lock Connect administration</button><button disabled={busy} className={button} onClick={()=>{setError('');void refresh().catch(e=>setError(e.message));}}>Refresh</button></div>
     <form onSubmit={invite} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-semibold">Invite a team member</h2><div className="grid gap-4 md:grid-cols-3">
      <label>Email<input className={field} name="email" type="email" required/></label><label>Username<input className={field} name="username" pattern="[a-z][a-z0-9._-]{2,31}" required minLength={3} maxLength={32}/></label>
      <label>Role<select name="role" className={field}><option value="member">Member</option><option value="admin">Administrator</option></select></label></div>

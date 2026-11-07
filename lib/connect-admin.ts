@@ -67,6 +67,6 @@ export async function connectAdmin(request:Request) {
    if(!/^[A-Za-z0-9_-]{43}$/.test(data.token))throw new Error('Invalid invitation response');
    return authJson({expiresAt:data.expiresAt,token:data.token,origin},201);
   }
-  return authJson({...data,origin});
+  return authJson({...data,origin,entryUrl:'/connect'});
  }catch(error){return authFailure(error);}
 }

@@ -1,3 +1,4 @@
+import { currentReportingPeriod } from '../lib/guest-period';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
@@ -241,7 +242,7 @@ test('tracks workspace section visits, 3rd/4th devices (macOS Safari + Android C
     // Visit Projects & New Opportunities sections via /api/guest-workspace from macOS Safari
     for (const section of ['summary', 'projects', 'lead'] as const) {
       const wsRes = await workspaceGET(
-        new NextRequest(`https://tayco.test/api/guest-workspace?period=2026-10&section=${section}`, {
+        new NextRequest(`https://tayco.test/api/guest-workspace?period=${currentReportingPeriod()}&section=${section}`, {
           headers: {
             cookie: cookieHeader,
             'x-real-ip': '192.0.2.44',
@@ -291,7 +292,7 @@ test('tracks workspace section visits, 3rd/4th devices (macOS Safari + Android C
     assert.equal(guestSummary.distinctDeviceCount, 2);
     assert.deepEqual(
       guestSummary.sectionsVisited.sort(),
-      ['section:lead:2026-10', 'section:projects:2026-10', 'section:summary:2026-10'],
+      ['lead', 'projects', 'summary'].map(section => `section:${section}:${currentReportingPeriod()}`),
     );
     assert.equal(guestSummary.securityAlertCount, 4);
   });
