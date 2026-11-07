@@ -9,13 +9,11 @@ import AutomationGuard from "@/components/AutomationGuard";
 
 const publicPages = new Set([
   "/",
+  "/single-family",
+  "/multifamily",
+  "/townhomes",
   "/commercial",
-  "/residential",
   "/properties",
-  "/properties/single-family",
-  "/properties/duplexes",
-  "/properties/townhouses",
-  "/properties/commercial",
   "/investor",
   "/estimate",
   "/privacy",

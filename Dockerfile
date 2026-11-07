@@ -22,6 +22,11 @@ COPY . .
 RUN mkdir -p private-operator-inputs
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Public origin for canonical links and the share card (lib/site-url.ts), inlined at build time.
+# Railway hands a service variable to the build only through a declared ARG. No default on purpose:
+# set it once the domain's DNS points at this service, or canonicals would name another host.
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 RUN npm run build
 
 # 3. Production image, copy all the files and run next

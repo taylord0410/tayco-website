@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
           reason: "image_direct_navigation",
           message:
             "Direct visual stream access is disabled to protect client privacy. Assets can only be rendered via TAYCO protected studio canvas.",
-          pathname: "/properties/single-family",
+          pathname: "/single-family",
         }),
         {
           status: 403,

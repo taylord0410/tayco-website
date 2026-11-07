@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // The site is split into four divisions at their own URLs; earlier URLs keep working.
+  async redirects() {
+    return [
+      { source: "/residential", destination: "/single-family", permanent: true },
+      { source: "/properties/single-family", destination: "/single-family", permanent: true },
+      { source: "/properties/:slug(multifamily|duplexes|multi-family)", destination: "/multifamily", permanent: true },
+      { source: "/properties/:slug(townhomes|townhouses)", destination: "/townhomes", permanent: true },
+      { source: "/properties/commercial", destination: "/commercial", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

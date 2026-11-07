@@ -136,7 +136,7 @@ function ExecutiveTopBar({ showConsoleLink = false }: { showConsoleLink?: boolea
             Commercial
           </Link>
           <Link
-            href="/residential"
+            href="/single-family"
             className="whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-white/5 hover:text-[#f3d37a]"
           >
             Residential

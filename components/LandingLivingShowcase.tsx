@@ -983,7 +983,7 @@ export function TransformationBeforeAfterStudio({
                     Commercial →
                   </Link>
                   <Link
-                    href="/residential"
+                    href="/single-family"
                     data-magnetic
                     className="home-text-action"
                   >
