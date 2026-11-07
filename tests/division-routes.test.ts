@@ -73,3 +73,18 @@ test('the trade gallery has a photo for every trade in every division, each in t
     }
   }
 });
+
+test('commercial walkthrough rooms 3 and 4 show the listing\'s own triptych photo and title', async () => {
+  const { buildCoherentWalkthrough } = await import('../components/PropertyWalkthroughStudio');
+  const { PROPERTY_LISTINGS } = await import('../lib/property-catalog');
+  const commercial = PROPERTY_LISTINGS.filter((p) => p.category === 'commercial');
+  assert.ok(commercial.length > 0);
+  for (const prop of commercial) {
+    const rooms = buildCoherentWalkthrough(prop);
+    for (const [room, frame] of [[rooms[2], prop.triptych[1]], [rooms[3], prop.triptych[2]]] as const) {
+      assert.equal(room.src, frame.src, `${prop.id} room ${room.stepNumber} must use its triptych photo`);
+      assert.equal(room.title, frame.label, `${prop.id} room ${room.stepNumber} title must match its photo`);
+      assert.ok(existsSync(path.join(root, 'public', room.nightSrc)), `${prop.id} room ${room.stepNumber} needs ${room.nightSrc}`);
+    }
+  }
+});
