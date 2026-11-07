@@ -215,7 +215,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Dated 1990s oak layout to custom white shaker & quartz centerpiece",
     csiSpec: "CSI 06 41 00 / 12 36 00 · CABINETRY & COUNTERTOPS",
     beforeImg: "/curated/pairs/div03_02_antes.jpg",
-    afterImg: "/curated/pairs/div03_02_despues.jpg",
+    afterImg: "/curated/pairs/tr03-after-white-shaker-kitchen.jpg",
     beforeTag: "01 / Dated 1990s Oak Kitchen",
     afterTag: "02 / Custom Shaker, Quartz & Pendants",
     summary:
@@ -266,7 +266,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Blank builder-grade wall to architectural living room centerpiece",
     csiSpec: "CSI 06 20 00 / 04 43 00 · MILLWORK & STONE",
     beforeImg: "/curated/pairs/div01_03_antes.jpg",
-    afterImg: "/curated/pairs/div01_03_despues.jpg",
+    afterImg: "/curated/pairs/tr06-after-built-in-fireplace.jpg",
     beforeTag: "01 / Bare Drywall Living Room",
     afterTag: "02 / Custom Bookcases, Coffered Beams & Hearth",
     summary:
@@ -317,7 +317,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Rotted unsafe backyard deck to code-compliant cedar deck system",
     csiSpec: "CSI 06 15 00 · WOOD DECKING & STRUCTURAL FRAMING",
     beforeImg: "/curated/pairs/div01_02_antes.jpg",
-    afterImg: "/curated/properties/mkt-twn-stone-hearth.jpg",
+    afterImg: "/curated/pairs/tr09-after-cedar-deck.jpg",
     beforeTag: "01 / Weathered & Rotted Timber Deck",
     afterTag: "02 / Rebuilt Cedar Deck, Guardrails & Stairs",
     summary:
@@ -368,7 +368,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     subtitle: "Unfinished concrete block lower level to warm turnkey living space",
     csiSpec: "CSI 09 29 00 / 09 65 00 · BASEMENT TURNKEY BUILD",
     beforeImg: "/curated/pairs/div03_04_antes.jpg",
-    afterImg: "/curated/pairs/div03_04_despues.jpg",
+    afterImg: "/curated/pairs/tr12-after-finished-basement.jpg",
     beforeTag: "01 / Unfinished CMU Block Basement",
     afterTag: "02 / Insulated Walls, Recessed LEDs & LVP",
     summary:
@@ -441,7 +441,7 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
     trade: "Specialty Roofing",
     csi: "DIV 07",
     sector: "Residential",
-    image: "/curated/magazine/revista_ro_slate_a.jpg",
+    image: "/curated/residential/sf-slate-roof-cottage.jpg",
   },
   {
     id: "m-top-6",

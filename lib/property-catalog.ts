@@ -947,11 +947,11 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
         label: "Two-Story Curtain-Wall & Architectural Metal Panel Pavilion",
       },
       {
-        src: "/curated/commercial/cx_i1.jpg",
+        src: "/curated/commercial/com-open-plan-office-fitout.jpg",
         label: "Open-Plan Glass-Partition Office & Tenant Fit-Out",
       },
       {
-        src: "/curated/commercial/com_03_2.jpg",
+        src: "/curated/commercial/com-clinical-corridor.jpg",
         label: "Clinical & Medical Professional Corridor Suite",
       },
     ],
@@ -986,7 +986,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
         label: "32-Foot Clear Structural Steel Frame & Mezzanine Deck",
       },
       {
-        src: "/curated/commercial/com_03_2.jpg",
+        src: "/curated/commercial/com-flex-logistics-slab-interior.jpg",
         label: "Heavy-Duty Diamond-Polished Reinforced Concrete Slab",
       },
     ],
@@ -1017,8 +1017,8 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
         label: "Architectural Stone Veneer & Insulated Storefront Glazing",
       },
       {
-        src: "/curated/properties/mkt-com-stone-colonnade.jpg",
-        label: "Covered Commercial Entry Canopy & Masonry Facade",
+        src: "/curated/commercial/com-tenant-space-stone-storefront.jpg",
+        label: "Stone-Storefront Tenant Space, Porcelain Floor & Pendant Lighting",
       },
       {
         src: "/curated/commercial/cx_i2.jpg",
@@ -1119,7 +1119,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Custom Single-Family Timber Framing, Trusses & Glulam Beams",
         },
         {
-          src: "/curated/capabilities/fire-subfloor-joists.jpg",
+          src: "/curated/residential/sf-i-joist-osb-subfloor.jpg",
           label: "Engineered Wood I-Joist Floor System & OSB Subfloor Framing",
         },
         {
@@ -1215,11 +1215,11 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Architectural Saw-Cut Concrete Driveway & Entry Walkway",
         },
         {
-          src: "/curated/hero/res-multitier-deck.jpg",
+          src: "/curated/residential/sf-walkout-concrete-patio.jpg",
           label: "Lower-Level Walkout Concrete Patio & Integrated Fire Bowl",
         },
         {
-          src: "/curated/residential/c1.jpg",
+          src: "/curated/residential/sf-concrete-apron-curb-sidewalk.jpg",
           label: "Broom-Finished Residential Concrete Curb, Apron & Sidewalk",
         },
       ],
@@ -1993,7 +1993,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Architectural Tilt-Up Concrete Panels & Saw-Cut Commercial Plaza Slab",
         },
         {
-          src: "/curated/commercial/com-parking-apron-ada.jpg",
+          src: "/curated/commercial/com-parking-apron-ada-v2.jpg",
           label: "Commercial Reinforced Concrete Parking Apron, Curbs & ADA Walks",
         },
       ],
