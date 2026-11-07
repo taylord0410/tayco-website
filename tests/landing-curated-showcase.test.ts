@@ -9,6 +9,8 @@ import {
   MARQUEE_TRACK_TOP,
   MARQUEE_TRACK_BOTTOM,
   REGIONAL_STATE_HUBS,
+  getTransformationPairsForSiteDivision,
+  getMarqueeTracksForSiteDivision,
 } from "../components/LandingLivingShowcase";
 import {
   PROPERTY_CATEGORIES,
@@ -20,7 +22,13 @@ import {
 import {
   buildCoherentWalkthrough,
   resolveNightImageSrc,
+  WALKTHROUGH_ROOMS_BY_PROJECT_ID,
 } from "../components/PropertyWalkthroughStudio";
+import {
+  getResidentialTradesByDivision,
+  getResidentialRestorationByDivision,
+  resolveResidentialDivisionSlug,
+} from "../components/division/ResidentialDivisionContent";
 
 const publicDir = path.resolve(process.cwd(), "public");
 
@@ -749,5 +757,92 @@ test("V46 Unified Design System (Astralis + Umbra), Soft-Rounded Geometry, Eleva
     "ContractingOpportunities.tsx must replace sharp border-l-2 rule with soft-rounded milestone bento cards"
   );
 });
+
+test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific residential trade triptychs, and division-filtered Before/After & Marquee", () => {
+  // Code 2: WALKTHROUGH_ROOMS_BY_PROJECT_ID maps all 24 projects and preserves project overrides
+  assert.equal(Object.keys(WALKTHROUGH_ROOMS_BY_PROJECT_ID).length, 24);
+  for (const prop of PROPERTY_LISTINGS) {
+    assert.ok(
+      WALKTHROUGH_ROOMS_BY_PROJECT_ID[prop.id],
+      `Missing walkthrough rooms entry for ${prop.id}`
+    );
+    const stops = buildCoherentWalkthrough(prop);
+    assert.equal(stops.length, 5);
+    assert.equal(stops[0].src, prop.triptych[0].src);
+    if (prop.id === "sfh-101") {
+      assert.equal(stops[2].src, "/curated/hero/res-navy-kitchen.jpg");
+    }
+    if (prop.id === "sfh-104") {
+      assert.equal(stops[2].src, "/curated/residential/div01_08_despues.jpg");
+    }
+    if (prop.category === "commercial") {
+      assert.equal(stops[2].src, prop.triptych[1].src);
+      assert.equal(stops[3].src, prop.triptych[2].src);
+    }
+  }
+
+  // Code 3: Residential division trade cards and restoration cards differ across single-family, multifamily, and townhomes
+  assert.equal(resolveResidentialDivisionSlug("/single-family"), "single-family");
+  assert.equal(resolveResidentialDivisionSlug("/multifamily"), "multifamily");
+  assert.equal(resolveResidentialDivisionSlug("/townhomes"), "townhomes");
+
+  const sfTrades = getResidentialTradesByDivision("single-family");
+  const mfTrades = getResidentialTradesByDivision("multifamily");
+  const twnTrades = getResidentialTradesByDivision("townhomes");
+  assert.equal(sfTrades.length, 8);
+  assert.equal(mfTrades.length, 8);
+  assert.equal(twnTrades.length, 8);
+
+  for (let i = 0; i < 8; i++) {
+    assert.notDeepEqual(
+      sfTrades[i].triptych.map((f) => f.src),
+      mfTrades[i].triptych.map((f) => f.src),
+      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between single-family and multifamily`
+    );
+    assert.notDeepEqual(
+      sfTrades[i].triptych.map((f) => f.src),
+      twnTrades[i].triptych.map((f) => f.src),
+      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between single-family and townhomes`
+    );
+    assert.notDeepEqual(
+      mfTrades[i].triptych.map((f) => f.src),
+      twnTrades[i].triptych.map((f) => f.src),
+      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between multifamily and townhomes`
+    );
+  }
+
+  const sfRest = getResidentialRestorationByDivision("single-family");
+  const mfRest = getResidentialRestorationByDivision("multifamily");
+  const twnRest = getResidentialRestorationByDivision("townhomes");
+  assert.notDeepEqual(sfRest.fire, mfRest.fire);
+  assert.notDeepEqual(sfRest.fire, twnRest.fire);
+  assert.notDeepEqual(sfRest.water, mfRest.water);
+  assert.notDeepEqual(sfRest.water, twnRest.water);
+
+  // Code 4: Before/After pairs and Marquee tracks filter by division while keeping full sets for landing ("all")
+  assert.equal(getTransformationPairsForSiteDivision("all").length, 12);
+  for (const div of ["single-family", "multifamily", "townhomes", "commercial"] as const) {
+    const pairs = getTransformationPairsForSiteDivision(div);
+    assert.ok(
+      pairs.length >= 2 && pairs.length < 12,
+      `Division ${div} must receive a filtered subset of transformation pairs (got ${pairs.length})`
+    );
+    for (const pair of pairs) {
+      if (div === "commercial") {
+        assert.equal(pair.siteDivision, "commercial");
+      } else {
+        assert.notEqual(pair.siteDivision, "commercial");
+      }
+    }
+
+    const tracks = getMarqueeTracksForSiteDivision(div);
+    assert.ok(tracks.topTrack.length >= 3);
+    assert.ok(tracks.bottomTrack.length >= 3);
+    for (const shot of tracks.allShots) {
+      assertPublicImageExists(shot.image, `Marquee (${div}) ${shot.id}`);
+    }
+  }
+});
+
 
 
