@@ -1286,10 +1286,12 @@ export function resolveProjectWalkthroughRooms(
       prop.walkthroughRooms?.foyerLiving ?? mapped?.foyerLiving ?? defaultFoyer,
     kitchenCore:
       prop.walkthroughRooms?.kitchenCore ??
-      (isCommercial ? prop.triptych[1] : mapped?.kitchenCore ?? defaultKitchen),
+      mapped?.kitchenCore ??
+      defaultKitchen,
     upperSuite:
       prop.walkthroughRooms?.upperSuite ??
-      (isCommercial ? prop.triptych[2] : mapped?.upperSuite ?? defaultUpper),
+      mapped?.upperSuite ??
+      defaultUpper,
     patioTerrace:
       prop.walkthroughRooms?.patioTerrace ??
       mapped?.patioTerrace ??
@@ -1317,13 +1319,6 @@ export function buildCoherentWalkthrough(
   const exteriorFrame = prop.triptych[0];
   const isCommercial = prop.category === "commercial";
   const isTownhouse = prop.category === "townhomes";
-
-  const isLimestoneOrModern =
-    prop.id === "dpx-202" ||
-    prop.id === "dpx-206" ||
-    prop.id === "sfh-103" ||
-    prop.id === "twn-302" ||
-    prop.id === "twn-305";
 
   const projectRooms = resolveProjectWalkthroughRooms(prop);
   const foyerLivingSrc = projectRooms.foyerLiving.src;
@@ -1367,7 +1362,7 @@ export function buildCoherentWalkthrough(
           yPercent: 36,
           title: "Structural Masonry & Siding Envelope",
           csiDivision: "CSI DIV 04 & 07 · EXTERIOR ENVELOPE",
-          materialSpec: isLimestoneOrModern
+          materialSpec: exteriorFrame.src.includes("limestone")
             ? "Cut Quarry Limestone & Architectural Fiber-Cement"
             : "Full-Bed Clay Brick Veneer & Natural Cedar Siding",
           detail:

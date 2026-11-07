@@ -380,8 +380,9 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
 /**
  * Filters the Before & After transformation pairs by site division (`single-family`,
  * `multifamily`, `townhomes`, `commercial`). On the home page (`all`), all 12 pairs are returned.
- * When a residential division (`multifamily` or `townhomes`) does not yet have dedicated pairs in
- * `TRANSFORMATION_PAIRS`, it falls back to residential-only pairs (never commercial pairs).
+ * When a division (`multifamily` or `townhomes`) does not yet have dedicated pairs in
+ * `TRANSFORMATION_PAIRS`, it returns `[]` so the Before/After studio hides cleanly on those pages
+ * until division-specific pairs are added.
  */
 export function getTransformationPairsForSiteDivision(
   siteDivision: SiteDivisionSlug | "all" = "all"
@@ -389,23 +390,7 @@ export function getTransformationPairsForSiteDivision(
   if (!siteDivision || siteDivision === "all") {
     return TRANSFORMATION_PAIRS;
   }
-  const directMatches = TRANSFORMATION_PAIRS.filter(
-    (p) => p.siteDivision === siteDivision
-  );
-  if (directMatches.length > 0) {
-    return directMatches;
-  }
-  if (siteDivision === "multifamily") {
-    return TRANSFORMATION_PAIRS.filter((p) =>
-      ["div01_01", "div02_03", "div03_04"].includes(p.id)
-    );
-  }
-  if (siteDivision === "townhomes") {
-    return TRANSFORMATION_PAIRS.filter((p) =>
-      ["div01_03", "div02_03", "div04_02"].includes(p.id)
-    );
-  }
-  return TRANSFORMATION_PAIRS.filter((p) => p.siteDivision !== "commercial");
+  return TRANSFORMATION_PAIRS.filter((p) => p.siteDivision === siteDivision);
 }
 
 export interface MarqueeShot {
@@ -687,6 +672,10 @@ export function TransformationBeforeAfterStudio({
     activeDivision === "all"
       ? scopedPairs
       : scopedPairs.filter((p) => p.division === activeDivision);
+
+  if (scopedPairs.length === 0) {
+    return null;
+  }
 
   const activePair =
     visiblePairs.find((p) => p.id === selectedId) ??
@@ -1191,22 +1180,6 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   "single-family": [
     {
       id: "m-sf-1",
-      title: "Natural Slate Gable & Copper Valley Flashing",
-      trade: "Specialty Roofing",
-      csi: "DIV 07",
-      sector: "Residential",
-      image: "/curated/magazine/revista_ro_slate_a.jpg",
-    },
-    {
-      id: "m-sf-2",
-      title: "Standing-Seam Architectural Metal Roof System",
-      trade: "Roofing Systems",
-      csi: "DIV 07",
-      sector: "Residential",
-      image: "/curated/magazine/revista_ro_metal_a.jpg",
-    },
-    {
-      id: "m-sf-3",
       title: "Insulated Fiber-Cement Lap Siding & Craftsman Trim",
       trade: "Siding & Cladding",
       csi: "DIV 07",
@@ -1214,7 +1187,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       image: "/work/siding_residential.jpg",
     },
     {
-      id: "m-sf-4",
+      id: "m-sf-2",
       title: "Architectural Dimensional Shingle & Gable Roof",
       trade: "Roofing Systems",
       csi: "DIV 07",
@@ -1222,23 +1195,31 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       image: "/work/roofing_residential.jpg",
     },
     {
-      id: "m-sf-5",
-      title: "Exterior Wall Framing, Window Headers & Ceiling Joists",
+      id: "m-sf-3",
+      title: "2-Story Wood Stud Framing & Roof Truss Package",
       trade: "Rough Carpentry",
       csi: "DIV 06",
       sector: "Residential",
-      image: "/curated/magazine/revista_fr_wood_05.jpg",
+      image: "/work/framing_residential.jpg",
+    },
+    {
+      id: "m-sf-4",
+      title: "Smooth Level-5 Drywall & Interior Wall Board",
+      trade: "Drywall Systems",
+      csi: "DIV 09",
+      sector: "Residential",
+      image: "/work/drywall_residential.jpg",
+    },
+    {
+      id: "m-sf-5",
+      title: "Wide-Plank Residential Hardwood Flooring Installation",
+      trade: "Hardwood Flooring",
+      csi: "DIV 09",
+      sector: "Residential",
+      image: "/work/flooring_residential.jpg",
     },
     {
       id: "m-sf-6",
-      title: "Coffered Architectural Ceiling & Recessed Lighting",
-      trade: "Interior Finishes",
-      csi: "DIV 09",
-      sector: "Residential",
-      image: "/curated/magazine/revista_in_05_a.jpg",
-    },
-    {
-      id: "m-sf-7",
       title: "Painted Staircase, Oak Handrail & Finish Carpentry",
       trade: "Finish Carpentry",
       csi: "DIV 06",
@@ -1246,38 +1227,46 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       image: "/curated/magazine/revista_ca_finish_1.jpg",
     },
     {
-      id: "m-sf-8",
+      id: "m-sf-7",
       title: "Natural Stone Veneer & Custom Hearth Masonry",
       trade: "Stone & Masonry",
       csi: "DIV 04",
       sector: "Residential",
       image: "/work/stone_residential.jpg",
     },
+    {
+      id: "m-sf-8",
+      title: "Exterior Porch, Siding & Dormer Renovation",
+      trade: "Exterior Turnkey",
+      csi: "DIV 07",
+      sector: "Residential",
+      image: "/curated/residential/div02_01_despues.jpg",
+    },
   ],
   multifamily: [
     {
       id: "m-mf-1",
-      title: "Multi-Unit Architectural Shingle & Dormer Roof System",
+      title: "Multi-Unit Architectural Roof Phasing & Replacement",
       trade: "Roofing Systems",
       csi: "DIV 07",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-roofing.jpg",
+      image: "/curated/capabilities/reo-roof-3phase.jpg",
     },
     {
       id: "m-mf-2",
-      title: "Multi-Story Structural Wood Framing & Floor Trusses",
-      trade: "Structural Framing",
+      title: "Multi-Unit Custom Cabinetry & Common-Area Millwork",
+      trade: "Finish Carpentry",
       csi: "DIV 06",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-framing-trusses.jpg",
+      image: "/work/carpentry_multifamily.jpg",
     },
     {
       id: "m-mf-3",
-      title: "Reinforced Concrete Podium & Courtyard Hardscape",
-      trade: "Concrete & Site",
-      csi: "DIV 03",
+      title: "Acoustic Corridor & Unit Turnover Drywall Package",
+      trade: "Drywall & Finishes",
+      csi: "DIV 09",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-concrete-podium.jpg",
+      image: "/curated/magazine/revista_dw_hang.jpg",
     },
     {
       id: "m-mf-4",
@@ -1285,18 +1274,10 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       trade: "Stone & Masonry",
       csi: "DIV 04",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-stone-entry.jpg",
+      image: "/work/stone_multifamily.jpg",
     },
     {
       id: "m-mf-5",
-      title: "Fire-Rated Corridor Drywall & Acoustic Assemblies",
-      trade: "Drywall Systems",
-      csi: "DIV 09",
-      sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-drywall.jpg",
-    },
-    {
-      id: "m-mf-6",
       title: "Acoustic Underlayment & Multi-Unit Flooring Package",
       trade: "Flooring Systems",
       csi: "DIV 09",
@@ -1304,91 +1285,113 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       image: "/work/flooring_multifamily.jpg",
     },
     {
-      id: "m-mf-7",
-      title: "Resident Lounge Millwork & Custom Common-Area Trim",
-      trade: "Finish Carpentry",
-      csi: "DIV 06",
+      id: "m-mf-6",
+      title: "Subfloor Moisture Barrier & Engineered Hardwood Prep",
+      trade: "Flooring Prep",
+      csi: "DIV 09",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
+      image: "/curated/capabilities/mit-hardwood-underlay.jpg",
+    },
+    {
+      id: "m-mf-7",
+      title: "Unit Turnover Interior Wall Preparation & Finish Coat",
+      trade: "Interior Finishes",
+      csi: "DIV 09",
+      sector: "Multi-Family",
+      image: "/curated/magazine/revista_pa_04_a.jpg",
     },
     {
       id: "m-mf-8",
-      title: "Courtyard Stonework & Multi-Unit Landscape Masonry",
-      trade: "Stone & Masonry",
-      csi: "DIV 04",
+      title: "Multi-Unit Foundation Excavation & Footing Trench",
+      trade: "Concrete & Site",
+      csi: "DIV 03",
       sector: "Multi-Family",
-      image: "/curated/properties/mkt-mf-stone-courtyard.jpg",
+      image: "/curated/magazine/revista_ex_ex_found.jpg",
     },
   ],
   townhomes: [
     {
       id: "m-twn-1",
-      title: "Townhome Rooftop Timber Framing & Decking",
-      trade: "Wood Framing",
-      csi: "DIV 06",
-      sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-framing-rooftop.jpg",
-    },
-    {
-      id: "m-twn-2",
-      title: "Stepped Rowhouse Roofing, Parapets & Siding Envelope",
-      trade: "Roofing & Siding",
-      csi: "DIV 07",
-      sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-roofing-siding.jpg",
-    },
-    {
-      id: "m-twn-3",
-      title: "2-Hour Fire-Rated Party-Wall & Rowhouse Framing",
+      title: "Attached Rowhouse Structural Wood Framing Package",
       trade: "Structural Framing",
       csi: "DIV 06",
       sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-framing-partywall.jpg",
+      image: "/work/framing_townhomes.jpg",
     },
     {
-      id: "m-twn-4",
-      title: "Brownstone & Cut-Limestone Rowhouse Entry Stoops",
-      trade: "Stone & Masonry",
-      csi: "DIV 04",
+      id: "m-twn-2",
+      title: "Townhome Party-Wall & Parlor Smooth Drywall",
+      trade: "Drywall Systems",
+      csi: "DIV 09",
       sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-stone-brownstone.jpg",
+      image: "/work/drywall_townhomes.jpg",
     },
     {
-      id: "m-twn-5",
-      title: "Three-Story White-Oak Stair Treads & Balustrade",
-      trade: "Finish Carpentry",
-      csi: "DIV 06",
-      sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-flooring-stairtreads.jpg",
-    },
-    {
-      id: "m-twn-6",
-      title: "Parlor Herringbone White-Oak Flooring & Trim",
+      id: "m-twn-3",
+      title: "Parlor & Upper-Level Townhome Hardwood Flooring",
       trade: "Hardwood Flooring",
       csi: "DIV 09",
       sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-flooring-herringbone.jpg",
+      image: "/work/flooring_townhomes.jpg",
+    },
+    {
+      id: "m-twn-4",
+      title: "Custom Townhome Millwork, Trim & Staircase Carpentry",
+      trade: "Finish Carpentry",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/work/carpentry_townhomes.jpg",
+    },
+    {
+      id: "m-twn-5",
+      title: "Rowhouse Masonry Veneer, Lintels & Entry Stoops",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Townhomes",
+      image: "/work/stone_townhomes.jpg",
+    },
+    {
+      id: "m-twn-6",
+      title: "Custom Kitchen & Butler's Pantry Cabinetry",
+      trade: "Cabinetry & Millwork",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/curated/magazine/revista_ca_cab_1.jpg",
     },
     {
       id: "m-twn-7",
-      title: "Townhome Gallery Level-5 Drywall & Revealed Trim",
-      trade: "Drywall & Finishes",
+      title: "Multi-Level Interior Trim & Finish Paint Package",
+      trade: "Interior Finishes",
       csi: "DIV 09",
       sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-drywall-gallery.jpg",
+      image: "/curated/magazine/revista_in_01_a.jpg",
     },
     {
       id: "m-twn-8",
-      title: "Rooftop Cedar Pergola & Parlor Library Millwork",
-      trade: "Custom Carpentry",
-      csi: "DIV 06",
+      title: "Architectural Slate & Copper Flashing Detail",
+      trade: "Specialty Roofing",
+      csi: "DIV 07",
       sector: "Townhomes",
-      image: "/curated/properties/mkt-twn-carpentry-pergola.jpg",
+      image: "/curated/residential/r1.jpg",
     },
   ],
   commercial: [
     ...MARQUEE_TRACK_TOP.filter((s) => s.sector === "Commercial"),
-    ...MARQUEE_TRACK_BOTTOM.filter((s) => s.sector === "Commercial"),
+    ...MARQUEE_TRACK_BOTTOM.filter(
+      (s) =>
+        s.sector === "Commercial" &&
+        s.id !== "m-bot-1" &&
+        s.id !== "m-bot-7" &&
+        s.id !== "m-bot-8"
+    ),
+    {
+      id: "m-com-8",
+      title: "Commercial Curtain-Wall & Masonry Envelope",
+      trade: "Exterior Envelope",
+      csi: "DIV 07",
+      sector: "Commercial",
+      image: "/work/siding_commercial.jpg",
+    },
   ].slice(0, 8),
 };
 

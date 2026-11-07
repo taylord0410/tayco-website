@@ -89,7 +89,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Slate Mansard, Copper Flashing & Parapet Cap" },
         { "src": "/curated/properties/townhouse-03-brownstone-mansard-row.jpg", "label": "Attached Brownstone Mansard & Dormer Roofline" },
-        { "src": "/work/roofing_townhomes.jpg", "label": "Continuous Townhome Row Roof & Party-Wall Flashing" }
+        { "src": "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg", "label": "Stepped-Grade Rowhouse Roofs & Party-Wall Parapet Flashing" }
       ]
     }
   },
@@ -204,7 +204,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-drywall.jpg", "label": "STC-Rated Acoustic Demising Wall & Drywall Assembly" },
         { "src": "/curated/properties/interior-duplex-brick-living.jpg", "label": "Duplex Living Room Drywall, Brick Accent & Recessed Lighting" },
-        { "src": "/work/painting_multifamily.jpg", "label": "Multi-Unit Turnover Interior Drywall & Finish Coat" }
+        { "src": "/work/drywall_multifamily.jpg", "label": "Multi-Unit Turnover Interior Drywall & Finish Coat" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-drywall-gallery.jpg", "label": "3-Story Townhome Stairwell Level-5 Gallery Drywall" },
@@ -284,7 +284,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-concrete-podium.jpg", "label": "Multifamily Poured Concrete Foundation & Parking Apron" },
         { "src": "/curated/properties/mkt-mf-stone-courtyard.jpg", "label": "Shared Duplex Courtyard Walkways & Stone Retaining Seat" },
-        { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Two-Flat Foundation Walls, Entry Steps & Apron Slab" }
+        { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Ground-Level Concrete Slab Flooring & Courtyard Walkout" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-concrete-stone.jpg", "label": "Rowhouse Bluestone Stoop, Limestone Treads & Areaway Wall" },
@@ -322,13 +322,13 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
         { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
       ],
       "multifamily": [
-        { "src": "/curated/capabilities/fire-subfloor-joists.jpg", "label": "Multi-Unit Floor Joist & Subfloor Fire Reconstruction" },
+        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Multi-Unit Floor & Roof Truss Reconstruction After Loss" },
         { "src": "/curated/capabilities/mit-taped-drywall.jpg", "label": "Stacked-Unit Water-Loss Drywall & Acoustic Assembly Rebuild" },
         { "src": "/curated/capabilities/mf-tpo-capex.jpg", "label": "Multifamily Storm Roof & Membrane Emergency Recovery" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-framing-partywall.jpg", "label": "Party-Wall Fire-Stop & Structural Framing Reconstruction" },
-        { "src": "/curated/capabilities/mit-drywall-hang.jpg", "label": "Multi-Floor Townhome Water-Loss Drywall & Shaft Rebuild" },
+        { "src": "/curated/properties/mkt-twn-framing-drywall.jpg", "label": "Multi-Floor Townhome Water-Loss Drywall & Shaft Rebuild" },
         { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Roof, Mansard & Box-Gutter Storm Recovery" }
       ]
     }
@@ -396,7 +396,7 @@ export const RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION: Record<
   },
   multifamily: {
     fire: [
-      { src: "/curated/capabilities/fire-subfloor-joists.jpg", label: "Multi-Unit Floor Joist & Subfloor Char Remediation" },
+      { src: "/curated/properties/mkt-mf-framing-trusses.jpg", label: "Multi-Unit Floor & Roof Truss Reconstruction After Loss" },
       { src: "/curated/properties/mkt-mf-framing.jpg", label: "Demising Wall & Structural Framing Reconstruction" },
       { src: "/curated/properties/interior-duplex-brick-kitchen.jpg", label: "Restored Duplex Kitchen, Cabinetry & Millwork" },
     ],
@@ -413,7 +413,7 @@ export const RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION: Record<
       { src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg", label: "Restored Townhome Parlor Kitchen & Custom Millwork" },
     ],
     water: [
-      { src: "/curated/capabilities/mit-drywall-hang.jpg", label: "Multi-Story Vertical Chase Drying & Drywall Hang" },
+      { src: "/curated/properties/mkt-twn-framing-drywall.jpg", label: "Multi-Story Vertical Chase Drying & Drywall Hang" },
       { src: "/curated/capabilities/mit-hardwood-underlay.jpg", label: "Subfloor Moisture Barrier & Hardwood Underlayment" },
       { src: "/curated/properties/interior-townhouse-living-bay.jpg", label: "Restored Parlor Bay Window & Herringbone Oak Flooring" },
     ],

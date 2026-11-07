@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import {
   COMMERCIAL_HERO_SCENES,
   RESIDENTIAL_HERO_SCENES,
@@ -759,29 +760,35 @@ test("V46 Unified Design System (Astralis + Umbra), Soft-Rounded Geometry, Eleva
 });
 
 test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific residential trade triptychs, and division-filtered Before/After & Marquee", () => {
+  const md5 = (webPath: string): string => {
+    const absPath = path.join(publicDir, webPath.replace(/^\/+/, ""));
+    return crypto
+      .createHash("md5")
+      .update(fs.readFileSync(absPath))
+      .digest("hex");
+  };
+
   // Code 2: WALKTHROUGH_ROOMS_BY_PROJECT_ID maps all 24 projects and preserves project overrides
   assert.equal(Object.keys(WALKTHROUGH_ROOMS_BY_PROJECT_ID).length, 24);
   for (const prop of PROPERTY_LISTINGS) {
-    assert.ok(
-      WALKTHROUGH_ROOMS_BY_PROJECT_ID[prop.id],
-      `Missing walkthrough rooms entry for ${prop.id}`
-    );
+    const mapped = WALKTHROUGH_ROOMS_BY_PROJECT_ID[prop.id];
+    assert.ok(mapped, `Missing walkthrough rooms entry for ${prop.id}`);
     const stops = buildCoherentWalkthrough(prop);
     assert.equal(stops.length, 5);
     assert.equal(stops[0].src, prop.triptych[0].src);
+    assert.equal(stops[1].src, mapped.foyerLiving.src);
+    assert.equal(stops[2].src, mapped.kitchenCore.src);
+    assert.equal(stops[3].src, mapped.upperSuite.src);
+    assert.equal(stops[4].src, mapped.patioTerrace.src);
     if (prop.id === "sfh-101") {
       assert.equal(stops[2].src, "/curated/hero/res-navy-kitchen.jpg");
     }
     if (prop.id === "sfh-104") {
       assert.equal(stops[2].src, "/curated/residential/div01_08_despues.jpg");
     }
-    if (prop.category === "commercial") {
-      assert.equal(stops[2].src, prop.triptych[1].src);
-      assert.equal(stops[3].src, prop.triptych[2].src);
-    }
   }
 
-  // Code 3: Residential division trade cards and restoration cards differ across single-family, multifamily, and townhomes
+  // Code 3: Residential division trade cards and restoration cards differ across single-family, multifamily, and townhomes by content MD5 (not just path)
   assert.equal(resolveResidentialDivisionSlug("/single-family"), "single-family");
   assert.equal(resolveResidentialDivisionSlug("/multifamily"), "multifamily");
   assert.equal(resolveResidentialDivisionSlug("/townhomes"), "townhomes");
@@ -793,53 +800,125 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
   assert.equal(mfTrades.length, 8);
   assert.equal(twnTrades.length, 8);
 
-  for (let i = 0; i < 8; i++) {
-    assert.notDeepEqual(
-      sfTrades[i].triptych.map((f) => f.src),
-      mfTrades[i].triptych.map((f) => f.src),
-      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between single-family and multifamily`
-    );
-    assert.notDeepEqual(
-      sfTrades[i].triptych.map((f) => f.src),
-      twnTrades[i].triptych.map((f) => f.src),
-      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between single-family and townhomes`
-    );
-    assert.notDeepEqual(
-      mfTrades[i].triptych.map((f) => f.src),
-      twnTrades[i].triptych.map((f) => f.src),
-      `Trade ${sfTrades[i].csiCode} must not use identical triptych photos between multifamily and townhomes`
-    );
-  }
-
   const sfRest = getResidentialRestorationByDivision("single-family");
   const mfRest = getResidentialRestorationByDivision("multifamily");
   const twnRest = getResidentialRestorationByDivision("townhomes");
-  assert.notDeepEqual(sfRest.fire, mfRest.fire);
-  assert.notDeepEqual(sfRest.fire, twnRest.fire);
-  assert.notDeepEqual(sfRest.water, mfRest.water);
-  assert.notDeepEqual(sfRest.water, twnRest.water);
+
+  const collectDivisionServiceHashes = (
+    trades: typeof sfTrades,
+    rest: typeof sfRest
+  ) => {
+    const hashes = new Set<string>();
+    for (const t of trades) {
+      for (const f of t.triptych) hashes.add(md5(f.src));
+    }
+    for (const f of rest.fire) hashes.add(md5(f.src));
+    for (const f of rest.water) hashes.add(md5(f.src));
+    return hashes;
+  };
+
+  const sfHashes = collectDivisionServiceHashes(sfTrades, sfRest);
+  const mfHashes = collectDivisionServiceHashes(mfTrades, mfRest);
+  const twnHashes = collectDivisionServiceHashes(twnTrades, twnRest);
+
+  for (const h of sfHashes) {
+    assert.ok(
+      !mfHashes.has(h),
+      `Single-Family service/restoration photo MD5 ${h} must not be shared with Multifamily`
+    );
+    assert.ok(
+      !twnHashes.has(h),
+      `Single-Family service/restoration photo MD5 ${h} must not be shared with Townhomes`
+    );
+  }
+  for (const h of mfHashes) {
+    assert.ok(
+      !twnHashes.has(h),
+      `Multifamily service/restoration photo MD5 ${h} must not be shared with Townhomes`
+    );
+  }
 
   // Code 4: Before/After pairs and Marquee tracks filter by division while keeping full sets for landing ("all")
   assert.equal(getTransformationPairsForSiteDivision("all").length, 12);
-  for (const div of ["single-family", "multifamily", "townhomes", "commercial"] as const) {
+  assert.equal(
+    getTransformationPairsForSiteDivision("multifamily").length,
+    0,
+    "Multifamily must return 0 Before/After pairs until division-specific pairs are added"
+  );
+  assert.equal(
+    getTransformationPairsForSiteDivision("townhomes").length,
+    0,
+    "Townhomes must return 0 Before/After pairs until division-specific pairs are added"
+  );
+
+  for (const div of ["single-family", "commercial"] as const) {
     const pairs = getTransformationPairsForSiteDivision(div);
     assert.ok(
       pairs.length >= 2 && pairs.length < 12,
       `Division ${div} must receive a filtered subset of transformation pairs (got ${pairs.length})`
     );
     for (const pair of pairs) {
-      if (div === "commercial") {
-        assert.equal(pair.siteDivision, "commercial");
-      } else {
-        assert.notEqual(pair.siteDivision, "commercial");
-      }
+      assert.equal(pair.siteDivision, div);
+    }
+  }
+
+  // Marquee tracks per division must exist, be distinct across divisions by MD5, and not repeat any specialty/service/hero/project photo on the same division page
+  const marqueeHashesByDiv: Record<string, Set<string>> = {};
+  for (const div of ["single-family", "multifamily", "townhomes", "commercial"] as const) {
+    const tracks = getMarqueeTracksForSiteDivision(div);
+    assert.equal(tracks.topTrack.length, 4);
+    assert.equal(tracks.bottomTrack.length, 4);
+    assert.equal(tracks.allShots.length, 8);
+
+    const cat = PROPERTY_CATEGORIES.find((c) => c.slug === div)!;
+    const props = getPropertiesByCategory(div);
+    const specs = getMarketSpecialtiesByCategory(div);
+    const pageUsedHashes = new Set<string>();
+    pageUsedHashes.add(md5(cat.heroImage));
+    cat.secondaryImages.forEach((s) => pageUsedHashes.add(md5(s)));
+    props.forEach((p) =>
+      p.triptych.forEach((t) => pageUsedHashes.add(md5(t.src)))
+    );
+    specs.forEach((s) =>
+      s.triptych.forEach((t) => pageUsedHashes.add(md5(t.src)))
+    );
+    if (div !== "commercial") {
+      getResidentialTradesByDivision(div).forEach((t) =>
+        t.triptych.forEach((f) => pageUsedHashes.add(md5(f.src)))
+      );
+      const rest = getResidentialRestorationByDivision(div);
+      rest.fire.forEach((f) => pageUsedHashes.add(md5(f.src)));
+      rest.water.forEach((f) => pageUsedHashes.add(md5(f.src)));
     }
 
-    const tracks = getMarqueeTracksForSiteDivision(div);
-    assert.ok(tracks.topTrack.length >= 3);
-    assert.ok(tracks.bottomTrack.length >= 3);
+    const divMarqueeSet = new Set<string>();
     for (const shot of tracks.allShots) {
       assertPublicImageExists(shot.image, `Marquee (${div}) ${shot.id}`);
+      const h = md5(shot.image);
+      assert.ok(
+        !divMarqueeSet.has(h),
+        `Duplicate MD5 within ${div} marquee: ${shot.image}`
+      );
+      assert.ok(
+        !pageUsedHashes.has(h),
+        `Marquee shot ${shot.id} (${shot.image}) repeats an image already rendered on the ${div} page`
+      );
+      divMarqueeSet.add(h);
+    }
+    marqueeHashesByDiv[div] = divMarqueeSet;
+  }
+
+  const divList = ["single-family", "multifamily", "townhomes", "commercial"] as const;
+  for (let i = 0; i < divList.length; i++) {
+    for (let j = i + 1; j < divList.length; j++) {
+      const a = divList[i];
+      const b = divList[j];
+      for (const h of marqueeHashesByDiv[a]) {
+        assert.ok(
+          !marqueeHashesByDiv[b].has(h),
+          `Marquee MD5 ${h} is shared between ${a} and ${b}`
+        );
+      }
     }
   }
 });
