@@ -784,8 +784,8 @@ export interface ProjectWalkthroughRooms {
  * Commercial projects use their own `triptych[1]` and `triptych[2]` in Steps 03–04
  * unless overridden via `prop.walkthroughRooms`.
  */
-// Commercial rooms 3 and 4 are not listed here: they come from the listing's own triptych[1]/[2] in
-// lib/property-catalog.ts, the same entries their titles use, so a copy here could not go stale.
+// Commercial kitchenCore/upperSuite (rooms 3 and 4) must equal the listing's triptych[1]/[2] in
+// lib/property-catalog.ts: the room title comes from there. tests/division-routes.test.ts enforces it.
 export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
   Record<string, ProjectWalkthroughRooms>
 > = {
@@ -1125,6 +1125,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
     },
+    kitchenCore: {
+      src: "/curated/hero/com-lobby-limestone.jpg",
+      label: "Double-Height Limestone Atrium & Reception Millwork",
+    },
+    upperSuite: {
+      src: "/curated/capabilities/com-boardroom.jpg",
+      label: "Executive Acoustic Wood-Slat Conference Suite",
+    },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
       label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
@@ -1134,6 +1142,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
     foyerLiving: {
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/hero/com-reception-walnut.jpg",
+      label: "Walnut & Glass Executive Reception & Tenant Suite",
+    },
+    upperSuite: {
+      src: "/curated/capabilities/com-walnut-lounge.jpg",
+      label: "Custom Walnut Architectural Tenant Lounge",
     },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
@@ -1145,6 +1161,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
     },
+    kitchenCore: {
+      src: "/curated/capabilities/com-retail-led.jpg",
+      label: "Flagship Retail Millwork & Suspended LED Clouds",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com_01_1.jpg",
+      label: "Turnkey Restaurant & Hospitality Dining Build-Out",
+    },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
       label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
@@ -1154,6 +1178,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
     foyerLiving: {
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/commercial/com-open-plan-office-fitout.jpg",
+      label: "Open-Plan Glass-Partition Office & Tenant Fit-Out",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com-clinical-corridor.jpg",
+      label: "Clinical & Medical Professional Corridor Suite",
     },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
@@ -1165,6 +1197,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
     },
+    kitchenCore: {
+      src: "/curated/commercial/cx_x3.jpg",
+      label: "32-Foot Clear Structural Steel Frame & Mezzanine Deck",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com-flex-logistics-slab-interior.jpg",
+      label: "Heavy-Duty Diamond-Polished Reinforced Concrete Slab",
+    },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
       label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
@@ -1174,6 +1214,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
     foyerLiving: {
       src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
       label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/commercial/com-tenant-space-stone-storefront.jpg",
+      label: "Stone-Storefront Tenant Space, Porcelain Floor & Pendant Lighting",
+    },
+    upperSuite: {
+      src: "/curated/commercial/cx_i2.jpg",
+      label: "Large-Format Porcelain Lobby & Common Corridor",
     },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
