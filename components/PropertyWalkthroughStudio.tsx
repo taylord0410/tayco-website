@@ -658,8 +658,6 @@ const COMMERCIAL_ROOM_TEXT: Record<string, RoomText> = {
   },
 };
 
-/** Day photos with no generated night version: at night they keep the day photo. */
-const NO_NIGHT_VARIANT = new Set(["com_01_1"]);
 
 /**
  * Maps any daytime architectural photo path to its real generated nighttime (9:30 PM)
@@ -668,7 +666,7 @@ const NO_NIGHT_VARIANT = new Set(["com_01_1"]);
 export function resolveNightImageSrc(daySrc: string): string {
   const fileName = daySrc.split("/").pop() ?? "";
   const base = fileName.replace(/\.jpg$/i, "");
-  if (!base || NO_NIGHT_VARIANT.has(base)) return daySrc;
+  if (!base) return daySrc;
   const fallback = NIGHT_IMAGE_FALLBACK_MAP[base];
   if (fallback) {
     return `/curated/properties/${fallback}`;

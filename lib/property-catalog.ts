@@ -970,7 +970,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     ],
     triptych: [
       {
-        src: "/curated/commercial/com_04_2.jpg",
+        src: "/curated/commercial/com-flex-logistics-facade.jpg",
         label: "High-Bay Commercial Flex Facility & Mezzanine Office",
       },
       {
@@ -1825,8 +1825,8 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Commercial Standing-Seam Metal Canopy, Parapet Roof & Terrace Deck",
         },
         {
-          src: "/curated/commercial/com_04_2.jpg",
-          label: "Commercial Retail & Office Parapet Roof & Canopy Overhang",
+          src: "/curated/commercial/com-epdm-parapet-roof.jpg",
+          label: "Commercial Office EPDM Membrane Roof & Parapet Coping",
         },
       ],
     },
@@ -1949,7 +1949,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Commercial Honed Limestone & Terrazzo Corporate Atrium Flooring",
         },
         {
-          src: "/curated/commercial/cx_i1.jpg",
+          src: "/curated/commercial/com-polished-concrete-corridor.jpg",
           label: "Diamond-Polished Commercial Concrete & Epoxy Corridor Flooring",
         },
         {
@@ -1985,7 +1985,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
           label: "Architectural Tilt-Up Concrete Panels & Saw-Cut Commercial Plaza Slab",
         },
         {
-          src: "/curated/commercial/com_03_2.jpg",
+          src: "/curated/commercial/com-parking-apron-ada.jpg",
           label: "Commercial Reinforced Concrete Parking Apron, Curbs & ADA Walks",
         },
       ],
