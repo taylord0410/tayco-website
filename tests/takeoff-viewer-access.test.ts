@@ -1,7 +1,7 @@
 import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -64,7 +64,9 @@ function createFixture() {
   const folder = mkdtempSync(path.join(tmpdir(), 'tayco-takeoff-access-'));
   const erpFile = path.join(folder, 'erp.sqlite'), authFile = path.join(folder, 'auth.sqlite');
   const relationsFile = path.join(folder, 'relations.json'), mappingFile = path.join(folder, 'mapping.json');
-  const previous = { erp: process.env.TAYCO_ERP_DB_PATH, auth: process.env.TAYCO_AUTH_DB_PATH, relations: process.env.TAYCO_TAKEOFF_RELATIONS_PATH, mapping: process.env.TAYCO_TAKEOFF_MAPPING_PATH, manifest: process.env.TAYCO_TAKEOFF_MANIFEST_PATH };
+  const previous = { erp: process.env.TAYCO_ERP_DB_PATH, auth: process.env.TAYCO_AUTH_DB_PATH, relations: process.env.TAYCO_TAKEOFF_RELATIONS_PATH, mapping: process.env.TAYCO_TAKEOFF_MAPPING_PATH, manifest: process.env.TAYCO_TAKEOFF_MANIFEST_PATH, dataKey: process.env.TAYCO_DATA_ENCRYPTION_KEY };
+  // snapshot() decrypts website submissions, so internal scopes need the storage key production has.
+  process.env.TAYCO_DATA_ENCRYPTION_KEY = randomBytes(48).toString('hex');
   process.env.TAYCO_ERP_DB_PATH = erpFile; process.env.TAYCO_AUTH_DB_PATH = authFile;
   process.env.TAYCO_TAKEOFF_RELATIONS_PATH = relationsFile; process.env.TAYCO_TAKEOFF_MAPPING_PATH = mappingFile;
   const relations = relationsFixture();
@@ -96,7 +98,7 @@ function createFixture() {
     },
     cleanup() {
       if (existsSync(erpFile)) database().close();
-      for (const [key, value] of Object.entries({ TAYCO_ERP_DB_PATH: previous.erp, TAYCO_AUTH_DB_PATH: previous.auth, TAYCO_TAKEOFF_RELATIONS_PATH: previous.relations, TAYCO_TAKEOFF_MAPPING_PATH: previous.mapping, TAYCO_TAKEOFF_MANIFEST_PATH: previous.manifest })) {
+      for (const [key, value] of Object.entries({ TAYCO_ERP_DB_PATH: previous.erp, TAYCO_AUTH_DB_PATH: previous.auth, TAYCO_TAKEOFF_RELATIONS_PATH: previous.relations, TAYCO_TAKEOFF_MAPPING_PATH: previous.mapping, TAYCO_TAKEOFF_MANIFEST_PATH: previous.manifest, TAYCO_DATA_ENCRYPTION_KEY: previous.dataKey })) {
         if (value === undefined) delete process.env[key]; else process.env[key] = value;
       }
       rmSync(folder, { recursive: true, force: true });
@@ -111,6 +113,22 @@ test('guest and invalid actors are denied before policy and ERP access', () => f
     assert.throws(() => viewerScope(actor as Actor), fails(403));
   assert.equal(existsSync(f.erpFile), false); assert.equal(existsSync(f.authFile), false);
 }, false));
+
+// Regression for the whole-bundle shortcut (removed): a company-tenant guest or staff member with no
+// production test flag received every plan in the bundle, skipping grants and the integrity checks.
+test('company tenant gets no whole-bundle shortcut: guests need a grant, staff need a mapped intact document', () => fixture(() => {
+  const env = process.env as Record<string, string | undefined>;
+  const previousNodeEnv = env.NODE_ENV;
+  env.NODE_ENV = 'production';
+  try {
+    const company = 'tayco_llc';
+    assert.throws(() => viewerScope({ ...guest, tenantId: company }), fails(403));
+    assert.throws(() => viewerScope({ ...staff, tenantId: company }), fails(404));
+    assert.throws(() => viewerScope({ ...admin, tenantId: company }), fails(404));
+  } finally {
+    if (previousNodeEnv === undefined) delete env.NODE_ENV; else env.NODE_ENV = previousNodeEnv;
+  }
+}));
 
 test('missing, unreadable and oversized config fail generically before database access', () => fixture(f => {
   delete process.env.TAYCO_TAKEOFF_MAPPING_PATH;
