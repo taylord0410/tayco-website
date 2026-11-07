@@ -671,13 +671,14 @@ export default function CommercialDivisionContent() {
 
       {/* ── 01B / INTERACTIVE COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
       <TransformationBeforeAfterStudio
+        siteDivision="commercial"
         initialDivision="div03"
         initialPairId="div03_01"
         eyebrowLabel="01B / COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO"
       />
 
       {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
-      <DualTrackArchitecturalMarquee />
+      <DualTrackArchitecturalMarquee siteDivision="commercial" />
 
       {/* Project services and resources */}
       <section

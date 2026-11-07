@@ -6,6 +6,13 @@ export type PropertyCategorySlug =
   | "townhomes"
   | "commercial";
 
+export interface PropertyWalkthroughRoomsOverride {
+  foyerLiving?: TriptychFrame;
+  kitchenCore?: TriptychFrame;
+  upperSuite?: TriptychFrame;
+  patioTerrace?: TriptychFrame;
+}
+
 export interface PropertyListing {
   id: string;
   code: string;
@@ -22,6 +29,7 @@ export interface PropertyListing {
   summary: string;
   highlights: [string, string, string];
   triptych: [TriptychFrame, TriptychFrame, TriptychFrame];
+  walkthroughRooms?: PropertyWalkthroughRoomsOverride;
 }
 
 export interface PropertyCategoryMeta {

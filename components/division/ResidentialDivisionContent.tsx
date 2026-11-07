@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import TradeGallery from "@/components/TradeGallery";
 import {
   TransformationBeforeAfterStudio,
@@ -11,13 +12,33 @@ import {
 import { StudioActionIcon } from "@/components/PropertyWalkthroughStudio";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
+export type ResidentialDivisionSlug =
+  | "single-family"
+  | "multifamily"
+  | "townhomes";
+
+export function resolveResidentialDivisionSlug(
+  pathname?: string | null,
+  explicitDivision?: ResidentialDivisionSlug
+): ResidentialDivisionSlug {
+  if (explicitDivision) return explicitDivision;
+  const normalized = (pathname || "").toLowerCase();
+  if (normalized.includes("multifamily") || normalized.includes("duplex")) {
+    return "multifamily";
+  }
+  if (normalized.includes("townhome") || normalized.includes("townhouse")) {
+    return "townhomes";
+  }
+  return "single-family";
+}
+
 type ResidentialCategory =
   | "all"
   | "envelope_structural"
   | "interiors_carpentry"
   | "restoration_turnkey";
 
-interface ResidentialTradeCard {
+export interface ResidentialTradeCard {
   num: string;
   csiCode: string;
   title: string;
@@ -28,6 +49,7 @@ interface ResidentialTradeCard {
   summary: string;
   items: string[];
   triptych: TriptychFrame[];
+  triptychByDivision?: Record<ResidentialDivisionSlug, TriptychFrame[]>;
 }
 
 const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
@@ -52,7 +74,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
       { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
       { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
+        { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
+        { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/mkt-mf-roofing.jpg", "label": "Multifamily Gable Shingle & Standing-Seam Roof System" },
+        { "src": "/curated/capabilities/mf-tpo-capex.jpg", "label": "Multi-Unit Flat Roof & Parapet CapEx Replacement" },
+        { "src": "/work/roofing_multifamily.jpg", "label": "Duplex & Two-Flat Architectural Shingle Re-Roof" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Slate Mansard, Copper Flashing & Parapet Cap" },
+        { "src": "/curated/properties/townhouse-03-brownstone-mansard-row.jpg", "label": "Attached Brownstone Mansard & Dormer Roofline" },
+        { "src": "/work/roofing_townhomes.jpg", "label": "Continuous Townhome Row Roof & Party-Wall Flashing" }
+      ]
+    }
   },
   {
     "num": "02",
@@ -75,7 +114,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/residential/s1.jpg", "label": "Fiber-Cement & Vinyl Lap Siding" },
       { "src": "/curated/residential/div01_04_despues.jpg", "label": "Black-Frame Window & Exterior Trim Package" },
       { "src": "/curated/residential/div02_06_despues.jpg", "label": "Porch Columns, Entry Door & Soffit Wrap" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/residential/s1.jpg", "label": "Fiber-Cement & Vinyl Lap Siding" },
+        { "src": "/curated/residential/div01_04_despues.jpg", "label": "Black-Frame Window & Exterior Trim Package" },
+        { "src": "/curated/residential/div02_06_despues.jpg", "label": "Porch Columns, Entry Door & Soffit Wrap" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg", "label": "Duplex Brick Veneer, Cedar Cladding & Entry Doors" },
+        { "src": "/curated/properties/duplex-05-minneapolis-buffbrick-dormer.jpg", "label": "Two-Flat Buff Brick, Dormer Siding & Casement Windows" },
+        { "src": "/work/siding_multifamily.jpg", "label": "Multifamily Fiber-Cement Cladding & Trim Package" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/townhouse-01-brick-limestone-row.jpg", "label": "Townhome Brick Facade, Limestone Lintels & Bay Windows" },
+        { "src": "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg", "label": "Corner Rowhouse Masonry & Cedar Rainscreen Siding" },
+        { "src": "/work/siding_townhomes.jpg", "label": "Attached Townhome Siding, Trim & Stoop Entry Doors" }
+      ]
+    }
   },
   {
     "num": "03",
@@ -98,7 +154,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/pairs/div01_01_despues.jpg", "label": "2-Story Wood Framing & Roof Trusses" },
       { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" },
       { "src": "/curated/magazine/revista_fr_wood_05.jpg", "label": "Exterior Wall Framing, Window Headers & Ceiling Joists" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/pairs/div01_01_despues.jpg", "label": "2-Story Wood Framing & Roof Trusses" },
+        { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" },
+        { "src": "/curated/magazine/revista_fr_wood_05.jpg", "label": "Exterior Wall Framing, Window Headers & Ceiling Joists" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/mkt-mf-framing.jpg", "label": "2-Unit Structural Wood Framing & Demising Wall Assembly" },
+        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Multifamily Engineered Floor & Roof Truss Framing" },
+        { "src": "/work/framing_multifamily.jpg", "label": "Multi-Unit Wood Framing & Structural Floor Joists" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-framing-row.jpg", "label": "3-Story Attached Townhome Row Wood Framing" },
+        { "src": "/curated/properties/mkt-twn-framing-partywall.jpg", "label": "2-Hour Fire-Rated Party-Wall & Floor Joist Framing" },
+        { "src": "/curated/properties/mkt-twn-framing-rooftop.jpg", "label": "Townhome Rooftop Penthouse & Terrace Framing" }
+      ]
+    }
   },
   {
     "num": "04",
@@ -121,7 +194,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Smooth Level-5 Drywall Finishing" },
       { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Painted Trim Package" },
       { "src": "/curated/magazine/revista_pa_01_a.jpg", "label": "Interior Wall Preparation & Finish Coat" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Smooth Level-5 Drywall Finishing" },
+        { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Painted Trim Package" },
+        { "src": "/curated/magazine/revista_pa_01_a.jpg", "label": "Interior Wall Preparation & Finish Coat" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/mkt-mf-drywall.jpg", "label": "STC-Rated Acoustic Demising Wall & Drywall Assembly" },
+        { "src": "/curated/properties/interior-duplex-brick-living.jpg", "label": "Duplex Living Room Drywall, Brick Accent & Recessed Lighting" },
+        { "src": "/work/painting_multifamily.jpg", "label": "Multi-Unit Turnover Interior Drywall & Finish Coat" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-drywall-gallery.jpg", "label": "3-Story Townhome Stairwell Level-5 Gallery Drywall" },
+        { "src": "/curated/properties/mkt-twn-framing-drywall.jpg", "label": "Party-Wall Fire-Rated Drywall & Shaftliner Board" },
+        { "src": "/work/painting_townhomes.jpg", "label": "Parlor-Level Smooth Drywall, Crown & Interior Paint" }
+      ]
+    }
   },
   {
     "num": "05",
@@ -144,7 +234,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Walnut Butler's Pantry with Glass-Front Cabinetry" },
       { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Library Bookcases & Coffered Ceiling" },
       { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Walnut Butler's Pantry with Glass-Front Cabinetry" },
+        { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Library Bookcases & Coffered Ceiling" },
+        { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/mkt-mf-carpentry-lounge.jpg", "label": "Multifamily Custom Millwork, Built-Ins & Unit Entry Trim" },
+        { "src": "/curated/properties/interior-duplex-brick-kitchen.jpg", "label": "Duplex Open-Concept Kitchen Cabinetry & Quartz Island" },
+        { "src": "/curated/properties/interior-limestone-modern-kitchen.jpg", "label": "Two-Flat Waterfall Quartz Kitchen & Custom Walnut Millwork" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-carpentry-library.jpg", "label": "Townhome Parlor Built-In Library & Custom Wainscoting" },
+        { "src": "/curated/properties/interior-townhouse-parlor-kitchen.jpg", "label": "Townhome Parlor Chef's Kitchen & Custom Island Millwork" },
+        { "src": "/curated/properties/mkt-twn-flooring-stairtreads.jpg", "label": "3-Story Townhome White-Oak Stair Treads & Balustrade" }
+      ]
+    }
   },
   {
     "num": "06",
@@ -167,7 +274,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
       { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
       { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
+        { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
+        { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/mkt-mf-concrete-podium.jpg", "label": "Multifamily Poured Concrete Foundation & Parking Apron" },
+        { "src": "/curated/properties/mkt-mf-stone-courtyard.jpg", "label": "Shared Duplex Courtyard Walkways & Stone Retaining Seat" },
+        { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Two-Flat Foundation Walls, Entry Steps & Apron Slab" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-concrete-stone.jpg", "label": "Rowhouse Bluestone Stoop, Limestone Treads & Areaway Wall" },
+        { "src": "/curated/properties/mkt-twn-concrete-drive.jpg", "label": "Townhome Rear Alley Garage Apron & Permeable Paver Court" },
+        { "src": "/curated/properties/mkt-twn-stone-gardenwall.jpg", "label": "Attached Townhome Stepped Foundation & Entry Stoop" }
+      ]
+    }
   },
   {
     "num": "07",
@@ -190,7 +314,24 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/capabilities/fire-wood-framing.jpg", "label": "Fire & Smoke Structural Wood Reconstruction" },
       { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
       { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/capabilities/fire-wood-framing.jpg", "label": "Fire & Smoke Structural Wood Reconstruction" },
+        { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Post-Water-Mitigation Drywall Rebuild" },
+        { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
+      ],
+      "multifamily": [
+        { "src": "/curated/capabilities/fire-subfloor-joists.jpg", "label": "Multi-Unit Floor Joist & Subfloor Fire Reconstruction" },
+        { "src": "/curated/capabilities/mit-taped-drywall.jpg", "label": "Stacked-Unit Water-Loss Drywall & Acoustic Assembly Rebuild" },
+        { "src": "/curated/capabilities/mf-tpo-capex.jpg", "label": "Multifamily Storm Roof & Membrane Emergency Recovery" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/mkt-twn-framing-partywall.jpg", "label": "Party-Wall Fire-Stop & Structural Framing Reconstruction" },
+        { "src": "/curated/capabilities/mit-drywall-hang.jpg", "label": "Multi-Floor Townhome Water-Loss Drywall & Shaft Rebuild" },
+        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Roof, Mansard & Box-Gutter Storm Recovery" }
+      ]
+    }
   },
   {
     "num": "08",
@@ -213,11 +354,101 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       { "src": "/curated/pairs/div03_04_despues.jpg", "label": "Finished Basement Living Suite & LVP" },
       { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
       { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
-    ]
+    ],
+    "triptychByDivision": {
+      "single-family": [
+        { "src": "/curated/pairs/div03_04_despues.jpg", "label": "Finished Basement Living Suite & LVP" },
+        { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
+        { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
+      ],
+      "multifamily": [
+        { "src": "/curated/properties/duplex-04-evanston-corner-twoflat.jpg", "label": "Full Two-Flat Exterior & Multi-Unit Value-Add Repositioning" },
+        { "src": "/curated/properties/interior-limestone-modern-living.jpg", "label": "Unit A/B Open-Concept Living & Acoustic Flooring Turnover" },
+        { "src": "/curated/properties/interior-duplex-rear-patio-courtyard.jpg", "label": "Shared Duplex Rear Courtyard & Lower-Unit Garden Suite" }
+      ],
+      "townhomes": [
+        { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "End-Unit Rowhouse Full-Gut Masonry & Window Rehabilitation" },
+        { "src": "/curated/properties/interior-townhouse-living-bay.jpg", "label": "Parlor-Floor Living Bay, Herringbone Oak & Hearth Remodel" },
+        { "src": "/curated/properties/interior-townhouse-rooftop-terrace.jpg", "label": "Rooftop Terrace Deck, Pergola & Upper-Floor Suite Addition" }
+      ]
+    }
   }
 ];
 
-export default function ResidentialDivisionContent() {
+export const RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION: Record<
+  ResidentialDivisionSlug,
+  {
+    fire: TriptychFrame[];
+    water: TriptychFrame[];
+  }
+> = {
+  "single-family": {
+    fire: [
+      { src: "/curated/capabilities/fire-wood-framing.jpg", label: "Structural Wood Framing Reconstruction" },
+      { src: "/curated/magazine/revista_fr_wood_05.jpg", label: "Exterior Wall Framing, Window Headers & Ceiling Joists" },
+      { src: "/curated/pairs/div01_03_despues.jpg", label: "Restored Study, Built-In Bookcases & Coffered Ceiling" },
+    ],
+    water: [
+      { src: "/curated/pairs/div03_04_antes.jpg", label: "Lower-Level Strip-Out & Structural Drying" },
+      { src: "/curated/magazine/revista_dw_fin.jpg", label: "Post-Mitigation Drywall & Insulation" },
+      { src: "/curated/pairs/div03_04_despues.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
+    ],
+  },
+  multifamily: {
+    fire: [
+      { src: "/curated/capabilities/fire-subfloor-joists.jpg", label: "Multi-Unit Floor Joist & Subfloor Char Remediation" },
+      { src: "/curated/properties/mkt-mf-framing.jpg", label: "Demising Wall & Structural Framing Reconstruction" },
+      { src: "/curated/properties/interior-duplex-brick-kitchen.jpg", label: "Restored Duplex Kitchen, Cabinetry & Millwork" },
+    ],
+    water: [
+      { src: "/curated/capabilities/mit-taped-drywall.jpg", label: "Stacked-Unit Pipe-Burst Strip-Out & Taped Drywall" },
+      { src: "/curated/properties/mkt-mf-drywall.jpg", label: "STC-Rated Acoustic Drywall & Insulation Rebuild" },
+      { src: "/curated/properties/interior-limestone-modern-living.jpg", label: "Rebuilt Multi-Unit Living Space & LVP Flooring" },
+    ],
+  },
+  townhomes: {
+    fire: [
+      { src: "/curated/properties/mkt-twn-framing-partywall.jpg", label: "2-Hour Party-Wall Fire-Stop & Framing Rebuild" },
+      { src: "/curated/properties/mkt-twn-framing-row.jpg", label: "Multi-Story Rowhouse Roof & Floor Truss Recovery" },
+      { src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg", label: "Restored Townhome Parlor Kitchen & Custom Millwork" },
+    ],
+    water: [
+      { src: "/curated/capabilities/mit-drywall-hang.jpg", label: "Multi-Story Vertical Chase Drying & Drywall Hang" },
+      { src: "/curated/capabilities/mit-hardwood-underlay.jpg", label: "Subfloor Moisture Barrier & Hardwood Underlayment" },
+      { src: "/curated/properties/interior-townhouse-living-bay.jpg", label: "Restored Parlor Bay Window & Herringbone Oak Flooring" },
+    ],
+  },
+};
+
+export function getResidentialTradesByDivision(
+  division: ResidentialDivisionSlug
+): ResidentialTradeCard[] {
+  return RESIDENTIAL_CSI_TRADES.map((card) => ({
+    ...card,
+    triptych: card.triptychByDivision?.[division] ?? card.triptych,
+  }));
+}
+
+export function getResidentialRestorationByDivision(
+  division: ResidentialDivisionSlug
+): { fire: TriptychFrame[]; water: TriptychFrame[] } {
+  return (
+    RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION[division] ??
+    RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION["single-family"]
+  );
+}
+
+export default function ResidentialDivisionContent({
+  division,
+}: {
+  division?: ResidentialDivisionSlug;
+} = {}) {
+  const pathname = usePathname();
+  const resolvedDivision = resolveResidentialDivisionSlug(pathname, division);
+  const divisionTrades = getResidentialTradesByDivision(resolvedDivision);
+  const restorationTriptychs =
+    getResidentialRestorationByDivision(resolvedDivision);
+
   // Fixed light angle for the response surfaces; the interactive hero moved to the division view.
   const lightAngle = 48;
   const [activeCategory, setActiveCategory] =
@@ -225,8 +456,8 @@ export default function ResidentialDivisionContent() {
 
   const filteredTrades =
     activeCategory === "all"
-      ? RESIDENTIAL_CSI_TRADES
-      : RESIDENTIAL_CSI_TRADES.filter((t) => t.category === activeCategory);
+      ? divisionTrades
+      : divisionTrades.filter((t) => t.category === activeCategory);
 
   const normalizedLightPx = `${Math.round(20 + (lightAngle / 90) * 65)}%`;
 
@@ -518,13 +749,14 @@ export default function ResidentialDivisionContent() {
 
       {/* ── 01B / INTERACTIVE RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
       <TransformationBeforeAfterStudio
+        siteDivision={resolvedDivision}
         initialDivision="div01"
         initialPairId="div01_03"
         eyebrowLabel="01B / RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO"
       />
 
       {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
-      <DualTrackArchitecturalMarquee />
+      <DualTrackArchitecturalMarquee siteDivision={resolvedDivision} />
 
       {/* ── SECCIÓN 02 / 24/7 CERTIFIED FIRE, WATER & STORM RESTORATION COMMAND + TRADE GALLERY ── */}
       <section
@@ -555,11 +787,7 @@ export default function ResidentialDivisionContent() {
               }}
             >
               <ServiceCardTriptych
-                frames={[
-                  { src: "/curated/capabilities/fire-wood-framing.jpg", label: "Structural Wood Framing Reconstruction" },
-                  { src: "/curated/magazine/revista_fr_wood_05.jpg", label: "Exterior Wall Framing, Window Headers & Ceiling Joists" },
-                  { src: "/curated/pairs/div01_03_despues.jpg", label: "Restored Study, Built-In Bookcases & Coffered Ceiling" },
-                ]}
+                frames={restorationTriptychs.fire}
                 badge="FIRE & SMOKE RECOVERY"
                 accentColor="#F97316"
               />
@@ -631,11 +859,7 @@ export default function ResidentialDivisionContent() {
               }}
             >
               <ServiceCardTriptych
-                frames={[
-                  { src: "/curated/pairs/div03_04_antes.jpg", label: "Lower-Level Strip-Out & Structural Drying" },
-                  { src: "/curated/magazine/revista_dw_fin.jpg", label: "Post-Mitigation Drywall & Insulation" },
-                  { src: "/curated/pairs/div03_04_despues.jpg", label: "Rebuilt Lower-Level Living Suite & LVP" },
-                ]}
+                frames={restorationTriptychs.water}
                 badge="WATER & STORM RECOVERY"
                 accentColor="#C9A84C"
               />

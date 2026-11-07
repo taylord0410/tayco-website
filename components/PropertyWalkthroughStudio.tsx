@@ -772,6 +772,531 @@ export function computeSolarLightingState(hour: number) {
   };
 }
 
+export interface ProjectWalkthroughRooms {
+  foyerLiving: { src: string; label: string };
+  kitchenCore: { src: string; label: string };
+  upperSuite: { src: string; label: string };
+  patioTerrace: { src: string; label: string };
+}
+
+/**
+ * Per-project architectural rooms (Steps 02–05) keyed by PropertyListing.id.
+ * Commercial projects use their own `triptych[1]` and `triptych[2]` in Steps 03–04
+ * unless overridden via `prop.walkthroughRooms`.
+ */
+export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
+  Record<string, ProjectWalkthroughRooms>
+> = {
+  // ── 01 / SINGLE-FAMILY HOMES (SFH-101..106) ──
+  "sfh-101": {
+    foyerLiving: {
+      src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/hero/res-navy-kitchen.jpg",
+      label: "Custom Navy Shaker Kitchen, Marble Waterfall Island & Brass Hood",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "sfh-102": {
+    foyerLiving: {
+      src: "/curated/properties/interior-custom-foyer-oak-staircase.jpg",
+      label: "Entry Foyer, White-Oak Staircase & Great Room Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "sfh-103": {
+    foyerLiving: {
+      src: "/curated/properties/interior-limestone-modern-living.jpg",
+      label: "Entry Foyer, Honed Limestone Feature Pier & Great Room",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "sfh-104": {
+    foyerLiving: {
+      src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/residential/div01_08_despues.jpg",
+      label: "Open-Concept Kitchen, Hardwood Floors & Recessed Lighting",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "sfh-105": {
+    foyerLiving: {
+      src: "/curated/properties/interior-custom-foyer-oak-staircase.jpg",
+      label: "Entry Foyer, White-Oak Staircase & Great Room Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "sfh-106": {
+    foyerLiving: {
+      src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+
+  // ── 02 / MULTIFAMILY (DPX-201..206) ──
+  "dpx-201": {
+    foyerLiving: {
+      src: "/curated/properties/interior-duplex-brick-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "dpx-202": {
+    foyerLiving: {
+      src: "/curated/properties/interior-limestone-modern-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "dpx-203": {
+    foyerLiving: {
+      src: "/curated/properties/interior-duplex-brick-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "dpx-204": {
+    foyerLiving: {
+      src: "/curated/properties/interior-duplex-brick-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "dpx-205": {
+    foyerLiving: {
+      src: "/curated/properties/interior-duplex-brick-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+  "dpx-206": {
+    foyerLiving: {
+      src: "/curated/properties/interior-limestone-modern-living.jpg",
+      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+    },
+  },
+
+  // ── 03 / TOWNHOMES (TWN-301..306) ──
+  "twn-301": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+  "twn-302": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+  "twn-303": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+  "twn-304": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+  "twn-305": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+  "twn-306": {
+    foyerLiving: {
+      src: "/curated/properties/interior-townhouse-living-bay.jpg",
+      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+    },
+    kitchenCore: {
+      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+    },
+    upperSuite: {
+      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+    },
+  },
+
+  // ── 04 / COMMERCIAL PROPERTIES (COM-401..406) ──
+  "com-401": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/hero/com-lobby-limestone.jpg",
+      label: "Double-Height Limestone Atrium & Reception Millwork",
+    },
+    upperSuite: {
+      src: "/curated/capabilities/com-boardroom.jpg",
+      label: "Executive Acoustic Wood-Slat Conference Suite",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+  "com-402": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/hero/com-reception-walnut.jpg",
+      label: "Walnut & Glass Executive Reception & Tenant Suite",
+    },
+    upperSuite: {
+      src: "/curated/capabilities/com-walnut-lounge.jpg",
+      label: "Custom Walnut Architectural Tenant Lounge",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+  "com-403": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/capabilities/com-retail-led.jpg",
+      label: "Flagship Retail Millwork & Suspended LED Clouds",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com_01_1.jpg",
+      label: "Turnkey Restaurant & Hospitality Dining Build-Out",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+  "com-404": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/commercial/cx_i1.jpg",
+      label: "Open-Plan Glass-Partition Office & Tenant Fit-Out",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com_03_2.jpg",
+      label: "Clinical & Medical Professional Corridor Suite",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+  "com-405": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/commercial/cx_x3.jpg",
+      label: "32-Foot Clear Structural Steel Frame & Mezzanine Deck",
+    },
+    upperSuite: {
+      src: "/curated/commercial/com_03_2.jpg",
+      label: "Heavy-Duty Diamond-Polished Reinforced Concrete Slab",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+  "com-406": {
+    foyerLiving: {
+      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+      label: "Double-Height Limestone Atrium & Glass Boardroom",
+    },
+    kitchenCore: {
+      src: "/curated/properties/mkt-com-stone-colonnade.jpg",
+      label: "Covered Commercial Entry Canopy & Masonry Facade",
+    },
+    upperSuite: {
+      src: "/curated/commercial/cx_i2.jpg",
+      label: "Large-Format Porcelain Lobby & Common Corridor",
+    },
+    patioTerrace: {
+      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+    },
+  },
+};
+
+export function resolveProjectWalkthroughRooms(
+  prop: PropertyListing
+): ProjectWalkthroughRooms {
+  const mapped = WALKTHROUGH_ROOMS_BY_PROJECT_ID[prop.id];
+  const isCommercial = prop.category === "commercial";
+  const isTownhouse = prop.category === "townhomes";
+
+  const defaultFoyer = isCommercial
+    ? {
+        src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+        label: "Double-Height Limestone Atrium & Glass Boardroom",
+      }
+    : isTownhouse
+    ? {
+        src: "/curated/properties/interior-townhouse-living-bay.jpg",
+        label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      }
+    : {
+        src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
+        label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      };
+
+  const defaultKitchen = isCommercial
+    ? prop.triptych[1]
+    : {
+        src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
+        label:
+          "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      };
+
+  const defaultUpper = isCommercial
+    ? prop.triptych[2]
+    : {
+        src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
+        label:
+          "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      };
+
+  const defaultPatio = isCommercial
+    ? {
+        src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
+        label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      }
+    : isTownhouse
+    ? {
+        src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
+        label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      }
+    : {
+        src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
+        label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      };
+
+  return {
+    foyerLiving:
+      prop.walkthroughRooms?.foyerLiving ?? mapped?.foyerLiving ?? defaultFoyer,
+    kitchenCore:
+      prop.walkthroughRooms?.kitchenCore ??
+      (isCommercial ? prop.triptych[1] : mapped?.kitchenCore ?? defaultKitchen),
+    upperSuite:
+      prop.walkthroughRooms?.upperSuite ??
+      (isCommercial ? prop.triptych[2] : mapped?.upperSuite ?? defaultUpper),
+    patioTerrace:
+      prop.walkthroughRooms?.patioTerrace ??
+      mapped?.patioTerrace ??
+      defaultPatio,
+  };
+}
+
 /**
  * Builds a 5-Space Coherent Indoor-Outdoor Architectural Walkthrough for every property.
  * - Step 01: Asymmetric 35° Curbside Exterior Facade
@@ -800,48 +1325,11 @@ export function buildCoherentWalkthrough(
     prop.id === "twn-302" ||
     prop.id === "twn-305";
 
-  // Step 02: Entry Foyer & Living Room
-  const foyerLivingSrc = isCommercial
-    ? "/curated/properties/interior-commercial-boardroom-atrium.jpg"
-    : isTownhouse
-    ? "/curated/properties/interior-townhouse-living-bay.jpg"
-    : prop.category === "single-family" &&
-      (prop.id === "sfh-101" || prop.id === "sfh-104" || prop.id === "sfh-106")
-    ? "/curated/properties/interior-singlefamily-greatroom-stone.jpg"
-    : isLimestoneOrModern
-    ? "/curated/properties/interior-limestone-modern-living.jpg"
-    : prop.category === "single-family"
-    ? "/curated/properties/interior-custom-foyer-oak-staircase.jpg"
-    : "/curated/properties/interior-duplex-brick-living.jpg";
-
-  // Step 03: Chef's Kitchen & Dining Core. Commercial rooms 3 and 4 show the project's own
-  // triptych photos, the same entries their titles come from, so title and photo always match.
-  const kitchenCoreSrc = isCommercial
-    ? prop.triptych[1].src
-    : prop.id === "sfh-101"
-    ? "/curated/hero/res-navy-kitchen.jpg" // the navy kitchen its card describes
-    : isTownhouse && (prop.id === "twn-303" || prop.id === "twn-305")
-    ? "/curated/properties/interior-townhouse-parlor-kitchen.jpg"
-    : isLimestoneOrModern
-    ? "/curated/properties/interior-limestone-modern-kitchen.jpg"
-    : "/curated/properties/interior-duplex-brick-kitchen.jpg";
-
-  // Step 04: Upper Primary Suite & Spa Bath (commercial: the project's third triptych photo)
-  const upperSuiteSrc = isCommercial
-    ? prop.triptych[2].src
-    : prop.id === "sfh-102" ||
-      prop.id === "sfh-105" ||
-      prop.id === "dpx-202" ||
-      prop.id === "twn-302"
-    ? "/curated/properties/interior-primary-spa-bath-walkin.jpg"
-    : "/curated/properties/interior-primary-suite-oak-bedroom.jpg";
-
-  // Step 05: Coherent Outdoor Living / Rear Covered Patio / Rooftop Terrace
-  const patioTerraceSrc = isCommercial
-    ? "/curated/properties/interior-commercial-executive-lounge-terrace.jpg"
-    : isTownhouse
-    ? "/curated/properties/interior-townhouse-rooftop-terrace.jpg"
-    : "/curated/properties/interior-duplex-rear-patio-courtyard.jpg";
+  const projectRooms = resolveProjectWalkthroughRooms(prop);
+  const foyerLivingSrc = projectRooms.foyerLiving.src;
+  const kitchenCoreSrc = projectRooms.kitchenCore.src;
+  const upperSuiteSrc = projectRooms.upperSuite.src;
+  const patioTerraceSrc = projectRooms.patioTerrace.src;
 
   const stops: [
     WalkthroughStop,
@@ -914,11 +1402,7 @@ export function buildCoherentWalkthrough(
         ? "02 · Atrium & Boardroom"
         : "02 · Foyer & Living",
       floorLevel: "Level 1 · Main Arrival & Living Core",
-      title: isCommercial
-        ? "Double-Height Limestone Atrium & Glass Boardroom"
-        : isTownhouse
-        ? "Parlor Living Room & Polygonal 3-Window Street Bay"
-        : "Entry Foyer, Great Room & Exterior Porch Sightline",
+      title: projectRooms.foyerLiving.label,
       src: foyerLivingSrc,
       nightSrc: resolveNightImageSrc(foyerLivingSrc),
       spatialNarrative: isCommercial
@@ -974,9 +1458,7 @@ export function buildCoherentWalkthrough(
         ? "03 · Tenant & MEP Core"
         : "03 · Chef's Kitchen",
       floorLevel: "Level 1 · Culinary & Open-Concept Dining Core",
-      title: isCommercial
-        ? prop.triptych[1].label
-        : "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      title: projectRooms.kitchenCore.label,
       src: kitchenCoreSrc,
       nightSrc: resolveNightImageSrc(kitchenCoreSrc),
       spatialNarrative: isCommercial
@@ -1034,9 +1516,7 @@ export function buildCoherentWalkthrough(
       floorLevel: isCommercial
         ? "Level 2 · Structural Envelope & Systems"
         : "Level 2 · Upstairs Primary Bedroom, Walk-In & Spa Bath",
-      title: isCommercial
-        ? prop.triptych[2].label
-        : "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      title: projectRooms.upperSuite.label,
       src: upperSuiteSrc,
       nightSrc: resolveNightImageSrc(upperSuiteSrc),
       spatialNarrative: isCommercial
@@ -1102,11 +1582,7 @@ export function buildCoherentWalkthrough(
       floorLevel: isTownhouse
         ? "Level 3 · Private Rooftop Lounge & Pergola"
         : "Level 1 Rear · Indoor-Outdoor Covered Courtyard",
-      title: isCommercial
-        ? "Executive Mezzanine Lounge & Covered Limestone Terrace"
-        : isTownhouse
-        ? "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen"
-        : "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      title: projectRooms.patioTerrace.label,
       src: patioTerraceSrc,
       nightSrc: resolveNightImageSrc(patioTerraceSrc),
       spatialNarrative: isCommercial

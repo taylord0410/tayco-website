@@ -2,6 +2,7 @@
 import { ImageReferenceButton } from "@/components/EstimateReferences";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { TaycoModalOverlay, TaycoSectionHeader, TaycoPillDock } from "@/components/ui/TaycoDesignSystem";
 import ProtectedImage, {
   preloadProtectedImages,
@@ -135,10 +136,28 @@ export const RESIDENTIAL_HERO_SCENES: HeroSceneItem[] = [
 
 export type TransformationDivision = "all" | "div01" | "div02" | "div03" | "div04";
 
+export type SiteDivisionSlug =
+  | "single-family"
+  | "multifamily"
+  | "townhomes"
+  | "commercial";
+
+export function resolveSiteDivisionFromPathname(
+  pathname?: string | null
+): SiteDivisionSlug | "all" {
+  if (!pathname) return "all";
+  if (pathname.startsWith("/single-family")) return "single-family";
+  if (pathname.startsWith("/multifamily")) return "multifamily";
+  if (pathname.startsWith("/townhomes")) return "townhomes";
+  if (pathname.startsWith("/commercial")) return "commercial";
+  return "all";
+}
+
 export interface TransformationPair {
   id: string;
   division: Exclude<TransformationDivision, "all">;
   divisionLabel: string;
+  siteDivision: SiteDivisionSlug;
   code: string;
   title: string;
   subtitle: string;
@@ -156,6 +175,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div01_01",
     division: "div01",
     divisionLabel: "Div 01 · Structural & Millwork",
+    siteDivision: "single-family",
     code: "TR-01",
     title: "Ground-Up Two-Story Wood Framing & Roof Trusses",
     subtitle: "Bare concrete foundation slab to complete structural shell",
@@ -172,6 +192,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div04_03",
     division: "div04",
     divisionLabel: "Div 04 · Roofing Systems",
+    siteDivision: "commercial",
     code: "TR-02",
     title: "Commercial Flat Roof Heat-Welded TPO Retrofit",
     subtitle: "Ponding aged membrane to high-reflectivity white TPO system",
@@ -188,6 +209,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div03_02",
     division: "div03",
     divisionLabel: "Div 03 · Interior & Commercial",
+    siteDivision: "single-family",
     code: "TR-03",
     title: "Full-Gut Kitchen Modernization & Quartz Island",
     subtitle: "Dated 1990s oak layout to custom white shaker & quartz centerpiece",
@@ -204,6 +226,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div02_02",
     division: "div02",
     divisionLabel: "Div 02 · Exterior & Masonry",
+    siteDivision: "single-family",
     code: "TR-04",
     title: "Board-and-Batten Farmhouse Exterior Envelope",
     subtitle: "Weathered wood siding to crisp white vertical cladding & black trim",
@@ -220,6 +243,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div04_02",
     division: "div04",
     divisionLabel: "Div 04 · Roofing Systems",
+    siteDivision: "single-family",
     code: "TR-05",
     title: "Standing-Seam Architectural Metal Roof Upgrade",
     subtitle: "Moss-damaged shingle roof to matte-black standing-seam metal",
@@ -236,6 +260,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div01_03",
     division: "div01",
     divisionLabel: "Div 01 · Structural & Millwork",
+    siteDivision: "single-family",
     code: "TR-06",
     title: "Custom Built-In Millwork, Coffered Ceiling & Stone Hearth",
     subtitle: "Blank builder-grade wall to architectural living room centerpiece",
@@ -252,6 +277,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div03_01",
     division: "div03",
     divisionLabel: "Div 03 · Interior & Commercial",
+    siteDivision: "commercial",
     code: "TR-07",
     title: "Commercial Steel-Stud Framing to Level-4 Drywall Finish",
     subtitle: "Open metal stud bays to taped, mudded and primed commercial suite",
@@ -268,6 +294,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div02_03",
     division: "div02",
     divisionLabel: "Div 02 · Exterior & Masonry",
+    siteDivision: "single-family",
     code: "TR-08",
     title: "Stacked-Stone Masonry Veneer & Column Pedestals",
     subtitle: "Exposed concrete foundation to natural ledger-stone facade",
@@ -284,6 +311,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div01_02",
     division: "div01",
     divisionLabel: "Div 01 · Structural & Millwork",
+    siteDivision: "single-family",
     code: "TR-09",
     title: "Structural Timber Deck & Staircase Reconstruction",
     subtitle: "Rotted unsafe backyard deck to code-compliant cedar deck system",
@@ -300,6 +328,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div04_04",
     division: "div04",
     divisionLabel: "Div 04 · Roofing Systems",
+    siteDivision: "commercial",
     code: "TR-10",
     title: "Commercial Storefront Hip-Roof Charcoal Standing-Seam Re-Roof",
     subtitle: "Corroded metal hip roof & failing gutters to charcoal standing-seam panels",
@@ -316,6 +345,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div02_04",
     division: "div02",
     divisionLabel: "Div 02 · Exterior & Masonry",
+    siteDivision: "single-family",
     code: "TR-11",
     title: "Perimeter Cedar Privacy Fence & Concrete Footings",
     subtitle: "Damaged chain-link enclosure to custom 6-foot cedar privacy line",
@@ -332,6 +362,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div03_04",
     division: "div03",
     divisionLabel: "Div 03 · Interior & Commercial",
+    siteDivision: "single-family",
     code: "TR-12",
     title: "Raw CMU Basement to Finished Living Suite & LVP",
     subtitle: "Unfinished concrete block lower level to warm turnkey living space",
@@ -345,6 +376,37 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     highlights: ["Perimeter moisture barrier & framing", "Low-profile recessed LED grid", "Waterproof wide-plank LVP flooring"],
   },
 ];
+
+/**
+ * Filters the Before & After transformation pairs by site division (`single-family`,
+ * `multifamily`, `townhomes`, `commercial`). On the home page (`all`), all 12 pairs are returned.
+ * When a residential division (`multifamily` or `townhomes`) does not yet have dedicated pairs in
+ * `TRANSFORMATION_PAIRS`, it falls back to residential-only pairs (never commercial pairs).
+ */
+export function getTransformationPairsForSiteDivision(
+  siteDivision: SiteDivisionSlug | "all" = "all"
+): TransformationPair[] {
+  if (!siteDivision || siteDivision === "all") {
+    return TRANSFORMATION_PAIRS;
+  }
+  const directMatches = TRANSFORMATION_PAIRS.filter(
+    (p) => p.siteDivision === siteDivision
+  );
+  if (directMatches.length > 0) {
+    return directMatches;
+  }
+  if (siteDivision === "multifamily") {
+    return TRANSFORMATION_PAIRS.filter((p) =>
+      ["div01_01", "div02_03", "div03_04"].includes(p.id)
+    );
+  }
+  if (siteDivision === "townhomes") {
+    return TRANSFORMATION_PAIRS.filter((p) =>
+      ["div01_03", "div02_03", "div04_02"].includes(p.id)
+    );
+  }
+  return TRANSFORMATION_PAIRS.filter((p) => p.siteDivision !== "commercial");
+}
 
 export interface MarqueeShot {
   id: string;
@@ -570,19 +632,40 @@ export function TransformationBeforeAfterStudio({
   initialDivision = "all",
   initialPairId = TRANSFORMATION_PAIRS[0].id,
   eyebrowLabel = "01B / INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO",
+  siteDivision,
 }: {
   initialDivision?: TransformationDivision;
   initialPairId?: string;
   eyebrowLabel?: string;
+  siteDivision?: SiteDivisionSlug | "all";
 } = {}) {
-  const [activeDivision, setActiveDivision] = useState<TransformationDivision>(initialDivision);
-  const [selectedId, setSelectedId] = useState<string>(initialPairId);
-  const [pendingPairId, setPendingPairId] = useState<string>(initialPairId);
+  const pathname = usePathname();
+  const effectiveSiteDivision =
+    siteDivision ?? resolveSiteDivisionFromPathname(pathname);
+  const scopedPairs = getTransformationPairsForSiteDivision(
+    effectiveSiteDivision
+  );
+  const resolvedInitialPairId = scopedPairs.some((p) => p.id === initialPairId)
+    ? initialPairId
+    : scopedPairs[0]?.id ?? TRANSFORMATION_PAIRS[0].id;
+  const resolvedInitialDivision =
+    initialDivision === "all" ||
+    scopedPairs.some((p) => p.division === initialDivision)
+      ? initialDivision
+      : "all";
+
+  const [activeDivision, setActiveDivision] = useState<TransformationDivision>(
+    resolvedInitialDivision
+  );
+  const [selectedId, setSelectedId] = useState<string>(resolvedInitialPairId);
+  const [pendingPairId, setPendingPairId] = useState<string>(
+    resolvedInitialPairId
+  );
   const [pairSyncPulse, setPairSyncPulse] = useState<number>(0);
 
   const selectPairHarmonized = (nextId: string) => {
     setPendingPairId(nextId);
-    const target = TRANSFORMATION_PAIRS.find((p) => p.id === nextId);
+    const target = scopedPairs.find((p) => p.id === nextId);
     if (!target) {
       setSelectedId(nextId);
       return;
@@ -602,11 +685,38 @@ export function TransformationBeforeAfterStudio({
 
   const visiblePairs =
     activeDivision === "all"
-      ? TRANSFORMATION_PAIRS
-      : TRANSFORMATION_PAIRS.filter((p) => p.division === activeDivision);
+      ? scopedPairs
+      : scopedPairs.filter((p) => p.division === activeDivision);
 
   const activePair =
-    visiblePairs.find((p) => p.id === selectedId) ?? visiblePairs[0] ?? TRANSFORMATION_PAIRS[0];
+    visiblePairs.find((p) => p.id === selectedId) ??
+    visiblePairs[0] ??
+    scopedPairs[0] ??
+    TRANSFORMATION_PAIRS[0];
+
+  const divisionTabDefs = [
+    { id: "all" as const, label: "All Divisions", count: scopedPairs.length },
+    {
+      id: "div01" as const,
+      label: "Structural & Millwork",
+      count: scopedPairs.filter((p) => p.division === "div01").length,
+    },
+    {
+      id: "div02" as const,
+      label: "Exterior & Masonry",
+      count: scopedPairs.filter((p) => p.division === "div02").length,
+    },
+    {
+      id: "div03" as const,
+      label: "Interior & Commercial",
+      count: scopedPairs.filter((p) => p.division === "div03").length,
+    },
+    {
+      id: "div04" as const,
+      label: "Roofing Systems",
+      count: scopedPairs.filter((p) => p.division === "div04").length,
+    },
+  ].filter((tab) => tab.id === "all" || tab.count > 0);
 
   const handleStagePointer = (clientX: number, clientY: number) => {
     const el = stageRef.current;
@@ -636,19 +746,13 @@ export function TransformationBeforeAfterStudio({
         <TaycoSectionHeader
           eyebrow={eyebrowLabel}
           title={<>From raw condition to <em className="tayco-serif-em text-[#F3D37A]">finished execution.</em></>}
-          subtitle="Compare twelve transformations with the before-and-after curtain or structural X-ray lens. Choose a division to explore its field execution."
+          subtitle="Compare transformations with the before-and-after curtain or structural X-ray lens. Choose a trade group to explore its field execution."
           className="mb-6"
         />
         <div className="flex flex-col items-center gap-6 mb-10">
           {/* Division Tabs */}
           <TaycoPillDock ariaLabel="Filter transformations by division">
-            {[
-              { id: "all", label: "All Divisions", count: 12 },
-              { id: "div01", label: "Structural & Millwork", count: 3 },
-              { id: "div02", label: "Exterior & Masonry", count: 3 },
-              { id: "div03", label: "Interior & Commercial", count: 3 },
-              { id: "div04", label: "Roofing Systems", count: 3 },
-            ].map((tab) => {
+            {divisionTabDefs.map((tab) => {
               const active = activeDivision === tab.id;
               return (
                 <button
@@ -662,8 +766,8 @@ export function TransformationBeforeAfterStudio({
                     setActiveDivision(nextDiv);
                     const nextList =
                       nextDiv === "all"
-                        ? TRANSFORMATION_PAIRS
-                        : TRANSFORMATION_PAIRS.filter((p) => p.division === nextDiv);
+                        ? scopedPairs
+                        : scopedPairs.filter((p) => p.division === nextDiv);
                     if (nextList.length > 0 && !nextList.some((p) => p.id === selectedId)) {
                       selectPairHarmonized(nextList[0].id);
                     }
@@ -1081,7 +1185,247 @@ export function TransformationBeforeAfterStudio({
 /* ─────────────────────────────────────────────────────────────
  * 2. DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE (16 SHOTS)
  * ───────────────────────────────────────────────────────────── */
-export function DualTrackArchitecturalMarquee() {
+export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
+  Record<SiteDivisionSlug, readonly MarqueeShot[]>
+> = {
+  "single-family": [
+    {
+      id: "m-sf-1",
+      title: "Natural Slate Gable & Copper Valley Flashing",
+      trade: "Specialty Roofing",
+      csi: "DIV 07",
+      sector: "Residential",
+      image: "/curated/magazine/revista_ro_slate_a.jpg",
+    },
+    {
+      id: "m-sf-2",
+      title: "Standing-Seam Architectural Metal Roof System",
+      trade: "Roofing Systems",
+      csi: "DIV 07",
+      sector: "Residential",
+      image: "/curated/magazine/revista_ro_metal_a.jpg",
+    },
+    {
+      id: "m-sf-3",
+      title: "Insulated Fiber-Cement Lap Siding & Craftsman Trim",
+      trade: "Siding & Cladding",
+      csi: "DIV 07",
+      sector: "Residential",
+      image: "/work/siding_residential.jpg",
+    },
+    {
+      id: "m-sf-4",
+      title: "Architectural Dimensional Shingle & Gable Roof",
+      trade: "Roofing Systems",
+      csi: "DIV 07",
+      sector: "Residential",
+      image: "/work/roofing_residential.jpg",
+    },
+    {
+      id: "m-sf-5",
+      title: "Exterior Wall Framing, Window Headers & Ceiling Joists",
+      trade: "Rough Carpentry",
+      csi: "DIV 06",
+      sector: "Residential",
+      image: "/curated/magazine/revista_fr_wood_05.jpg",
+    },
+    {
+      id: "m-sf-6",
+      title: "Coffered Architectural Ceiling & Recessed Lighting",
+      trade: "Interior Finishes",
+      csi: "DIV 09",
+      sector: "Residential",
+      image: "/curated/magazine/revista_in_05_a.jpg",
+    },
+    {
+      id: "m-sf-7",
+      title: "Painted Staircase, Oak Handrail & Finish Carpentry",
+      trade: "Finish Carpentry",
+      csi: "DIV 06",
+      sector: "Residential",
+      image: "/curated/magazine/revista_ca_finish_1.jpg",
+    },
+    {
+      id: "m-sf-8",
+      title: "Natural Stone Veneer & Custom Hearth Masonry",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Residential",
+      image: "/work/stone_residential.jpg",
+    },
+  ],
+  multifamily: [
+    {
+      id: "m-mf-1",
+      title: "Multi-Unit Architectural Shingle & Dormer Roof System",
+      trade: "Roofing Systems",
+      csi: "DIV 07",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-roofing.jpg",
+    },
+    {
+      id: "m-mf-2",
+      title: "Multi-Story Structural Wood Framing & Floor Trusses",
+      trade: "Structural Framing",
+      csi: "DIV 06",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-framing-trusses.jpg",
+    },
+    {
+      id: "m-mf-3",
+      title: "Reinforced Concrete Podium & Courtyard Hardscape",
+      trade: "Concrete & Site",
+      csi: "DIV 03",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-concrete-podium.jpg",
+    },
+    {
+      id: "m-mf-4",
+      title: "Masonry Entry Piers & Multi-Unit Stone Envelope",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-stone-entry.jpg",
+    },
+    {
+      id: "m-mf-5",
+      title: "Fire-Rated Corridor Drywall & Acoustic Assemblies",
+      trade: "Drywall Systems",
+      csi: "DIV 09",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-drywall.jpg",
+    },
+    {
+      id: "m-mf-6",
+      title: "Acoustic Underlayment & Multi-Unit Flooring Package",
+      trade: "Flooring Systems",
+      csi: "DIV 09",
+      sector: "Multi-Family",
+      image: "/work/flooring_multifamily.jpg",
+    },
+    {
+      id: "m-mf-7",
+      title: "Resident Lounge Millwork & Custom Common-Area Trim",
+      trade: "Finish Carpentry",
+      csi: "DIV 06",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
+    },
+    {
+      id: "m-mf-8",
+      title: "Courtyard Stonework & Multi-Unit Landscape Masonry",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Multi-Family",
+      image: "/curated/properties/mkt-mf-stone-courtyard.jpg",
+    },
+  ],
+  townhomes: [
+    {
+      id: "m-twn-1",
+      title: "Townhome Rooftop Timber Framing & Decking",
+      trade: "Wood Framing",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-framing-rooftop.jpg",
+    },
+    {
+      id: "m-twn-2",
+      title: "Stepped Rowhouse Roofing, Parapets & Siding Envelope",
+      trade: "Roofing & Siding",
+      csi: "DIV 07",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-roofing-siding.jpg",
+    },
+    {
+      id: "m-twn-3",
+      title: "2-Hour Fire-Rated Party-Wall & Rowhouse Framing",
+      trade: "Structural Framing",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-framing-partywall.jpg",
+    },
+    {
+      id: "m-twn-4",
+      title: "Brownstone & Cut-Limestone Rowhouse Entry Stoops",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-stone-brownstone.jpg",
+    },
+    {
+      id: "m-twn-5",
+      title: "Three-Story White-Oak Stair Treads & Balustrade",
+      trade: "Finish Carpentry",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-flooring-stairtreads.jpg",
+    },
+    {
+      id: "m-twn-6",
+      title: "Parlor Herringbone White-Oak Flooring & Trim",
+      trade: "Hardwood Flooring",
+      csi: "DIV 09",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-flooring-herringbone.jpg",
+    },
+    {
+      id: "m-twn-7",
+      title: "Townhome Gallery Level-5 Drywall & Revealed Trim",
+      trade: "Drywall & Finishes",
+      csi: "DIV 09",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-drywall-gallery.jpg",
+    },
+    {
+      id: "m-twn-8",
+      title: "Rooftop Cedar Pergola & Parlor Library Millwork",
+      trade: "Custom Carpentry",
+      csi: "DIV 06",
+      sector: "Townhomes",
+      image: "/curated/properties/mkt-twn-carpentry-pergola.jpg",
+    },
+  ],
+  commercial: [
+    ...MARQUEE_TRACK_TOP.filter((s) => s.sector === "Commercial"),
+    ...MARQUEE_TRACK_BOTTOM.filter((s) => s.sector === "Commercial"),
+  ].slice(0, 8),
+};
+
+export function getMarqueeTracksForSiteDivision(
+  siteDivision: SiteDivisionSlug | "all" = "all"
+): {
+  topTrack: readonly MarqueeShot[];
+  bottomTrack: readonly MarqueeShot[];
+  allShots: readonly MarqueeShot[];
+} {
+  if (!siteDivision || siteDivision === "all") {
+    return {
+      topTrack: MARQUEE_TRACK_TOP,
+      bottomTrack: MARQUEE_TRACK_BOTTOM,
+      allShots: [...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_BOTTOM],
+    };
+  }
+  const divisionShots = DIVISION_MARQUEE_SHOTS_BY_CATEGORY[siteDivision];
+  const half = Math.ceil(divisionShots.length / 2);
+  return {
+    topTrack: divisionShots.slice(0, half),
+    bottomTrack: divisionShots.slice(half),
+    allShots: divisionShots,
+  };
+}
+
+export function DualTrackArchitecturalMarquee({
+  siteDivision,
+}: {
+  siteDivision?: SiteDivisionSlug | "all";
+} = {}) {
+  const pathname = usePathname();
+  const effectiveSiteDivision =
+    siteDivision ?? resolveSiteDivisionFromPathname(pathname);
+  const { topTrack, bottomTrack, allShots } = getMarqueeTracksForSiteDivision(
+    effectiveSiteDivision
+  );
   const [selectedShot, setSelectedShot] = useState<MarqueeShot | null>(null);
 
   return (
@@ -1090,7 +1434,7 @@ export function DualTrackArchitecturalMarquee() {
         <div>
           <div className="tayco-atelier-eyebrow justify-center mb-1.5" style={{ color: "#F3D37A" }}>
             <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-            FIELD EXECUTION ARCHIVE · 16 CURATED DISCIPLINES IN MOTION
+            FIELD EXECUTION ARCHIVE · {allShots.length} CURATED DISCIPLINES IN MOTION
           </div>
           <h3 className="tayco-display-title text-xl sm:text-2xl text-white text-center">
             From excavation &amp; steel framing to{" "}
@@ -1110,7 +1454,6 @@ export function DualTrackArchitecturalMarquee() {
         onClose={() => setSelectedShot(null)}
         onStepPrev={() => {
           if (!selectedShot) return;
-          const allShots = [...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_BOTTOM];
           const idx = allShots.findIndex((s) => s.id === selectedShot.id);
           if (idx !== -1) {
             const nextIdx = (idx - 1 + allShots.length) % allShots.length;
@@ -1119,7 +1462,6 @@ export function DualTrackArchitecturalMarquee() {
         }}
         onStepNext={() => {
           if (!selectedShot) return;
-          const allShots = [...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_BOTTOM];
           const idx = allShots.findIndex((s) => s.id === selectedShot.id);
           if (idx !== -1) {
             const nextIdx = (idx + 1) % allShots.length;
@@ -1182,7 +1524,7 @@ export function DualTrackArchitecturalMarquee() {
       {/* Track 1: Exterior / Structural / Envelope */}
       <div className="tayco-filmstrip-wrapper mb-4">
         <div className="tayco-filmstrip-track track-left">
-          {[...MARQUEE_TRACK_TOP, ...MARQUEE_TRACK_TOP].map((shot, idx) => (
+          {[...topTrack, ...topTrack].map((shot, idx) => (
             <button
               key={`${shot.id}-${idx}`}
               type="button"
@@ -1192,7 +1534,7 @@ export function DualTrackArchitecturalMarquee() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={shot.image}
-                auditIgnore={idx >= MARQUEE_TRACK_TOP.length}
+                auditIgnore={idx >= topTrack.length}
                 alt={shot.title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
@@ -1226,7 +1568,7 @@ export function DualTrackArchitecturalMarquee() {
       {/* Track 2: Interior Craft / Commercial / Finishes */}
       <div className="tayco-filmstrip-wrapper">
         <div className="tayco-filmstrip-track track-right">
-          {[...MARQUEE_TRACK_BOTTOM, ...MARQUEE_TRACK_BOTTOM].map((shot, idx) => (
+          {[...bottomTrack, ...bottomTrack].map((shot, idx) => (
             <button
               key={`${shot.id}-${idx}`}
               type="button"
@@ -1236,7 +1578,7 @@ export function DualTrackArchitecturalMarquee() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={shot.image}
-                auditIgnore={idx >= MARQUEE_TRACK_BOTTOM.length}
+                auditIgnore={idx >= bottomTrack.length}
                 alt={shot.title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
