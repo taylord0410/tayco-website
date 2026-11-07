@@ -1,0 +1,64 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {randomBytes} from 'node:crypto';
+import {provisionAdmin,signIn,sessionCookie,revokeUserSessionsPrivately} from '../lib/auth';
+import {connectAdmin} from '../lib/connect-admin';
+
+test('console proxy requires fresh TAYCO admin and independent sealed Connect admin session',async()=>{
+ const folder=mkdtempSync(path.join(tmpdir(),'connect-console-'));
+ const keys=['TAYCO_AUTH_DB_PATH','TAYCO_SESSION_SECRET','TAYCO_APP_URL','TAYCO_CONNECT_ORIGIN'] as const;
+ const before=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
+ process.env.TAYCO_AUTH_DB_PATH=path.join(folder,'auth.sqlite');
+ process.env.TAYCO_SESSION_SECRET=randomBytes(48).toString('hex');
+ process.env.TAYCO_APP_URL='https://tayco.example';
+ process.env.TAYCO_CONNECT_ORIGIN='https://connect.tayco.example';
+ const password='Synthetic administration password only';
+ const original=globalThis.fetch;const calls:{url:string;headers:Headers;body:unknown}[]=[];
+ let upstreamRole='admin',upstreamStatus=200;
+ const token=randomBytes(32).toString('base64url');
+ globalThis.fetch=async(input,init)=>{
+  const url=String(input),headers=new Headers(init?.headers),body=init?.body?JSON.parse(String(init.body)):undefined;
+  calls.push({url,headers,body});
+  assert.equal(new URL(url).origin,process.env.TAYCO_CONNECT_ORIGIN);
+  assert.equal(headers.get('origin'),process.env.TAYCO_CONNECT_ORIGIN);
+  assert.ok(!headers.get('cookie')?.includes('tayco_session'));
+  assert.equal(init?.redirect,'error');assert.equal(init?.cache,'no-store');
+  if(url.endsWith('/login'))return Response.json({username:'fixture',role:upstreamRole},{headers:{'Set-Cookie':'__Host-tayco_connect='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict'}});
+  if(upstreamStatus!==200)return Response.json({error:'Forbidden'},{status:upstreamStatus});
+  if(url.endsWith('/admin/directory'))return Response.json({accounts:[],invitations:[]});
+  return Response.json({ok:true});
+ };
+ try{
+  const req=(cookie='',body?:unknown,origin='https://tayco.example')=>new Request('https://tayco.example/api/admin/connect',{method:body?'POST':'GET',headers:{cookie,origin,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  assert.equal((await connectAdmin(req())).status,401);assert.equal(calls.length,0);
+  await provisionAdmin('admin@fixture.test',password,'fixture');
+  const login=await signIn('admin@fixture.test',password);
+  const portal=sessionCookie(login.cookie).split(';')[0];
+  assert.equal((await connectAdmin(req(portal))).status,401);assert.equal(calls.length,0);
+  assert.equal((await connectAdmin(req(portal,{action:'login'},'https://foreign.test'))).status,403);
+  upstreamRole='member';
+  assert.equal((await connectAdmin(req(portal,{action:'login',email:'member@fixture.test',password,code:'123456'}))).status,403);
+  assert.ok(calls.at(-1)!.url.endsWith('/logout'));
+  upstreamRole='admin';
+  const verified=await connectAdmin(req(portal,{action:'login',email:'admin@fixture.test',password,code:'123456'}));
+  assert.equal(verified.status,200);
+  const sealed=verified.headers.get('set-cookie')!;
+  assert.ok(sealed.includes('HttpOnly'));assert.ok(sealed.includes('Path=/api/admin/connect'));assert.ok(!sealed.includes(token));
+  const both=portal+'; '+sealed.split(';')[0];
+  const directory=await connectAdmin(req(both));assert.equal(directory.status,200);
+  assert.equal(calls.at(-1)!.headers.get('cookie'),'__Host-tayco_connect='+token);
+  assert.equal(directory.headers.get('cache-control'),'no-store, private');
+  const count=calls.length;
+  assert.equal((await connectAdmin(req(both,{action:'https://evil.test'}))).status,400);
+  assert.equal(calls.length,count);
+  const second=sessionCookie((await signIn('admin@fixture.test',password)).cookie).split(';')[0];
+  assert.equal((await connectAdmin(req(second+'; '+sealed.split(';')[0]))).status,401);
+  upstreamStatus=403;assert.equal((await connectAdmin(req(both))).status,403);upstreamStatus=200;
+  const locked=await connectAdmin(req(both,{action:'logout'}));assert.ok(locked.headers.get('set-cookie')!.includes('Max-Age=0'));
+  revokeUserSessionsPrivately('admin@fixture.test',true);
+  const prior=calls.length;assert.equal((await connectAdmin(req(both))).status,401);assert.equal(calls.length,prior);
+ }finally{globalThis.fetch=original;for(const key of keys){if(before[key]===undefined)delete process.env[key];else process.env[key]=before[key];}rmSync(folder,{recursive:true,force:true});}
+});

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   // Runtime databases, source packages and review evidence are private mounted data.
-  outputFileTracingExcludes: { "/*": ["./.data/**/*"] },
+  outputFileTracingExcludes: { "/**": ["./.data/**/*", "./.env*", "./**/*.sqlite", "./**/*.sqlite3", "./**/*.db"] },
   devIndicators: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   turbopack: {

@@ -1,3 +1,4 @@
+import { currentReportingPeriod } from '../lib/guest-period';
 import { syntheticViewerCohort } from './viewer-cohort-fixture';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -354,7 +355,7 @@ test('an actual v2 grant authorizes project selection, scoped deduplication and 
       process.env.TAYCO_TAKEOFF_MAPPING_PATH=mappingPath;
       const grants=projects.map((project,index)=>({
         tenantId:actors.guest.tenantId,guestId:actors.guest.id,projectId:project.id,
-        period:'2026-10',viewerDocumentIds:['viewer-'+index],
+        period:currentReportingPeriod(),viewerDocumentIds:['viewer-'+index],
       }));
       const publish=(guestReviews=grants)=>writeFileSync(mappingPath,JSON.stringify({
         schemaVersion:'tayco-takeoff-viewer-access/v2',bundleId:relations.bundleId,

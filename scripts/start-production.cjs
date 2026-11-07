@@ -1,24 +1,13 @@
 "use strict";
+/* eslint @typescript-eslint/no-require-imports: "off" -- Container CommonJS bootstrap. */
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
+const { prepareDataDir } = require("./data-dir.cjs");
 
-function resolveDataDir() {
-  const preferred = "/app/.data";
-  try {
-    fs.mkdirSync(preferred, { recursive: true, mode: 0o700 });
-    const probe = path.join(preferred, ".write-probe");
-    fs.writeFileSync(probe, "ok");
-    fs.unlinkSync(probe);
-    return preferred;
-  } catch {
-    const fallback = "/tmp/tayco-data";
-    fs.mkdirSync(fallback, { recursive: true, mode: 0o700 });
-    return fallback;
-  }
-}
-
-const dataDir = resolveDataDir();
+// Fails loudly on Railway instead of falling back to /tmp (see scripts/data-dir.cjs).
+const { dir: dataDir, persistent } = prepareDataDir();
+process.env.TAYCO_DATA_PERSISTENT = persistent ? "1" : "0";
 if (!process.env.TAYCO_AUTH_DB_PATH || !process.env.TAYCO_AUTH_DB_PATH.startsWith(dataDir)) {
   process.env.TAYCO_AUTH_DB_PATH = path.join(dataDir, "tayco-auth.sqlite");
 }

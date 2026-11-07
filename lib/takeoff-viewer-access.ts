@@ -401,18 +401,8 @@ export function viewerScope(actor: Actor, projectId?: string, now = new Date()):
   try {
     if(actor.role==='guest'&&actor.review&&actor.review.detailPeriod!==currentReportingPeriod(now))throw guestDenied();
     if(actor.role==='guest'&&actor.review?.recipient)return insurerViewerScope(actor,projectId,now);
-    if (
-      projectId === undefined &&
-      process.env.NODE_ENV !== 'test' &&
-      actor.tenantId === 'tayco_llc' &&
-      ['admin', 'staff', 'guest'].includes(actor.role)
-    ) {
-      const bundlePolicy = policies(undefined, undefined);
-      return permittedScope(
-        bundlePolicy,
-        bundlePolicy.relations.documents.map((doc) => doc.documentId)
-      );
-    }
+    // No whole-bundle shortcut for any role: guests see only granted documents and every role passes the
+    // project, document and delivery integrity checks below.
     const policy = policies(actor.role === 'guest' ? actor : undefined, projectId);
     if (actor.role === 'guest') {
       const grants = usableGuestGrants(actor, policy, projectId, now);
