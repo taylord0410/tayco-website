@@ -729,7 +729,9 @@ export function VisualAssetIntegrityHud({
 
   return (
     <>
-      {/* Inline Architectural Asset Integrity Radar Bar */}
+      {/* Inline Asset Integrity Radar Bar. It only compares images mounted right now, by file stem or exact
+          content hash: unopened walkthrough rooms, other pages and near-duplicates are outside its view, so
+          its wording claims no more than that. */}
       <div
         data-testid="visual-asset-integrity-hud"
         data-total-slots={totalCount}
@@ -748,12 +750,12 @@ export function VisualAssetIntegrityHud({
               }`}
             />
             <span className="hidden sm:inline">Asset Integrity Radar · {scopeLabel}</span>
-            <span className="sm:hidden">Verified Visuals</span>
+            <span className="sm:hidden">On-Screen Images</span>
           </span>
 
           <div className="flex items-center gap-2 text-xs font-medium text-slate-200">
             <span className="font-mono text-[11px] font-semibold text-white">
-              {uniqueCount}/{totalCount} UNIQUE
+              {uniqueCount}/{totalCount} UNIQUE ON SCREEN
             </span>
             <span className="hidden text-slate-600 sm:inline">·</span>
             <span
@@ -762,8 +764,8 @@ export function VisualAssetIntegrityHud({
               }`}
             >
               {duplicateCount === 0
-                ? "0 REPEATED IMAGES DETECTED"
-                : `${duplicateCount} DUPLICATE SLOTS DETECTED`}
+                ? "NO EXACT REPEATS ON SCREEN"
+                : `${duplicateCount} EXACT REPEATS ON SCREEN`}
             </span>
             {duplicateCount > 0 && (
               <span className="font-mono text-[11px] font-bold text-amber-300 sm:hidden">
@@ -825,7 +827,7 @@ export function VisualAssetIntegrityHud({
               </p>
             </div>
             <span className="rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-bold text-emerald-300">
-              {duplicateCount === 0 ? "100% UNIQUE VERIFIED" : `${duplicateCount} COLLISIONS`}
+              {duplicateCount === 0 ? "NO EXACT REPEATS ON SCREEN" : `${duplicateCount} EXACT REPEATS`}
             </span>
           </div>
 

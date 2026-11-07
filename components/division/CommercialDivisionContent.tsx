@@ -154,7 +154,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/work/drywall_commercial.jpg", "label": "Curved Commercial Soffit & Gypsum Assembly" },
       { "src": "/curated/commercial/com_03_1.jpg", "label": "Acoustic Drop-Ceiling Grid & Partitions" },
-      { "src": "/curated/commercial/cx_i1.jpg", "label": "Suspended Acoustic Clouds & Interior Finish" }
+      { "src": "/curated/commercial/cx_i1.jpg", "label": "Walnut Slat Ceiling & Terrazzo Lobby Finish" }
     ]
   },
   {
@@ -277,7 +277,7 @@ const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Completion review"
     ],
     "triptych": [
-      { "src": "/curated/capabilities/fire-steel-ibeam.jpg", "label": "Fire-Damaged Structural Steel Remediation" },
+      { "src": "/curated/capabilities/fire-steel-ibeam.jpg", "label": "Structural Steel Frame Rebuild After Loss" },
       { "src": "/curated/pairs/div04_03_antes.jpg", "label": "Commercial Roof & Storm Damage Assessment" },
       { "src": "/curated/pairs/div04_02_antes.jpg", "label": "Water Mitigation & Structural Deck Rebuild" }
     ]

@@ -51,7 +51,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
       { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
-      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Ridge Ventilation & Copper Chimney Flashing" }
+      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
     ]
   },
   {
@@ -97,7 +97,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/pairs/div01_01_despues.jpg", "label": "2-Story Wood Framing & Roof Trusses" },
       { "src": "/curated/residential/div01_06_despues.jpg", "label": "Home Addition Structural Framing" },
-      { "src": "/curated/magazine/revista_fr_wood_05.jpg", "label": "Engineered Wood I-Joist & Rafter System" }
+      { "src": "/curated/magazine/revista_fr_wood_05.jpg", "label": "Exterior Wall Framing, Window Headers & Ceiling Joists" }
     ]
   },
   {
@@ -119,7 +119,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     ],
     "triptych": [
       { "src": "/curated/magazine/revista_dw_fin.jpg", "label": "Smooth Level-5 Drywall Finishing" },
-      { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Recessed Lighting" },
+      { "src": "/curated/magazine/revista_in_05_a.jpg", "label": "Coffered Ceiling & Painted Trim Package" },
       { "src": "/curated/magazine/revista_pa_01_a.jpg", "label": "Interior Wall Preparation & Finish Coat" }
     ]
   },
@@ -141,8 +141,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Stairs and finish carpentry"
     ],
     "triptych": [
-      { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Custom White Shaker Kitchen & Quartz Island" },
-      { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Bookcases, Mantel & Coffered Beams" },
+      { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Walnut Butler's Pantry with Glass-Front Cabinetry" },
+      { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Library Bookcases & Coffered Ceiling" },
       { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
     ]
   },
@@ -212,7 +212,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/pairs/div03_04_despues.jpg", "label": "Finished Basement Living Suite & LVP" },
       { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
-      { "src": "/curated/residential/div01_08_despues.jpg", "label": "Custom Mudroom Lockers & Whole-Home Storage" }
+      { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
     ]
   }
 ];
@@ -557,8 +557,8 @@ export default function ResidentialDivisionContent() {
               <ServiceCardTriptych
                 frames={[
                   { src: "/curated/capabilities/fire-wood-framing.jpg", label: "Structural Wood Framing Reconstruction" },
-                  { src: "/curated/magazine/revista_fr_wood_05.jpg", label: "Custom Timber Roof Rafter Rebuild" },
-                  { src: "/curated/pairs/div01_03_despues.jpg", label: "Restored Living Room, Hearth & Built-Ins" },
+                  { src: "/curated/magazine/revista_fr_wood_05.jpg", label: "Exterior Wall Framing, Window Headers & Ceiling Joists" },
+                  { src: "/curated/pairs/div01_03_despues.jpg", label: "Restored Study, Built-In Bookcases & Coffered Ceiling" },
                 ]}
                 badge="FIRE & SMOKE RECOVERY"
                 accentColor="#F97316"

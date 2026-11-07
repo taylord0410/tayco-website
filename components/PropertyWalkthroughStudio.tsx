@@ -600,6 +600,9 @@ const NIGHT_IMAGE_FALLBACK_MAP: Record<string, string> = {
   com_04_1: "com_04_2-night.jpg",
 };
 
+/** Day photos with no generated night version: at night they keep the day photo. */
+const NO_NIGHT_VARIANT = new Set(["com_01_1"]);
+
 /**
  * Maps any daytime architectural photo path to its real generated nighttime (9:30 PM)
  * counterpart in `/curated/properties/*-night.jpg`.
@@ -607,7 +610,7 @@ const NIGHT_IMAGE_FALLBACK_MAP: Record<string, string> = {
 export function resolveNightImageSrc(daySrc: string): string {
   const fileName = daySrc.split("/").pop() ?? "";
   const base = fileName.replace(/\.jpg$/i, "");
-  if (!base) return daySrc;
+  if (!base || NO_NIGHT_VARIANT.has(base)) return daySrc;
   const fallback = NIGHT_IMAGE_FALLBACK_MAP[base];
   if (fallback) {
     return `/curated/properties/${fallback}`;
@@ -755,18 +758,21 @@ export function buildCoherentWalkthrough(
     ? "/curated/properties/interior-custom-foyer-oak-staircase.jpg"
     : "/curated/properties/interior-duplex-brick-living.jpg";
 
-  // Step 03: Chef's Kitchen & Dining Core (or Commercial Limestone Reception Core)
+  // Step 03: Chef's Kitchen & Dining Core. Commercial rooms 3 and 4 show the project's own
+  // triptych photos, the same entries their titles come from, so title and photo always match.
   const kitchenCoreSrc = isCommercial
-    ? "/curated/hero/com-lobby-limestone.jpg"
+    ? prop.triptych[1].src
+    : prop.id === "sfh-101"
+    ? "/curated/hero/res-navy-kitchen.jpg" // the navy kitchen its card describes
     : isTownhouse && (prop.id === "twn-303" || prop.id === "twn-305")
     ? "/curated/properties/interior-townhouse-parlor-kitchen.jpg"
     : isLimestoneOrModern
     ? "/curated/properties/interior-limestone-modern-kitchen.jpg"
     : "/curated/properties/interior-duplex-brick-kitchen.jpg";
 
-  // Step 04: Upper Primary Suite & Spa Bath (or Commercial Wood-Slat Boardroom)
+  // Step 04: Upper Primary Suite & Spa Bath (commercial: the project's third triptych photo)
   const upperSuiteSrc = isCommercial
-    ? "/curated/capabilities/com-boardroom.jpg"
+    ? prop.triptych[2].src
     : prop.id === "sfh-102" ||
       prop.id === "sfh-105" ||
       prop.id === "dpx-202" ||

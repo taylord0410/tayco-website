@@ -186,10 +186,10 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 06 · 07 · 09",
     summary:
-      "Two-story detached modern farmhouse featuring vertical fiber-cement board-and-batten siding, black standing-seam metal roof accents, a navy-island chef's kitchen with quartz countertops and a coffered-ceiling great room with stone hearth.",
+      "Two-story detached modern farmhouse featuring vertical fiber-cement board-and-batten siding, black standing-seam metal roof accents, a navy-cabinet chef's kitchen with a marble waterfall island and a coffered-ceiling great room with stone hearth.",
     highlights: [
       "Standing-seam metal & architectural shingle roof system",
-      "Custom navy island kitchen with waterfall quartz & white-oak floors",
+      "Custom navy cabinetry kitchen with marble waterfall island & white-oak floors",
       "Coffered living room ceiling with built-in cabinetry & stone fireplace",
     ],
     triptych: [
@@ -203,7 +203,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
       },
       {
         src: "/curated/hero/res-navy-kitchen.jpg",
-        label: "Navy Island Chef's Kitchen & Quartz Countertops",
+        label: "Navy Shaker Chef's Kitchen & Marble Waterfall Island",
       },
     ],
   },
@@ -436,7 +436,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
       "Contemporary asymmetric duplex pairing a forward-projecting two-story quarry limestone residence with a cantilevered steel entry awning on the left, and a set-back stucco-and-cedar residence with an integrated garage on the right.",
     highlights: [
       "Forward quarry limestone volume + recessed stucco & cedar garage wing",
-      "Owner's unit chef's kitchen with navy island & brass fixtures",
+      "Owner's unit rift-oak kitchen with a stone waterfall island",
       "Porcelain tile bathrooms, frameless glass showers & dual laundry",
     ],
     triptych: [
@@ -648,7 +648,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
       "Corner-lot three-story townhouse community featuring asymmetric stepped volumes in dark manganese brick, cut limestone and warm cedar panels, with cantilevered corner glass balconies and waterfall quartz kitchens.",
     highlights: [
       "Asymmetric corner townhouse massing in charcoal brick, stone & cedar",
-      "Main-level custom shaker kitchen with waterfall quartz island",
+      "Main-level rift-oak kitchen with stone waterfall island",
       "Turnkey interior finishes, wide-plank oak & recessed lighting",
     ],
     triptych: [
@@ -1244,7 +1244,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/properties/interior-limestone-modern-living.jpg",
-          label: "Honed Limestone Fireplace Surround & Custom Hearth Bench",
+          label: "Honed Limestone Feature Pier in an Open-Plan Living Room",
         },
       ],
     },
@@ -1276,7 +1276,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/hero/res-navy-kitchen.jpg",
-          label: "Custom White Shaker Chef's Kitchen & Quartz Island",
+          label: "Custom Navy Shaker Kitchen, Marble Waterfall Island & Brass Hood",
         },
       ],
     },
@@ -1784,7 +1784,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
-          label: "Townhome Parlor Chef's Kitchen with Walnut Cabinetry & Quartz Island",
+          label: "Townhome Parlor Kitchen with White Cabinetry, Marble Island & Bay Window",
         },
         {
           src: "/curated/properties/mkt-twn-carpentry-library.jpg",

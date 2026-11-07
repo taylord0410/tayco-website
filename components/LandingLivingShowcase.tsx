@@ -80,7 +80,7 @@ export const RESIDENTIAL_HERO_SCENES: HeroSceneItem[] = [
   {
     id: "res-kitchen",
     chip: "Custom Kitchens",
-    title: "Navy Island Chef's Kitchen, White Quartz & Oak",
+    title: "Navy Shaker Chef's Kitchen, Marble Island & Oak",
     csiCode: "RES DIV 06 / 09 · CUSTOM CABINETRY & STONE",
     specTag: "Full-Gut Kitchen Modernization",
     image: "/curated/hero/res-navy-kitchen.jpg",
@@ -301,16 +301,16 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     division: "div04",
     divisionLabel: "Div 04 · Roofing Systems",
     code: "TR-10",
-    title: "Commercial Storefront Mansard Standing-Seam Re-Roof",
-    subtitle: "Corroded metal mansard & failing gutters to architectural bronze panels",
+    title: "Commercial Storefront Hip-Roof Charcoal Standing-Seam Re-Roof",
+    subtitle: "Corroded metal hip roof & failing gutters to charcoal standing-seam panels",
     csiSpec: "CSI 07 41 13 / 07 71 00 · METAL ROOF & COPING",
     beforeImg: "/curated/pairs/div04_04_antes.jpg",
     afterImg: "/curated/pairs/div04_04_despues.jpg",
-    beforeTag: "01 / Rusted Commercial Mansard Facade",
-    afterTag: "02 / Bronze Standing-Seam Mansard & Trim",
+    beforeTag: "01 / Rusted Commercial Hip-Roof Facade",
+    afterTag: "02 / Charcoal Standing-Seam Hip Roof & Trim",
     summary:
-      "High-visibility commercial facade rehabilitation replacing corroded mansard panels and sagging gutters with Kynar-finished bronze standing-seam panels and commercial box gutters.",
-    highlights: ["Kynar-coated architectural bronze metal", "Seamless commercial gutter & downspouts", "Boom-lift staged zero-disruption execution"],
+      "High-visibility commercial facade rehabilitation replacing corroded hip-roof panels and sagging gutters with Kynar-finished charcoal standing-seam panels and commercial box gutters.",
+    highlights: ["Kynar-coated charcoal architectural metal", "Seamless commercial gutter & downspouts", "Boom-lift staged zero-disruption execution"],
   },
   {
     id: "div02_04",
@@ -401,7 +401,7 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
     title: "Architectural Rainscreen Siding & Trim Envelope",
     trade: "Siding & Cladding",
     csi: "DIV 07",
-    sector: "Multi-Family",
+    sector: "Commercial",
     image: "/curated/magazine/revista_si_05_a.jpg",
   },
   {
@@ -433,7 +433,7 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   },
   {
     id: "m-bot-2",
-    title: "Custom Residential Timber Roof Rafters & Framing",
+    title: "Exterior Wall Framing, Window Headers & Ceiling Joists",
     trade: "Rough Carpentry",
     csi: "DIV 06",
     sector: "Residential",
@@ -449,7 +449,7 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   },
   {
     id: "m-bot-4",
-    title: "Geometric White-Oak Feature Wall & Millwork",
+    title: "Painted Staircase, Oak Handrail & Finish Carpentry",
     trade: "Finish Carpentry",
     csi: "DIV 06",
     sector: "Commercial & Res",

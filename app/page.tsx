@@ -132,7 +132,7 @@ const TAYCO_SHOWCASE_CARDS: Array<{
     frames: [
       {
         src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
-        caption: "Navy Island Kitchen, Quartz & White Oak Flooring",
+        caption: "Rift-Oak Kitchen, Stone Waterfall Island & White Oak Flooring",
         csi: "RES · KITCHEN REMODEL",
       },
       {
