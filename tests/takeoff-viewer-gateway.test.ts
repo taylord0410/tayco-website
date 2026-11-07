@@ -11,6 +11,7 @@ import { type Actor, acceptInvitation, createInvitation, createSession, provisio
 import { NextRequest } from 'next/server';
 import { database, execute, registerDocument } from '../lib/erp';
 import { handleViewerRequest } from '../lib/takeoff-viewer-gateway';
+import { currentReportingPeriod } from '../lib/guest-period';
 import { GET, HEAD, POST } from '../app/api/takeoff-viewer/[[...path]]/route';
 
 const prefix = '/api/takeoff-viewer';
@@ -219,7 +220,7 @@ test('explicit v2 guest review grants only approved October documents through fr
     const mappingPath = process.env.TAYCO_TAKEOFF_MAPPING_PATH!;
     const mapping = JSON.parse(readFileSync(mappingPath, 'utf8'));
     mapping.schemaVersion = 'tayco-takeoff-viewer-access/v2';
-    mapping.guestReviews = [{ tenantId: actor.tenantId, guestId: guest.id, projectId, period: '2026-10', viewerDocumentIds: ['doc-a'] }];
+    mapping.guestReviews = [{ tenantId: actor.tenantId, guestId: guest.id, projectId, period: currentReportingPeriod(), viewerDocumentIds: ['doc-a'] }];
     writeFileSync(mappingPath, JSON.stringify(mapping));
     const catalog = await GET(req('/api/v1/projects', { headers }));
     assert.equal(catalog.status, 200); protectedHeaders(catalog);
