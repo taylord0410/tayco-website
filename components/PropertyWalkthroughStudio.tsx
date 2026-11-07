@@ -600,6 +600,64 @@ const NIGHT_IMAGE_FALLBACK_MAP: Record<string, string> = {
   com_04_1: "com_04_2-night.jpg",
 };
 
+type RoomHotspotText = Pick<WalkthroughHotspot, "title" | "csiDivision" | "materialSpec" | "detail">;
+type RoomText = { floorLevel: string; lights: string[]; hotspots: [RoomHotspotText, RoomHotspotText, RoomHotspotText] };
+const spot = (title: string, csiDivision: string, materialSpec: string, detail: string): RoomHotspotText =>
+  ({ title, csiDivision, materialSpec, detail });
+
+/**
+ * Commercial walkthroughs reuse the residential room layout (light and hotspot positions), so their room
+ * text is swapped here. Each commercial project shows its own photos in every room, so these texts
+ * describe the scope in general terms and never a fixture that one particular photo may not have.
+ */
+const COMMERCIAL_ROOM_TEXT: Record<string, RoomText> = {
+  "01": {
+    floorLevel: "Level 1 · Street Perspective (35° Oblique)",
+    lights: ["Storefront Glazing Glow", "Entry Canopy Downlights", "Upper-Floor Office Windows", "Facade Wash Lighting"],
+    hotspots: [
+      spot("Commercial Facade & Envelope System", "CSI DIV 04 & 07 · ENVELOPE", "Masonry, Metal Panel or EIFS per Project", "Air/water barrier and flashing details coordinated with the facade system."),
+      spot("Storefront & Curtain-Wall Glazing", "CSI DIV 08 · GLAZING", "Thermally Broken Aluminum Framing", "Insulated low-E units sized to the tenant's daylight and energy targets."),
+      spot("Main Entry, Walks & Accessible Route", "CSI DIV 03 & 32 · SITE", "Concrete Walks, Curb Ramps & Entry Canopy", "Accessible route from parking to the main entry."),
+    ],
+  },
+  "02": {
+    floorLevel: "Level 1 · Main Entry & Lobby",
+    lights: ["Lobby Ambient Downlights", "Reception Feature Lighting", "Daylight Through Entry Glazing"],
+    hotspots: [
+      spot("Lobby Daylight & Entry Sightline", "CSI DIV 08 · ENTRY GLAZING", "Vestibule & Storefront Glazing", "Connects the street facade with the lobby interior."),
+      spot("High-Traffic Commercial Flooring", "CSI DIV 09 · FLOORING", "Porcelain Tile, LVT or Polished Concrete", "Selected for traffic, maintenance and slip resistance."),
+      spot("Reception Millwork & Wall Finishes", "CSI DIV 06 & 09 · INTERIOR FINISH", "Custom Millwork, Gypsum Assemblies & Paint", "Built to the tenant's brand and finish standard."),
+    ],
+  },
+  "03": {
+    floorLevel: "Level 1 · Tenant Interior & MEP Core",
+    lights: ["Architectural LED Downlights", "Feature & Accent Lighting", "Perimeter Daylight"],
+    hotspots: [
+      spot("Tenant Interior Finish Package", "CSI DIV 06 & 09 · TENANT FINISHES", "Millwork, Partitions & Wall Finishes", "Scope set by the tenant's program and finish schedule."),
+      spot("Ceiling, Lighting & MEP Coordination", "CSI DIV 09 & 26 · CEILINGS & LIGHTING", "Acoustic Ceilings with Integrated LED Fixtures", "Ceiling layout coordinated with HVAC, sprinklers and electrical."),
+      spot("Perimeter Glazing & Daylight", "CSI DIV 08 · NATURAL DAYLIGHT", "Exterior Windows or Storefront Glazing", "Brings daylight into the tenant space."),
+    ],
+  },
+  "04": {
+    floorLevel: "Level 2 · Structural Envelope & Systems",
+    lights: ["Space Ambient Lighting", "Task & Feature Lighting", "Perimeter Daylight"],
+    hotspots: [
+      spot("Structural Frame & Floor Assembly", "CSI DIV 03 & 05 · STRUCTURE", "Steel or Concrete Frame per Project", "Frame, slab and deck checked against the project's loads."),
+      spot("Acoustic & Fire-Rated Assemblies", "CSI DIV 07 & 09 · RATED ASSEMBLIES", "Rated Partitions, Sealants & Insulation", "Separation between tenants and between floors."),
+      spot("Interior Finish & Fit-Out", "CSI DIV 09 · FINISHES", "Flooring, Ceilings & Wall Finishes", "Completed to the space's use and finish schedule."),
+    ],
+  },
+  "05": {
+    floorLevel: "Level 1 · Outdoor Terrace & Site",
+    lights: ["Terrace Downlights", "Interior Glow Through Glazing", "Landscape & Paver Lighting"],
+    hotspots: [
+      spot("Indoor-Outdoor Glazing Connection", "CSI DIV 08 · GLAZING", "Sliding or Storefront Doors to the Terrace", "Connects the interior space with the outdoor area."),
+      spot("Overhead Canopy & Soffit", "CSI DIV 05 & 07 · CANOPY", "Steel or Wood Canopy with Finished Soffit", "Shade and weather protection for the outdoor area."),
+      spot("Commercial Pavers & Site Hardscape", "CSI DIV 03 & 32 · HARDSCAPE", "Pavers or Concrete on a Drained Base", "Built for foot traffic and drainage."),
+    ],
+  },
+};
+
 /** Day photos with no generated night version: at night they keep the day photo. */
 const NO_NIGHT_VARIANT = new Set(["com_01_1"]);
 
@@ -787,7 +845,13 @@ export function buildCoherentWalkthrough(
     ? "/curated/properties/interior-townhouse-rooftop-terrace.jpg"
     : "/curated/properties/interior-duplex-rear-patio-courtyard.jpg";
 
-  return [
+  const stops: [
+    WalkthroughStop,
+    WalkthroughStop,
+    WalkthroughStop,
+    WalkthroughStop,
+    WalkthroughStop
+  ] = [
     {
       stepNumber: "01",
       shortRoomName: isCommercial ? "Street Facade" : "Exterior Facade",
@@ -1094,6 +1158,18 @@ export function buildCoherentWalkthrough(
       ],
     },
   ];
+
+  if (!isCommercial) return stops;
+  return stops.map((stop) => {
+    const text = COMMERCIAL_ROOM_TEXT[stop.stepNumber];
+    if (!text) return stop;
+    return {
+      ...stop,
+      floorLevel: text.floorLevel,
+      lightFixtures: stop.lightFixtures.map((fixture, i) => ({ ...fixture, label: text.lights[i] ?? fixture.label })),
+      hotspots: stop.hotspots.map((hotspot, i) => ({ ...hotspot, ...text.hotspots[i] })) as WalkthroughStop["hotspots"],
+    };
+  }) as typeof stops;
 }
 
 type FinishSurfaceKey = "cabinetry" | "stone" | "flooring" | "hardware";
