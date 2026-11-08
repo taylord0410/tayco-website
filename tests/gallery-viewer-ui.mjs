@@ -128,7 +128,12 @@ async function frame(dialog) {
         if (el.matches('canvas, img') || alpha >= 0.97) break;
       }
     }
-    return { stage: rect(stage), photo, estimate: rect(estimate), seeThrough };
+    // The copy behind the whole photo fills the empty bands; sharp, it reads as three stacked photos
+    // (division viewer on a phone, 8-nov: its blur lived in a stylesheet only the home page loads).
+    const sharpBackdrops = [...(stage?.querySelectorAll('canvas[data-protected-canvas], img') ?? [])]
+      .filter((el) => shown(el) && el.dataset.auditIgnore === 'true')
+      .filter((el) => { const m = getComputedStyle(el).filter.match(/blur\(([\d.]+)px\)/); return !m || Number(m[1]) < 8; }).length;
+    return { stage: rect(stage), photo, estimate: rect(estimate), seeThrough, sharpBackdrops };
   });
 }
 
@@ -221,6 +226,7 @@ async function check(page, label, trigger, division) {
     if (f.photo.distorted) problems.push(`${label}: ${f.photo.stem} is stretched`);
     if (f.photo.fill < MIN_FILL) problems.push(`${label}: ${f.photo.stem} fills only ${Math.round(f.photo.fill * 100)} % of the frame`);
   }
+  if (frames.some((f) => f.sharpBackdrops)) problems.push(`${label}: the background copy behind the photo is not blurred (at least 8 px), it looks like extra photos`);
   const holes = [...new Set(frames.flatMap((f) => f.seeThrough))];
   if (holes.length) problems.push(`${label}: the page shows through the viewer at ${holes.length} of 100 points (e.g. ${holes.slice(0, 3).join(' · ')})`);
 
