@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { PROPERTY_LISTINGS } from '../lib/property-catalog';
@@ -49,8 +50,17 @@ function photosReachableFrom(entries: string[]): Set<string> {
 
 const reachable = photosReachableFrom(DIVISIONS.map((slug) => path.join(root, 'app', slug, 'page.tsx')));
 
+// The same image saved under two names counts once (HUB, 8-nov: a gallery showed r4.jpg and
+// res-farmhouse-metal.jpg, byte for byte the same picture). Dropping the copy loses no photo, as long
+// as a file with the same content is still on the pages.
+const contentOf = (photo: string) => {
+  const file = path.join(root, 'public', photo);
+  return existsSync(file) ? createHash('sha256').update(readFileSync(file)).digest('hex') : undefined;
+};
+const reachableContent = new Set([...reachable].map(contentOf).filter(Boolean));
+
 test('every photo the division pages showed before the redesign is still on them and still on disk', () => {
-  const lost = inventory.photos.filter((photo) => !reachable.has(photo));
+  const lost = inventory.photos.filter((photo) => !reachable.has(photo) && !reachableContent.has(contentOf(photo)));
   const deleted = inventory.photos.filter((photo) => !existsSync(path.join(root, 'public', photo)));
   assert.deepEqual(lost, [], 'photos no longer referenced by any division page (move them, do not drop them)');
   assert.deepEqual(deleted, [], 'photos deleted from public/');
