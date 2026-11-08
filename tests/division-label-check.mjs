@@ -3,34 +3,38 @@
 //
 // Reads the HTML the server actually sends, so it does not depend on how the components are built:
 //   BASE_URL=http://localhost:3000 node tests/division-label-check.mjs
-// Allowed: the page's own <h1>, links between the four division pages (the category selector),
-// <head>, <header>, <nav> and <footer>. Everything else in the body is checked as visible text; the
-// alt, aria-label and title attributes fail only when they repeat the name. Exit code 1 lists every
-// place the name still appears.
+// Allowed: the page's own <h1>, the first link to the page itself (its pill in the category selector),
+// <head>, <header>, <nav> and <footer>. Any other card or link naming the page's own division counts:
+// the selector is the only navigation the page needs (HUB, 8-nov). Everything else in the body is
+// checked as visible text; the alt, aria-label and title attributes fail only when they repeat the
+// name. Exit code 1 lists every place the name still appears.
 const base = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
+// Synonyms count too: swapping the name for another word for it hides the repetition, it does not
+// remove it (HUB, 8-nov: «Multi-Story» in place of «Multifamily»).
 const DIVISIONS = {
   'single-family': /\bsingle[\s-]?family\b|\bSFH\b/i,
-  multifamily: /\bmulti[\s-]?family\b|\bmulti[\s-]?unit\b/i,
-  townhomes: /\btown[\s-]?(?:home|house)s?\b/i,
+  multifamily: /\bmulti[\s-]?family\b|\bmulti[\s-]?unit\b|\bmulti[\s-]?stor(?:e?y|ies)\b/i,
+  townhomes: /\btown[\s-]?(?:home|house)s?\b|\brow[\s-]?(?:home|house)s?\b/i,
   commercial: /\bcommercial\b/i,
 };
 
 const decode = (s) =>
   s.replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
 
-function stripAllowed(html) {
+function stripAllowed(html, slug) {
   let body = html.replace(/<head[\s\S]*?<\/head>/i, '');
   for (const tag of ['script', 'style', 'noscript', 'template', 'svg', 'header', 'nav', 'footer']) {
     body = body.replace(new RegExp(`<${tag}\\b[\\s\\S]*?<\\/${tag}>`, 'gi'), ' ');
   }
   body = body.replace(/<h1\b[\s\S]*?<\/h1>/gi, ' ');
-  const divisionLink = new RegExp(`<a\\b[^>]*href="(?:${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})?\\/(?:${Object.keys(DIVISIONS).join('|')})(?:[?#][^"]*)?"[^>]*>[\\s\\S]*?<\\/a>`, 'gi');
-  return body.replace(divisionLink, ' ');
+  // Only the first link to the page itself (not global: replace() then drops just one match).
+  const selfLink = new RegExp(`<a\\b[^>]*href="(?:${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})?\\/${slug}(?:[?#][^"]*)?"[^>]*>[\\s\\S]*?<\\/a>`, 'i');
+  return body.replace(selfLink, ' ');
 }
 
-function findings(html, pattern) {
-  const body = stripAllowed(html);
+function findings(html, slug, pattern) {
+  const body = stripAllowed(html, slug);
   const out = [];
   // alt, aria-label and title are not seen; they describe the photo for search engines and screen
   // readers, so naming the category once is fine. Repeating it is the noise Taylord asked to remove.
@@ -52,7 +56,7 @@ for (const [slug, pattern] of Object.entries(DIVISIONS)) {
     failed++;
     continue;
   }
-  const hits = findings(await response.text(), pattern);
+  const hits = findings(await response.text(), slug, pattern);
   if (hits.length === 0) {
     console.log(`✔ /${slug}: the division name only appears in the page title and the category selector`);
     continue;
