@@ -134,10 +134,16 @@ export function HomeEditorialGallery({ selection, onClose }: {
             </button>
           </header>
           <div className="home-gallery-stage relative flex-1 min-h-0 w-full overflow-hidden select-none bg-[#03060D] cursor-grab active:cursor-grabbing" {...stageGestureHandlers}>
-            <ProtectedImage src={frame.src} alt="" auditIgnore loading="eager"
-              className="home-gallery-backdrop" />
+            <ProtectedImage
+              src={frame.src}
+              alt=""
+              auditIgnore
+              loading="eager"
+              className="home-gallery-backdrop absolute -inset-[18px] w-[calc(100%+36px)] h-[calc(100%+36px)] object-cover pointer-events-none"
+              style={{ filter: "blur(26px) brightness(0.38) saturate(1.15)" }}
+            />
             <ProtectedImage src={frame.src} alt={frame.title} loading="eager"
-              className="home-gallery-main-image h-full w-full object-contain" />
+              className="home-gallery-main-image relative z-10 h-full w-full object-contain" />
             {selection.frames.length > 1 && (
               <>
                 <button

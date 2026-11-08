@@ -1929,7 +1929,8 @@ export function PropertyWalkthroughStudioModal({
                 alt=""
                 auditIgnore={true}
                 loading="eager"
-                className="home-gallery-backdrop"
+                className="home-gallery-backdrop absolute -inset-[18px] w-[calc(100%+36px)] h-[calc(100%+36px)] object-cover pointer-events-none"
+                style={{ filter: "blur(26px) brightness(0.38) saturate(1.15)" }}
               />
               {stops.map((stop, idx) => {
                 const isCurrent = idx === activeStopIdx;
