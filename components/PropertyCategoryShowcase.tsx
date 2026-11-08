@@ -29,12 +29,79 @@ import {
   getPropertiesByCategory,
   getMarketSpecialtiesByCategory,
   type PropertyCategoryMeta,
+  type PropertyCategorySlug,
   type PropertyListing,
   type MarketSpecialtyService,
   type MarketSpecialtyId,
   type MarketSpecialtyGroup,
 } from "@/lib/property-catalog";
+import { getResidentialTradesByDivision } from "@/components/division/ResidentialDivisionContent";
+import { COMMERCIAL_CSI_TRADES } from "@/components/division/CommercialDivisionContent";
 import { COMPANY } from "@/lib/company";
+
+function sanitizeExtraSpecialtyLabel(label: string): string {
+  return label
+    .replace(
+      /\b(Single-Family|Residential|Multifamily|Multi-Family|Multi-Unit|Multi-Story|Duplex|Two-Flat|Triplex|Townhomes?|Townhouses?|Rowhouses?|Rowhomes?|Brownstones?|Commercial)\b/gi,
+      ""
+    )
+    .replace(/^\s*[&·—–-]\s*/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function mapCsiCodeToSpecialtyId(csiCode: string): MarketSpecialtyId {
+  switch (csiCode) {
+    case "Roofing":
+      return "roofing";
+    case "Windows & Doors":
+      return "siding";
+    case "Framing":
+      return "framing";
+    case "Drywall":
+      return "drywall";
+    case "Flooring":
+    case "Remodeling":
+      return "flooring";
+    case "Foundations":
+      return "concrete";
+    case "Painting":
+    case "Demolition":
+      return "stone";
+    case "Carpentry":
+    default:
+      return "carpentry";
+  }
+}
+
+function getDivisionExtraSpecialtyFrames(
+  slug: PropertyCategorySlug
+): Record<MarketSpecialtyId, { src: string; label: string }[]> {
+  const result: Record<MarketSpecialtyId, { src: string; label: string }[]> = {
+    roofing: [],
+    siding: [],
+    framing: [],
+    drywall: [],
+    flooring: [],
+    concrete: [],
+    stone: [],
+    carpentry: [],
+  };
+  const trades =
+    slug === "commercial"
+      ? COMMERCIAL_CSI_TRADES
+      : getResidentialTradesByDivision(slug);
+  for (const trade of trades) {
+    const targetId = mapCsiCodeToSpecialtyId(trade.csiCode);
+    for (const frame of trade.triptych) {
+      result[targetId].push({
+        src: frame.src,
+        label: sanitizeExtraSpecialtyLabel(frame.label) || trade.csiCode,
+      });
+    }
+  }
+  return result;
+}
 
 function SpecialtyVectorIcon({
   specialtyId,
@@ -198,10 +265,12 @@ function SpecialtyVectorIcon({
  */
 function MarketSpecialtyInteractiveCard({
   service,
+  extraFrames,
   marketLabel,
   onOpenSpecialtyStudio,
 }: {
   service: MarketSpecialtyService;
+  extraFrames?: { src: string; label: string }[];
   marketLabel: string;
   onOpenSpecialtyStudio?: (
     specialtyId: MarketSpecialtyId,
@@ -227,14 +296,30 @@ function MarketSpecialtyInteractiveCard({
     setMood(nextMood);
   };
 
-  const frames = service.triptych;
+  const baseCount = service.triptych.length;
+  const frames = React.useMemo(() => {
+    const seen = new Set(service.triptych.map((f) => f.src));
+    const dedupedExtras: { src: string; label: string }[] = [];
+    for (const ef of extraFrames ?? []) {
+      if (!seen.has(ef.src)) {
+        seen.add(ef.src);
+        dedupedExtras.push(ef);
+      }
+    }
+    return [...service.triptych, ...dedupedExtras];
+  }, [service.triptych, extraFrames]);
+  const resolveFrameNightSrc = React.useCallback(
+    (src: string, idx: number) =>
+      idx < baseCount ? resolveNightImageSrc(src) : src,
+    [baseCount]
+  );
   const allUrls = React.useMemo(
     () =>
-      frames.flatMap((f) => [f.src, resolveNightImageSrc(f.src)]),
-    [frames]
+      frames.flatMap((f, idx) => [f.src, resolveFrameNightSrc(f.src, idx)]),
+    [frames, resolveFrameNightSrc]
   );
   const currentFrame = frames[activeIdx] ?? frames[0];
-  const currentNightSrc = resolveNightImageSrc(currentFrame.src);
+  const currentNightSrc = resolveFrameNightSrc(currentFrame.src, activeIdx);
   const currentPairUrls = React.useMemo(
     () => [currentFrame.src, currentNightSrc],
     [currentFrame.src, currentNightSrc]
@@ -244,11 +329,12 @@ function MarketSpecialtyInteractiveCard({
   const selectFrame = (idx: number) => {
     const target = frames[idx] ?? frames[0];
     preloadProtectedImages(allUrls);
-    waitForDecodedSurfaces([target.src, resolveNightImageSrc(target.src)]).then(
-      () => {
-        setActiveIdx(idx);
-      }
-    );
+    waitForDecodedSurfaces([
+      target.src,
+      resolveFrameNightSrc(target.src, idx),
+    ]).then(() => {
+      setActiveIdx(idx);
+    });
   };
 
   const cardFilter =
@@ -403,7 +489,8 @@ function MarketSpecialtyInteractiveCard({
         >
           {frames.map((f, idx) => {
             const isSelected = idx === activeIdx;
-            const thumbSrc = mood === "night" ? resolveNightImageSrc(f.src) : f.src;
+            const thumbSrc =
+              mood === "night" ? resolveFrameNightSrc(f.src, idx) : f.src;
             return (
               <button
                 key={f.src}
@@ -411,11 +498,13 @@ function MarketSpecialtyInteractiveCard({
                 data-magnetic
                 onClick={() => {
                   selectFrame(idx);
-                  onOpenSpecialtyStudio?.(
-                    service.specialtyId,
-                    idx,
-                    moodSolarHour
-                  );
+                  if (idx < baseCount) {
+                    onOpenSpecialtyStudio?.(
+                      service.specialtyId,
+                      idx,
+                      moodSolarHour
+                    );
+                  }
                 }}
                 onPointerEnter={() => selectFrame(idx)}
                 className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer group/thumb"
@@ -1683,18 +1772,31 @@ export function PropertyCategoryPageView({
 
             {/* 8 Specialty Multi-Photo Gallery Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-              {filteredSpecialties.map((spec) => (
-                <MarketSpecialtyInteractiveCard
-                  key={spec.id}
-                  service={spec}
-                  marketLabel={activeCategory.shortLabel}
-                  onOpenSpecialtyStudio={(specialtyId, stepIdx, solarHour) => {
-                    if (baseListings[0]) {
-                      openModal(baseListings[0], stepIdx, solarHour, specialtyId);
-                    }
-                  }}
-                />
-              ))}
+              {filteredSpecialties.map((spec) => {
+                const divisionExtraFrames = activeCategory
+                  ? getDivisionExtraSpecialtyFrames(activeCategory.slug)[
+                      spec.specialtyId
+                    ]
+                  : undefined;
+                return (
+                  <MarketSpecialtyInteractiveCard
+                    key={spec.id}
+                    service={spec}
+                    extraFrames={divisionExtraFrames}
+                    marketLabel={activeCategory.shortLabel}
+                    onOpenSpecialtyStudio={(specialtyId, stepIdx, solarHour) => {
+                      if (baseListings[0]) {
+                        openModal(
+                          baseListings[0],
+                          Math.min(stepIdx, spec.triptych.length - 1),
+                          solarHour,
+                          specialtyId
+                        );
+                      }
+                    }}
+                  />
+                );
+              })}
             </div>
           </section>
         )}

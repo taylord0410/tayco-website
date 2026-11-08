@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import TradeGallery from "@/components/TradeGallery";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
-  ServiceCardTriptych,
   type TriptychFrame,
 } from "@/components/LandingLivingShowcase";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
@@ -102,7 +101,7 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Inspections and sequencing"
     ],
     "triptych": [
-      { "src": "/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
+      { "src": "/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "3-Story Cold-Formed Steel Stud Framing" },
       { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
       { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Structural Envelope & Steel Framing" }
     ]
@@ -284,80 +283,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   }
 ];
 
-const COMMERCIAL_PROJECT_STARTERS = [
-  {
-    "code": "01",
-    "name": "New construction",
-    "location": "Ground-up & additions",
-    "status": "Planning",
-    "sqft": "Site & intended use",
-    "helpfulDetails": "Plans & requirements",
-    "discussion": "Share available drawings and site details",
-    "portalHref": "/login",
-    "estimateHref": "/estimate",
-    "badgeColor": "#C9A84C"
-  },
-  {
-    "code": "02",
-    "name": "Tenant improvements",
-    "location": "Office, retail & business",
-    "status": "Renovation",
-    "sqft": "Layout & operating hours",
-    "helpfulDetails": "Current conditions",
-    "discussion": "Tell us about occupancy and target use",
-    "portalHref": "/login",
-    "estimateHref": "/estimate",
-    "badgeColor": "#C9A84C"
-  },
-  {
-    "code": "03",
-    "name": "Property turnover",
-    "location": "Owners & property managers",
-    "status": "Property programs",
-    "sqft": "Unit count & priorities",
-    "helpfulDetails": "Repair scope",
-    "discussion": "Identify urgent repairs and access needs",
-    "portalHref": "/login",
-    "estimateHref": "/estimate",
-    "badgeColor": "#C9A84C"
-  },
-  {
-    "code": "04",
-    "name": "Restoration",
-    "location": "Fire & water damage",
-    "status": "Recovery",
-    "sqft": "Damage & safe access",
-    "helpfulDetails": "Photos & documentation",
-    "discussion": "Discuss assessment and reconstruction",
-    "portalHref": "/login",
-    "estimateHref": "/estimate",
-    "badgeColor": "#C9A84C"
-  },
-  {
-    "code": "05",
-    "name": "Exterior improvements",
-    "location": "Roofing, siding & concrete",
-    "status": "Building envelope",
-    "sqft": "Condition & access",
-    "helpfulDetails": "Repair or replace",
-    "discussion": "Describe known issues and priorities",
-    "portalHref": "/login",
-    "estimateHref": "/estimate",
-    "badgeColor": "#C9A84C"
-  }
-];
-
 export default function CommercialDivisionContent() {
   // Fixed light angle for the response surfaces; the interactive hero moved to the division view.
   const lightAngle = 42;
-  const [activeCategory, setActiveCategory] =
-    useState<CommercialTradeCategory>("all");
-
-  const filteredTrades =
-    activeCategory === "all"
-      ? COMMERCIAL_CSI_TRADES
-      : COMMERCIAL_CSI_TRADES.filter((t) => t.category === activeCategory);
-
   const normalizedLightPx = `${Math.round(20 + (lightAngle / 90) * 65)}%`;
 
   return (

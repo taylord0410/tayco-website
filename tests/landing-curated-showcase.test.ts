@@ -219,7 +219,7 @@ test("Image-to-title concordance: residential division content excludes commerci
     "Commercial Exterior card must use verified exterior curtain-wall photo cx_o3.jpg"
   );
   assert.ok(
-    comContent.includes('"/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing"'),
+    comContent.includes('"/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "3-Story Cold-Formed Steel Stud Framing"'),
     "Commercial Framing card must use the verified people-free cold-formed steel stud photo (cx_x3.jpg is a finished high bay, 2026-11-07 audit)"
   );
   assert.ok(

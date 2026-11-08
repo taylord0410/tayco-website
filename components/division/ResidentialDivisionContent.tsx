@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TradeGallery from "@/components/TradeGallery";
@@ -9,7 +9,6 @@ import {
   ServiceCardTriptych,
   type TriptychFrame,
 } from "@/components/LandingLivingShowcase";
-import { StudioActionIcon } from "@/components/PropertyWalkthroughStudio";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
 
 export type ResidentialDivisionSlug =
@@ -445,20 +444,11 @@ export default function ResidentialDivisionContent({
 } = {}) {
   const pathname = usePathname();
   const resolvedDivision = resolveResidentialDivisionSlug(pathname, division);
-  const divisionTrades = getResidentialTradesByDivision(resolvedDivision);
   const restorationTriptychs =
     getResidentialRestorationByDivision(resolvedDivision);
 
   // Fixed light angle for the response surfaces; the interactive hero moved to the division view.
   const lightAngle = 48;
-  const [activeCategory, setActiveCategory] =
-    useState<ResidentialCategory>("all");
-
-  const filteredTrades =
-    activeCategory === "all"
-      ? divisionTrades
-      : divisionTrades.filter((t) => t.category === activeCategory);
-
   const normalizedLightPx = `${Math.round(20 + (lightAngle / 90) * 65)}%`;
 
   return (
