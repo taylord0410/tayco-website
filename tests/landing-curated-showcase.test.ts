@@ -702,12 +702,11 @@ test("V46 Unified Design System (Astralis + Umbra), Soft-Rounded Geometry, Eleva
     );
   }
 
-  // 4. Independent Laptop (100dvh) Stage vs. Right Sidebar Scrolling in Walkthrough Studio
+  // 4. The gallery viewer fits in a fixed 94dvh frame. The right lighting sidebar was removed with the
+  // photo-only viewer (Taylor and the HUB, 8-nov-2026); tests/gallery-viewer-ui.mjs measures the frame.
   assert.ok(
-    studioContent.includes("lg:overflow-hidden") &&
-      studioContent.includes("lg:overflow-y-auto") &&
-      studioContent.includes("94dvh"),
-    "PropertyWalkthroughStudio.tsx must isolate Left Stage and Right Atelier Sidebar scrolling within 94dvh so top solar controls never clip"
+    studioContent.includes("94dvh"),
+    "PropertyWalkthroughStudio.tsx must keep the gallery viewer inside a fixed 94dvh frame"
   );
 
   // 5. Balanced Space-Utilizing Card Interiors + Pill Dock Equilibrium
