@@ -1741,6 +1741,25 @@ export function buildSpecialtyWalkthroughStops(
   });
 }
 
+function toShortWorkName(title: string): string {
+  let clean = title.replace(/\s+Accents\b.*$/i, "");
+  clean = clean.split(/\s+(?:&|and|with|on|in|for|—|-)\s+/i)[0]?.trim() ?? title;
+  clean = clean.replace(/,\s*[^,]+$/, "").trim();
+  if (clean.length > 40) {
+    const words = clean.split(/\s+/);
+    let acc = "";
+    for (const w of words) {
+      if ((acc ? `${acc} ${w}` : w).length <= 40) {
+        acc = acc ? `${acc} ${w}` : w;
+      } else {
+        break;
+      }
+    }
+    clean = acc;
+  }
+  return clean || title.slice(0, 40).trim();
+}
+
 export function PropertyWalkthroughStudioModal({
   property,
   initialStepIndex = 0,
@@ -1763,12 +1782,9 @@ export function PropertyWalkthroughStudioModal({
     [property.category]
   );
 
-  const [studioMode, setStudioMode] = useState<"walkthrough" | "specialty">(
-    initialSpecialtyId ? "specialty" : "walkthrough"
-  );
-  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>(
-    initialSpecialtyId ?? marketSpecialties[0]?.specialtyId ?? "roofing"
-  );
+  const studioMode = initialSpecialtyId ? "specialty" : "walkthrough";
+  const selectedSpecialtyId =
+    initialSpecialtyId ?? marketSpecialties[0]?.specialtyId ?? "roofing";
 
   const activeSpecialty = React.useMemo(
     () =>
@@ -1803,29 +1819,12 @@ export function PropertyWalkthroughStudioModal({
   const [activeStopIdx, setActiveStopIdx] = useState<number>(
     Math.max(0, Math.min(stops.length - 1, initialStepIndex))
   );
-  const [selectedPaletteId, setSelectedPaletteId] =
-    useState<string>("as-built");
-  const [solarHour, setSolarHour] = useState<number>(initialSolarHour);
-  const [isAutoCyclingDay, setIsAutoCyclingDay] = useState<boolean>(false);
-  const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
-  const [hoveredHotspotId, setHoveredHotspotId] = useState<string | null>(null);
-  const [showHotspots, setShowHotspots] = useState<boolean>(() =>
-    typeof window === "undefined" ? true : window.innerWidth >= 768
-  );
-  const [splitCompareMode, setSplitCompareMode] = useState<boolean>(false);
-  const [splitPercent, setSplitPercent] = useState<number>(50);
-  const [cinemaMode, setCinemaMode] = useState<boolean>(false);
-  const [activeSurfaceTab, setActiveSurfaceTab] =
-    useState<FinishSurfaceKey>("cabinetry");
-  const [isDraggingSplit, setIsDraggingSplit] = useState<boolean>(false);
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   const activeStop = stops[activeStopIdx] ?? stops[0];
-  const activePalette =
-    DESIGNER_PALETTES.find((p) => p.id === selectedPaletteId) ??
-    DESIGNER_PALETTES[0];
-  const lighting = computeSolarLightingState(solarHour);
+  const activePalette = DESIGNER_PALETTES[0];
+  const lighting = computeSolarLightingState(initialSolarHour);
 
   const allWalkthroughUrls = React.useMemo(
     () => stops.flatMap((s) => [s.src, s.nightSrc]),
@@ -1835,22 +1834,6 @@ export function PropertyWalkthroughStudioModal({
   useEffect(() => {
     preloadProtectedImages(allWalkthroughUrls);
   }, [allWalkthroughUrls]);
-
-  useEffect(() => {
-    setActiveHotspotId(activeStop.hotspots[0]?.id ?? null);
-  }, [activeStopIdx, activeStop]);
-
-  // Smooth 60fps-style Solar Progression when user clicks "▶ Simulate 24h"
-  useEffect(() => {
-    if (!isAutoCyclingDay) return;
-    const timer = window.setInterval(() => {
-      setSolarHour((prev) => {
-        const next = prev + 0.25;
-        return next > 22.0 ? 6.5 : Number(next.toFixed(2));
-      });
-    }, 110);
-    return () => window.clearInterval(timer);
-  }, [isAutoCyclingDay]);
 
   const handleStepChange = useCallback(
     (nextIdx: number) => {
@@ -1863,7 +1846,6 @@ export function PropertyWalkthroughStudioModal({
     [activeStopIdx, stops.length, allWalkthroughUrls]
   );
 
-  // Keyboard navigation: 1-5 keys, C for Compare, F for Cinema (Esc, Left/Right owned by TaycoModalOverlay)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (["1", "2", "3", "4", "5"].includes(e.key)) {
@@ -1871,31 +1853,12 @@ export function PropertyWalkthroughStudioModal({
         if (idx < stops.length) {
           handleStepChange(idx);
         }
-      } else if (e.key === "c" || e.key === "C") {
-        setSplitCompareMode((v) => !v);
-      } else if (e.key === "f" || e.key === "F") {
-        setCinemaMode((v) => !v);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [stops.length, handleStepChange]);
 
-  const selectTimePreset = (preset: TimeOfDayPreset) => {
-    setIsAutoCyclingDay(false);
-    setSolarHour(preset.hourValue);
-  };
-
-  // Drag directly on viewport when split-compare is active
-  const updateSplitFromPointer = (clientX: number) => {
-    if (!viewportRef.current) return;
-    const rect = viewportRef.current.getBoundingClientRect();
-    if (rect.width <= 0) return;
-    const rawPct = ((clientX - rect.left) / rect.width) * 100;
-    setSplitPercent(Math.max(6, Math.min(94, Math.round(rawPct))));
-  };
-
-  // Combined CSS filter (Palette + Time-of-Day Solar Filter)
   const combinedFilter =
     [
       activePalette.cssFilter !== "none" ? activePalette.cssFilter : "",
@@ -1904,46 +1867,7 @@ export function PropertyWalkthroughStudioModal({
       .filter(Boolean)
       .join(" ") || "none";
 
-  const activeHotspot =
-    activeStop.hotspots.find((h) => h.id === activeHotspotId) ??
-    activeStop.hotspots[0];
-
-  const formatSolarHourLabel = (hr: number) => {
-    const whole = Math.floor(hr);
-    const mins = Math.round((hr - whole) * 60);
-    const period = whole >= 12 ? "PM" : "AM";
-    const displayHour = whole > 12 ? whole - 12 : whole === 0 ? 12 : whole;
-    return `${String(displayHour).padStart(2, "0")}:${String(mins).padStart(
-      2,
-      "0"
-    )} ${period}`;
-  };
-
-  const surfaceDetails: Record<
-    FinishSurfaceKey,
-    { label: string; value: string; swatchHex: string }
-  > = {
-    cabinetry: {
-      label: "Walls & Millwork",
-      value: activePalette.cabinetryAndTrim,
-      swatchHex: activePalette.swatches[0],
-    },
-    stone: {
-      label: "Stone & Countertops",
-      value: activePalette.countertopAndStone,
-      swatchHex: activePalette.swatches[1],
-    },
-    flooring: {
-      label: "Hardwood Flooring",
-      value: activePalette.flooringAndWood,
-      swatchHex: activePalette.swatches[2],
-    },
-    hardware: {
-      label: "Hardware & Glazing",
-      value: activePalette.hardwareAccent,
-      swatchHex: activePalette.swatches[3],
-    },
-  };
+  const shortWorkName = toShortWorkName(activeStop.title);
 
   return (
     <TaycoModalOverlay
@@ -1951,8 +1875,8 @@ export function PropertyWalkthroughStudioModal({
       onClose={onClose}
       onStepPrev={() => handleStepChange(activeStopIdx - 1)}
       onStepNext={() => handleStepChange(activeStopIdx + 1)}
-      enableStageWheelStep={!splitCompareMode}
-      enableStageSwipe={!splitCompareMode}
+      enableStageWheelStep={true}
+      enableStageSwipe={true}
       ariaLabel={
         studioMode === "specialty" && activeSpecialty
           ? `${activeSpecialty.title} — ${property.title}`
@@ -1962,7 +1886,7 @@ export function PropertyWalkthroughStudioModal({
       {({ stageGestureHandlers }) => (
         <div
           data-walkthrough-studio-modal
-          className="relative w-full max-w-[1460px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
+          className="relative w-full max-w-[1280px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
           style={{
             borderColor: "rgba(201, 168, 76, 0.38)",
             boxShadow:
@@ -1970,298 +1894,40 @@ export function PropertyWalkthroughStudioModal({
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* ── LUXURY EDITORIAL TOP HEADER BAR ── */}
+          {/* ── MINIMAL TOP BAR: COUNTER + CLOSE ── */}
           <div
-            className="px-3 sm:px-6 py-2 sm:py-3 border-b flex flex-row items-center justify-between gap-2 shrink-0"
+            className="px-4 sm:px-6 py-2.5 border-b flex items-center justify-between gap-3 shrink-0"
             style={{
               background:
                 "linear-gradient(90deg, rgba(6,12,24,0.98) 0%, rgba(12,25,48,0.94) 50%, rgba(6,12,24,0.98) 100%)",
               borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
-            <div className="flex flex-col items-start text-left gap-1 min-w-0 flex-1">
-              <div className="flex flex-wrap items-center justify-start gap-2 text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-                <span
-                  translate="no"
-                  className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black tracking-wider shrink-0 shadow-sm"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)",
-                    color: "#050A14",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-                  }}
-                >
-                  {studioMode === "specialty" && activeSpecialty
-                    ? activeSpecialty.specialtyLabel
-                    : property.location}
-                </span>
-                <span className="hidden sm:inline">
-                  {studioMode === "specialty" && activeSpecialty
-                    ? "GALLERY STUDIO"
-                    : "PROJECT WALKTHROUGH"}
-                </span>
-                <span className="hidden sm:inline text-white/25">•</span>
-                <span className="hidden sm:inline text-slate-300">
-                  {property.location}
-                </span>
-              </div>
-              <h2
-                id="walkthrough-studio-title"
-                className="tayco-card-title text-sm sm:text-xl lg:text-[1.35rem] text-white tracking-tight truncate max-w-full"
-              >
-                {studioMode === "specialty" && activeSpecialty
-                  ? activeSpecialty.title
-                  : property.title}
-              </h2>
-            </div>
-
-            {/* Sleek Luxury Action Bar: Capsule buttons with data-magnetic */}
-            <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
-              <ImageReferenceButton
-                compact
-                src={lighting.nightPhotoOpacity > 0.5 ? activeStop.nightSrc : activeStop.src}
-              />
-              <button
-                type="button"
-                data-compare-toggle
-                data-magnetic
-                aria-label="Compare before and after"
-                onClick={() => setSplitCompareMode((v) => !v)}
-                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3.5 sm:py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-                style={{
-                  background: splitCompareMode
-                    ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                    : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
-                  color: splitCompareMode ? "#050A14" : "#F8FAFC",
-                  borderColor: splitCompareMode
-                    ? "#F3D37A"
-                    : "rgba(243, 211, 122, 0.38)",
-                  boxShadow: splitCompareMode
-                    ? "0 6px 18px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.7)"
-                    : "inset 0 1px 0 rgba(255,255,255,0.12)",
-                }}
-              >
-                <StudioActionIcon
-                  kind={splitCompareMode ? "check" : "compare"}
-                  className="w-3.5 h-3.5"
-                />
-                <span className="hidden sm:inline">
-                  {splitCompareMode
-                    ? "Before / After Split Active"
-                    : "Compare Before / After"}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                data-magnetic
-                onClick={() => setShowHotspots((v) => !v)}
-                aria-label="Toggle spec beacons"
-                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3 sm:py-1.5 rounded-full text-xs font-sans font-medium border cursor-pointer transition-all duration-300"
-                style={{
-                  background: showHotspots
-                    ? "rgba(201, 168, 76, 0.18)"
-                    : "rgba(255, 255, 255, 0.04)",
-                  borderColor: showHotspots
-                    ? "rgba(243, 211, 122, 0.52)"
-                    : "rgba(255, 255, 255, 0.14)",
-                  color: showHotspots ? "#F3D37A" : "#94A3B8",
-                }}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    showHotspots ? "bg-[#F3D37A]" : "border border-slate-400"
-                  }`}
-                />
-                <span className="hidden sm:inline">{showHotspots ? "Spec Beacons (3)" : "Beacons Hidden"}</span>
-              </button>
-
-              <button
-                type="button"
-                data-cinema-toggle
-                data-magnetic
-                onClick={() => setCinemaMode((v) => !v)}
-                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold border cursor-pointer transition-all duration-300"
-                style={{
-                  background: cinemaMode
-                    ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                    : "linear-gradient(145deg, rgba(22, 43, 82, 0.85) 0%, rgba(7, 14, 28, 0.95) 100%)",
-                  borderColor: cinemaMode
-                    ? "#F3D37A"
-                    : "rgba(243, 211, 122, 0.38)",
-                  color: cinemaMode ? "#050A14" : "#F3D37A",
-                }}
-                title="Toggle Widescreen Cinema Canvas (Shortcut: F)"
-              >
-                <StudioActionIcon
-                  kind={cinemaMode ? "exit-cinema" : "cinema"}
-                  className="w-3.5 h-3.5"
-                />
-                <span>{cinemaMode ? "Exit Cinema" : "Expand Cinema View"}</span>
-              </button>
-
-              <button
-                type="button"
-                data-magnetic
-                onClick={onClose}
-                aria-label="Close studio"
-                className="inline-flex items-center justify-center gap-1.5 min-h-[40px] min-w-[40px] sm:px-3.5 sm:py-1.5 rounded-full text-xs font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
-              >
-                <StudioActionIcon kind="close" className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline" translate="no">Close</span>
-              </button>
-            </div>
+            <span className="text-xs font-mono font-bold text-[#F3D37A]">
+              {activeStopIdx + 1} / {stops.length}
+            </span>
+            <button
+              type="button"
+              data-magnetic
+              onClick={onClose}
+              aria-label="Close studio"
+              className="inline-flex items-center justify-center min-h-[42px] min-w-[42px] rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+            >
+              ✕
+            </button>
           </div>
 
-          {/* ── UNIFIED PROJECT WALKTHROUGH ↔ 8 MARKET SPECIALTIES NAVIGATION BAR (ZERO GETTING LOST) ── */}
-          {marketSpecialties.length > 0 && (
+          {/* ── MAIN PHOTO VIEWPORT ── */}
+          <div className="flex-1 min-h-0 lg:overflow-hidden lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek flex flex-col items-stretch">
             <div
-              className="px-4 sm:px-6 py-2 border-b flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2 shrink-0"
-              style={{
-                background:
-                  "linear-gradient(90deg, rgba(4,9,18,0.98) 0%, rgba(10,20,38,0.96) 100%)",
-                borderColor: "rgba(201, 168, 76, 0.2)",
-              }}
+              ref={viewportRef}
+              data-tayco-wheel-stage="true"
+              onWheel={stageGestureHandlers.onWheel}
+              onPointerDown={stageGestureHandlers.onPointerDown}
+              onPointerUp={stageGestureHandlers.onPointerUp}
+              className="relative flex-1 min-h-[300px] sm:min-h-[380px] w-full overflow-hidden select-none bg-[#03060D] cursor-grab active:cursor-grabbing"
+              style={{ isolation: "isolate" }}
             >
-              {/* Left/Center 2-Mode Switcher */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-full bg-[#03060D] border border-white/12 shrink-0">
-                <button
-                  type="button"
-                  data-studio-mode="walkthrough"
-                  data-magnetic
-                  onClick={() => {
-                    setStudioMode("walkthrough");
-                    setActiveStopIdx(0);
-                  }}
-                  className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
-                  style={{
-                    background:
-                      studioMode === "walkthrough"
-                        ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                        : "transparent",
-                    color: studioMode === "walkthrough" ? "#050A14" : "#CBD5E1",
-                    boxShadow:
-                      studioMode === "walkthrough"
-                        ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
-                        : "none",
-                  }}
-                >
-                  <span><span className="sm:hidden">Project Tour</span><span className="hidden sm:inline">Connected Project Tour</span></span>
-                </button>
-
-                <button
-                  type="button"
-                  data-studio-mode="specialty"
-                  data-magnetic
-                  onClick={() => {
-                    setStudioMode("specialty");
-                    setActiveStopIdx(0);
-                  }}
-                  className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all duration-300 cursor-pointer flex items-center gap-1.5"
-                  style={{
-                    background:
-                      studioMode === "specialty"
-                        ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                        : "transparent",
-                    color: studioMode === "specialty" ? "#050A14" : "#CBD5E1",
-                    boxShadow:
-                      studioMode === "specialty"
-                        ? "0 4px 14px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.75)"
-                        : "none",
-                  }}
-                >
-                  <span>
-                    <span className="sm:hidden">Specialties</span><span className="hidden sm:inline">Construction Specialties</span>
-                  </span>
-                </button>
-              </div>
-
-              {/* Right: 8 Specialty Selector Pills inside a sleek horizontal-capable container */}
-              <div translate="no" className={`${studioMode === "specialty" ? "flex" : "max-sm:hidden flex"} items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-no-scrollbar`}>
-                {marketSpecialties.map((spec) => {
-                  const isSelected =
-                    studioMode === "specialty" &&
-                    activeSpecialty?.specialtyId === spec.specialtyId;
-                  return (
-                    <button
-                      key={spec.id}
-                      type="button"
-                      data-studio-specialty-pill={spec.specialtyId}
-                      data-magnetic
-                      onClick={() => {
-                        setSelectedSpecialtyId(spec.specialtyId);
-                        setStudioMode("specialty");
-                        setActiveStopIdx(0);
-                      }}
-                      className="px-3 py-1 min-h-[36px] whitespace-nowrap rounded-full text-[11px] font-sans font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.03] shrink-0"
-                      style={{
-                        background: isSelected
-                          ? "linear-gradient(135deg, #FCEBA7 0%, #E2B95B 48%, #B68522 100%)"
-                          : "rgba(15, 30, 56, 0.65)",
-                        borderColor: isSelected
-                          ? "#F3D37A"
-                          : "rgba(255, 255, 255, 0.14)",
-                        color: isSelected ? "#050A14" : "#CBD5E1",
-                        boxShadow: isSelected
-                          ? "0 4px 12px rgba(201,168,76,0.35)"
-                          : "none",
-                      }}
-                    >
-                      {spec.specialtyLabel === "Siding"
-                        ? "Exterior Siding"
-                        : spec.specialtyLabel === "Framing"
-                          ? "Structural Framing"
-                          : spec.specialtyLabel}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ── MAIN INTERACTIVE BODY (NO UGLY SCROLLBARS, LUXURY PROPORTIONS) ── */}
-          <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain tayco-scrollbar-sleek grid grid-cols-1 lg:grid-cols-12 items-stretch">
-            {/* LEFT STAGE (8 COLS OR 12 COLS IN CINEMA MODE): SILKY CROSSFADE VIEWPORT + FILMSTRIP DOCK */}
-            <div
-              className={`${
-                cinemaMode ? "lg:col-span-12" : "lg:col-span-8"
-              } lg:h-full lg:min-h-0 lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/8 bg-[#03060D] transition-all duration-500`}
-            >
-              {/* 1. CINEMATIC MULTI-LAYER VIEWPORT WITH 720ms CROSSFADE & DOLLY ZOOM */}
-              <div
-                ref={viewportRef}
-                data-tayco-wheel-stage="true"
-                onWheel={stageGestureHandlers.onWheel}
-                onPointerDown={(e) => {
-                  if (splitCompareMode) {
-                    setIsDraggingSplit(true);
-                    updateSplitFromPointer(e.clientX);
-                  } else {
-                    stageGestureHandlers.onPointerDown(e);
-                  }
-                }}
-                onPointerMove={(e) => {
-                  if (!splitCompareMode || !isDraggingSplit) return;
-                  updateSplitFromPointer(e.clientX);
-                }}
-                onPointerUp={(e) => {
-                  if (splitCompareMode) {
-                    setIsDraggingSplit(false);
-                  } else {
-                    stageGestureHandlers.onPointerUp(e);
-                  }
-                }}
-                onPointerLeave={() => {
-                  if (splitCompareMode) {
-                    setIsDraggingSplit(false);
-                  }
-                }}
-                className={`relative flex-1 min-h-[300px] sm:min-h-[340px] lg:min-h-[300px] w-full overflow-hidden select-none bg-[#03060D] transition-all duration-500 ${
-                  splitCompareMode ? "cursor-ew-resize" : "cursor-grab active:cursor-grabbing"
-                }`}
-                style={{ isolation: "isolate" }}
-              >
-              {/* STACKED 5-ROOM LAYERED PHOTOS (DAY + REAL AI-GENERATED NIGHT) FOR SILKY-SMOOTH 720ms CROSSFADE + CAMERA DOLLY */}
               {stops.map((stop, idx) => {
                 const isCurrent = idx === activeStopIdx;
                 const zoomScale = isCurrent
@@ -2282,7 +1948,6 @@ export function PropertyWalkthroughStudioModal({
                       zIndex: isCurrent ? 2 : 1,
                     }}
                   >
-                    {/* Base Daytime Architectural Photograph */}
                     <div
                       className="absolute inset-0 w-full h-full pointer-events-none"
                       style={{
@@ -2299,222 +1964,17 @@ export function PropertyWalkthroughStudioModal({
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    {/* Real AI-Generated Nighttime (9:30 PM) Photograph with Logical 2700K Interior Illumination */}
-                    <div
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      style={{
-                        opacity: lighting.nightPhotoOpacity,
-                        filter:
-                          activePalette.cssFilter !== "none"
-                            ? activePalette.cssFilter
-                            : "none",
-                        transition:
-                          "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1), filter 480ms cubic-bezier(0.22, 1, 0.36, 1)",
-                      }}
-                    >
-                      <ProtectedImage
-                        src={stop.nightSrc}
-                        syncUrls={allWalkthroughUrls}
-                        alt={`${property.title} — ${stop.title} (Night 2700K View)`}
-                        loading="eager"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                   </div>
                 );
               })}
 
-              {/* Layer 2: Designer Color & Material Tint Overlay (Smooth 750ms Morph) */}
-              <div
-                className="absolute inset-0 pointer-events-none z-[3]"
-                style={{
-                  background: activePalette.tintOverlay,
-                  mixBlendMode: activePalette.tintBlendMode,
-                  opacity: activePalette.tintOpacity,
-                  transition:
-                    "opacity 750ms cubic-bezier(0.22, 1, 0.36, 1), background 750ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              />
-              <div
-                className="absolute inset-0 pointer-events-none z-[3]"
-                style={{
-                  background: activePalette.accentOverlay,
-                  opacity: activePalette.accentOverlay !== "transparent" ? 1 : 0,
-                  transition: "opacity 750ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              />
-
-              {/* Layer 3: Time-of-Day Ambient Sky / Twilight Blanket (Smooth 750ms Morph) */}
-              <div
-                className="absolute inset-0 pointer-events-none z-[4]"
-                style={{
-                  background: lighting.ambientOverlay,
-                  mixBlendMode: lighting.ambientBlendMode,
-                  opacity: lighting.ambientOpacity,
-                  transition: "opacity 750ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              />
-
-              {/* Layer 4: Directional Solar Rays (Morning East Sun / Golden Hour Sunset) */}
-              <div
-                className="absolute inset-0 pointer-events-none z-[5]"
-                style={{
-                  background: `radial-gradient(ellipse 88% 68% at ${activeStop.sunDirectionX}% ${activeStop.sunDirectionY}%, ${lighting.sunbeamColor} 0%, rgba(251,191,36,0.18) 48%, transparent 82%)`,
-                  mixBlendMode: "screen",
-                  opacity: lighting.sunbeamOpacity,
-                  transition: "opacity 750ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              />
-
-              {/* Layer 5: Refined Warm 2700K Architectural Light Cones & Floor Bounce (Sunset & Night) */}
-              <div
-                className="absolute inset-0 pointer-events-none z-[6]"
-                style={{
-                  opacity: lighting.lampGlowStrength,
-                  transition: "opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              >
-                {/* Subtle warm architectural floor/ceiling ambient bounce at night */}
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.16) 55%, rgba(217,119,6,0.18) 100%)",
-                    mixBlendMode: "soft-light",
-                  }}
-                />
-                {activeStop.lightFixtures.map((lamp, idx) => (
-                  <div
-                    key={lamp.label + idx}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
-                    style={{
-                      left: `${lamp.xPercent}%`,
-                      top: `${lamp.yPercent}%`,
-                      width: `${lamp.radiusPx * 2.2}px`,
-                      height: `${lamp.radiusPx * 1.85}px`,
-                      background:
-                        "radial-gradient(ellipse at center, rgba(255,243,199,0.52) 0%, rgba(251,191,36,0.24) 38%, rgba(217,119,6,0.08) 68%, transparent 100%)",
-                      mixBlendMode: "screen",
-                      opacity: lamp.intensity,
-                      filter: "blur(6px)",
-                      transition: "all 700ms cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Layer 6: Interactive Split-Screen Before/After Comparison Curtain */}
-              {splitCompareMode && (
-                <div
-                  className="absolute inset-0 overflow-hidden pointer-events-none z-10"
-                  style={{
-                    clipPath: `inset(0 ${100 - splitPercent}% 0 0)`,
-                  }}
-                >
-                  <ProtectedImage
-                    src={activeStop.src}
-                    syncUrls={stops.map((s) => s.src)}
-                    alt="Original As-Built Comparison"
-                    loading="eager"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-20 left-4 px-3 py-1 rounded-full bg-[#050A14]/88 backdrop-blur-md border border-white/20 text-[11px] font-mono font-semibold text-white shadow-lg">
-                    ◀ ORIGINAL AS-BUILT (12:30 PM)
-                  </div>
-                </div>
-              )}
-
-              {splitCompareMode && (
-                <div
-                  className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#F3D37A] to-transparent shadow-[0_0_20px_rgba(243,211,122,0.9)] pointer-events-none z-20"
-                  style={{ left: `${splitPercent}%` }}
-                >
-                  <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#050A14]/90 backdrop-blur-md text-[#F3D37A] font-mono font-black text-xs flex items-center justify-center shadow-2xl border border-[#F3D37A]">
-                    ⇄
-                  </div>
-                </div>
-              )}
-
-              {/* Top Glassmorphic Spatial Progress Bar & Active Lighting/Finish Badges */}
-              <div className="absolute top-3.5 left-3.5 right-3.5 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-none">
-                {/* Interactive 5-Node Spatial Mini-Path */}
-                <div
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full border backdrop-blur-xl pointer-events-auto"
-                  style={{
-                    background: "rgba(5, 10, 20, 0.72)",
-                    borderColor: "rgba(255, 255, 255, 0.14)",
-                  }}
-                >
-                  {stops.map((st, idx) => {
-                    const isCurrent = idx === activeStopIdx;
-                    return (
-                      <React.Fragment key={st.stepNumber}>
-                        <button
-                          type="button"
-                          onClick={() => handleStepChange(idx)}
-                          className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all duration-300 cursor-pointer"
-                          style={{
-                            background: isCurrent
-                              ? "rgba(201, 168, 76, 0.28)"
-                              : "transparent",
-                            color: isCurrent ? "#F3D37A" : "#94A3B8",
-                          }}
-                          title={`Jump to ${st.zoneLabel}`}
-                        >
-                          {st.stepNumber}
-                          {isCurrent ? ` · ${st.shortRoomName}` : ""}
-                        </button>
-                        {idx < stops.length - 1 && (
-                          <span className="text-white/20 text-[9px]">─</span>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-
-                {/* Active Solar & Palette Glass Pills */}
-                <div className="hidden sm:flex flex-wrap items-center gap-1.5">
-                  <span
-                    data-active-lighting-badge={lighting.phaseId}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border backdrop-blur-xl"
-                    style={{
-                      background: "rgba(5, 10, 20, 0.74)",
-                      borderColor: "rgba(243, 211, 122, 0.38)",
-                      color: "#FEF08A",
-                    }}
-                  >
-                    <SolarPhaseIcon
-                      phase={lighting.phaseId}
-                      className="w-3.5 h-3.5 text-[#F3D37A]"
-                    />
-                    <span>{lighting.phaseBadge}</span>
-                  </span>
-
-                  <span
-                    data-active-palette-badge={activePalette.id}
-                    className="px-3 py-1 rounded-full text-[11px] font-medium border backdrop-blur-xl flex items-center gap-1.5"
-                    style={{
-                      background: "rgba(5, 10, 20, 0.74)",
-                      borderColor: "rgba(255, 255, 255, 0.16)",
-                      color: "#F8FAFC",
-                    }}
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full border border-white/80"
-                      style={{ background: activePalette.swatches[0] }}
-                    />
-                    <span>{activePalette.shortLabel}</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Left / Right Sleek Glassmorphic Arrows */}
+              {/* Left / Right Sleek Glassmorphic Arrows (>= 40 px) */}
               <button
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx - 1)}
                 aria-label="Previous room in walkthrough"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#050A14]/65 backdrop-blur-xl border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] hover:scale-110 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
-                title="Previous Space (Shortcut: ←)"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                title="Previous (←)"
               >
                 ‹
               </button>
@@ -2522,588 +1982,28 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx + 1)}
                 aria-label="Next room in walkthrough"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#050A14]/65 backdrop-blur-xl border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] hover:scale-110 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
-                title="Next Space (Shortcut: →)"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                title="Next (→)"
               >
                 ›
               </button>
-
-              {/* Minimal Luxury Glassmorphic Spec Beacons (Clean Canvas — Label Expands Only on Active/Hovered Beacon!) */}
-              {showHotspots &&
-                activeStop.hotspots.map((spot, idx) => {
-                  const isSelected = activeHotspot?.id === spot.id;
-                  const isHovered = hoveredHotspotId === spot.id;
-                  const showLabelPill = isSelected || isHovered;
-                  return (
-                    <button
-                      key={spot.id}
-                      type="button"
-                      data-hotspot-pin={spot.id}
-                      onClick={() => setActiveHotspotId(spot.id)}
-                      onPointerEnter={() => setHoveredHotspotId(spot.id)}
-                      onPointerLeave={() => setHoveredHotspotId(null)}
-                      style={{
-                        left: `${spot.xPercent}%`,
-                        top: `${spot.yPercent}%`,
-                      }}
-                      aria-label={`Inspect ${spot.title}`}
-                      className="absolute -translate-x-1/2 -translate-y-1/2 z-20 group cursor-pointer focus:outline-none"
-                    >
-                      <span className="relative flex items-center justify-center">
-                        {/* Subtle pulsing luxury halo */}
-                        <span
-                          className={`absolute w-9 h-9 rounded-full transition-all duration-500 ${
-                            isSelected
-                              ? "bg-[#C9A84C]/35 scale-125 animate-ping"
-                              : "bg-white/15 scale-100 group-hover:scale-125"
-                          }`}
-                          style={{ animationDuration: "2.6s" }}
-                        />
-                        <span
-                          className={`relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all duration-300 shadow-xl backdrop-blur-md border ${
-                            isSelected
-                              ? "bg-[#C9A84C] text-[#050A14] border-white scale-110"
-                              : "bg-[#050A14]/75 text-white border-white/45 hover:border-[#F3D37A] hover:scale-110"
-                          }`}
-                        >
-                          <span translate="no">0{idx + 1}</span>
-                        </span>
-                      </span>
-
-                      {/* Floating Glass Label — Only shown for the active or hovered beacon so the photo stays clean! */}
-                      <span
-                        className={`hidden sm:flex items-center gap-1.5 absolute ${
-                          spot.xPercent > 55 ? "right-9" : "left-9"
-                        } top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1 rounded-full bg-[#050A14]/85 backdrop-blur-xl border border-[#C9A84C]/45 text-[11px] font-medium text-white shadow-2xl pointer-events-none transition-all duration-300 ${
-                          showLabelPill
-                            ? "opacity-100 translate-y-[-50%] scale-100"
-                            : "opacity-0 translate-y-[-40%] scale-95"
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#F3D37A]" />
-                        <span>{spot.title}</span>
-                      </span>
-                    </button>
-                  );
-                })}
             </div>
 
-            {/* Split Compare Fine Scrubber Bar (Visible when Split Compare is enabled) */}
-            {splitCompareMode && (
-              <div className="px-5 py-2 bg-[#071022] border-t border-white/10 flex items-center gap-4">
-                <span className="text-[11px] font-mono text-[#F3D37A] shrink-0">
-                  ⇄ Drag Photo or Slider (Original vs. {activePalette.shortLabel} ·{" "}
-                  {formatSolarHourLabel(solarHour)}):
-                </span>
-                <input
-                  type="range"
-                  min={6}
-                  max={94}
-                  value={splitPercent}
-                  onChange={(e) => setSplitPercent(Number(e.target.value))}
-                  aria-label="Split comparison slider"
-                  className="w-full accent-[#C9A84C] cursor-pointer"
-                />
-                <span className="text-[11px] font-mono text-slate-300 shrink-0">
-                  {splitPercent}%
-                </span>
-              </div>
-            )}
-
-            {/* 2. LUXURY GLASSMORPHIC FILMSTRIP DOCK (5 ROOMS OR 3 SPECIALTY VIEWS) — WITH CLEAN CAPTION BAR BELOW PHOTO */}
-            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-white/10">
-                <div className="min-w-0">
-                  <div className="text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#F3D37A] truncate">
-                    {activeStop.floorLevel} · {activeStopIdx + 1} / {stops.length}
-                  </div>
-                  <h3 className="tayco-card-title text-base sm:text-xl text-white tracking-tight leading-snug truncate">
-                    {activeStop.title}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  data-portal-next-room
-                  data-magnetic
-                  onClick={() => handleStepChange(activeStopIdx + 1)}
-                  className="tayco-atelier-btn-gold !min-h-[38px] !px-4 !py-1.5 text-xs font-bold whitespace-nowrap shrink-0 self-start sm:self-center"
-                >
-                  <span>{activeStop.portalButtonLabel}</span>
-                </button>
-              </div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-                    {studioMode === "specialty" && activeSpecialty
-                      ? `${activeSpecialty.specialtyLabel.toUpperCase()} GALLERY`
-                      : "PROJECT WALKTHROUGH"}
-                  </span>
-                  <span className="hidden sm:inline text-[11px] text-slate-400">
-                    — Click any view or press ← / → arrows for smooth transition
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className={`grid ${
-                  stops.length === 3
-                    ? "grid-cols-3"
-                    : stops.length === 4 || stops.length === 8
-                    ? "grid-cols-4"
-                    : stops.length === 6 || stops.length === 9
-                    ? "grid-cols-3"
-                    : "grid-cols-5"
-                } gap-2.5`}
-                role="tablist"
-                aria-label="Visual walkthrough filmstrip"
+            {/* ── EQUILIBRIUM BOTTOM BAR: ONE SHORT WORK NAME + ONE REQUEST ESTIMATE CTA ── */}
+            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <h3 className="tayco-card-title text-sm sm:text-lg text-white tracking-tight truncate">
+                {shortWorkName}
+              </h3>
+              <Link
+                href={`/estimate?property=${encodeURIComponent(
+                  `${property.code} - ${property.title}`
+                )}&category=${encodeURIComponent(property.category)}`}
+                data-magnetic
+                className="tayco-atelier-btn-gold !min-h-[40px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0"
               >
-                {stops.map((stop, idx) => {
-                  const isCurrent = idx === activeStopIdx;
-                  return (
-                    <button
-                      key={stop.stepNumber}
-                      type="button"
-                      role="tab"
-                      data-walkthrough-step-tab={stop.stepNumber}
-                      aria-selected={isCurrent}
-                      onClick={() => handleStepChange(idx)}
-                      className="group relative rounded-2xl overflow-hidden border text-left transition-all duration-300 cursor-pointer flex flex-col"
-                      style={{
-                        borderColor: isCurrent
-                          ? "#E5C97B"
-                          : "rgba(255, 255, 255, 0.1)",
-                        transform: isCurrent ? "translateY(-2px)" : "none",
-                        boxShadow: isCurrent
-                          ? "0 10px 25px rgba(0,0,0,0.6), 0 0 0 1px rgba(229,201,123,0.45)"
-                          : "none",
-                      }}
-                    >
-                      <div className="relative h-14 sm:h-16 w-full overflow-hidden bg-[#03060D]">
-                        <ProtectedImage
-                          src={stop.src}
-                          syncUrls={allWalkthroughUrls}
-                          alt={stop.shortRoomName}
-                          auditIgnore={true}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                        />
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            opacity: lighting.nightPhotoOpacity,
-                            transition:
-                              "opacity 650ms cubic-bezier(0.22, 1, 0.36, 1)",
-                          }}
-                        >
-                          <ProtectedImage
-                            src={stop.nightSrc}
-                            syncUrls={allWalkthroughUrls}
-                            alt={`${stop.shortRoomName} (Night)`}
-                            auditIgnore={true}
-                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                          />
-                        </div>
-                        <div
-                          className="absolute inset-0 transition-opacity duration-300"
-                          style={{
-                            background: isCurrent
-                              ? "linear-gradient(180deg, transparent 40%, rgba(5,10,20,0.75) 100%)"
-                              : "rgba(5,10,20,0.32)",
-                          }}
-                        />
-                        <span
-                          className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold backdrop-blur-md"
-                          style={{
-                            background: isCurrent
-                              ? "#E5C97B"
-                              : "rgba(5, 10, 20, 0.78)",
-                            color: isCurrent ? "#050A14" : "#E2E8F0",
-                          }}
-                        >
-                          {stop.stepNumber}
-                        </span>
-                      </div>
-                      <div
-                        className="px-2.5 py-1.5 text-[10px] sm:text-[11px] font-semibold truncate w-full transition-colors duration-300"
-                        style={{
-                          background: isCurrent
-                            ? "rgba(201, 168, 76, 0.16)"
-                            : "rgba(10, 19, 36, 0.85)",
-                          color: isCurrent ? "#F3D37A" : "#CBD5E1",
-                        }}
-                      >
-                        {stop.shortRoomName}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                Request Estimate
+              </Link>
             </div>
-
-            {/* 3. ARCHITECTURAL NARRATIVE & ACTIVE BEACON INSPECTOR */}
-            <div className="px-4 sm:px-6 py-3.5 bg-[#040811] border-t border-white/8 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              <div className="md:col-span-6">
-                <div className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C] mb-1">
-                  SPATIAL CONTINUITY NOTE
-                </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {activeStop.spatialNarrative}
-                </p>
-              </div>
-
-              {activeHotspot && (
-                <div
-                  className="md:col-span-6 p-3 rounded-2xl border transition-all duration-300"
-                  style={{
-                    background:
-                      "linear-gradient(145deg, rgba(15, 32, 64, 0.55) 0%, rgba(7, 14, 26, 0.85) 100%)",
-                    borderColor: "rgba(201, 168, 76, 0.32)",
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black bg-[#C9A84C]/20 text-[#F3D37A] border border-[#C9A84C]/40">
-                      BEACON SPEC
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">
-                      {activeHotspot.csiDivision}
-                    </span>
-                  </div>
-                  <div className="text-xs sm:text-sm font-bold text-white mt-1">
-                    {activeHotspot.title} —{" "}
-                    <span className="text-[#F3D37A] font-medium">
-                      {activeHotspot.materialSpec}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
-                    {activeHotspot.detail}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* RIGHT ATELIER PANEL (4 COLS, HIDDEN WHEN CINEMA MODE IS ON) */}
-          {!cinemaMode && (
-            <div className="lg:col-span-4 lg:h-full lg:min-h-0 lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek p-3.5 sm:p-4 flex flex-col justify-between gap-3.5 bg-[#060C18]">
-              <div className="space-y-4">
-                {/* ── SECTION A: NATURAL SOLAR & TWILIGHT LIGHTING ATELIER ── */}
-                <div
-                  className="p-3.5 rounded-2xl border space-y-3"
-                  style={{
-                    background:
-                      "linear-gradient(165deg, rgba(13, 27, 52, 0.65) 0%, rgba(6, 12, 24, 0.92) 100%)",
-                    borderColor: "rgba(255, 255, 255, 0.1)",
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-2 text-left">
-                    <div className="min-w-0">
-                      <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-start text-[10px]">
-                        24H SOLAR LIGHTING
-                      </div>
-                      <div className="tayco-card-title text-xs sm:text-sm text-white mt-0.5 truncate">
-                        Natural Daylight &amp; 2700K Night
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      data-auto-day-cycle
-                      data-magnetic
-                      onClick={() => setIsAutoCyclingDay((v) => !v)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-sans font-bold border cursor-pointer transition-all duration-300 shrink-0"
-                      style={{
-                        background: isAutoCyclingDay
-                          ? "#E5C97B"
-                          : "rgba(255, 255, 255, 0.05)",
-                        color: isAutoCyclingDay ? "#050A14" : "#F3D37A",
-                        borderColor: isAutoCyclingDay
-                          ? "#E5C97B"
-                          : "rgba(201, 168, 76, 0.4)",
-                      }}
-                    >
-                      <StudioActionIcon
-                        kind={isAutoCyclingDay ? "pause" : "play"}
-                        className="w-3 h-3"
-                      />
-                      <span>
-                        {isAutoCyclingDay ? "Pause 24h" : "Simulate 24h"}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* 4 Luxury Phase Pills */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {TIME_OF_DAY_PRESETS.map((preset) => {
-                      const isSelected = lighting.phaseId === preset.id;
-                      return (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          data-lighting-preset={preset.id}
-                          data-magnetic
-                          onClick={() => selectTimePreset(preset)}
-                          className="p-2.5 rounded-xl border text-left cursor-pointer transition-all duration-300 flex items-center gap-2.5"
-                          style={{
-                            background: isSelected
-                              ? "linear-gradient(135deg, rgba(229,201,123,0.24) 0%, rgba(201,168,76,0.14) 100%)"
-                              : "rgba(5, 10, 20, 0.65)",
-                            color: "#F8FAFC",
-                            borderColor: isSelected
-                              ? "#E5C97B"
-                              : "rgba(255, 255, 255, 0.08)",
-                            boxShadow: isSelected
-                              ? "0 4px 16px rgba(201,168,76,0.2)"
-                              : "none",
-                          }}
-                        >
-                          <span
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                              isSelected
-                                ? "bg-[#E5C97B] text-[#050A14]"
-                                : "bg-white/5 text-[#F3D37A]"
-                            }`}
-                          >
-                            <SolarPhaseIcon
-                              phase={preset.id}
-                              className="w-4 h-4"
-                            />
-                          </span>
-                          <div className="min-w-0">
-                            <div className="text-xs font-bold truncate">
-                              {preset.label}
-                            </div>
-                            <div
-                              className={`text-[10px] font-mono truncate ${
-                                isSelected ? "text-[#F3D37A]" : "text-slate-400"
-                              }`}
-                            >
-                              {preset.timeDisplay}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Celestial Gradient Horizon Slider */}
-                  <div className="pt-0.5">
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-1.5">
-                      <span className="text-slate-400">Solar Horizon Arc:</span>
-                      <span className="font-semibold text-[#F3D37A]">
-                        {formatSolarHourLabel(solarHour)} · {lighting.kelvin}
-                      </span>
-                    </div>
-                    <div
-                      className="relative h-2.5 rounded-full p-0.5 flex items-center"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, #FDE68A 0%, #BAE6FD 36%, #F59E0B 72%, #1E1B4B 100%)",
-                      }}
-                    >
-                      <input
-                        type="range"
-                        min={6.5}
-                        max={22.0}
-                        step={0.25}
-                        value={solarHour}
-                        onChange={(e) => {
-                          setIsAutoCyclingDay(false);
-                          setSolarHour(Number(e.target.value));
-                        }}
-                        aria-label="Time of day lighting slider"
-                        className="w-full accent-[#F3D37A] cursor-pointer bg-transparent"
-                      />
-                    </div>
-                    <div className="flex justify-between text-[9px] font-mono text-slate-400 mt-1">
-                      <span>06:30 AM</span>
-                      <span>12:30 PM</span>
-                      <span>06:30 PM</span>
-                      <span>10:00 PM</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── SECTION B: BESPOKE ARCHITECTURAL FINISH & COLOR ATELIER ── */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2 text-left mb-2">
-                    <div className="min-w-0">
-                      <div className="tayco-atelier-eyebrow text-[#C9A84C] justify-start text-[10px]">
-                        MATERIAL PACKAGES
-                      </div>
-                      <div className="tayco-card-title text-xs sm:text-sm text-white truncate">
-                        Curated Designer Palettes
-                      </div>
-                    </div>
-                    {selectedPaletteId !== "as-built" && (
-                      <button
-                        type="button"
-                        data-magnetic
-                        onClick={() => setSelectedPaletteId("as-built")}
-                        className="inline-flex items-center gap-1 text-[10px] font-sans font-bold text-[#F3D37A] hover:underline cursor-pointer shrink-0"
-                      >
-                        <StudioActionIcon kind="reset" className="w-3 h-3" />
-                        <span>Reset As-Built</span>
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {DESIGNER_PALETTES.map((pal) => {
-                      const isSelected = pal.id === selectedPaletteId;
-                      return (
-                        <button
-                          key={pal.id}
-                          type="button"
-                          data-palette-option={pal.id}
-                          data-magnetic
-                          onClick={() => setSelectedPaletteId(pal.id)}
-                          className="w-full px-3 py-2 rounded-xl border text-left transition-all duration-300 cursor-pointer flex items-center justify-between gap-2.5"
-                          style={{
-                            background: isSelected
-                              ? "linear-gradient(135deg, rgba(201,168,76,0.20) 0%, rgba(15,32,64,0.75) 100%)"
-                              : "rgba(10, 19, 36, 0.55)",
-                            borderColor: isSelected
-                              ? "#E5C97B"
-                              : "rgba(255, 255, 255, 0.08)",
-                          }}
-                        >
-                          <div className="min-w-0">
-                            <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                              <span className="truncate">{pal.name}</span>
-                              <span
-                                className="px-2 py-0.5 rounded-full text-[9px] font-mono font-medium shrink-0"
-                                style={{
-                                  background: isSelected
-                                    ? "rgba(229,201,123,0.25)"
-                                    : "rgba(255,255,255,0.06)",
-                                  color: isSelected ? "#F3D37A" : "#94A3B8",
-                                }}
-                              >
-                                {pal.tierBadge}
-                              </span>
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                              {pal.subtitle}
-                            </div>
-                          </div>
-
-                          {/* 4 Tactile Material Spheres */}
-                          <div className="flex items-center -space-x-1.5 shrink-0">
-                            {pal.swatches.map((hex, i) => (
-                              <span
-                                key={hex + i}
-                                className="w-5 h-5 rounded-full border border-white/70 shadow-md transition-transform group-hover:scale-105"
-                                style={{
-                                  background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), ${hex} 70%)`,
-                                }}
-                              />
-                            ))}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ── SECTION C: INTERACTIVE 4-SURFACE MATERIAL LOUPE ── */}
-                <div
-                  className="p-3 rounded-2xl border space-y-2"
-                  style={{
-                    background: "rgba(4, 8, 17, 0.85)",
-                    borderColor: "rgba(255, 255, 255, 0.08)",
-                  }}
-                >
-                  <div className="grid grid-cols-4 gap-1">
-                    {(
-                      Object.keys(surfaceDetails) as Array<FinishSurfaceKey>
-                    ).map((key) => {
-                      const item = surfaceDetails[key];
-                      const isCurrent = activeSurfaceTab === key;
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          data-magnetic
-                          onClick={() => setActiveSurfaceTab(key)}
-                          className="px-1.5 py-1.5 rounded-lg text-center cursor-pointer transition-all duration-200 border flex flex-col items-center justify-center"
-                          style={{
-                            background: isCurrent
-                              ? "rgba(201, 168, 76, 0.18)"
-                              : "rgba(255, 255, 255, 0.03)",
-                            borderColor: isCurrent
-                              ? "rgba(229, 201, 123, 0.5)"
-                              : "transparent",
-                          }}
-                        >
-                          <SurfaceSpecIcon
-                            surface={key}
-                            className={`w-3.5 h-3.5 ${
-                              isCurrent ? "text-[#F3D37A]" : "text-slate-400"
-                            }`}
-                          />
-                          <div
-                            className={`text-[9px] font-semibold truncate mt-0.5 ${
-                              isCurrent ? "text-[#F3D37A]" : "text-slate-400"
-                            }`}
-                          >
-                            {key === "cabinetry"
-                              ? "Millwork"
-                              : key === "stone"
-                              ? "Stone"
-                              : key === "flooring"
-                              ? "Flooring"
-                              : "Hardware"}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex items-center gap-2.5 pt-1 border-t border-white/8">
-                    <span
-                      className="w-7 h-7 rounded-full border border-white/80 shrink-0 shadow-inner"
-                      style={{
-                        background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), ${surfaceDetails[activeSurfaceTab].swatchHex} 70%)`,
-                      }}
-                    />
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-[#C9A84C]">
-                        {surfaceDetails[activeSurfaceTab].label}
-                      </div>
-                      <div className="text-xs font-semibold text-white truncate">
-                        {surfaceDetails[activeSurfaceTab].value}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom CTA: Send Property + Selected Palette + Lighting to Estimate */}
-              <div className="pt-3 border-t border-white/8 space-y-2 flex flex-col items-center text-center">
-                <Link
-                  href={`/estimate?property=${encodeURIComponent(
-                    `${property.code} - ${property.title}`
-                  )}&category=${encodeURIComponent(
-                    property.category
-                  )}&palette=${encodeURIComponent(
-                    activePalette.name
-                  )}&lighting=${encodeURIComponent(
-                    `${formatSolarHourLabel(solarHour)} (${lighting.phaseBadge})`
-                  )}`}
-                  data-magnetic
-                  className="tayco-atelier-btn-gold w-full py-3 px-4 text-xs font-bold"
-                >
-                  <span>
-                    Request Specification &amp; Estimate ({activePalette.shortLabel})
-                  </span>
-                  <span className="w-5 h-5 rounded-full bg-[#050A14]/90 text-[#F3D37A] text-[11px] flex items-center justify-center">
-                    →
-                  </span>
-                </Link>
-                <div className="text-[10px] font-mono text-center text-slate-400">
-                  Private Architectural Desk · {COMPANY.phoneDisplay}
-                </div>
-              </div>
-            </div>
-          )}
           </div>
         </div>
       )}
