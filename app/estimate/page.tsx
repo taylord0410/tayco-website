@@ -149,12 +149,12 @@ export default function EstimatePage() {
               </p>
 
               {/* Direct Contact & Coverage Bar */}
-              <div className="mt-5 inline-flex flex-wrap items-center gap-3 px-4 py-2 rounded-xl bg-slate-950/80 border border-amber-400/35 text-xs font-mono text-amber-200">
-                <span>Licensed &amp; Insured · {COMPANY.coverage}</span>
-                <span className="text-white/30" aria-hidden="true">·</span>
+              <div className="mt-5 inline-flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 rounded-xl bg-slate-950/80 border border-amber-400/35 text-xs font-mono text-amber-200">
+                <span className="whitespace-nowrap">Licensed &amp; Insured</span>
+                <span className="whitespace-nowrap text-slate-300">{COMPANY.coverage}</span>
                 <a
                   href={COMPANY.phoneHref}
-                  className="text-xs font-bold text-[#F3D37A] hover:text-white transition-colors"
+                  className="text-xs font-bold text-[#F3D37A] hover:text-white transition-colors whitespace-nowrap"
                 >
                   {COMPANY.phoneDisplay}
                 </a>

@@ -476,10 +476,8 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
   const [gallery, setGallery] = useState<HomeGallerySelection | null>(null);
   const [activeStudy, setActiveStudy] = useState<number>(0);
-  const [lightAngle, setLightAngle] = useState<number>(38);
-  const [colorTemp, setColorTemp] = useState<"daylight" | "gallery" | "dusk">(
-    "gallery"
-  );
+  const lightAngle = 38;
+  const colorTemp: "daylight" | "gallery" | "dusk" = "gallery";
   const [expandedLightbox, setExpandedLightbox] = useState<{
     src: string;
     title: string;
@@ -583,7 +581,7 @@ export default function Home() {
                 <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
                 <span>TAYCO LLC · FULL-SERVICE CONSTRUCTION</span>
                 <span
-                  className="text-xs font-mono font-bold px-2 py-0.5 rounded-full"
+                  className="text-[11px] sm:text-xs font-mono font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   style={{
                     background: "rgba(201, 168, 76, 0.16)",
                     color: "#F3D37A",
@@ -683,12 +681,7 @@ export default function Home() {
                         : "none",
                     }}
                   >
-                    <span>
-                      {pill.label}
-                      <sup className="ml-1 text-[10px] opacity-80">
-                        ({pill.count})
-                      </sup>
-                    </span>
+                    <span>{pill.label}</span>
                   </button>
                 );
               })}
@@ -758,7 +751,7 @@ export default function Home() {
             className="mb-10"
             eyebrow="02 / Materials in a different light"
             title={<>Every slab &amp; finish changes <em className="tayco-serif-em text-[#F3D37A]">under raking light.</em></>}
-            subtitle="Explore six surfaces. Adjust the light angle and warmth to see the grain, texture and finish."
+            subtitle="Explore six architectural surfaces to see the grain, texture and finish of each material."
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -805,7 +798,7 @@ export default function Home() {
                           0{study.index + 1}
                         </span>
                         <span
-                          className="text-xs font-semibold leading-snug truncate"
+                          className="text-xs font-semibold leading-snug"
                           style={{
                             color: selected ? "#ffffff" : "#CBD5E1",
                           }}
@@ -822,117 +815,6 @@ export default function Home() {
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Light Incidence Angle Slider + Quick Angle Presets */}
-              <div
-                className="p-4 rounded-2xl border space-y-4"
-                style={{
-                  background: "rgba(15, 32, 64, 0.72)",
-                  borderColor: "rgba(201, 168, 76, 0.35)",
-                }}
-              >
-                <div>
-                  <label
-                    htmlFor="tayco-light-angle-slider"
-                    className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-slate-200 mb-2"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#F3D37A"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <circle cx="12" cy="12" r="5" />
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
-                      </svg>
-                      Raking Light Angle: {lightAngle}°
-                    </span>
-                    <output
-                      htmlFor="tayco-light-angle-slider"
-                      className="font-black text-sm px-2.5 py-0.5 rounded-full"
-                      style={{
-                        background: "rgba(201, 168, 76, 0.18)",
-                        color: "#F3D37A",
-                      }}
-                    >
-                      {lightAngle}°
-                    </output>
-                  </label>
-                  <input
-                    id="tayco-light-angle-slider"
-                    type="range"
-                    min={0}
-                    max={90}
-                    value={lightAngle}
-                    onChange={(e) => setLightAngle(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg cursor-ew-resize accent-[#C9A84C]"
-                    style={{ accentColor: "#C9A84C" }}
-                  />
-                  <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setLightAngle(12)}
-                      className="hover:text-amber-200 cursor-pointer"
-                    >
-                      12° Grazing
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLightAngle(45)}
-                      className="hover:text-amber-200 cursor-pointer"
-                    >
-                      45° Oblique
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLightAngle(82)}
-                      className="hover:text-amber-200 cursor-pointer"
-                    >
-                      82° Direct
-                    </button>
-                  </div>
-                </div>
-
-                {/* Color Temperature Switcher (5600K / 3500K / 2700K) */}
-                <div className="pt-3 border-t border-white/10">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-slate-300 mb-2">
-                    Ambient Color Temperature (Kelvin):
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {COLOR_TEMPERATURES.map((temp) => {
-                      const active = temp.id === colorTemp;
-                      return (
-                        <button
-                          key={temp.id}
-                          type="button"
-                          onClick={() => setColorTemp(temp.id)}
-                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold border transition-all cursor-pointer text-center"
-                          style={{
-                            background: active
-                              ? "#C9A84C"
-                              : "rgba(7, 14, 26, 0.65)",
-                            color: active ? "#070E1A" : "#E2E8F0",
-                            borderColor: active
-                              ? "#F3D37A"
-                              : "rgba(201, 168, 76, 0.3)",
-                          }}
-                        >
-                          <div>{temp.kelvin}</div>
-                          <div className="text-[9px] opacity-80 truncate">
-                            {temp.label}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -1012,10 +894,6 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="light-beam" />
-
-                  <span className="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg bg-[#070E1A]/85 text-xs text-amber-200 border border-white/15">
-                    {currentStudy.specMetric} · {currentTemp.kelvin}
-                  </span>
                 </div>
 
                 <div
@@ -1110,7 +988,7 @@ export default function Home() {
             ))}
             <HomeEditorialCard number="06" eyebrow="Service Area"
               title="Eight-State Regional Coverage"
-              description="We serve WI, IL, IA, IN, MN, MI, MO and TX."
+              description="We serve WI, IL, IA, IN, MN, MI, MO&nbsp;and&nbsp;TX."
               image={{ src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg", title: "Executive Lounge & Terrace", eyebrow: COMPANY.coverage }}
               actionLabel="Request Estimate" href="/estimate"
               onOpen={() => setGallery({ title: "Regional Coverage", index: 0, frames: [{

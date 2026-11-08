@@ -531,7 +531,7 @@ export default function ResidentialDivisionContent({
               style={{
                 background:
                   "linear-gradient(145deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))",
-                borderColor: "rgba(249, 115, 22, 0.5)",
+                borderColor: "rgba(201, 168, 76, 0.5)",
               }}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -541,8 +541,8 @@ export default function ResidentialDivisionContent({
                 <Link
                   href="/estimate?trade=FIRE-RESTORATION"
                   data-magnetic
-                  className="px-4 py-2 rounded-xl text-xs font-black text-white"
-                  style={{ background: "#F97316" }}
+                  className="px-4 py-2 rounded-xl text-xs font-black"
+                  style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
                   Request Estimate →
                 </Link>

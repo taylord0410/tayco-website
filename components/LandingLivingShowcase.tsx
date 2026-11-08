@@ -983,16 +983,22 @@ export function TransformationBeforeAfterStudio({
 
         {/* Thumbnail Filmstrip Selector */}
         <div className="mt-6">
-          <div className="flex flex-wrap justify-center gap-3 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:pb-2 tayco-no-scrollbar">
+          <div className="flex flex-wrap justify-center gap-3 tayco-no-scrollbar">
             {visiblePairs.map((pair) => {
               const selected = pair.id === pendingPairId || pair.id === activePair.id;
+              const widthClass =
+                visiblePairs.length === 1
+                  ? "w-full max-w-xs sm:max-w-sm"
+                  : visiblePairs.length === 2
+                    ? "w-[calc(50%-0.375rem)] sm:w-64"
+                    : "w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] md:w-[calc(25%-0.6rem)] lg:w-[calc(16.666%-0.65rem)]";
               return (
                 <button
                   key={pair.id}
                   type="button"
                   data-magnetic
                   onClick={() => selectPairHarmonized(pair.id)}
-                  className="group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer max-sm:w-[40vw] max-sm:shrink-0 max-sm:snap-start w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] md:w-[calc(25%-0.6rem)] lg:w-[calc(16.666%-0.65rem)]"
+                  className={`group relative rounded-xl overflow-hidden border text-left transition-all cursor-pointer flex flex-col ${widthClass}`}
                   style={{
                     background: "#0B172A",
                     borderColor: selected ? "#F3D37A" : "rgba(201, 168, 76, 0.25)",
@@ -1002,7 +1008,7 @@ export function TransformationBeforeAfterStudio({
                     transform: selected ? "translateY(-2px)" : "none",
                   }}
                 >
-                  <div className="relative h-20 w-full overflow-hidden">
+                  <div className="relative h-20 w-full overflow-hidden shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <ProtectedImage
                       src={pair.afterImg}
@@ -1025,8 +1031,8 @@ export function TransformationBeforeAfterStudio({
                       style={{ background: "#F3D37A" }}
                     />
                   </div>
-                  <div className="p-2">
-                    <div className="text-[11px] font-bold text-white line-clamp-1">
+                  <div className="p-2.5 flex-1 flex items-center">
+                    <div className="text-[11px] font-bold text-white leading-snug">
                       {pair.title}
                     </div>
                   </div>
@@ -1495,7 +1501,7 @@ export function RegionalStateFootprintStrip() {
       aria-label="Interactive 8-State Service Footprint"
     >
       <TaycoPillDock ariaLabel="Choose a service state">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-200/90 mr-1.5">
+        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-200/90 max-sm:w-full max-sm:text-center sm:mr-1.5">
           8-State Dispatch:
         </span>
         {REGIONAL_STATE_HUBS.map((hub, hIdx) => {
@@ -1507,7 +1513,7 @@ export function RegionalStateFootprintStrip() {
               aria-pressed={selected}
               onClick={() => selectHubIdx(hIdx)}
               onPointerEnter={() => selectHubIdx(hIdx)}
-              className="min-h-11 min-w-11 px-2.5 py-2 rounded-full text-xs font-mono font-black transition-colors cursor-pointer border"
+              className="max-sm:min-h-9 max-sm:min-w-9 max-sm:px-2 max-sm:py-1.5 min-h-11 min-w-11 px-2.5 py-2 rounded-full text-xs font-mono font-black transition-colors cursor-pointer border"
               style={{
                 background: selected ? "#C9A84C" : "rgba(7, 14, 26, 0.65)",
                 color: selected ? "#070E1A" : "#F3D37A",
