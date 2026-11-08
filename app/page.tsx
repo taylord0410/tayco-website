@@ -760,7 +760,7 @@ export default function Home() {
 
               {/* 6 Real Material Texture Switcher Buttons */}
               <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col lg:flex-1 lg:justify-between gap-2.5 h-full"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2.5"
                 role="group"
                 aria-label="Choose Architectural Light Study"
               >
@@ -773,7 +773,7 @@ export default function Home() {
                       data-magnetic
                       aria-pressed={selected}
                       onClick={() => setActiveStudy(study.index)}
-                      className="w-full lg:flex-1 text-left px-4 py-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
+                      className="w-full text-left px-4 py-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
                       style={{
                         background: selected
                           ? "rgba(27, 58, 107, 0.82)"
@@ -834,7 +834,7 @@ export default function Home() {
                 }
               >
                 <div
-                  className="light-surface relative overflow-hidden flex-1 min-h-[280px] lg:min-h-[320px]"
+                  className="light-surface !aspect-auto relative overflow-hidden flex-1 min-h-[200px] lg:min-h-[160px]"
                 >
                   {/* Real High-Relief Surface Photograph */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}

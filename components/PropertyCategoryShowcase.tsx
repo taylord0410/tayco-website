@@ -1,6 +1,88 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+function MobileScrollableSpecialtyStrip({
+  children,
+  className = "",
+  role,
+  ariaLabel,
+  desktopBreakpoint = "md",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  role?: string;
+  ariaLabel?: string;
+  desktopBreakpoint?: "md" | "lg";
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [maskState, setMaskState] = useState<"none" | "right" | "both" | "left">("none");
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const minDesktopWidth = desktopBreakpoint === "md" ? 768 : 1024;
+    const updateMask = () => {
+      if (window.innerWidth >= minDesktopWidth) {
+        setMaskState("none");
+        return;
+      }
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll <= 4) {
+        setMaskState("none");
+        return;
+      }
+      const atStart = el.scrollLeft <= 4;
+      const atEnd = el.scrollLeft >= maxScroll - 4;
+      if (atStart && atEnd) {
+        setMaskState("none");
+      } else if (atStart) {
+        setMaskState("right");
+      } else if (atEnd) {
+        setMaskState("left");
+      } else {
+        setMaskState("both");
+      }
+    };
+    updateMask();
+    el.addEventListener("scroll", updateMask, { passive: true });
+    window.addEventListener("resize", updateMask);
+    return () => {
+      el.removeEventListener("scroll", updateMask);
+      window.removeEventListener("resize", updateMask);
+    };
+  }, [desktopBreakpoint]);
+
+  const maskGradient =
+    maskState === "right"
+      ? "linear-gradient(90deg, #000 0%, #000 90%, transparent 100%)"
+      : maskState === "left"
+      ? "linear-gradient(90deg, transparent 0%, #000 6%, #000 100%)"
+      : maskState === "both"
+      ? "linear-gradient(90deg, transparent 0%, #000 6%, #000 90%, transparent 100%)"
+      : undefined;
+
+  return (
+    <div
+      ref={ref}
+      translate="no"
+      role={role}
+      aria-label={ariaLabel}
+      data-scroll-mask={maskState}
+      className={className}
+      style={
+        maskGradient
+          ? {
+              maskImage: maskGradient,
+              WebkitMaskImage: maskGradient,
+            }
+          : undefined
+      }
+    >
+      {children}
+    </div>
+  );
+}
 import Link from "next/link";
 import {
   TaycoPillDock,
@@ -1139,7 +1221,10 @@ export function LandingPropertyCategoriesSection() {
 
                 {/* Clean Specialties Pills + Footer */}
                 <div className="home-market-panel p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4 text-left">
-                  <div translate="no" className="flex flex-nowrap overflow-x-auto tayco-no-scrollbar items-center gap-1 max-w-full">
+                  <MobileScrollableSpecialtyStrip
+                    desktopBreakpoint="md"
+                    className="flex flex-nowrap overflow-x-auto tayco-no-scrollbar items-center gap-1.5 max-w-full py-0.5 pr-3 md:pr-0 md:grid md:grid-cols-4 md:overflow-visible"
+                  >
                     {marketSpecialties.map((spec) => (
                       <button
                         key={spec.id}
@@ -1154,16 +1239,16 @@ export function LandingPropertyCategoriesSection() {
                             );
                           }
                         }}
-                        className="inline-flex shrink-0 whitespace-nowrap min-h-[30px] items-center gap-1 px-2 py-1 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[10px] font-semibold text-slate-100 transition-all cursor-pointer"
+                        className="inline-flex shrink-0 md:w-full md:justify-center whitespace-nowrap min-h-[34px] items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs font-semibold text-slate-100 transition-all cursor-pointer"
                       >
                         <SpecialtyVectorIcon
                           specialtyId={spec.specialtyId}
-                          className="w-2.5 h-2.5 text-[#F3D37A]"
+                          className="w-3 h-3 shrink-0 text-[#F3D37A]"
                         />
                         <span>{spec.specialtyLabel}</span>
                       </button>
                     ))}
-                  </div>
+                  </MobileScrollableSpecialtyStrip>
 
                   <TaycoCardFooterBar
                     leftMeta={
@@ -1734,17 +1819,17 @@ export function PropertyCategoryPageView({
               </h2>
 
               {/* Single Specialty Filter Strip (1 Single Horizontal Line on Desktop & Mobile) */}
-              <div
-                translate="no"
-                className="flex flex-nowrap items-center justify-start md:justify-center gap-1 sm:gap-1.5 mt-5 w-full max-w-full overflow-x-auto tayco-no-scrollbar py-1 px-1 max-md:[mask-image:linear-gradient(to_right,black_90%,transparent_100%)]"
+              <MobileScrollableSpecialtyStrip
+                desktopBreakpoint="lg"
+                className="flex flex-nowrap items-center justify-start lg:grid lg:grid-cols-9 gap-1.5 mt-5 w-full max-w-full overflow-x-auto lg:overflow-visible tayco-no-scrollbar py-1 pl-1 pr-3 lg:px-0"
                 role="group"
-                aria-label="Filter specialties"
+                ariaLabel="Filter specialties"
               >
                 <button
                   type="button"
                   data-magnetic
                   onClick={() => setSpecialtyGroupFilter("all")}
-                  className="tayco-atelier-pill !min-h-[34px] !px-2.5 sm:!px-3 !py-1 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0"
+                  className="tayco-atelier-pill !min-h-[36px] !px-2.5 sm:!px-3 !py-1.5 lg:w-full justify-center text-xs font-semibold whitespace-nowrap shrink-0"
                   data-active={specialtyGroupFilter === "all" ? "true" : "false"}
                 >
                   All
@@ -1757,18 +1842,18 @@ export function PropertyCategoryPageView({
                       type="button"
                       data-magnetic
                       onClick={() => setSpecialtyGroupFilter(spec.specialtyId)}
-                      className="tayco-atelier-pill !min-h-[34px] !px-2.5 sm:!px-3 !py-1 inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0"
+                      className="tayco-atelier-pill !min-h-[36px] !px-2.5 sm:!px-3 !py-1.5 lg:w-full justify-center inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
                       data-active={isSelected ? "true" : "false"}
                     >
                       <SpecialtyVectorIcon
                         specialtyId={spec.specialtyId}
-                        className="w-3.5 h-3.5 text-[#F3D37A]"
+                        className="w-3.5 h-3.5 shrink-0 text-[#F3D37A]"
                       />
                       <span>{spec.specialtyLabel}</span>
                     </button>
                   );
                 })}
-              </div>
+              </MobileScrollableSpecialtyStrip>
             </div>
 
             {/* 8 Specialty Multi-Photo Gallery Cards Grid */}
