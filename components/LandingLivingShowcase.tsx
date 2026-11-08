@@ -1286,11 +1286,11 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
     {
       id: "m-mf-6",
-      title: "Subfloor Moisture Barrier & Engineered Hardwood Prep",
-      trade: "Flooring Prep",
+      title: "Two-Tone Navy Lap & Board-and-Batten Exterior Coating",
+      trade: "Exterior Painting",
       csi: "DIV 09",
       sector: "Multi-Family",
-      image: "/curated/capabilities/mit-hardwood-underlay.jpg",
+      image: "/work/painting_multifamily.jpg",
     },
     {
       id: "m-mf-7",
@@ -1302,11 +1302,11 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
     {
       id: "m-mf-8",
-      title: "Multi-Unit Foundation Excavation & Footing Trench",
-      trade: "Concrete & Site",
-      csi: "DIV 03",
+      title: "Taped & Mudded Corridor Gypsum Board & Ceiling Grid",
+      trade: "Drywall Finishing",
+      csi: "DIV 09",
       sector: "Multi-Family",
-      image: "/curated/magazine/revista_ex_ex_found.jpg",
+      image: "/curated/magazine/revista_dw_fin.jpg",
     },
   ],
   townhomes: [
@@ -1376,23 +1376,71 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
   ],
   commercial: [
-    ...MARQUEE_TRACK_TOP.filter((s) => s.sector === "Commercial"),
-    ...MARQUEE_TRACK_BOTTOM.filter(
-      (s) =>
-        s.sector === "Commercial" &&
-        s.id !== "m-bot-1" &&
-        s.id !== "m-bot-7" &&
-        s.id !== "m-bot-8"
-    ),
+    {
+      id: "m-com-1",
+      title: "White TPO Membrane Roof, Metal Parapet & Rooftop HVAC",
+      trade: "Roofing Systems",
+      csi: "DIV 07",
+      sector: "Commercial",
+      image: "/work/roofing_commercial.jpg",
+    },
+    {
+      id: "m-com-2",
+      title: "Limestone & Stacked Stone Veneer Office Envelope",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Commercial",
+      image: "/work/stone_commercial.jpg",
+    },
+    {
+      id: "m-com-3",
+      title: "Architectural Rainscreen Siding & Trim Envelope",
+      trade: "Siding & Cladding",
+      csi: "DIV 07",
+      sector: "Commercial",
+      image: "/curated/magazine/revista_si_05_a.jpg",
+    },
+    {
+      id: "m-com-4",
+      title: "Natural Ashlar Stone Masonry Facade",
+      trade: "Stone & Masonry",
+      csi: "DIV 04",
+      sector: "Commercial",
+      image: "/curated/magazine/revista_st_nat_a.jpg",
+    },
+    {
+      id: "m-com-5",
+      title: "Double-Height Commercial Curtain-Wall Glazing",
+      trade: "Glazing & Storefront",
+      csi: "DIV 08",
+      sector: "Commercial",
+      image: "/curated/magazine/revista_wi_com.jpg",
+    },
+    {
+      id: "m-com-6",
+      title: "Painted Open-Deck Ceiling, Accent Wall & Polished Concrete",
+      trade: "Commercial Painting",
+      csi: "DIV 09",
+      sector: "Commercial",
+      image: "/work/painting_commercial.jpg",
+    },
+    {
+      id: "m-com-7",
+      title: "Executive Walnut Acoustic Ceiling & Wall Fit-Out",
+      trade: "Architectural Millwork",
+      csi: "DIV 06",
+      sector: "Commercial",
+      image: "/work/carpentry_commercial.jpg",
+    },
     {
       id: "m-com-8",
-      title: "Commercial Curtain-Wall & Masonry Envelope",
+      title: "Architectural Metal Panel & Storefront Envelope",
       trade: "Exterior Envelope",
       csi: "DIV 07",
       sector: "Commercial",
       image: "/work/siding_commercial.jpg",
     },
-  ].slice(0, 8),
+  ],
 };
 
 export function getMarqueeTracksForSiteDivision(

@@ -31,7 +31,7 @@ interface CommercialTradeSpec {
   triptych: TriptychFrame[];
 }
 
-const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
+export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   {
     "num": "01",
     "csiCode": "Roofing",

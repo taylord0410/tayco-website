@@ -46,6 +46,7 @@ export const metadata: Metadata = {
   // Public pages are indexable (Randhy, 7-nov-2026). Private routes (login, portal) set their own noindex.
   ...(SITE_URL && {
     metadataBase: SITE_URL,
+    alternates: { canonical: "/" },
     openGraph: { type: "website", siteName: "TAYCO LLC", images: [OG_IMAGE] },
     twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
   }),

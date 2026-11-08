@@ -30,6 +30,7 @@ import {
   getResidentialRestorationByDivision,
   resolveResidentialDivisionSlug,
 } from "../components/division/ResidentialDivisionContent";
+import { COMMERCIAL_CSI_TRADES } from "../components/division/CommercialDivisionContent";
 
 const publicDir = path.resolve(process.cwd(), "public");
 
@@ -820,6 +821,16 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
   const sfHashes = collectDivisionServiceHashes(sfTrades, sfRest);
   const mfHashes = collectDivisionServiceHashes(mfTrades, mfRest);
   const twnHashes = collectDivisionServiceHashes(twnTrades, twnRest);
+  const comHashes = new Set<string>();
+  for (const t of COMMERCIAL_CSI_TRADES) {
+    for (const f of t.triptych) comHashes.add(md5(f.src));
+  }
+  const allServiceHashesByDiv: Record<string, Set<string>> = {
+    "single-family": sfHashes,
+    multifamily: mfHashes,
+    townhomes: twnHashes,
+    commercial: comHashes,
+  };
 
   for (const h of sfHashes) {
     assert.ok(
@@ -830,11 +841,25 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
       !twnHashes.has(h),
       `Single-Family service/restoration photo MD5 ${h} must not be shared with Townhomes`
     );
+    assert.ok(
+      !comHashes.has(h),
+      `Single-Family service/restoration photo MD5 ${h} must not be shared with Commercial`
+    );
   }
   for (const h of mfHashes) {
     assert.ok(
       !twnHashes.has(h),
       `Multifamily service/restoration photo MD5 ${h} must not be shared with Townhomes`
+    );
+    assert.ok(
+      !comHashes.has(h),
+      `Multifamily service/restoration photo MD5 ${h} must not be shared with Commercial`
+    );
+  }
+  for (const h of twnHashes) {
+    assert.ok(
+      !comHashes.has(h),
+      `Townhomes service/restoration photo MD5 ${h} must not be shared with Commercial`
     );
   }
 
@@ -862,7 +887,7 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
     }
   }
 
-  // Marquee tracks per division must exist, be distinct across divisions by MD5, and not repeat any specialty/service/hero/project photo on the same division page
+  // Marquee tracks per division must exist, be distinct across divisions by MD5, and not repeat any specialty/service/hero/project photo on the same division page or any service photo of another division
   const marqueeHashesByDiv: Record<string, Set<string>> = {};
   for (const div of ["single-family", "multifamily", "townhomes", "commercial"] as const) {
     const tracks = getMarqueeTracksForSiteDivision(div);
@@ -882,7 +907,11 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
     specs.forEach((s) =>
       s.triptych.forEach((t) => pageUsedHashes.add(md5(t.src)))
     );
-    if (div !== "commercial") {
+    if (div === "commercial") {
+      COMMERCIAL_CSI_TRADES.forEach((t) =>
+        t.triptych.forEach((f) => pageUsedHashes.add(md5(f.src)))
+      );
+    } else {
       getResidentialTradesByDivision(div).forEach((t) =>
         t.triptych.forEach((f) => pageUsedHashes.add(md5(f.src)))
       );
@@ -903,6 +932,12 @@ test("Code 2, 3, and 4: Project-specific walkthrough rooms, division-specific re
         !pageUsedHashes.has(h),
         `Marquee shot ${shot.id} (${shot.image}) repeats an image already rendered on the ${div} page`
       );
+      for (const [otherDiv, serviceHashes] of Object.entries(allServiceHashesByDiv)) {
+        assert.ok(
+          !serviceHashes.has(h),
+          `Marquee shot ${shot.id} (${shot.image}) on ${div} repeats a service photo from ${otherDiv}`
+        );
+      }
       divMarqueeSet.add(h);
     }
     marqueeHashesByDiv[div] = divMarqueeSet;

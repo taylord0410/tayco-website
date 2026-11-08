@@ -204,7 +204,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-drywall.jpg", "label": "STC-Rated Acoustic Demising Wall & Drywall Assembly" },
         { "src": "/curated/properties/interior-duplex-brick-living.jpg", "label": "Duplex Living Room Drywall, Brick Accent & Recessed Lighting" },
-        { "src": "/work/drywall_multifamily.jpg", "label": "Multi-Unit Turnover Interior Drywall & Finish Coat" }
+        { "src": "/work/drywall_multifamily.jpg", "label": "Corridor Drywall Taping, Joint Compound & Soffit Framing" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-drywall-gallery.jpg", "label": "3-Story Townhome Stairwell Level-5 Gallery Drywall" },
@@ -322,7 +322,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
         { "src": "/curated/residential/div04_06_despues.jpg", "label": "Storm Roof & Chimney Flashing Recovery" }
       ],
       "multifamily": [
-        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Multi-Unit Floor & Roof Truss Reconstruction After Loss" },
+        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Engineered Floor & Roof Truss Structural Framing" },
         { "src": "/curated/capabilities/mit-taped-drywall.jpg", "label": "Stacked-Unit Water-Loss Drywall & Acoustic Assembly Rebuild" },
         { "src": "/curated/capabilities/mf-tpo-capex.jpg", "label": "Multifamily Storm Roof & Membrane Emergency Recovery" }
       ],
@@ -396,7 +396,7 @@ export const RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION: Record<
   },
   multifamily: {
     fire: [
-      { src: "/curated/properties/mkt-mf-framing-trusses.jpg", label: "Multi-Unit Floor & Roof Truss Reconstruction After Loss" },
+      { src: "/curated/properties/mkt-mf-framing-trusses.jpg", label: "Engineered Floor & Roof Truss Structural Framing" },
       { src: "/curated/properties/mkt-mf-framing.jpg", label: "Demising Wall & Structural Framing Reconstruction" },
       { src: "/curated/properties/interior-duplex-brick-kitchen.jpg", label: "Restored Duplex Kitchen, Cabinetry & Millwork" },
     ],
