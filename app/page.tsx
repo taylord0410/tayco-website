@@ -756,11 +756,11 @@ export default function Home() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Left Controls Column */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
+            <div className="lg:col-span-5 flex flex-col">
 
               {/* 6 Real Material Texture Switcher Buttons */}
               <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 my-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col lg:flex-1 lg:justify-between gap-2.5 h-full"
                 role="group"
                 aria-label="Choose Architectural Light Study"
               >
@@ -773,7 +773,7 @@ export default function Home() {
                       data-magnetic
                       aria-pressed={selected}
                       onClick={() => setActiveStudy(study.index)}
-                      className="w-full text-left px-3.5 py-2.5 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
+                      className="w-full lg:flex-1 text-left px-4 py-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
                       style={{
                         background: selected
                           ? "rgba(27, 58, 107, 0.82)"
@@ -834,7 +834,7 @@ export default function Home() {
                 }
               >
                 <div
-                  className="light-surface relative overflow-hidden flex-1 min-h-[380px]"
+                  className="light-surface relative overflow-hidden flex-1 min-h-[280px] lg:min-h-[320px]"
                 >
                   {/* Real High-Relief Surface Photograph */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -842,58 +842,7 @@ export default function Home() {
                     src={currentStudy.image}
                     alt={currentStudy.label}
                     className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
-                    style={{
-                      filter: `contrast(${shadowContrast}) brightness(${
-                        0.82 + (lightAngle / 90) * 0.24
-                      })`,
-                    }}
                   />
-
-                  {/* Dynamic Directional Raking Light & Kelvin Overlay */}
-                  <div
-                    className="absolute inset-0 pointer-events-none transition-all duration-150"
-                    style={{
-                      background: `radial-gradient(circle at ${lightX}% ${lightY}%, ${currentTemp.beamBoost} 0%, ${currentTemp.tint} 38%, rgba(7, 14, 26, 0.72) 88%)`,
-                    }}
-                  />
-
-                  {/* Moving Specular Grazing Line */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: `linear-gradient(${
-                        95 + lightAngle * 0.8
-                      }deg, transparent ${Math.max(
-                        0,
-                        beamX - 24
-                      )}%, rgba(243, 211, 122, 0.28) ${beamX}%, transparent ${Math.min(
-                        100,
-                        beamX + 24
-                      )}%)`,
-                    }}
-                  />
-
-                  {/* Optical Calibration Disc Reticle */}
-                  <div
-                    className="light-disc"
-                    style={{
-                      opacity: 0.42,
-                      borderRadius:
-                        activeStudy % 3 === 1
-                          ? "16%"
-                          : activeStudy % 3 === 2
-                            ? "42% 56% 38% 58%"
-                            : "50%",
-                    }}
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                      <i
-                        key={i}
-                        style={{ "--i": i } as React.CSSProperties}
-                      />
-                    ))}
-                  </div>
-                  <div className="light-beam" />
                 </div>
 
                 <div

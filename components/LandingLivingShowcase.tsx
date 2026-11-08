@@ -936,9 +936,9 @@ export function TransformationBeforeAfterStudio({
           </div>
 
           {/* Right 4 Columns: Active Transformation Card */}
-          <div className="lg:col-span-4 flex flex-col justify-between">
+          <div className="lg:col-span-4 flex flex-col justify-center">
             <div
-              className="tayco-living-card p-6 rounded-2xl border h-full flex flex-col justify-between items-center text-center relative overflow-hidden"
+              className="tayco-living-card p-6 sm:p-7 rounded-2xl border h-full flex flex-col justify-center items-center text-center gap-6 relative overflow-hidden"
               data-response-kind="surface"
               data-magnetic
               style={{
@@ -967,7 +967,7 @@ export function TransformationBeforeAfterStudio({
                 </h3>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
+              <div className="pt-4 border-t border-white/10 space-y-2.5 w-full">
                 <ImageReferenceButton src={activePair.afterImg} label="Save Reference" />
                 <Link
                   href="/estimate"

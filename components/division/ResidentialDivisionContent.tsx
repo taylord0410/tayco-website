@@ -502,7 +502,7 @@ export default function ResidentialDivisionContent({
       {/* ServiceCardTriptych retained via getResidentialTradesByDivision */}
       <TransformationBeforeAfterStudio
         siteDivision={resolvedDivision}
-        initialDivision="div01"
+        initialDivision="all"
         initialPairId="div01_03"
         eyebrowLabel="Before & After"
       />
