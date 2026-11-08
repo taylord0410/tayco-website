@@ -1,6 +1,5 @@
 "use client";
 
-import { ImageReferenceButton } from "@/components/EstimateReferences";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import ProtectedImage, {
@@ -12,7 +11,6 @@ import {
   type MarketSpecialtyService,
   type PropertyListing,
 } from "@/lib/property-catalog";
-import { COMPANY } from "@/lib/company";
 import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
 
 export interface WalkthroughHotspot {
@@ -1643,8 +1641,6 @@ export function buildCoherentWalkthrough(
   }) as typeof stops;
 }
 
-type FinishSurfaceKey = "cabinetry" | "stone" | "flooring" | "hardware";
-
 export function buildSpecialtyWalkthroughStops(
   service: MarketSpecialtyService,
   extraFrames?: { src: string; label: string }[]
@@ -1877,6 +1873,7 @@ export function PropertyWalkthroughStudioModal({
       onStepNext={() => handleStepChange(activeStopIdx + 1)}
       enableStageWheelStep={true}
       enableStageSwipe={true}
+      backdropClassName="bg-[#040913] backdrop-blur-xl"
       ariaLabel={
         studioMode === "specialty" && activeSpecialty
           ? `${activeSpecialty.title} — ${property.title}`
@@ -1886,7 +1883,7 @@ export function PropertyWalkthroughStudioModal({
       {({ stageGestureHandlers }) => (
         <div
           data-walkthrough-studio-modal
-          className="relative w-full max-w-[1280px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
+          className="relative w-full max-w-[1280px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] min-h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
           style={{
             borderColor: "rgba(201, 168, 76, 0.38)",
             boxShadow:
@@ -1898,8 +1895,7 @@ export function PropertyWalkthroughStudioModal({
           <div
             className="px-4 sm:px-6 py-2.5 border-b flex items-center justify-between gap-3 shrink-0"
             style={{
-              background:
-                "linear-gradient(90deg, rgba(6,12,24,0.98) 0%, rgba(12,25,48,0.94) 50%, rgba(6,12,24,0.98) 100%)",
+              background: "#060C18",
               borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
@@ -1911,40 +1907,40 @@ export function PropertyWalkthroughStudioModal({
               data-magnetic
               onClick={onClose}
               aria-label="Close studio"
-              className="inline-flex items-center justify-center min-h-[42px] min-w-[42px] rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] w-11 h-11 rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
             >
               ✕
             </button>
           </div>
 
           {/* ── MAIN PHOTO VIEWPORT ── */}
-          <div className="flex-1 min-h-0 lg:overflow-hidden lg:overflow-y-auto overscroll-contain tayco-scrollbar-sleek flex flex-col items-stretch">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col items-stretch">
             <div
               ref={viewportRef}
               data-tayco-wheel-stage="true"
               onWheel={stageGestureHandlers.onWheel}
               onPointerDown={stageGestureHandlers.onPointerDown}
               onPointerUp={stageGestureHandlers.onPointerUp}
-              className="relative flex-1 min-h-[300px] sm:min-h-[380px] w-full overflow-hidden select-none bg-[#03060D] cursor-grab active:cursor-grabbing"
+              className="relative flex-1 min-h-0 w-full overflow-hidden select-none bg-[#03060D] cursor-grab active:cursor-grabbing"
               style={{ isolation: "isolate" }}
             >
+              <ProtectedImage
+                src={activeStop.src}
+                alt=""
+                auditIgnore={true}
+                loading="eager"
+                className="home-gallery-backdrop"
+              />
               {stops.map((stop, idx) => {
                 const isCurrent = idx === activeStopIdx;
-                const zoomScale = isCurrent
-                  ? "scale(1.0)"
-                  : idx < activeStopIdx
-                  ? "scale(1.06)"
-                  : "scale(1.035)";
                 return (
                   <div
                     key={stop.stepNumber}
                     aria-hidden={!isCurrent}
-                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    className="absolute inset-0 w-full h-full pointer-events-none z-10"
                     style={{
                       opacity: isCurrent ? 1 : 0,
-                      transform: zoomScale,
-                      transition:
-                        "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1), transform 720ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
                       zIndex: isCurrent ? 2 : 1,
                     }}
                   >
@@ -1961,7 +1957,7 @@ export function PropertyWalkthroughStudioModal({
                         syncUrls={allWalkthroughUrls}
                         alt={`${property.title} — ${stop.title}`}
                         loading="eager"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                   </div>
@@ -1973,7 +1969,7 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx - 1)}
                 aria-label="Previous room in walkthrough"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
                 title="Previous (←)"
               >
                 ‹
@@ -1982,7 +1978,7 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx + 1)}
                 aria-label="Next room in walkthrough"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
                 title="Next (→)"
               >
                 ›
@@ -1990,8 +1986,8 @@ export function PropertyWalkthroughStudioModal({
             </div>
 
             {/* ── EQUILIBRIUM BOTTOM BAR: ONE SHORT WORK NAME + ONE REQUEST ESTIMATE CTA ── */}
-            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
-              <h3 className="tayco-card-title text-sm sm:text-lg text-white tracking-tight truncate">
+            <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 shrink-0">
+              <h3 className="tayco-card-title text-sm sm:text-lg text-white tracking-tight truncate text-center sm:text-left">
                 {shortWorkName}
               </h3>
               <Link
@@ -1999,7 +1995,7 @@ export function PropertyWalkthroughStudioModal({
                   `${property.code} - ${property.title}`
                 )}&category=${encodeURIComponent(property.category)}`}
                 data-magnetic
-                className="tayco-atelier-btn-gold !min-h-[40px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0"
+                className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0 text-center justify-center"
               >
                 Request Estimate
               </Link>

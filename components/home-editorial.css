@@ -210,46 +210,47 @@
   outline-offset: 3px;
 }
 .home-editorial-gallery {
-  width: min(100%, 1080px);
-  max-height: calc(100dvh - 24px);
+  width: min(100%, 1280px);
+  height: 94dvh;
+  min-height: 94dvh;
+  max-height: 94dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(201, 168, 76, .35);
-  border-radius: 22px;
-  background: #0b1627;
-  box-shadow: 0 24px 80px #0009;
+  border: 1px solid rgba(201, 168, 76, .38);
+  border-radius: 26px;
+  background: #050A14;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.95);
 }
 .home-gallery-header, .home-gallery-footer {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 10px 16px;
 }
-.home-gallery-header { border-bottom: 1px solid #ffffff15; }
+.home-gallery-header { border-bottom: 1px solid #ffffff15; background: #060C18; }
 .home-gallery-header h2 { margin: 2px 0 0; color: #f4f0e7; font-size: 16px; line-height: 1.4; }
 .home-gallery-control {
   flex: 0 0 44px;
   width: 44px;
   height: 44px;
-  border: 1px solid #c9a84c50;
-  border-radius: 12px;
-  color: #e1c572;
-  background: #ffffff05;
+  border: 1px solid #ffffff26;
+  border-radius: 9999px;
+  color: #e2e8f0;
+  background: #ffffff0d;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 14px;
 }
 .home-gallery-stage {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 1 auto;
-  min-height: 120px;
-  height: min(49dvh, 540px);
-  background: #040811;
+  flex: 1 1 0%;
+  min-height: 0;
+  background: #03060D;
   touch-action: pan-y pinch-zoom;
   overflow: hidden;
 }
@@ -284,8 +285,8 @@
   line-height: 1.6;
   list-style: disc;
 }
-.home-gallery-footer { border-top: 1px solid #ffffff15; }
-.home-gallery-counter { color: #bac7d8; font: 500 12px/1.5 var(--font-mono); }
+.home-gallery-footer { border-top: 1px solid #ffffff1a; background: #050A14; }
+.home-gallery-counter { color: #f3d37a; font: 700 12px/1.5 var(--font-mono); }
 @media (min-width: 640px) {
   .home-editorial-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .home-editorial-panel { padding: 24px 20px 10px; }
@@ -303,6 +304,6 @@
   .home-editorial-action:hover, .home-gallery-control:hover { color: #f3d37a; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .home-gallery-stage { height: 32dvh; min-height: 80px; }
+  .home-gallery-stage { min-height: 80px; }
   .home-gallery-header, .home-gallery-footer { padding-block: 4px; }
 }
