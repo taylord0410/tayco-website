@@ -68,13 +68,11 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "Roof condition assessment"
     ],
     "triptych": [
-      { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
       { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
       { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
     ],
     "triptychByDivision": {
       "single-family": [
-        { "src": "/curated/residential/r4.jpg", "label": "Standing-Seam Farmhouse Metal Roof" },
         { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
         { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
       ],
@@ -160,8 +158,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       ],
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-framing.jpg", "label": "2-Unit Structural Wood Framing & Demising Wall Assembly" },
-        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Multifamily Engineered Floor & Roof Truss Framing" },
-        { "src": "/work/framing_multifamily.jpg", "label": "Multi-Unit Wood Framing & Structural Floor Joists" }
+        { "src": "/curated/properties/mkt-mf-framing-trusses.jpg", "label": "Multifamily Engineered Floor & Roof Truss Framing" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-framing-row.jpg", "label": "3-Story Attached Townhome Row Wood Framing" },

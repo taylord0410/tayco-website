@@ -48,7 +48,6 @@ export const PHOTO_SPECIALTY: Record<string, MarketSpecialtyId> = {
   "/curated/commercial/com-water-mitigation-office.jpg": "drywall",
 
   // Residential (Single-Family, Multifamily, Townhomes) — Roofing
-  "/curated/residential/r4.jpg": "roofing",
   "/curated/pairs/div02_02_despues.jpg": "roofing",
   "/curated/residential/div04_06_despues.jpg": "roofing",
   "/curated/properties/mkt-mf-roofing.jpg": "roofing",
@@ -75,7 +74,6 @@ export const PHOTO_SPECIALTY: Record<string, MarketSpecialtyId> = {
   "/curated/magazine/revista_fr_wood_05.jpg": "framing",
   "/curated/properties/mkt-mf-framing.jpg": "framing",
   "/curated/properties/mkt-mf-framing-trusses.jpg": "framing",
-  "/work/framing_multifamily.jpg": "framing",
   "/curated/properties/mkt-twn-framing-row.jpg": "framing",
   "/curated/properties/mkt-twn-framing-partywall.jpg": "framing",
   "/curated/properties/mkt-twn-framing-rooftop.jpg": "framing",
