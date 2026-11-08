@@ -76,6 +76,62 @@ async function inspect(dialog) {
 
 const current = (state) => state.photos.filter((p) => p.share >= 0.5).map((p) => p.stem).sort().join('|');
 
+// HUB, 8-nov, after the first client pass: one rule for both viewers. Nearly full screen, the WHOLE
+// photo (no crop) filling at least 80 % of the frame's width or height, a frame that keeps its size
+// from a portrait photo to a landscape one, a footer that never changes shape, and an opaque
+// background (the page text must not show through).
+const MIN_STAGE = { width: 0.85, height: 0.55 }; // of the screen
+const MIN_FILL = 0.8; // of the frame, in width or height
+async function frame(dialog) {
+  return dialog.evaluate((root) => {
+    const stage = root.querySelector('[data-tayco-wheel-stage="true"]');
+    const rect = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
+    const shown = (el) => {
+      for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.05) return false;
+      }
+      return true;
+    };
+    // The main photo: the largest visible photo that is not a decorative backdrop.
+    const main = [...root.querySelectorAll('canvas[data-protected-canvas], img')]
+      .filter((el) => shown(el) && el.dataset.auditIgnore !== 'true')
+      .sort((a, b) => b.clientWidth * b.clientHeight - a.clientWidth * a.clientHeight)[0];
+    let photo = null;
+    if (main) {
+      // Where the picture lands inside its box, from its own proportions and its object-fit.
+      const iw = main.naturalWidth || main.width, ih = main.naturalHeight || main.height;
+      const ew = main.clientWidth, eh = main.clientHeight, fit = getComputedStyle(main).objectFit;
+      const scale = fit === 'cover' ? Math.max(ew / iw, eh / ih) : fit === 'none' ? 1 : fit === 'scale-down' ? Math.min(1, ew / iw, eh / ih) : Math.min(ew / iw, eh / ih);
+      const cw = fit === 'fill' ? ew : iw * scale, ch = fit === 'fill' ? eh : ih * scale;
+      const s = stage?.getBoundingClientRect();
+      photo = {
+        stem: main.dataset.assetStem || main.getAttribute('src') || '?',
+        cropped: cw > ew + 2 || ch > eh + 2,
+        distorted: fit === 'fill' && Math.abs(ew / eh - iw / ih) > 0.02 * (iw / ih),
+        fill: s ? Math.max(Math.min(cw, ew) / s.width, Math.min(ch, eh) / s.height) : 0,
+      };
+    }
+    const estimate = [...root.querySelectorAll('a, button')].find((el) => shown(el) && /^request (?:an? )?estimate\b/i.test(el.innerText.trim()));
+    // Opaque: at each point of a grid over the screen, something opaque of the viewer is hit before
+    // anything of the page underneath.
+    const seeThrough = [];
+    for (let gx = 0.05; gx < 1; gx += 0.1) for (let gy = 0.05; gy < 1; gy += 0.1) {
+      const x = innerWidth * gx, y = innerHeight * gy;
+      for (const el of document.elementsFromPoint(x, y)) {
+        if (!root.contains(el)) { seeThrough.push(`${Math.round(x)},${Math.round(y)}`); break; }
+        const cs = getComputedStyle(el);
+        // Alpha in any color syntax: rgba(r, g, b, a), oklab(l a b / a), color(srgb r g b / a)...
+        const bg = cs.backgroundColor;
+        const a = bg.match(/\/\s*([\d.]+)(%?)\s*\)$/) || bg.match(/^rgba\([^)]*,\s*([\d.]+)(%?)\s*\)$/);
+        const alpha = bg === 'transparent' ? 0 : a ? Number(a[1]) / (a[2] ? 100 : 1) : 1;
+        if (el.matches('canvas, img') || alpha >= 0.97) break;
+      }
+    }
+    return { stage: rect(stage), photo, estimate: rect(estimate), seeThrough };
+  });
+}
+
 async function check(page, label, trigger, division) {
   const problems = [];
   const button = page.locator(trigger).first();
@@ -136,6 +192,37 @@ async function check(page, label, trigger, division) {
     await page.waitForTimeout(900);
     if (current(await inspect(dialog)) === before) problems.push(`${label}: swiping did not change the photo`);
   }
+
+  // Every photo of the gallery, stepping with «next» until the first one comes back (at most 24).
+  const viewportBox = page.viewportSize();
+  const frames = [];
+  for (let i = 0; i < 24; i++) {
+    const f = await frame(dialog);
+    if (i > 0 && f.photo?.stem === frames[0].photo?.stem) break;
+    frames.push(f);
+    if (!(await next.count())) break;
+    await next.click();
+    await page.waitForTimeout(700);
+  }
+  const [f0] = frames;
+  if (!f0?.stage) problems.push(`${label}: no photo frame`);
+  else {
+    if (f0.stage.w < viewportBox.width * MIN_STAGE.width || f0.stage.h < viewportBox.height * MIN_STAGE.height) {
+      problems.push(`${label}: the photo frame is ${f0.stage.w}×${f0.stage.h}, less than ${Math.round(MIN_STAGE.width * 100)} % of the screen width or ${Math.round(MIN_STAGE.height * 100)} % of its height`);
+    }
+    const moved = frames.filter((f) => !f.stage || Math.abs(f.stage.h - f0.stage.h) > 2 || Math.abs(f.stage.w - f0.stage.w) > 2 || Math.abs(f.stage.y - f0.stage.y) > 2);
+    if (moved.length) problems.push(`${label}: the frame changes size from one photo to another (${moved.map((f) => `${f.photo?.stem}: ${f.stage?.w}×${f.stage?.h} at y=${f.stage?.y}`).slice(0, 3).join(', ')} vs ${f0.stage.w}×${f0.stage.h} at y=${f0.stage.y})`);
+    const footer = frames.filter((f) => !f.estimate || !f0.estimate || Math.abs(f.estimate.x - f0.estimate.x) > 2 || Math.abs(f.estimate.y - f0.estimate.y) > 2);
+    if (footer.length) problems.push(`${label}: «Request Estimate» moves from one photo to another (${footer.map((f) => f.photo?.stem).slice(0, 3).join(', ')})`);
+  }
+  for (const f of frames) {
+    if (!f.photo) continue;
+    if (f.photo.cropped) problems.push(`${label}: ${f.photo.stem} is cropped (object-fit cover), the whole photo must show`);
+    if (f.photo.distorted) problems.push(`${label}: ${f.photo.stem} is stretched`);
+    if (f.photo.fill < MIN_FILL) problems.push(`${label}: ${f.photo.stem} fills only ${Math.round(f.photo.fill * 100)} % of the frame`);
+  }
+  const holes = [...new Set(frames.flatMap((f) => f.seeThrough))];
+  if (holes.length) problems.push(`${label}: the page shows through the viewer at ${holes.length} of 100 points (e.g. ${holes.slice(0, 3).join(' · ')})`);
 
   // The X closes it.
   const close = dialog.getByRole('button', { name: /close/i }).first();
