@@ -46,7 +46,9 @@ export const metadata: Metadata = {
   // Public pages are indexable (Randhy, 7-nov-2026). Private routes (login, portal) set their own noindex.
   ...(SITE_URL && {
     metadataBase: SITE_URL,
-    alternates: { canonical: "/" },
+    // "./" resolves against each page's own path (Next metadata), so the home gets "/" and every
+    // other page points at itself. A bare "/" here would tell search engines every page is the home.
+    alternates: { canonical: "./" },
     openGraph: { type: "website", siteName: "TAYCO LLC", images: [OG_IMAGE] },
     twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
   }),
