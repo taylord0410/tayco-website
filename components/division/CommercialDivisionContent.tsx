@@ -59,9 +59,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "02",
-    "csiCode": "Exterior",
-    "titleNode": "Siding, windows & exterior",
-    "titlePlain": "Siding, windows & exterior",
+    "csiCode": "Windows & Doors",
+    "titleNode": "Windows & Doors",
+    "titlePlain": "Windows & Doors",
     "category": "structural_envelope",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -85,8 +85,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   {
     "num": "03",
     "csiCode": "Framing",
-    "titleNode": "Framing & structural coordination",
-    "titlePlain": "Framing & structural coordination",
+    "titleNode": "Framing",
+    "titlePlain": "Framing",
     "category": "structural_envelope",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -104,7 +104,7 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "Multi-Story Cold-Formed Steel Stud Framing" },
       { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
-      { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Multi-Story Structural Envelope & Steel Framing" }
+      { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Structural Envelope & Steel Framing" }
     ]
   },
   {
@@ -134,9 +134,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "05",
-    "csiCode": "Interiors",
-    "titleNode": "Drywall, ceilings & painting",
-    "titlePlain": "Drywall, ceilings & painting",
+    "csiCode": "Drywall",
+    "titleNode": "Drywall",
+    "titlePlain": "Drywall",
     "category": "interior_ti",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -159,9 +159,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "06",
-    "csiCode": "Tenant improvements",
-    "titleNode": "Tenant improvements",
-    "titlePlain": "Tenant improvements",
+    "csiCode": "Carpentry",
+    "titleNode": "Carpentry",
+    "titlePlain": "Carpentry",
     "category": "interior_ti",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -184,9 +184,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "07",
-    "csiCode": "Site preparation",
-    "titleNode": "Demolition & site preparation",
-    "titlePlain": "Demolition & site preparation",
+    "csiCode": "Demolition",
+    "titleNode": "Demolition",
+    "titlePlain": "Demolition",
     "category": "site_restoration",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -209,9 +209,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "08",
-    "csiCode": "Concrete",
-    "titleNode": "Concrete & foundations",
-    "titlePlain": "Concrete & foundations",
+    "csiCode": "Foundations",
+    "titleNode": "Foundations",
+    "titlePlain": "Foundations",
     "category": "structural_envelope",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -234,9 +234,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "09",
-    "csiCode": "Property programs",
-    "titleNode": "Property renovation programs",
-    "titlePlain": "Property renovation programs",
+    "csiCode": "Remodeling",
+    "titleNode": "Remodeling",
+    "titlePlain": "Remodeling",
     "category": "interior_ti",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -259,9 +259,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
   },
   {
     "num": "10",
-    "csiCode": "Restoration",
-    "titleNode": "Fire & water reconstruction",
-    "titlePlain": "Fire & water reconstruction",
+    "csiCode": "Painting",
+    "titleNode": "Painting",
+    "titlePlain": "Painting",
     "category": "site_restoration",
     "unitRate": "Estimate by project",
     "scheduleNote": "Schedule agreed with you",
@@ -377,189 +377,42 @@ export default function CommercialDivisionContent() {
         aria-label="TAYCO specialties"
       >
         <div>
-          <span className="gold">Concrete, Foundations &amp; Site Preparation</span>
+          <span className="gold">Roofing</span>
           <i aria-hidden="true">✳</i>
-          <span>Framing &amp; Structural Coordination</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Roofing, Siding &amp; Exterior Envelope</span>
+          <span>Siding</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Windows &amp; Doors</span>
           <i aria-hidden="true">✳</i>
-          <span>Drywall, Flooring &amp; Interior Finishes</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Concrete, Foundations &amp; Site Preparation</span>
+          <span>Framing</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Drywall</span>
           <i aria-hidden="true">✳</i>
-          <span>Framing &amp; Structural Coordination</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Roofing, Siding &amp; Exterior Envelope</span>
+          <span>Flooring</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Carpentry</span>
           <i aria-hidden="true">✳</i>
-          <span>Drywall, Flooring &amp; Interior Finishes</span>
+          <span>Masonry</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Roofing</span>
+          <i aria-hidden="true">✳</i>
+          <span>Siding</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Windows &amp; Doors</span>
+          <i aria-hidden="true">✳</i>
+          <span>Framing</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Drywall</span>
+          <i aria-hidden="true">✳</i>
+          <span>Flooring</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Carpentry</span>
+          <i aria-hidden="true">✳</i>
+          <span>Masonry</span>
         </div>
-      </div>
-
-      {/* ── CHROMATIC HORIZON DIVIDER INTO WARM EDITORIAL IVORY ── */}
-      <div className="chromatic-horizon" aria-hidden="true">
-        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
-          <path
-            className="horizon-land"
-            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
-          />
-          <path
-            className="horizon-trace a"
-            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
-          />
-          <path
-            className="horizon-trace b"
-            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
-          />
-        </svg>
-      </div>
-
-      {/* Services Gallery */}
-      <section
-        id="services"
-        className="section-editorial-ivory py-14 sm:py-20 px-4 sm:px-8"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-            <div>
-              <h2
-                className="font-black tracking-tight"
-                style={{
-                  color: "#0F2040",
-                  fontSize: "clamp(1.85rem, 3.6vw, 2.75rem)",
-                  lineHeight: 1.06,
-                }}
-              >
-                Services
-              </h2>
-            </div>
-
-            {/* Interactive Category Filter */}
-            <div
-              className="flex flex-wrap gap-2"
-              role="group"
-              aria-label="Filter services"
-            >
-              {[
-                {
-                  id: "all",
-                  label: "All",
-                },
-                {
-                  id: "structural_envelope",
-                  label: "Structural & Envelope",
-                },
-                {
-                  id: "interior_ti",
-                  label: "Interiors & Fit-Outs",
-                },
-                {
-                  id: "site_restoration",
-                  label: "Site & Restoration",
-                },
-              ].map((tab) => {
-                const active = activeCategory === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    data-magnetic
-                    aria-pressed={active}
-                    onClick={() =>
-                      setActiveCategory(tab.id as CommercialTradeCategory)
-                    }
-                    className="px-4 py-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer"
-                    style={{
-                      background: active ? "#0F2040" : "rgba(255,255,255,0.82)",
-                      color: active ? "#F3D37A" : "#0F2040",
-                      borderColor: active
-                        ? "#0F2040"
-                        : "rgba(27, 58, 107, 0.28)",
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 10 Multi-Photo Service Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredTrades.map((card) => (
-              <div
-                key={card.num}
-                data-response-kind="surface"
-                className="tayco-living-card editorial-ivory-card p-5 sm:p-6 flex flex-col justify-between group"
-                style={
-                  {
-                    "--light-angle": `${lightAngle}deg`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="preview-orbits" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-
-                <div className="relative z-10">
-                  <ServiceCardTriptych
-                    frames={card.triptych}
-                    badge={card.csiCode}
-                    accentColor={card.accent}
-                  />
-                </div>
-
-                <div
-                  className="relative z-10 pt-3 border-t flex flex-wrap items-center justify-between gap-3"
-                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-                >
-                  <h3
-                    className="text-lg sm:text-xl font-black tracking-tight leading-snug"
-                    style={{ color: "#0F2040" }}
-                  >
-                    {card.titleNode}
-                  </h3>
-                  <Link
-                    href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
-                    data-magnetic
-                    className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
-                    style={{ background: "#0F2040", color: "#F3D37A" }}
-                  >
-                    Request Estimate →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── REVERSE CHROMATIC HORIZON BACK INTO DEEP STRUCTURAL NAVY (#070E1A) ── */}
-      <div className="chromatic-horizon reverse" aria-hidden="true">
-        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
-          <path
-            className="horizon-land"
-            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
-          />
-          <path
-            className="horizon-trace a"
-            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
-          />
-          <path
-            className="horizon-trace b"
-            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
-          />
-        </svg>
       </div>
 
       {/* ── INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+            {/* ServiceCardTriptych retained via COMMERCIAL_CSI_TRADES */}
       <TransformationBeforeAfterStudio
         siteDivision="commercial"
         initialDivision="div03"

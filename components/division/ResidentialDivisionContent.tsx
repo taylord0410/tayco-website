@@ -87,16 +87,16 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
         { "src": "/work/roofing_multifamily.jpg", "label": "Duplex & Two-Flat Architectural Shingle Re-Roof" }
       ],
       "townhomes": [
-        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Slate Mansard, Copper Flashing & Parapet Cap" },
+        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Slate Mansard, Copper Flashing & Parapet Cap" },
         { "src": "/curated/properties/townhouse-03-brownstone-mansard-row.jpg", "label": "Attached Brownstone Mansard & Dormer Roofline" },
-        { "src": "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg", "label": "Stepped-Grade Rowhouse Roofs & Party-Wall Parapet Flashing" }
+        { "src": "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg", "label": "Stepped-Grade Roofs & Party-Wall Parapet Flashing" }
       ]
     }
   },
   {
     "num": "02",
-    "csiCode": "Exterior",
-    "title": "Siding, windows & doors",
+    "csiCode": "Windows & Doors",
+    "title": "Windows & Doors",
     "category": "envelope_structural",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -128,7 +128,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       ],
       "townhomes": [
         { "src": "/curated/properties/townhouse-01-brick-limestone-row.jpg", "label": "Townhome Brick Facade, Limestone Lintels & Bay Windows" },
-        { "src": "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg", "label": "Corner Rowhouse Masonry & Cedar Rainscreen Siding" },
+        { "src": "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg", "label": "Corner Masonry & Cedar Rainscreen Siding" },
         { "src": "/work/siding_townhomes.jpg", "label": "Attached Townhome Siding, Trim & Stoop Entry Doors" }
       ]
     }
@@ -136,7 +136,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   {
     "num": "03",
     "csiCode": "Framing",
-    "title": "Framing & additions",
+    "title": "Framing",
     "category": "envelope_structural",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -175,8 +175,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   },
   {
     "num": "04",
-    "csiCode": "Interiors",
-    "title": "Drywall & interior finishes",
+    "csiCode": "Drywall",
+    "title": "Drywall",
     "category": "interiors_carpentry",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -216,7 +216,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   {
     "num": "05",
     "csiCode": "Carpentry",
-    "title": "Kitchens, baths & carpentry",
+    "title": "Carpentry",
     "category": "interiors_carpentry",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -255,8 +255,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   },
   {
     "num": "06",
-    "csiCode": "Concrete",
-    "title": "Concrete & foundations",
+    "csiCode": "Foundations",
+    "title": "Foundations",
     "category": "envelope_structural",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -287,7 +287,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
         { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Ground-Level Concrete Slab Flooring & Courtyard Walkout" }
       ],
       "townhomes": [
-        { "src": "/curated/properties/mkt-twn-concrete-stone.jpg", "label": "Rowhouse Bluestone Stoop, Limestone Treads & Areaway Wall" },
+        { "src": "/curated/properties/mkt-twn-concrete-stone.jpg", "label": "Bluestone Stoop, Limestone Treads & Areaway Wall" },
         { "src": "/curated/properties/mkt-twn-concrete-drive.jpg", "label": "Townhome Rear Alley Garage Apron & Permeable Paver Court" },
         { "src": "/curated/properties/mkt-twn-stone-gardenwall.jpg", "label": "Attached Townhome Stepped Foundation & Entry Stoop" }
       ]
@@ -295,8 +295,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
   },
   {
     "num": "07",
-    "csiCode": "Restoration",
-    "title": "Fire & water restoration",
+    "csiCode": "Painting",
+    "title": "Painting",
     "category": "restoration_turnkey",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -329,14 +329,14 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-framing-partywall.jpg", "label": "Party-Wall Fire-Stop & Structural Framing Reconstruction" },
         { "src": "/curated/properties/mkt-twn-framing-drywall.jpg", "label": "Multi-Floor Townhome Water-Loss Drywall & Shaft Rebuild" },
-        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Rowhouse Roof, Mansard & Box-Gutter Storm Recovery" }
+        { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Roof, Mansard & Box-Gutter Storm Recovery" }
       ]
     }
   },
   {
     "num": "08",
-    "csiCode": "Renovation",
-    "title": "Whole-home renovation",
+    "csiCode": "Remodeling",
+    "title": "Remodeling",
     "category": "restoration_turnkey",
     "unitRate": "Estimate by project",
     "planningNote": "Scope, selections and schedule reviewed with you",
@@ -367,7 +367,7 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
         { "src": "/curated/properties/interior-duplex-rear-patio-courtyard.jpg", "label": "Shared Duplex Rear Courtyard & Lower-Unit Garden Suite" }
       ],
       "townhomes": [
-        { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "End-Unit Rowhouse Full-Gut Masonry & Window Rehabilitation" },
+        { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "End-Unit Full-Gut Masonry & Window Rehabilitation" },
         { "src": "/curated/properties/interior-townhouse-living-bay.jpg", "label": "Parlor-Floor Living Bay, Herringbone Oak & Hearth Remodel" },
         { "src": "/curated/properties/interior-townhouse-rooftop-terrace.jpg", "label": "Rooftop Terrace Deck, Pergola & Upper-Floor Suite Addition" }
       ]
@@ -409,11 +409,11 @@ export const RESIDENTIAL_RESTORATION_TRIPTYCHS_BY_DIVISION: Record<
   townhomes: {
     fire: [
       { src: "/curated/properties/mkt-twn-framing-partywall.jpg", label: "2-Hour Party-Wall Fire-Stop & Framing Rebuild" },
-      { src: "/curated/properties/mkt-twn-framing-row.jpg", label: "Multi-Story Rowhouse Roof & Floor Truss Recovery" },
-      { src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg", label: "Restored Townhome Parlor Kitchen & Custom Millwork" },
+      { src: "/curated/properties/mkt-twn-framing-row.jpg", label: "Structural Roof & Floor Truss Recovery" },
+      { src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg", label: "Restored Parlor Kitchen & Custom Millwork" },
     ],
     water: [
-      { src: "/curated/properties/mkt-twn-framing-drywall.jpg", label: "Multi-Story Vertical Chase Drying & Drywall Hang" },
+      { src: "/curated/properties/mkt-twn-framing-drywall.jpg", label: "Vertical Chase Drying & Drywall Hang" },
       { src: "/curated/capabilities/mit-hardwood-underlay.jpg", label: "Subfloor Moisture Barrier & Hardwood Underlayment" },
       { src: "/curated/properties/interior-townhouse-living-bay.jpg", label: "Restored Parlor Bay Window & Herringbone Oak Flooring" },
     ],
@@ -478,182 +478,38 @@ export default function ResidentialDivisionContent({
         aria-label="TAYCO specialties"
       >
         <div>
-          <span className="gold">Roofing &amp; Siding</span>
+          <span className="gold">Roofing</span>
           <i aria-hidden="true">✳</i>
-          <span>Framing &amp; Foundations</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Drywall, Flooring &amp; Painting</span>
+          <span>Siding</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Windows &amp; Doors</span>
           <i aria-hidden="true">✳</i>
-          <span>Carpentry, Masonry &amp; Restoration</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Roofing &amp; Siding</span>
+          <span>Framing</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Drywall</span>
           <i aria-hidden="true">✳</i>
-          <span>Framing &amp; Foundations</span>
-          <i className="gold-star" aria-hidden="true">
-            ✳
-          </i>
-          <span className="gold">Drywall, Flooring &amp; Painting</span>
+          <span>Flooring</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Carpentry</span>
           <i aria-hidden="true">✳</i>
-          <span>Carpentry, Masonry &amp; Restoration</span>
+          <span>Masonry</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Roofing</span>
+          <i aria-hidden="true">✳</i>
+          <span>Siding</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Windows &amp; Doors</span>
+          <i aria-hidden="true">✳</i>
+          <span>Framing</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Drywall</span>
+          <i aria-hidden="true">✳</i>
+          <span>Flooring</span>
+          <i className="gold-star" aria-hidden="true">✳</i>
+          <span className="gold">Carpentry</span>
+          <i aria-hidden="true">✳</i>
+          <span>Masonry</span>
         </div>
-      </div>
-
-      {/* ── CHROMATIC HORIZON WAVE INTO WARM EDITORIAL IVORY ── */}
-      <div className="chromatic-horizon" aria-hidden="true">
-        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
-          <path
-            className="horizon-land"
-            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
-          />
-          <path
-            className="horizon-trace a"
-            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
-          />
-          <path
-            className="horizon-trace b"
-            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
-          />
-        </svg>
-      </div>
-
-      {/* Services Gallery */}
-      <section
-        id="services"
-        className="section-editorial-ivory py-14 sm:py-20 px-4 sm:px-8"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-            <div>
-              <h2
-                className="font-black tracking-tight"
-                style={{
-                  color: "#0F2040",
-                  fontSize: "clamp(1.85rem, 3.6vw, 2.75rem)",
-                  lineHeight: 1.06,
-                }}
-              >
-                Services
-              </h2>
-            </div>
-
-            <div
-              className="flex flex-wrap gap-2"
-              role="group"
-              aria-label="Filter services"
-            >
-              {[
-                { id: "all", label: "All" },
-                {
-                  id: "envelope_structural",
-                  label: "Roofing, Siding, Framing & Concrete",
-                },
-                {
-                  id: "interiors_carpentry",
-                  label: "Drywall & Carpentry",
-                },
-                {
-                  id: "restoration_turnkey",
-                  label: "Restoration & Remodeling",
-                },
-              ].map((tab) => {
-                const active = activeCategory === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    data-magnetic
-                    aria-pressed={active}
-                    onClick={() =>
-                      setActiveCategory(tab.id as ResidentialCategory)
-                    }
-                    className="px-4 py-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer"
-                    style={{
-                      background: active ? "#0F2040" : "rgba(255,255,255,0.82)",
-                      color: active ? "#F3D37A" : "#0F2040",
-                      borderColor: active
-                        ? "#0F2040"
-                        : "rgba(27, 58, 107, 0.28)",
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 8 Multi-Photo Service Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredTrades.map((card) => (
-              <div
-                key={card.num}
-                data-response-kind="surface"
-                className="tayco-living-card editorial-ivory-card p-5 sm:p-6 flex flex-col justify-between group"
-                style={
-                  {
-                    "--light-angle": `${lightAngle}deg`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="preview-orbits" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-
-                <div className="relative z-10">
-                  <ServiceCardTriptych
-                    frames={card.triptych}
-                    badge={card.csiCode}
-                    accentColor={card.accent}
-                  />
-                </div>
-
-                <div
-                  className="relative z-10 pt-3 border-t flex flex-wrap items-center justify-between gap-3"
-                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-                >
-                  <h3
-                    className="text-lg sm:text-xl font-black tracking-tight leading-snug"
-                    style={{ color: "#0F2040" }}
-                  >
-                    {card.title}
-                  </h3>
-                  <Link
-                    href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
-                    data-magnetic
-                    className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
-                    style={{ background: "#0F2040", color: "#F3D37A" }}
-                  >
-                    Request Estimate →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── REVERSE CHROMATIC HORIZON BACK INTO DEEP STRUCTURAL NAVY ── */}
-      <div className="chromatic-horizon reverse" aria-hidden="true">
-        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
-          <path
-            className="horizon-land"
-            d="M0 83 C260 8 390 133 720 70 S1140 10 1440 70 V140 H0Z"
-          />
-          <path
-            className="horizon-trace a"
-            d="M-80 60 C260 -30 390 122 720 50 S1140 -15 1520 50"
-          />
-          <path
-            className="horizon-trace b"
-            d="M-80 32 C260 -60 400 92 720 25 S1140 -40 1520 25"
-          />
-        </svg>
       </div>
 
       {/* ── INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO ── */}
@@ -728,7 +584,7 @@ export default function ResidentialDivisionContent({
               />
               <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
                 <h3 className="text-xl font-black text-white">
-                  Water &amp; Storm Recovery
+                  Water Restoration
                 </h3>
                 <Link
                   href="/estimate?trade=WATER-RESTORATION"

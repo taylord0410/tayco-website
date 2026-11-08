@@ -99,7 +99,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ],
     totalAvailableBadge: "8 Specialties · 6 Homes",
     typicalSqftRange: "2,650 – 4,400 Sq. Ft.",
-    typicalConfigLabel: "Roofing · Siding · Framing · Drywall · Flooring · Concrete · Stone",
+    typicalConfigLabel: "Roofing · Siding · FRAMING · Drywall · FLOORING · CONCRETE · Stone",
     csiDivisions: "CSI DIV 03 · 04 · 06 · 07 · 08 · 09",
     accentColor: "#B32B2B",
     ctaLabel: "Explore Single-Family Services & Projects",
@@ -109,7 +109,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     order: "02",
     label: "Multifamily",
     shortLabel: "Multifamily",
-    eyebrow: "MARKET 02 · Multi-Story & Multi-Suite BUILDINGS",
+    eyebrow: "MARKET 02 · RESIDENTIAL SUITES & BUILDINGS",
     headline: "Multifamily",
     serifAccent: "Services & Projects.",
     subtitle:
@@ -123,7 +123,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ],
     totalAvailableBadge: "8 Specialties · 6 Projects",
     typicalSqftRange: "3,600 – 45,000+ Sq. Ft.",
-    typicalConfigLabel: "Roofing · Siding · Framing · Drywall · Flooring · Concrete · Stone",
+    typicalConfigLabel: "Roofing · Siding · FRAMING · Drywall · FLOORING · CONCRETE · Stone",
     csiDivisions: "CSI DIV 03 · 04 · 06 · 07 · 08 · 09",
     accentColor: "#B32B2B",
     ctaLabel: "Explore Multifamily Services & Projects",
@@ -133,7 +133,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     order: "03",
     label: "Townhomes",
     shortLabel: "Townhomes",
-    eyebrow: "MARKET 03 · ATTACHED Row Residences & ROWHOUSES",
+    eyebrow: "MARKET 03 · ATTACHED BRICK & STONE RESIDENCES",
     headline: "Townhomes",
     serifAccent: "Services & Projects.",
     subtitle:
@@ -147,7 +147,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ],
     totalAvailableBadge: "8 Specialties · 6 Row Developments",
     typicalSqftRange: "2,250 – 3,300 Sq. Ft. / Unit",
-    typicalConfigLabel: "Roofing · Siding · Framing · Drywall · Flooring · Concrete · Stone",
+    typicalConfigLabel: "Roofing · Siding · FRAMING · Drywall · FLOORING · CONCRETE · Stone",
     csiDivisions: "CSI DIV 03 · 04 · 06 · 07 · 08 · 09",
     accentColor: "#B32B2B",
     ctaLabel: "Explore Townhome Services & Projects",
@@ -171,7 +171,7 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
     ],
     totalAvailableBadge: "8 Specialties · 6 Facilities",
     typicalSqftRange: "14,500 – 64,000 Sq. Ft.",
-    typicalConfigLabel: "Architectural Roofing · Framing · Drywall · Flooring · Concrete · Stone",
+    typicalConfigLabel: "Architectural Roofing · FRAMING · Drywall · FLOORING · CONCRETE · Stone",
     csiDivisions: "CSI DIV 03 · 04 · 05 · 07 · 08 · 09 · 26",
     accentColor: "#B32B2B",
     ctaLabel: "Explore Commercial Services & Projects",
@@ -678,7 +678,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-303",
     code: "TWN-303",
     category: "townhomes",
-    title: "The Gold Coast Mansard & Brownstone Rowhomes",
+    title: "The Gold Coast Mansard & Brownstone Residences",
     subtitle: "Renovated Brick & Brownstone Row Residences · Slate Mansard Roofs & Side Walk",
     location: "Milwaukee, WI",
     stateCode: "WI",
@@ -688,7 +688,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 09 · 22",
     summary:
-      "Classic three-story brick and brownstone rowhomes restored with slate mansard dormers, asymmetric parlor-level polygonal bay windows, off-center stone entry stoops and designer interior kitchens and baths.",
+      "Classic three-story brick and brownstone residences restored with slate mansard dormers, asymmetric parlor-level polygonal bay windows, off-center stone entry stoops and designer interior kitchens and baths.",
     highlights: [
       "Asymmetric brownstone bays, brick facades & slate mansard dormers",
       "Designer island kitchen with custom cabinetry & stone counters",
@@ -727,7 +727,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     highlights: [
       "Corner end-unit brick Attached Residence with exposed side chimney stack",
       "Parlor-level great room with coffered ceiling & stone hearth",
-      "Engineered multi-story framing with 2-hour masonry fire separation",
+      "Engineered framing with 2-hour masonry fire separation",
     ],
     triptych: [
       {
@@ -740,7 +740,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
       },
       {
         src: "/curated/commercial/cx_f2.jpg",
-        label: "Fire-Rated Party-Wall & Multi-Story Structural Framing",
+        label: "Fire-Rated Party-Wall & Structural Framing",
       },
     ],
   },
@@ -748,7 +748,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-305",
     code: "TWN-305",
     category: "townhomes",
-    title: "The Highland Stepped-Grade Brick Rowhomes",
+    title: "The Highland Stepped-Grade Brick Residences",
     subtitle: "Sloping-Street Attached Row Residences · Stepped Roofline & Off-Center Stoops",
     location: "St. Louis, MO",
     stateCode: "MO",
@@ -767,7 +767,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     triptych: [
       {
         src: "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg",
-        label: "Stepped-Grade Brick & Slate Rowhomes on Sloping Street",
+        label: "Stepped-Grade Brick & Slate Facades on Sloping Street",
       },
       {
         src: "/curated/residential/div01_08_despues.jpg",
@@ -1299,9 +1299,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Roofing",
       title: "Roofing",
       subtitle: "Multi-Ridge Architectural Shingles, Standing-Seam Metal & Flat-Deck TPO",
-      csiDivision: "CSI DIV 07 · Multi-Story ROOFING",
+      csiDivision: "CSI DIV 07 · ROOFING",
       summary:
-        "High-durability roofing systems engineered for Multi-Story buildings, Two-Unit Residence and residential complexes—combining architectural shingle gable roofs, standing-seam metal dormers, Architectural-grade gutters and flat-deck TPO membranes.",
+        "High-durability roofing systems engineered for buildings, Two-Unit Residence and residential complexes—combining architectural shingle gable roofs, standing-seam metal dormers, Architectural-grade gutters and flat-deck TPO membranes.",
       deliverables: [
         "Multi-ridge architectural shingle & standing-seam metal roof assemblies",
         "TPO flat-roof membranes with tapered insulation & scupper drainage",
@@ -1310,7 +1310,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/mkt-mf-roofing.jpg",
-          label: "Multi-Story Architectural Shingle & Standing-Seam Metal Roof",
+          label: "Architectural Shingle & Standing-Seam Metal Roof",
         },
         {
           src: "/curated/properties/duplex-05-minneapolis-buffbrick-dormer.jpg",
@@ -1318,7 +1318,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/capabilities/mf-tpo-capex.jpg",
-          label: "Multi-Story Low-Slope White TPO Membrane & Parapet Roof System",
+          label: "Low-Slope White TPO Membrane & Parapet Roof System",
         },
       ],
     },
@@ -1331,9 +1331,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Siding",
       title: "Siding",
       subtitle: "Fiber-Cement Panels, Cedar Rain-Screen Accents & Multi-Suite Glazing",
-      csiDivision: "CSI DIV 07 · 08 · Multi-Story CLADDING",
+      csiDivision: "CSI DIV 07 · 08 · CLADDING",
       summary:
-        "Low-maintenance, fire-resistant Multi-Story exterior cladding combining James Hardie fiber-cement panels, warm cedar rain-screen accents, continuous air/vapor barriers and acoustic Multi-Suite window packages.",
+        "Low-maintenance, fire-resistant exterior cladding combining James Hardie fiber-cement panels, warm cedar rain-screen accents, continuous air/vapor barriers and acoustic Multi-Suite window packages.",
       deliverables: [
         "Non-combustible fiber-cement lap, panel & vertical siding systems",
         "Continuous Architectural Tyvek/fluid-applied air & moisture barriers",
@@ -1342,7 +1342,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg",
-          label: "Multi-Story Cedar Rain-Screen, Brick & Fiber-Cement Envelope",
+          label: "Cedar Rain-Screen, Brick & Fiber-Cement Envelope",
         },
         {
           src: "/curated/properties/duplex-03-columbus-lplan-brick.jpg",
@@ -1350,7 +1350,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/capabilities/mf-apartments-4story.jpg",
-          label: "Multi-Story Apartment Fiber-Cement Panel, Brick & Balcony Cladding",
+          label: "Apartment Fiber-Cement Panel, Brick & Balcony Cladding",
         },
       ],
     },
@@ -1362,27 +1362,27 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyGroup: "structural",
       specialtyLabel: "Framing",
       title: "Framing",
-      subtitle: "Multi-Story Timber Framing, Open-Web Floor Trusses & Acoustic Separation",
-      csiDivision: "CSI DIV 06 · Multi-Story FRAMING",
+      subtitle: "Timber Framing, Open-Web Floor Trusses & Acoustic Separation",
+      csiDivision: "CSI DIV 06 · FRAMING",
       summary:
-        "Fast-cycle multi-story wood framing for Two-Unit Residence and Multi-Story buildings—utilizing engineered open-web floor trusses for MEP routing, double-stud acoustic demising walls and pre-engineered roof truss packages.",
+        "Fast-cycle wood framing for Two-Unit Residence and buildings—utilizing engineered open-web floor trusses for MEP routing, double-stud acoustic demising walls and pre-engineered roof truss packages.",
       deliverables: [
-        "Multi-story Type-V timber framing & concrete podium tie-downs",
+        "Type-V timber framing & concrete podium tie-downs",
         "Open-web floor trusses for rapid plumbing, HVAC & electrical runs",
         "Double-stud acoustic demising walls & UL fire-rated shaft framing",
       ],
       triptych: [
         {
           src: "/curated/properties/mkt-mf-framing.jpg",
-          label: "Multi-Story Multi-Story Timber Framing & Open-Web Floor Trusses",
+          label: "Timber Framing & Open-Web Floor Trusses",
         },
         {
           src: "/curated/commercial/cx_f2.jpg",
-          label: "Multi-Story Wood-Frame Apartment Superstructure & OSB Sheathing",
+          label: "Wood-Frame Apartment Superstructure & OSB Sheathing",
         },
         {
           src: "/curated/properties/mkt-mf-framing-trusses.jpg",
-          label: "Multi-Story Open-Web Floor Trusses & Double-Stud Party-Wall Framing",
+          label: "Open-Web Floor Trusses & Double-Stud Party-Wall Framing",
         },
       ],
     },
@@ -1395,9 +1395,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Drywall",
       title: "Drywall",
       subtitle: "UL 2-Hour Party Assemblies, STC-60 Resilient Channels & Corridor Finishes",
-      csiDivision: "CSI DIV 09 · Multi-Story GYPSUM",
+      csiDivision: "CSI DIV 09 · GYPSUM",
       summary:
-        "Code-compliant Multi-Story drywall installations featuring UL-listed 1-hour and 2-hour Type-X fire assemblies, resilient sound channels between units, abuse-resistant corridor board and Level-4/5 residential unit finishes.",
+        "Code-compliant drywall installations featuring UL-listed 1-hour and 2-hour Type-X fire assemblies, resilient sound channels between units, abuse-resistant corridor board and Level-4/5 residential unit finishes.",
       deliverables: [
         "UL fire-rated Type-X gypsum assemblies & fire-caulked penetrations",
         "STC-60 acoustic resilient channels & mineral wool sound attenuation",
@@ -1406,7 +1406,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/mkt-mf-drywall.jpg",
-          label: "Multi-Story Corridor Drywall, Acoustic Ceiling & Unit Entry",
+          label: "Corridor Drywall, Acoustic Ceiling & Unit Entry",
         },
         {
           src: "/curated/capabilities/mit-taped-drywall.jpg",
@@ -1427,9 +1427,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Flooring",
       title: "Flooring",
       subtitle: "IIC-Rated Acoustic Underlayment, Waterproof Plank & Polished Concrete",
-      csiDivision: "CSI DIV 09 · Multi-Story FLOORING",
+      csiDivision: "CSI DIV 09 · FLOORING",
       summary:
-        "High-traffic Multi-Story flooring engineered for tenant longevity and acoustic quietness—combining IIC-65 sound-mat underlayments, Architectural-wear-layer white-oak LVT and hardwood in units, and polished concrete in lobbies.",
+        "High-traffic flooring engineered for tenant longevity and acoustic quietness—combining IIC-65 sound-mat underlayments, Architectural-wear-layer white-oak LVT and hardwood in units, and polished concrete in lobbies.",
       deliverables: [
         "Waterproof white-oak LVT & engineered hardwood with IIC sound mats",
         "Gyp-Crete floor leveling & acoustic impact insulation between stories",
@@ -1438,11 +1438,11 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/mkt-mf-flooring-concrete.jpg",
-          label: "Multi-Story Polished Concrete & Wide-Plank White Oak Flooring",
+          label: "Polished Concrete & Wide-Plank White Oak Flooring",
         },
         {
           src: "/curated/properties/interior-duplex-brick-living.jpg",
-          label: "Acoustic-Mat White Oak Plank Flooring in Multi-Story Residence",
+          label: "Acoustic-Mat White Oak Plank Flooring",
         },
         {
           src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
@@ -1459,9 +1459,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Concrete",
       title: "Concrete",
       subtitle: "Post-Tensioned Slabs, Grade Parking Aprons & Amenity Courtyard Pavers",
-      csiDivision: "CSI DIV 03 · Multi-Story CONCRETE",
+      csiDivision: "CSI DIV 03 · CONCRETE",
       summary:
-        "Turnkey structural and architectural concrete for Multi-Story developments—including reinforced foundation slabs, garage parking aprons, ADA-compliant entry walks and landscaped courtyard patios with fire features.",
+        "Turnkey structural and architectural concrete for developments—including reinforced foundation slabs, garage parking aprons, ADA-compliant entry walks and landscaped courtyard patios with fire features.",
       deliverables: [
         "Reinforced slab-on-grade, podium decks & grade-beam foundations",
         "Architectural concrete courtyard patios, planters & seating walls",
@@ -1470,7 +1470,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-          label: "Multi-Story Concrete Courtyard Patio, Privacy Divider & Fire Bowl",
+          label: "Concrete Courtyard Patio, Privacy Divider & Fire Bowl",
         },
         {
           src: "/curated/properties/mkt-mf-concrete-podium.jpg",
@@ -1491,9 +1491,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Masonry",
       title: "Masonry",
       subtitle: "Cut Limestone Veneer, Full-Bed Brick Elevations & Courtyard Masonry",
-      csiDivision: "CSI DIV 04 · Multi-Story MASONRY",
+      csiDivision: "CSI DIV 04 · MASONRY",
       summary:
-        "Enduring brick and natural stone masonry for Multi-Story facades—featuring cut Texas and Indiana limestone veneer, full-bed clay brick elevations, cast-stone window sills and masonry courtyard walls.",
+        "Enduring brick and natural stone masonry for facades—featuring cut Texas and Indiana limestone veneer, full-bed clay brick elevations, cast-stone window sills and masonry courtyard walls.",
       deliverables: [
         "Full-bed clay brick & cut architectural limestone facade masonry",
         "Cast-stone window sills, lintels, watertables & entry piers",
@@ -1502,7 +1502,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/duplex-02-limestone-stucco-asymmetric.jpg",
-          label: "Cut Limestone Masonry & Warm Stucco Multi-Story Facade",
+          label: "Cut Limestone Masonry & Warm Stucco Facade",
         },
         {
           src: "/curated/properties/duplex-04-evanston-corner-twoflat.jpg",
@@ -1510,7 +1510,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/properties/mkt-mf-stone-courtyard.jpg",
-          label: "Multi-Story Courtyard Limestone Planter Walls & Outdoor Masonry Kitchen",
+          label: "Courtyard Limestone Planter Walls & Outdoor Masonry Kitchen",
         },
       ],
     },
@@ -1523,9 +1523,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Carpentry",
       title: "Carpentry",
       subtitle: "Repeatable Quartz Kitchen Packages, Custom Millwork & Leasing Lounges",
-      csiDivision: "CSI DIV 06 · 09 · Multi-Story INTERIORS",
+      csiDivision: "CSI DIV 06 · 09 · INTERIORS",
       summary:
-        "Scalable, high-finish interior carpentry and kitchen/bath buildouts for Multi-Story units and common lounges—delivering quartz waterfall islands, European-hinge cabinetry and solid-core unit entry doors on schedule.",
+        "Scalable, high-finish interior carpentry and kitchen/bath buildouts for units and common lounges—delivering quartz waterfall islands, European-hinge cabinetry and solid-core unit entry doors on schedule.",
       deliverables: [
         "Multi-Suite quartz countertop & custom shaker/flat-panel kitchen packages",
         "Turnkey unit bathrooms with tiled walk-in showers & double vanities",
@@ -1534,15 +1534,15 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-          label: "Multi-Story Unit Chef's Kitchen with Quartz Waterfall Island",
+          label: "Chef's Kitchen with Quartz Waterfall Island",
         },
         {
           src: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
-          label: "Multi-Story Resident Co-Working Lounge & Custom White Oak Millwork",
+          label: "Resident Co-Working Lounge & Custom White Oak Millwork",
         },
         {
           src: "/curated/properties/mkt-mf-stone-entry.jpg",
-          label: "Multi-Story Leasing Lobby Monumental Entry & Custom Millwork Canopy",
+          label: "Leasing Lobby Monumental Entry & Custom Millwork Canopy",
         },
       ],
     },
@@ -1627,7 +1627,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       deliverables: [
         "3- and 4-story Row Residence structural framing & engineered floor joists",
         "UL 2-hour area-separation party walls between attached row units",
-        "Multi-story stairwell openings & rooftop terrace bulkhead framing",
+        "Stairwell openings & rooftop terrace bulkhead framing",
       ],
       triptych: [
         {
@@ -1753,7 +1753,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       summary:
         "Timeless urban masonry for Row Residence developments—combining hand-laid red, charcoal and buff face brick with cut limestone bases, carved stone window lintels and sills, and parlor-level marble or stone fireplaces.",
       deliverables: [
-        "Multi-story face brick & rusticated brownstone Row Residence facades",
+        "Face brick & rusticated brownstone Row Residence facades",
         "Cut limestone watertable bases, stoop cheek walls & window lintels",
         "Interior stone & bookmatched slab fireplace surrounds",
       ],
@@ -1866,7 +1866,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/hero/com-hq-sunset.jpg",
-          label: "Multi-Story Corporate Facade Cladding & Mullion Glazing System",
+          label: "Corporate Facade Cladding & Mullion Glazing System",
         },
       ],
     },

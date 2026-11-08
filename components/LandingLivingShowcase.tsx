@@ -185,7 +185,7 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     beforeTag: "Before",
     afterTag: "After",
     summary: "Structural framing from foundation sill plates to wall sheathing and roof trusses.",
-    highlights: ["Engineered roof trusses", "Structural wall sheathing", "Multi-story wood framing"],
+    highlights: ["Engineered roof trusses", "Structural wall sheathing", "Timber wood framing"],
   },
   {
     id: "div04_03",
@@ -1455,18 +1455,6 @@ export function DualTrackArchitecturalMarquee({
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
               />
-              <div className="tayco-filmstrip-overlay">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono text-amber-200">
-                    {shot.trade}
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-black text-white leading-snug line-clamp-1">
-                    {shot.title}
-                  </div>
-                </div>
-              </div>
             </button>
           ))}
         </div>
@@ -1490,18 +1478,6 @@ export function DualTrackArchitecturalMarquee({
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
               />
-              <div className="tayco-filmstrip-overlay">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono text-amber-200">
-                    {shot.trade}
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-black text-white leading-snug line-clamp-1">
-                    {shot.title}
-                  </div>
-                </div>
-              </div>
             </button>
           ))}
         </div>
@@ -1608,7 +1584,7 @@ export interface TriptychFrame {
 
 function sanitizeGalleryLabel(label: string): string {
   return label
-    .replace(/\b(?:Single-Family|Detached\s+Homes?|Multi-Family|Multifamily|Multi-Unit|Duplex(?:es)?|Two-Flats?|Triplex(?:es)?|Quadplex(?:es)?|Townhomes?|Townhouses?|Rowhouses?|Commercial|Residential)\s*/gi, "")
+    .replace(/\b(?:Single-Family|Detached\s+Homes?|Multi-Family|Multifamily|Multi-Unit|Multi-Stor(?:e?y|ies)|Duplex(?:es)?|Two-Flats?|Triplex(?:es)?|Quadplex(?:es)?|Townhomes?|Townhouses?|Row\s*(?:home|house)s?|Commercial|Residential)\s*/gi, "")
     .replace(/^\d+\s*[·/]\s*/, "")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -1690,27 +1666,20 @@ export function ServiceCardTriptych({
                 data-magnetic
                 onClick={() => selectTriptychFrame(i)}
                 onPointerEnter={() => selectTriptychFrame(i)}
-                className={`group/thumb relative rounded-lg overflow-hidden border transition-all cursor-pointer text-left ${
+                className={`group/thumb relative h-16 sm:h-20 rounded-lg overflow-hidden border transition-all cursor-pointer text-left ${
                   isSel
                     ? "border-[#F3D37A] ring-1 ring-[#F3D37A]"
                     : "border-white/15 opacity-80 hover:opacity-100"
                 }`}
                 aria-label={cleanLbl}
+                title={cleanLbl}
               >
-                <div className="relative h-14 sm:h-16 w-full bg-[#070E1A]">
-                  <ProtectedImage
-                    src={frame.src}
-                    alt={cleanLbl}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  key={`triptych-label-${i}-${triptychPulse}`}
-                  className="px-1.5 py-1 bg-[#070E1A] text-[10px] font-medium text-slate-200 truncate"
-                >
-                  {cleanLbl}
-                </div>
+                <ProtectedImage
+                  src={frame.src}
+                  alt={cleanLbl}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
               </button>
             );
           })}

@@ -228,25 +228,6 @@ export default function TradeGallery() {
                   loading="lazy"
                 />
               </button>
-
-              <div
-                className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t text-xs font-sans"
-                style={{ borderColor: "rgba(201, 168, 76, 0.2)" }}
-              >
-                <Link
-                  href={s.href}
-                  className="font-bold text-white hover:text-[#F3D37A] transition-colors"
-                >
-                  {s.label}
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => openZoom(sectorPhotos, idx)}
-                  className="font-mono text-[11px] font-bold text-[#F3D37A] hover:underline cursor-pointer"
-                >
-                  Expand ↗
-                </button>
-              </div>
               <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
             </figure>
           );

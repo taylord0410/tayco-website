@@ -275,13 +275,13 @@ function MarketSpecialtyInteractiveCard({
       <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
       <div>
         {/* Clean Architectural Header Bar — Specialty Name + Day/Sunset/Night Switcher (Zero Badges on Photo) */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#050A14] border-b border-white/10">
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between px-4 py-3 bg-[#050A14] border-b border-white/10">
           <div className="flex items-center gap-2 min-w-0">
             <SpecialtyVectorIcon
               specialtyId={service.specialtyId}
               className="w-4 h-4 text-[#F3D37A] shrink-0"
             />
-            <h3 className="tayco-card-title text-lg sm:text-xl text-white truncate">
+            <h3 className="tayco-card-title text-lg sm:text-xl text-white">
               {service.title}
             </h3>
           </div>
@@ -544,8 +544,8 @@ function PropertyCardInteractiveStage({
       onPointerEnter={() => preloadProtectedImages(allUrls)}
     >
       {/* Top Bar Outside Photo — Room Name + Day/Sunset/Night Switcher (Zero Badges on Photo) */}
-      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 bg-[#050A14] border-b border-white/10">
-        <span className="text-xs font-semibold text-slate-200 truncate">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between px-3.5 py-2.5 bg-[#050A14] border-b border-white/10">
+        <span className="text-xs font-semibold text-slate-200">
           {currentStop.shortRoomName}
         </span>
 
@@ -1353,9 +1353,7 @@ export function PropertyCategoryPageView({
   const [selectedState, setSelectedState] = useState<string>("ALL");
   const [selectedAvailability, setSelectedAvailability] =
     useState<string>("ALL");
-  const [specialtyGroupFilter, setSpecialtyGroupFilter] = useState<
-    "all" | MarketSpecialtyGroup
-  >("all");
+  const [specialtyGroupFilter, setSpecialtyGroupFilter] = useState<string>("all");
   const [experienceMode, setExperienceMode] = useState<
     "specialties" | "projects"
   >("specialties");
@@ -1385,7 +1383,7 @@ export function PropertyCategoryPageView({
       specialtyGroupFilter === "all"
         ? marketSpecialties
         : marketSpecialties.filter(
-            (s) => s.specialtyGroup === specialtyGroupFilter
+            (s) => s.specialtyId === specialtyGroupFilter || s.specialtyGroup === specialtyGroupFilter
           ),
     [marketSpecialties, specialtyGroupFilter]
   );
@@ -1646,58 +1644,41 @@ export function PropertyCategoryPageView({
                 Specialties
               </h2>
 
-              {/* Specialty Group Filter Tabs */}
+              {/* Single Specialty Filter Strip */}
               <div
                 className="flex flex-wrap items-center justify-center gap-2 mt-5"
                 role="group"
                 aria-label="Filter specialties"
               >
-                {(
-                  [
-                    { id: "all", label: `All (${marketSpecialties.length})` },
-                    { id: "envelope", label: "Roofing & Siding" },
-                    { id: "structural", label: "Framing, Concrete & Masonry" },
-                    { id: "interiors", label: "Drywall, Flooring & Carpentry" },
-                  ] as const
-                ).map((tab) => {
-                  const isSelected = specialtyGroupFilter === tab.id;
+                <button
+                  type="button"
+                  data-magnetic
+                  onClick={() => setSpecialtyGroupFilter("all")}
+                  className="tayco-atelier-pill !min-h-[38px] !px-4 !py-1.5 text-xs font-semibold whitespace-nowrap"
+                  data-active={specialtyGroupFilter === "all" ? "true" : "false"}
+                >
+                  All ({marketSpecialties.length})
+                </button>
+                {marketSpecialties.map((spec) => {
+                  const isSelected = specialtyGroupFilter === spec.specialtyId;
                   return (
                     <button
-                      key={tab.id}
+                      key={spec.id}
                       type="button"
                       data-magnetic
-                      onClick={() => setSpecialtyGroupFilter(tab.id)}
-                      className="tayco-atelier-pill !min-h-[40px] !px-4 !py-2 text-xs sm:text-[13px] font-semibold whitespace-nowrap"
+                      onClick={() => setSpecialtyGroupFilter(spec.specialtyId)}
+                      className="tayco-atelier-pill !min-h-[38px] !px-3.5 !py-1.5 inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
                       data-active={isSelected ? "true" : "false"}
                     >
-                      {tab.label}
+                      <SpecialtyVectorIcon
+                        specialtyId={spec.specialtyId}
+                        className="w-3.5 h-3.5 text-[#F3D37A]"
+                      />
+                      <span>{spec.specialtyLabel}</span>
                     </button>
                   );
                 })}
               </div>
-            </div>
-
-            {/* Quick-Jump Specialty Strip */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-8 max-w-5xl mx-auto text-center">
-              {marketSpecialties.map((spec) => (
-                <button
-                  key={spec.id}
-                  type="button"
-                  data-magnetic
-                  onClick={() => {
-                    if (baseListings[0]) {
-                      openModal(baseListings[0], 0, 13.5, spec.specialtyId);
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] text-xs font-semibold text-white transition-all cursor-pointer"
-                >
-                  <SpecialtyVectorIcon
-                    specialtyId={spec.specialtyId}
-                    className="w-3.5 h-3.5 text-[#F3D37A]"
-                  />
-                  <span>{spec.specialtyLabel}</span>
-                </button>
-              ))}
             </div>
 
             {/* 8 Specialty Multi-Photo Gallery Cards Grid */}
@@ -1866,45 +1847,6 @@ export function PropertyCategoryPageView({
 
       {/* ── DIVISION CONTENT ── */}
       {children}
-
-      {/* ── CATEGORY SWITCHER AT BOTTOM OF PAGE ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-16">
-        <div
-          className="p-6 rounded-2xl border text-center"
-          style={{
-            background: "rgba(15, 32, 64, 0.65)",
-            borderColor: "rgba(201, 168, 76, 0.35)",
-          }}
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {PROPERTY_CATEGORIES.map((cat) => {
-              const isCurrent = activeCategory?.slug === cat.slug;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/${cat.slug}`}
-                  data-response-kind="surface"
-                  data-magnetic
-                  aria-current={isCurrent ? "page" : undefined}
-                  className="relative p-4 rounded-xl border flex flex-col items-center justify-center overflow-hidden text-center transition-all hover:border-[#F3D37A]"
-                  style={{
-                    background: isCurrent
-                      ? "rgba(201, 168, 76, 0.18)"
-                      : "rgba(7, 14, 26, 0.85)",
-                    borderColor: isCurrent
-                      ? "#F3D37A"
-                      : "rgba(201, 168, 76, 0.3)",
-                  }}
-                >
-                  <span className="text-base font-bold text-white">
-                    {cat.shortLabel}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* ── INTERACTIVE ARCHITECTURAL WALKTHROUGH & COLOR STUDIO MODAL ── */}
       {inspectedProperty && (
