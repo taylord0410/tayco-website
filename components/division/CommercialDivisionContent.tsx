@@ -371,35 +371,33 @@ export default function CommercialDivisionContent() {
         } as React.CSSProperties
       }
     >
-      {/* The division hero lives in PropertyCategoryPageView (see app/<division>/page.tsx). */}
-
       {/* ── MARQUEE EDITORIAL CINÉTICO (.tayco-editorial-ticker) ── */}
       <div
         className="tayco-editorial-ticker"
-        aria-label="TAYCO commercial services"
+        aria-label="TAYCO specialties"
       >
         <div>
-          <span className="gold">Concrete, foundations &amp; site improvements</span>
+          <span className="gold">Concrete, Foundations &amp; Site Preparation</span>
           <i aria-hidden="true">✳</i>
-          <span>Framing, additions &amp; structural coordination</span>
+          <span>Framing &amp; Structural Coordination</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Roofing, exterior &amp; building improvements</span>
+          <span className="gold">Roofing, Siding &amp; Exterior Envelope</span>
           <i aria-hidden="true">✳</i>
-          <span>Drywall, painting &amp; interior finishes</span>
+          <span>Drywall, Flooring &amp; Interior Finishes</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Site preparation &amp; restoration planning</span>
+          <span className="gold">Concrete, Foundations &amp; Site Preparation</span>
           <i aria-hidden="true">✳</i>
-          <span>Concrete, foundations &amp; site improvements</span>
+          <span>Framing &amp; Structural Coordination</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Framing, additions &amp; structural coordination</span>
+          <span className="gold">Roofing, Siding &amp; Exterior Envelope</span>
           <i aria-hidden="true">✳</i>
-          <span>Roofing, exterior &amp; building improvements</span>
+          <span>Drywall, Flooring &amp; Interior Finishes</span>
         </div>
       </div>
 
@@ -421,68 +419,36 @@ export default function CommercialDivisionContent() {
         </svg>
       </div>
 
-      {/* Project services and resources */}
+      {/* Services Gallery */}
       <section
         id="services"
-        className="section-editorial-ivory py-16 sm:py-24 px-4 sm:px-8"
+        className="section-editorial-ivory py-14 sm:py-20 px-4 sm:px-8"
       >
         <div className="max-w-7xl mx-auto">
-          <div
-            className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-8 border-b"
-            style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-          >
-            <span
-              className="tayco-eyebrow font-bold"
-              style={{ color: "#1B3A6B" }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / COMMERCIAL SERVICES
-            </span>
-            <span
-              className="text-[11px] font-mono uppercase tracking-widest"
-              style={{ color: "#1B3A6B" }}
-            >
-              THE RIGHT SCOPE FOR YOUR SPACE
-            </span>
-          </div>
-
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
             <div>
               <h2
                 className="font-black tracking-tight"
                 style={{
                   color: "#0F2040",
-                  fontSize: "clamp(2rem, 4.2vw, 3.5rem)",
-                  lineHeight: 1.04,
+                  fontSize: "clamp(1.85rem, 3.6vw, 2.75rem)",
+                  lineHeight: 1.06,
                 }}
               >
-                Every trade, coordinated.{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#1B3A6B" }}
-                >
-                  One accountable team.
-                </em>
+                Services
               </h2>
-              <p
-                className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
-                style={{ color: "#334155" }}
-              >
-                Explore the work your project may need. Each service includes practical planning points
-                to help you prepare for a conversation with our team.
-              </p>
             </div>
 
             {/* Interactive Category Filter */}
             <div
               className="flex flex-wrap gap-2"
               role="group"
-              aria-label="Filter commercial services"
+              aria-label="Filter services"
             >
               {[
                 {
                   id: "all",
-                  label: "All services",
+                  label: "All",
                 },
                 {
                   id: "structural_envelope",
@@ -490,15 +456,11 @@ export default function CommercialDivisionContent() {
                 },
                 {
                   id: "interior_ti",
-                  label: "Interior TI & Finishes",
+                  label: "Interiors & Fit-Outs",
                 },
                 {
                   id: "site_restoration",
-                  label: (
-                    <>
-                      Site &amp; restoration
-                    </>
-                  ),
+                  label: "Site & Restoration",
                 },
               ].map((tab) => {
                 const active = activeCategory === tab.id;
@@ -527,13 +489,13 @@ export default function CommercialDivisionContent() {
             </div>
           </div>
 
-          {/* 10 Living Commercial Cards */}
+          {/* 10 Multi-Photo Service Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredTrades.map((card) => (
               <div
                 key={card.num}
                 data-response-kind="surface"
-                className="tayco-living-card editorial-ivory-card p-6 sm:p-8 flex flex-col justify-between group"
+                className="tayco-living-card editorial-ivory-card p-5 sm:p-6 flex flex-col justify-between group"
                 style={
                   {
                     "--light-angle": `${lightAngle}deg`,
@@ -549,100 +511,28 @@ export default function CommercialDivisionContent() {
                 <div className="relative z-10">
                   <ServiceCardTriptych
                     frames={card.triptych}
-                    badge={`0${card.num} · ${card.csiCode}`}
+                    badge={card.csiCode}
                     accentColor={card.accent}
                   />
+                </div>
 
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-black uppercase tracking-wider"
-                        style={{
-                          background: "#0F2040",
-                          color: "#F3D37A",
-                        }}
-                      >
-                        {card.csiCode}
-                      </span>
-                      <span
-                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold"
-                        style={{
-                          background: "rgba(201, 168, 76, 0.22)",
-                          color: "#0F2040",
-                        }}
-                      >
-                        {card.unitRate}
-                      </span>
-                    </div>
-
-                    <Link
-                      href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
-                      aria-label={`Estimate ${card.titlePlain}`}
-                      className="project-open"
-                    >
-                      ↗
-                    </Link>
-                  </div>
-
+                <div
+                  className="relative z-10 pt-3 border-t flex flex-wrap items-center justify-between gap-3"
+                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
+                >
                   <h3
-                    className="text-xl font-black tracking-tight leading-snug"
+                    className="text-lg sm:text-xl font-black tracking-tight leading-snug"
                     style={{ color: "#0F2040" }}
                   >
                     {card.titleNode}
                   </h3>
-                  <p
-                    className="text-xs sm:text-sm mt-2 leading-relaxed"
-                    style={{ color: "#334155" }}
-                  >
-                    {card.summary}
-                  </p>
-
-                  {/* 6 Technical Deliverables */}
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-5 pt-4 border-t border-slate-300/70">
-                    {card.deliverables.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2 text-xs font-semibold"
-                        style={{ color: "#1E293B" }}
-                      >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                          style={{ background: card.accent }}
-                        />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div
-                  className="relative z-10 mt-6 pt-4 border-t flex flex-wrap items-center justify-between gap-3"
-                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-                >
-                  <div className="flex items-center gap-3 text-[11px] font-mono font-bold text-slate-700">
-                    <span className="inline-flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 2" />
-                      </svg>
-                      <span>{card.scheduleNote}</span>
-                    </span>
-                    <span>·</span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M3 21h18L3 3v18Z" />
-                        <path d="M7 17h4v-4" />
-                      </svg>
-                      <span>{card.planningNote}</span>
-                    </span>
-                  </div>
                   <Link
                     href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
                     data-magnetic
                     className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
                     style={{ background: "#0F2040", color: "#F3D37A" }}
                   >
-                    Discuss this service →
+                    Request Estimate →
                   </Link>
                 </div>
               </div>
@@ -669,190 +559,47 @@ export default function CommercialDivisionContent() {
         </svg>
       </div>
 
-      {/* ── 01B / INTERACTIVE COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+      {/* ── INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO ── */}
       <TransformationBeforeAfterStudio
         siteDivision="commercial"
         initialDivision="div03"
         initialPairId="div03_01"
-        eyebrowLabel="01B / COMMERCIAL BEFORE & AFTER TRANSFORMATION STUDIO"
+        eyebrowLabel="Before & After"
       />
 
-      {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
+      {/* ── DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
       <DualTrackArchitecturalMarquee siteDivision="commercial" />
 
-      {/* Project services and resources */}
+      {/* Trade Gallery */}
       <section
         id="projects"
-        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
+        className="py-14 sm:py-20 px-4 sm:px-8 relative z-10"
         style={{ background: "#070E1A" }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
-            <span className="tayco-eyebrow" style={{ color: "#F3D37A" }}>
-              <span className="tayco-live-dot" style={{ color: "#10B981" }} />
-              02 / PLAN YOUR PROJECT
-            </span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
-              WHAT TO PREPARE FOR AN ESTIMATE
-            </span>
-          </div>
-
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
-            <div>
-              <h2
-                className="font-black text-white tracking-tight"
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 3.25rem)",
-                  lineHeight: 1.05,
-                }}
-              >
-                Different projects,{" "}
-                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  a clear starting point.
-                </em>
-              </h2>
-              <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl">
-                Gather what you have: location, photos, plans and your priorities.
-                We will help identify what else is needed to define the work.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/login"
-                data-magnetic
-                className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider"
-                style={{ background: "#C9A84C", color: "#070E1A" }}
-              >
-                Existing project sign in →
-              </Link>
-              <Link
-                href="/estimate"
-                data-magnetic
-                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white border border-amber-400/50 hover:bg-white/10"
-              >
-                Request an estimate →
-              </Link>
-            </div>
-          </div>
-
-          {/* Project services and resources */}
-          <div
-            data-response-kind="surface"
-            className="tayco-living-card rounded-2xl border overflow-hidden mb-16"
-            style={{
-              background: "rgba(15, 32, 64, 0.85)",
-              borderColor: "rgba(201, 168, 76, 0.35)",
-            }}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr
-                    className="border-b text-[11px] font-mono uppercase tracking-wider text-amber-200"
-                    style={{
-                      background: "rgba(7, 14, 26, 0.9)",
-                      borderColor: "rgba(201, 168, 76, 0.25)",
-                    }}
-                  >
-                    <th className="py-3.5 px-4">Step</th>
-                    <th className="py-3.5 px-4">Project type &amp; focus</th>
-                    <th className="py-3.5 px-4">Service</th>
-                    <th className="py-3.5 px-4">Starting information</th>
-                    <th className="py-3.5 px-4">Helpful details</th>
-                    <th className="py-3.5 px-4">To discuss</th>
-                    <th className="py-3.5 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10 text-xs sm:text-sm">
-                  {COMMERCIAL_PROJECT_STARTERS.map((proj) => (
-                    <tr
-                      key={proj.code}
-                      className="hover:bg-white/5 transition-colors"
-                    >
-                      <td className="py-4 px-4 font-mono font-black text-amber-300 whitespace-nowrap">
-                        {proj.code}
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="font-bold text-white">{proj.name}</div>
-                        <div className="text-xs text-slate-400">
-                          {proj.location}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
-                        <span
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold"
-                          style={{
-                            background: "rgba(16, 185, 129, 0.14)",
-                            color: "#6EE7B7",
-                            border: `1px solid ${proj.badgeColor}`,
-                          }}
-                        >
-                          ● {proj.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 font-mono text-slate-200 whitespace-nowrap">
-                        {proj.sqft}
-                      </td>
-                      <td className="py-4 px-4 font-mono font-black text-amber-300 whitespace-nowrap">
-                        {proj.helpfulDetails}
-                      </td>
-                      <td className="py-4 px-4 font-mono text-xs text-sky-300">
-                        {proj.discussion}
-                      </td>
-                      <td className="py-4 px-4 text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-2">
-                          <Link
-                            href={proj.portalHref}
-                            className="px-3 py-1.5 rounded-lg text-xs font-black"
-                            style={{ background: "#C9A84C", color: "#070E1A" }}
-                          >
-                            Sign in ↗
-                          </Link>
-                          <Link
-                            href={proj.estimateHref}
-                            className="px-3 py-1.5 rounded-lg text-xs font-bold text-white border border-white/25 hover:bg-white/10"
-                          >
-                            /estimate
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Project services and resources */}
-          <div className="pt-6">
-            <div className="text-center mb-10">
-              <div
-                className="tayco-eyebrow justify-center mb-2"
-                style={{ color: "#F3D37A" }}
-              >
-                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                SERVICE CATALOG · COMMERCIAL TRADE EXECUTION
-              </div>
+          <div className="pt-2">
+            <div className="text-center mb-8">
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Types of work we perform across{" "}
-                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  Every Sector.
-                </em>
+                Trade Gallery
               </h3>
             </div>
             <TradeGallery />
           </div>
         </div>
       </section>
-      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-16">
+
+      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-14">
         <div className="max-w-7xl mx-auto">
-          <p className="tayco-eyebrow mb-3 text-[#1B3A6B]">Where we work</p>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F2040]">A local conversation. <em className="tayco-serif-em font-normal">A coordinated team.</em></h2>
-          <p className="max-w-2xl text-sm sm:text-base text-slate-600 mt-4 mb-8">Tell us where your property is located. We will review the work, access and scheduling with you. Commercial projects outside these service areas can be discussed with our team.</p>
+          <p className="tayco-eyebrow mb-2 text-[#1B3A6B]">Service Area</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F2040]">Regional Coverage</h2>
+          <p className="max-w-2xl text-sm text-slate-600 mt-2 mb-6">Projects outside these service areas are evaluated by scope and schedule.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {COMPANY_SERVICE_AREAS.map(area => <div key={area.code} className="tayco-living-card editorial-ivory-card p-5"><p className="tayco-eyebrow text-[#1B3A6B]">{area.code}</p><h3 className="font-bold text-[#0F2040] mt-2">{area.state}</h3><p className="text-sm text-slate-600 mt-2 leading-relaxed">{area.cities}</p></div>)}
           </div>
-          <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
+          <div className="flex flex-wrap items-center gap-4 mt-6">
+            <a href={COMPANY.phoneHref} className="inline-flex font-bold text-[#0F2040] underline underline-offset-4">Call {COMPANY.phoneDisplay}</a>
+            <Link href="/estimate" className="inline-flex font-bold text-[#1B3A6B] underline underline-offset-4">Request Estimate →</Link>
+          </div>
         </div>
       </section>
     </div>

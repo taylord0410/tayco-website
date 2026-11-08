@@ -472,35 +472,33 @@ export default function ResidentialDivisionContent({
         } as React.CSSProperties
       }
     >
-      {/* The division hero lives in PropertyCategoryPageView (see app/<division>/page.tsx). */}
-
       {/* ── MARQUEE EDITORIAL CINÉTICO (.tayco-editorial-ticker) ── */}
       <div
         className="tayco-editorial-ticker"
-        aria-label="TAYCO residential services"
+        aria-label="TAYCO specialties"
       >
         <div>
-          <span className="gold">Home renovation across eight states</span>
+          <span className="gold">Roofing &amp; Siding</span>
           <i aria-hidden="true">✳</i>
-          <span>Planning, construction &amp; the finishing details</span>
+          <span>Framing &amp; Foundations</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Fire &amp; Water Restoration</span>
+          <span className="gold">Drywall, Flooring &amp; Painting</span>
           <i aria-hidden="true">✳</i>
-          <span>Custom Kitchens, Baths &amp; Structural Additions</span>
+          <span>Carpentry, Masonry &amp; Restoration</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Home renovation across eight states</span>
+          <span className="gold">Roofing &amp; Siding</span>
           <i aria-hidden="true">✳</i>
-          <span>Planning, construction &amp; the finishing details</span>
+          <span>Framing &amp; Foundations</span>
           <i className="gold-star" aria-hidden="true">
             ✳
           </i>
-          <span className="gold">Fire &amp; Water Restoration</span>
+          <span className="gold">Drywall, Flooring &amp; Painting</span>
           <i aria-hidden="true">✳</i>
-          <span>Custom Kitchens, Baths &amp; Structural Additions</span>
+          <span>Carpentry, Masonry &amp; Restoration</span>
         </div>
       </div>
 
@@ -522,76 +520,44 @@ export default function ResidentialDivisionContent({
         </svg>
       </div>
 
-      {/* Project services and resources */}
+      {/* Services Gallery */}
       <section
         id="services"
-        className="section-editorial-ivory py-16 sm:py-24 px-4 sm:px-8"
+        className="section-editorial-ivory py-14 sm:py-20 px-4 sm:px-8"
       >
         <div className="max-w-7xl mx-auto">
-          <div
-            className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-8 border-b"
-            style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-          >
-            <span
-              className="tayco-eyebrow font-bold"
-              style={{ color: "#1B3A6B" }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              01 / SERVICES FOR YOUR HOME
-            </span>
-            <span
-              className="text-[11px] font-mono uppercase tracking-widest"
-              style={{ color: "#1B3A6B" }}
-            >
-              RENOVATION · REPAIRS · RESTORATION
-            </span>
-          </div>
-
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
             <div>
               <h2
                 className="font-black tracking-tight"
                 style={{
                   color: "#0F2040",
-                  fontSize: "clamp(2rem, 4.2vw, 3.5rem)",
-                  lineHeight: 1.04,
+                  fontSize: "clamp(1.85rem, 3.6vw, 2.75rem)",
+                  lineHeight: 1.06,
                 }}
               >
-                Every residential trade.{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#1B3A6B" }}
-                >
-                  One accountable team.
-                </em>
+                Services
               </h2>
-              <p
-                className="text-sm sm:text-base mt-3 max-w-2xl leading-relaxed"
-                style={{ color: "#334155" }}
-              >
-                Explore services and options for your home. Your estimate is based on the agreed scope,
-                site conditions and material selections.
-              </p>
             </div>
 
             <div
               className="flex flex-wrap gap-2"
               role="group"
-              aria-label="Filter residential services"
+              aria-label="Filter services"
             >
               {[
-                { id: "all", label: "All services" },
+                { id: "all", label: "All" },
                 {
                   id: "envelope_structural",
                   label: "Roofing, Siding, Framing & Concrete",
                 },
                 {
                   id: "interiors_carpentry",
-                  label: "Drywall & Custom Carpentry",
+                  label: "Drywall & Carpentry",
                 },
                 {
                   id: "restoration_turnkey",
-                  label: "Restoration & remodeling",
+                  label: "Restoration & Remodeling",
                 },
               ].map((tab) => {
                 const active = activeCategory === tab.id;
@@ -620,13 +586,13 @@ export default function ResidentialDivisionContent({
             </div>
           </div>
 
-          {/* 8 Living Residential Cards */}
+          {/* 8 Multi-Photo Service Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredTrades.map((card) => (
               <div
                 key={card.num}
                 data-response-kind="surface"
-                className="tayco-living-card editorial-ivory-card p-6 sm:p-8 flex flex-col justify-between group"
+                className="tayco-living-card editorial-ivory-card p-5 sm:p-6 flex flex-col justify-between group"
                 style={
                   {
                     "--light-angle": `${lightAngle}deg`,
@@ -642,85 +608,28 @@ export default function ResidentialDivisionContent({
                 <div className="relative z-10">
                   <ServiceCardTriptych
                     frames={card.triptych}
-                    badge={`0${card.num} · ${card.csiCode}`}
+                    badge={card.csiCode}
                     accentColor={card.accent}
                   />
+                </div>
 
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-black uppercase tracking-wider"
-                        style={{
-                          background: "#0F2040",
-                          color: "#F3D37A",
-                        }}
-                      >
-                        {card.csiCode}
-                      </span>
-                      <span
-                        className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold"
-                        style={{
-                          background: "rgba(249, 115, 22, 0.16)",
-                          color: "#0F2040",
-                        }}
-                      >
-                        {card.unitRate}
-                      </span>
-                    </div>
-
-                    <Link
-                      href={`/estimate?division=residential&trade=${encodeURIComponent(card.csiCode)}`}
-                      aria-label={`Estimate ${card.title}`}
-                      className="project-open"
-                    >
-                      ↗
-                    </Link>
-                  </div>
-
+                <div
+                  className="relative z-10 pt-3 border-t flex flex-wrap items-center justify-between gap-3"
+                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
+                >
                   <h3
-                    className="text-xl font-black tracking-tight leading-snug"
+                    className="text-lg sm:text-xl font-black tracking-tight leading-snug"
                     style={{ color: "#0F2040" }}
                   >
                     {card.title}
                   </h3>
-                  <p
-                    className="text-xs sm:text-sm mt-2 leading-relaxed"
-                    style={{ color: "#334155" }}
-                  >
-                    {card.summary}
-                  </p>
-
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-5 pt-4 border-t border-slate-300/70">
-                    {card.items.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2 text-xs font-semibold"
-                        style={{ color: "#1E293B" }}
-                      >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                          style={{ background: card.accent }}
-                        />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div
-                  className="relative z-10 mt-6 pt-4 border-t flex flex-wrap items-center justify-between gap-3"
-                  style={{ borderColor: "rgba(27, 58, 107, 0.16)" }}
-                >
-                  <span className="text-[11px] font-mono font-bold text-slate-700">
-                    {card.planningNote}
-                  </span>
                   <Link
-                    href={`/estimate?division=residential&trade=${encodeURIComponent(card.csiCode)}`}
+                    href={`/estimate?trade=${encodeURIComponent(card.csiCode)}`}
                     data-magnetic
                     className="px-4 py-2 rounded-xl text-xs font-black transition-transform hover:scale-105"
                     style={{ background: "#0F2040", color: "#F3D37A" }}
                   >
-                    Run Residential Estimate →
+                    Request Estimate →
                   </Link>
                 </div>
               </div>
@@ -747,39 +656,35 @@ export default function ResidentialDivisionContent({
         </svg>
       </div>
 
-      {/* ── 01B / INTERACTIVE RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+      {/* ── INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO ── */}
       <TransformationBeforeAfterStudio
         siteDivision={resolvedDivision}
         initialDivision="div01"
         initialPairId="div01_03"
-        eyebrowLabel="01B / RESIDENTIAL BEFORE & AFTER TRANSFORMATION STUDIO"
+        eyebrowLabel="Before & After"
       />
 
-      {/* ── 01C / DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
+      {/* ── DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
       <DualTrackArchitecturalMarquee siteDivision={resolvedDivision} />
 
-      {/* ── SECCIÓN 02 / 24/7 CERTIFIED FIRE, WATER & STORM RESTORATION COMMAND + TRADE GALLERY ── */}
+      {/* ── RESTORATION & TRADE GALLERY ── */}
       <section
         id="restoration"
-        className="py-16 sm:py-24 px-4 sm:px-8 relative z-10"
+        className="py-14 sm:py-20 px-4 sm:px-8 relative z-10"
         style={{ background: "#070E1A" }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-5 mb-10 border-b border-white/10">
-            <span className="tayco-eyebrow" style={{ color: "#FDBA74" }}>
-              <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-              02 / FIRE &amp; WATER RESTORATION
-            </span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-amber-200">
-              ASSESSMENT · REPAIRS · RECONSTRUCTION
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 mb-8 border-b border-white/10">
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              Restoration
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-            {/* Fire Damage Restoration Command Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {/* Fire Restoration Card */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card p-8 rounded-2xl border"
+              className="tayco-living-card p-6 rounded-2xl border flex flex-col justify-between"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))",
@@ -788,70 +693,28 @@ export default function ResidentialDivisionContent({
             >
               <ServiceCardTriptych
                 frames={restorationTriptychs.fire}
-                badge="FIRE & SMOKE RECOVERY"
+                badge="Fire Restoration"
                 accentColor="#F97316"
               />
-              <div className="flex items-center justify-between mb-4">
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
-                  style={{ background: "#F97316", color: "#ffffff" }}
-                >
-                  <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                  <span>Fire &amp; smoke restoration</span>
-                </span>
-                <span className="font-mono text-xs text-amber-300">
-                  CSI 02 41 00 / 06 11 00
-                </span>
-              </div>
-              <h3 className="text-2xl font-black text-white mb-3">
-                Fire damage repair &amp; reconstruction
-              </h3>
-              <p className="text-sm text-slate-300 mb-5 leading-relaxed">
-                Review fire and smoke damage, define repairs and coordinate the rebuilding plan.
-                We can help organize documentation for your insurance conversation.
-              </p>
-              <ul className="space-y-2 mb-6">
-                {[
-                  "Damage assessment and repair planning",
-                  "Structural damage evaluation",
-                  "Smoke and soot remediation",
-                  "Insurance documentation and repair scope",
-                  "Interior repairs and home reconstruction",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="text-xs sm:text-sm text-slate-200 flex items-start gap-2"
-                  >
-                    <StudioActionIcon
-                      kind="check"
-                      className="w-4 h-4 mt-0.5 shrink-0 text-[#F97316]"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+                <h3 className="text-xl font-black text-white">
+                  Fire &amp; Smoke Restoration
+                </h3>
                 <Link
-                  href="/estimate?division=residential&trade=FIRE-RESTORATION"
+                  href="/estimate?trade=FIRE-RESTORATION"
                   data-magnetic
-                  className="px-5 py-2.5 rounded-xl text-xs font-black text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-black text-white"
                   style={{ background: "#F97316" }}
                 >
-                  Discuss fire restoration →
-                </Link>
-                <Link
-                  href="/login"
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-amber-200 border border-amber-400/40 hover:bg-white/10"
-                >
-                  Client project sign in →
+                  Request Estimate →
                 </Link>
               </div>
             </div>
 
-            {/* Water & Storm Restoration Command Card */}
+            {/* Water Restoration Card */}
             <div
               data-response-kind="surface"
-              className="tayco-living-card p-8 rounded-2xl border"
+              className="tayco-living-card p-6 rounded-2xl border flex flex-col justify-between"
               style={{
                 background:
                   "linear-gradient(145deg, rgba(15, 32, 64, 0.92), rgba(7, 14, 26, 0.96))",
@@ -860,62 +723,20 @@ export default function ResidentialDivisionContent({
             >
               <ServiceCardTriptych
                 frames={restorationTriptychs.water}
-                badge="WATER & STORM RECOVERY"
+                badge="Water Mitigation"
                 accentColor="#C9A84C"
               />
-              <div className="flex items-center justify-between mb-4">
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider"
-                  style={{ background: "#C9A84C", color: "#070E1A" }}
-                >
-                  <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5" />
-                  <span>Water damage restoration</span>
-                </span>
-                <span className="font-mono text-xs text-sky-300">
-                  Assessment &amp; drying
-                </span>
-              </div>
-              <h3 className="text-2xl font-black text-white mb-3">
-                Water damage repairs &amp; recovery
-              </h3>
-              <p className="text-sm text-slate-300 mb-5 leading-relaxed">
-                From flood and leak damage to affected walls, floors and cabinetry,
-                bring drying, repairs and reconstruction into one coordinated scope.
-              </p>
-              <ul className="space-y-2 mb-6">
-                {[
-                  "Water damage inspection and assessment",
-                  "Moisture detection and structural drying",
-                  "Mold remediation coordination",
-                  "Flood and leak damage repair",
-                  "Cabinetry, flooring and drywall repairs",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="text-xs sm:text-sm text-slate-200 flex items-start gap-2"
-                  >
-                    <StudioActionIcon
-                      kind="check"
-                      className="w-4 h-4 mt-0.5 shrink-0 text-[#C9A84C]"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+                <h3 className="text-xl font-black text-white">
+                  Water &amp; Storm Recovery
+                </h3>
                 <Link
-                  href="/estimate?division=residential&trade=WATER-RESTORATION"
+                  href="/estimate?trade=WATER-RESTORATION"
                   data-magnetic
-                  className="px-5 py-2.5 rounded-xl text-xs font-black"
+                  className="px-4 py-2 rounded-xl text-xs font-black"
                   style={{ background: "#C9A84C", color: "#070E1A" }}
                 >
-                  Request Water &amp; Storm Estimate →
-                </Link>
-                <Link
-                  href="/login"
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-amber-200 border border-amber-400/40 hover:bg-white/10"
-                >
-                  Client project sign in →
+                  Request Estimate →
                 </Link>
               </div>
             </div>
@@ -923,37 +744,30 @@ export default function ResidentialDivisionContent({
 
           {/* TradeGallery Integration */}
           <div id="trade-catalog" className="pt-4">
-            <div className="text-center mb-10">
-              <div
-                className="tayco-eyebrow justify-center mb-2"
-                style={{ color: "#F3D37A" }}
-              >
-                <span className="tayco-live-dot" style={{ color: "#F97316" }} />
-                SERVICE CATALOG · RESIDENTIAL TRADE EXECUTION
-              </div>
+            <div className="text-center mb-8">
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Types of work we perform by{" "}
-                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  Trade.
-                </em>
+                Trade Gallery
               </h3>
             </div>
             <TradeGallery />
           </div>
         </div>
       </section>
-      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-16">
+
+      <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-14">
         <div className="max-w-7xl mx-auto">
-          <p className="tayco-eyebrow mb-3 text-[#1B3A6B]">Where we work</p>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#0F2040]">A local conversation. <em className="tayco-serif-em font-normal">A coordinated team.</em></h2>
-          <p className="max-w-2xl text-sm sm:text-base text-slate-600 mt-4 mb-8">Tell us where your property is located. We will review the work, access and scheduling with you. Commercial projects outside these service areas can be discussed with our team.</p>
+          <p className="tayco-eyebrow mb-2 text-[#1B3A6B]">Service Area</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F2040]">Regional Coverage</h2>
+          <p className="max-w-2xl text-sm text-slate-600 mt-2 mb-6">Projects outside these service areas are evaluated by scope and schedule.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {COMPANY_SERVICE_AREAS.map(area => <div key={area.code} className="tayco-living-card editorial-ivory-card p-5"><p className="tayco-eyebrow text-[#1B3A6B]">{area.code}</p><h3 className="font-bold text-[#0F2040] mt-2">{area.state}</h3><p className="text-sm text-slate-600 mt-2 leading-relaxed">{area.cities}</p></div>)}
           </div>
-          <a href={COMPANY.phoneHref} className="inline-flex mt-7 font-bold text-[#0F2040] underline underline-offset-4">Discuss your location: {COMPANY.phoneDisplay}</a>
+          <div className="flex flex-wrap items-center gap-4 mt-6">
+            <a href={COMPANY.phoneHref} className="inline-flex font-bold text-[#0F2040] underline underline-offset-4">Call {COMPANY.phoneDisplay}</a>
+            <Link href="/estimate" className="inline-flex font-bold text-[#1B3A6B] underline underline-offset-4">Request Estimate →</Link>
+          </div>
         </div>
       </section>
-
     </div>
   );
 }

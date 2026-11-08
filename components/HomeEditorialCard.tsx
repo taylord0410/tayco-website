@@ -21,13 +21,14 @@ export interface HomeGallerySelection {
 }
 
 export function HomeEditorialCard({
-  number, eyebrow, title, description, image, actionLabel, onOpen, href,
+  number, eyebrow, title, description, image, frames, actionLabel, onOpen, href,
 }: {
-  number: string;
-  eyebrow: string;
+  number?: string;
+  eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   image: HomeGalleryFrame;
+  frames?: HomeGalleryFrame[];
   actionLabel: string;
   onOpen: () => void;
   href?: string;
@@ -38,13 +39,30 @@ export function HomeEditorialCard({
         aria-label={`Open gallery: ${title}`} aria-haspopup="dialog">
         <ProtectedImage src={image.src} alt={image.title} loading="lazy"
           className="h-full w-full object-cover" />
-        <span className="home-editorial-number" aria-hidden="true">{number}</span>
-        <span className="home-editorial-photo-hint" aria-hidden="true">View gallery ↗</span>
       </button>
+      {frames && frames.length > 1 && (
+        <div className="grid grid-cols-3 gap-1.5 px-3 pt-2 bg-[#070E1A]">
+          {frames.slice(0, 3).map((f, idx) => (
+            <button
+              key={`${f.src}-${idx}`}
+              type="button"
+              onClick={onOpen}
+              className="relative h-14 rounded-lg overflow-hidden border border-white/15 hover:border-[#F3D37A] transition-all cursor-pointer"
+              aria-label={f.title}
+            >
+              <ProtectedImage
+                src={f.src}
+                auditIgnore={idx === 0}
+                alt={f.title}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
       <div className="home-editorial-panel">
-        <p className="home-editorial-eyebrow">{eyebrow}</p>
         <h3 className="home-editorial-title">{title}</h3>
-        <p className="home-editorial-description">{description}</p>
         {href ? (
           <Link href={href} className="home-editorial-action">
             <span>{actionLabel}</span><span aria-hidden="true">→</span>

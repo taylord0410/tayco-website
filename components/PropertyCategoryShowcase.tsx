@@ -274,7 +274,52 @@ function MarketSpecialtyInteractiveCard({
     >
       <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
       <div>
-        {/* Clickable 3-Photo Day / Sunset / Night Interactive Triptych Stage */}
+        {/* Clean Architectural Header Bar — Specialty Name + Day/Sunset/Night Switcher (Zero Badges on Photo) */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#050A14] border-b border-white/10">
+          <div className="flex items-center gap-2 min-w-0">
+            <SpecialtyVectorIcon
+              specialtyId={service.specialtyId}
+              className="w-4 h-4 text-[#F3D37A] shrink-0"
+            />
+            <h3 className="tayco-card-title text-lg sm:text-xl text-white truncate">
+              {service.title}
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0">
+            {(
+              [
+                { id: "day", label: "Day" },
+                { id: "sunset", label: "Sunset" },
+                { id: "night", label: "Night" },
+              ] as const
+            ).map((m) => {
+              const active = mood === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  data-magnetic
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectMood(m.id);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                  style={{
+                    background: active ? "#E5C97B" : "transparent",
+                    color: active ? "#050A14" : "#CBD5E1",
+                  }}
+                  title={`Preview ${m.label} photography`}
+                >
+                  <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
+                  <span>{m.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Primary Unobstructed Photograph — Click to Expand Full-Screen Lightbox Studio */}
         <div
           role="button"
           tabIndex={0}
@@ -296,8 +341,8 @@ function MarketSpecialtyInteractiveCard({
               );
             }
           }}
-          aria-label={`Expand full-screen ${service.title} studio at ${currentFrame.label}`}
-          className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#03060D] select-none cursor-pointer group/specphoto"
+          aria-label={`Expand ${service.title} gallery`}
+          className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#03060D] select-none cursor-pointer group/specphoto"
         >
           <div
             className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
@@ -312,7 +357,7 @@ function MarketSpecialtyInteractiveCard({
               src={currentFrame.src}
               syncUrls={currentPairUrls}
               loading="eager"
-              alt={`${service.title} — ${currentFrame.label}`}
+              alt={currentFrame.label}
               className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/specphoto:scale-[1.02]"
             />
           </div>
@@ -331,7 +376,7 @@ function MarketSpecialtyInteractiveCard({
             }}
           />
 
-          {/* Real Nighttime Architectural Layer (outside Day filter & above Sunset wash) */}
+          {/* Real Nighttime Architectural Layer */}
           <div
             className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
             style={{
@@ -344,166 +389,65 @@ function MarketSpecialtyInteractiveCard({
               syncUrls={currentPairUrls}
               auditIgnore={true}
               loading="eager"
-              alt={`${service.title} — ${currentFrame.label} (Night)`}
+              alt={currentFrame.label}
               className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/specphoto:scale-[1.02]"
             />
           </div>
-
-          <div
-            className="absolute inset-0 pointer-events-none z-[4]"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(4,8,17,0.48) 0%, transparent 32%, transparent 82%, rgba(4,8,17,0.35) 100%)",
-            }}
-          />
-
-          {/* Top Bar: Specialty Badge + Day/Sunset/Night Lighting Switcher */}
-          <div
-            className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border backdrop-blur-sm"
-              style={{
-                background: "rgba(5, 10, 20, 0.84)",
-                borderColor: "rgba(201, 168, 76, 0.55)",
-                color: "#F3D37A",
-              }}
-            >
-              <SpecialtyVectorIcon
-                specialtyId={service.specialtyId}
-                className="w-3.5 h-3.5 text-[#F3D37A]"
-              />
-              <span>
-                {service.specialtyLabel === "Siding"
-                  ? "Exterior Siding"
-                  : service.specialtyLabel === "Framing"
-                    ? "Structural Framing"
-                    : service.specialtyLabel}
-              </span>
-            </span>
-
-            <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-sm border border-white/15">
-              {(
-                [
-                  { id: "day", label: "Day" },
-                  { id: "sunset", label: "Sunset" },
-                  { id: "night", label: "Night" },
-                ] as const
-              ).map((m) => {
-                const active = mood === m.id;
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    data-magnetic
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectMood(m.id);
-                    }}
-                    className="inline-flex items-center gap-1 px-2.5 min-h-[30px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
-                    style={{
-                      background: active ? "#E5C97B" : "transparent",
-                      color: active ? "#050A14" : "#CBD5E1",
-                    }}
-                    title={`Preview ${m.label} photography`}
-                  >
-                    <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
-                    <span>{m.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
 
-        {/* Dedicated Sub-Photo Control Strip — keeps 100% of the photograph unobstructed */}
+        {/* Simultaneous 3-Photo Gallery Grid — All 3 Specialty Photographs Visible at Once */}
         <div
-          className="flex items-center justify-between gap-2 bg-[#050A14] px-3.5 py-2 border-y border-white/[0.08]"
-          onClick={(e) => e.stopPropagation()}
+          className="grid grid-cols-3 gap-2 p-2 bg-[#040811] border-t border-white/10"
+          role="group"
+          aria-label={`${service.title} gallery`}
         >
-          <div className="min-w-0 flex items-center gap-2">
-            <span translate="no" className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
-              <span className="hidden sm:inline">#{currentAssetId} · </span>0{activeIdx + 1}/03
-            </span>
-            <span className="text-white/35 text-[10px] shrink-0" aria-hidden="true">·</span>
-            <span className="text-xs font-semibold text-slate-100 truncate">
-              {currentFrame.label}
-            </span>
-          </div>
-          <div
-            className="flex items-center gap-1 shrink-0"
-            role="group"
-            aria-label={`Switch ${service.title} photographs`}
-          >
-            {frames.map((f, idx) => {
-              const isSelected = idx === activeIdx;
-              return (
-                <button
-                  key={f.label}
-                  type="button"
-                  data-magnetic
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    selectFrame(idx);
-                  }}
-                  onPointerEnter={() => selectFrame(idx)}
-                  className="min-w-[30px] min-h-[28px] px-2 shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center border"
-                  style={{
-                    background: isSelected
-                      ? "linear-gradient(135deg, #F6E29C 0%, #C9A84C 100%)"
-                      : "rgba(15, 32, 64, 0.85)",
-                    borderColor: isSelected ? "#FFF3C4" : "rgba(255,255,255,0.12)",
-                    color: isSelected ? "#070E1A" : "#E2E8F0",
-                  }}
-                  title={f.label}
-                >
-                  <span translate="no">0{idx + 1}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* V46 Balanced Space-Utilizing Interior Body */}
-        <div className="p-4 sm:p-6 flex flex-col text-left">
-          <TaycoCardMetaBar
-            leftBadge={
-              <span
-                className="px-3 py-1 rounded-full text-[10px] font-mono font-bold"
-                style={{
-                  background: "rgba(201, 168, 76, 0.18)",
-                  color: "#F3D37A",
-                  border: "1px solid rgba(201, 168, 76, 0.42)",
+          {frames.map((f, idx) => {
+            const isSelected = idx === activeIdx;
+            const thumbSrc = mood === "night" ? resolveNightImageSrc(f.src) : f.src;
+            return (
+              <button
+                key={f.src}
+                type="button"
+                data-magnetic
+                onClick={() => {
+                  selectFrame(idx);
+                  onOpenSpecialtyStudio?.(
+                    service.specialtyId,
+                    idx,
+                    moodSolarHour
+                  );
                 }}
+                onPointerEnter={() => selectFrame(idx)}
+                className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer group/thumb"
+                style={{
+                  borderColor: isSelected
+                    ? "#F3D37A"
+                    : "rgba(255, 255, 255, 0.12)",
+                  boxShadow: isSelected
+                    ? "0 0 0 1px rgba(243, 211, 122, 0.45)"
+                    : "none",
+                }}
+                title={f.label}
               >
-                {service.code}
-              </span>
-            }
-            rightMeta={<span translate="no">{service.csiDivision}</span>}
-          />
-
-          <h3 className="tayco-card-title text-xl sm:text-[1.65rem] text-white leading-snug mt-3">
-            {service.title}
-          </h3>
-          <p className="text-xs sm:text-sm font-medium text-[#F3D37A] mt-1 line-clamp-2 sm:line-clamp-none">
-            {service.subtitle}
-          </p>
-
-          <p className="hidden sm:block text-sm text-slate-300 leading-relaxed my-3.5">
-            {service.summary}
-          </p>
-
-          <TaycoDeliverableGrid items={service.deliverables} columns={2} className="mt-3 sm:mt-1" />
+                <ProtectedImage
+                  src={thumbSrc}
+                  auditIgnore={true}
+                  loading="lazy"
+                  alt={f.label}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-105"
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* V46 Horizontal Space-Utilizing Footer — uniform single-line button height across all cards */}
-      <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+      {/* Minimalist Architectural Footer Bar */}
+      <div className="px-4 sm:px-5 py-3.5 bg-[#050A14]/90 border-t border-white/10">
         <TaycoCardFooterBar
           leftMeta={
-            <span className="text-[10px] font-mono text-[#F3D37A]/90 tracking-wider whitespace-nowrap" translate="no">
-              3 Views · 24h Solar<span className="hidden lg:inline"> · #{currentAssetId}</span>
+            <span className="text-xs text-slate-300 truncate">
+              {currentFrame.label}
             </span>
           }
         >
@@ -518,11 +462,11 @@ function MarketSpecialtyInteractiveCard({
                 moodSolarHour
               )
             }
-            title={`Expand ${service.title} Full-Screen Studio`}
-            className="tayco-atelier-btn-gold !min-h-[42px] !py-2 !px-4 whitespace-nowrap shrink-0 group/btn"
+            title={`Expand ${service.title} gallery`}
+            className="tayco-atelier-btn-gold !min-h-[38px] !py-1.5 !px-3.5 whitespace-nowrap shrink-0 group/btn"
           >
             <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
-            <span>Open Studio (3 Views)</span>
+            <span>View Gallery</span>
             <StudioActionIcon
               kind="arrow-right"
               className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
@@ -536,8 +480,8 @@ function MarketSpecialtyInteractiveCard({
 
 /**
  * Interactive 5-Room Card Header used on `/properties/[category]` and `/properties`.
- * - Hovering or clicking the 5 room pills (`01`..`05`) previews all 5 coherent spaces right on the card.
- * - Clicking the main photo immediately launches the full 5-Room Walkthrough, Day/Night Lighting & Color Studio at that room.
+ * - Displays main photograph + all 5 room photographs simultaneously in a clean gallery strip.
+ * - Clicking any photo immediately launches the full 5-Room Walkthrough, Day/Night Lighting & Color Studio.
  */
 function PropertyCardInteractiveStage({
   property,
@@ -577,7 +521,6 @@ function PropertyCardInteractiveStage({
     () => [currentStop.src, currentStop.nightSrc],
     [currentStop.src, currentStop.nightSrc]
   );
-  const currentAssetId = computeVisualAssetId(currentStop.src);
 
   const selectRoomPreview = (idx: number) => {
     const target = stops[idx] ?? stops[0];
@@ -600,7 +543,49 @@ function PropertyCardInteractiveStage({
       className="bg-[#040811] border-b border-white/8"
       onPointerEnter={() => preloadProtectedImages(allUrls)}
     >
-      {/* Main Clickable Photo Stage with Active Stop + Real Night Silky Crossfade */}
+      {/* Top Bar Outside Photo — Room Name + Day/Sunset/Night Switcher (Zero Badges on Photo) */}
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 bg-[#050A14] border-b border-white/10">
+        <span className="text-xs font-semibold text-slate-200 truncate">
+          {currentStop.shortRoomName}
+        </span>
+
+        <div
+          className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {(
+            [
+              { id: "day", label: "Day" },
+              { id: "sunset", label: "Sunset" },
+              { id: "night", label: "Night" },
+            ] as const
+          ).map((m) => {
+            const active = cardMood === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                data-magnetic
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectCardMood(m.id);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                style={{
+                  background: active ? "#E5C97B" : "transparent",
+                  color: active ? "#050A14" : "#CBD5E1",
+                }}
+                title={`Preview ${m.label} lighting`}
+              >
+                <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
+                <span>{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Unobstructed Clickable Photo Stage */}
       <div
         role="button"
         tabIndex={0}
@@ -612,8 +597,8 @@ function PropertyCardInteractiveStage({
             onOpenStudio(activeIdx, moodSolarHour);
           }
         }}
-        aria-label={`Open 5-room interactive tour, day/night lighting, and color studio for ${property.title}`}
-        className="relative h-60 sm:h-64 w-full overflow-hidden cursor-pointer group/photo select-none bg-[#03060D]"
+        aria-label={`Open gallery for ${property.title}`}
+        className="relative h-64 sm:h-72 w-full overflow-hidden cursor-pointer group/photo select-none bg-[#03060D]"
       >
         <div
           className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
@@ -628,12 +613,12 @@ function PropertyCardInteractiveStage({
             src={currentStop.src}
             syncUrls={currentPairUrls}
             loading="eager"
-            alt={`${property.title} — ${currentStop.title}`}
+            alt={currentStop.title}
             className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/photo:scale-[1.02]"
           />
         </div>
 
-        {/* Ambient Golden Sunset Card Preview Overlay (Only for Sunset; Night uses real generated Night photo) */}
+        {/* Sunset Overlay */}
         <div
           className="absolute inset-0 pointer-events-none z-[2]"
           style={{
@@ -647,7 +632,7 @@ function PropertyCardInteractiveStage({
           }}
         />
 
-        {/* True AI-Generated Nighttime Photograph (`nightSrc`) with Logical 2700K Interior Illumination */}
+        {/* Real Nighttime Photograph */}
         <div
           className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
           style={{
@@ -660,114 +645,49 @@ function PropertyCardInteractiveStage({
             syncUrls={currentPairUrls}
             auditIgnore={true}
             loading="eager"
-            alt={`${property.title} — ${currentStop.title} (Night)`}
+            alt={currentStop.title}
             className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover/photo:scale-[1.02]"
           />
         </div>
-
-        <div
-          className="absolute inset-0 pointer-events-none z-[4]"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(4,8,17,0.46) 0%, transparent 32%, transparent 82%, rgba(4,8,17,0.35) 100%)",
-          }}
-        />
-
-        {/* Top Badge: Room Number + Quick Day/Sunset/Night Switcher */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-          <span
-            className="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border backdrop-blur-sm pointer-events-none"
-            style={{
-              background: "rgba(5, 10, 20, 0.78)",
-              borderColor: "rgba(255, 255, 255, 0.16)",
-              color: "#F3D37A",
-            }}
-          >
-            {currentStop.zoneLabel}
-          </span>
-
-          {/* Quick Day/Sunset/Night Preview Pill right on the Card */}
-          <div
-            className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/80 backdrop-blur-sm border border-white/15"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {(
-              [
-                { id: "day", label: "Day" },
-                { id: "sunset", label: "Sunset" },
-                { id: "night", label: "Night" },
-              ] as const
-            ).map((m) => {
-              const active = cardMood === m.id;
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  data-magnetic
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectCardMood(m.id);
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 min-h-[30px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
-                  style={{
-                    background: active ? "#E5C97B" : "transparent",
-                    color: active ? "#050A14" : "#CBD5E1",
-                  }}
-                  title={`Preview ${m.label} lighting on card`}
-                >
-                  <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
-                  <span>{m.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* Sub-Photo Room Caption & 5-Room Quick Switcher Strip directly below the photo */}
-      <div className="bg-[#050A14] border-y border-white/[0.08] px-3 py-1.5 flex items-center justify-between gap-2">
-        <div className="min-w-0 flex items-center gap-2">
-          <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
-            #{currentAssetId}
-          </span>
-          <span className="text-white/35 text-[10px] shrink-0" aria-hidden="true">·</span>
-          <span className="text-xs font-semibold text-slate-100 truncate">
-            {currentStop.title}
-          </span>
-        </div>
-        <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#F3D37A] shrink-0">
-          5-Room Tour →
-        </span>
-      </div>
+      {/* 5-Photo Simultaneous Room Thumbnail Gallery Strip */}
       <div
-        className="grid grid-cols-5 gap-1 p-1.5 bg-[#050A14]"
+        className="grid grid-cols-5 gap-1.5 p-2 bg-[#050A14] border-t border-white/10"
         role="group"
-        aria-label={`Preview 5 spaces of ${property.title}`}
+        aria-label={`Preview spaces of ${property.title}`}
       >
         {stops.map((st, idx) => {
           const isCurrent = idx === activeIdx;
+          const thumbSrc = cardMood === "night" ? st.nightSrc : st.src;
           return (
             <button
               key={st.stepNumber}
               type="button"
               data-magnetic
-              onClick={() => selectRoomPreview(idx)}
+              onClick={() => {
+                selectRoomPreview(idx);
+                onOpenStudio(idx, moodSolarHour);
+              }}
               onPointerEnter={() => selectRoomPreview(idx)}
-              className="px-1.5 py-1.5 rounded-xl text-center transition-all duration-300 cursor-pointer border"
+              className="rounded-xl overflow-hidden transition-all duration-300 cursor-pointer border bg-[#070E1A] flex flex-col"
               style={{
-                background: isCurrent
-                  ? "rgba(201, 168, 76, 0.20)"
-                  : "rgba(12, 24, 46, 0.45)",
                 borderColor: isCurrent
                   ? "#E5C97B"
-                  : "rgba(255, 255, 255, 0.06)",
+                  : "rgba(255, 255, 255, 0.1)",
               }}
-              title={`Preview ${st.zoneLabel} (Click photo above to open full studio)`}
+              title={st.shortRoomName}
             >
-              <div className="text-[9px] font-mono font-bold text-[#C9A84C]">
-                {st.stepNumber}
+              <div className="relative h-12 sm:h-14 w-full overflow-hidden">
+                <ProtectedImage
+                  src={thumbSrc}
+                  auditIgnore={true}
+                  loading="lazy"
+                  alt={st.shortRoomName}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="text-[10px] font-semibold text-white truncate">
+              <div className="px-1 py-1 text-[10px] font-medium text-slate-200 truncate text-center w-full">
                 {st.shortRoomName}
               </div>
             </button>
@@ -888,31 +808,19 @@ export function LandingPropertyCategoriesSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Top Executive Header */}
-        <div className="flex flex-col items-center text-center max-w-6xl mx-auto pb-8 mb-6 border-b border-[#C9A84C]/25">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-4 tayco-atelier-eyebrow">
-            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#F3D37A]">
-              FOUR PRIMARY CONSTRUCTION MARKETS · 8 STATES
-            </span>
-          </div>
+        <div className="flex flex-col items-center text-center max-w-6xl mx-auto pb-6 mb-6 border-b border-[#C9A84C]/25">
           <h2
             id="property-categories-heading"
             className="tayco-display-title text-3xl sm:text-4xl lg:text-5xl text-white leading-[1.08]"
           >
-            Choose Your{" "}
+            Architectural{" "}
             <em
               className="tayco-serif-em font-normal"
               style={{ color: "#F3D37A" }}
             >
-              Construction Market.
+              Portfolio.
             </em>
           </h2>
-          <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto line-clamp-3 sm:line-clamp-none">
-            Pick a market to explore{" "}
-            <strong className="text-[#F3D37A]">eight specialties</strong>, curated project
-            galleries and{" "}
-            <strong className="text-[#F3D37A]">day/night solar walkthroughs</strong>.
-          </p>
 
           {/* Mobile market switcher — one market at a time */}
           <div
@@ -935,34 +843,22 @@ export function LandingPropertyCategoriesSection() {
                       : "border-[#C9A84C]/35 bg-[#0F2040]/80 text-[#F3D37A]"
                   }`}
                 >
-                  {cat.label.replace(" Homes", "")}
+                  {cat.shortLabel}
                 </button>
               );
             })}
           </div>
 
-          {/* Direct Market Quick-Links + View All */}
-          <TaycoPillDock ariaLabel="Choose your construction market" className="mt-6 max-md:hidden">
-            <Link
-              href="/properties"
-              data-magnetic
-              className="tayco-atelier-btn-gold !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
-              title="All 4 Markets (24 Projects)"
-            >
-              <span>All 4 Markets</span>
-              <span className="rounded-full bg-black/20 px-2 py-0.5 text-[10px] font-mono font-bold">24</span>
-              <span aria-hidden="true">↗</span>
-            </Link>
+          {/* Direct 4-Category Quick-Links */}
+          <TaycoPillDock ariaLabel="Choose your construction market" className="mt-5 max-md:hidden">
             {PROPERTY_CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/${cat.slug}`}
                 data-magnetic
                 className="tayco-atelier-btn-obsidian !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
-                title={`${cat.label} (8 Specialties · 6 Projects)`}
               >
-                <span>{cat.label}</span>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">8 · 6</span>
+                <span>{cat.shortLabel}</span>
                 <span aria-hidden="true">→</span>
               </Link>
             ))}
@@ -979,7 +875,6 @@ export function LandingPropertyCategoriesSection() {
             const activeIdx = activeThumbMap[cat.slug] ?? 0;
             const currentUrl = galleryUrls[activeIdx] ?? galleryUrls[0];
             const currentNightUrl = resolveNightImageSrc(currentUrl);
-            const currentAssetId = computeVisualAssetId(currentUrl);
             const currentPairUrls = [currentUrl, currentNightUrl];
             const catMood = categoryMoodMap[cat.slug] ?? "day";
             const catDaylightMood = categoryDaylightMoodMap[cat.slug] ?? "day";
@@ -1005,14 +900,65 @@ export function LandingPropertyCategoriesSection() {
                 }}
               >
                 <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
-                {/* Top Visual Stage — Clickable to Category Page with Active Slot + Real Night */}
+
+                {/* Clean Header Bar — Category Name + Day/Sunset/Night Switcher (Zero Badges on Photo) */}
+                <div className="bg-[#050A14] border-b border-white/10 px-4 py-3 flex items-center justify-between gap-3">
+                  <Link
+                    href={`/${cat.slug}`}
+                    className="min-w-0 group/title text-left"
+                  >
+                    <h3 className="tayco-card-title text-xl sm:text-2xl text-white group-hover/title:text-[#F3D37A] transition-colors truncate">
+                      {cat.shortLabel}
+                    </h3>
+                  </Link>
+
+                  <div
+                    className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {(
+                      [
+                        { id: "day", label: "Day" },
+                        { id: "sunset", label: "Sunset" },
+                        { id: "night", label: "Night" },
+                      ] as const
+                    ).map((m) => {
+                      const active = catMood === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          data-magnetic
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSelectCategoryMood(cat.slug, m.id);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                          style={{
+                            background: active ? "#E5C97B" : "transparent",
+                            color: active ? "#050A14" : "#CBD5E1",
+                          }}
+                        >
+                          <SolarPhaseIcon
+                            phase={m.id}
+                            className="w-2.5 h-2.5"
+                          />
+                          <span>{m.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Unobstructed Hero Photograph */}
                 <div
                   data-visual-slot={`cat-${cat.slug}`}
                   className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#040811]"
                 >
                   <Link
                     href={`/${cat.slug}`}
-                    aria-label={`Open ${cat.label} page`}
+                    aria-label={`Open ${cat.shortLabel}`}
                     className="block w-full h-full relative"
                   >
                     <div
@@ -1028,11 +974,10 @@ export function LandingPropertyCategoriesSection() {
                         src={currentUrl}
                         syncUrls={currentPairUrls}
                         loading="eager"
-                        alt={cat.label}
+                        alt={cat.shortLabel}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-[1.02]"
                       />
                     </div>
-                    {/* Sunset golden ambient wash */}
                     <div
                       className="absolute inset-0 pointer-events-none z-[2]"
                       style={{
@@ -1045,7 +990,6 @@ export function LandingPropertyCategoriesSection() {
                         mixBlendMode: "soft-light",
                       }}
                     />
-                    {/* Real Nighttime Architectural Layer (outside Day filter & above Sunset wash) */}
                     <div
                       className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
                       style={{
@@ -1059,234 +1003,81 @@ export function LandingPropertyCategoriesSection() {
                         syncUrls={currentPairUrls}
                         loading="eager"
                         auditIgnore={true}
-                        alt={`${cat.label} (Night)`}
+                        alt={cat.shortLabel}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-[1.02]"
                       />
                     </div>
-                    <div
-                      className="absolute inset-0 pointer-events-none z-[4]"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(4,8,17,0.42) 0%, transparent 28%)",
-                      }}
-                    />
                   </Link>
+                </div>
 
-                  {/* Top-Left Category Order + Top-Right Day/Sunset/Night Switcher */}
-                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
-                    <span
-                      className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest border backdrop-blur-sm pointer-events-none whitespace-nowrap truncate max-w-[55%]"
-                      style={{
-                        background: "rgba(7, 14, 26, 0.84)",
-                        borderColor: "rgba(201, 168, 76, 0.55)",
-                        color: "#F3D37A",
-                      }}
-                    >
-                      {cat.eyebrow.split("·")[0]?.trim() || cat.eyebrow}<span translate="no" className="hidden sm:inline"> · #{currentAssetId}</span>
-                    </span>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <div
-                        className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#050A14]/85 backdrop-blur-sm border border-white/15"
-                        onClick={(e) => e.stopPropagation()}
+                {/* Simultaneous 3-Photo Category Gallery Strip */}
+                <div
+                  className="grid grid-cols-3 gap-2 p-2 bg-[#040811] border-y border-white/10"
+                  role="group"
+                  aria-label={`${cat.shortLabel} gallery`}
+                >
+                  {galleryUrls.map((url, idx) => {
+                    const isSelected = idx === activeIdx;
+                    const thumbSrc = catMood === "night" ? resolveNightImageSrc(url) : url;
+                    return (
+                      <button
+                        key={url}
+                        type="button"
+                        data-magnetic
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleSelectPreview(cat.slug, idx, galleryUrls);
+                        }}
+                        onPointerEnter={() =>
+                          handleSelectPreview(cat.slug, idx, galleryUrls)
+                        }
+                        className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer"
+                        style={{
+                          borderColor: isSelected
+                            ? "#C9A84C"
+                            : "rgba(255, 255, 255, 0.12)",
+                        }}
                       >
-                        {(
-                          [
-                            { id: "day", label: "Day" },
-                            { id: "sunset", label: "Sunset" },
-                            { id: "night", label: "Night" },
-                          ] as const
-                        ).map((m) => {
-                          const active = catMood === m.id;
-                          return (
-                            <button
-                              key={m.id}
-                              type="button"
-                              data-magnetic
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleSelectCategoryMood(cat.slug, m.id);
-                              }}
-                              className="inline-flex items-center gap-1 px-3 min-h-[36px] sm:min-h-[38px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
-                              style={{
-                                background: active ? "#E5C97B" : "transparent",
-                                color: active ? "#050A14" : "#CBD5E1",
-                              }}
-                            >
-                              <SolarPhaseIcon
-                                phase={m.id}
-                                className="w-2.5 h-2.5"
-                              />
-                              <span>{m.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
+                        <ProtectedImage
+                          src={thumbSrc}
+                          auditIgnore={true}
+                          loading="lazy"
+                          alt={`${cat.shortLabel} view ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Sub-Photo Headline & 3-Photo Switcher Bar (outside photo canvas) */}
-                <div className="bg-[#050A14] border-y border-white/10 px-4 py-2.5 flex items-center justify-between gap-3">
-                  <Link
-                    href={`/${cat.slug}`}
-                    className="min-w-0 group/title text-left"
-                  >
-                    <h3 className="tayco-card-title text-xl sm:text-2xl text-white group-hover/title:text-[#F3D37A] transition-colors truncate">
-                      {cat.label}
-                    </h3>
-                    <p className="text-[11px] text-slate-300 font-medium truncate">
-                      {cat.subtitle}
-                    </p>
-                  </Link>
-
-                  {/* 3-Photo Synchronized Preview Switcher */}
-                  <div
-                    className="flex items-center gap-1 bg-[#070E1A]/90 p-1 rounded-xl border border-[#C9A84C]/35 shrink-0"
-                    role="group"
-                    aria-label={`Preview ${cat.label} photography`}
-                  >
-                    {galleryUrls.map((url, idx) => {
-                      const isSelected = idx === activeIdx;
-                      return (
-                        <button
-                          key={url}
-                          type="button"
-                          data-magnetic
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleSelectPreview(cat.slug, idx, galleryUrls);
-                          }}
-                          onPointerEnter={() =>
-                            handleSelectPreview(cat.slug, idx, galleryUrls)
+                {/* Clean Specialties Pills + Footer */}
+                <div className="home-market-panel p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4 text-left">
+                  <div className="flex flex-wrap gap-1.5">
+                    {marketSpecialties.map((spec) => (
+                      <button
+                        key={spec.id}
+                        type="button"
+                        data-magnetic
+                        onClick={() => {
+                          if (flagshipProperty) {
+                            openCategoryStudio(
+                              flagshipProperty,
+                              catMood,
+                              spec.specialtyId
+                            );
                           }
-                          className="min-w-[32px] min-h-[30px] shrink-0 whitespace-nowrap leading-none rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center"
-                          style={{
-                            background: isSelected
-                              ? "#C9A84C"
-                              : "rgba(15, 32, 64, 0.9)",
-                            color: isSelected ? "#070E1A" : "#E2E8F0",
-                          }}
-                          title={`View ${cat.label} photo ${idx + 1}`}
-                        >
-                          <span translate="no">0{idx + 1}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* V46 Balanced Interior Body */}
-                <div className="home-market-panel p-4 sm:p-6 flex-1 flex flex-col justify-between gap-4 sm:gap-5 text-left">
-                  <div className="flex flex-col">
-                    <p className="home-editorial-eyebrow mb-3">8 specialties · 6 projects</p>
-                    <p className="text-slate-300 text-sm leading-relaxed mb-4 text-left home-market-description">
-                      {cat.description}
-                    </p>
-
-                    <details className="home-reading-details">
-                      <summary>Specialties &amp; projects <span aria-hidden="true">＋</span></summary>
-                    {/* Specs Grid */}
-                    <div className="hidden sm:block">
-                    <TaycoSpecGrid
-                      columns={3}
-                      className="mb-4"
-                      items={[
-                        { label: "Typical Footprint", value: cat.typicalSqftRange },
-                        { label: "Configuration", value: cat.typicalConfigLabel },
-                        { label: "Scope Divisions", value: cat.csiDivisions },
-                      ]}
-                    />
-                    </div>
-
-                    {/* Market Specialties Strip — Click any specialty to launch its Full-Screen Specialty Studio! */}
-                    <div className="mb-4 w-full flex flex-col">
-                      <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-left">
-                        <StudioActionIcon
-                          kind="sparkle"
+                        }}
+                        className="inline-flex shrink-0 whitespace-nowrap min-h-[34px] items-center gap-1.5 px-3 py-1 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer"
+                      >
+                        <SpecialtyVectorIcon
+                          specialtyId={spec.specialtyId}
                           className="w-3 h-3 text-[#F3D37A]"
                         />
-                        <span>
-                          Specialties:
-                        </span>
-                      </div>
-                      <div className="flex gap-1.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:pb-1 tayco-no-scrollbar sm:flex-wrap">
-                        {marketSpecialties.map((spec) => (
-                          <button
-                            key={spec.id}
-                            type="button"
-                            data-magnetic
-                            onClick={() => {
-                              if (flagshipProperty) {
-                                openCategoryStudio(
-                                  flagshipProperty,
-                                  catMood,
-                                  spec.specialtyId
-                                );
-                              }
-                            }}
-                            className="inline-flex shrink-0 whitespace-nowrap min-h-[36px] items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/45 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer shadow-sm"
-                          >
-                            <SpecialtyVectorIcon
-                              specialtyId={spec.specialtyId}
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            <span>
-                              {spec.specialtyLabel === "Siding"
-                                ? "Exterior Siding"
-                                : spec.specialtyLabel === "Framing"
-                                  ? "Structural Framing"
-                                  : spec.specialtyLabel}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Clickable Properties — Click any chip to launch its 5-Room Walkthrough & Day/Night Studio! */}
-                    <div className="w-full flex flex-col">
-                      <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-2 text-left">
-                        <StudioActionIcon
-                          kind="sparkle"
-                          className="w-3 h-3 text-[#F3D37A]"
-                        />
-                        <span>
-                          Project tours:
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 w-full">
-                        {categoryListings.slice(0, 4).map((prop, propIdx) => (
-                          <button
-                            key={prop.id}
-                            type="button"
-                            data-magnetic
-                            onClick={() =>
-                              openCategoryStudio(prop, catMood, undefined)
-                            }
-                            className={`${propIdx >= 2 ? "hidden sm:flex" : "flex"} min-h-[40px] items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#070E1A]/85 border border-[#C9A84C]/35 hover:border-[#F3D37A] hover:bg-[#0F2040] text-xs transition-all cursor-pointer text-left`}
-                          >
-                            <span className="font-semibold text-slate-100 truncate">
-                              <strong translate="no" className="font-mono text-[#F3D37A] mr-1.5">
-                                {prop.code}
-                              </strong>
-                              {prop.title}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#C9A84C] shrink-0">
-                              <span>Tour</span>
-                              <StudioActionIcon
-                                kind="arrow-right"
-                                className="w-2.5 h-2.5"
-                              />
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    </details>
+                        <span>{spec.specialtyLabel}</span>
+                      </button>
+                    ))}
                   </div>
 
-                  {/* V46 Balanced Horizontal Footer */}
                   <TaycoCardFooterBar
                     leftMeta={
                       flagshipProperty ? (
@@ -1316,7 +1107,7 @@ export function LandingPropertyCategoriesSection() {
                       data-magnetic
                       className="home-text-action"
                     >
-                      <span>View market</span>
+                      <span>Explore</span>
                       <span aria-hidden="true">→</span>
                     </Link>
                   </TaycoCardFooterBar>
@@ -1327,8 +1118,8 @@ export function LandingPropertyCategoriesSection() {
         </div>
 
         {/* Live Image Identifier & Duplicate Detector HUD */}
-        <div className="mt-8">
-          <VisualAssetIntegrityHud scopeLabel="4 PRIMARY MARKETS · LIVE VIEWPORT" />
+        <div className="mt-4">
+          <VisualAssetIntegrityHud scopeLabel="PORTFOLIO" />
         </div>
       </div>
 
@@ -1465,159 +1256,15 @@ export function DivisionInteractivePropertyAtelier({
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto pb-8 mb-8 border-b border-[#C9A84C]/25">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/85 mb-4 tayco-atelier-eyebrow">
-            <span
-              className="tayco-live-dot"
-              style={{ color: isResidential ? "#F97316" : "#10B981" }}
-            />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-              {isResidential
-                ? "01A / RESIDENTIAL WALKTHROUGH · REAL DAY/NIGHT 2700K & 6 FINISH PALETTES"
-                : "01A / COMMERCIAL WALKTHROUGH · REAL DAY/NIGHT 2700K & 6 FINISH PALETTES"}
-            </span>
-          </div>
-
-          <h2 className="tayco-display-title text-3xl sm:text-4xl lg:text-5xl text-white leading-[1.06]">
-            {isResidential ? (
-              <>
-                Step Inside Our Homes.{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#F3D37A" }}
-                >
-                  Day, Sunset &amp; Real 2700K Night.
-                </em>
-              </>
-            ) : (
-              <>
-                Step Inside Our Commercial Assets.{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#F3D37A" }}
-                >
-                  Day, Sunset &amp; Real 2700K Night.
-                </em>
-              </>
-            )}
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto pb-6 mb-8 border-b border-[#C9A84C]/25">
+          <h2 className="tayco-display-title text-3xl sm:text-4xl text-white leading-[1.06]">
+            {isResidential ? "Properties" : "Projects"}
           </h2>
-
-          <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            {isResidential
-              ? "Toggle Day, Sunset, and Night right on any Single-Family Home, Duplex, or Townhouse card to see its real 2700K nighttime architectural illumination, preview all 5 connected rooms (01 Exterior → 05 Patio/Terrace), or launch the full-screen Walkthrough & 6-Palette Color Studio."
-              : "Toggle Day, Sunset, and Night right on any Corporate HQ, Retail Plaza, Medical Suite, or High-Bay Industrial facility to inspect its real 2700K nighttime illumination, preview all 5 connected spaces (01 Street Facade → 05 Executive Terrace), or launch the full-screen Walkthrough & Finish Studio."}
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
-            <Link
-              href={
-                isResidential ? "/single-family" : "/commercial"
-              }
-              data-magnetic
-              className="tayco-atelier-btn-gold"
-            >
-              <span>
-                {isResidential
-                  ? "Open Full Residential Portfolio (18)"
-                  : "Open Dedicated Commercial Portfolio (6)"}
-              </span>
-              <StudioActionIcon kind="arrow-up-right" className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Category / Sector Filter Tabs */}
-        <div className="flex flex-col items-center justify-center gap-4 mb-8 text-center max-w-5xl mx-auto">
-          {isResidential ? (
-            <TaycoPillDock ariaLabel="Filter residential properties">
-              {[
-                {
-                  id: "featured" as const,
-                  label: "Featured Flagships (6)",
-                },
-                {
-                  id: "single-family" as const,
-                  label: "Single-Family Homes (6)",
-                },
-                {
-                  id: "multifamily" as const,
-                  label: "Multifamily (6)",
-                },
-                {
-                  id: "townhomes" as const,
-                  label: "Townhomes (6)",
-                },
-                {
-                  id: "all" as const,
-                  label: "All 18 Residential Properties",
-                },
-              ].map((tab) => {
-                const active = resFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    data-magnetic
-                    onClick={() => setResFilter(tab.id)}
-                    className="tayco-atelier-pill"
-                    data-active={active ? "true" : "false"}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </TaycoPillDock>
-          ) : (
-            <TaycoPillDock ariaLabel="Filter commercial properties">
-              {[
-                {
-                  id: "all" as const,
-                  label: "All Commercial Properties (6)",
-                },
-                {
-                  id: "office" as const,
-                  label: "Corporate HQ & Class-A Office (2)",
-                },
-                {
-                  id: "retail" as const,
-                  label: "Retail & Mixed-Use Plazas (2)",
-                },
-                {
-                  id: "industrial" as const,
-                  label: "Industrial & Medical Facilities (2)",
-                },
-              ].map((tab) => {
-                const active = comFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    data-magnetic
-                    onClick={() => setComFilter(tab.id)}
-                    className="tayco-atelier-pill"
-                    data-active={active ? "true" : "false"}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </TaycoPillDock>
-          )}
-
-          <div className="text-xs font-mono text-slate-300">
-            <span className="text-[#F3D37A] font-bold">
-              ● 100% People-Free Architectural Photography
-            </span>{" "}
-            · Real 2700K Night + 6 Palettes
-          </div>
         </div>
 
         {/* Interactive Property Cards Grid */}
         <div className="flex flex-wrap justify-center gap-7">
           {visibleListings.map((prop) => {
-            const catMeta = PROPERTY_CATEGORIES.find(
-              (c) => c.slug === prop.category
-            );
             return (
               <article
                 key={prop.id}
@@ -1639,146 +1286,23 @@ export function DivisionInteractivePropertyAtelier({
                     }
                   />
 
-                  <div className="p-4 sm:p-6 text-left flex flex-col">
-                    <TaycoCardMetaBar
-                      leftBadge={
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black"
-                            style={{
-                              background: "rgba(201, 168, 76, 0.2)",
-                              color: "#F3D37A",
-                              border: "1px solid rgba(201, 168, 76, 0.45)",
-                            }}
-                          >
-                            {prop.code}
-                          </span>
-                          <span className="text-xs font-mono font-semibold text-slate-300">
-                            {prop.location}
-                          </span>
-                        </div>
-                      }
-                      rightMeta={
-                        <span
-                          className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                          style={{
-                            background: "rgba(16, 185, 129, 0.16)",
-                            color: "#6EE7B7",
-                            border: "1px solid rgba(16, 185, 129, 0.4)",
-                          }}
-                        >
-                          ● {prop.availability}
-                        </span>
-                      }
-                      className="mb-3"
-                    />
-
-                    {catMeta && (
-                      <div className="mb-1.5 text-left">
-                        <Link
-                          href={`/${catMeta.slug}`}
-                          className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
-                        >
-                          {catMeta.label} →
-                        </Link>
-                      </div>
-                    )}
-
-                    <h3 className="tayco-card-title text-xl text-white leading-snug">
-                      {prop.title}
-                    </h3>
-                    <p className="text-xs font-semibold text-[#F3D37A] mt-1">
-                      {prop.subtitle}
-                    </p>
-
-                    <TaycoSpecGrid
-                      columns={2}
-                      className="my-3.5"
-                      items={[
-                        { label: "Total Area", value: prop.sqft },
-                        { label: "Layout / Specs", value: prop.configuration },
-                      ]}
-                    />
-
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 text-left">
-                      {prop.summary}
-                    </p>
-
-                    <div
-                      onClick={() => openModal(prop, 0)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          openModal(prop, 0);
-                        }
-                      }}
-                      className="hidden sm:flex p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
-                    >
-                      <div className="min-w-0 text-left">
-                        <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
-                          <StudioActionIcon
-                            kind="sparkle"
-                            className="w-3 h-3 text-[#F3D37A]"
-                          />
-                          <span>5-SPACE TOUR · REAL NIGHT · 6 PALETTES</span>
-                        </div>
-                        <div className="flex flex-wrap items-center justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="morning"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Morning
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="midday"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Noon
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="sunset"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            Sunset
-                          </span>
-                          <span className="text-slate-600">·</span>
-                          <span className="inline-flex items-center gap-1">
-                            <SolarPhaseIcon
-                              phase="night"
-                              className="w-3 h-3 text-[#F3D37A]"
-                            />
-                            2700K Night
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className="flex items-center -space-x-1.5 shrink-0 justify-center"
-                        title="6 Interactive Designer Finish Palettes"
-                      >
-                        {DESIGNER_PALETTES.map((pal) => (
-                          <span
-                            key={pal.id}
-                            className="w-4 h-4 rounded-full border border-white/70 shadow-sm"
-                            style={{ background: pal.swatches[0] }}
-                          />
-                        ))}
-                      </div>
+                  <div className="px-4 py-3 text-left flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="tayco-card-title text-base sm:text-lg text-white leading-snug truncate">
+                        {prop.title}
+                      </h3>
+                      <p className="text-[11px] font-mono text-slate-400 truncate mt-0.5">
+                        {prop.location} · {prop.sqft} · {prop.configuration}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                <div className="px-4 pb-4 pt-0">
                   <TaycoCardFooterBar
                     leftMeta={
                       <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap truncate">
-                        5 Rooms · 24h Solar
+                        5 Photos
                       </span>
                     }
                   >
@@ -1787,10 +1311,9 @@ export function DivisionInteractivePropertyAtelier({
                       data-magnetic
                       data-division-walkthrough-trigger={prop.code}
                       onClick={() => openModal(prop, 0)}
-                      className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 !text-[11px] whitespace-nowrap shrink-0 group/btn"
+                      className="tayco-atelier-btn-gold !min-h-[38px] !px-3.5 !py-1.5 !text-[11px] whitespace-nowrap shrink-0 group/btn"
                     >
-                      <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
-                      <span>Open 5-Room Studio</span>
+                      <span>View Gallery</span>
                       <StudioActionIcon
                         kind="arrow-right"
                         className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
@@ -1988,141 +1511,41 @@ export function PropertyCategoryPageView({
               href="/properties"
               className="hover:text-[#F3D37A] transition-colors"
             >
-              Properties
+              Portfolio
             </Link>
             {activeCategory && (
               <>
                 <span className="text-slate-500">/</span>
                 <span className="text-[#F3D37A] font-bold">
-                  {activeCategory.label}
+                  {activeCategory.shortLabel}
                 </span>
               </>
             )}
           </nav>
 
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#C9A84C]/50 bg-[#070E1A]/80 mb-4 tayco-atelier-eyebrow">
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              <span className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-                {activeCategory
-                  ? activeCategory.eyebrow
-                  : "TAYCO PROPERTY PORTFOLIO · ALL 4 CATEGORIES"}
-              </span>
-            </div>
-
             <h1 className="tayco-display-title text-3xl sm:text-5xl lg:text-6xl text-white leading-[1.05]">
               {activeCategory ? (
-                <>
-                  {activeCategory.headline}{" "}
-                  <em
-                    className="tayco-serif-em font-normal"
-                    style={{ color: "#F3D37A" }}
-                  >
-                    {activeCategory.serifAccent}
-                  </em>
-                </>
+                activeCategory.shortLabel
               ) : (
                 <>
-                  All Property{" "}
+                  Construction{" "}
                   <em
                     className="tayco-serif-em font-normal"
                     style={{ color: "#F3D37A" }}
                   >
-                    Categories.
+                    Portfolio.
                   </em>
                 </>
               )}
             </h1>
-
-            <p className="mt-3 sm:mt-4 text-slate-200 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto line-clamp-3 sm:line-clamp-none">
-              {activeCategory
-                ? activeCategory.description
-                : "Browse all available Single-Family Homes, Multifamily, Townhomes, and Commercial Properties constructed, renovated, and delivered turnkey across our 8-state footprint."}
-            </p>
-
-            {/* Category Summary Telemetry Card */}
-            <div
-              className="mt-5 sm:mt-8 p-4 sm:p-5 rounded-2xl border backdrop-blur-sm shrink-0 w-full max-w-2xl mx-auto text-center"
-              style={{
-                background: "rgba(7, 14, 26, 0.88)",
-                borderColor: "rgba(201, 168, 76, 0.48)",
-                boxShadow: "0 20px 50px rgba(0,0,0,0.55)",
-              }}
-            >
-              <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A] mb-1">
-                {activeCategory ? activeCategory.label : "All 4 Primary Markets"}
-              </div>
-              <div className="text-2xl font-black text-white mb-3">
-                {activeCategory
-                  ? `${marketSpecialties.length} Specialties · ${baseListings.length} Projects`
-                  : `4 Markets · ${PROPERTY_LISTINGS.length} Projects`}
-              </div>
-              <div className="hidden sm:flex flex-wrap items-center justify-around gap-3 text-xs text-slate-300 border-t border-white/10 pt-3">
-                <div className="text-center">
-                  <span className="text-slate-400 block text-[10px] uppercase font-mono">Market Services</span>
-                  <span className="font-mono font-bold text-[#F3D37A]">
-                    Roofing · Siding · Framing · Drywall
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span className="text-slate-400 block text-[10px] uppercase font-mono">Core Trades</span>
-                  <span className="font-bold text-white">
-                    Flooring · Concrete · Stone · Millwork
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span className="text-slate-400 block text-[10px] uppercase font-mono">Interactive Studio</span>
-                  <span className="font-mono text-slate-200">
-                    Click Any Photo to Expand
-                  </span>
-                </div>
-              </div>
-              {activeCategory && (
-                <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-2 max-w-md mx-auto">
-                  <button
-                    type="button"
-                    data-magnetic
-                    onClick={() => setExperienceMode("specialties")}
-                    className="tayco-atelier-pill text-center justify-center"
-                    data-active={experienceMode === "specialties" ? "true" : "false"}
-                  >
-                    <span>01 · Specialties ({marketSpecialties.length})</span>
-                  </button>
-                  <button
-                    type="button"
-                    data-magnetic
-                    onClick={() => setExperienceMode("projects")}
-                    className="tayco-atelier-pill text-center justify-center"
-                    data-active={experienceMode === "projects" ? "true" : "false"}
-                  >
-                    <span>02 · 5-Room Tours ({baseListings.length})</span>
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* ── 5-MARKET NAVIGATION BAR (CENTERED SYMMETRIC LAYOUT) ── */}
-          <div className="mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-white/15 flex justify-center">
-            <TaycoPillDock ariaLabel="Primary construction markets navigation">
-              <Link
-                href="/properties"
-                aria-current={!activeCategory ? "page" : undefined}
-                data-active={!activeCategory ? "true" : "false"}
-                data-magnetic
-                className="tayco-atelier-pill inline-flex items-center gap-2 py-2 px-3.5"
-                title="All 4 Markets (24 Turnkey Projects)"
-              >
-                <span className="text-xs sm:text-[13px] font-bold tracking-wide">
-                  All 4 Markets
-                </span>
-                <span translate="no" className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-mono font-bold">
-                  24
-                </span>
-              </Link>
+          {/* ── 4-CATEGORY NAVIGATION BAR ── */}
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/15 flex justify-center">
+            <TaycoPillDock ariaLabel="Primary construction categories">
               {PROPERTY_CATEGORIES.map((cat) => {
                 const isCurrent = activeCategory?.slug === cat.slug;
-                const count = getPropertiesByCategory(cat.slug).length;
                 return (
                   <Link
                     key={cat.slug}
@@ -2130,14 +1553,10 @@ export function PropertyCategoryPageView({
                     aria-current={isCurrent ? "page" : undefined}
                     data-active={isCurrent ? "true" : "false"}
                     data-magnetic
-                    className="tayco-atelier-pill inline-flex items-center gap-2 py-2 px-3.5"
-                    title={`${cat.label} (8 Specialties · ${count} Projects)`}
+                    className="tayco-atelier-pill inline-flex items-center gap-2 py-2 px-4"
                   >
                     <span className="text-xs sm:text-[13px] font-bold tracking-wide">
-                      {cat.label}
-                    </span>
-                    <span translate="no" className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F3D37A]">
-                      8 · {count}
+                      {cat.shortLabel}
                     </span>
                   </Link>
                 );
@@ -2147,12 +1566,12 @@ export function PropertyCategoryPageView({
         </div>
       </section>
 
-      {/* ── LIVE IMAGE IDENTIFIER & DUPLICATE DETECTOR + EXPERIENCE MODE SWITCHER ── */}
+      {/* ── EXPERIENCE MODE SWITCHER ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 sm:pt-8">
         {activeCategory && marketSpecialties.length > 0 && (
           <div
             data-testid="market-experience-mode-switcher"
-            className="mt-5 p-2 rounded-2xl lg:rounded-full border flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-2 backdrop-blur-md max-w-4xl mx-auto"
+            className="mt-2 p-2 rounded-2xl lg:rounded-full border flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-2 backdrop-blur-md max-w-3xl mx-auto"
             style={{
               background:
                 "linear-gradient(135deg, rgba(11, 20, 38, 0.94) 0%, rgba(6, 11, 22, 0.98) 100%)",
@@ -2165,17 +1584,11 @@ export function PropertyCategoryPageView({
                 type="button"
                 data-magnetic
                 onClick={() => setExperienceMode("specialties")}
-                className="tayco-atelier-pill !min-h-[46px] !px-4 !py-2 flex items-center justify-center gap-2.5 whitespace-nowrap"
+                className="tayco-atelier-pill !min-h-[44px] !px-4 !py-2 flex items-center justify-center gap-2 whitespace-nowrap"
                 data-active={experienceMode === "specialties" ? "true" : "false"}
               >
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider opacity-85">
-                  01
-                </span>
                 <span className="text-xs sm:text-[13px] font-bold tracking-tight">
-                  Construction Specialties (8)
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/25">
-                  24 Photos
+                  Specialties ({marketSpecialties.length})
                 </span>
               </button>
 
@@ -2183,17 +1596,11 @@ export function PropertyCategoryPageView({
                 type="button"
                 data-magnetic
                 onClick={() => setExperienceMode("projects")}
-                className="tayco-atelier-pill !min-h-[46px] !px-4 !py-2 flex items-center justify-center gap-2.5 whitespace-nowrap"
+                className="tayco-atelier-pill !min-h-[44px] !px-4 !py-2 flex items-center justify-center gap-2 whitespace-nowrap"
                 data-active={experienceMode === "projects" ? "true" : "false"}
               >
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider opacity-85">
-                  02
-                </span>
                 <span className="text-xs sm:text-[13px] font-bold tracking-tight">
-                  5-Room Project Tours ({baseListings.length})
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/25">
-                  5 Rooms
+                  Projects ({baseListings.length})
                 </span>
               </button>
             </div>
@@ -2212,17 +1619,17 @@ export function PropertyCategoryPageView({
                       : undefined
                   )
                 }
-                className="tayco-atelier-btn-gold !min-h-[46px] !px-5 !py-2 whitespace-nowrap shrink-0"
+                className="tayco-atelier-btn-gold !min-h-[44px] !px-5 !py-2 whitespace-nowrap shrink-0"
               >
                 <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
-                <span>Launch Full-Screen Studio</span>
+                <span>Open Studio</span>
               </button>
             )}
           </div>
         )}
       </section>
 
-      {/* ── SECTION 1: MARKET-SPECIFIC SERVICES BY SPECIALTY (WHEN IN SPECIALTIES MODE) ── */}
+      {/* ── SECTION 1: SPECIALTIES GALLERY ── */}
       {activeCategory &&
         marketSpecialties.length > 0 &&
         experienceMode === "specialties" && (
@@ -2232,45 +1639,25 @@ export function PropertyCategoryPageView({
             className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-12"
           >
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3 tayco-atelier-eyebrow">
-                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-                  MODE 01 · {activeCategory.label.toUpperCase()} SERVICES BY SPECIALTY
-                </span>
-              </div>
               <h2
                 id="market-services-heading"
                 className="tayco-display-title text-2xl sm:text-4xl text-white tracking-tight"
               >
-                {activeCategory.label} Construction{" "}
-                <em
-                  className="tayco-serif-em font-normal"
-                  style={{ color: "#F3D37A" }}
-                >
-                  Specialties.
-                </em>
+                Specialties
               </h2>
-              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                Click any photograph or{" "}
-                <strong className="text-[#F3D37A]">Open Studio</strong> button
-                below to inspect all 3 market angles at full screen with our{" "}
-                <strong className="text-white">24-Hour Solar Lighting</strong>{" "}
-                and{" "}
-                <strong className="text-white">6 Designer Finish Palettes</strong>.
-              </p>
 
-              {/* Specialty Group Filter Tabs — uniform single-row capsule dock */}
+              {/* Specialty Group Filter Tabs */}
               <div
-                className="flex flex-wrap items-center justify-center gap-2 mt-6"
+                className="flex flex-wrap items-center justify-center gap-2 mt-5"
                 role="group"
-                aria-label="Filter specialties by trade group"
+                aria-label="Filter specialties"
               >
                 {(
                   [
-                    { id: "all", label: `All Specialties (${marketSpecialties.length})` },
+                    { id: "all", label: `All (${marketSpecialties.length})` },
                     { id: "envelope", label: "Roofing & Siding" },
-                    { id: "structural", label: "Framing, Concrete & Stone" },
-                    { id: "interiors", label: "Drywall, Flooring & Interiors" },
+                    { id: "structural", label: "Framing, Concrete & Masonry" },
+                    { id: "interiors", label: "Drywall, Flooring & Carpentry" },
                   ] as const
                 ).map((tab) => {
                   const isSelected = specialtyGroupFilter === tab.id;
@@ -2280,7 +1667,7 @@ export function PropertyCategoryPageView({
                       type="button"
                       data-magnetic
                       onClick={() => setSpecialtyGroupFilter(tab.id)}
-                      className="tayco-atelier-pill !min-h-[42px] !px-4 !py-2 text-xs sm:text-[13px] font-semibold whitespace-nowrap"
+                      className="tayco-atelier-pill !min-h-[40px] !px-4 !py-2 text-xs sm:text-[13px] font-semibold whitespace-nowrap"
                       data-active={isSelected ? "true" : "false"}
                     >
                       {tab.label}
@@ -2290,11 +1677,8 @@ export function PropertyCategoryPageView({
               </div>
             </div>
 
-            {/* Quick-Jump Specialty Anchor Strip */}
-            <div className="flex flex-wrap items-center justify-center gap-2 p-3.5 rounded-2xl bg-[#0F2040]/70 border border-[#C9A84C]/30 mb-8 max-w-5xl mx-auto text-center">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-1">
-                Expand Specialty in Studio:
-              </span>
+            {/* Quick-Jump Specialty Strip */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-8 max-w-5xl mx-auto text-center">
               {marketSpecialties.map((spec) => (
                 <button
                   key={spec.id}
@@ -2316,13 +1700,13 @@ export function PropertyCategoryPageView({
               ))}
             </div>
 
-            {/* 8 Market-Specific Specialty Cards Grid — 2 columns: 4x2 = 8, 2x2 = 4 (zero holes ever!) */}
+            {/* 8 Specialty Multi-Photo Gallery Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
               {filteredSpecialties.map((spec) => (
                 <MarketSpecialtyInteractiveCard
                   key={spec.id}
                   service={spec}
-                  marketLabel={activeCategory.label}
+                  marketLabel={activeCategory.shortLabel}
                   onOpenSpecialtyStudio={(specialtyId, stepIdx, solarHour) => {
                     if (baseListings[0]) {
                       openModal(baseListings[0], stepIdx, solarHour, specialtyId);
@@ -2334,7 +1718,7 @@ export function PropertyCategoryPageView({
           </section>
         )}
 
-      {/* ── SECTION 2: PROJECT GALLERY & FILTER BAR (WHEN IN PROJECTS MODE OR ALL MARKETS) ── */}
+      {/* ── SECTION 2: PROJECT GALLERY (WHEN IN PROJECTS MODE OR ALL MARKETS) ── */}
       {(!activeCategory || experienceMode === "projects") && (
         <>
           <section
@@ -2343,100 +1727,45 @@ export function PropertyCategoryPageView({
           >
             {activeCategory && (
               <div className="mb-6 flex flex-col items-center text-center max-w-3xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/45 bg-[#0F2040]/80 mb-3 tayco-atelier-eyebrow">
-                  <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#F3D37A]">
-                    MODE 02 · {activeCategory.label.toUpperCase()} PROJECT GALLERY &amp; 5-ROOM TOURS
-                  </span>
-                </div>
                 <h2 className="tayco-display-title text-2xl sm:text-4xl text-white tracking-tight">
-                  {activeCategory.label} Completed{" "}
-                  <em
-                    className="tayco-serif-em font-normal"
-                    style={{ color: "#F3D37A" }}
-                  >
-                    Project Gallery.
-                  </em>
+                  Projects
                 </h2>
-                <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto">
-                  Explore {baseListings.length} turnkey{" "}
-                  <strong className="text-white">{activeCategory.label}</strong>{" "}
-                  projects with interactive 5-Room Connected Walkthroughs,
-                  Day/Night Solar Lighting and 6 Designer Palettes.
-                </p>
               </div>
             )}
             <div
-              className="p-4 sm:p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center max-w-5xl mx-auto"
+              className="p-4 rounded-2xl border flex flex-wrap items-center justify-center gap-2 text-center max-w-4xl mx-auto"
               style={{
                 background: "rgba(15, 32, 64, 0.72)",
                 borderColor: "rgba(201, 168, 76, 0.3)",
               }}
             >
-              {/* State Filter */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
-                  Filter by State:
-                </span>
+              <button
+                type="button"
+                data-magnetic
+                onClick={() => setSelectedState("ALL")}
+                className="tayco-atelier-pill"
+                data-active={selectedState === "ALL" ? "true" : "false"}
+              >
+                All States ({baseListings.length})
+              </button>
+              {availableStates.map((st) => (
                 <button
+                  key={st}
                   type="button"
                   data-magnetic
-                  onClick={() => setSelectedState("ALL")}
+                  onClick={() => setSelectedState(st)}
                   className="tayco-atelier-pill"
-                  data-active={selectedState === "ALL" ? "true" : "false"}
+                  data-active={selectedState === st ? "true" : "false"}
                 >
-                  All States ({baseListings.length})
+                  {st}
                 </button>
-                {availableStates.map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    data-magnetic
-                    onClick={() => setSelectedState(st)}
-                    className="tayco-atelier-pill"
-                    data-active={selectedState === st ? "true" : "false"}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
-
-              {/* Availability Filter */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mr-2">
-                  Delivery Status:
-                </span>
-                {[
-                  { id: "ALL", label: "All Available" },
-                  { id: "Available · Move-In Ready", label: "Move-In Ready" },
-                  {
-                    id: "Available · Turnkey Delivery",
-                    label: "Turnkey Delivery",
-                  },
-                  { id: "Available · Multiple Units", label: "Multiple Units" },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    data-magnetic
-                    onClick={() => setSelectedAvailability(opt.id)}
-                    className="tayco-atelier-pill"
-                    data-active={selectedAvailability === opt.id ? "true" : "false"}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </section>
 
           {/* ── PROPERTY LISTINGS GRID ── */}
           <section
-            aria-label={
-              activeCategory
-                ? `${activeCategory.label} listings`
-                : "All property listings"
-            }
+            aria-label="Project gallery"
             className="max-w-7xl mx-auto px-4 sm:px-8 pt-8"
           >
             <div className="flex flex-wrap justify-center gap-7">
@@ -2461,7 +1790,6 @@ export function PropertyCategoryPageView({
                   >
                     <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
                     <div>
-                      {/* Clickable 5-Room Preview Header + 5-Room Switcher Strip */}
                       <PropertyCardInteractiveStage
                         property={prop}
                         onOpenStudio={(stepIdx, solarHour) =>
@@ -2469,173 +1797,32 @@ export function PropertyCategoryPageView({
                         }
                       />
 
-                      <div className="p-4 sm:p-6 text-left flex flex-col">
-                        {/* Top Badges: Code + Availability + State */}
-                        <TaycoCardMetaBar
-                          leftBadge={
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black"
-                                style={{
-                                  background: "rgba(201, 168, 76, 0.2)",
-                                  color: "#F3D37A",
-                                  border: "1px solid rgba(201, 168, 76, 0.45)",
-                                }}
-                              >
-                                {prop.code}
-                              </span>
-                              <span translate="no" className="text-xs font-mono font-semibold text-slate-300">
-                                {prop.location}
-                              </span>
-                            </div>
-                          }
-                          rightMeta={
-                            <span
-                              className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                              style={{
-                                background: "rgba(16, 185, 129, 0.16)",
-                                color: "#6EE7B7",
-                                border: "1px solid rgba(16, 185, 129, 0.4)",
-                              }}
-                            >
-                              ● {prop.availability}
-                            </span>
-                          }
-                          className="mb-3"
-                        />
-
-                        {/* Category Pill when viewing All */}
+                      <div className="p-4 sm:p-5 text-left flex flex-col">
                         {!activeCategory && catMeta && (
-                          <div className="mb-2 text-left">
+                          <div className="mb-1.5 text-left">
                             <Link
                               href={`/${catMeta.slug}`}
                               className="text-[10px] font-mono uppercase tracking-widest text-[#C9A84C] hover:underline"
                             >
-                              {catMeta.label} →
+                              {catMeta.shortLabel} →
                             </Link>
                           </div>
                         )}
 
-                        {/* Title & Subtitle */}
                         <h2 className="tayco-card-title text-xl text-white leading-snug">
                           {prop.title}
                         </h2>
-                        <p className="text-xs font-semibold text-[#F3D37A] mt-1">
-                          {prop.subtitle}
+                        <p className="text-xs font-mono text-slate-300 mt-1.5">
+                          {prop.location} · {prop.sqft} · {prop.configuration}
                         </p>
-
-                        {/* Specs Strip */}
-                        <TaycoSpecGrid
-                          columns={2}
-                          className="my-3.5"
-                          items={[
-                            { label: "Total Area", value: prop.sqft },
-                            { label: "Layout / Specs", value: prop.configuration },
-                          ]}
-                        />
-
-                        {/* Summary */}
-                        <p className="hidden sm:block text-sm text-slate-300 leading-relaxed mb-4 text-left">
-                          {prop.summary}
-                        </p>
-
-                        {/* 3 Highlights */}
-                        <div className="hidden sm:flex flex-wrap gap-2 text-xs text-slate-200 mb-4">
-                          {prop.highlights.map((hl) => (
-                            <span
-                              key={hl}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#050A14]/70 border border-[#C9A84C]/25 text-[11px] text-slate-200"
-                            >
-                              <span
-                                className="text-[#C9A84C] font-bold"
-                                aria-hidden="true"
-                              >
-                                ◆
-                              </span>
-                              <span>{hl}</span>
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Interactive Continuity, Day/Night & Color Studio Bar */}
-                        <div
-                          onClick={() => openModal(prop, 0, 12.5, undefined)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              openModal(prop, 0, 12.5, undefined);
-                            }
-                          }}
-                          className="hidden sm:flex p-3 rounded-2xl border cursor-pointer transition-all hover:border-[#F3D37A] bg-[#070E1A]/90 border-[#C9A84C]/35 flex-col sm:flex-row items-center justify-between gap-2.5 w-full text-left"
-                        >
-                          <div className="min-w-0 text-left">
-                            <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#F3D37A]">
-                              <StudioActionIcon
-                                kind="sparkle"
-                                className="w-3 h-3 text-[#F3D37A]"
-                              />
-                              <span>
-                                5-ROOM TOUR · DAY/NIGHT LIGHT · 6 COLORS
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap items-center justify-start gap-2 text-[11px] text-slate-300 truncate mt-1">
-                              <span className="inline-flex items-center gap-1">
-                                <SolarPhaseIcon
-                                  phase="morning"
-                                  className="w-3 h-3 text-[#F3D37A]"
-                                />
-                                Morning
-                              </span>
-                              <span className="text-slate-600">·</span>
-                              <span className="inline-flex items-center gap-1">
-                                <SolarPhaseIcon
-                                  phase="midday"
-                                  className="w-3 h-3 text-[#F3D37A]"
-                                />
-                                Noon
-                              </span>
-                              <span className="text-slate-600">·</span>
-                              <span className="inline-flex items-center gap-1">
-                                <SolarPhaseIcon
-                                  phase="sunset"
-                                  className="w-3 h-3 text-[#F3D37A]"
-                                />
-                                Sunset
-                              </span>
-                              <span className="text-slate-600">·</span>
-                              <span className="inline-flex items-center gap-1">
-                                <SolarPhaseIcon
-                                  phase="night"
-                                  className="w-3 h-3 text-[#F3D37A]"
-                                />
-                                Night Lamps
-                              </span>
-                            </div>
-                          </div>
-                          <div
-                            className="flex items-center -space-x-1.5 shrink-0 justify-center"
-                            title="6 Interactive Designer Finish Palettes"
-                          >
-                            {DESIGNER_PALETTES.map((pal) => (
-                              <span
-                                key={pal.id}
-                                className="w-4 h-4 rounded-full border border-white/70 shadow-sm"
-                                style={{ background: pal.swatches[0] }}
-                              />
-                            ))}
-                          </div>
-                        </div>
                       </div>
                     </div>
 
-                    {/* Action Footer — Bespoke Burnished Champagne-Gold Capsule Button */}
-                    <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
                       <TaycoCardFooterBar
                         leftMeta={
-                          <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap truncate">
-                            5 Rooms · 24h Solar
+                          <span className="text-xs text-slate-400 whitespace-nowrap truncate">
+                            5 Photos
                           </span>
                         }
                       >
@@ -2644,10 +1831,10 @@ export function PropertyCategoryPageView({
                           data-magnetic
                           data-walkthrough-trigger={prop.code}
                           onClick={() => openModal(prop, 0, 12.5, undefined)}
-                          className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 !text-[11px] whitespace-nowrap shrink-0 group/btn"
+                          className="tayco-atelier-btn-gold !min-h-[38px] !px-3.5 !py-1.5 !text-[11px] whitespace-nowrap shrink-0 group/btn"
                         >
                           <StudioActionIcon kind="sparkle" className="w-3.5 h-3.5 shrink-0" />
-                          <span>Open 5-Room Studio</span>
+                          <span>View Gallery</span>
                           <StudioActionIcon
                             kind="arrow-right"
                             className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-0.5"
@@ -2670,57 +1857,36 @@ export function PropertyCategoryPageView({
                 </button>
               </div>
             )}
-            <div className="mt-8">
-              <VisualAssetIntegrityHud
-                scopeLabel={
-                  activeCategory
-                    ? activeCategory.label.toUpperCase()
-                    : "ALL 4 MARKETS PORTFOLIO"
-                }
-              />
+            <div className="mt-4">
+              <VisualAssetIntegrityHud scopeLabel="PORTFOLIO" />
             </div>
           </section>
         </>
       )}
 
-      {/* ── DIVISION CONTENT (residential / commercial services, restoration, trade catalog, service area) ── */}
+      {/* ── DIVISION CONTENT ── */}
       {children}
 
-      {/* ── OTHER CATEGORIES EXPLORER AT BOTTOM OF PAGE ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-20">
+      {/* ── CATEGORY SWITCHER AT BOTTOM OF PAGE ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-16">
         <div
-          className="p-6 sm:p-8 rounded-2xl border text-center"
+          className="p-6 rounded-2xl border text-center"
           style={{
             background: "rgba(15, 32, 64, 0.65)",
             borderColor: "rgba(201, 168, 76, 0.35)",
           }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="text-center sm:text-left">
-              <div className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
-                EXPLORE ALL 4 PROPERTY CATEGORIES
-              </div>
-              <h2 className="tayco-card-title text-2xl text-white mt-1">
-                Switch to Another Property Category
-              </h2>
-            </div>
-            <Link
-              href="/"
-              data-magnetic
-              className="tayco-atelier-btn-obsidian inline-flex items-center gap-1.5 self-center"
-            >
-              <span>← Return to Main Landing Page</span>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {PROPERTY_CATEGORIES.map((cat) => {
               const isCurrent = activeCategory?.slug === cat.slug;
               return (
-                <article
+                <Link
                   key={cat.slug}
+                  href={`/${cat.slug}`}
                   data-response-kind="surface"
-                  className="relative p-5 rounded-xl border flex flex-col justify-between overflow-hidden text-center items-center"
+                  data-magnetic
+                  aria-current={isCurrent ? "page" : undefined}
+                  className="relative p-4 rounded-xl border flex flex-col items-center justify-center overflow-hidden text-center transition-all hover:border-[#F3D37A]"
                   style={{
                     background: isCurrent
                       ? "rgba(201, 168, 76, 0.18)"
@@ -2730,28 +1896,10 @@ export function PropertyCategoryPageView({
                       : "rgba(201, 168, 76, 0.3)",
                   }}
                 >
-                  <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
-                  <div className="w-full flex flex-col items-center">
-                    <div className="text-[10px] font-mono font-bold text-[#C9A84C]">
-                      CATEGORY {cat.order}
-                    </div>
-                    <div className="text-base font-black text-white mt-1">
-                      {cat.label}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      {cat.typicalConfigLabel}
-                    </div>
-                  </div>
-                  <Link
-                    href={`/${cat.slug}`}
-                    data-magnetic
-                    className="mt-4 w-full"
-                  >
-                    <span className="tayco-atelier-pill w-full block text-center" data-active={isCurrent ? "true" : "false"}>
-                      {isCurrent ? "● Currently Viewing" : `${cat.ctaLabel} →`}
-                    </span>
-                  </Link>
-                </article>
+                  <span className="text-base font-bold text-white">
+                    {cat.shortLabel}
+                  </span>
+                </Link>
               );
             })}
           </div>

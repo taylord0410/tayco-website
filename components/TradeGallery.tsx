@@ -6,10 +6,10 @@ import Image from "@/components/ProtectedImage";
 import { TaycoModalOverlay, TaycoPillDock } from "@/components/ui/TaycoDesignSystem";
 
 const SECTORS = [
-  { key: "residential", label: "Residential", badge: "Single-Family & Cabin" },
-  { key: "multifamily", label: "Multifamily", badge: "Multi-Unit & Hospitality" },
-  { key: "townhomes", label: "Townhomes", badge: "Attached Rows & Party Walls" },
-  { key: "commercial", label: "Commercial", badge: "Ground-Up & Tenant TI" },
+  { key: "residential", label: "Single-Family", href: "/single-family", badge: "Single-Family" },
+  { key: "multifamily", label: "Multifamily", href: "/multifamily", badge: "Multifamily" },
+  { key: "townhomes", label: "Townhomes", href: "/townhomes", badge: "Townhomes" },
+  { key: "commercial", label: "Commercial", href: "/commercial", badge: "Commercial" },
 ] as const;
 
 type SectorKey = (typeof SECTORS)[number]["key"];
@@ -18,58 +18,58 @@ const TRADES = [
   {
     slug: "framing",
     name: "Framing",
-    csi: "CSI 06 11 00",
-    rate: "Project-specific estimate",
-    spec: "Wall, floor and roof framing for your project",
+    csi: "Framing",
+    rate: "Estimate by project",
+    spec: "Wall, floor and roof framing",
   },
   {
     slug: "carpentry",
     name: "Carpentry",
-    csi: "CSI 06 41 00",
-    rate: "Project-specific estimate",
-    spec: "Cabinetry, trim, millwork and finishing details",
+    csi: "Carpentry",
+    rate: "Estimate by project",
+    spec: "Cabinetry, trim and millwork",
   },
   {
     slug: "roofing",
     name: "Roofing",
-    csi: "CSI 07 50 00",
-    rate: "Project-specific estimate",
-    spec: "Roof repairs, replacements and material options",
+    csi: "Roofing",
+    rate: "Estimate by project",
+    spec: "Roofing systems and flashing",
   },
   {
     slug: "siding",
     name: "Siding",
-    csi: "CSI 07 46 00",
-    rate: "Project-specific estimate",
-    spec: "Siding, exterior trim and weather protection",
+    csi: "Siding",
+    rate: "Estimate by project",
+    spec: "Siding and exterior trim",
   },
   {
     slug: "drywall",
     name: "Drywall",
-    csi: "CSI 09 29 00",
-    rate: "Project-specific estimate",
-    spec: "Walls, ceilings, smooth finishes and repairs",
+    csi: "Drywall",
+    rate: "Estimate by project",
+    spec: "Walls, ceilings and finishes",
   },
   {
     slug: "painting",
     name: "Painting",
-    csi: "CSI 09 91 00",
-    rate: "Project-specific estimate",
-    spec: "Interior and exterior preparation and coatings",
+    csi: "Painting",
+    rate: "Estimate by project",
+    spec: "Interior and exterior coatings",
   },
   {
     slug: "flooring",
     name: "Flooring",
-    csi: "CSI 09 60 00",
-    rate: "Project-specific estimate",
-    spec: "Wood, tile, vinyl, concrete and specialty finishes",
+    csi: "Flooring",
+    rate: "Estimate by project",
+    spec: "Wood, tile, vinyl and concrete",
   },
   {
     slug: "stone",
     name: "Stone",
-    csi: "CSI 04 43 00",
-    rate: "Project-specific estimate",
-    spec: "Stone finishes, masonry and surface details",
+    csi: "Masonry",
+    rate: "Estimate by project",
+    spec: "Stone veneer and masonry",
   },
 ];
 
@@ -77,29 +77,29 @@ const photo = (trade: string, sector: SectorKey) =>
   `/work/${trade}_${sector}.jpg`;
 
 const FLOOR_TYPES = [
-  { slug: "hardwood", name: "Hardwood", csi: "CSI 09 64 00" },
+  { slug: "hardwood", name: "Hardwood", csi: "Hardwood" },
   {
     slug: "engineered-hardwood",
     name: "Engineered Hardwood",
-    csi: "CSI 09 64 29",
+    csi: "Engineered Hardwood",
   },
-  { slug: "lvp", name: "Luxury Vinyl Plank", csi: "CSI 09 65 19" },
-  { slug: "lvt", name: "Luxury Vinyl Tile", csi: "CSI 09 65 19" },
-  { slug: "laminate", name: "Laminate", csi: "CSI 09 62 00" },
-  { slug: "ceramic-tile", name: "Ceramic Tile", csi: "CSI 09 30 13" },
-  { slug: "porcelain-tile", name: "Porcelain Tile", csi: "CSI 09 30 13" },
-  { slug: "natural-stone", name: "Natural Stone", csi: "CSI 09 63 40" },
-  { slug: "carpet", name: "Carpet", csi: "CSI 09 68 00" },
-  { slug: "sheet-vinyl", name: "Sheet Vinyl", csi: "CSI 09 65 16" },
-  { slug: "epoxy", name: "Epoxy", csi: "CSI 09 67 23" },
+  { slug: "lvp", name: "Luxury Vinyl Plank", csi: "LVP" },
+  { slug: "lvt", name: "Luxury Vinyl Tile", csi: "LVT" },
+  { slug: "laminate", name: "Laminate", csi: "Laminate" },
+  { slug: "ceramic-tile", name: "Ceramic Tile", csi: "Ceramic Tile" },
+  { slug: "porcelain-tile", name: "Porcelain Tile", csi: "Porcelain Tile" },
+  { slug: "natural-stone", name: "Natural Stone", csi: "Natural Stone" },
+  { slug: "carpet", name: "Carpet", csi: "Carpet" },
+  { slug: "sheet-vinyl", name: "Sheet Vinyl", csi: "Sheet Vinyl" },
+  { slug: "epoxy", name: "Epoxy", csi: "Epoxy" },
   {
     slug: "polished-concrete",
     name: "Polished Concrete",
-    csi: "CSI 03 35 43",
+    csi: "Polished Concrete",
   },
-  { slug: "rubber", name: "Rubber", csi: "CSI 09 65 00" },
-  { slug: "bamboo", name: "Bamboo", csi: "CSI 09 64 00" },
-  { slug: "cork", name: "Cork", csi: "CSI 09 65 00" },
+  { slug: "rubber", name: "Rubber", csi: "Rubber" },
+  { slug: "bamboo", name: "Bamboo", csi: "Bamboo" },
+  { slug: "cork", name: "Cork", csi: "Cork" },
 ];
 
 interface GalleryZoomItem {
@@ -150,10 +150,10 @@ export default function TradeGallery() {
     () =>
       SECTORS.map((s) => ({
         src: photo(trade.slug, s.key),
-        alt: `${trade.name} (${trade.csi}) — ${s.label}`,
-        csi: trade.csi,
+        alt: trade.name,
+        csi: trade.name,
       })),
-    [trade.slug, trade.name, trade.csi]
+    [trade.slug, trade.name]
   );
 
   const flooringPhotos = React.useMemo<GalleryZoomItem[]>(
@@ -161,93 +161,38 @@ export default function TradeGallery() {
       FLOOR_TYPES.flatMap((f) =>
         [1, 2].map((n) => ({
           src: `/work/flooring/${f.slug}_${n}.jpg`,
-          alt: `${f.name} (${f.csi}) flooring ${n}`,
-          csi: f.csi,
+          alt: `${f.name} ${n}`,
+          csi: f.name,
         }))
       ),
     []
   );
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <p
-          className="text-xs font-mono uppercase tracking-[0.22em] inline-flex items-center gap-2"
-          style={{ color: "#F3D37A" }}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#C9A84C"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <polygon points="12 2 2 7 12 12 22 7 12 2" />
-            <polyline points="2 17 12 22 22 17" />
-            <polyline points="2 12 12 17 22 12" />
-          </svg>
-          <span>Types of work we perform · Trade &amp; material execution catalog</span>
-        </p>
-      </div>
-
-      {/* Interactive CSI Trade Selection Pills */}
+    <div className="space-y-6">
+      {/* Interactive Trade Selection Pills */}
       <div className="flex justify-center">
-      <TaycoPillDock ariaLabel="Choose a trade">
-        {TRADES.map((t) => {
-          const on = t.slug === active;
-          return (
-            <button
-              key={t.slug}
-              type="button"
-              aria-pressed={on}
-              data-active={on ? "true" : "false"}
-              data-magnetic
-              onClick={() => setActive(t.slug)}
-              className="tayco-atelier-pill flex-row gap-2 min-h-11 py-2 px-3.5 sm:px-4 text-xs font-sans font-bold"
-            >
-              <span>{t.name}</span>
-            </button>
-          );
-        })}
-      </TaycoPillDock>
+        <TaycoPillDock ariaLabel="Choose a trade">
+          {TRADES.map((t) => {
+            const on = t.slug === active;
+            return (
+              <button
+                key={t.slug}
+                type="button"
+                aria-pressed={on}
+                data-active={on ? "true" : "false"}
+                data-magnetic
+                onClick={() => setActive(t.slug)}
+                className="tayco-atelier-pill flex-row gap-2 min-h-11 py-2 px-3.5 sm:px-4 text-xs font-sans font-bold"
+              >
+                <span>{t.name}</span>
+              </button>
+            );
+          })}
+        </TaycoPillDock>
       </div>
 
-      {/* Active CSI Division Specification Banner */}
-      <div
-        data-response-kind="surface"
-        className="tayco-living-card p-5 sm:p-6 rounded-2xl border flex flex-col lg:flex-row items-center justify-between text-center lg:text-left gap-4 shadow-2xl"
-        style={{
-          background:
-            "linear-gradient(135deg, #081120 0%, #102039 100%)",
-          borderColor: "rgba(201, 168, 76, 0.48)",
-        }}
-      >
-        <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-          <div className="tayco-atelier-eyebrow mb-1.5" style={{ color: "#F3D37A" }}>
-            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-            {trade.csi} · {trade.name.toUpperCase()} ASSEMBLY · {trade.rate}
-          </div>
-          <p className="text-xs sm:text-sm font-sans font-medium" style={{ color: "#F4F2EA" }}>
-            {trade.spec}. Explore single-family, multifamily, townhome and commercial applications.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-2.5 shrink-0">
-          <Link
-            href={`/estimate?trade=${encodeURIComponent(trade.csi)}`}
-            data-magnetic
-            className="tayco-atelier-btn-gold text-xs font-bold"
-          >
-            Discuss {trade.name.toLowerCase()} →
-          </Link>
-        </div>
-      </div>
-
-      {/* One photo card per division (4) for the active trade */}
+      {/* 4-Photo Simultaneous Gallery Grid for the Active Specialty */}
       <div
         className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
         role="region"
@@ -255,83 +200,22 @@ export default function TradeGallery() {
       >
         {SECTORS.map((s, idx) => {
           const src = photo(trade.slug, s.key);
-          const alt = `${trade.name} (${trade.csi}) — ${s.label}`;
-          const sectorIndex = `0${idx + 1} /`;
+          const alt = trade.name;
           return (
             <figure
               key={s.key}
               data-response-kind="surface"
-              className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between group shadow-xl max-md:w-[84vw] max-md:shrink-0 max-md:snap-center"
+              className="tayco-living-card relative m-0 rounded-2xl overflow-hidden border p-3.5 sm:p-4 flex flex-col justify-between group shadow-xl max-md:w-[84vw] max-md:shrink-0 max-md:snap-center"
               style={{
                 background:
                   "linear-gradient(155deg, #102039 0%, #081120 100%)",
                 borderColor: "rgba(201, 168, 76, 0.38)",
               }}
             >
-              <div className="flex flex-col gap-1.5 mb-3 px-1">
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] font-bold whitespace-nowrap" style={{ color: "#C9A84C" }}>
-                      {sectorIndex}
-                    </span>
-                    <span
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold whitespace-nowrap"
-                      style={{
-                        background: "rgba(201, 168, 76, 0.14)",
-                        borderColor: "rgba(201, 168, 76, 0.38)",
-                        color: "#F3D37A",
-                      }}
-                    >
-                      {trade.csi}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {/* Repeats the card title; dropped in the 4-column row where the header is tight. */}
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300 xl:hidden">
-                      {s.label}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => openZoom(sectorPhotos, idx)}
-                      aria-label={`Zoom ${alt}`}
-                      className="project-open cursor-pointer w-11 h-11 rounded-full border flex items-center justify-center transition-all hover:scale-105"
-                      style={{
-                        background: "rgba(7, 14, 26, 0.72)",
-                        borderColor: "rgba(201, 168, 76, 0.42)",
-                      }}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#F3D37A"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <polyline points="15 3 21 3 21 9" />
-                        <polyline points="9 21 3 21 3 15" />
-                        <line x1="21" y1="3" x2="14" y2="10" />
-                        <line x1="3" y1="21" x2="10" y2="14" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex flex-col items-start text-left mt-1">
-                  <figcaption className="tayco-card-title text-xl sm:text-2xl text-white tracking-tight">
-                    {s.label}
-                  </figcaption>
-                  <div className="text-[11px] font-sans font-medium text-slate-300">
-                    {s.badge}
-                  </div>
-                </div>
-              </div>
-
               <button
                 type="button"
                 onClick={() => openZoom(sectorPhotos, idx)}
+                aria-label={`View ${alt} photograph`}
                 className="relative block w-full rounded-xl overflow-hidden aspect-[3/2] border cursor-pointer"
                 style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
               >
@@ -343,43 +227,25 @@ export default function TradeGallery() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <span
-                  className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold backdrop-blur-md border inline-flex items-center gap-1.5"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.86)",
-                    borderColor: "rgba(201, 168, 76, 0.55)",
-                    color: "#F3D37A",
-                  }}
-                >
-                  <span>Open photo</span>
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#F3D37A"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <line x1="7" y1="17" x2="17" y2="7" />
-                    <polyline points="7 7 17 7 17 17" />
-                  </svg>
-                </span>
               </button>
 
               <div
-                className="flex items-center justify-between gap-2 mt-3.5 pt-2.5 border-t text-xs font-sans"
+                className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t text-xs font-sans"
                 style={{ borderColor: "rgba(201, 168, 76, 0.2)" }}
               >
                 <Link
-                  href={`/estimate?sector=${s.key}&trade=${encodeURIComponent(trade.csi)}`}
-                  className="font-bold hover:underline"
-                  style={{ color: "#F3D37A" }}
+                  href={s.href}
+                  className="font-bold text-white hover:text-[#F3D37A] transition-colors"
                 >
-                  Discuss this service →
+                  {s.label}
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => openZoom(sectorPhotos, idx)}
+                  className="font-mono text-[11px] font-bold text-[#F3D37A] hover:underline cursor-pointer"
+                >
+                  Expand ↗
+                </button>
               </div>
               <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
             </figure>
@@ -387,22 +253,15 @@ export default function TradeGallery() {
         })}
       </div>
 
-      {/* CSI 09 60 00 Flooring Material Matrix */}
+      {/* Flooring Material Gallery */}
       {trade.slug === "flooring" && (
         <div
-          className="mt-12 pt-8 border-t"
+          className="mt-10 pt-8 border-t"
           style={{ borderColor: "rgba(201, 168, 76, 0.25)" }}
         >
-          <div className="text-center mb-8">
-            <div
-              className="tayco-atelier-eyebrow justify-center mb-1.5"
-              style={{ color: "#F3D37A" }}
-            >
-              <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-              CSI 09 60 00 / 03 35 43 FLOORING MATERIAL MATRIX
-            </div>
+          <div className="text-center mb-6">
             <h3 className="tayco-card-title text-xl sm:text-2xl font-bold text-center" style={{ color: "#F4F2EA" }}>
-              Explore 15 flooring options
+              Flooring Materials
             </h3>
           </div>
 
@@ -425,21 +284,11 @@ export default function TradeGallery() {
                   >
                     {f.name}
                   </figcaption>
-                  <span
-                    className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold shrink-0"
-                    style={{
-                      background: "rgba(201, 168, 76, 0.14)",
-                      borderColor: "rgba(201, 168, 76, 0.38)",
-                      color: "#F3D37A",
-                    }}
-                  >
-                    {f.csi}
-                  </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {[1, 2].map((n) => {
                     const src = `/work/flooring/${f.slug}_${n}.jpg`;
-                    const alt = `${f.name} (${f.csi}) flooring ${n}`;
+                    const alt = `${f.name} ${n}`;
                     const fPhotoIdx = fIdx * 2 + (n - 1);
                     return (
                       <button

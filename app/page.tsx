@@ -698,15 +698,20 @@ export default function Home() {
           <div className="home-editorial-grid">
             {filteredCards.map((card) => {
               const frames = card.frames.map((frame) => ({
-                src: frame.src, title: frame.caption, eyebrow: frame.csi,
+                src: frame.src,
+                title: frame.caption,
+                eyebrow: card.subtitle,
               }));
               return (
                 <HomeEditorialCard key={card.id}
                   number={card.eyebrow.slice(0, 2)}
-                  eyebrow={card.eyebrow.replace(" / ", " · ")}
-                  title={`${card.title} ${card.serifEm}`}
+                  eyebrow={card.subtitle}
+                  title={card.subtitle}
                   description={card.summary}
-                  image={frames[0]} actionLabel={card.cta} href={card.href}
+                  image={frames[0]}
+                  frames={frames}
+                  actionLabel={card.cta}
+                  href={card.href}
                   onOpen={() => setGallery({ title: card.subtitle, frames, index: 0 })}
                 />
               );
@@ -1027,14 +1032,6 @@ export default function Home() {
                     <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed max-w-2xl">
                       {currentStudy.note}
                     </p>
-                    <details className="home-reading-details mt-4">
-                      <summary>Material specifications <span aria-hidden="true">＋</span></summary>
-                      <dl className="grid gap-3 text-sm text-slate-300">
-                        <div><dt className="home-editorial-eyebrow">Division</dt><dd>{currentStudy.csi}</dd></div>
-                        <div><dt className="home-editorial-eyebrow">Finish</dt><dd>{currentStudy.sheenProfile}</dd></div>
-                        <div><dt className="home-editorial-eyebrow">Surface relief</dt><dd>{currentStudy.grainDepth}</dd></div>
-                      </dl>
-                    </details>
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-white/10">
                     <ImageReferenceButton compact src={currentStudy.image} />
@@ -1043,7 +1040,7 @@ export default function Home() {
                       data-magnetic
                       className="tayco-atelier-btn-gold !min-h-[42px] !px-5 !py-2 shrink-0 text-center whitespace-nowrap"
                     >
-                      Discuss your finishes →
+                      Request Estimate →
                     </Link>
                   </div>
                 </div>
@@ -1057,19 +1054,9 @@ export default function Home() {
           </div>
 
           <div id="types-of-work" className="mt-10 pt-12 border-t border-white/10">
-            <div className="text-center mb-10">
-              <div
-                className="tayco-eyebrow justify-center mb-2"
-                style={{ color: "#F3D37A" }}
-              >
-                <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-                SERVICE CATALOG · TRADE &amp; MATERIAL EXECUTION
-              </div>
+            <div className="text-center mb-8">
               <h2 className="text-2xl sm:text-3xl font-black text-white">
-                Types of work we perform{" "}
-                <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-                  by Trade.
-                </em>
+                Trade Gallery
               </h2>
             </div>
             <TradeGallery />
@@ -1090,9 +1077,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center text-center mb-10 gap-6">
             <TaycoSectionHeader
-              eyebrow="03 / From first conversation to finished space"
-              title={<>Good projects begin with <em className="tayco-serif-em text-[#F3D37A]">a shared plan.</em></>}
-              subtitle="Follow five phases from site survey and structural framing to finishes and final handover."
+              eyebrow="Construction Process"
+              title={<>From survey to <em className="tayco-serif-em text-[#F3D37A]">final handover.</em></>}
             />
 
             <div className="flex flex-wrap items-center justify-center gap-3">
@@ -1101,7 +1087,7 @@ export default function Home() {
                 data-magnetic
                 className="tayco-atelier-btn-gold text-center"
               >
-                Start a project conversation →
+                Request Estimate →
               </Link>
             </div>
           </div>
@@ -1111,25 +1097,25 @@ export default function Home() {
               <HomeEditorialCard key={phase.code} number={phase.code}
                 eyebrow={phase.sqft.replace("Phase ", "")}
                 title={phase.name} description={phase.division}
-                image={{ src: phase.image, title: phase.name, eyebrow: phase.csiTag }}
-                actionLabel="Explore this phase"
+                image={{ src: phase.image, title: phase.name, eyebrow: phase.phase }}
+                actionLabel="View Gallery"
                 onOpen={() => setGallery({
-                  title: "From survey to handover", index: idx,
+                  title: "Construction Process", index: idx,
                   frames: PROJECT_STEPS.map((step) => ({
-                    src: step.image, title: step.name, eyebrow: step.sqft,
+                    src: step.image, title: step.name, eyebrow: step.phase,
                     description: step.division, details: step.deliverables,
                   })),
                 })}
               />
             ))}
-            <HomeEditorialCard number="06" eyebrow="Serving eight states"
-              title="Your next project. Within reach."
-              description="We serve WI, IL, IA, IN, MN, MI, MO and TX. Tell us your location, scope and priorities."
-              image={{ src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg", title: "Executive lounge and terrace", eyebrow: COMPANY.coverage }}
-              actionLabel="Request an estimate" href="/estimate"
-              onOpen={() => setGallery({ title: "Spaces we help create", index: 0, frames: [{
+            <HomeEditorialCard number="06" eyebrow="Service Area"
+              title="Eight-State Regional Coverage"
+              description="We serve WI, IL, IA, IN, MN, MI, MO and TX."
+              image={{ src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg", title: "Executive Lounge & Terrace", eyebrow: COMPANY.coverage }}
+              actionLabel="Request Estimate" href="/estimate"
+              onOpen={() => setGallery({ title: "Regional Coverage", index: 0, frames: [{
                 src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-                title: "Executive lounge and terrace", eyebrow: COMPANY.coverage,
+                title: "Executive Lounge & Terrace", eyebrow: COMPANY.coverage,
               }] })}
             />
           </div>

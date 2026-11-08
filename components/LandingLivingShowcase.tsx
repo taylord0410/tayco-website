@@ -60,7 +60,7 @@ export const COMMERCIAL_HERO_SCENES: HeroSceneItem[] = [
   {
     id: "com-framing",
     chip: "Cold-Formed Steel Framing",
-    title: "Multi-Level Commercial Steel Stud & Atrium Framing",
+    title: "Multi-Level Architectural Steel Stud & Atrium Framing",
     csiCode: "CSI DIV 05 40 00 · COLD-FORMED METAL FRAMING",
     specTag: "Core & Shell Structural Execution",
     image: "/curated/hero/com-framing-atrium.jpg",
@@ -174,206 +174,194 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
   {
     id: "div01_01",
     division: "div01",
-    divisionLabel: "Div 01 · Structural & Millwork",
+    divisionLabel: "Structural & Millwork",
     siteDivision: "single-family",
     code: "TR-01",
-    title: "Ground-Up Two-Story Wood Framing & Roof Trusses",
-    subtitle: "Bare concrete foundation slab to complete structural shell",
-    csiSpec: "CSI 06 10 00 · ROUGH CARPENTRY & TRUSSES",
+    title: "Two-Story Wood Framing & Roof Trusses",
+    subtitle: "Foundation slab to complete structural shell",
+    csiSpec: "Framing",
     beforeImg: "/curated/pairs/div01_01_antes.jpg",
     afterImg: "/curated/pairs/div01_01_despues.jpg",
-    beforeTag: "01 / Bare Poured Foundation Slab",
-    afterTag: "02 / Framed 2-Story Structure & Trusses",
-    summary:
-      "Complete structural framing package from anchor-bolted sill plates on bare concrete to two-story wall sheathing, window rough openings and engineered roof trusses.",
-    highlights: ["Engineered roof truss package", "OSB structural shear sheathing", "Plumb & level multi-story framing"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Structural framing from foundation sill plates to wall sheathing and roof trusses.",
+    highlights: ["Engineered roof trusses", "Structural wall sheathing", "Multi-story wood framing"],
   },
   {
     id: "div04_03",
     division: "div04",
-    divisionLabel: "Div 04 · Roofing Systems",
+    divisionLabel: "Roofing",
     siteDivision: "commercial",
     code: "TR-02",
-    title: "Commercial Flat Roof Heat-Welded TPO Retrofit",
-    subtitle: "Ponding aged membrane to high-reflectivity white TPO system",
-    csiSpec: "CSI 07 54 23 · THERMOPLASTIC POLYOLEFIN (TPO)",
+    title: "Flat Roof Heat-Welded TPO System",
+    subtitle: "Aged membrane to high-reflectivity white TPO",
+    csiSpec: "Roofing",
     beforeImg: "/curated/pairs/div04_03_antes.jpg",
     afterImg: "/curated/pairs/div04_03_despues.jpg",
-    beforeTag: "01 / Aged Ponding Black Roof",
-    afterTag: "02 / Heat-Welded White TPO Membrane",
-    summary:
-      "Full commercial low-slope roof recovery featuring tapered insulation drainage correction, parapet termination bars, HVAC curb flashings and robotic hot-air welded TPO seams.",
-    highlights: ["Tapered polyiso drainage slope", "Robotic heat-welded seams", "Parapet & RTU curb flashing"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Low-slope roof recovery with tapered insulation, parapet terminations, and heat-welded TPO seams.",
+    highlights: ["Tapered drainage slope", "Heat-welded TPO membrane", "Parapet & curb flashing"],
   },
   {
     id: "div03_02",
     division: "div03",
-    divisionLabel: "Div 03 · Interior & Commercial",
+    divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "single-family",
     code: "TR-03",
-    title: "Full-Gut Kitchen Modernization & Quartz Island",
-    subtitle: "Dated 1990s oak layout to custom white shaker & quartz centerpiece",
-    csiSpec: "CSI 06 41 00 / 12 36 00 · CABINETRY & COUNTERTOPS",
+    title: "Kitchen Remodel & Quartz Island",
+    subtitle: "Custom white shaker cabinetry and quartz surfaces",
+    csiSpec: "Remodeling",
     beforeImg: "/curated/pairs/div03_02_antes.jpg",
     afterImg: "/curated/pairs/tr03-after-white-shaker-kitchen.jpg",
-    beforeTag: "01 / Dated 1990s Oak Kitchen",
-    afterTag: "02 / Custom Shaker, Quartz & Pendants",
-    summary:
-      "Complete interior gut and layout transformation featuring custom full-overlay shaker cabinetry, waterfall-edge quartz surfaces, architectural pendant lighting and wide-plank hardwood.",
-    highlights: ["Custom shaker cabinetry & island", "Veined quartz countertops", "Upgraded MEP & task lighting"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Interior layout transformation with custom shaker cabinetry, quartz countertops, and hardwood flooring.",
+    highlights: ["Custom shaker cabinetry", "Veined quartz island", "Hardwood flooring & lighting"],
   },
   {
     id: "div02_02",
     division: "div02",
-    divisionLabel: "Div 02 · Exterior & Masonry",
+    divisionLabel: "Exterior & Masonry",
     siteDivision: "single-family",
     code: "TR-04",
-    title: "Board-and-Batten Farmhouse Exterior Envelope",
-    subtitle: "Weathered wood siding to crisp white vertical cladding & black trim",
-    csiSpec: "CSI 07 46 00 · SIDING & EXTERIOR TRIM",
+    title: "Board-and-Batten Siding & Exterior Trim",
+    subtitle: "Vertical cladding and matte-black window trim",
+    csiSpec: "Siding",
     beforeImg: "/curated/pairs/div02_02_antes.jpg",
     afterImg: "/curated/pairs/div02_02_despues.jpg",
-    beforeTag: "01 / Weathered Dark Wood Cladding",
-    afterTag: "02 / Crisp Board-and-Batten Envelope",
-    summary:
-      "Full exterior envelope overhaul with continuous weather-resistive barrier, vertical board-and-batten siding, matte-black architectural window casings and rebuilt porch columns.",
-    highlights: ["Weather-resistive housewrap plane", "Board-and-batten vertical profile", "Custom black window & fascia trim"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Exterior envelope upgrade with weather barrier, vertical board-and-batten siding, and custom window casings.",
+    highlights: ["Weather-resistive barrier", "Board-and-batten siding", "Custom window & fascia trim"],
   },
   {
     id: "div04_02",
     division: "div04",
-    divisionLabel: "Div 04 · Roofing Systems",
+    divisionLabel: "Roofing",
     siteDivision: "single-family",
     code: "TR-05",
-    title: "Standing-Seam Architectural Metal Roof Upgrade",
-    subtitle: "Moss-damaged shingle roof to matte-black standing-seam metal",
-    csiSpec: "CSI 07 41 13 · STANDING-SEAM METAL ROOFING",
+    title: "Standing-Seam Metal Roof",
+    subtitle: "Matte-black architectural metal roof system",
+    csiSpec: "Roofing",
     beforeImg: "/curated/pairs/div04_02_antes.jpg",
     afterImg: "/curated/pairs/div04_02_despues.jpg",
-    beforeTag: "01 / Moss-Damaged Shingle Roof",
-    afterTag: "02 / Matte-Black Standing-Seam Metal",
-    summary:
-      "High-durability architectural metal roof installation with concealed fastener clips, high-temp ice and water shield underlayment, and custom-fabricated ridge and valley flashings.",
-    highlights: ["Concealed-fastener standing seams", "High-temp synthetic underlayment", "Precision ridge & valley metalwork"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Architectural standing-seam metal roof with concealed clips, synthetic underlayment, and custom ridge flashing.",
+    highlights: ["Concealed-fastener seams", "Synthetic ice & water shield", "Custom ridge & valley flashing"],
   },
   {
     id: "div01_03",
     division: "div01",
-    divisionLabel: "Div 01 · Structural & Millwork",
+    divisionLabel: "Structural & Millwork",
     siteDivision: "single-family",
     code: "TR-06",
-    title: "Custom Built-In Millwork, Coffered Ceiling & Stone Hearth",
-    subtitle: "Blank builder-grade wall to architectural living room centerpiece",
-    csiSpec: "CSI 06 20 00 / 04 43 00 · MILLWORK & STONE",
+    title: "Built-In Millwork, Coffered Ceiling & Stone Hearth",
+    subtitle: "Custom cabinetry, ceiling beams, and stone fireplace",
+    csiSpec: "Carpentry",
     beforeImg: "/curated/pairs/div01_03_antes.jpg",
     afterImg: "/curated/pairs/tr06-after-built-in-fireplace.jpg",
-    beforeTag: "01 / Bare Drywall Living Room",
-    afterTag: "02 / Custom Bookcases, Coffered Beams & Hearth",
-    summary:
-      "Bespoke finish carpentry combining floor-to-ceiling built-in cabinetry, a full-height stacked-stone fireplace surround with solid timber mantel, and a recessed coffered ceiling grid.",
-    highlights: ["Floor-to-ceiling custom bookcases", "Stacked-stone fireplace & timber mantel", "Coffered ceiling beam grid"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Finish carpentry combining built-in bookcases, stacked-stone hearth with timber mantel, and coffered ceiling grid.",
+    highlights: ["Floor-to-ceiling bookcases", "Stacked-stone fireplace", "Coffered ceiling beams"],
   },
   {
     id: "div03_01",
     division: "div03",
-    divisionLabel: "Div 03 · Interior & Commercial",
+    divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "commercial",
     code: "TR-07",
-    title: "Commercial Steel-Stud Framing to Level-4 Drywall Finish",
-    subtitle: "Open metal stud bays to taped, mudded and primed commercial suite",
-    csiSpec: "CSI 09 29 00 · GYPSUM BOARD & INTERIOR PARTITIONS",
+    title: "Steel-Stud Framing to Smooth Drywall",
+    subtitle: "Metal stud partitions to taped and primed drywall",
+    csiSpec: "Drywall",
     beforeImg: "/curated/pairs/div03_01_antes.jpg",
     afterImg: "/curated/pairs/div03_01_despues.jpg",
-    beforeTag: "01 / Raw Commercial Metal Studs",
-    afterTag: "02 / Taped, Skimmed & Primed Partitions",
-    summary:
-      "Commercial tenant interior progression from cold-formed steel stud layout and rough-in inspection to acoustic insulation, fire-rated Type X gypsum board and smooth Level-4 finish.",
-    highlights: ["Fire-rated Type X gypsum assemblies", "Laser-aligned door & glazing rough-ins", "Clean Level-4 joint compound finish"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Interior progression from cold-formed steel stud layout to acoustic insulation and smooth gypsum board finish.",
+    highlights: ["Fire-rated gypsum assemblies", "Laser-aligned rough openings", "Smooth joint finish"],
   },
   {
     id: "div02_03",
     division: "div02",
-    divisionLabel: "Div 02 · Exterior & Masonry",
+    divisionLabel: "Exterior & Masonry",
     siteDivision: "single-family",
     code: "TR-08",
-    title: "Stacked-Stone Masonry Veneer & Column Pedestals",
-    subtitle: "Exposed concrete foundation to natural ledger-stone facade",
-    csiSpec: "CSI 04 73 00 · MANUFACTURED & NATURAL STONE VENEER",
+    title: "Stacked-Stone Veneer & Column Pedestals",
+    subtitle: "Natural ledger-stone facade and cast-stone sills",
+    csiSpec: "Masonry",
     beforeImg: "/curated/pairs/div02_03_antes.jpg",
     afterImg: "/curated/pairs/div02_03_despues.jpg",
-    beforeTag: "01 / Bare Concrete Foundation Wall",
-    afterTag: "02 / Stacked-Stone Wainscoting & Columns",
-    summary:
-      "Exterior masonry upgrade featuring metal lath, polymer-modified scratch coat, dry-stacked stone veneer wainscoting, cast-stone water table sills and tapered porch column wraps.",
-    highlights: ["Chiseled cast-stone water table", "Dry-stack stone veneer coursing", "Wrapped craftsman porch columns"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Masonry upgrade with dry-stacked stone veneer wainscoting, cast-stone sills, and tapered column bases.",
+    highlights: ["Cast-stone water table", "Dry-stack stone veneer", "Craftsman column bases"],
   },
   {
     id: "div01_02",
     division: "div01",
-    divisionLabel: "Div 01 · Structural & Millwork",
+    divisionLabel: "Structural & Millwork",
     siteDivision: "single-family",
     code: "TR-09",
-    title: "Structural Timber Deck & Staircase Reconstruction",
-    subtitle: "Rotted unsafe backyard deck to code-compliant cedar deck system",
-    csiSpec: "CSI 06 15 00 · WOOD DECKING & STRUCTURAL FRAMING",
+    title: "Timber Deck & Staircase Reconstruction",
+    subtitle: "Concrete pier footings and cedar deck structure",
+    csiSpec: "Carpentry",
     beforeImg: "/curated/pairs/div01_02_antes.jpg",
     afterImg: "/curated/pairs/tr09-after-cedar-deck.jpg",
-    beforeTag: "01 / Weathered & Rotted Timber Deck",
-    afterTag: "02 / Rebuilt Cedar Deck, Guardrails & Stairs",
-    summary:
-      "Full demolition of deteriorated decking and joists followed by deep concrete pier footings, pressure-treated structural framing, flashed ledger board and premium cedar decking.",
-    highlights: ["Flashed structural ledger attachment", "Heavy-duty stringers & guardrails", "Precision-gapped timber deck boards"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Deck reconstruction with concrete pier footings, structural framing, flashed ledger board, and cedar decking.",
+    highlights: ["Flashed structural ledger", "Stair stringers & guardrails", "Cedar deck boards"],
   },
   {
     id: "div04_04",
     division: "div04",
-    divisionLabel: "Div 04 · Roofing Systems",
+    divisionLabel: "Roofing",
     siteDivision: "commercial",
     code: "TR-10",
-    title: "Commercial Storefront Hip-Roof Charcoal Standing-Seam Re-Roof",
-    subtitle: "Corroded metal hip roof & failing gutters to charcoal standing-seam panels",
-    csiSpec: "CSI 07 41 13 / 07 71 00 · METAL ROOF & COPING",
+    title: "Storefront Charcoal Standing-Seam Roof",
+    subtitle: "Kynar-coated standing-seam metal roof and box gutters",
+    csiSpec: "Roofing",
     beforeImg: "/curated/pairs/div04_04_antes.jpg",
     afterImg: "/curated/pairs/div04_04_despues.jpg",
-    beforeTag: "01 / Rusted Commercial Hip-Roof Facade",
-    afterTag: "02 / Charcoal Standing-Seam Hip Roof & Trim",
-    summary:
-      "High-visibility commercial facade rehabilitation replacing corroded hip-roof panels and sagging gutters with Kynar-finished charcoal standing-seam panels and commercial box gutters.",
-    highlights: ["Kynar-coated charcoal architectural metal", "Seamless commercial gutter & downspouts", "Boom-lift staged zero-disruption execution"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Facade and hip-roof replacement with charcoal standing-seam metal panels and seamless box gutters.",
+    highlights: ["Charcoal architectural metal", "Seamless box gutters", "Precision trim & coping"],
   },
   {
     id: "div02_04",
     division: "div02",
-    divisionLabel: "Div 02 · Exterior & Masonry",
+    divisionLabel: "Exterior & Masonry",
     siteDivision: "single-family",
     code: "TR-11",
-    title: "Perimeter Cedar Privacy Fence & Concrete Footings",
-    subtitle: "Damaged chain-link enclosure to custom 6-foot cedar privacy line",
-    csiSpec: "CSI 32 31 00 · FENCES, GATES & SITE IMPROVEMENTS",
+    title: "Cedar Privacy Fence & Concrete Footings",
+    subtitle: "Laser-leveled cedar panels and continuous top rail",
+    csiSpec: "Carpentry",
     beforeImg: "/curated/pairs/div02_04_antes.jpg",
     afterImg: "/curated/pairs/div02_04_despues.jpg",
-    beforeTag: "01 / Bent Chain-Link Perimeter",
-    afterTag: "02 / Custom Cedar Privacy Fence Line",
-    summary:
-      "Complete site boundary upgrade replacing rusted chain-link fabric with laser-leveled cedar privacy panels, post-in-concrete footings and continuous top cap trim.",
-    highlights: ["Deep-set concrete post footings", "Tight-knot western red cedar boards", "Continuous weather-shedding top rail"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Perimeter boundary upgrade with set-in-concrete posts, western red cedar privacy boards, and top cap trim.",
+    highlights: ["Concrete post footings", "Western red cedar boards", "Continuous top cap rail"],
   },
   {
     id: "div03_04",
     division: "div03",
-    divisionLabel: "Div 03 · Interior & Commercial",
+    divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "single-family",
     code: "TR-12",
-    title: "Raw CMU Basement to Finished Living Suite & LVP",
-    subtitle: "Unfinished concrete block lower level to warm turnkey living space",
-    csiSpec: "CSI 09 29 00 / 09 65 00 · BASEMENT TURNKEY BUILD",
+    title: "Lower-Level Living Suite & LVP Flooring",
+    subtitle: "Insulated walls, recessed lighting, and wide-plank flooring",
+    csiSpec: "Remodeling",
     beforeImg: "/curated/pairs/div03_04_antes.jpg",
     afterImg: "/curated/pairs/tr12-after-finished-basement.jpg",
-    beforeTag: "01 / Unfinished CMU Block Basement",
-    afterTag: "02 / Insulated Walls, Recessed LEDs & LVP",
-    summary:
-      "Full lower-level conversion featuring moisture-mitigated perimeter framing, closed-cell insulation, smooth drywall ceiling with recessed LED lighting and waterproof luxury vinyl plank.",
-    highlights: ["Perimeter moisture barrier & framing", "Low-profile recessed LED grid", "Waterproof wide-plank LVP flooring"],
+    beforeTag: "Before",
+    afterTag: "After",
+    summary: "Lower-level finish with insulated perimeter framing, smooth drywall ceiling, recessed LEDs, and LVP flooring.",
+    highlights: ["Insulated perimeter framing", "Recessed LED ceiling grid", "Wide-plank LVP flooring"],
   },
 ];
 
@@ -406,47 +394,47 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
   {
     id: "m-top-1",
     title: "Mass Excavation & Foundation Trenching",
-    trade: "Site Prep & Earthwork",
+    trade: "Foundations",
     csi: "DIV 31",
     sector: "Commercial",
     image: "/curated/magazine/revista_ex_ex_mass.jpg",
   },
   {
     id: "m-top-2",
-    title: "Two-Story Cold-Formed Steel Structural Framing",
-    trade: "Structural Framing",
+    title: "Two-Story Cold-Formed Steel Framing",
+    trade: "Framing",
     csi: "DIV 05",
     sector: "Commercial",
     image: "/curated/magazine/revista_fr_metal_04.jpg",
   },
   {
     id: "m-top-3",
-    title: "Townhome Rooftop Timber Framing & Decking",
-    trade: "Wood Framing",
+    title: "Rooftop Timber Framing & Decking",
+    trade: "Framing",
     csi: "DIV 06",
     sector: "Townhomes",
     image: "/curated/properties/mkt-twn-framing-rooftop.jpg",
   },
   {
     id: "m-top-4",
-    title: "Standing-Seam Architectural Metal Roof System",
-    trade: "Roofing Systems",
+    title: "Standing-Seam Metal Roof System",
+    trade: "Roofing",
     csi: "DIV 07",
     sector: "Commercial & Res",
     image: "/curated/magazine/revista_ro_metal_a.jpg",
   },
   {
     id: "m-top-5",
-    title: "Natural Slate Gable & Copper Valley Flashing",
-    trade: "Specialty Roofing",
+    title: "Natural Slate Gable & Copper Flashing",
+    trade: "Roofing",
     csi: "DIV 07",
     sector: "Residential",
     image: "/curated/residential/sf-slate-roof-cottage.jpg",
   },
   {
     id: "m-top-6",
-    title: "Architectural Rainscreen Siding & Trim Envelope",
-    trade: "Siding & Cladding",
+    title: "Rainscreen Siding & Trim Envelope",
+    trade: "Siding",
     csi: "DIV 07",
     sector: "Commercial",
     image: "/curated/magazine/revista_si_05_a.jpg",
@@ -454,15 +442,15 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
   {
     id: "m-top-7",
     title: "Natural Ashlar Stone Masonry Facade",
-    trade: "Stone & Masonry",
+    trade: "Masonry",
     csi: "DIV 04",
     sector: "Commercial",
     image: "/curated/magazine/revista_st_nat_a.jpg",
   },
   {
     id: "m-top-8",
-    title: "Double-Height Commercial Curtain-Wall Glazing",
-    trade: "Glazing & Storefront",
+    title: "Double-Height Curtain-Wall Glazing",
+    trade: "Windows & Doors",
     csi: "DIV 08",
     sector: "Commercial",
     image: "/curated/magazine/revista_wi_com.jpg",
@@ -472,64 +460,64 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
 export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   {
     id: "m-bot-1",
-    title: "Commercial Retail Millwork & Suspended Ceiling Fit-Out",
-    trade: "Interior Fit-Out",
+    title: "Custom Millwork & Suspended Ceiling",
+    trade: "Carpentry",
     csi: "DIV 09",
     sector: "Commercial",
     image: "/curated/commercial/cx_x1.jpg",
   },
   {
     id: "m-bot-2",
-    title: "Exterior Wall Framing, Window Headers & Ceiling Joists",
-    trade: "Rough Carpentry",
+    title: "Exterior Wall Framing & Ceiling Joists",
+    trade: "Framing",
     csi: "DIV 06",
     sector: "Residential",
     image: "/curated/magazine/revista_fr_wood_05.jpg",
   },
   {
     id: "m-bot-3",
-    title: "Curved Commercial Soffit & Gypsum Board Assembly",
-    trade: "Drywall Systems",
+    title: "Curved Soffit & Gypsum Board Assembly",
+    trade: "Drywall",
     csi: "DIV 09",
     sector: "Commercial",
     image: "/work/drywall_commercial.jpg",
   },
   {
     id: "m-bot-4",
-    title: "Painted Staircase, Oak Handrail & Finish Carpentry",
-    trade: "Finish Carpentry",
+    title: "Painted Staircase & Oak Handrail",
+    trade: "Carpentry",
     csi: "DIV 06",
     sector: "Commercial & Res",
     image: "/curated/magazine/revista_ca_finish_1.jpg",
   },
   {
     id: "m-bot-5",
-    title: "Executive Walnut Acoustic Ceiling & Wall Fit-Out",
-    trade: "Architectural Millwork",
+    title: "Walnut Acoustic Ceiling & Wall Fit-Out",
+    trade: "Carpentry",
     csi: "DIV 06",
     sector: "Commercial",
     image: "/work/carpentry_commercial.jpg",
   },
   {
     id: "m-bot-6",
-    title: "Coffered Architectural Ceiling & Recessed Lighting",
-    trade: "Interior Finishes",
+    title: "Coffered Ceiling & Recessed Lighting",
+    trade: "Carpentry",
     csi: "DIV 09",
     sector: "Residential",
     image: "/curated/magazine/revista_in_05_a.jpg",
   },
   {
     id: "m-bot-7",
-    title: "Exposed Timber & Structural Steel Loft Coatings",
-    trade: "Commercial Painting",
+    title: "Exposed Timber & Steel Loft Coatings",
+    trade: "Painting",
     csi: "DIV 09",
     sector: "Commercial",
     image: "/curated/magazine/revista_pa_04_a.jpg",
   },
   {
     id: "m-bot-8",
-    title: "Diamond-Honed Terrazzo & Polished Concrete Slab",
-    trade: "Concrete & Flooring",
+    title: "Diamond-Honed Terrazzo & Concrete Slab",
+    trade: "Flooring",
     csi: "DIV 03",
     sector: "Commercial",
     image: "/curated/properties/mkt-mf-flooring-concrete.jpg",
@@ -548,7 +536,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     state: "WI",
     name: "Wisconsin",
     corridor: "Milwaukee · Madison · Green Bay",
-    primaryFocus: "Commercial Fit-Outs, Roofing, Siding & Full-Scale Renovations",
+    primaryFocus: "Architectural Fit-Outs, Roofing, Siding & Full-Scale Renovations",
     mobilization: "Primary HQ Dispatch",
     sampleImage: "/curated/properties/mkt-com-roofing-greenroof.jpg",
   },
@@ -556,7 +544,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     state: "IL",
     name: "Illinois",
     corridor: "Chicagoland · Rockford · Naperville",
-    primaryFocus: "Commercial Tenant Improvements, Multi-Family CapEx & Restoration",
+    primaryFocus: "Architectural Tenant Improvements, Multi-Suite CapEx & Restoration",
     mobilization: "Regional Crew Hub",
     sampleImage: "/curated/properties/townhouse-04-chicago-endunit-brick.jpg",
   },
@@ -588,7 +576,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     state: "MI",
     name: "Michigan",
     corridor: "Grand Rapids · Detroit Metro · Lansing",
-    primaryFocus: "Multi-Family Renovations, Carpentry & Masonry Restoration",
+    primaryFocus: "Multi-Suite Renovations, Carpentry & Masonry Restoration",
     mobilization: "Regional Crew Hub",
     sampleImage: "/curated/properties/mkt-mf-roofing.jpg",
   },
@@ -596,7 +584,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     state: "MO",
     name: "Missouri",
     corridor: "St. Louis · Kansas City · Columbia",
-    primaryFocus: "Commercial Plazas, REO Asset Preservation & Structural Framing",
+    primaryFocus: "Architectural Plazas, REO Asset Preservation & Structural Framing",
     mobilization: "Regional Crew Hub",
     sampleImage: "/curated/properties/mkt-com-stone-masonry.jpg",
   },
@@ -604,7 +592,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     state: "TX",
     name: "Texas",
     corridor: "Dallas–Fort Worth · Houston · Austin",
-    primaryFocus: "Ground-Up Commercial, Multi-Family Turnovers & Large-Loss Recovery",
+    primaryFocus: "Ground-Up Architectural, Multi-Suite Turnovers & Large-Loss Recovery",
     mobilization: "South Central Hub",
     sampleImage: "/curated/properties/duplex-06-austin-limestone-infill.jpg",
   },
@@ -616,7 +604,7 @@ export const REGIONAL_STATE_HUBS: Array<{
 export function TransformationBeforeAfterStudio({
   initialDivision = "all",
   initialPairId = TRANSFORMATION_PAIRS[0].id,
-  eyebrowLabel = "01B / INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO",
+  eyebrowLabel = "Before & After",
   siteDivision,
 }: {
   initialDivision?: TransformationDivision;
@@ -684,7 +672,7 @@ export function TransformationBeforeAfterStudio({
     TRANSFORMATION_PAIRS[0];
 
   const divisionTabDefs = [
-    { id: "all" as const, label: "All Divisions", count: scopedPairs.length },
+    { id: "all" as const, label: "All", count: scopedPairs.length },
     {
       id: "div01" as const,
       label: "Structural & Millwork",
@@ -697,12 +685,12 @@ export function TransformationBeforeAfterStudio({
     },
     {
       id: "div03" as const,
-      label: "Interior & Commercial",
+      label: "Interiors & Fit-Outs",
       count: scopedPairs.filter((p) => p.division === "div03").length,
     },
     {
       id: "div04" as const,
-      label: "Roofing Systems",
+      label: "Roofing",
       count: scopedPairs.filter((p) => p.division === "div04").length,
     },
   ].filter((tab) => tab.id === "all" || tab.count > 0);
@@ -724,7 +712,7 @@ export function TransformationBeforeAfterStudio({
   return (
     <section
       id="tayco-transformation-studio"
-      className="py-10 sm:py-24 px-4 sm:px-8 relative z-10 border-t"
+      className="py-10 sm:py-20 px-4 sm:px-8 relative z-10 border-t"
       style={{
         background:
           "radial-gradient(circle at 82% 16%, rgba(201, 168, 76, 0.14), transparent 50%), radial-gradient(circle at 14% 85%, rgba(27, 58, 107, 0.48), transparent 58%), #070E1A",
@@ -733,14 +721,13 @@ export function TransformationBeforeAfterStudio({
     >
       <div className="max-w-7xl mx-auto">
         <TaycoSectionHeader
-          eyebrow={eyebrowLabel}
-          title={<>From raw condition to <em className="tayco-serif-em text-[#F3D37A]">finished execution.</em></>}
-          subtitle="Compare transformations with the before-and-after curtain or structural X-ray lens. Choose a trade group to explore its field execution."
+          eyebrow={eyebrowLabel.replace(/^01B\s*\/\s*/i, "")}
+          title={<>Before &amp; <em className="tayco-serif-em text-[#F3D37A]">After</em></>}
           className="mb-6"
         />
-        <div className="flex flex-col items-center gap-6 mb-10">
+        <div className="flex flex-col items-center gap-6 mb-8">
           {/* Division Tabs */}
-          <TaycoPillDock ariaLabel="Filter transformations by division">
+          <TaycoPillDock ariaLabel="Filter transformations">
             {divisionTabDefs.map((tab) => {
               const active = activeDivision === tab.id;
               return (
@@ -771,7 +758,7 @@ export function TransformationBeforeAfterStudio({
           </TaycoPillDock>
         </div>
 
-        {/* Main Interactive Stage + Telemetry Panel */}
+        {/* Main Interactive Stage + Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Left 8 Columns: Interactive Curtain / X-Ray Stage */}
           <div className="lg:col-span-8 flex flex-col">
@@ -798,7 +785,7 @@ export function TransformationBeforeAfterStudio({
                 touchAction: "pan-y",
               }}
             >
-              {/* Base Layer: AFTER (Finished Turnkey Execution) */}
+              {/* Base Layer: AFTER */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={activePair.afterImg}
@@ -808,7 +795,7 @@ export function TransformationBeforeAfterStudio({
                 draggable={false}
               />
 
-              {/* Overlay Layer: BEFORE (Initial / Raw Structural Condition) */}
+              {/* Overlay Layer: BEFORE */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <ProtectedImage
                 src={activePair.beforeImg}
@@ -878,67 +865,20 @@ export function TransformationBeforeAfterStudio({
                     className=" -mt-3 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-black uppercase tracking-widest"
                     style={{ background: "#C9A84C", color: "#070E1A" }}
                   >
-                    X-RAY · SUBSTRATE VIEW
+                    X-RAY
                   </span>
                 </div>
               )}
-
-              {/* Top-Left & Top-Right Condition Badges */}
-              <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 pointer-events-none">
-                <span
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-mono font-black uppercase tracking-wider border backdrop-blur-md"
-                  style={{
-                    background: "rgba(7, 14, 26, 0.84)",
-                    borderColor: "rgba(243, 211, 122, 0.45)",
-                    color: "#F3D37A",
-                  }}
-                >
-                  {activePair.beforeTag}
-                </span>
-              </div>
-
-              <div className="absolute top-3.5 right-3.5 z-20 flex items-center gap-2 pointer-events-none">
-                <span
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-mono font-black uppercase tracking-wider border backdrop-blur-md"
-                  style={{
-                    background: "rgba(201, 168, 76, 0.92)",
-                    borderColor: "#F3D37A",
-                    color: "#070E1A",
-                  }}
-                >
-                  {activePair.afterTag}
-                </span>
-              </div>
             </div>
 
-            {/* Sub-Photo Telemetry & Interactive Control Strip Under Stage (outside photo canvas) */}
+            {/* Interactive Control Strip Under Stage */}
             <div
-              className="mt-2.5 p-3 rounded-xl border flex flex-col gap-2.5"
+              className="mt-2.5 p-3 rounded-xl border flex flex-wrap items-center justify-between gap-3"
               style={{
                 background: "rgba(15, 32, 64, 0.78)",
                 borderColor: "rgba(201, 168, 76, 0.32)",
               }}
             >
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="px-2 py-0.5 rounded-full text-[10px] font-mono font-black"
-                    style={{ background: "#C9A84C", color: "#070E1A" }}
-                  >
-                    {activePair.code}
-                  </span>
-                  <span className="text-xs font-mono font-bold text-white">
-                    {activePair.csiSpec}
-                  </span>
-                </div>
-                <span className="text-[11px] font-mono text-amber-200/90">
-                  {inspectMode === "split"
-                    ? `CURTAIN: ${splitPercent}% BEFORE / ${100 - splitPercent}% AFTER`
-                    : `X-RAY LOUPE: X=${xrayPos.x}% · Y=${xrayPos.y}%`}
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Mode Switcher: 50/50 Curtain vs Structural X-Ray Lens */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -966,11 +906,7 @@ export function TransformationBeforeAfterStudio({
                 </button>
               </div>
 
-              {/* Quick Curtain Presets */}
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mr-1">
-                  Quick Snap:
-                </span>
                 {[
                   { label: "Before", val: 96 },
                   { label: "50 / 50", val: 50 },
@@ -997,11 +933,10 @@ export function TransformationBeforeAfterStudio({
                   </button>
                 ))}
               </div>
-              </div>
             </div>
           </div>
 
-          {/* Right 4 Columns: Active Transformation Specification & Highlights */}
+          {/* Right 4 Columns: Active Transformation Card */}
           <div className="lg:col-span-4 flex flex-col justify-between">
             <div
               className="tayco-living-card p-6 rounded-2xl border h-full flex flex-col justify-between items-center text-center relative overflow-hidden"
@@ -1026,80 +961,46 @@ export function TransformationBeforeAfterStudio({
                   >
                     {activePair.divisionLabel}
                   </span>
-                  <span className="text-xs font-mono text-slate-400">
-                    {activePair.code} / 12
-                  </span>
                 </div>
 
                 <h3 className="tayco-card-title text-xl sm:text-2xl text-white leading-snug text-center">
                   {activePair.title}
                 </h3>
-                <p className="home-study-summary text-sm text-slate-300 mt-4 leading-relaxed text-left">
-                  {activePair.subtitle}
-                </p>
 
-                <details open className="home-reading-details mt-4 w-full">
-                  <summary>Scope details <span aria-hidden="true">＋</span></summary>
-                  <p className="text-sm text-slate-300 leading-relaxed mb-4">{activePair.summary}</p>
-                  <ul className="space-y-2 inline-flex flex-col items-start mx-auto">
-                    {activePair.highlights.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-center gap-2.5 text-xs text-slate-200 font-medium"
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ background: "#C9A84C" }}
-                        />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
+                <ul className="mt-4 space-y-2 inline-flex flex-col items-start mx-auto">
+                  {activePair.highlights.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-2.5 text-xs text-slate-200 font-medium"
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ background: "#C9A84C" }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
-                <ImageReferenceButton src={activePair.afterImg} label="Save finished reference" />
+                <ImageReferenceButton src={activePair.afterImg} label="Save Reference" />
                 <Link
                   href="/estimate"
                   data-magnetic
                   className="tayco-atelier-btn-gold w-full text-center py-3 text-xs tracking-wider"
                 >
-                  <span>Discuss this project →</span>
+                  <span>Request Estimate →</span>
                 </Link>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href="/commercial"
-                    data-magnetic
-                    className="home-text-action"
-                  >
-                    Commercial →
-                  </Link>
-                  <Link
-                    href="/single-family"
-                    data-magnetic
-                    className="home-text-action"
-                  >
-                    Residential →
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 12-Pair Thumbnail Filmstrip Selector */}
+        {/* Thumbnail Filmstrip Selector */}
         <div className="mt-6">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
-              Select a transformation case study ({visiblePairs.length} available in current filter):
-            </span>
-            <span className="text-[11px] font-mono" style={{ color: "#F3D37A" }}>
-              Click any card to load Before ↔ After pair
-            </span>
-          </div>
           <div className="flex flex-wrap justify-center gap-3 max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:pb-2 tayco-no-scrollbar">
-              {visiblePairs.map((pair) => {
+            {visiblePairs.map((pair) => {
               const selected = pair.id === pendingPairId || pair.id === activePair.id;
               return (
                 <button
@@ -1118,7 +1019,6 @@ export function TransformationBeforeAfterStudio({
                   }}
                 >
                   <div className="relative h-20 w-full overflow-hidden">
-                    {/* Split thumbnail preview: left half before, right half after */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <ProtectedImage
                       src={pair.afterImg}
@@ -1140,25 +1040,10 @@ export function TransformationBeforeAfterStudio({
                       className="absolute top-0 bottom-0 left-1/2 w-0.5"
                       style={{ background: "#F3D37A" }}
                     />
-                    <span
-                      className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-black"
-                      style={{
-                        background: selected ? "#C9A84C" : "rgba(7,14,26,0.85)",
-                        color: selected ? "#070E1A" : "#F3D37A",
-                      }}
-                    >
-                      {pair.code}
-                    </span>
                   </div>
                   <div className="p-2">
                     <div className="text-[11px] font-bold text-white line-clamp-1">
                       {pair.title}
-                    </div>
-                    <div
-                      className="text-[9px] font-mono uppercase tracking-wider mt-0.5 truncate"
-                      style={{ color: "#C9A84C" }}
-                    >
-                      {pair.divisionLabel.replace(/^Div \d+ · /, "")}
                     </div>
                   </div>
                 </button>
@@ -1181,23 +1066,23 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-sf-1",
       title: "Insulated Fiber-Cement Lap Siding & Craftsman Trim",
-      trade: "Siding & Cladding",
+      trade: "Siding",
       csi: "DIV 07",
       sector: "Residential",
       image: "/work/siding_residential.jpg",
     },
     {
       id: "m-sf-2",
-      title: "Architectural Dimensional Shingle & Gable Roof",
-      trade: "Roofing Systems",
+      title: "Dimensional Shingle & Gable Roof",
+      trade: "Roofing",
       csi: "DIV 07",
       sector: "Residential",
       image: "/work/roofing_residential.jpg",
     },
     {
       id: "m-sf-3",
-      title: "2-Story Wood Stud Framing & Roof Truss Package",
-      trade: "Rough Carpentry",
+      title: "Two-Story Wood Stud Framing & Roof Trusses",
+      trade: "Framing",
       csi: "DIV 06",
       sector: "Residential",
       image: "/work/framing_residential.jpg",
@@ -1205,31 +1090,31 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-sf-4",
       title: "Smooth Level-5 Drywall & Interior Wall Board",
-      trade: "Drywall Systems",
+      trade: "Drywall",
       csi: "DIV 09",
       sector: "Residential",
       image: "/work/drywall_residential.jpg",
     },
     {
       id: "m-sf-5",
-      title: "Wide-Plank Residential Hardwood Flooring Installation",
-      trade: "Hardwood Flooring",
+      title: "Wide-Plank Hardwood Flooring Installation",
+      trade: "Flooring",
       csi: "DIV 09",
       sector: "Residential",
       image: "/work/flooring_residential.jpg",
     },
     {
       id: "m-sf-6",
-      title: "Painted Staircase, Oak Handrail & Finish Carpentry",
-      trade: "Finish Carpentry",
+      title: "Painted Staircase & Oak Handrail",
+      trade: "Carpentry",
       csi: "DIV 06",
       sector: "Residential",
       image: "/curated/magazine/revista_ca_finish_1.jpg",
     },
     {
       id: "m-sf-7",
-      title: "Natural Stone Veneer & Custom Hearth Masonry",
-      trade: "Stone & Masonry",
+      title: "Natural Stone Veneer & Custom Hearth",
+      trade: "Masonry",
       csi: "DIV 04",
       sector: "Residential",
       image: "/work/stone_residential.jpg",
@@ -1237,7 +1122,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-sf-8",
       title: "Exterior Porch, Siding & Dormer Renovation",
-      trade: "Exterior Turnkey",
+      trade: "Remodeling",
       csi: "DIV 07",
       sector: "Residential",
       image: "/curated/residential/div02_01_despues.jpg",
@@ -1246,64 +1131,64 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   multifamily: [
     {
       id: "m-mf-1",
-      title: "Multi-Unit Architectural Roof Phasing & Replacement",
-      trade: "Roofing Systems",
+      title: "Architectural Roof Phasing & Replacement",
+      trade: "Roofing",
       csi: "DIV 07",
       sector: "Multi-Family",
       image: "/curated/capabilities/reo-roof-3phase.jpg",
     },
     {
       id: "m-mf-2",
-      title: "Multi-Unit Custom Cabinetry & Common-Area Millwork",
-      trade: "Finish Carpentry",
+      title: "Custom Cabinetry & Common-Area Millwork",
+      trade: "Carpentry",
       csi: "DIV 06",
       sector: "Multi-Family",
       image: "/work/carpentry_multifamily.jpg",
     },
     {
       id: "m-mf-3",
-      title: "Acoustic Corridor & Unit Turnover Drywall Package",
-      trade: "Drywall & Finishes",
+      title: "Acoustic Corridor & Interior Drywall",
+      trade: "Drywall",
       csi: "DIV 09",
       sector: "Multi-Family",
       image: "/curated/magazine/revista_dw_hang.jpg",
     },
     {
       id: "m-mf-4",
-      title: "Masonry Entry Piers & Multi-Unit Stone Envelope",
-      trade: "Stone & Masonry",
+      title: "Masonry Entry Piers & Stone Envelope",
+      trade: "Masonry",
       csi: "DIV 04",
       sector: "Multi-Family",
       image: "/work/stone_multifamily.jpg",
     },
     {
       id: "m-mf-5",
-      title: "Acoustic Underlayment & Multi-Unit Flooring Package",
-      trade: "Flooring Systems",
+      title: "Acoustic Underlayment & Hardwood Flooring",
+      trade: "Flooring",
       csi: "DIV 09",
       sector: "Multi-Family",
       image: "/work/flooring_multifamily.jpg",
     },
     {
       id: "m-mf-6",
-      title: "Two-Tone Navy Lap & Board-and-Batten Exterior Coating",
-      trade: "Exterior Painting",
+      title: "Two-Tone Navy Lap & Board-and-Batten Coating",
+      trade: "Painting",
       csi: "DIV 09",
       sector: "Multi-Family",
       image: "/work/painting_multifamily.jpg",
     },
     {
       id: "m-mf-7",
-      title: "Unit Turnover Interior Wall Preparation & Finish Coat",
-      trade: "Interior Finishes",
+      title: "Interior Wall Preparation & Finish Coat",
+      trade: "Painting",
       csi: "DIV 09",
       sector: "Multi-Family",
       image: "/curated/magazine/revista_pa_04_a.jpg",
     },
     {
       id: "m-mf-8",
-      title: "Taped & Mudded Corridor Gypsum Board & Ceiling Grid",
-      trade: "Drywall Finishing",
+      title: "Taped & Mudded Corridor Gypsum Board",
+      trade: "Drywall",
       csi: "DIV 09",
       sector: "Multi-Family",
       image: "/curated/magazine/revista_dw_fin.jpg",
@@ -1312,40 +1197,40 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   townhomes: [
     {
       id: "m-twn-1",
-      title: "Attached Rowhouse Structural Wood Framing Package",
-      trade: "Structural Framing",
+      title: "Attached Attached Residence Structural Wood Framing",
+      trade: "Framing",
       csi: "DIV 06",
       sector: "Townhomes",
       image: "/work/framing_townhomes.jpg",
     },
     {
       id: "m-twn-2",
-      title: "Townhome Party-Wall & Parlor Smooth Drywall",
-      trade: "Drywall Systems",
+      title: "Party-Wall & Parlor Smooth Drywall",
+      trade: "Drywall",
       csi: "DIV 09",
       sector: "Townhomes",
       image: "/work/drywall_townhomes.jpg",
     },
     {
       id: "m-twn-3",
-      title: "Parlor & Upper-Level Townhome Hardwood Flooring",
-      trade: "Hardwood Flooring",
+      title: "Parlor & Upper-Level Hardwood Flooring",
+      trade: "Flooring",
       csi: "DIV 09",
       sector: "Townhomes",
       image: "/work/flooring_townhomes.jpg",
     },
     {
       id: "m-twn-4",
-      title: "Custom Townhome Millwork, Trim & Staircase Carpentry",
-      trade: "Finish Carpentry",
+      title: "Custom Millwork, Trim & Staircase Carpentry",
+      trade: "Carpentry",
       csi: "DIV 06",
       sector: "Townhomes",
       image: "/work/carpentry_townhomes.jpg",
     },
     {
       id: "m-twn-5",
-      title: "Rowhouse Masonry Veneer, Lintels & Entry Stoops",
-      trade: "Stone & Masonry",
+      title: "Attached Residence Masonry Veneer, Lintels & Stoops",
+      trade: "Masonry",
       csi: "DIV 04",
       sector: "Townhomes",
       image: "/work/stone_townhomes.jpg",
@@ -1353,23 +1238,23 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-twn-6",
       title: "Custom Kitchen & Butler's Pantry Cabinetry",
-      trade: "Cabinetry & Millwork",
+      trade: "Carpentry",
       csi: "DIV 06",
       sector: "Townhomes",
       image: "/curated/magazine/revista_ca_cab_1.jpg",
     },
     {
       id: "m-twn-7",
-      title: "Multi-Level Interior Trim & Finish Paint Package",
-      trade: "Interior Finishes",
+      title: "Multi-Level Interior Trim & Finish Paint",
+      trade: "Painting",
       csi: "DIV 09",
       sector: "Townhomes",
       image: "/curated/magazine/revista_in_01_a.jpg",
     },
     {
       id: "m-twn-8",
-      title: "Architectural Slate & Copper Flashing Detail",
-      trade: "Specialty Roofing",
+      title: "Natural Slate & Copper Flashing Detail",
+      trade: "Roofing",
       csi: "DIV 07",
       sector: "Townhomes",
       image: "/curated/residential/r1.jpg",
@@ -1378,24 +1263,24 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   commercial: [
     {
       id: "m-com-1",
-      title: "White TPO Membrane Roof, Metal Parapet & Rooftop HVAC",
-      trade: "Roofing Systems",
+      title: "White TPO Membrane Roof & Metal Parapet",
+      trade: "Roofing",
       csi: "DIV 07",
       sector: "Commercial",
       image: "/work/roofing_commercial.jpg",
     },
     {
       id: "m-com-2",
-      title: "Limestone & Stacked Stone Veneer Office Envelope",
-      trade: "Stone & Masonry",
+      title: "Limestone & Stacked Stone Veneer Envelope",
+      trade: "Masonry",
       csi: "DIV 04",
       sector: "Commercial",
       image: "/work/stone_commercial.jpg",
     },
     {
       id: "m-com-3",
-      title: "Architectural Rainscreen Siding & Trim Envelope",
-      trade: "Siding & Cladding",
+      title: "Rainscreen Siding & Trim Envelope",
+      trade: "Siding",
       csi: "DIV 07",
       sector: "Commercial",
       image: "/curated/magazine/revista_si_05_a.jpg",
@@ -1403,31 +1288,31 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-com-4",
       title: "Natural Ashlar Stone Masonry Facade",
-      trade: "Stone & Masonry",
+      trade: "Masonry",
       csi: "DIV 04",
       sector: "Commercial",
       image: "/curated/magazine/revista_st_nat_a.jpg",
     },
     {
       id: "m-com-5",
-      title: "Double-Height Commercial Curtain-Wall Glazing",
-      trade: "Glazing & Storefront",
+      title: "Double-Height Curtain-Wall Glazing",
+      trade: "Windows & Doors",
       csi: "DIV 08",
       sector: "Commercial",
       image: "/curated/magazine/revista_wi_com.jpg",
     },
     {
       id: "m-com-6",
-      title: "Painted Open-Deck Ceiling, Accent Wall & Polished Concrete",
-      trade: "Commercial Painting",
+      title: "Painted Open-Deck Ceiling & Polished Concrete",
+      trade: "Painting",
       csi: "DIV 09",
       sector: "Commercial",
       image: "/work/painting_commercial.jpg",
     },
     {
       id: "m-com-7",
-      title: "Executive Walnut Acoustic Ceiling & Wall Fit-Out",
-      trade: "Architectural Millwork",
+      title: "Walnut Acoustic Ceiling & Wall Fit-Out",
+      trade: "Carpentry",
       csi: "DIV 06",
       sector: "Commercial",
       image: "/work/carpentry_commercial.jpg",
@@ -1435,7 +1320,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     {
       id: "m-com-8",
       title: "Architectural Metal Panel & Storefront Envelope",
-      trade: "Exterior Envelope",
+      trade: "Siding",
       csi: "DIV 07",
       sector: "Commercial",
       image: "/work/siding_commercial.jpg",
@@ -1480,23 +1365,11 @@ export function DualTrackArchitecturalMarquee({
   const [selectedShot, setSelectedShot] = useState<MarqueeShot | null>(null);
 
   return (
-    <div className="py-12 border-t border-white/10 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-6 flex flex-col items-center justify-center text-center gap-3">
-        <div>
-          <div className="tayco-atelier-eyebrow justify-center mb-1.5" style={{ color: "#F3D37A" }}>
-            <span className="tayco-live-dot" style={{ color: "#C9A84C" }} />
-            FIELD EXECUTION ARCHIVE · {allShots.length} CURATED DISCIPLINES IN MOTION
-          </div>
-          <h3 className="tayco-display-title text-xl sm:text-2xl text-white text-center">
-            From excavation &amp; steel framing to{" "}
-            <em className="tayco-serif-em" style={{ color: "#C9A84C" }}>
-              architectural millwork.
-            </em>
-          </h3>
-        </div>
-        <span className="text-xs font-mono text-slate-400 text-center">
-          Hover any frame to pause · Click to inspect specification
-        </span>
+    <div className="py-10 border-t border-white/10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-6 flex flex-col items-center justify-center text-center gap-2">
+        <h3 className="tayco-display-title text-xl sm:text-2xl text-white text-center">
+          Field Gallery
+        </h3>
       </div>
 
       {/* Selected Shot Quick Inspector Drawer */}
@@ -1519,7 +1392,7 @@ export function DualTrackArchitecturalMarquee({
             setSelectedShot(allShots[nextIdx] ?? null);
           }
         }}
-        ariaLabel={selectedShot?.title ?? "Architectural Discipline Photograph"}
+        ariaLabel={selectedShot?.title ?? "Photograph"}
       >
         {({ stageGestureHandlers }) => (
           <div
@@ -1533,7 +1406,7 @@ export function DualTrackArchitecturalMarquee({
             {selectedShot && (
               <>
                 <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-2">
-                  <p className="text-xs text-slate-300">Photograph · {selectedShot.csi}</p>
+                  <p className="text-xs text-slate-300">{selectedShot.trade}</p>
                   <button type="button" autoFocus onClick={() => setSelectedShot(null)} aria-label="Close photograph" className="min-h-11 rounded-xl border border-amber-200/30 px-3 text-sm text-amber-100 cursor-pointer">Close ✕</button>
                 </header>
                 <div {...stageGestureHandlers} className="relative h-[min(45dvh,460px)] shrink-0 w-full bg-[#040811]">
@@ -1548,18 +1421,10 @@ export function DualTrackArchitecturalMarquee({
                 <div tabIndex={0} className="min-h-0 overflow-y-auto overscroll-contain p-4 border-t border-white/10">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black"
-                          style={{ background: "#C9A84C", color: "#070E1A" }}
-                        >
-                          {selectedShot.csi}
-                        </span>
-                        <span className="text-xs font-mono text-amber-200">
-                          {selectedShot.trade} · {selectedShot.sector}
-                        </span>
-                      </div>
-                      <div className="text-lg font-black text-white mt-1">
+                      <span className="text-xs font-mono text-amber-200">
+                        {selectedShot.trade}
+                      </span>
+                      <div className="text-lg font-black text-white mt-0.5">
                         {selectedShot.title}
                       </div>
                     </div>
@@ -1572,7 +1437,7 @@ export function DualTrackArchitecturalMarquee({
         )}
       </TaycoModalOverlay>
 
-      {/* Track 1: Exterior / Structural / Envelope */}
+      {/* Track 1 */}
       <div className="tayco-filmstrip-wrapper mb-4">
         <div className="tayco-filmstrip-track track-left">
           {[...topTrack, ...topTrack].map((shot, idx) => (
@@ -1592,22 +1457,13 @@ export function DualTrackArchitecturalMarquee({
               />
               <div className="tayco-filmstrip-overlay">
                 <div className="flex items-center justify-between gap-2">
-                  <span
-                    className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black"
-                    style={{ background: "#C9A84C", color: "#070E1A" }}
-                  >
-                    {shot.csi}
-                  </span>
                   <span className="text-[10px] font-mono text-amber-200">
-                    {shot.sector}
+                    {shot.trade}
                   </span>
                 </div>
                 <div>
                   <div className="text-xs font-black text-white leading-snug line-clamp-1">
                     {shot.title}
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-300">
-                    {shot.trade} · Click to Expand
                   </div>
                 </div>
               </div>
@@ -1616,7 +1472,7 @@ export function DualTrackArchitecturalMarquee({
         </div>
       </div>
 
-      {/* Track 2: Interior Craft / Commercial / Finishes */}
+      {/* Track 2 */}
       <div className="tayco-filmstrip-wrapper">
         <div className="tayco-filmstrip-track track-right">
           {[...bottomTrack, ...bottomTrack].map((shot, idx) => (
@@ -1636,22 +1492,13 @@ export function DualTrackArchitecturalMarquee({
               />
               <div className="tayco-filmstrip-overlay">
                 <div className="flex items-center justify-between gap-2">
-                  <span
-                    className="px-2 py-0.5 rounded-full text-[9px] font-mono font-black"
-                    style={{ background: "#F3D37A", color: "#070E1A" }}
-                  >
-                    {shot.csi}
-                  </span>
                   <span className="text-[10px] font-mono text-amber-200">
-                    {shot.sector}
+                    {shot.trade}
                   </span>
                 </div>
                 <div>
                   <div className="text-xs font-black text-white leading-snug line-clamp-1">
                     {shot.title}
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-300">
-                    {shot.trade} · Click to Expand
                   </div>
                 </div>
               </div>
@@ -1741,7 +1588,7 @@ export function RegionalStateFootprintStrip() {
               </span>
             </div>
             <div className="text-[11px] font-mono text-slate-300 truncate">
-              {currentHub.corridor} · {currentHub.primaryFocus}
+              {currentHub.corridor}
             </div>
           </div>
         </div>
@@ -1759,6 +1606,14 @@ export interface TriptychFrame {
   label: string;
 }
 
+function sanitizeGalleryLabel(label: string): string {
+  return label
+    .replace(/\b(?:Single-Family|Detached\s+Homes?|Multi-Family|Multifamily|Multi-Unit|Duplex(?:es)?|Two-Flats?|Triplex(?:es)?|Quadplex(?:es)?|Townhomes?|Townhouses?|Rowhouses?|Commercial|Residential)\s*/gi, "")
+    .replace(/^\d+\s*[·/]\s*/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function ServiceCardTriptych({
   frames,
   badge,
@@ -1774,6 +1629,8 @@ export function ServiceCardTriptych({
   const safeFrames = frames.length > 0 ? frames : [{ src: "/curated/commercial/com_02_2.jpg", label: "Field Execution" }];
   const triptychUrls = safeFrames.map((f) => f.src);
   const current = safeFrames[activeIdx] ?? safeFrames[0];
+  const cleanCurrentLabel = sanitizeGalleryLabel(current.label);
+  const cleanBadge = sanitizeGalleryLabel(badge);
 
   const selectTriptychFrame = (idx: number) => {
     const target = safeFrames[idx];
@@ -1787,8 +1644,8 @@ export function ServiceCardTriptych({
   };
 
   return (
-    <div className="mb-5">
-      {/* Main Triptych Viewport — Clickable to Expand Full-Screen View */}
+    <div className="mb-4">
+      {/* Main Triptych Viewport — Unobstructed Large Photo */}
       <div
         role="button"
         tabIndex={0}
@@ -1812,54 +1669,20 @@ export function ServiceCardTriptych({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <ProtectedImage
           src={current.src}
-          alt={current.label}
+          auditIgnore={safeFrames.length > 1}
+          alt={cleanCurrentLabel}
           syncUrls={triptychUrls}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(7,14,26,0.38) 0%, rgba(7,14,26,0.06) 45%, rgba(7,14,26,0.86) 100%)",
-          }}
-        />
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
-          <span
-            className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
-            style={{
-              background: "rgba(7, 14, 26, 0.84)",
-              color: "#F3D37A",
-              border: "1px solid rgba(201, 168, 76, 0.45)",
-            }}
-          >
-            {badge}
-          </span>
-          <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold"
-            style={{
-              background: "rgba(7, 14, 26, 0.8)",
-              color: "#E2E8F0",
-            }}
-          >
-            0{activeIdx + 1} / 0{safeFrames.length} · Expand ↗
-          </span>
-        </div>
-        <div
-          key={`triptych-label-${triptychPulse}`}
-          className="tayco-harmonic-sync absolute bottom-2.5 left-3 right-3 flex items-center justify-between gap-2"
-        >
-          <span className="text-xs font-bold text-white truncate">
-            {current.label}
-          </span>
-        </div>
       </div>
 
-      {/* 3-Photo Caption Selector Strip — Centered Capsule Switcher */}
+      {/* 3-Photo Simultaneous Thumbnail Gallery Grid */}
       {safeFrames.length > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-3">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           {safeFrames.map((frame, i) => {
             const isSel = i === activeIdx;
+            const cleanLbl = sanitizeGalleryLabel(frame.label);
             return (
               <button
                 key={`${frame.src}-${i}`}
@@ -1867,14 +1690,27 @@ export function ServiceCardTriptych({
                 data-magnetic
                 onClick={() => selectTriptychFrame(i)}
                 onPointerEnter={() => selectTriptychFrame(i)}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-mono font-bold transition-all cursor-pointer border ${
+                className={`group/thumb relative rounded-lg overflow-hidden border transition-all cursor-pointer text-left ${
                   isSel
-                    ? "bg-[#C9A84C] text-[#070E1A] border-[#F3D37A] shadow-[0_0_12px_rgba(201,168,76,0.35)]"
-                    : "bg-[#070E1A]/80 text-slate-300 border-white/10 hover:border-[#C9A84C]/50 hover:text-white"
+                    ? "border-[#F3D37A] ring-1 ring-[#F3D37A]"
+                    : "border-white/15 opacity-80 hover:opacity-100"
                 }`}
-                aria-label={`Show ${frame.label}`}
+                aria-label={cleanLbl}
               >
-                0{i + 1} · {frame.label}
+                <div className="relative h-14 sm:h-16 w-full bg-[#070E1A]">
+                  <ProtectedImage
+                    src={frame.src}
+                    alt={cleanLbl}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  key={`triptych-label-${i}-${triptychPulse}`}
+                  className="px-1.5 py-1 bg-[#070E1A] text-[10px] font-medium text-slate-200 truncate"
+                >
+                  {cleanLbl}
+                </div>
               </button>
             );
           })}
@@ -1891,7 +1727,7 @@ export function ServiceCardTriptych({
             className="max-w-4xl w-full rounded-2xl border overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)]"
             style={{
               background: "rgba(11, 22, 42, 0.98)",
-              borderColor: "#C9A84C",
+              borderColor: accentColor,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1899,43 +1735,46 @@ export function ServiceCardTriptych({
               <ProtectedImage
                 src={current.src}
                 auditIgnore={true}
-                alt={current.label}
+                alt={cleanCurrentLabel}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
               <div>
                 <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#F3D37A]">
-                  {badge} · PHOTO 0{activeIdx + 1} OF 0{safeFrames.length}
+                  {cleanBadge}
                 </div>
                 <div className="text-lg font-black text-white mt-0.5">
-                  {current.label}
+                  {cleanCurrentLabel}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {safeFrames.map((f, i) => (
-                  <button
-                    key={f.label}
-                    type="button"
-                    onClick={() => selectTriptychFrame(i)}
-                    className="px-3 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer"
-                    style={
-                      i === activeIdx
-                        ? {
-                            background: "#C9A84C",
-                            color: "#050A14",
-                            borderColor: "#F3D37A",
-                          }
-                        : {
-                            background: "rgba(15, 32, 64, 0.8)",
-                            color: "#E2E8F0",
-                            borderColor: "rgba(255,255,255,0.15)",
-                          }
-                    }
-                  >
-                    0{i + 1} · {f.label}
-                  </button>
-                ))}
+                {safeFrames.map((f, i) => {
+                  const cleanLbl = sanitizeGalleryLabel(f.label);
+                  return (
+                    <button
+                      key={f.src}
+                      type="button"
+                      onClick={() => selectTriptychFrame(i)}
+                      className="px-3 py-1.5 rounded-full text-xs font-mono font-bold border cursor-pointer"
+                      style={
+                        i === activeIdx
+                          ? {
+                              background: "#C9A84C",
+                              color: "#050A14",
+                              borderColor: "#F3D37A",
+                            }
+                          : {
+                              background: "rgba(15, 32, 64, 0.8)",
+                              color: "#E2E8F0",
+                              borderColor: "rgba(255,255,255,0.15)",
+                            }
+                      }
+                    >
+                      {cleanLbl}
+                    </button>
+                  );
+                })}
                 <button
                   type="button"
                   data-magnetic
