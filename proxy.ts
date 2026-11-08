@@ -3,6 +3,7 @@ import { evaluateSiteShield, buildShieldProtectionHtml } from "./lib/site-shield
 import { inspectAutomationRequest, GUARD_PATH } from "./lib/automation-guard-http";
 import { guardMode } from "./lib/automation-guard";
 import { trustedClientIp } from "./lib/client-network";
+import { canonicalRedirect } from "./lib/canonical-host";
 
 function extractClientIp(request: NextRequest): string {
   return trustedClientIp(request.headers);
@@ -10,6 +11,14 @@ function extractClientIp(request: NextRequest): string {
 
 export function proxy(request: NextRequest) {
   try {
+    const moveTo = canonicalRedirect({
+      method: request.method,
+      host: request.headers.get("x-forwarded-host") || request.headers.get("host") || "",
+      pathname: request.nextUrl.pathname,
+      search: request.nextUrl.search,
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    });
+    if (moveTo) return NextResponse.redirect(moveTo, 301);
     const probe = inspectAutomationRequest(request);
     const response = probe.response || (guardMode() !== 'off' && request.nextUrl.pathname === GUARD_PATH ? NextResponse.next() : siteProxy(request));
     if (probe.cookie) response.headers.append('Set-Cookie', probe.cookie);
