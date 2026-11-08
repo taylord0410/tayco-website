@@ -1,6 +1,5 @@
 "use client";
 
-import { ImageReferenceButton } from "@/components/EstimateReferences";
 import { useState } from "react";
 import Link from "next/link";
 import ProtectedImage from "@/components/ProtectedImage";
@@ -89,7 +88,7 @@ export function HomeEditorialGallery({ selection, onClose }: {
 
   return (
     <TaycoModalOverlay isOpen onClose={onClose} ariaLabel={`${selection.title} gallery`}
-      onStepPrev={() => step(-1)} onStepNext={() => step(1)} enableStageWheelStep={false}>
+      onStepPrev={() => step(-1)} onStepNext={() => step(1)} enableStageWheelStep={true} enableStageSwipe={true}>
       {({ stageGestureHandlers }) => (
         <div className="home-editorial-gallery" onKeyDown={(event) => {
           if (event.key !== "Tab") return;
@@ -104,30 +103,44 @@ export function HomeEditorialGallery({ selection, onClose }: {
           }
         }}>
           <header className="home-gallery-header">
-            <div><p className="home-editorial-eyebrow">Gallery</p><h2>{selection.title}</h2></div>
-            <div className="flex items-center gap-2">
-              <ImageReferenceButton compact src={frame.src} />
-              <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
-            </div>
+            <span className="home-gallery-counter">{index + 1} / {selection.frames.length}</span>
+            <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
           </header>
           <div className="home-gallery-stage" {...stageGestureHandlers}>
             <ProtectedImage src={frame.src} alt="" auditIgnore loading="eager"
               className="home-gallery-backdrop" />
-            <ProtectedImage src={frame.src} alt={frame.title} auditIgnore loading="eager"
+            <ProtectedImage src={frame.src} alt={frame.title} loading="eager"
               className="home-gallery-main-image h-full w-full object-contain" />
-          </div>
-          <div className="home-gallery-copy" data-tayco-scroll-zone="true" tabIndex={0} aria-label="Photograph details">
-            <div className="space-y-2" aria-live="polite" aria-atomic="true">
-            <p className="home-editorial-eyebrow">{frame.eyebrow}</p>
-            <h3 className="home-editorial-title">{frame.title}</h3>
-            {frame.description && <p className="home-editorial-description">{frame.description}</p>}
-            {frame.details && <ul>{frame.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
-            </div>
+            {selection.frames.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => step(-1)}
+                  aria-label="Previous photograph"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => step(1)}
+                  aria-label="Next photograph"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/75 backdrop-blur-xl border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                >
+                  ›
+                </button>
+              </>
+            )}
           </div>
           <footer className="home-gallery-footer">
-            <button type="button" className="home-gallery-control" disabled={selection.frames.length < 2} onClick={() => step(-1)} aria-label="Previous photograph">←</button>
-            <span className="home-gallery-counter">{index + 1} / {selection.frames.length}</span>
-            <button type="button" className="home-gallery-control" disabled={selection.frames.length < 2} onClick={() => step(1)} aria-label="Next photograph">→</button>
+            <h3 className="home-editorial-title text-base sm:text-lg truncate">{frame.title}</h3>
+            <Link
+              href="/estimate"
+              data-magnetic
+              className="tayco-atelier-btn-gold !min-h-[40px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0"
+            >
+              Request Estimate
+            </Link>
           </footer>
         </div>
       )}
