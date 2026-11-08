@@ -56,6 +56,21 @@ test('every photo the division pages showed before the redesign is still on them
   assert.deepEqual(deleted, [], 'photos deleted from public/');
 });
 
+// A reference is not the same as a photo on screen: an array kept "for the inventory" whose filtered
+// copy nobody renders still names its photos (8-nov: 36 photos left that way). On main the division
+// components had no unused variables, so any unused one now is a hidden section, not noise.
+test('the division components render what they compute (no unused variables hiding photos)', async () => {
+  const { ESLint } = await import('eslint');
+  const eslint = new ESLint({ cwd: root });
+  const results = await eslint.lintFiles(['components/division/*.tsx']);
+  const unused = results.flatMap((result) =>
+    result.messages
+      .filter((message) => message.ruleId === '@typescript-eslint/no-unused-vars')
+      .map((message) => `${path.relative(root, result.filePath).split(path.sep).join('/')}:${message.line} ${message.message}`),
+  );
+  assert.deepEqual(unused, [], 'render it or move its photos where they are rendered; do not keep it only for the inventory');
+});
+
 test('every project in the catalog keeps its id and its division', () => {
   const current = new Map(PROPERTY_LISTINGS.map((listing) => [listing.id, listing.category as string]));
   const lost = inventory.projects.filter((project) => current.get(project.id) !== project.category);
