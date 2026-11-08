@@ -15,7 +15,7 @@ const base = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, ''
 const DIVISIONS = {
   'single-family': /\bsingle[\s-]?family\b|\bSFH\b/i,
   multifamily: /\bmulti[\s-]?family\b|\bmulti[\s-]?unit\b|\bmulti[\s-]?stor(?:e?y|ies)\b/i,
-  townhomes: /\btown[\s-]?(?:home|house)s?\b|\brow[\s-]?(?:home|house)s?\b/i,
+  townhomes: /\btown[\s-]?(?:home|house)s?\b|\brow[\s-]?(?:home|house)s?\b|\b(?:row|attached)[\s-]?residen(?:ce|ces|tial)\b/i,
   commercial: /\bcommercial\b/i,
 };
 
