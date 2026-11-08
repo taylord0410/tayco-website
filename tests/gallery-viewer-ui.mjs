@@ -1,7 +1,9 @@
 // Taylor, 8-nov-2026 (WhatsApp, via the HUB): «aún tienen los textos descriptivos. necesitamos que solo
 // sea la foto, que no haga tanto visual y que no se vean las demás fotos abajo, solo cuando el cliente
-// deslice a la izquierda o derecha.» Every «View Gallery» viewer keeps only: the photo, ‹ › arrows,
-// swipe, at most a discreet «3 / 3» counter, and the X to close. Nothing is added.
+// deslice a la izquierda o derecha.» Randhy's balance, same day: «que haya algo porque si no solo es
+// una revista de fotos». Every «View Gallery» viewer keeps only: the photo, ‹ › arrows, swipe, a
+// discreet «3 / 3» counter, the X to close, ONE line with the short name of the work and ONE «Request
+// Estimate» button. Each photo keeps a descriptive alt for search engines and screen readers (HUB).
 //
 // The viewer is drawn in the browser, so this opens it in a real one:
 //   BASE_URL=http://localhost:3100 TAYCO_PLAYWRIGHT_MODULE=<path to playwright> [CHROME_PATH=<chrome.exe>] node tests/gallery-viewer-ui.mjs
@@ -26,8 +28,19 @@ const VIEWPORTS = {
   desktop: { viewport: { width: 1440, height: 900 } },
   phone: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 },
 };
-// The only words allowed on screen: the counter and the close button.
+// Words always allowed on screen: the counter, the close button and the arrows.
 const ALLOWED_TEXT = /^(?:\d+\s*\/\s*\d+|close|[‹›←→×✕<>])$/i;
+const ESTIMATE = /^request (?:an? )?estimate\b/i;
+// The one name line is short and, like the rest of the page (rule 6), does not repeat the division
+// or show codes: «Standing-Seam Metal Roof», not the long subtitle.
+const MAX_NAME = 40;
+const DIVISIONS = {
+  'single-family': /\bsingle[\s-]?family\b|\bSFH\b/i,
+  multifamily: /\bmulti[\s-]?family\b|\bmulti[\s-]?unit\b|\bmulti[\s-]?stor(?:e?y|ies)\b/i,
+  townhomes: /\btown[\s-]?(?:home|house)s?\b|\brow[\s-]?(?:home|house)s?\b|\b(?:row|attached)[\s-]?residen(?:ce|ces|tial)\b/i,
+  commercial: /\bcommercial\b/i,
+};
+const TECHNICAL = /\bCSI\b|\bDIV\s*\d|\b[A-Z]{2,4}-[A-Z]{3,5}\b|\(\s*\d+\s*\)|\bOF\s+\d+\b|\d\s?°|\b\d{4}\s?K\b/;
 
 // Everything the viewer shows: visible text lines and visible photos (photo = which file, and its size).
 async function inspect(dialog) {
@@ -47,13 +60,23 @@ async function inspect(dialog) {
     const text = root.innerText.split('\n').map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
     const pins = [...root.querySelectorAll('[data-hotspot-pin], [role="tablist"]')].filter(shown).length;
     const overflow = root.scrollWidth - root.clientWidth > 1 || box.left < -1 || box.right > innerWidth + 1;
-    return { photos, text, pins, overflow };
+    // Every photo the viewer holds (shown or stacked for the crossfade) needs a real alt, not a file
+    // name. Blurred background copies are marked data-audit-ignore and are decorative.
+    const noAlt = [...root.querySelectorAll('canvas[data-protected-canvas], img')]
+      .filter((el) => el.dataset.auditIgnore !== 'true')
+      .map((el) => ({ stem: el.dataset.assetStem || el.getAttribute('src') || '?', alt: (el.getAttribute('aria-label') ?? el.getAttribute('alt') ?? '').trim() }))
+      .filter(({ alt }) => alt.length < 3 || /\.(?:jpe?g|png|webp|avif)\b|_/i.test(alt))
+      .map(({ stem, alt }) => `${stem} «${alt}»`);
+    const estimate = [...root.querySelectorAll('a, button')]
+      .filter((el) => shown(el) && /^request (?:an? )?estimate\b/i.test(el.innerText.trim()))
+      .map((el) => el.getAttribute('href'));
+    return { photos, text, pins, overflow, noAlt, estimate };
   });
 }
 
 const current = (state) => state.photos.filter((p) => p.share >= 0.5).map((p) => p.stem).sort().join('|');
 
-async function check(page, label, trigger) {
+async function check(page, label, trigger, division) {
   const problems = [];
   const button = page.locator(trigger).first();
   if (!(await button.count())) return [`${label}: no gallery button`];
@@ -65,8 +88,16 @@ async function check(page, label, trigger) {
   await page.waitForTimeout(1200);
 
   const state = await inspect(dialog);
-  const words = [...new Set(state.text.filter((t) => !ALLOWED_TEXT.test(t)))];
-  if (words.length) problems.push(`${label}: text on screen: ${words.slice(0, 12).map((w) => (w.length > 60 ? `${w.slice(0, 57)}...` : w)).join(' · ')}${words.length > 12 ? ` (+${words.length - 12})` : ''}`);
+  const words = [...new Set(state.text.filter((t) => !ALLOWED_TEXT.test(t) && !ESTIMATE.test(t)))];
+  if (words.length > 1) problems.push(`${label}: ${words.length} text lines on screen, only one name line is allowed: ${words.slice(0, 12).map((w) => (w.length > 60 ? `${w.slice(0, 57)}...` : w)).join(' · ')}${words.length > 12 ? ` (+${words.length - 12})` : ''}`);
+  else if (words.length === 1) {
+    const [name] = words;
+    if (name.length > MAX_NAME) problems.push(`${label}: the name line is longer than ${MAX_NAME} characters: ${name}`);
+    if ((division && division.test(name)) || TECHNICAL.test(name)) problems.push(`${label}: the name line repeats the division or shows a code: ${name}`);
+  }
+  if (state.estimate.length !== 1) problems.push(`${label}: ${state.estimate.length} «Request Estimate» buttons, one is expected`);
+  else if (state.estimate[0] !== null && !/\/estimate\b/.test(state.estimate[0])) problems.push(`${label}: «Request Estimate» goes to ${state.estimate[0]}, not /estimate`);
+  if (state.noAlt.length) problems.push(`${label}: ${state.noAlt.length} photo(s) without a descriptive alt: ${state.noAlt.slice(0, 4).join(' · ')}`);
   const thumbs = state.photos.filter((p) => p.share < 0.5);
   if (thumbs.length) problems.push(`${label}: ${thumbs.length} small photo(s) besides the main one (thumbnails)`);
   if (state.pins) problems.push(`${label}: ${state.pins} numbered pin(s) or filmstrip on the photo`);
@@ -130,9 +161,9 @@ try {
       if (await accept.isVisible().catch(() => false)) await accept.click();
       for (const [kind, trigger] of Object.entries(triggers)) {
         const label = `/${slug} ${kind} gallery (${device})`;
-        const problems = await check(page, label, trigger).catch((error) => [`${label}: ${error.message.split('\n')[0]}`]);
+        const problems = await check(page, label, trigger, DIVISIONS[slug]).catch((error) => [`${label}: ${error.message.split('\n')[0]}`]);
         if (problems.length) { failed++; for (const p of problems) console.log(`✖ ${p}`); }
-        else console.log(`✔ ${label}: only the photo, arrows, swipe, counter and close`);
+        else console.log(`✔ ${label}: only the photo, arrows, swipe, counter, close, one name line and «Request Estimate»`);
       }
     }
     await context.close();
