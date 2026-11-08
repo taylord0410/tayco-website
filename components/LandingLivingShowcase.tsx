@@ -727,7 +727,10 @@ export function TransformationBeforeAfterStudio({
         />
         <div className="flex flex-col items-center gap-6 mb-8">
           {/* Division Tabs */}
-          <TaycoPillDock ariaLabel="Filter transformations">
+          <TaycoPillDock
+            ariaLabel="Filter transformations"
+            className="!flex-nowrap overflow-x-auto tayco-no-scrollbar !justify-start !gap-1 sm:!gap-1.5 !p-1 sm:!p-1.5 !rounded-full"
+          >
             {divisionTabDefs.map((tab) => {
               const active = activeDivision === tab.id;
               return (
@@ -748,7 +751,7 @@ export function TransformationBeforeAfterStudio({
                       selectPairHarmonized(nextList[0].id);
                     }
                   }}
-                  className="tayco-atelier-pill cursor-pointer"
+                  className="tayco-atelier-pill cursor-pointer !min-h-[34px] sm:!min-h-[38px] !px-2.5 sm:!px-4 !py-1 sm:!py-1.5 !text-[11px] sm:!text-xs whitespace-nowrap shrink-0 first:ml-auto last:mr-auto"
                 >
                   {tab.label}
                 </button>
@@ -936,9 +939,9 @@ export function TransformationBeforeAfterStudio({
           </div>
 
           {/* Right 4 Columns: Active Transformation Card */}
-          <div className="lg:col-span-4 flex flex-col justify-between">
+          <div className="lg:col-span-4 flex flex-col justify-center">
             <div
-              className="tayco-living-card p-6 rounded-2xl border h-full flex flex-col justify-between items-center text-center relative overflow-hidden"
+              className="tayco-living-card p-6 sm:p-7 rounded-2xl border h-full flex flex-col justify-center items-center text-center gap-6 relative overflow-hidden"
               data-response-kind="surface"
               data-magnetic
               style={{
@@ -967,7 +970,7 @@ export function TransformationBeforeAfterStudio({
                 </h3>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
+              <div className="pt-4 border-t border-white/10 space-y-2.5 w-full">
                 <ImageReferenceButton src={activePair.afterImg} label="Save Reference" />
                 <Link
                   href="/estimate"

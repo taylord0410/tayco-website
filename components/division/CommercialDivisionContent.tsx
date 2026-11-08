@@ -342,7 +342,7 @@ export default function CommercialDivisionContent() {
             {/* ServiceCardTriptych retained via COMMERCIAL_CSI_TRADES */}
       <TransformationBeforeAfterStudio
         siteDivision="commercial"
-        initialDivision="div03"
+        initialDivision="all"
         initialPairId="div03_01"
         eyebrowLabel="Before & After"
       />

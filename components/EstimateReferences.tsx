@@ -143,7 +143,7 @@ export function EstimateReferencePanel() {
       <h3 id="estimate-references-title" className="font-semibold text-[#0f2040]">Your references <span className="text-sm font-normal">({images.length}/{MAX_REFERENCE_IMAGES})</span></h3>
       <Link href="/#tayco-operations-showcase" className="inline-flex min-h-11 items-center text-xs font-semibold text-[#0f2040] underline">Browse images →</Link>
     </div>
-    <p className="mb-4 text-sm leading-relaxed text-slate-600">Choose the spaces, materials or finishes you like. Their image IDs will accompany this request so our team can review your ideas.</p>
+    <p className="mb-4 text-sm leading-relaxed text-slate-600">Choose the spaces, materials or finishes you like. The images you choose will be sent with your request so our team can review your ideas.</p>
     {images.length ? <ReferenceGrid images={images} removable /> : <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-600">No references selected. You can still submit your request, or add images from our galleries.</p>}
   </section>;
 }

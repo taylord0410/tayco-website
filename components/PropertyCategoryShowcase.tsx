@@ -1139,7 +1139,7 @@ export function LandingPropertyCategoriesSection() {
 
                 {/* Clean Specialties Pills + Footer */}
                 <div className="home-market-panel p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4 text-left">
-                  <div translate="no" className="flex flex-wrap gap-1.5">
+                  <div translate="no" className="flex flex-nowrap overflow-x-auto tayco-no-scrollbar items-center gap-1 max-w-full">
                     {marketSpecialties.map((spec) => (
                       <button
                         key={spec.id}
@@ -1154,11 +1154,11 @@ export function LandingPropertyCategoriesSection() {
                             );
                           }
                         }}
-                        className="inline-flex shrink-0 whitespace-nowrap min-h-[34px] items-center gap-1.5 px-3 py-1 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[11px] font-semibold text-slate-100 transition-all cursor-pointer"
+                        className="inline-flex shrink-0 whitespace-nowrap min-h-[30px] items-center gap-1 px-2 py-1 rounded-full bg-[#070E1A]/90 border border-[#C9A84C]/40 hover:border-[#F3D37A] hover:bg-[#0F2040] text-[10px] font-semibold text-slate-100 transition-all cursor-pointer"
                       >
                         <SpecialtyVectorIcon
                           specialtyId={spec.specialtyId}
-                          className="w-3 h-3 text-[#F3D37A]"
+                          className="w-2.5 h-2.5 text-[#F3D37A]"
                         />
                         <span>{spec.specialtyLabel}</span>
                       </button>
