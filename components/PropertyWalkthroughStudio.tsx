@@ -1661,7 +1661,6 @@ export function buildSpecialtyWalkthroughStops(
       combinedPhotos.push(ef);
     }
   }
-  const totalLabel = String(combinedPhotos.length).padStart(2, "0");
   return combinedPhotos.map((photo, idx) => {
     const stepNumber = String(idx + 1).padStart(2, "0");
     const shortWords = photo.label
@@ -1670,19 +1669,22 @@ export function buildSpecialtyWalkthroughStops(
       .filter(Boolean)
       .slice(0, 2)
       .join(" ");
+    const cleanCaption = (photo as unknown as { caption?: string }).caption;
     return {
       stepNumber,
       shortRoomName: shortWords || `View ${stepNumber}`,
-      zoneLabel: `${service.code} · ${service.specialtyLabel}`,
-      floorLevel: `STEP ${stepNumber} OF ${totalLabel} · ${service.csiDivision} · ${service.title.toUpperCase()}`,
+      zoneLabel: service.specialtyLabel,
+      floorLevel: service.specialtyLabel,
       title: photo.label,
       src: photo.src,
       nightSrc: idx < baseCount ? resolveNightImageSrc(photo.src) : photo.src,
-      spatialNarrative: `${service.summary} (${(photo as unknown as { caption?: string }).caption ?? photo.label})`,
+      spatialNarrative: cleanCaption
+        ? `${service.summary} — ${cleanCaption}`
+        : `${service.summary} — ${photo.label}.`,
       portalButtonLabel:
         idx < combinedPhotos.length - 1
-          ? `Next ${service.specialtyLabel} View (${String(idx + 2).padStart(2, "0")}) →`
-          : `Return to View 01 · ${service.specialtyLabel} →`,
+          ? `Next ${service.specialtyLabel} View →`
+          : `First ${service.specialtyLabel} View →`,
       sunDirectionX: idx === 0 ? 74 : idx === 1 ? 30 : 58,
       sunDirectionY: 22,
       lightFixtures: isUncoveredFraming
@@ -1709,7 +1711,7 @@ export function buildSpecialtyWalkthroughStops(
           xPercent: 30,
           yPercent: 38,
           title: service.deliverables[0] ?? service.title,
-          csiDivision: `${service.csiDivision} · PRIMARY ASSEMBLY`,
+          csiDivision: `${service.specialtyLabel} · Primary Assembly`,
           materialSpec:
             (photo as unknown as { tag?: string }).tag ?? photo.label,
           detail:
@@ -1721,7 +1723,7 @@ export function buildSpecialtyWalkthroughStops(
           xPercent: 56,
           yPercent: 52,
           title: service.deliverables[1] ?? service.specialtyLabel,
-          csiDivision: `${service.csiDivision} · FIELD EXECUTION`,
+          csiDivision: `${service.specialtyLabel} · Field Execution`,
           materialSpec: service.subtitle,
           detail: service.summary,
         },
@@ -1730,7 +1732,7 @@ export function buildSpecialtyWalkthroughStops(
           xPercent: 74,
           yPercent: 36,
           title: service.deliverables[2] ?? "Quality Assurance",
-          csiDivision: `${service.csiDivision} · INSPECTION VERIFIED`,
+          csiDivision: `${service.specialtyLabel} · Quality Verified`,
           materialSpec: photo.label,
           detail: `Use the Solar & Twilight slider or Compare Before/After curtain to inspect surface details under 24-hour lighting.`,
         },
@@ -1990,13 +1992,13 @@ export function PropertyWalkthroughStudioModal({
                   }}
                 >
                   {studioMode === "specialty" && activeSpecialty
-                    ? activeSpecialty.code
-                    : property.code}
+                    ? activeSpecialty.specialtyLabel
+                    : property.location}
                 </span>
                 <span className="hidden sm:inline">
                   {studioMode === "specialty" && activeSpecialty
-                    ? `${activeSpecialty.specialtyLabel.toUpperCase()} · MARKET SPECIALTY STUDIO`
-                    : "ARCHITECTURAL 5-ROOM WALKTHROUGH & BESPOKE ATELIER"}
+                    ? "GALLERY STUDIO"
+                    : "PROJECT WALKTHROUGH"}
                 </span>
                 <span className="hidden sm:inline text-white/25">•</span>
                 <span className="hidden sm:inline text-slate-300">
@@ -2008,7 +2010,7 @@ export function PropertyWalkthroughStudioModal({
                 className="tayco-card-title text-sm sm:text-xl lg:text-[1.35rem] text-white tracking-tight truncate max-w-full"
               >
                 {studioMode === "specialty" && activeSpecialty
-                  ? `${activeSpecialty.title} (${property.title})`
+                  ? activeSpecialty.title
                   : property.title}
               </h2>
             </div>
@@ -2144,7 +2146,7 @@ export function PropertyWalkthroughStudioModal({
                         : "none",
                   }}
                 >
-                  <span><span translate="no">01 · </span><span className="sm:hidden">5-Space Tour</span><span className="hidden sm:inline">5-Space Connected Project Tour</span></span>
+                  <span><span className="sm:hidden">Project Tour</span><span className="hidden sm:inline">Connected Project Tour</span></span>
                 </button>
 
                 <button
@@ -2169,13 +2171,13 @@ export function PropertyWalkthroughStudioModal({
                   }}
                 >
                   <span>
-                    <span translate="no">02 · </span><span className="sm:hidden">{marketSpecialties.length} Specialties</span><span className="hidden sm:inline">8 Construction Specialties ({marketSpecialties.length})</span>
+                    <span className="sm:hidden">Specialties</span><span className="hidden sm:inline">Construction Specialties</span>
                   </span>
                 </button>
               </div>
 
               {/* Right: 8 Specialty Selector Pills inside a sleek horizontal-capable container */}
-              <div className={`${studioMode === "specialty" ? "flex" : "max-sm:hidden flex"} items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-no-scrollbar`}>
+              <div translate="no" className={`${studioMode === "specialty" ? "flex" : "max-sm:hidden flex"} items-center justify-start sm:justify-center xl:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5 tayco-no-scrollbar`}>
                 {marketSpecialties.map((spec) => {
                   const isSelected =
                     studioMode === "specialty" &&
@@ -2613,7 +2615,7 @@ export function PropertyWalkthroughStudioModal({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-white/10">
                 <div className="min-w-0">
                   <div className="text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#F3D37A] truncate">
-                    {activeStop.floorLevel} · View {activeStop.stepNumber} of 0{stops.length}
+                    {activeStop.floorLevel} · {activeStopIdx + 1} / {stops.length}
                   </div>
                   <h3 className="tayco-card-title text-base sm:text-xl text-white tracking-tight leading-snug truncate">
                     {activeStop.title}
@@ -2633,8 +2635,8 @@ export function PropertyWalkthroughStudioModal({
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
                     {studioMode === "specialty" && activeSpecialty
-                      ? `${activeSpecialty.csiDivision} · ${activeSpecialty.specialtyLabel.toUpperCase()} ${stops.length}-VIEW GALLERY`
-                      : "CONNECTED 5-SPACE PROJECT WALKTHROUGH"}
+                      ? `${activeSpecialty.specialtyLabel.toUpperCase()} GALLERY`
+                      : "PROJECT WALKTHROUGH"}
                   </span>
                   <span className="hidden sm:inline text-[11px] text-slate-400">
                     — Click any view or press ← / → arrows for smooth transition

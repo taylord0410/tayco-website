@@ -119,7 +119,19 @@ export default function PublicCookieBanner() {
       window.removeEventListener(PUBLIC_COOKIE_EVENT, onExternalUpdate);
   }, []);
 
-  if (!hydrated) return null;
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (hydrated && isOpen) {
+      document.body.style.paddingBottom = customizeOpen ? "260px" : "68px";
+    } else {
+      document.body.style.paddingBottom = "";
+    }
+    return () => {
+      document.body.style.paddingBottom = "";
+    };
+  }, [hydrated, isOpen, customizeOpen]);
+
+  if (!hydrated || !isOpen) return null;
 
   const handleAcceptAll = () => {
     const saved = savePublicCookieConsent({
@@ -155,224 +167,150 @@ export default function PublicCookieBanner() {
     setCustomizeOpen(false);
   };
 
-  if (!isOpen && consent) {
-    return (
-      <div className="hidden sm:block fixed bottom-4 right-4 z-40 print:hidden">
-        <button
-          type="button"
-          data-testid="public-cookie-trigger"
-          onClick={() => {
-            setIsOpen(true);
-            setCustomizeOpen(false);
-          }}
-          aria-label="Open cookie and privacy preferences"
-          className="group inline-flex h-9 w-9 items-center justify-center gap-2 rounded-full border border-[#C9A84C]/45 bg-[#070E1A]/92 text-xs font-semibold opacity-70 hover:opacity-100 sm:h-auto sm:w-auto sm:px-3.5 sm:py-2 sm:opacity-100 text-[#F3D37A] shadow-[0_10px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl transition-all hover:border-[#F3D37A] hover:bg-[#0F2040] hover:text-white cursor-pointer"
-        >
-          <svg
-            className="h-3.5 w-3.5 text-[#C9A84C] transition-transform group-hover:rotate-12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <span className="hidden sm:inline">Privacy &amp; Cookies</span>
-        </button>
-      </div>
-    );
-  }
-
   return (
     <aside
       aria-label="Cookie and privacy consent notice"
       data-testid="public-cookie-banner"
-      className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-auto sm:right-5 z-50 sm:w-[430px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#C9A84C]/55 bg-[#070E1A]/96 p-3.5 sm:p-5 text-slate-100 shadow-[0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl print:hidden"
+      className="fixed bottom-0 inset-x-0 z-50 border-t-2 border-[#C9A84C] bg-[#060D19] px-4 py-2.5 sm:px-6 text-slate-100 shadow-[0_-12px_36px_rgba(0,0,0,0.92)] print:hidden"
     >
-      {/* Top gold accent bar */}
-      <div
-        className="absolute inset-x-6 top-0 h-[2px] rounded-full"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, #C9A84C, #F3D37A, #C9A84C, transparent)",
-        }}
-        aria-hidden="true"
-      />
-
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#C9A84C]/45 bg-[#0F2040]/90 text-[#F3D37A]">
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <div>
-            <p translate="no" className="hidden sm:block text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-              TAYCO LLC · Data &amp; Cookie Governance
-            </p>
-            <h2 className="text-sm font-black tracking-tight text-white">
-              Cookie Preferences
-            </h2>
-          </div>
-        </div>
-
-        {consent && (
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            aria-label="Close cookie preferences"
-            className="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-          >
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      <p className="mt-2 text-xs leading-relaxed text-slate-300">
-        Essential cookies secure your session; optional analytics help us
-        refine site performance. We never sell your data.
-      </p>
-
-      {customizeOpen && (
-        <div className="mt-3.5 space-y-2.5 rounded-xl border border-[#C9A84C]/30 bg-[#0B172A]/95 p-3.5 text-xs">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-bold text-white">
-                Strictly Necessary &amp; Security Shield
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Session integrity, CSRF protection, encrypted form submission &amp;
-                visual stream protection.
-              </p>
-            </div>
-            <span className="shrink-0 rounded-full bg-[#C9A84C]/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#F3D37A]">
-              Always Active
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F3D37A] shrink-0">
+              <svg
+                className="h-3.5 w-3.5 text-[#C9A84C] shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <span>Cookies</span>
             </span>
+            <p className="text-xs text-slate-100 leading-snug">
+              Essential cookies secure your session; optional analytics help improve site performance.
+            </p>
+            <Link
+              href="/privacy"
+              onClick={() => setIsOpen(false)}
+              className="text-xs font-semibold text-[#F3D37A] underline-offset-2 hover:underline shrink-0"
+            >
+              Privacy Policy
+            </Link>
           </div>
 
-          <label className="flex items-start justify-between gap-3 pt-2 border-t border-white/10 cursor-pointer">
-            <div>
-              <p className="font-bold text-white">
-                Functional &amp; Display Preferences
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Remembers division selections, display atmosphere &amp; consent
-                settings.
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={functional}
-              onChange={(e) => setFunctional(e.target.checked)}
-              aria-label="Functional and display preferences"
-              className="mt-1 h-4 w-4 rounded-md border-slate-500 accent-[#C9A84C] cursor-pointer"
-            />
-          </label>
-
-          <label className="flex items-start justify-between gap-3 pt-2 border-t border-white/10 cursor-pointer">
-            <div>
-              <p className="font-bold text-white">
-                Optional Interaction Analytics
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Helps us improve navigation and project showcase performance.
-                Off by default until accepted.
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={analytics}
-              onChange={(e) => setAnalytics(e.target.checked)}
-              aria-label="Optional interaction analytics"
-              className="mt-1 h-4 w-4 rounded-md border-slate-500 accent-[#C9A84C] cursor-pointer"
-            />
-          </label>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              data-testid="cookie-accept-all"
+              onClick={handleAcceptAll}
+              className="min-h-[36px] rounded-lg bg-[#C9A84C] px-3.5 py-1.5 text-xs font-black text-[#070E1A] transition-colors hover:bg-[#F3D37A] cursor-pointer"
+            >
+              Accept All
+            </button>
+            <button
+              type="button"
+              data-testid="cookie-essential-only"
+              onClick={handleEssentialOnly}
+              className="min-h-[36px] rounded-lg border border-[#C9A84C]/65 bg-[#0F2040] px-3.5 py-1.5 text-xs font-bold text-[#F3D37A] transition-colors hover:border-[#F3D37A] hover:text-white cursor-pointer"
+            >
+              Essential Only
+            </button>
+            {customizeOpen ? (
+              <button
+                type="button"
+                data-testid="cookie-save-custom"
+                onClick={handleSaveCustom}
+                className="min-h-[36px] rounded-lg border border-white/35 bg-[#162B52] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1E3A6D] cursor-pointer"
+              >
+                Save Choices
+              </button>
+            ) : (
+              <button
+                type="button"
+                data-testid="cookie-customize"
+                onClick={() => setCustomizeOpen(true)}
+                className="min-h-[36px] rounded-lg border border-white/25 bg-[#0B172A] px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:border-white/50 hover:text-white cursor-pointer"
+              >
+                Customize
+              </button>
+            )}
+            {consent && (
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close cookie preferences"
+                className="rounded-lg p-1.5 text-slate-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+              >
+                <svg
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
-      )}
 
-      <div className="mt-3 grid grid-cols-2 items-center gap-2 sm:mt-4 sm:flex sm:flex-wrap">
-        <button
-          type="button"
-          data-testid="cookie-accept-all"
-          onClick={handleAcceptAll}
-          className="min-h-[42px] sm:flex-1 sm:min-w-[125px] rounded-xl bg-[#C9A84C] px-3.5 py-2 text-xs font-black text-[#070E1A] shadow-md transition-all hover:bg-[#F3D37A] cursor-pointer"
-        >
-          Accept All
-        </button>
-        <button
-          type="button"
-          data-testid="cookie-essential-only"
-          onClick={handleEssentialOnly}
-          className="min-h-[42px] sm:flex-1 sm:min-w-[120px] rounded-xl border border-[#C9A84C]/45 bg-[#0F2040]/85 px-3.5 py-2 text-xs font-bold text-[#F3D37A] transition-all hover:border-[#F3D37A] hover:text-white cursor-pointer"
-        >
-          Essential Only
-        </button>
-        {customizeOpen ? (
-          <button
-            type="button"
-            data-testid="cookie-save-custom"
-            onClick={handleSaveCustom}
-            className="col-span-2 min-h-[38px] sm:col-span-1 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-white/20 cursor-pointer"
-          >
-            Save Choices
-          </button>
-        ) : (
-          <button
-            type="button"
-            data-testid="cookie-customize"
-            onClick={() => setCustomizeOpen(true)}
-            className="col-span-2 min-h-[38px] sm:col-span-1 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 transition-all hover:border-white/40 hover:text-white cursor-pointer"
-          >
-            Customize
-          </button>
+        {customizeOpen && (
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-xl border border-[#C9A84C]/40 bg-[#0B172A] p-3 text-xs">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-bold text-white">Strictly Necessary</p>
+                <p className="text-[11px] text-slate-300">
+                  Session integrity, CSRF protection &amp; secure form submission.
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full bg-[#C9A84C]/25 px-2 py-0.5 font-mono text-[10px] font-bold text-[#F3D37A]">
+                Always Active
+              </span>
+            </div>
+
+            <label className="flex items-start justify-between gap-2 pt-2 sm:pt-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-white/15 cursor-pointer">
+              <div>
+                <p className="font-bold text-white">Functional Preferences</p>
+                <p className="text-[11px] text-slate-300">
+                  Remembers display atmosphere &amp; consent settings.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={functional}
+                onChange={(e) => setFunctional(e.target.checked)}
+                aria-label="Functional and display preferences"
+                className="mt-1 h-4 w-4 rounded-md border-slate-400 accent-[#C9A84C] cursor-pointer"
+              />
+            </label>
+
+            <label className="flex items-start justify-between gap-2 pt-2 sm:pt-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-white/15 cursor-pointer">
+              <div>
+                <p className="font-bold text-white">Interaction Analytics</p>
+                <p className="text-[11px] text-slate-300">
+                  Helps improve navigation and showcase performance.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={analytics}
+                onChange={(e) => setAnalytics(e.target.checked)}
+                aria-label="Optional interaction analytics"
+                className="mt-1 h-4 w-4 rounded-md border-slate-400 accent-[#C9A84C] cursor-pointer"
+              />
+            </label>
+          </div>
         )}
-      </div>
-
-      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2 text-[11px] text-slate-400 sm:mt-3 sm:pt-2.5">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/privacy"
-            onClick={() => setIsOpen(false)}
-            className="font-semibold text-[#F3D37A] underline-offset-2 hover:underline"
-          >
-            Privacy &amp; Cookie Policy
-          </Link>
-          <span>·</span>
-          <Link
-            href="/privacy#project-photography-privacy"
-            onClick={() => setIsOpen(false)}
-            className="text-slate-300 underline-offset-2 hover:text-white hover:underline"
-          >
-            Client Confidentiality
-          </Link>
-        </div>
-        <span translate="no" className="hidden sm:inline font-mono text-[10px] text-slate-500">
-          v{GUEST_PRIVACY_VERSION}
-        </span>
       </div>
     </aside>
   );

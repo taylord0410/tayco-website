@@ -1043,7 +1043,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Standing-Seam Metal, Architectural Shingles & Copper Ridge Detailing",
       csiDivision: "CSI DIV 07 · THERMAL & MOISTURE",
       summary:
-        "High-pitch architectural shingle and standing-seam metal roofing engineered for Residence, complete with ice-and-water shield membranes, ridge ventilation and custom copper chimney flashing.",
+        "High-pitch architectural shingle and standing-seam metal roofing engineered for custom residential homes, complete with ice-and-water shield membranes, ridge ventilation and custom copper chimney flashing.",
       deliverables: [
         "Standing-seam metal & Class-4 impact-rated architectural shingles",
         "Ice-and-water eave membranes & balanced ridge ventilation",
@@ -1107,7 +1107,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Dimensional Lumber, Engineered LVL/Glulam Beams & Vaulted Roof Trusses",
       csiDivision: "CSI DIV 06 · WOOD FRAMING",
       summary:
-        "Precision residential wood framing for Custom homes—including open-span engineered LVL and glulam ridge beams, vaulted great-room roof trusses, ZIP System structural sheathing and architectural window openings.",
+        "Precision residential wood framing for custom homes—including open-span engineered LVL and glulam ridge beams, vaulted great-room roof trusses, ZIP System structural sheathing and architectural window openings.",
       deliverables: [
         "2x6 exterior stud walls & engineered LVL/glulam beam spans",
         "Vaulted scissor & gable roof truss packages with hurricane clips",
@@ -1267,7 +1267,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Waterfall Quartz Islands, Shaker Cabinetry & Spa Bathroom Remodels",
       csiDivision: "CSI DIV 06 · 09 · FINISH CARPENTRY",
       summary:
-        "Turnkey interior finish carpentry, custom chef's kitchens and primary spa bathrooms for Residence—including waterfall quartz islands, custom built-in mudroom lockers and solid-core interior doors.",
+        "Turnkey interior finish carpentry, custom chef's kitchens and primary spa bathrooms for custom homes—including waterfall quartz islands, custom built-in mudroom lockers and solid-core interior doors.",
       deliverables: [
         "Custom shaker & inset kitchen cabinetry with waterfall quartz islands",
         "Frameless glass walk-in showers, freestanding tubs & double vanities",
@@ -1301,7 +1301,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Multi-Ridge Architectural Shingles, Standing-Seam Metal & Flat-Deck TPO",
       csiDivision: "CSI DIV 07 · ROOFING",
       summary:
-        "High-durability roofing systems engineered for buildings, Two-Unit Residence and residential complexes—combining architectural shingle gable roofs, standing-seam metal dormers, Architectural-grade gutters and flat-deck TPO membranes.",
+        "High-durability roofing systems engineered for apartment buildings, duplexes and residential complexes—combining architectural shingle gable roofs, standing-seam metal dormers, architectural-grade gutters and flat-deck TPO membranes.",
       deliverables: [
         "Multi-ridge architectural shingle & standing-seam metal roof assemblies",
         "TPO flat-roof membranes with tapered insulation & scupper drainage",
@@ -1365,7 +1365,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Timber Framing, Open-Web Floor Trusses & Acoustic Separation",
       csiDivision: "CSI DIV 06 · FRAMING",
       summary:
-        "Fast-cycle wood framing for Two-Unit Residence and buildings—utilizing engineered open-web floor trusses for MEP routing, double-stud acoustic demising walls and pre-engineered roof truss packages.",
+        "Fast-cycle wood framing for duplexes and residential buildings—utilizing engineered open-web floor trusses for MEP routing, double-stud acoustic demising walls and pre-engineered roof truss packages.",
       deliverables: [
         "Type-V timber framing & concrete podium tie-downs",
         "Open-web floor trusses for rapid plumbing, HVAC & electrical runs",
@@ -1817,7 +1817,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "60–80 Mil White TPO Membranes, Tapered Polyiso Insulation & Metal Roofs",
       csiDivision: "CSI DIV 07 · Architectural ROOFING",
       summary:
-        "FM-Global and UL-rated Architectural roofing installations for office headquarters, medical plazas, retail centers and industrial warehouses—featuring heat-welded TPO membranes, tapered insulation, RTU curbs and architectural standing-seam metal.",
+        "FM-Global and UL-rated roofing installations for office headquarters, medical plazas, retail centers and industrial warehouses—featuring heat-welded TPO membranes, tapered insulation, RTU curbs and architectural standing-seam metal.",
       deliverables: [
         "60–80 mil Energy-Star white TPO & EPDM Architectural membrane roofs",
         "Tapered polyiso roof insulation, RTU curbs & internal roof drains",
@@ -1849,7 +1849,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Insulated ACM Metal Panels, Thermally Broken Storefront Glass & Rain-Screens",
       csiDivision: "CSI DIV 07 · 08 · Architectural ENVELOPE",
       summary:
-        "High-performance Architectural building envelopes combining architectural aluminum composite metal (ACM) panels, insulated metal siding, thermally broken curtain-wall glazing and continuous fluid-applied weather barriers.",
+        "High-performance building envelopes combining architectural aluminum composite metal panels, insulated metal siding, thermally broken curtain-wall glazing and continuous fluid-applied weather barriers.",
       deliverables: [
         "Architectural ACM metal panels, insulated metal siding & louvers",
         "Thermally broken aluminum curtain-wall & Architectural storefront glazing",
@@ -1881,7 +1881,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Clear-Span Steel Columns, Bar Joists, Mezzanine Decks & Cold-Formed Studs",
       csiDivision: "CSI DIV 05 · 09 · Architectural FRAMING",
       summary:
-        "Turnkey Architectural structural steel erection and cold-formed metal stud framing—delivering high-bay warehouse clear spans, composite steel mezzanine decks, exterior curtain-wall backup framing and interior tenant demising walls.",
+        "Turnkey structural steel erection and cold-formed metal stud framing—delivering high-bay warehouse clear spans, composite steel mezzanine decks, exterior curtain-wall backup framing and interior tenant demising walls.",
       deliverables: [
         "Structural steel columns, wide-flange beams & open-web bar joists",
         "Exterior heavy-gauge cold-formed metal stud backup & parapet framing",
@@ -1913,7 +1913,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "UL Fire-Rated Partitions, Linear Wood Baffles & Suspended ACT Grids",
       csiDivision: "CSI DIV 09 · Architectural GYPSUM & CEILINGS",
       summary:
-        "Large-scale Architectural drywall and ceiling systems for corporate offices, medical clinics and retail suites—featuring UL fire-rated deck-to-deck partitions, elevator shaft walls, suspended acoustical tile (ACT) grids and architectural wood baffles.",
+        "Large-scale drywall and ceiling systems for corporate offices, medical clinics and retail suites—featuring UL fire-rated deck-to-deck partitions, elevator shaft walls, suspended acoustical tile grids and architectural wood baffles.",
       deliverables: [
         "Deck-to-deck UL fire-rated & STC acoustic Architectural drywall partitions",
         "Suspended acoustical ceiling tile (ACT) grids & linear wood baffles",
@@ -1945,7 +1945,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Large-Format Lobby Stone, Architectural Carpet Tile & Diamond-Polished Concrete",
       csiDivision: "CSI DIV 09 · Architectural FLOORING",
       summary:
-        "Heavy-duty Architectural flooring installations engineered for high foot traffic and industrial loads—from honed limestone and terrazzo corporate lobbies to Architectural LVT, modular carpet tile and diamond-polished concrete slabs.",
+        "Heavy-duty flooring installations engineered for high foot traffic and industrial loads—from honed limestone and terrazzo corporate lobbies to heavy-wear LVT, modular carpet tile and diamond-polished concrete slabs.",
       deliverables: [
         "Large-format porcelain, terrazzo & honed limestone lobby flooring",
         "Architectural-grade LVT, modular carpet tile & static-dissipative vinyl",
@@ -1977,16 +1977,16 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "High-Load Warehouse Slabs, Grade Beams, Loading Docks & Architectural Plazas",
       csiDivision: "CSI DIV 03 · Architectural CONCRETE",
       summary:
-        "Engineered Architectural concrete construction—including laser-screeded high-load warehouse slabs, deep pier and grade-beam foundations, loading dock pits, site retaining walls and architectural entry plazas.",
+        "Engineered concrete construction—including laser-screeded high-load warehouse slabs, deep pier and grade-beam foundations, loading dock pits, site retaining walls and architectural entry plazas.",
       deliverables: [
-        "Laser-screeded reinforced Architectural & industrial floor slabs",
+        "Laser-screeded reinforced industrial floor slabs",
         "Deep foundation piers, grade beams, elevator pits & loading docks",
         "Architectural concrete entry plazas, bollards, curbs & ADA ramps",
       ],
       triptych: [
         {
           src: "/curated/properties/mkt-com-concrete-stone.jpg",
-          label: "Architectural Architectural Concrete Entry Plaza & Retaining Planters",
+          label: "Architectural Concrete Entry Plaza & Retaining Planters",
         },
         {
           src: "/curated/properties/mkt-com-concrete-tiltup.jpg",
@@ -2018,7 +2018,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/hero/com-plaza-stone.jpg",
-          label: "Architectural Architectural Stone Veneer & Masonry Entry Elevation",
+          label: "Architectural Stone Veneer & Masonry Entry Elevation",
         },
         {
           src: "/curated/properties/mkt-com-stone-masonry.jpg",
@@ -2041,9 +2041,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       subtitle: "Executive Boardrooms, Acoustic Glass Fronts, Reception Desks & Hospitality Suites",
       csiDivision: "CSI DIV 06 · 08 · 09 · TENANT BUILDOUTS",
       summary:
-        "Turnkey Architectural Tenant Improvements (TI) and architectural millwork—delivering glass-walled conference rooms, custom stone-and-walnut reception desks, breakroom cabinetry and indoor-outdoor hospitality terraces.",
+        "Turnkey tenant improvements and architectural millwork—delivering glass-walled conference rooms, custom stone-and-walnut reception desks, breakroom cabinetry and indoor-outdoor hospitality terraces.",
       deliverables: [
-        "Turnkey corporate, medical & retail Tenant Improvement (TI) buildouts",
+        "Turnkey corporate, medical & retail tenant improvement buildouts",
         "Acoustic glass office fronts, conference suites & custom reception desks",
         "Architectural walnut wall paneling, breakrooms & rooftop amenity lounges",
       ],

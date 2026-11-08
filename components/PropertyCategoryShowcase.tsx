@@ -346,7 +346,7 @@ function MarketSpecialtyInteractiveCard({
       data-specialty-card={service.code}
       data-response-kind="surface"
       onPointerEnter={() => preloadProtectedImages(allUrls)}
-      className="relative rounded-[24px] border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.72)]"
+      className="relative rounded-[24px] border overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.72)]"
       style={{
         background:
           "linear-gradient(165deg, rgba(15, 32, 64, 0.95) 0%, rgba(7, 14, 26, 0.99) 100%)",
@@ -362,12 +362,12 @@ function MarketSpecialtyInteractiveCard({
               specialtyId={service.specialtyId}
               className="w-4 h-4 text-[#F3D37A] shrink-0"
             />
-            <h3 className="tayco-card-title text-lg sm:text-xl text-white">
+            <h3 translate="no" className="tayco-card-title text-lg sm:text-xl text-white">
               {service.title}
             </h3>
           </div>
 
-          <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0">
+          <div translate="no" className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0">
             {(
               [
                 { id: "day", label: "Day" },
@@ -476,13 +476,13 @@ function MarketSpecialtyInteractiveCard({
           </div>
         </div>
 
-        {/* Simultaneous Multiples-of-3 Gallery Grid (3 or 6 Thumbnails, Zero Empty Dark Holes; Full Set Opens in View Gallery) */}
+        {/* Single Row of 3 Thumbnails on Card (Extra Specialty Photos Open in View Gallery Modal) */}
         <div
           className="grid grid-cols-3 gap-2 p-2 bg-[#040811] border-t border-white/10"
           role="group"
           aria-label={`${service.title} gallery`}
         >
-          {frames.slice(0, frames.length >= 6 ? 6 : 3).map((f, idx) => {
+          {frames.slice(0, 3).map((f, idx) => {
             const isSelected = idx === activeIdx;
             const thumbSrc =
               mood === "night" ? resolveFrameNightSrc(f.src, idx) : f.src;
@@ -525,8 +525,9 @@ function MarketSpecialtyInteractiveCard({
       </div>
 
       {/* Minimalist Architectural Footer Bar */}
-      <div className="px-4 sm:px-5 py-3.5 bg-[#050A14]/90 border-t border-white/10">
+      <div className="mt-auto px-4 sm:px-5 py-3 bg-[#050A14]/95 border-t border-white/10">
         <TaycoCardFooterBar
+          className="!border-t-0 !pt-0"
           leftMeta={
             <span className="text-xs text-slate-300 line-clamp-2 min-w-0 text-left leading-snug">
               {currentFrame.label}
@@ -895,18 +896,19 @@ export function LandingPropertyCategoriesSection() {
             id="property-categories-heading"
             className="tayco-display-title text-3xl sm:text-4xl lg:text-5xl text-white leading-[1.08]"
           >
-            Architectural{" "}
+            Choose Your{" "}
             <em
               className="tayco-serif-em font-normal"
               style={{ color: "#F3D37A" }}
             >
-              Portfolio.
+              Construction Market.
             </em>
           </h2>
 
           {/* Mobile market switcher — one market at a time */}
           <div
             role="tablist"
+            translate="no"
             aria-label="Choose your construction market"
             className="mt-5 grid w-full max-w-md grid-cols-2 gap-2 md:hidden"
           >
@@ -937,6 +939,7 @@ export function LandingPropertyCategoriesSection() {
               <Link
                 key={cat.slug}
                 href={`/${cat.slug}`}
+                translate="no"
                 data-magnetic
                 className="tayco-atelier-btn-obsidian !px-4 !py-2 !text-[11px] !tracking-[0.08em]"
               >
@@ -987,6 +990,7 @@ export function LandingPropertyCategoriesSection() {
                 <div className="bg-[#050A14] border-b border-white/10 px-4 py-3 flex items-center justify-between gap-3">
                   <Link
                     href={`/${cat.slug}`}
+                    translate="no"
                     className="min-w-0 group/title text-left"
                   >
                     <h3 className="tayco-card-title text-xl sm:text-2xl text-white group-hover/title:text-[#F3D37A] transition-colors truncate">
@@ -995,6 +999,7 @@ export function LandingPropertyCategoriesSection() {
                   </Link>
 
                   <div
+                    translate="no"
                     className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15 shrink-0"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -1134,7 +1139,7 @@ export function LandingPropertyCategoriesSection() {
 
                 {/* Clean Specialties Pills + Footer */}
                 <div className="home-market-panel p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4 text-left">
-                  <div className="flex flex-wrap gap-1.5">
+                  <div translate="no" className="flex flex-wrap gap-1.5">
                     {marketSpecialties.map((spec) => (
                       <button
                         key={spec.id}
@@ -1581,6 +1586,7 @@ export function PropertyCategoryPageView({
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
+            translate="no"
             className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-slate-300 mb-6 mx-auto"
           >
             <Link href="/" className="hover:text-[#F3D37A] transition-colors">
@@ -1604,7 +1610,7 @@ export function PropertyCategoryPageView({
           </nav>
 
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <h1 className="tayco-display-title text-3xl sm:text-5xl lg:text-6xl text-white leading-[1.05]">
+            <h1 translate="no" className="tayco-display-title text-3xl sm:text-5xl lg:text-6xl text-white leading-[1.05]">
               {activeCategory ? (
                 activeCategory.shortLabel
               ) : (
@@ -1622,7 +1628,7 @@ export function PropertyCategoryPageView({
           </div>
 
           {/* ── 4-CATEGORY NAVIGATION BAR ── */}
-          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/15 flex justify-center">
+          <div translate="no" className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/15 flex justify-center">
             <TaycoPillDock ariaLabel="Primary construction categories">
               {PROPERTY_CATEGORIES.map((cat) => {
                 const isCurrent = activeCategory?.slug === cat.slug;
@@ -1651,6 +1657,7 @@ export function PropertyCategoryPageView({
         {activeCategory && marketSpecialties.length > 0 && (
           <div
             data-testid="market-experience-mode-switcher"
+            translate="no"
             className="mt-2 p-2 rounded-2xl lg:rounded-full border flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-2 backdrop-blur-md max-w-3xl mx-auto"
             style={{
               background:
@@ -1668,7 +1675,7 @@ export function PropertyCategoryPageView({
                 data-active={experienceMode === "specialties" ? "true" : "false"}
               >
                 <span className="text-xs sm:text-[13px] font-bold tracking-tight">
-                  Specialties ({marketSpecialties.length})
+                  Specialties
                 </span>
               </button>
 
@@ -1680,7 +1687,7 @@ export function PropertyCategoryPageView({
                 data-active={experienceMode === "projects" ? "true" : "false"}
               >
                 <span className="text-xs sm:text-[13px] font-bold tracking-tight">
-                  Projects ({baseListings.length})
+                  Projects
                 </span>
               </button>
             </div>
@@ -1728,7 +1735,8 @@ export function PropertyCategoryPageView({
 
               {/* Single Specialty Filter Strip (1 Single Horizontal Line on Desktop & Mobile) */}
               <div
-                className="flex flex-nowrap items-center justify-start lg:justify-center gap-1.5 mt-5 w-full max-w-full overflow-x-auto no-scrollbar py-1 px-1"
+                translate="no"
+                className="flex flex-nowrap items-center justify-start md:justify-center gap-1 sm:gap-1.5 mt-5 w-full max-w-full overflow-x-auto tayco-no-scrollbar py-1 px-1 max-md:[mask-image:linear-gradient(to_right,black_90%,transparent_100%)]"
                 role="group"
                 aria-label="Filter specialties"
               >
@@ -1736,10 +1744,10 @@ export function PropertyCategoryPageView({
                   type="button"
                   data-magnetic
                   onClick={() => setSpecialtyGroupFilter("all")}
-                  className="tayco-atelier-pill !min-h-[36px] !px-3.5 !py-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
+                  className="tayco-atelier-pill !min-h-[34px] !px-2.5 sm:!px-3 !py-1 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0"
                   data-active={specialtyGroupFilter === "all" ? "true" : "false"}
                 >
-                  All ({marketSpecialties.length})
+                  All
                 </button>
                 {marketSpecialties.map((spec) => {
                   const isSelected = specialtyGroupFilter === spec.specialtyId;
@@ -1749,7 +1757,7 @@ export function PropertyCategoryPageView({
                       type="button"
                       data-magnetic
                       onClick={() => setSpecialtyGroupFilter(spec.specialtyId)}
-                      className="tayco-atelier-pill !min-h-[36px] !px-3 !py-1.5 inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
+                      className="tayco-atelier-pill !min-h-[34px] !px-2.5 sm:!px-3 !py-1 inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0"
                       data-active={isSelected ? "true" : "false"}
                     >
                       <SpecialtyVectorIcon
@@ -1822,7 +1830,7 @@ export function PropertyCategoryPageView({
                 className="tayco-atelier-pill"
                 data-active={selectedState === "ALL" ? "true" : "false"}
               >
-                All States ({baseListings.length})
+                All States
               </button>
               {availableStates.map((st) => (
                 <button
