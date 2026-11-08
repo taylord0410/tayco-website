@@ -43,8 +43,11 @@ function findings(html, slug, pattern) {
     const value = decode(m[2]);
     if ((value.match(global) || []).length >= 2) out.push(`${m[1]} (repeats it): ${value}`);
   }
-  const text = decode(body.replace(/<[^>]+>/g, '\n')).split('\n').map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  // React splits interpolated text with <!-- --> markers ("All (<!-- -->8<!-- -->)"); join it back first.
+  const text = decode(body.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, '\n')).split('\n').map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
   for (const line of text) if (pattern.test(line)) out.push(`text: ${line.length > 140 ? `${line.slice(0, 137)}...` : line}`);
+  // Rule 4: no counts on filters and selectors («All (8)», «Projects (4)»); HUB, 8-nov.
+  for (const line of text) if (/\(\s*\d+\s*\)/.test(line)) out.push(`count: ${line}`);
   return out;
 }
 
@@ -58,11 +61,11 @@ for (const [slug, pattern] of Object.entries(DIVISIONS)) {
   }
   const hits = findings(await response.text(), slug, pattern);
   if (hits.length === 0) {
-    console.log(`✔ /${slug}: the division name only appears in the page title and the category selector`);
+    console.log(`✔ /${slug}: the division name only appears in the page title and the category selector, and no filter shows a count`);
     continue;
   }
   failed++;
-  console.log(`✖ /${slug}: the division name appears ${hits.length} more time(s)`);
+  console.log(`✖ /${slug}: ${hits.length} place(s) repeat the division name or show a count`);
   const counts = new Map();
   for (const hit of hits) counts.set(hit, (counts.get(hit) || 0) + 1);
   for (const [hit, n] of counts) console.log(`    ${n > 1 ? `${n}× ` : ''}${hit}`);
