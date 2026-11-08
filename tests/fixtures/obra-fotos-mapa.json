@@ -1,0 +1,260 @@
+{
+ "reemplazos": [
+  {
+   "ruta": "/curated/commercial/cx_i2.jpg",
+   "nota": "misma ruta, mismo lugar en la galería: sin persona, sin texto ni marca"
+  },
+  {
+   "ruta": "/curated/properties/mkt-mf-stone-entry.jpg",
+   "nota": "misma ruta, mismo lugar en la galería: sin persona, sin texto ni marca"
+  },
+  {
+   "ruta": "/curated/hero/com-plaza-stone.jpg",
+   "nota": "misma ruta, mismo lugar en la galería: sin persona, sin texto ni marca"
+  },
+  {
+   "ruta": "/curated/properties/mkt-com-stone-masonry.jpg",
+   "nota": "misma ruta, mismo lugar en la galería: sin persona, sin texto ni marca"
+  },
+  {
+   "ruta": "/curated/properties/interior-commercial-boardroom-atrium.jpg",
+   "nota": "misma ruta, mismo lugar en la galería: sin persona, sin texto ni marca"
+  }
+ ],
+ "nuevas": [
+  {
+   "division": "single-family",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/single-family/sf-roofing-tearoff.jpg",
+   "titulo": "Shingle Replacement in Progress"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/multifamily/mf-roofing-tpo.jpg",
+   "titulo": "TPO Membrane Going Down"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/townhomes/tw-roofing-standing-seam.jpg",
+   "titulo": "Standing-Seam Mansard Install"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/commercial/com-roofing-teardown.jpg",
+   "titulo": "Roof Tear-Off and New Membrane"
+  },
+  {
+   "division": "single-family",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/single-family/carpentry-1.jpg",
+   "titulo": "Kitchen Cabinets Being Set"
+  },
+  {
+   "division": "single-family",
+   "specialtyId": "concrete",
+   "ruta": "/curated/obra/single-family/concrete-1.jpg",
+   "titulo": "Driveway Forms and Rebar"
+  },
+  {
+   "division": "single-family",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/single-family/flooring-1.jpg",
+   "titulo": "Oak Flooring Install"
+  },
+  {
+   "division": "single-family",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/single-family/stone-1.jpg",
+   "titulo": "Stone Veneer Going Up"
+  },
+  {
+   "division": "single-family",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/single-family/stone-2.jpg",
+   "titulo": "Stone Over Scratch Coat"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/multifamily/carpentry-1.jpg",
+   "titulo": "Unit Kitchen Cabinets Install"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/multifamily/carpentry-2.jpg",
+   "titulo": "Built-Ins and Trim Underway"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "concrete",
+   "ruta": "/curated/obra/multifamily/concrete-1.jpg",
+   "titulo": "Courtyard Slab Forms"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "concrete",
+   "ruta": "/curated/obra/multifamily/concrete-2.jpg",
+   "titulo": "Fresh Slab Curing"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/multifamily/flooring-1.jpg",
+   "titulo": "Plank Flooring Install"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/multifamily/flooring-2.jpg",
+   "titulo": "Bathroom Tile Being Set"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/multifamily/roofing-1.jpg",
+   "titulo": "Shingles Over Underlayment"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "siding",
+   "ruta": "/curated/obra/multifamily/siding-1.jpg",
+   "titulo": "Fiber-Cement Cladding Underway"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "siding",
+   "ruta": "/curated/obra/multifamily/siding-2.jpg",
+   "titulo": "Balcony Siding in Progress"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/multifamily/stone-1.jpg",
+   "titulo": "Lath and Scratch Coat for Stone"
+  },
+  {
+   "division": "multifamily",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/multifamily/stone-2.jpg",
+   "titulo": "Stone Veneer Over Scratch Coat"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/townhomes/carpentry-1.jpg",
+   "titulo": "Kitchen Cabinets Being Hung"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/townhomes/carpentry-2.jpg",
+   "titulo": "Library Millwork Underway"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "concrete",
+   "ruta": "/curated/obra/townhomes/concrete-1.jpg",
+   "titulo": "Patio Pour in Progress"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "concrete",
+   "ruta": "/curated/obra/townhomes/concrete-2.jpg",
+   "titulo": "Fresh Slab Finishing"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "drywall",
+   "ruta": "/curated/obra/townhomes/drywall-1.jpg",
+   "titulo": "Taped Drywall, First Coat"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/townhomes/flooring-1.jpg",
+   "titulo": "Herringbone Floor Install"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/townhomes/flooring-2.jpg",
+   "titulo": "New Oak Stair Treads"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/townhomes/roofing-1.jpg",
+   "titulo": "Slate Mansard Install"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "siding",
+   "ruta": "/curated/obra/townhomes/siding-1.jpg",
+   "titulo": "Lap Siding Over House Wrap"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "siding",
+   "ruta": "/curated/obra/townhomes/siding-2.jpg",
+   "titulo": "Cedar Siding on Rear Bay"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/townhomes/stone-1.jpg",
+   "titulo": "Stone Infill Underway"
+  },
+  {
+   "division": "townhomes",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/townhomes/stone-2.jpg",
+   "titulo": "Stone Veneer Retrofit"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/commercial/carpentry-1.jpg",
+   "titulo": "Reception Desk Millwork"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "carpentry",
+   "ruta": "/curated/obra/commercial/carpentry-2.jpg",
+   "titulo": "Retail Fit-Out Millwork"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/commercial/flooring-1.jpg",
+   "titulo": "Carpet Tile Install"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "flooring",
+   "ruta": "/curated/obra/commercial/flooring-2.jpg",
+   "titulo": "Corridor Tile Being Set"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "roofing",
+   "ruta": "/curated/obra/commercial/roofing-1.jpg",
+   "titulo": "Parapet Membrane and Coping"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/commercial/stone-1.jpg",
+   "titulo": "Stone Panel Cladding"
+  },
+  {
+   "division": "commercial",
+   "specialtyId": "stone",
+   "ruta": "/curated/obra/commercial/stone-2.jpg",
+   "titulo": "Clip-Anchored Stone Panels"
+  }
+ ]
+}
