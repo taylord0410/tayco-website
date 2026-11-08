@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import TradeGallery from "@/components/TradeGallery";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
@@ -350,24 +349,6 @@ export default function CommercialDivisionContent() {
 
       {/* ── DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
       <DualTrackArchitecturalMarquee siteDivision="commercial" />
-
-      {/* Trade Gallery */}
-      <section
-        id="projects"
-        className="py-14 sm:py-20 px-4 sm:px-8 relative z-10"
-        style={{ background: "#070E1A" }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="pt-2">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Trade Gallery
-              </h3>
-            </div>
-            <TradeGallery />
-          </div>
-        </div>
-      </section>
 
       <section id="service-area" className="section-editorial-ivory px-4 sm:px-8 py-14">
         <div className="max-w-7xl mx-auto">

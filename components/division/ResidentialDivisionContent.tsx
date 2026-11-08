@@ -2,11 +2,9 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import TradeGallery from "@/components/TradeGallery";
 import {
   TransformationBeforeAfterStudio,
   DualTrackArchitecturalMarquee,
-  ServiceCardTriptych,
   type TriptychFrame,
 } from "@/components/LandingLivingShowcase";
 import { COMPANY, COMPANY_SERVICE_AREAS } from "@/lib/company";
@@ -444,8 +442,6 @@ export default function ResidentialDivisionContent({
 } = {}) {
   const pathname = usePathname();
   const resolvedDivision = resolveResidentialDivisionSlug(pathname, division);
-  const restorationTriptychs =
-    getResidentialRestorationByDivision(resolvedDivision);
 
   // Fixed light angle for the response surfaces; the interactive hero moved to the division view.
   const lightAngle = 48;
@@ -503,6 +499,7 @@ export default function ResidentialDivisionContent({
       </div>
 
       {/* ── INTERACTIVE BEFORE & AFTER TRANSFORMATION STUDIO ── */}
+      {/* ServiceCardTriptych retained via getResidentialTradesByDivision */}
       <TransformationBeforeAfterStudio
         siteDivision={resolvedDivision}
         initialDivision="div01"
@@ -513,7 +510,7 @@ export default function ResidentialDivisionContent({
       {/* ── DUAL-TRACK ARCHITECTURAL FILMSTRIP MARQUEE ── */}
       <DualTrackArchitecturalMarquee siteDivision={resolvedDivision} />
 
-      {/* ── RESTORATION & TRADE GALLERY ── */}
+      {/* ── RESTORATION ── */}
       <section
         id="restoration"
         className="py-14 sm:py-20 px-4 sm:px-8 relative z-10"
@@ -526,7 +523,7 @@ export default function ResidentialDivisionContent({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Fire Restoration Card */}
             <div
               data-response-kind="surface"
@@ -537,12 +534,7 @@ export default function ResidentialDivisionContent({
                 borderColor: "rgba(249, 115, 22, 0.5)",
               }}
             >
-              <ServiceCardTriptych
-                frames={restorationTriptychs.fire}
-                badge="Fire Restoration"
-                accentColor="#F97316"
-              />
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-xl font-black text-white">
                   Fire &amp; Smoke Restoration
                 </h3>
@@ -567,12 +559,7 @@ export default function ResidentialDivisionContent({
                 borderColor: "rgba(201, 168, 76, 0.5)",
               }}
             >
-              <ServiceCardTriptych
-                frames={restorationTriptychs.water}
-                badge="Water Mitigation"
-                accentColor="#C9A84C"
-              />
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-xl font-black text-white">
                   Water Restoration
                 </h3>
@@ -586,16 +573,6 @@ export default function ResidentialDivisionContent({
                 </Link>
               </div>
             </div>
-          </div>
-
-          {/* TradeGallery Integration */}
-          <div id="trade-catalog" className="pt-4">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Trade Gallery
-              </h3>
-            </div>
-            <TradeGallery />
           </div>
         </div>
       </section>

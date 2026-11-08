@@ -35,7 +35,10 @@ import {
   type MarketSpecialtyId,
   type MarketSpecialtyGroup,
 } from "@/lib/property-catalog";
-import { getResidentialTradesByDivision } from "@/components/division/ResidentialDivisionContent";
+import {
+  getResidentialTradesByDivision,
+  getResidentialRestorationByDivision,
+} from "@/components/division/ResidentialDivisionContent";
 import { COMMERCIAL_CSI_TRADES } from "@/components/division/CommercialDivisionContent";
 import { PHOTO_SPECIALTY } from "@/lib/photo-specialty";
 import { COMPANY } from "@/lib/company";
@@ -77,6 +80,18 @@ export function getDivisionExtraSpecialtyFrames(
       result[targetId].push({
         src: frame.src,
         label: sanitizeExtraSpecialtyLabel(frame.label) || trade.csiCode,
+      });
+    }
+  }
+  if (slug === "single-family") {
+    const rest = getResidentialRestorationByDivision("single-family");
+    for (const frame of [...rest.fire, ...rest.water]) {
+      if (seen.has(frame.src)) continue;
+      const targetId = PHOTO_SPECIALTY[frame.src] ?? "carpentry";
+      seen.add(frame.src);
+      result[targetId].push({
+        src: frame.src,
+        label: sanitizeExtraSpecialtyLabel(frame.label) || "Restoration",
       });
     }
   }

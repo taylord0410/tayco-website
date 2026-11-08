@@ -117,6 +117,9 @@ export const PHOTO_SPECIALTY: Record<string, MarketSpecialtyId> = {
   "/curated/capabilities/fire-wood-framing.jpg": "framing",
   "/curated/residential/sf-drywall-water-repair-bedroom.jpg": "drywall",
   "/curated/capabilities/mit-taped-drywall.jpg": "drywall",
+  "/curated/pairs/div03_04_antes.jpg": "drywall",
+  "/curated/residential/sf-drywall-flood-basement.jpg": "drywall",
+  "/curated/residential/sf-finished-basement-office.jpg": "flooring",
 
   // Residential — Renovation / Remodeling (assigned by visible trade)
   "/curated/residential/sf-finished-basement-lounge.jpg": "flooring",

@@ -750,8 +750,7 @@ export function TransformationBeforeAfterStudio({
                   }}
                   className="tayco-atelier-pill cursor-pointer"
                 >
-                  {tab.label}{" "}
-                  <span className="opacity-75 text-[10px]">({tab.count})</span>
+                  {tab.label}
                 </button>
               );
             })}
@@ -966,21 +965,6 @@ export function TransformationBeforeAfterStudio({
                 <h3 className="tayco-card-title text-xl sm:text-2xl text-white leading-snug text-center">
                   {activePair.title}
                 </h3>
-
-                <ul className="mt-4 space-y-2 inline-flex flex-col items-start mx-auto">
-                  {activePair.highlights.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-center gap-2.5 text-xs text-slate-200 font-medium"
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ background: "#C9A84C" }}
-                      />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/10 space-y-2.5 w-full">
@@ -1109,7 +1093,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
       trade: "Carpentry",
       csi: "DIV 06",
       sector: "Residential",
-      image: "/curated/magazine/revista_ca_finish_1.jpg",
+      image: "/work/carpentry_residential.jpg",
     },
     {
       id: "m-sf-7",
@@ -1197,7 +1181,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   townhomes: [
     {
       id: "m-twn-1",
-      title: "Attached Attached Residence Structural Wood Framing",
+      title: "Attached Residence Structural Wood Framing",
       trade: "Framing",
       csi: "DIV 06",
       sector: "Townhomes",
@@ -1237,11 +1221,11 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
     {
       id: "m-twn-6",
-      title: "Custom Kitchen & Butler's Pantry Cabinetry",
+      title: "Primary Suite Custom Oak Vanity & Walk-In Closet Millwork",
       trade: "Carpentry",
       csi: "DIV 06",
       sector: "Townhomes",
-      image: "/curated/magazine/revista_ca_cab_1.jpg",
+      image: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
     },
     {
       id: "m-twn-7",
@@ -1253,11 +1237,11 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
     {
       id: "m-twn-8",
-      title: "Natural Slate & Copper Flashing Detail",
+      title: "Architectural Shingle Roof, Gable Dormers & Gutters",
       trade: "Roofing",
       csi: "DIV 07",
       sector: "Townhomes",
-      image: "/curated/residential/r1.jpg",
+      image: "/work/roofing_townhomes.jpg",
     },
   ],
   commercial: [
