@@ -37,6 +37,7 @@ import {
 } from "@/lib/property-catalog";
 import { getResidentialTradesByDivision } from "@/components/division/ResidentialDivisionContent";
 import { COMMERCIAL_CSI_TRADES } from "@/components/division/CommercialDivisionContent";
+import { PHOTO_SPECIALTY } from "@/lib/photo-specialty";
 import { COMPANY } from "@/lib/company";
 
 function sanitizeExtraSpecialtyLabel(label: string): string {
@@ -50,31 +51,7 @@ function sanitizeExtraSpecialtyLabel(label: string): string {
     .trim();
 }
 
-function mapCsiCodeToSpecialtyId(csiCode: string): MarketSpecialtyId {
-  switch (csiCode) {
-    case "Roofing":
-      return "roofing";
-    case "Windows & Doors":
-      return "siding";
-    case "Framing":
-      return "framing";
-    case "Drywall":
-      return "drywall";
-    case "Flooring":
-    case "Remodeling":
-      return "flooring";
-    case "Foundations":
-      return "concrete";
-    case "Painting":
-    case "Demolition":
-      return "stone";
-    case "Carpentry":
-    default:
-      return "carpentry";
-  }
-}
-
-function getDivisionExtraSpecialtyFrames(
+export function getDivisionExtraSpecialtyFrames(
   slug: PropertyCategorySlug
 ): Record<MarketSpecialtyId, { src: string; label: string }[]> {
   const result: Record<MarketSpecialtyId, { src: string; label: string }[]> = {
@@ -87,13 +64,16 @@ function getDivisionExtraSpecialtyFrames(
     stone: [],
     carpentry: [],
   };
+  const seen = new Set<string>();
   const trades =
     slug === "commercial"
       ? COMMERCIAL_CSI_TRADES
       : getResidentialTradesByDivision(slug);
   for (const trade of trades) {
-    const targetId = mapCsiCodeToSpecialtyId(trade.csiCode);
     for (const frame of trade.triptych) {
+      if (seen.has(frame.src)) continue;
+      const targetId = PHOTO_SPECIALTY[frame.src] ?? "carpentry";
+      seen.add(frame.src);
       result[targetId].push({
         src: frame.src,
         label: sanitizeExtraSpecialtyLabel(frame.label) || trade.csiCode,
