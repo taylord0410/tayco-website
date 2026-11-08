@@ -1,6 +1,5 @@
 "use client";
 
-import { ImageReferenceButton } from "@/components/EstimateReferences";
 import { useState } from "react";
 import Link from "next/link";
 import ProtectedImage from "@/components/ProtectedImage";
@@ -89,45 +88,94 @@ export function HomeEditorialGallery({ selection, onClose }: {
 
   return (
     <TaycoModalOverlay isOpen onClose={onClose} ariaLabel={`${selection.title} gallery`}
-      onStepPrev={() => step(-1)} onStepNext={() => step(1)} enableStageWheelStep={false}>
+      onStepPrev={() => step(-1)} onStepNext={() => step(1)} enableStageWheelStep={true} enableStageSwipe={true}
+      backdropClassName="bg-[#040913] backdrop-blur-xl">
       {({ stageGestureHandlers }) => (
-        <div className="home-editorial-gallery" onKeyDown={(event) => {
-          if (event.key !== "Tab") return;
-          const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
-            'button:not([disabled]), a[href], [tabindex="0"]'));
-          const first = controls[0];
-          const last = controls[controls.length - 1];
-          if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault(); last?.focus();
-          } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault(); first?.focus();
-          }
-        }}>
-          <header className="home-gallery-header">
-            <div><p className="home-editorial-eyebrow">Gallery</p><h2>{selection.title}</h2></div>
-            <div className="flex items-center gap-2">
-              <ImageReferenceButton compact src={frame.src} />
-              <button type="button" autoFocus className="home-gallery-control" onClick={onClose} aria-label="Close gallery">✕</button>
-            </div>
+        <div
+          className="home-editorial-gallery relative w-full max-w-[1280px] rounded-[26px] border overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.95)] h-[94dvh] min-h-[94dvh] max-h-[94dvh] flex flex-col bg-[#050A14]"
+          style={{
+            borderColor: "rgba(201, 168, 76, 0.38)",
+            boxShadow:
+              "0 40px 120px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.08)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(event) => {
+            if (event.key !== "Tab") return;
+            const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], [tabindex="0"]'));
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault(); last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault(); first?.focus();
+            }
+          }}
+        >
+          <header
+            className="home-gallery-header px-4 sm:px-6 py-2.5 border-b flex items-center justify-between gap-3 shrink-0"
+            style={{
+              background: "#060C18",
+              borderColor: "rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <span className="home-gallery-counter text-xs font-mono font-bold text-[#F3D37A]">
+              {index + 1} / {selection.frames.length}
+            </span>
+            <button
+              type="button"
+              autoFocus
+              data-magnetic
+              className="home-gallery-control inline-flex items-center justify-center min-h-[44px] min-w-[44px] w-11 h-11 rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+              onClick={onClose}
+              aria-label="Close gallery"
+            >
+              ✕
+            </button>
           </header>
-          <div className="home-gallery-stage" {...stageGestureHandlers}>
-            <ProtectedImage src={frame.src} alt="" auditIgnore loading="eager"
-              className="home-gallery-backdrop" />
-            <ProtectedImage src={frame.src} alt={frame.title} auditIgnore loading="eager"
-              className="home-gallery-main-image h-full w-full object-contain" />
+          <div className="home-gallery-stage relative flex-1 min-h-0 w-full overflow-hidden select-none bg-[#03060D] cursor-grab active:cursor-grabbing" {...stageGestureHandlers}>
+            <ProtectedImage
+              src={frame.src}
+              alt=""
+              auditIgnore
+              loading="eager"
+              className="home-gallery-backdrop absolute -inset-[18px] w-[calc(100%+36px)] h-[calc(100%+36px)] object-cover pointer-events-none"
+              style={{ filter: "blur(26px) brightness(0.38) saturate(1.15)" }}
+            />
+            <ProtectedImage src={frame.src} alt={frame.title} loading="eager"
+              className="home-gallery-main-image relative z-10 h-full w-full object-contain" />
+            {selection.frames.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => step(-1)}
+                  aria-label="Previous photograph"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => step(1)}
+                  aria-label="Next photograph"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                >
+                  ›
+                </button>
+              </>
+            )}
           </div>
-          <div className="home-gallery-copy" data-tayco-scroll-zone="true" tabIndex={0} aria-label="Photograph details">
-            <div className="space-y-2" aria-live="polite" aria-atomic="true">
-            <p className="home-editorial-eyebrow">{frame.eyebrow}</p>
-            <h3 className="home-editorial-title">{frame.title}</h3>
-            {frame.description && <p className="home-editorial-description">{frame.description}</p>}
-            {frame.details && <ul>{frame.details.map((detail) => <li key={detail}>{detail}</li>)}</ul>}
-            </div>
-          </div>
-          <footer className="home-gallery-footer">
-            <button type="button" className="home-gallery-control" disabled={selection.frames.length < 2} onClick={() => step(-1)} aria-label="Previous photograph">←</button>
-            <span className="home-gallery-counter">{index + 1} / {selection.frames.length}</span>
-            <button type="button" className="home-gallery-control" disabled={selection.frames.length < 2} onClick={() => step(1)} aria-label="Next photograph">→</button>
+          <footer className="home-gallery-footer px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 shrink-0">
+            <h3 className="tayco-card-title text-sm sm:text-lg text-white tracking-tight truncate text-center sm:text-left">
+              {frame.title}
+            </h3>
+            <Link
+              href="/estimate"
+              data-magnetic
+              className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0 text-center justify-center"
+            >
+              Request Estimate
+            </Link>
           </footer>
         </div>
       )}
