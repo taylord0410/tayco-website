@@ -608,8 +608,8 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-301",
     code: "TWN-301",
     category: "townhomes",
-    title: "The Lincoln Park Brick & Bay Attached Residence",
-    subtitle: "Attached Masonry Row Residences · Stepped Parapets, Asymmetric Bays & Side Alley",
+    title: "The Lincoln Park Brick & Bay Residences",
+    subtitle: "Stepped Masonry Parapets, Projecting Bays & Private Side Alley",
     location: "Chicago, IL",
     stateCode: "IL",
     sqft: "2,840 Sq. Ft. / Unit",
@@ -618,7 +618,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 08 · 09",
     summary:
-      "Three-unit masonry Attached Residence community built in alternating red clay and buff limestone brick with stepped parapet rooflines, asymmetric projecting bay windows, raised stone stoops and three-level white-oak staircases.",
+      "Three-unit masonry community built in alternating red clay and buff limestone brick with stepped parapet rooflines, asymmetric projecting bay windows, raised stone stoops and three-level white-oak staircases.",
     highlights: [
       "Alternating red-brick & buff-masonry facades with projecting bays",
       "Parlor-level navy & quartz island kitchen with dining terrace",
@@ -627,7 +627,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     triptych: [
       {
         src: "/curated/properties/townhouse-01-brick-limestone-row.jpg",
-        label: "Curbside Stepped Red & Buff Brick Attached Residence",
+        label: "Curbside Stepped Red & Buff Brick Facades & Limestone Stoops",
       },
       {
         src: "/curated/properties/interior-townhouse-living-bay.jpg",
@@ -643,8 +643,8 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-302",
     code: "TWN-302",
     category: "townhomes",
-    title: "The West Loop Corner Limestone & Cedar Row Residences",
-    subtitle: "Corner 3-Unit Row Residence Row · Charcoal Brick, Limestone & Corner Balconies",
+    title: "The West Loop Corner Limestone & Cedar Residences",
+    subtitle: "Corner 3-Unit Elevation · Charcoal Brick, Limestone & Corner Balconies",
     location: "Naperville / Chicago, IL",
     stateCode: "IL",
     sqft: "2,940 Sq. Ft. / Unit",
@@ -653,16 +653,16 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 09",
     summary:
-      "Corner-lot three-story Row Residence community featuring asymmetric stepped volumes in dark manganese brick, cut limestone and warm cedar panels, with cantilevered corner glass balconies and waterfall quartz kitchens.",
+      "Corner-lot three-story community featuring asymmetric stepped volumes in dark manganese brick, cut limestone and warm cedar panels, with cantilevered corner glass balconies and waterfall quartz kitchens.",
     highlights: [
-      "Asymmetric corner Row Residence massing in charcoal brick, stone & cedar",
+      "Asymmetric corner massing in charcoal brick, cut stone & cedar",
       "Main-level rift-oak kitchen with stone waterfall island",
       "Turnkey interior finishes, wide-plank oak & recessed lighting",
     ],
     triptych: [
       {
         src: "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
-        label: "Corner Charcoal Brick, Limestone & Cedar Row Residences",
+        label: "Corner Charcoal Brick, Cut Limestone & Cedar Rain-Screen Bays",
       },
       {
         src: "/curated/properties/interior-limestone-modern-living.jpg",
@@ -679,7 +679,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     code: "TWN-303",
     category: "townhomes",
     title: "The Gold Coast Mansard & Brownstone Residences",
-    subtitle: "Renovated Brick & Brownstone Row Residences · Slate Mansard Roofs & Side Walk",
+    subtitle: "Renovated Brick & Brownstone Facades · Slate Mansard Roofs & Side Walk",
     location: "Milwaukee, WI",
     stateCode: "WI",
     sqft: "2,760 Sq. Ft. / Unit",
@@ -697,7 +697,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     triptych: [
       {
         src: "/curated/properties/townhouse-03-brownstone-mansard-row.jpg",
-        label: "Curbside Brick & Brownstone Mansard Row Residences",
+        label: "Curbside Brick & Brownstone Facades with Mansard Dormers",
       },
       {
         src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
@@ -713,8 +713,8 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-304",
     code: "TWN-304",
     category: "townhomes",
-    title: "The North Avenue End-Unit Brick Row Residences",
-    subtitle: "Corner End-Unit Attached Residence Block · Exposed Chimney Breast & Stepped Parapets",
+    title: "The North Avenue End-Unit Brick Residences",
+    subtitle: "Corner End-Unit Masonry Block · Exposed Chimney Breast & Stepped Parapets",
     location: "Minneapolis, MN",
     stateCode: "MN",
     sqft: "2,810 Sq. Ft. / Unit",
@@ -723,16 +723,16 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 09",
     summary:
-      "Corner end-unit masonry Row Residences featuring an exposed brick side chimney breast, staggered side-elevation window openings, raised limestone stoops with wrought-iron railings and coffered parlor living rooms.",
+      "Corner end-unit masonry residences featuring an exposed brick side chimney breast, staggered side-elevation window openings, raised limestone stoops with wrought-iron railings and coffered parlor living rooms.",
     highlights: [
-      "Corner end-unit brick Attached Residence with exposed side chimney stack",
+      "Corner end-unit brick facade with exposed side chimney stack",
       "Parlor-level great room with coffered ceiling & stone hearth",
       "Engineered framing with 2-hour masonry fire separation",
     ],
     triptych: [
       {
         src: "/curated/properties/townhouse-04-chicago-endunit-brick.jpg",
-        label: "Corner End-Unit Brick Attached Residence & Side Elevation",
+        label: "Corner End-Unit Brick Masonry & Side Chimney Elevation",
       },
       {
         src: "/curated/hero/res-coffered-hearth.jpg",
@@ -749,7 +749,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     code: "TWN-305",
     category: "townhomes",
     title: "The Highland Stepped-Grade Brick Residences",
-    subtitle: "Sloping-Street Attached Row Residences · Stepped Roofline & Off-Center Stoops",
+    subtitle: "Sloping-Street Masonry Elevations · Stepped Roofline & Off-Center Stoops",
     location: "St. Louis, MO",
     stateCode: "MO",
     sqft: "2,520 Sq. Ft. / Unit",
@@ -758,7 +758,7 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 08 · 09",
     summary:
-      "Attached brick Attached Residence stepping naturally down a sloping residential street grade, with asymmetric two-bay facades, alternating red-brick and charcoal-slate masonry and sunlit open-concept interiors.",
+      "Stepped brick residences following a natural sloping street grade, with asymmetric two-bay facades, alternating red-brick and charcoal-slate masonry and sunlit open-concept interiors.",
     highlights: [
       "Stepped-grade rooflines following natural street topography",
       "Open-concept hardwood great room and island kitchen",
@@ -771,11 +771,11 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
       },
       {
         src: "/curated/residential/div01_08_despues.jpg",
-        label: "Sunlit Row Residence Kitchen & Hardwood Great Room",
+        label: "Sunlit Parlor Kitchen & Hardwood Great Room",
       },
       {
         src: "/curated/properties/mkt-mf-roofing.jpg",
-        label: "Continuous Row Residence Roof Deck & Architectural Shingles",
+        label: "Continuous Roof Deck, Parapet Flashing & Architectural Shingles",
       },
     ],
   },
@@ -783,8 +783,8 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     id: "twn-306",
     code: "TWN-306",
     category: "townhomes",
-    title: "The Cedar & Stone Three-Story Row Residence Row",
-    subtitle: "Attached Multi-Suite Row Residences · Stone Base, Cedar Gables & Ground-Level Garages",
+    title: "The Cedar & Stone Three-Story Residences",
+    subtitle: "Natural Stone Base, Cedar Gables & Private Ground-Level Garages",
     location: "Grand Rapids, MI",
     stateCode: "MI",
     sqft: "2,680 Sq. Ft. / Unit",
@@ -793,16 +793,16 @@ export const PROPERTY_LISTINGS: readonly PropertyListing[] = [
     yearDelivered: "2026 Turnkey",
     csiScope: "CSI DIV 04 · 06 · 07 · 09",
     summary:
-      "Three-story attached Row Residence community featuring natural stone ground-level masonry, alternating slate-blue board-and-batten and warm cedar gables, private driveways with garages and custom interior millwork.",
+      "Three-story residential community featuring natural stone ground-level masonry, alternating slate-blue board-and-batten and warm cedar gables, private driveways with garages and custom interior millwork.",
     highlights: [
-      "3-story stone base, slate board-and-batten & cedar gable Row Residences",
+      "3-story stone base, slate board-and-batten & cedar gable elevations",
       "Custom interior casing, solid-core doors & finish carpentry",
       "Top-floor primary bedroom suite with refinished oak floors",
     ],
     triptych: [
       {
         src: "/curated/capabilities/mf-townhomes-row.jpg",
-        label: "Three-Story Stone, Cedar & Board-and-Batten Row Residence Row",
+        label: "Three-Story Stone, Cedar & Board-and-Batten Street Elevation",
       },
       {
         src: "/curated/magazine/revista_ca_finish_1.jpg",
@@ -1557,9 +1557,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Roofing",
       title: "Roofing",
       subtitle: "Standing-Seam Metal Mansards, Party-Wall Parapet Flashing & Roof Decks",
-      csiDivision: "CSI DIV 07 · Row Residence ROOFING",
+      csiDivision: "CSI DIV 07 · ROOFING",
       summary:
-        "Specialized roofing systems for attached Row Residences and urban Attached Residence—integrating slate-profile and standing-seam metal mansard roofs, fire-rated parapet wall cap flashing and waterproofed rooftop terrace membranes.",
+        "Specialized roofing systems for urban masonry and cedar elevations—integrating slate-profile and standing-seam metal mansard roofs, fire-rated parapet wall cap flashing and waterproofed rooftop terrace membranes.",
       deliverables: [
         "Standing-seam metal, architectural shingle & mansard roof systems",
         "Continuous sheet-metal parapet coping & party-wall fire flashing",
@@ -1568,15 +1568,15 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/mkt-twn-roofing-siding.jpg",
-          label: "Row Residence Standing-Seam Metal Roof, Gables & Parapet Flashing",
+          label: "Standing-Seam Metal Roof, Gables & Parapet Flashing",
         },
         {
           src: "/curated/properties/townhouse-03-brownstone-mansard-row.jpg",
-          label: "Mansard Standing-Seam Roof & Dormer Windows on Row Residence Row",
+          label: "Mansard Standing-Seam Roof, Slate Shingles & Dormer Windows",
         },
         {
           src: "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg",
-          label: "Stepped-Grade Row Residence Roofline & Rooftop Terrace Waterproofing",
+          label: "Stepped-Grade Roofline & Rooftop Terrace Waterproofing",
         },
       ],
     },
@@ -1588,27 +1588,27 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyGroup: "envelope",
       specialtyLabel: "Siding",
       title: "Siding",
-      subtitle: "Cedar Rain-Screen Bays, Fiber-Cement Trim & Steel-Grille Row Residence Glazing",
-      csiDivision: "CSI DIV 07 · 08 · Row Residence ENVELOPE",
+      subtitle: "Cedar Rain-Screen Bays, Fiber-Cement Trim & Steel-Grille Glazing",
+      csiDivision: "CSI DIV 07 · 08 · ENVELOPE",
       summary:
-        "Architectural facade envelopes for attached Row Residences—combining vertical cedar rain-screen bays, dark bronze aluminum-clad bay windows, fiber-cement trim and insulated recessed entry alcoves.",
+        "Architectural facade envelopes combining vertical cedar rain-screen bays, dark bronze aluminum-clad bay windows, fiber-cement trim and insulated recessed entry alcoves.",
       deliverables: [
-        "Vertical cedar rain-screen & fiber-cement Row Residence bay cladding",
+        "Vertical cedar rain-screen & fiber-cement bay cladding",
         "Two- and three-story projected bay window framing & flashing",
-        "Recessed Row Residence entry doors, transom glazing & custom soffits",
+        "Recessed entry doors, transom glazing & custom soffits",
       ],
       triptych: [
         {
           src: "/curated/capabilities/mf-townhomes-row.jpg",
-          label: "Attached Row Residence Facades with Brick, Cedar Siding & Bay Windows",
+          label: "Warm Brick, Cedar Rain-Screen Siding & Projected Bay Windows",
         },
         {
           src: "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
-          label: "Corner Row Residence Cedar Rain-Screen & Steel-Mullion Glazing",
+          label: "Corner Cedar Rain-Screen & Steel-Mullion Glazing",
         },
         {
           src: "/curated/properties/townhouse-04-chicago-endunit-brick.jpg",
-          label: "End-Unit Row Residence Architectural Cladding, Bay Trim & Entry Canopy",
+          label: "End-Unit Architectural Cladding, Bay Trim & Entry Canopy",
         },
       ],
     },
@@ -1620,27 +1620,27 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyGroup: "structural",
       specialtyLabel: "Framing",
       title: "Framing",
-      subtitle: "3-Story Attached Residence Framing, 2-Hour Shaft Walls & Rooftop Penthouse Bulkheads",
-      csiDivision: "CSI DIV 06 · Row Residence FRAMING",
+      subtitle: "3-Story Wood Framing, 2-Hour Shaft Walls & Rooftop Penthouse Bulkheads",
+      csiDivision: "CSI DIV 06 · FRAMING",
       summary:
-        "Precision three- and four-story Row Residence framing on tight urban lots—featuring continuous fire-rated party-wall separation, cantilevered bay-window framing, open stairwell rough openings and rooftop terrace bulkheads.",
+        "Precision three- and four-story wood framing on urban lots—featuring continuous fire-rated party-wall separation, cantilevered bay-window framing, open stairwell rough openings and rooftop terrace bulkheads.",
       deliverables: [
-        "3- and 4-story Row Residence structural framing & engineered floor joists",
-        "UL 2-hour area-separation party walls between attached row units",
+        "3- and 4-story structural wood framing & engineered floor joists",
+        "UL 2-hour area-separation party walls between adjacent units",
         "Stairwell openings & rooftop terrace bulkhead framing",
       ],
       triptych: [
         {
           src: "/curated/properties/mkt-twn-framing-row.jpg",
-          label: "Three-Story Attached Row Residence Row Wood Framing & Party-Wall Separation",
+          label: "Three-Story Structural Wood Framing & Party-Wall Separation",
         },
         {
           src: "/curated/properties/mkt-twn-framing-partywall.jpg",
-          label: "Row Residence Double-Stud Acoustic Party Wall & Open-Web Floor Trusses",
+          label: "Double-Stud Acoustic Party Wall & Open-Web Floor Trusses",
         },
         {
           src: "/curated/properties/mkt-twn-framing-rooftop.jpg",
-          label: "Row Residence Top-Floor Penthouse Bulkhead & Rooftop Terrace Framing",
+          label: "Top-Floor Penthouse Bulkhead & Rooftop Terrace Framing",
         },
       ],
     },
@@ -1653,9 +1653,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Drywall",
       title: "Drywall",
       subtitle: "STC-62 Acoustic Party Walls, 3-Story Stair Shafts & Level-5 Parlor Ceilings",
-      csiDivision: "CSI DIV 09 · Row Residence GYPSUM",
+      csiDivision: "CSI DIV 09 · GYPSUM",
       summary:
-        "High-performance drywall systems engineered for attached Row Residences—delivering whisper-quiet STC-62 acoustic isolation along shared party walls, seamless three-story stairwell shafts and architectural LED ceiling coves.",
+        "High-performance drywall systems delivering whisper-quiet STC-62 acoustic isolation along shared party walls, seamless three-story stairwell shafts and architectural LED ceiling coves.",
       deliverables: [
         "Double-layer Type-X acoustic party-wall drywall with green-glue damping",
         "Seamless 3-story stairwell drywall hanging, taping & skim coating",
@@ -1664,15 +1664,15 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-townhouse-living-bay.jpg",
-          label: "Row Residence Parlor Living Room with Level-5 Ceiling & Acoustic Party Wall",
+          label: "Parlor Living Room with Level-5 Ceiling & Acoustic Party Wall",
         },
         {
           src: "/curated/properties/mkt-twn-framing-drywall.jpg",
-          label: "Row Residence Multi-Level Stairwell Drywall & Recessed Cove Lighting",
+          label: "Multi-Level Stairwell Drywall & Recessed Cove Lighting",
         },
         {
           src: "/curated/properties/mkt-twn-drywall-gallery.jpg",
-          label: "Three-Story Row Residence Stairwell Shaft Drywall & Linear LED Reveal",
+          label: "Three-Story Stairwell Shaft Drywall & Linear LED Reveal",
         },
       ],
     },
@@ -1685,9 +1685,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Flooring",
       title: "Flooring",
       subtitle: "Wide-Plank White Oak, Mitered Waterfall Stair Treads & Herringbone Foyers",
-      csiDivision: "CSI DIV 09 · Row Residence FLOORING",
+      csiDivision: "CSI DIV 09 · FLOORING",
       summary:
-        "Continuous hardwood and stone flooring across all three levels of attached Row Residences—featuring wide-plank European white oak on parlor and bedroom floors, custom solid-oak stair treads across multi-flight stairs and marble entry foyers.",
+        "Continuous hardwood and stone flooring across all three levels—featuring wide-plank European white oak on parlor and bedroom floors, custom solid-oak stair treads across multi-flight stairs and marble entry foyers.",
       deliverables: [
         "Continuous wide-plank white oak flooring across parlor & bedroom levels",
         "Custom-milled solid white-oak stair treads, risers & landing nosings",
@@ -1696,7 +1696,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/mkt-twn-flooring-herringbone.jpg",
-          label: "Row Residence Parlor European White Oak Herringbone Parquet Flooring",
+          label: "Parlor European White Oak Herringbone Parquet Flooring",
         },
         {
           src: "/curated/properties/mkt-twn-flooring-stairtreads.jpg",
@@ -1704,7 +1704,7 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
         },
         {
           src: "/curated/properties/mkt-twn-stone-hearth.jpg",
-          label: "Row Residence Parlor Wide-Plank Oak Flooring & Honed Limestone Hearth",
+          label: "Parlor Wide-Plank Oak Flooring & Honed Limestone Hearth",
         },
       ],
     },
@@ -1717,9 +1717,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Concrete",
       title: "Concrete",
       subtitle: "Architectural Entry Stoops, Rear Alley Drive Aprons & Rooftop Pedestal Pavers",
-      csiDivision: "CSI DIV 03 · Row Residence CONCRETE",
+      csiDivision: "CSI DIV 03 · CONCRETE",
       summary:
-        "Urban concrete construction for Row Residence rows—including stepped-grade foundation walls, architectural precast and poured entry stoops, rear-load tuck-under garage slabs and porcelain rooftop terrace paver systems.",
+        "Urban concrete construction including stepped-grade foundation walls, architectural precast and poured entry stoops, rear-load tuck-under garage slabs and porcelain rooftop terrace paver systems.",
       deliverables: [
         "Architectural concrete & limestone-tread front entry stoops",
         "Stepped-grade foundation walls & rear tuck-under garage slabs",
@@ -1728,15 +1728,15 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-          label: "Row Residence Rooftop Terrace Porcelain Pavers & Concrete Fire Table",
+          label: "Rooftop Terrace Porcelain Pavers & Concrete Fire Table",
         },
         {
           src: "/curated/properties/mkt-twn-concrete-stone.jpg",
-          label: "Row Residence Concrete Entry Stoops, Planter Walls & Sidewalk Apron",
+          label: "Concrete Entry Stoops, Planter Walls & Sidewalk Apron",
         },
         {
           src: "/curated/properties/mkt-twn-concrete-drive.jpg",
-          label: "Row Residence Rear-Alley Saw-Cut Concrete Drive Apron & Tuck-Under Garages",
+          label: "Rear-Alley Saw-Cut Concrete Drive Apron & Tuck-Under Garages",
         },
       ],
     },
@@ -1749,26 +1749,26 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Masonry",
       title: "Masonry",
       subtitle: "Hand-Laid Face Brick, Cut Limestone Watertables & Carved Window Lintels",
-      csiDivision: "CSI DIV 04 · Row Residence MASONRY",
+      csiDivision: "CSI DIV 04 · MASONRY",
       summary:
-        "Timeless urban masonry for Row Residence developments—combining hand-laid red, charcoal and buff face brick with cut limestone bases, carved stone window lintels and sills, and parlor-level marble or stone fireplaces.",
+        "Timeless urban masonry combining hand-laid red, charcoal and buff face brick with cut limestone bases, carved stone window lintels and sills, and parlor-level marble or stone fireplaces.",
       deliverables: [
-        "Face brick & rusticated brownstone Row Residence facades",
+        "Face brick & rusticated brownstone street facades",
         "Cut limestone watertable bases, stoop cheek walls & window lintels",
         "Interior stone & bookmatched slab fireplace surrounds",
       ],
       triptych: [
         {
           src: "/curated/properties/mkt-twn-stone-brownstone.jpg",
-          label: "Rusticated Brownstone & Cut Limestone Stoop Masonry on Row Residence Row",
+          label: "Rusticated Brownstone & Cut Limestone Stoop Masonry",
         },
         {
           src: "/curated/properties/townhouse-01-brick-limestone-row.jpg",
-          label: "Three-Story Brick & Limestone Row Residence Row Elevation",
+          label: "Three-Story Brick & Limestone Street Elevation",
         },
         {
           src: "/curated/properties/mkt-twn-stone-gardenwall.jpg",
-          label: "Row Residence Courtyard Bluestone Patio, Brick Piers & Limestone Water Wall",
+          label: "Courtyard Bluestone Patio, Brick Piers & Limestone Water Wall",
         },
       ],
     },
@@ -1781,9 +1781,9 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       specialtyLabel: "Carpentry",
       title: "Carpentry",
       subtitle: "Walnut & Quartz Galley Islands, Built-In Hearth Cabinetry & Rooftop Pergolas",
-      csiDivision: "CSI DIV 06 · 09 · Row Residence CARPENTRY",
+      csiDivision: "CSI DIV 06 · 09 · CARPENTRY",
       summary:
-        "Bespoke finish carpentry designed for vertical Row Residence living—including parlor-level chef's kitchens with waterfall quartz islands, custom living-room fireplace shelving, steel-and-oak stair balustrades and cedar rooftop pergolas.",
+        "Bespoke finish carpentry designed for vertical multi-level living—including parlor-level chef's kitchens with waterfall quartz islands, custom living-room fireplace shelving, steel-and-oak stair balustrades and cedar rooftop pergolas.",
       deliverables: [
         "Parlor-level custom walnut & shaker kitchens with waterfall islands",
         "Floor-to-ceiling fireplace millwork, wet bars & dining banquettes",
@@ -1792,15 +1792,15 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       triptych: [
         {
           src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
-          label: "Row Residence Parlor Kitchen with White Cabinetry, Marble Island & Bay Window",
+          label: "Parlor Kitchen with White Cabinetry, Marble Island & Bay Window",
         },
         {
           src: "/curated/properties/mkt-twn-carpentry-library.jpg",
-          label: "Row Residence Parlor Study with Custom White Oak Bookcases & Coffered Ceiling",
+          label: "Parlor Study with Custom White Oak Bookcases & Coffered Ceiling",
         },
         {
           src: "/curated/properties/mkt-twn-carpentry-pergola.jpg",
-          label: "Row Residence Rooftop Cedar Louvered Pergola & Outdoor Kitchen Millwork",
+          label: "Rooftop Cedar Louvered Pergola & Outdoor Kitchen Millwork",
         },
       ],
     },

@@ -1181,7 +1181,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
   townhomes: [
     {
       id: "m-twn-1",
-      title: "Attached Residence Structural Wood Framing",
+      title: "Party-Wall & Three-Story Wood Framing",
       trade: "Framing",
       csi: "DIV 06",
       sector: "Townhomes",
@@ -1213,7 +1213,7 @@ export const DIVISION_MARQUEE_SHOTS_BY_CATEGORY: Readonly<
     },
     {
       id: "m-twn-5",
-      title: "Attached Residence Masonry Veneer, Lintels & Stoops",
+      title: "Brick & Stone Veneer, Lintels & Entry Stoops",
       trade: "Masonry",
       csi: "DIV 04",
       sector: "Townhomes",

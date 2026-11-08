@@ -652,14 +652,14 @@ export function TaycoCardFooterBar({
 }) {
   return (
     <div
-      className={`tayco-card-footer-bar mt-auto flex flex-col items-stretch justify-between gap-3 border-t border-white/[0.09] pt-4 sm:flex-row sm:items-center ${className}`}
+      className={`tayco-card-footer-bar mt-auto flex flex-col items-stretch justify-between gap-2.5 border-t border-white/[0.09] pt-4 sm:flex-row sm:flex-wrap sm:items-center ${className}`}
     >
       {leftMeta && (
-        <div className="flex items-center justify-center gap-2 text-xs text-slate-300 sm:justify-start">
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-xs text-slate-300 sm:justify-start">
           {leftMeta}
         </div>
       )}
-      <div className="flex flex-wrap items-center justify-center gap-2.5 sm:ml-auto sm:justify-end">
+      <div className="flex shrink-0 flex-wrap items-center justify-center gap-2.5 sm:ml-auto sm:justify-end">
         {children}
       </div>
     </div>

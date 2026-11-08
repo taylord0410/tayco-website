@@ -1646,11 +1646,24 @@ export function buildCoherentWalkthrough(
 type FinishSurfaceKey = "cabinetry" | "stone" | "flooring" | "hardware";
 
 export function buildSpecialtyWalkthroughStops(
-  service: MarketSpecialtyService
+  service: MarketSpecialtyService,
+  extraFrames?: { src: string; label: string }[]
 ): WalkthroughStop[] {
   const isUncoveredFraming = service.specialtyId === "framing";
-  return service.triptych.map((photo, idx) => {
-    const stepNumber = `0${idx + 1}`;
+  const baseCount = service.triptych.length;
+  const seen = new Set(service.triptych.map((f) => f.src));
+  const combinedPhotos: { src: string; label: string; caption?: string; tag?: string }[] = [
+    ...service.triptych,
+  ];
+  for (const ef of extraFrames ?? []) {
+    if (!seen.has(ef.src)) {
+      seen.add(ef.src);
+      combinedPhotos.push(ef);
+    }
+  }
+  const totalLabel = String(combinedPhotos.length).padStart(2, "0");
+  return combinedPhotos.map((photo, idx) => {
+    const stepNumber = String(idx + 1).padStart(2, "0");
     const shortWords = photo.label
       .replace(/—/g, " ")
       .split(/\s+/)
@@ -1661,14 +1674,14 @@ export function buildSpecialtyWalkthroughStops(
       stepNumber,
       shortRoomName: shortWords || `View ${stepNumber}`,
       zoneLabel: `${service.code} · ${service.specialtyLabel}`,
-      floorLevel: `STEP ${stepNumber} OF 03 · ${service.csiDivision} · ${service.title.toUpperCase()}`,
+      floorLevel: `STEP ${stepNumber} OF ${totalLabel} · ${service.csiDivision} · ${service.title.toUpperCase()}`,
       title: photo.label,
       src: photo.src,
-      nightSrc: resolveNightImageSrc(photo.src),
+      nightSrc: idx < baseCount ? resolveNightImageSrc(photo.src) : photo.src,
       spatialNarrative: `${service.summary} (${(photo as unknown as { caption?: string }).caption ?? photo.label})`,
       portalButtonLabel:
-        idx < service.triptych.length - 1
-          ? `Next ${service.specialtyLabel} View (0${idx + 2}) →`
+        idx < combinedPhotos.length - 1
+          ? `Next ${service.specialtyLabel} View (${String(idx + 2).padStart(2, "0")}) →`
           : `Return to View 01 · ${service.specialtyLabel} →`,
       sunDirectionX: idx === 0 ? 74 : idx === 1 ? 30 : 58,
       sunDirectionY: 22,
@@ -1731,12 +1744,16 @@ export function PropertyWalkthroughStudioModal({
   initialStepIndex = 0,
   initialSolarHour = 12.5,
   initialSpecialtyId,
+  extraSpecialtyFrames,
   onClose,
 }: {
   property: PropertyListing;
   initialStepIndex?: number;
   initialSolarHour?: number;
   initialSpecialtyId?: string;
+  extraSpecialtyFrames?: Partial<
+    Record<string, { src: string; label: string }[]>
+  >;
   onClose: () => void;
 }) {
   const marketSpecialties = React.useMemo(
@@ -1767,8 +1784,13 @@ export function PropertyWalkthroughStudioModal({
 
   const specialtyStops = React.useMemo(
     () =>
-      activeSpecialty ? buildSpecialtyWalkthroughStops(activeSpecialty) : [],
-    [activeSpecialty]
+      activeSpecialty
+        ? buildSpecialtyWalkthroughStops(
+            activeSpecialty,
+            extraSpecialtyFrames?.[activeSpecialty.specialtyId]
+          )
+        : [],
+    [activeSpecialty, extraSpecialtyFrames]
   );
 
   const stops =
@@ -2611,7 +2633,7 @@ export function PropertyWalkthroughStudioModal({
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
                     {studioMode === "specialty" && activeSpecialty
-                      ? `${activeSpecialty.csiDivision} · ${activeSpecialty.specialtyLabel.toUpperCase()} 3-VIEW GALLERY`
+                      ? `${activeSpecialty.csiDivision} · ${activeSpecialty.specialtyLabel.toUpperCase()} ${stops.length}-VIEW GALLERY`
                       : "CONNECTED 5-SPACE PROJECT WALKTHROUGH"}
                   </span>
                   <span className="hidden sm:inline text-[11px] text-slate-400">
@@ -2622,7 +2644,13 @@ export function PropertyWalkthroughStudioModal({
 
               <div
                 className={`grid ${
-                  stops.length === 3 ? "grid-cols-3" : "grid-cols-5"
+                  stops.length === 3
+                    ? "grid-cols-3"
+                    : stops.length === 4 || stops.length === 8
+                    ? "grid-cols-4"
+                    : stops.length === 6 || stops.length === 9
+                    ? "grid-cols-3"
+                    : "grid-cols-5"
                 } gap-2.5`}
                 role="tablist"
                 aria-label="Visual walkthrough filmstrip"

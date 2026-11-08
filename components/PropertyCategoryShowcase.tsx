@@ -46,7 +46,7 @@ import { COMPANY } from "@/lib/company";
 function sanitizeExtraSpecialtyLabel(label: string): string {
   return label
     .replace(
-      /\b(Single-Family|Residential|Multifamily|Multi-Family|Multi-Unit|Multi-Story|Duplex|Two-Flat|Triplex|Townhomes?|Townhouses?|Rowhouses?|Rowhomes?|Brownstones?|Commercial)\b/gi,
+      /\b(Single-Family|Residential|Multifamily|Multi-Family|Multi-Unit|Multi-Story|Duplex|Two-Flat|Triplex|Townhomes?|Townhouses?|Rowhouses?|Rowhomes?|Brownstones?|Commercial|(?:Row|Attached)[\s-]?Residen(?:ce|ces|tial))\b/gi,
       ""
     )
     .replace(/^\s*[&·—–-]\s*/, "")
@@ -476,13 +476,13 @@ function MarketSpecialtyInteractiveCard({
           </div>
         </div>
 
-        {/* Simultaneous 3-Photo Gallery Grid — All 3 Specialty Photographs Visible at Once */}
+        {/* Simultaneous Multiples-of-3 Gallery Grid (3 or 6 Thumbnails, Zero Empty Dark Holes; Full Set Opens in View Gallery) */}
         <div
           className="grid grid-cols-3 gap-2 p-2 bg-[#040811] border-t border-white/10"
           role="group"
           aria-label={`${service.title} gallery`}
         >
-          {frames.map((f, idx) => {
+          {frames.slice(0, frames.length >= 6 ? 6 : 3).map((f, idx) => {
             const isSelected = idx === activeIdx;
             const thumbSrc =
               mood === "night" ? resolveFrameNightSrc(f.src, idx) : f.src;
@@ -493,13 +493,11 @@ function MarketSpecialtyInteractiveCard({
                 data-magnetic
                 onClick={() => {
                   selectFrame(idx);
-                  if (idx < baseCount) {
-                    onOpenSpecialtyStudio?.(
-                      service.specialtyId,
-                      idx,
-                      moodSolarHour
-                    );
-                  }
+                  onOpenSpecialtyStudio?.(
+                    service.specialtyId,
+                    idx,
+                    moodSolarHour
+                  );
                 }}
                 onPointerEnter={() => selectFrame(idx)}
                 className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer group/thumb"
@@ -530,7 +528,7 @@ function MarketSpecialtyInteractiveCard({
       <div className="px-4 sm:px-5 py-3.5 bg-[#050A14]/90 border-t border-white/10">
         <TaycoCardFooterBar
           leftMeta={
-            <span className="text-xs text-slate-300 truncate">
+            <span className="text-xs text-slate-300 line-clamp-2 min-w-0 text-left leading-snug">
               {currentFrame.label}
             </span>
           }
@@ -1720,7 +1718,7 @@ export function PropertyCategoryPageView({
             aria-labelledby="market-services-heading"
             className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-12"
           >
-            <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-8">
+            <div className="flex flex-col items-center text-center w-full max-w-7xl mx-auto mb-8">
               <h2
                 id="market-services-heading"
                 className="tayco-display-title text-2xl sm:text-4xl text-white tracking-tight"
@@ -1728,9 +1726,9 @@ export function PropertyCategoryPageView({
                 Specialties
               </h2>
 
-              {/* Single Specialty Filter Strip */}
+              {/* Single Specialty Filter Strip (1 Single Horizontal Line on Desktop & Mobile) */}
               <div
-                className="flex flex-wrap items-center justify-center gap-2 mt-5"
+                className="flex flex-nowrap items-center justify-start lg:justify-center gap-1.5 mt-5 w-full max-w-full overflow-x-auto no-scrollbar py-1 px-1"
                 role="group"
                 aria-label="Filter specialties"
               >
@@ -1738,7 +1736,7 @@ export function PropertyCategoryPageView({
                   type="button"
                   data-magnetic
                   onClick={() => setSpecialtyGroupFilter("all")}
-                  className="tayco-atelier-pill !min-h-[38px] !px-4 !py-1.5 text-xs font-semibold whitespace-nowrap"
+                  className="tayco-atelier-pill !min-h-[36px] !px-3.5 !py-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
                   data-active={specialtyGroupFilter === "all" ? "true" : "false"}
                 >
                   All ({marketSpecialties.length})
@@ -1751,7 +1749,7 @@ export function PropertyCategoryPageView({
                       type="button"
                       data-magnetic
                       onClick={() => setSpecialtyGroupFilter(spec.specialtyId)}
-                      className="tayco-atelier-pill !min-h-[38px] !px-3.5 !py-1.5 inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
+                      className="tayco-atelier-pill !min-h-[36px] !px-3 !py-1.5 inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap shrink-0"
                       data-active={isSelected ? "true" : "false"}
                     >
                       <SpecialtyVectorIcon
@@ -1783,7 +1781,7 @@ export function PropertyCategoryPageView({
                       if (baseListings[0]) {
                         openModal(
                           baseListings[0],
-                          Math.min(stepIdx, spec.triptych.length - 1),
+                          stepIdx,
                           solarHour,
                           specialtyId
                         );
@@ -1952,6 +1950,9 @@ export function PropertyCategoryPageView({
           initialStepIndex={modalFrameIdx}
           initialSolarHour={modalSolarHour}
           initialSpecialtyId={modalSpecialtyId}
+          extraSpecialtyFrames={getDivisionExtraSpecialtyFrames(
+            inspectedProperty.category
+          )}
           onClose={() => {
             setInspectedProperty(null);
             setModalSpecialtyId(undefined);
