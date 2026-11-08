@@ -1970,7 +1970,7 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx - 1)}
                 aria-label="Previous room in walkthrough"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                className="absolute left-1.5 sm:left-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/45 backdrop-blur-md border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
                 title="Previous (←)"
               >
                 ‹
@@ -1979,7 +1979,7 @@ export function PropertyWalkthroughStudioModal({
                 type="button"
                 onClick={() => handleStepChange(activeStopIdx + 1)}
                 aria-label="Next room in walkthrough"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14] border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
+                className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#050A14]/45 backdrop-blur-md border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300 cursor-pointer flex items-center justify-center shadow-2xl z-20"
                 title="Next (→)"
               >
                 ›
@@ -1996,7 +1996,7 @@ export function PropertyWalkthroughStudioModal({
                   `${property.code} - ${property.title}`
                 )}&category=${encodeURIComponent(property.category)}`}
                 data-magnetic
-                className="tayco-atelier-btn-gold !min-h-[42px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0 text-center justify-center"
+                className="tayco-atelier-btn-gold w-full sm:w-auto !min-h-[42px] !px-4 !py-2 text-xs font-bold whitespace-nowrap shrink-0 text-center justify-center"
               >
                 Request Estimate
               </Link>
