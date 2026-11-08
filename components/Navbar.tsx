@@ -126,7 +126,7 @@ export default function Navbar() {
             <span>Construction &amp; restoration</span>
           </span>
         </Link>
-        <nav className="tayco-desktop-navigation" aria-label="Main navigation">
+        <nav className="tayco-desktop-navigation" aria-label="Main navigation" translate="no">
           <div className="tayco-nav-pill-dock">
             {primaryLinks.map(({ href, label }) => {
               const active = pathname === href;
@@ -234,6 +234,7 @@ export default function Navbar() {
         data-tayco-modal-root="true"
         className="tayco-mobile-navigation"
         aria-label="Mobile navigation"
+        translate="no"
         hidden={!open}
       >
         <div className="tayco-mobile-links">

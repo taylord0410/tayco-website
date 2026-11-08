@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico?v=tayco2026",
     apple: [{ url: "/apple-icon.png?v=tayco2026", sizes: "180x180", type: "image/png" }],
   },
+  other: {
+    google: "notranslate",
+  },
   // Public pages are indexable (Randhy, 7-nov-2026). Private routes (login, portal) set their own noindex.
   ...(SITE_URL && {
     metadataBase: SITE_URL,
@@ -62,8 +65,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      translate="no"
       data-scroll-behavior="smooth"
-      className={`${cormorant.variable} ${jakarta.variable} ${jetbrains.variable}`}
+      className={`notranslate ${cormorant.variable} ${jakarta.variable} ${jetbrains.variable}`}
     >
       <body>
         <EditorialLivingEngine />

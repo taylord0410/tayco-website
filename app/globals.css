@@ -814,14 +814,12 @@ html {
 .tayco-site-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 60;
+  z-index: 80;
   color: #f8fafc;
   padding-right: var(--tayco-scrollbar-comp, 0px);
   background:
     radial-gradient(60rem 8rem at 50% -20%, rgba(212, 175, 90, 0.14), transparent 70%),
-    linear-gradient(180deg, rgba(6, 13, 25, 0.95) 0%, rgba(10, 22, 42, 0.91) 100%);
-  backdrop-filter: blur(14px) saturate(135%);
-  -webkit-backdrop-filter: blur(14px) saturate(135%);
+    linear-gradient(180deg, #060d19 0%, #0a162a 100%);
   border-bottom: 1px solid rgba(212, 175, 90, 0.34);
   box-shadow:
     0 16px 40px -14px rgba(3, 8, 18, 0.72),
@@ -1164,10 +1162,10 @@ html {
   .tayco-nav-signin { padding-inline: 0.65rem; font-size: 0.66rem; min-height: 40px; white-space: nowrap; }
 }
 @media (max-width: 1079px) {
-  .tayco-site-header { background: rgba(7, 13, 25, 0.97); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .tayco-site-header { background: #070d19; }
 }
-.tayco-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.tayco-no-scrollbar::-webkit-scrollbar { display: none; }
+.tayco-no-scrollbar, .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.tayco-no-scrollbar::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
 [data-tayco-modal-open="true"] [data-testid="public-cookie-trigger"] { display: none !important; }
 @media (max-width: 389px) {
   .tayco-nav-bar { gap: 0.4rem; padding-inline: 0.75rem; }

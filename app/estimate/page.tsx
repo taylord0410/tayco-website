@@ -37,7 +37,7 @@ function RequestedService({ onApply }: { onApply: (description: string, projectT
 }
 
 export default function EstimatePage() {
-  const [lightAngle, setLightAngle] = useState(42);
+  const lightAngle = 42;
   const selectedImages = useEstimateReferences();
   const [form, setForm] = useState({
     fullName: "",
@@ -148,22 +148,16 @@ export default function EstimatePage() {
                 Serving <strong className="text-white">{COMPANY.coverage}</strong>.
               </p>
 
-              {/* Raking Light Interactive Control */}
-              <div className="mt-5 inline-flex flex-wrap items-center gap-3 px-4 py-2 rounded-xl bg-slate-950/65 border border-amber-400/35 text-xs font-mono text-amber-200">
-                <span>☀️ Raking Light Angle: {lightAngle}°</span>
-                <input
-                  id="estimate-raking-light-slider"
-                  type="range"
-                  min={0}
-                  max={90}
-                  value={lightAngle}
-                  onChange={(e) => setLightAngle(Number(e.target.value))}
-                  className="w-28 accent-amber-400 cursor-pointer"
-                  aria-label="Raking Light Angle"
-                />
-                <span className="text-[11px] text-slate-400">
+              {/* Direct Contact & Coverage Bar */}
+              <div className="mt-5 inline-flex flex-wrap items-center gap-3 px-4 py-2 rounded-xl bg-slate-950/80 border border-amber-400/35 text-xs font-mono text-amber-200">
+                <span>Licensed &amp; Insured · {COMPANY.coverage}</span>
+                <span className="text-white/30" aria-hidden="true">·</span>
+                <a
+                  href={COMPANY.phoneHref}
+                  className="text-xs font-bold text-[#F3D37A] hover:text-white transition-colors"
+                >
                   {COMPANY.phoneDisplay}
-                </span>
+                </a>
               </div>
             </div>
 

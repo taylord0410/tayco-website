@@ -130,7 +130,7 @@ const INPUT_EXECUTIVE_CLASS =
   "w-full rounded-xl px-4 py-3 text-sm bg-[#FAF9F5] text-[#0F2040] placeholder:text-slate-400 border border-[#1B3A6B]/20 shadow-[inset_0_1px_2px_rgba(7,14,26,0.04)] transition-all duration-200 focus:bg-white focus:outline-none focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/35";
 
 export default function InvestorPage() {
-  const [lightAngle, setLightAngle] = useState(38);
+  const lightAngle = 38;
   const [form, setForm] = useState({
     fullName: "",
     company: "",
@@ -325,48 +325,8 @@ export default function InvestorPage() {
             </p>
           </div>
 
-          {/* Raking Light Control */}
+          {/* Direct Contact Pill */}
           <div className="shrink-0 flex flex-col items-center lg:items-end gap-2">
-            <div
-              className="px-4 py-2.5 rounded-xl text-xs font-mono flex items-center gap-3 shadow-lg"
-              style={{
-                background: "rgba(7, 14, 26, 0.72)",
-                border: "1px solid rgba(201, 168, 76, 0.42)",
-                color: "#F3D37A",
-              }}
-            >
-              <span
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={MEDALLION_STYLE}
-                aria-hidden="true"
-              >
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#F3D37A"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-                </svg>
-              </span>
-              <span>Raking Light Angle: {lightAngle}°</span>
-              <input
-                id="investor-raking-light-slider"
-                type="range"
-                min={0}
-                max={90}
-                value={lightAngle}
-                onChange={(e) => setLightAngle(Number(e.target.value))}
-                className="w-28 cursor-pointer"
-                style={{ accentColor: "#C9A84C" }}
-                aria-label="Raking Light Angle"
-              />
-            </div>
             <a
               href={COMPANY.phoneHref}
               className="min-h-[40px] inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold text-[#F3D37A] border border-[#C9A84C]/40 bg-[#0F2040]/85 hover:bg-[#0F2040] hover:border-[#C9A84C]/70 transition-all shadow-sm"
