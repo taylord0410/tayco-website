@@ -52,7 +52,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com_04_2.jpg", "label": "White TPO Flat Roof & Rooftop HVAC Curbs" },
       { "src": "/curated/commercial/cx_r1.jpg", "label": "Aerial TPO Membrane & Standing-Seam Wing" },
-      { "src": "/curated/commercial/com_04_1.jpg", "label": "Industrial Standing-Seam Metal Roof System" }
+      { "src": "/curated/commercial/com_04_1.jpg", "label": "Industrial Standing-Seam Metal Roof System" },
+      { "src": "/curated/obra/commercial/com-roofing-teardown.jpg", "label": "Roof Tear-Off and New Membrane" },
+      { "src": "/curated/obra/commercial/roofing-1.jpg", "label": "Parapet Membrane and Coping" }
     ]
   },
   {
@@ -77,7 +79,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com_02_2.jpg", "label": "Stone Veneer & Commercial Storefront Glazing" },
       { "src": "/curated/commercial/cx_o3.jpg", "label": "2-Story Curtain-Wall & Metal Panel Envelope" },
-      { "src": "/curated/hero/com-plaza-stone.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" }
+      { "src": "/curated/hero/com-plaza-stone.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" },
+      { "src": "/curated/obra/commercial/stone-1.jpg", "label": "Stone Panel Cladding" },
+      { "src": "/curated/obra/commercial/stone-2.jpg", "label": "Clip-Anchored Stone Panels" }
     ]
   },
   {
@@ -127,7 +131,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com-lobby-porcelain-tile.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
       { "src": "/work/flooring_commercial.jpg", "label": "Diamond-Polished Commercial Concrete Slab" },
-      { "src": "/curated/commercial/com_03_2.jpg", "label": "Commercial Corridor & High-Traffic Flooring" }
+      { "src": "/curated/commercial/com_03_2.jpg", "label": "Commercial Corridor & High-Traffic Flooring" },
+      { "src": "/curated/obra/commercial/flooring-1.jpg", "label": "Carpet Tile Install" },
+      { "src": "/curated/obra/commercial/flooring-2.jpg", "label": "Corridor Tile Being Set" }
     ]
   },
   {
@@ -177,7 +183,9 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
     "triptych": [
       { "src": "/curated/commercial/com_01_1.jpg", "label": "Restaurant & Hospitality Tenant Build-Out" },
       { "src": "/curated/commercial/com-retail-fitout-shelving.jpg", "label": "Retail White-Box & Custom Shelving Fit-Out" },
-      { "src": "/curated/commercial/cx_y3.jpg", "label": "Corporate Cafe & Breakroom Millwork TI" }
+      { "src": "/curated/commercial/cx_y3.jpg", "label": "Corporate Cafe & Breakroom Millwork TI" },
+      { "src": "/curated/obra/commercial/carpentry-1.jpg", "label": "Reception Desk Millwork" },
+      { "src": "/curated/obra/commercial/carpentry-2.jpg", "label": "Retail Fit-Out Millwork" }
     ]
   },
   {

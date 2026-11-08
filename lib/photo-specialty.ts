@@ -129,4 +129,51 @@ export const PHOTO_SPECIALTY: Record<string, MarketSpecialtyId> = {
   "/curated/properties/townhouse-04-chicago-endunit-brick.jpg": "stone",
   "/curated/properties/interior-townhouse-living-bay.jpg": "flooring",
   "/curated/properties/interior-townhouse-rooftop-terrace.jpg": "carpentry",
+
+  // Work-in-progress field photos — Single-Family
+  "/curated/obra/single-family/sf-roofing-tearoff.jpg": "roofing",
+  "/curated/obra/single-family/carpentry-1.jpg": "carpentry",
+  "/curated/obra/single-family/concrete-1.jpg": "concrete",
+  "/curated/obra/single-family/flooring-1.jpg": "flooring",
+  "/curated/obra/single-family/stone-1.jpg": "stone",
+  "/curated/obra/single-family/stone-2.jpg": "stone",
+
+  // Work-in-progress field photos — Multifamily
+  "/curated/obra/multifamily/mf-roofing-tpo.jpg": "roofing",
+  "/curated/obra/multifamily/roofing-1.jpg": "roofing",
+  "/curated/obra/multifamily/siding-1.jpg": "siding",
+  "/curated/obra/multifamily/siding-2.jpg": "siding",
+  "/curated/obra/multifamily/carpentry-1.jpg": "carpentry",
+  "/curated/obra/multifamily/carpentry-2.jpg": "carpentry",
+  "/curated/obra/multifamily/concrete-1.jpg": "concrete",
+  "/curated/obra/multifamily/concrete-2.jpg": "concrete",
+  "/curated/obra/multifamily/flooring-1.jpg": "flooring",
+  "/curated/obra/multifamily/flooring-2.jpg": "flooring",
+  "/curated/obra/multifamily/stone-1.jpg": "stone",
+  "/curated/obra/multifamily/stone-2.jpg": "stone",
+
+  // Work-in-progress field photos — Townhomes
+  "/curated/obra/townhomes/tw-roofing-standing-seam.jpg": "roofing",
+  "/curated/obra/townhomes/roofing-1.jpg": "roofing",
+  "/curated/obra/townhomes/siding-1.jpg": "siding",
+  "/curated/obra/townhomes/siding-2.jpg": "siding",
+  "/curated/obra/townhomes/drywall-1.jpg": "drywall",
+  "/curated/obra/townhomes/carpentry-1.jpg": "carpentry",
+  "/curated/obra/townhomes/carpentry-2.jpg": "carpentry",
+  "/curated/obra/townhomes/concrete-1.jpg": "concrete",
+  "/curated/obra/townhomes/concrete-2.jpg": "concrete",
+  "/curated/obra/townhomes/flooring-1.jpg": "flooring",
+  "/curated/obra/townhomes/flooring-2.jpg": "flooring",
+  "/curated/obra/townhomes/stone-1.jpg": "stone",
+  "/curated/obra/townhomes/stone-2.jpg": "stone",
+
+  // Work-in-progress field photos — Commercial
+  "/curated/obra/commercial/com-roofing-teardown.jpg": "roofing",
+  "/curated/obra/commercial/roofing-1.jpg": "roofing",
+  "/curated/obra/commercial/stone-1.jpg": "stone",
+  "/curated/obra/commercial/stone-2.jpg": "stone",
+  "/curated/obra/commercial/flooring-1.jpg": "flooring",
+  "/curated/obra/commercial/flooring-2.jpg": "flooring",
+  "/curated/obra/commercial/carpentry-1.jpg": "carpentry",
+  "/curated/obra/commercial/carpentry-2.jpg": "carpentry",
 };

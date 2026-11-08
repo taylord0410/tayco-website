@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { getMarketSpecialtiesByCategory } from '../lib/property-catalog';
+import { getMarketSpecialtiesByCategory, type MarketSpecialtyId } from '../lib/property-catalog';
 import { buildSpecialtyWalkthroughStops } from '../components/PropertyWalkthroughStudio';
 import { getDivisionExtraSpecialtyFrames } from '../components/PropertyCategoryShowcase';
 
@@ -11,7 +11,7 @@ import { getDivisionExtraSpecialtyFrames } from '../components/PropertyCategoryS
 // Vertex and reviewed one by one by ARTEMIS, the HUB and PRAXIS-MAAT. The fixture says where each one
 // goes; this test checks that the gallery the viewer builds actually holds it, with its short title.
 const mapa = JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'obra-fotos-mapa.json'), 'utf8')) as {
-  nuevas: { division: 'single-family' | 'multifamily' | 'townhomes' | 'commercial'; specialtyId: string; ruta: string; titulo: string }[];
+  nuevas: { division: 'single-family' | 'multifamily' | 'townhomes' | 'commercial'; specialtyId: MarketSpecialtyId; ruta: string; titulo: string }[];
 };
 
 test('every new work-in-progress photo is in the gallery of its division and service', () => {

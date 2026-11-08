@@ -69,22 +69,28 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     ],
     "triptych": [
       { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
-      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
+      { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" },
+      { "src": "/curated/obra/single-family/sf-roofing-tearoff.jpg", "label": "Shingle Replacement in Progress" }
     ],
     "triptychByDivision": {
       "single-family": [
         { "src": "/curated/pairs/div02_02_despues.jpg", "label": "Architectural Shingle Roof & Gable Dormers" },
-        { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" }
+        { "src": "/curated/residential/div04_06_despues.jpg", "label": "Chimney Step & Counter Flashing on Architectural Shingles" },
+        { "src": "/curated/obra/single-family/sf-roofing-tearoff.jpg", "label": "Shingle Replacement in Progress" }
       ],
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-roofing.jpg", "label": "Multifamily Gable Shingle & Standing-Seam Roof System" },
         { "src": "/curated/capabilities/mf-tpo-capex.jpg", "label": "Multi-Unit Flat Roof & Parapet CapEx Replacement" },
-        { "src": "/work/roofing_multifamily.jpg", "label": "Duplex & Two-Flat Architectural Shingle Re-Roof" }
+        { "src": "/work/roofing_multifamily.jpg", "label": "Duplex & Two-Flat Architectural Shingle Re-Roof" },
+        { "src": "/curated/obra/multifamily/mf-roofing-tpo.jpg", "label": "TPO Membrane Going Down" },
+        { "src": "/curated/obra/multifamily/roofing-1.jpg", "label": "Shingles Over Underlayment" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-roofing-siding.jpg", "label": "Slate Mansard, Copper Flashing & Parapet Cap" },
         { "src": "/curated/properties/townhouse-03-brownstone-mansard-row.jpg", "label": "Attached Brownstone Mansard & Dormer Roofline" },
-        { "src": "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg", "label": "Stepped-Grade Roofs & Party-Wall Parapet Flashing" }
+        { "src": "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg", "label": "Stepped-Grade Roofs & Party-Wall Parapet Flashing" },
+        { "src": "/curated/obra/townhomes/tw-roofing-standing-seam.jpg", "label": "Standing-Seam Mansard Install" },
+        { "src": "/curated/obra/townhomes/roofing-1.jpg", "label": "Slate Mansard Install" }
       ]
     }
   },
@@ -119,12 +125,16 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "multifamily": [
         { "src": "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg", "label": "Duplex Brick Veneer, Cedar Cladding & Entry Doors" },
         { "src": "/curated/properties/duplex-05-minneapolis-buffbrick-dormer.jpg", "label": "Two-Flat Buff Brick, Dormer Siding & Casement Windows" },
-        { "src": "/work/siding_multifamily.jpg", "label": "Multifamily Fiber-Cement Cladding & Trim Package" }
+        { "src": "/work/siding_multifamily.jpg", "label": "Multifamily Fiber-Cement Cladding & Trim Package" },
+        { "src": "/curated/obra/multifamily/siding-1.jpg", "label": "Fiber-Cement Cladding Underway" },
+        { "src": "/curated/obra/multifamily/siding-2.jpg", "label": "Balcony Siding in Progress" }
       ],
       "townhomes": [
         { "src": "/curated/properties/townhouse-01-brick-limestone-row.jpg", "label": "Townhome Brick Facade, Limestone Lintels & Bay Windows" },
         { "src": "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg", "label": "Corner Masonry & Cedar Rainscreen Siding" },
-        { "src": "/work/siding_townhomes.jpg", "label": "Attached Townhome Siding, Trim & Stoop Entry Doors" }
+        { "src": "/work/siding_townhomes.jpg", "label": "Attached Townhome Siding, Trim & Stoop Entry Doors" },
+        { "src": "/curated/obra/townhomes/siding-1.jpg", "label": "Lap Siding Over House Wrap" },
+        { "src": "/curated/obra/townhomes/siding-2.jpg", "label": "Cedar Siding on Rear Bay" }
       ]
     }
   },
@@ -203,7 +213,8 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-drywall-gallery.jpg", "label": "3-Story Townhome Stairwell Level-5 Gallery Drywall" },
         { "src": "/curated/properties/mkt-twn-framing-drywall.jpg", "label": "Party-Wall Fire-Rated Drywall & Shaftliner Board" },
-        { "src": "/work/painting_townhomes.jpg", "label": "Parlor-Level Smooth Drywall, Crown & Interior Paint" }
+        { "src": "/work/painting_townhomes.jpg", "label": "Parlor-Level Smooth Drywall, Crown & Interior Paint" },
+        { "src": "/curated/obra/townhomes/drywall-1.jpg", "label": "Taped Drywall, First Coat" }
       ]
     }
   },
@@ -227,23 +238,29 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Walnut Butler's Pantry with Glass-Front Cabinetry" },
       { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Library Bookcases & Coffered Ceiling" },
-      { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
+      { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" },
+      { "src": "/curated/obra/single-family/carpentry-1.jpg", "label": "Kitchen Cabinets Being Set" }
     ],
     "triptychByDivision": {
       "single-family": [
         { "src": "/curated/pairs/div03_02_despues.jpg", "label": "Walnut Butler's Pantry with Glass-Front Cabinetry" },
         { "src": "/curated/pairs/div01_03_despues.jpg", "label": "Built-In Library Bookcases & Coffered Ceiling" },
-        { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" }
+        { "src": "/curated/residential/div01_05_despues.jpg", "label": "Finished Oak Stair Treads & Balustrade" },
+        { "src": "/curated/obra/single-family/carpentry-1.jpg", "label": "Kitchen Cabinets Being Set" }
       ],
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-carpentry-lounge.jpg", "label": "Multifamily Custom Millwork, Built-Ins & Unit Entry Trim" },
         { "src": "/curated/properties/interior-duplex-brick-kitchen.jpg", "label": "Duplex Open-Concept Kitchen Cabinetry & Quartz Island" },
-        { "src": "/curated/properties/interior-limestone-modern-kitchen.jpg", "label": "Two-Flat Waterfall Quartz Kitchen & Custom Walnut Millwork" }
+        { "src": "/curated/properties/interior-limestone-modern-kitchen.jpg", "label": "Two-Flat Waterfall Quartz Kitchen & Custom Walnut Millwork" },
+        { "src": "/curated/obra/multifamily/carpentry-1.jpg", "label": "Unit Kitchen Cabinets Install" },
+        { "src": "/curated/obra/multifamily/carpentry-2.jpg", "label": "Built-Ins and Trim Underway" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-carpentry-library.jpg", "label": "Townhome Parlor Built-In Library & Custom Wainscoting" },
         { "src": "/curated/properties/interior-townhouse-parlor-kitchen.jpg", "label": "Townhome Parlor Chef's Kitchen & Custom Island Millwork" },
-        { "src": "/curated/properties/mkt-twn-flooring-stairtreads.jpg", "label": "3-Story Townhome White-Oak Stair Treads & Balustrade" }
+        { "src": "/curated/properties/mkt-twn-flooring-stairtreads.jpg", "label": "3-Story Townhome White-Oak Stair Treads & Balustrade" },
+        { "src": "/curated/obra/townhomes/carpentry-1.jpg", "label": "Kitchen Cabinets Being Hung" },
+        { "src": "/curated/obra/townhomes/carpentry-2.jpg", "label": "Library Millwork Underway" }
       ]
     }
   },
@@ -267,23 +284,37 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
       { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
-      { "src": "/curated/residential/sf-concrete-driveway-front-walk.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
+      { "src": "/curated/residential/sf-concrete-driveway-front-walk.jpg", "label": "Residential Driveway, Porch & Foundation Apron" },
+      { "src": "/curated/obra/single-family/concrete-1.jpg", "label": "Driveway Forms and Rebar" },
+      { "src": "/curated/obra/single-family/stone-1.jpg", "label": "Stone Veneer Going Up" },
+      { "src": "/curated/obra/single-family/stone-2.jpg", "label": "Stone Over Scratch Coat" }
     ],
     "triptychByDivision": {
       "single-family": [
         { "src": "/curated/residential/div01_07_despues.jpg", "label": "Broom-Finished Concrete Patio & Walkway" },
         { "src": "/curated/pairs/div02_03_despues.jpg", "label": "Foundation Stone Veneer & Column Pedestals" },
-        { "src": "/curated/residential/sf-concrete-driveway-front-walk.jpg", "label": "Residential Driveway, Porch & Foundation Apron" }
+        { "src": "/curated/residential/sf-concrete-driveway-front-walk.jpg", "label": "Residential Driveway, Porch & Foundation Apron" },
+        { "src": "/curated/obra/single-family/concrete-1.jpg", "label": "Driveway Forms and Rebar" },
+        { "src": "/curated/obra/single-family/stone-1.jpg", "label": "Stone Veneer Going Up" },
+        { "src": "/curated/obra/single-family/stone-2.jpg", "label": "Stone Over Scratch Coat" }
       ],
       "multifamily": [
         { "src": "/curated/properties/mkt-mf-concrete-podium.jpg", "label": "Multifamily Poured Concrete Foundation & Parking Apron" },
         { "src": "/curated/properties/mkt-mf-stone-courtyard.jpg", "label": "Shared Duplex Courtyard Walkways & Stone Retaining Seat" },
-        { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Ground-Level Concrete Slab Flooring & Courtyard Walkout" }
+        { "src": "/curated/properties/mkt-mf-flooring-concrete.jpg", "label": "Ground-Level Concrete Slab Flooring & Courtyard Walkout" },
+        { "src": "/curated/obra/multifamily/concrete-1.jpg", "label": "Courtyard Slab Forms" },
+        { "src": "/curated/obra/multifamily/concrete-2.jpg", "label": "Fresh Slab Curing" },
+        { "src": "/curated/obra/multifamily/stone-1.jpg", "label": "Lath and Scratch Coat for Stone" },
+        { "src": "/curated/obra/multifamily/stone-2.jpg", "label": "Stone Veneer Over Scratch Coat" }
       ],
       "townhomes": [
         { "src": "/curated/properties/mkt-twn-concrete-stone.jpg", "label": "Bluestone Stoop, Limestone Treads & Areaway Wall" },
         { "src": "/curated/properties/mkt-twn-concrete-drive.jpg", "label": "Townhome Rear Alley Garage Apron & Permeable Paver Court" },
-        { "src": "/curated/properties/mkt-twn-stone-gardenwall.jpg", "label": "Attached Townhome Stepped Foundation & Entry Stoop" }
+        { "src": "/curated/properties/mkt-twn-stone-gardenwall.jpg", "label": "Attached Townhome Stepped Foundation & Entry Stoop" },
+        { "src": "/curated/obra/townhomes/concrete-1.jpg", "label": "Patio Pour in Progress" },
+        { "src": "/curated/obra/townhomes/concrete-2.jpg", "label": "Fresh Slab Finishing" },
+        { "src": "/curated/obra/townhomes/stone-1.jpg", "label": "Stone Infill Underway" },
+        { "src": "/curated/obra/townhomes/stone-2.jpg", "label": "Stone Veneer Retrofit" }
       ]
     }
   },
@@ -347,23 +378,29 @@ const RESIDENTIAL_CSI_TRADES: ResidentialTradeCard[] = [
     "triptych": [
       { "src": "/curated/residential/sf-finished-basement-lounge.jpg", "label": "Finished Basement Living Suite & LVP" },
       { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
-      { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
+      { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" },
+      { "src": "/curated/obra/single-family/flooring-1.jpg", "label": "Oak Flooring Install" }
     ],
     "triptychByDivision": {
       "single-family": [
         { "src": "/curated/residential/sf-finished-basement-lounge.jpg", "label": "Finished Basement Living Suite & LVP" },
         { "src": "/curated/residential/div03_03_despues.jpg", "label": "Main-Floor Hardwood & Interior Remodel" },
-        { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" }
+        { "src": "/curated/residential/div01_08_despues.jpg", "label": "Open-Concept Kitchen Remodel & Hardwood Floors" },
+        { "src": "/curated/obra/single-family/flooring-1.jpg", "label": "Oak Flooring Install" }
       ],
       "multifamily": [
         { "src": "/curated/properties/duplex-04-evanston-corner-twoflat.jpg", "label": "Full Two-Flat Exterior & Multi-Unit Value-Add Repositioning" },
         { "src": "/curated/properties/interior-limestone-modern-living.jpg", "label": "Unit A/B Open-Concept Living & Acoustic Flooring Turnover" },
-        { "src": "/curated/properties/interior-duplex-rear-patio-courtyard.jpg", "label": "Shared Duplex Rear Courtyard & Lower-Unit Garden Suite" }
+        { "src": "/curated/properties/interior-duplex-rear-patio-courtyard.jpg", "label": "Shared Duplex Rear Courtyard & Lower-Unit Garden Suite" },
+        { "src": "/curated/obra/multifamily/flooring-1.jpg", "label": "Plank Flooring Install" },
+        { "src": "/curated/obra/multifamily/flooring-2.jpg", "label": "Bathroom Tile Being Set" }
       ],
       "townhomes": [
         { "src": "/curated/properties/townhouse-04-chicago-endunit-brick.jpg", "label": "End-Unit Full-Gut Masonry & Window Rehabilitation" },
         { "src": "/curated/properties/interior-townhouse-living-bay.jpg", "label": "Parlor-Floor Living Bay, Herringbone Oak & Hearth Remodel" },
-        { "src": "/curated/properties/interior-townhouse-rooftop-terrace.jpg", "label": "Rooftop Terrace Deck, Pergola & Upper-Floor Suite Addition" }
+        { "src": "/curated/properties/interior-townhouse-rooftop-terrace.jpg", "label": "Rooftop Terrace Deck, Pergola & Upper-Floor Suite Addition" },
+        { "src": "/curated/obra/townhomes/flooring-1.jpg", "label": "Herringbone Floor Install" },
+        { "src": "/curated/obra/townhomes/flooring-2.jpg", "label": "New Oak Stair Treads" }
       ]
     }
   }
