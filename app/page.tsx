@@ -356,7 +356,7 @@ const PROJECT_STEPS = [
     status: "Step 01 · Site & Scope",
     requestHref: "/estimate",
     accent: "#C9A84C",
-    image: "/curated/properties/mkt-twn-concrete-drive.jpg",
+    image: "/curated/magazine/revista_ex_ex_found.jpg",
     csiTag: "CSI DIV 01 / 31 · SURVEY & SITE PREP",
     deliverables: [
       "Existing conditions & site verification",
