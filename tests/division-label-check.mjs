@@ -22,37 +22,47 @@ const DIVISIONS = {
 const decode = (s) =>
   s.replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
 
+// Rule 4 on the division pages, the home page and /estimate (HUB and PRAXIS-MAAT, 8-nov): no lab
+// panel or trade codes in front of a client — «Raking Light Angle: 38°», «(Kelvin)», «3500K», «CSI DIV 07».
+const TECHNICAL = /raking light angle|\bkelvin\b|\b\d{4}\s?K\b|\bCSI\b|\bDIV\s*\d|\d\s?°/i;
+const OTHER_PAGES = ['', 'estimate'];
+
 function stripAllowed(html, slug) {
   let body = html.replace(/<head[\s\S]*?<\/head>/i, '');
   for (const tag of ['script', 'style', 'noscript', 'template', 'svg', 'header', 'nav', 'footer']) {
     body = body.replace(new RegExp(`<${tag}\\b[\\s\\S]*?<\\/${tag}>`, 'gi'), ' ');
   }
   body = body.replace(/<h1\b[\s\S]*?<\/h1>/gi, ' ');
+  if (!slug) return body;
   // Only the first link to the page itself (not global: replace() then drops just one match).
   const selfLink = new RegExp(`<a\\b[^>]*href="(?:${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})?\\/${slug}(?:[?#][^"]*)?"[^>]*>[\\s\\S]*?<\\/a>`, 'i');
   return body.replace(selfLink, ' ');
 }
 
 function findings(html, slug, pattern) {
-  const body = stripAllowed(html, slug);
+  const body = stripAllowed(html, pattern ? slug : '');
   const out = [];
   // alt, aria-label and title are not seen; they describe the photo for search engines and screen
   // readers, so naming the category once is fine. Repeating it is the noise Taylord asked to remove.
-  const global = new RegExp(pattern.source, 'gi');
-  for (const m of body.matchAll(/\b(alt|aria-label|title)="([^"]*)"/gi)) {
-    const value = decode(m[2]);
-    if ((value.match(global) || []).length >= 2) out.push(`${m[1]} (repeats it): ${value}`);
+  if (pattern) {
+    const global = new RegExp(pattern.source, 'gi');
+    for (const m of body.matchAll(/\b(alt|aria-label|title)="([^"]*)"/gi)) {
+      const value = decode(m[2]);
+      if ((value.match(global) || []).length >= 2) out.push(`${m[1]} (repeats it): ${value}`);
+    }
   }
   // React splits interpolated text with <!-- --> markers ("All (<!-- -->8<!-- -->)"); join it back first.
   const text = decode(body.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, '\n')).split('\n').map((t) => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
-  for (const line of text) if (pattern.test(line)) out.push(`text: ${line.length > 140 ? `${line.slice(0, 137)}...` : line}`);
+  if (pattern) for (const line of text) if (pattern.test(line)) out.push(`text: ${line.length > 140 ? `${line.slice(0, 137)}...` : line}`);
   // Rule 4: no counts on filters and selectors («All (8)», «Projects (4)»); HUB, 8-nov.
   for (const line of text) if (/\(\s*\d+\s*\)/.test(line)) out.push(`count: ${line}`);
+  for (const line of text) if (TECHNICAL.test(line)) out.push(`technical: ${line.length > 140 ? `${line.slice(0, 137)}...` : line}`);
   return out;
 }
 
 let failed = 0;
-for (const [slug, pattern] of Object.entries(DIVISIONS)) {
+const pages = [...Object.entries(DIVISIONS), ...OTHER_PAGES.map((slug) => [slug, null])];
+for (const [slug, pattern] of pages) {
   const response = await fetch(`${base}/${slug}`, { headers: { Accept: 'text/html', 'User-Agent': 'Mozilla/5.0 (division-label-check)' } });
   if (response.status !== 200) {
     console.log(`✖ /${slug}: HTTP ${response.status}`);
@@ -61,11 +71,11 @@ for (const [slug, pattern] of Object.entries(DIVISIONS)) {
   }
   const hits = findings(await response.text(), slug, pattern);
   if (hits.length === 0) {
-    console.log(`✔ /${slug}: the division name only appears in the page title and the category selector, and no filter shows a count`);
+    console.log(`✔ /${slug}: ${pattern ? 'the division name only appears in the page title and the category selector; ' : ''}no counts or technical labels`);
     continue;
   }
   failed++;
-  console.log(`✖ /${slug}: ${hits.length} place(s) repeat the division name or show a count`);
+  console.log(`✖ /${slug}: ${hits.length} place(s) ${pattern ? 'repeat the division name, ' : ''}show a count or a technical label`);
   const counts = new Map();
   for (const hit of hits) counts.set(hit, (counts.get(hit) || 0) + 1);
   for (const [hit, n] of counts) console.log(`    ${n > 1 ? `${n}× ` : ''}${hit}`);
