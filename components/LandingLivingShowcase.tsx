@@ -727,7 +727,10 @@ export function TransformationBeforeAfterStudio({
         />
         <div className="flex flex-col items-center gap-6 mb-8">
           {/* Division Tabs */}
-          <TaycoPillDock ariaLabel="Filter transformations">
+          <TaycoPillDock
+            ariaLabel="Filter transformations"
+            className="!flex-nowrap overflow-x-auto tayco-no-scrollbar !justify-start !gap-1 sm:!gap-1.5 !p-1 sm:!p-1.5 !rounded-full"
+          >
             {divisionTabDefs.map((tab) => {
               const active = activeDivision === tab.id;
               return (
@@ -748,7 +751,7 @@ export function TransformationBeforeAfterStudio({
                       selectPairHarmonized(nextList[0].id);
                     }
                   }}
-                  className="tayco-atelier-pill cursor-pointer"
+                  className="tayco-atelier-pill cursor-pointer !min-h-[34px] sm:!min-h-[38px] !px-2.5 sm:!px-4 !py-1 sm:!py-1.5 !text-[11px] sm:!text-xs whitespace-nowrap shrink-0 first:ml-auto last:mr-auto"
                 >
                   {tab.label}
                 </button>
