@@ -1,6 +1,5 @@
 # Multi-stage Dockerfile for Next.js Standalone
-FROM node:24-alpine AS base
-RUN apk add --no-cache libc6-compat
+FROM node:24-bookworm-slim AS base
 
 # 1. Install dependencies only when needed
 FROM base AS deps
@@ -24,7 +23,7 @@ ENV NODE_OPTIONS="--max-old-space-size=3072 --dns-result-order=ipv4first --no-ne
 # set it once the domain's DNS points at this service, or canonicals would name another host.
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-RUN npm run build 2>&1 && npm prune --omit=dev 2>&1
+RUN sh -c 'npm run build > /tmp/build.log 2>&1; rc=$?; cat /tmp/build.log; if [ "$rc" -ne 0 ]; then echo "BUILD_EXIT_CODE=$rc"; sleep 3; exit "$rc"; fi; npm prune --omit=dev'
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
@@ -36,8 +35,8 @@ ENV NODE_OPTIONS="--dns-result-order=ipv4first --no-network-family-autoselection
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs \
+ && useradd --system --uid 1001 --gid nodejs --no-create-home nextjs
 
 COPY --from=builder /app/public ./public
 
