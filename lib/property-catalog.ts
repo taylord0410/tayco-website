@@ -76,7 +76,7 @@ export interface MarketSpecialtyService {
   csiDivision: string;
   summary: string;
   deliverables: [string, string, string];
-  triptych: [TriptychFrame, TriptychFrame, TriptychFrame];
+  triptych: [TriptychFrame, TriptychFrame, TriptychFrame, ...TriptychFrame[]];
 }
 
 export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
@@ -92,10 +92,10 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Carpentry for Single-Family Residences.",
     description:
       "Eight specialties from roofing to custom kitchens, plus a gallery of completed single-family residences.",
-    heroImage: "/curated/properties/mkt-sfh-stone-exterior.jpg",
+    heroImage: "/curated/hero/res-cedar-deck-home.jpg",
     secondaryImages: [
-      "/curated/properties/mkt-sfh-framing.jpg",
-      "/curated/properties/mkt-sfh-concrete.jpg",
+      "/curated/obra/single-family/sf-siding-seq1-prep.jpg",
+      "/curated/obra/single-family/sf-siding-seq1-install.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Homes",
     typicalSqftRange: "2,650 – 4,400 Sq. Ft.",
@@ -118,8 +118,8 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Multi-unit envelopes, acoustic corridors and turnkey unit interiors across eight specialties.",
     heroImage: "/curated/properties/duplex-01-brick-cedar-asymmetric.jpg",
     secondaryImages: [
-      "/curated/properties/duplex-02-limestone-stucco-asymmetric.jpg",
-      "/curated/properties/duplex-03-columbus-lplan-brick.jpg",
+      "/curated/obra/multifamily/mf-siding-seq1-prep.jpg",
+      "/curated/obra/multifamily/mf-siding-seq1-install.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Projects",
     typicalSqftRange: "3,600 – 45,000+ Sq. Ft.",
@@ -140,10 +140,10 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Roofing, Siding, Framing, Drywall, Flooring, Concrete, Stone & Custom Millwork for Attached Townhome Communities.",
     description:
       "Fire-rated party walls, brick facades and white-oak stair packages built for townhome living.",
-    heroImage: "/curated/properties/townhouse-01-brick-limestone-row.jpg",
+    heroImage: "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
     secondaryImages: [
-      "/curated/properties/townhouse-02-corner-masonry-cedar-row.jpg",
-      "/curated/properties/townhouse-03-brownstone-mansard-row.jpg",
+      "/curated/obra/townhomes/tw-siding-seq1-prep.jpg",
+      "/curated/obra/townhomes/tw-siding-seq1-install.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Row Developments",
     typicalSqftRange: "2,250 – 3,300 Sq. Ft. / Unit",
@@ -164,10 +164,10 @@ export const PROPERTY_CATEGORIES: readonly PropertyCategoryMeta[] = [
       "Commercial Roofing, Cladding, Structural Steel Framing, Commercial Drywall, Flooring, Concrete, Stone & Tenant Buildouts.",
     description:
       "Curtain wall, structural steel and polished interiors delivered for commercial properties.",
-    heroImage: "/curated/properties/mkt-com-roofing-tpo.jpg",
+    heroImage: "/curated/properties/mkt-com-roofing-greenroof.jpg",
     secondaryImages: [
-      "/curated/properties/mkt-com-concrete-stone.jpg",
-      "/curated/properties/mkt-com-drywall-ceilings.jpg",
+      "/curated/obra/commercial/com-roofing-seq1-prep.jpg",
+      "/curated/obra/commercial/com-roofing-seq1-install.jpg",
     ],
     totalAvailableBadge: "8 Specialties · 6 Facilities",
     typicalSqftRange: "14,500 – 64,000 Sq. Ft.",
@@ -1147,16 +1147,16 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
       triptych: [
         {
+          src: "/curated/properties/sf-drywall-seq1-finish.jpg",
+          label: "Level-5 Smooth Gypsum Walls, Recessed Ceiling Lighting & Trim",
+        },
+        {
           src: "/curated/properties/mkt-sfh-drywall-flooring.jpg",
           label: "Level-5 Smooth Drywall, Recessed Cove Ceiling & Oak Floors",
         },
         {
           src: "/curated/hero/res-coffered-hearth.jpg",
           label: "Coffered Drywall Ceiling & Custom Millwork Integration",
-        },
-        {
-          src: "/curated/pairs/div01_03_despues.jpg",
-          label: "Smooth Plaster-Grade Wall Finishes & Exposed Ceiling Beams",
         },
       ],
     },
@@ -1567,16 +1567,16 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
       triptych: [
         {
+          src: "/curated/properties/tw-roofing-seq1-finish.jpg",
+          label: "Completed Slate Mansard Roof, Copper Dormer Flashing & Parapet Cap",
+        },
+        {
           src: "/curated/properties/mkt-twn-roofing-siding.jpg",
           label: "Standing-Seam Metal Roof, Gables & Parapet Flashing",
         },
         {
           src: "/curated/properties/townhouse-03-brownstone-mansard-row.jpg",
           label: "Mansard Standing-Seam Roof, Slate Shingles & Dormer Windows",
-        },
-        {
-          src: "/curated/properties/townhouse-05-stepped-grade-rowhouses.jpg",
-          label: "Stepped-Grade Roofline & Rooftop Terrace Waterproofing",
         },
       ],
     },
@@ -1857,16 +1857,16 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
       triptych: [
         {
+          src: "/curated/properties/com-siding-seq1-finish.jpg",
+          label: "Oblique Architectural Metal Panel & Storefront Glazing Envelope",
+        },
+        {
           src: "/curated/commercial/cx_o3.jpg",
           label: "Architectural Curtain-Wall Glazing & Architectural Metal Panel Cladding",
         },
         {
           src: "/curated/hero/com-dusk-steel.jpg",
           label: "Steel-and-Glass Architectural Envelope & Cantilevered Entry Canopy",
-        },
-        {
-          src: "/curated/hero/com-hq-sunset.jpg",
-          label: "Corporate Facade Cladding & Mullion Glazing System",
         },
       ],
     },
@@ -1889,16 +1889,16 @@ export const MARKET_SPECIALTIES_BY_CATEGORY: Readonly<
       ],
       triptych: [
         {
+          src: "/curated/properties/com-framing-seq1-finish.jpg",
+          label: "Two-Story Structural Steel & Cold-Formed Metal Stud Shell",
+        },
+        {
           src: "/curated/commercial/cx_x3.jpg",
           label: "High-Bay Architectural Structural Steel Frame & Mezzanine Deck",
         },
         {
           src: "/curated/capabilities/fire-steel-ibeam.jpg",
           label: "Architectural Wide-Flange Steel I-Beams, Bar Joists & Metal Decking",
-        },
-        {
-          src: "/curated/hero/com-framing-atrium.jpg",
-          label: "Multi-Level Architectural Cold-Formed Steel Stud & Atrium Framing",
         },
       ],
     },

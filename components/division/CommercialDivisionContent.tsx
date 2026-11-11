@@ -50,6 +50,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Site access and protection"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-roofing-seq1-prep.jpg", "label": "Commercial Roof Deck & Polyiso Insulation Staging" },
+      { "src": "/curated/obra/commercial/com-roofing-seq1-install.jpg", "label": "TPO Membrane Rollout & Seam Welding in Progress" },
       { "src": "/curated/commercial/com_04_2.jpg", "label": "White TPO Flat Roof & Rooftop HVAC Curbs" },
       { "src": "/curated/commercial/cx_r1.jpg", "label": "Aerial TPO Membrane & Standing-Seam Wing" },
       { "src": "/curated/commercial/com_04_1.jpg", "label": "Industrial Standing-Seam Metal Roof System" },
@@ -77,6 +79,10 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Coordination with occupied areas"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-siding-seq1-prep.jpg", "label": "Exterior Sheathing, Air Barrier & Sub-Girt Rail Grid" },
+      { "src": "/curated/obra/commercial/com-siding-seq1-install.jpg", "label": "Curtain-Wall Glazing & Architectural Panel Install" },
+      { "src": "/curated/obra/commercial/com-stone-seq1-prep.jpg", "label": "Colonnade Backup Wall, Anchor Channels & Scratch Coat" },
+      { "src": "/curated/obra/commercial/com-stone-seq1-install.jpg", "label": "Architectural Limestone Colonnade Panels Underway" },
       { "src": "/curated/commercial/com_02_2.jpg", "label": "Stone Veneer & Commercial Storefront Glazing" },
       { "src": "/curated/commercial/cx_o3.jpg", "label": "2-Story Curtain-Wall & Metal Panel Envelope" },
       { "src": "/curated/hero/com-plaza-stone.jpg", "label": "Masonry Facade, Canopy & Architectural Fascia" },
@@ -104,6 +110,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Inspections and sequencing"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-framing-seq1-prep.jpg", "label": "Primary Steel Columns & Cold-Formed Track Layout" },
+      { "src": "/curated/obra/commercial/com-framing-seq1-install.jpg", "label": "Interior Mezzanine & Cold-Formed Metal Stud Framing" },
       { "src": "/curated/commercial/com-cfs-stud-framing-3story.jpg", "label": "3-Story Cold-Formed Steel Stud Framing" },
       { "src": "/curated/magazine/revista_fr_metal_04.jpg", "label": "Commercial Structural Steel Superstructure" },
       { "src": "/curated/hero/com-dusk-steel.jpg", "label": "Structural Envelope & Steel Framing" }
@@ -129,6 +137,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Installation sequencing"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-flooring-seq1-prep.jpg", "label": "Lobby Slab Leveling & Crack-Isolation Membrane Prep" },
+      { "src": "/curated/obra/commercial/com-flooring-seq1-install.jpg", "label": "Large-Format Limestone Lobby Tile Setting in Thinset" },
       { "src": "/curated/commercial/com-lobby-porcelain-tile.jpg", "label": "Large-Format Commercial Lobby Porcelain Tile" },
       { "src": "/work/flooring_commercial.jpg", "label": "Diamond-Polished Commercial Concrete Slab" },
       { "src": "/curated/commercial/com_03_2.jpg", "label": "Commercial Corridor & High-Traffic Flooring" },
@@ -156,6 +166,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Final touch-ups and review"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-drywall-seq1-prep.jpg", "label": "Commercial Metal Stud Partitions & Overhead MEP Rough-In" },
+      { "src": "/curated/obra/commercial/com-drywall-seq1-install.jpg", "label": "Type-X Gypsum Board Hung & Soffit Taping Underway" },
       { "src": "/work/drywall_commercial.jpg", "label": "Curved Commercial Soffit & Gypsum Assembly" },
       { "src": "/curated/commercial/com_03_1.jpg", "label": "Acoustic Drop-Ceiling Grid & Partitions" },
       { "src": "/curated/commercial/cx_i1.jpg", "label": "Walnut Slat Ceiling & Terrazzo Lobby Finish" }
@@ -181,6 +193,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Walk-through and closeout"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-carpentry-seq1-prep.jpg", "label": "Boardroom Wall Furring, Acoustic Backing & Base Cleats" },
+      { "src": "/curated/obra/commercial/com-carpentry-seq1-install.jpg", "label": "Walnut Slat Paneling & Credenza Millwork Underway" },
       { "src": "/curated/commercial/com_01_1.jpg", "label": "Restaurant & Hospitality Tenant Build-Out" },
       { "src": "/curated/commercial/com-retail-fitout-shelving.jpg", "label": "Retail White-Box & Custom Shelving Fit-Out" },
       { "src": "/curated/commercial/cx_y3.jpg", "label": "Corporate Cafe & Breakroom Millwork TI" },
@@ -233,6 +247,8 @@ export const COMMERCIAL_CSI_TRADES: CommercialTradeSpec[] = [
       "Finishing and curing plan"
     ],
     "triptych": [
+      { "src": "/curated/obra/commercial/com-concrete-seq1-prep.jpg", "label": "Commercial Plaza Compacted Base, Forms & Rebar Grid" },
+      { "src": "/curated/obra/commercial/com-concrete-seq1-install.jpg", "label": "Freshly Poured Commercial Concrete Apron & Screed" },
       { "src": "/curated/commercial/com-slab-stem-walls.jpg", "label": "Poured Commercial Slab & Stem Walls" },
       { "src": "/curated/commercial/com-foundation-pad-rebar.jpg", "label": "Reinforced Concrete Foundation Pad" },
       { "src": "/curated/commercial/com-warehouse-industrial-floor.jpg", "label": "High-Load Industrial Warehouse Concrete Floor" }

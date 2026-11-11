@@ -122,7 +122,12 @@ import {
   getResidentialRestorationByDivision,
 } from "@/components/division/ResidentialDivisionContent";
 import { COMMERCIAL_CSI_TRADES } from "@/components/division/CommercialDivisionContent";
-import { PHOTO_SPECIALTY } from "@/lib/photo-specialty";
+import {
+  PHOTO_SPECIALTY,
+  buildOrderedSpecialtyFrames,
+  resolveSpecialtyNightPair,
+  selectSpecialtyCardPreviews,
+} from "@/lib/photo-specialty";
 import { COMPANY } from "@/lib/company";
 
 function sanitizeExtraSpecialtyLabel(label: string): string {
@@ -360,9 +365,72 @@ function MarketSpecialtyInteractiveCard({
   const [daylightMood, setDaylightMood] = useState<"day" | "sunset">("day");
   const [animateDaylight, setAnimateDaylight] = useState<boolean>(true);
 
+  const frames = React.useMemo(
+    () => buildOrderedSpecialtyFrames(service.triptych, extraFrames),
+    [service.triptych, extraFrames]
+  );
+  const previewFrames = React.useMemo(
+    () => selectSpecialtyCardPreviews(frames),
+    [frames]
+  );
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [service.id]);
+
+  const resolveFrameNightSrc = React.useCallback(
+    (frame?: { src: string; nightSrc?: string; hasNightVariant?: boolean }) => {
+      if (!frame) return "";
+      if (!frame.hasNightVariant) return frame.src;
+      return frame.nightSrc ?? resolveNightImageSrc(frame.src);
+    },
+    []
+  );
+  const allUrls = React.useMemo(
+    () =>
+      frames.flatMap((f) =>
+        f.hasNightVariant ? [f.src, resolveFrameNightSrc(f)] : [f.src]
+      ),
+    [frames, resolveFrameNightSrc]
+  );
+  const safeActiveIdx = activeIdx < previewFrames.length ? activeIdx : 0;
+  const currentFrame = previewFrames[safeActiveIdx] ?? previewFrames[0] ?? frames[0];
+  const currentGlobalIdx = React.useMemo(() => {
+    const idx = frames.findIndex((f) => f.src === currentFrame?.src);
+    return idx >= 0 ? idx : 0;
+  }, [frames, currentFrame]);
+  const currentNightSrc = resolveFrameNightSrc(currentFrame);
+  const currentPairUrls = React.useMemo(
+    () =>
+      currentFrame.hasNightVariant
+        ? [currentFrame.src, currentNightSrc]
+        : [currentFrame.src],
+    [currentFrame.src, currentFrame.hasNightVariant, currentNightSrc]
+  );
+  const currentAssetId = computeVisualAssetId(currentFrame.src);
+
+  const selectFrame = (idx: number) => {
+    const target = previewFrames[idx] ?? previewFrames[0] ?? frames[0];
+    preloadProtectedImages(allUrls);
+    waitForDecodedSurfaces(
+      target.hasNightVariant
+        ? [target.src, resolveFrameNightSrc(target)]
+        : [target.src]
+    ).then(() => {
+      setActiveIdx(idx);
+      if (mood === "night" && !target.hasNightVariant) {
+        setMood("day");
+        setDaylightMood("day");
+      }
+    });
+  };
+
   const handleSelectMood = (nextMood: "day" | "sunset" | "night") => {
     if (nextMood === mood) return;
     if (nextMood === "night") {
+      if (!currentFrame.hasNightVariant) {
+        return;
+      }
       setAnimateDaylight(false);
       setMood("night");
       return;
@@ -373,46 +441,8 @@ function MarketSpecialtyInteractiveCard({
     setMood(nextMood);
   };
 
-  const baseCount = service.triptych.length;
-  const frames = React.useMemo(() => {
-    const seen = new Set(service.triptych.map((f) => f.src));
-    const dedupedExtras: { src: string; label: string }[] = [];
-    for (const ef of extraFrames ?? []) {
-      if (!seen.has(ef.src)) {
-        seen.add(ef.src);
-        dedupedExtras.push(ef);
-      }
-    }
-    return [...service.triptych, ...dedupedExtras];
-  }, [service.triptych, extraFrames]);
-  const resolveFrameNightSrc = React.useCallback(
-    (src: string, idx: number) =>
-      idx < baseCount ? resolveNightImageSrc(src) : src,
-    [baseCount]
-  );
-  const allUrls = React.useMemo(
-    () =>
-      frames.flatMap((f, idx) => [f.src, resolveFrameNightSrc(f.src, idx)]),
-    [frames, resolveFrameNightSrc]
-  );
-  const currentFrame = frames[activeIdx] ?? frames[0];
-  const currentNightSrc = resolveFrameNightSrc(currentFrame.src, activeIdx);
-  const currentPairUrls = React.useMemo(
-    () => [currentFrame.src, currentNightSrc],
-    [currentFrame.src, currentNightSrc]
-  );
-  const currentAssetId = computeVisualAssetId(currentFrame.src);
-
-  const selectFrame = (idx: number) => {
-    const target = frames[idx] ?? frames[0];
-    preloadProtectedImages(allUrls);
-    waitForDecodedSurfaces([
-      target.src,
-      resolveFrameNightSrc(target.src, idx),
-    ]).then(() => {
-      setActiveIdx(idx);
-    });
-  };
+  const effectiveMood: "day" | "sunset" | "night" =
+    mood === "night" && !currentFrame.hasNightVariant ? "day" : mood;
 
   const cardFilter =
     daylightMood === "sunset"
@@ -420,7 +450,7 @@ function MarketSpecialtyInteractiveCard({
       : "none";
 
   const moodSolarHour =
-    mood === "night" ? 21.5 : mood === "sunset" ? 18.5 : 13.5;
+    effectiveMood === "night" ? 21.5 : effectiveMood === "sunset" ? 18.5 : 13.5;
 
   return (
     <article
@@ -457,25 +487,34 @@ function MarketSpecialtyInteractiveCard({
                 { id: "night", label: "Night" },
               ] as const
             ).map((m) => {
-              const active = mood === m.id;
+              const isNightBtn = m.id === "night";
+              const disabled = isNightBtn && !currentFrame.hasNightVariant;
+              const active = effectiveMood === m.id && !disabled;
               return (
                 <button
                   key={m.id}
                   type="button"
-                  data-magnetic
+                  disabled={disabled}
+                  data-magnetic={!disabled ? true : undefined}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleSelectMood(m.id);
+                    if (!disabled) handleSelectMood(m.id);
                   }}
-                  className="inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold cursor-pointer transition-all duration-300"
+                  className={`inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold transition-all duration-300 ${
+                    disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                  }`}
                   style={{
                     background: active ? "#E5C97B" : "transparent",
                     color: active ? "#050A14" : "#CBD5E1",
                   }}
-                  title={`Preview ${m.label} photography`}
+                  title={
+                    disabled
+                      ? "Night variant not available for this stage"
+                      : `Preview ${m.label} photography`
+                  }
                 >
                   <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
-                  <span>{m.label}</span>
+                  <span>{disabled ? "Day Only" : m.label}</span>
                 </button>
               );
             })}
@@ -490,7 +529,7 @@ function MarketSpecialtyInteractiveCard({
           onClick={() =>
             onOpenSpecialtyStudio?.(
               service.specialtyId,
-              activeIdx,
+              currentGlobalIdx,
               moodSolarHour
             )
           }
@@ -499,7 +538,7 @@ function MarketSpecialtyInteractiveCard({
               e.preventDefault();
               onOpenSpecialtyStudio?.(
                 service.specialtyId,
-                activeIdx,
+                currentGlobalIdx,
                 moodSolarHour
               );
             }
@@ -543,7 +582,7 @@ function MarketSpecialtyInteractiveCard({
           <div
             className="absolute inset-0 w-full h-full pointer-events-none z-[3]"
             style={{
-              opacity: mood === "night" ? 1 : 0,
+              opacity: effectiveMood === "night" ? 1 : 0,
               transition: "opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
@@ -564,10 +603,14 @@ function MarketSpecialtyInteractiveCard({
           role="group"
           aria-label={`${service.title} gallery`}
         >
-          {frames.slice(0, 3).map((f, idx) => {
-            const isSelected = idx === activeIdx;
+          {previewFrames.map((f, idx) => {
+            const isSelected = idx === safeActiveIdx;
             const thumbSrc =
-              mood === "night" ? resolveFrameNightSrc(f.src, idx) : f.src;
+              effectiveMood === "night" ? resolveFrameNightSrc(f) : f.src;
+            const globalFrameIdx = Math.max(
+              0,
+              frames.findIndex((item) => item.src === f.src)
+            );
             return (
               <button
                 key={f.src}
@@ -577,12 +620,12 @@ function MarketSpecialtyInteractiveCard({
                   selectFrame(idx);
                   onOpenSpecialtyStudio?.(
                     service.specialtyId,
-                    idx,
+                    globalFrameIdx,
                     moodSolarHour
                   );
                 }}
                 onPointerEnter={() => selectFrame(idx)}
-                className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer group/thumb"
+                className="rounded-xl overflow-hidden border transition-all cursor-pointer group/thumb bg-[#070E1A] flex flex-col"
                 style={{
                   borderColor: isSelected
                     ? "#F3D37A"
@@ -593,13 +636,29 @@ function MarketSpecialtyInteractiveCard({
                 }}
                 title={f.label}
               >
-                <ProtectedImage
-                  src={thumbSrc}
-                  auditIgnore={true}
-                  loading="lazy"
-                  alt={f.label}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-105"
-                />
+                <div className="relative h-16 sm:h-20 w-full overflow-hidden">
+                  <ProtectedImage
+                    src={thumbSrc}
+                    auditIgnore={true}
+                    loading="lazy"
+                    alt={f.label}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-105"
+                  />
+                </div>
+                <div
+                  translate="no"
+                  className="px-1.5 py-1 text-[10px] font-mono font-semibold truncate text-center w-full border-t border-white/10"
+                  style={{
+                    color: isSelected ? "#F3D37A" : "#CBD5E1",
+                    background: isSelected ? "rgba(243, 211, 122, 0.08)" : "#050A14",
+                  }}
+                >
+                  {f.stage === "preparation"
+                    ? "Stage 1 · Prep"
+                    : f.stage === "installation"
+                    ? "Stage 2 · Install"
+                    : "Stage 3 · Finish"}
+                </div>
               </button>
             );
           })}
@@ -611,9 +670,14 @@ function MarketSpecialtyInteractiveCard({
         <TaycoCardFooterBar
           className="!border-t-0 !pt-0"
           leftMeta={
-            <span className="text-xs text-slate-300 line-clamp-2 min-w-0 text-left leading-snug">
-              {currentFrame.label}
-            </span>
+            <div className="flex flex-col min-w-0 text-left">
+              <span translate="no" className="text-[10px] font-mono font-bold text-[#F3D37A] tracking-wide uppercase">
+                {currentFrame.stageBadge}
+              </span>
+              <span className="text-xs text-slate-200 line-clamp-1 min-w-0 leading-snug">
+                {currentFrame.label}
+              </span>
+            </div>
           }
         >
           <button
@@ -623,7 +687,7 @@ function MarketSpecialtyInteractiveCard({
             onClick={() =>
               onOpenSpecialtyStudio?.(
                 service.specialtyId,
-                activeIdx,
+                currentGlobalIdx,
                 moodSolarHour
               )
             }
@@ -909,6 +973,7 @@ export function LandingPropertyCategoriesSection() {
   const [studioSpecialtyId, setStudioSpecialtyId] = useState<
     string | undefined
   >(undefined);
+  const [studioSequenceStage, setStudioSequenceStage] = useState<0 | 1 | 2>(0);
   const [studioSolarHour, setStudioSolarHour] = useState<number>(12.5);
   const [mobileMarketSlug, setMobileMarketSlug] = useState<string>(
     PROPERTY_CATEGORIES[0].slug
@@ -918,7 +983,8 @@ export function LandingPropertyCategoriesSection() {
     const allPreviewUrls: string[] = [];
     for (const cat of PROPERTY_CATEGORIES) {
       for (const u of [cat.heroImage, ...cat.secondaryImages]) {
-        allPreviewUrls.push(u, resolveNightImageSrc(u));
+        const pair = resolveSpecialtyNightPair(u);
+        allPreviewUrls.push(u, ...(pair.hasNightVariant ? [pair.nightSrc] : []));
       }
     }
     const timer = window.setTimeout(
@@ -930,10 +996,10 @@ export function LandingPropertyCategoriesSection() {
 
   const handleSelectPreview = (slug: string, idx: number, urls: string[]) => {
     const targetUrl = urls[idx] ?? urls[0];
-    waitForDecodedSurfaces([
-      targetUrl,
-      resolveNightImageSrc(targetUrl),
-    ]).then(() => {
+    const pair = resolveSpecialtyNightPair(targetUrl);
+    waitForDecodedSurfaces(
+      pair.hasNightVariant ? [targetUrl, pair.nightSrc] : [targetUrl]
+    ).then(() => {
       setActiveThumbMap((prev) => ({ ...prev, [slug]: idx }));
     });
   };
@@ -941,11 +1007,13 @@ export function LandingPropertyCategoriesSection() {
   const openCategoryStudio = (
     prop: PropertyListing,
     mood: "day" | "sunset" | "night" = "day",
-    specialtyId?: string
+    specialtyId?: string,
+    sequenceStage: 0 | 1 | 2 = 0
   ) => {
     const hour = mood === "night" ? 21.5 : mood === "sunset" ? 18.5 : 12.5;
     setStudioSolarHour(hour);
     setStudioSpecialtyId(specialtyId);
+    setStudioSequenceStage(sequenceStage);
     setStudioProperty(prop);
   };
 
@@ -1037,12 +1105,17 @@ export function LandingPropertyCategoriesSection() {
           {PROPERTY_CATEGORIES.map((cat) => {
             const categoryListings = getPropertiesByCategory(cat.slug);
             const marketSpecialties = getMarketSpecialtiesByCategory(cat.slug);
-            const flagshipProperty = categoryListings[0];
-            const galleryUrls = [cat.heroImage, ...cat.secondaryImages];
-            const activeIdx = activeThumbMap[cat.slug] ?? 0;
+            const flagshipProperty =
+              categoryListings.find((p) => p.triptych[0]?.src === cat.heroImage) ??
+              categoryListings[0];
+            const galleryUrls = [...cat.secondaryImages, cat.heroImage];
+            const activeIdx = activeThumbMap[cat.slug] ?? 2;
             const currentUrl = galleryUrls[activeIdx] ?? galleryUrls[0];
-            const currentNightUrl = resolveNightImageSrc(currentUrl);
-            const currentPairUrls = [currentUrl, currentNightUrl];
+            const currentNightPair = resolveSpecialtyNightPair(currentUrl);
+            const currentNightUrl = currentNightPair.nightSrc;
+            const currentPairUrls = currentNightPair.hasNightVariant
+              ? [currentUrl, currentNightUrl]
+              : [currentUrl];
             const catMood = categoryMoodMap[cat.slug] ?? "day";
             const catDaylightMood = categoryDaylightMoodMap[cat.slug] ?? "day";
             const catAnimateDaylight =
@@ -1179,7 +1252,7 @@ export function LandingPropertyCategoriesSection() {
                   </Link>
                 </div>
 
-                {/* Simultaneous 3-Photo Category Gallery Strip */}
+                {/* Simultaneous 3-Stage Same-Building Category Gallery Strip */}
                 <div
                   className="grid grid-cols-3 gap-2 p-2 bg-[#040811] border-y border-white/10"
                   role="group"
@@ -1187,7 +1260,16 @@ export function LandingPropertyCategoriesSection() {
                 >
                   {galleryUrls.map((url, idx) => {
                     const isSelected = idx === activeIdx;
-                    const thumbSrc = catMood === "night" ? resolveNightImageSrc(url) : url;
+                    const thumbSrc =
+                      catMood === "night"
+                        ? resolveSpecialtyNightPair(url).nightSrc
+                        : url;
+                    const stageShort =
+                      idx === 0
+                        ? "Stage 1 · Prep"
+                        : idx === 1
+                        ? "Stage 2 · Work"
+                        : "Stage 3 · Done";
                     return (
                       <button
                         key={url}
@@ -1200,20 +1282,34 @@ export function LandingPropertyCategoriesSection() {
                         onPointerEnter={() =>
                           handleSelectPreview(cat.slug, idx, galleryUrls)
                         }
-                        className="relative h-20 sm:h-24 rounded-xl overflow-hidden border transition-all cursor-pointer"
+                        className="rounded-xl overflow-hidden border transition-all cursor-pointer bg-[#070E1A] flex flex-col"
                         style={{
                           borderColor: isSelected
                             ? "#C9A84C"
                             : "rgba(255, 255, 255, 0.12)",
                         }}
                       >
-                        <ProtectedImage
-                          src={thumbSrc}
-                          auditIgnore={true}
-                          loading="lazy"
-                          alt={`${cat.shortLabel} view ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                        />
+                        <div className="relative h-16 sm:h-20 w-full overflow-hidden">
+                          <ProtectedImage
+                            src={thumbSrc}
+                            auditIgnore={true}
+                            loading="lazy"
+                            alt={`${cat.shortLabel} ${stageShort}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span
+                          translate="no"
+                          className="w-full text-center py-1 text-[9px] sm:text-[10px] font-mono font-semibold border-t border-white/10 truncate px-1"
+                          style={{
+                            color: isSelected ? "#F3D37A" : "#CBD5E1",
+                            background: isSelected
+                              ? "rgba(243, 211, 122, 0.10)"
+                              : "#050A14",
+                          }}
+                        >
+                          {stageShort}
+                        </span>
                       </button>
                     );
                   })}
@@ -1260,7 +1356,10 @@ export function LandingPropertyCategoriesSection() {
                             openCategoryStudio(
                               flagshipProperty,
                               catMood,
-                              undefined
+                              cat.slug === "commercial" ? "roofing" : "siding",
+                              activeThumbMap[cat.slug] !== undefined
+                                ? (activeThumbMap[cat.slug] as 0 | 1 | 2)
+                                : 0
                             )
                           }
                           className="home-text-action"
@@ -1300,8 +1399,12 @@ export function LandingPropertyCategoriesSection() {
         <PropertyWalkthroughStudioModal
           property={studioProperty}
           initialStepIndex={0}
+          initialSequenceStage={studioSequenceStage}
           initialSolarHour={studioSolarHour}
           initialSpecialtyId={studioSpecialtyId}
+          extraSpecialtyFrames={getDivisionExtraSpecialtyFrames(
+            studioProperty.category
+          )}
           onClose={() => {
             setStudioProperty(null);
             setStudioSpecialtyId(undefined);
@@ -1582,7 +1685,8 @@ export function PropertyCategoryPageView({
     }
     for (const spec of marketSpecialties) {
       for (const frame of spec.triptych) {
-        urls.push(frame.src, resolveNightImageSrc(frame.src));
+        const pair = resolveSpecialtyNightPair(frame.src);
+        urls.push(frame.src, ...(pair.hasNightVariant ? [pair.nightSrc] : []));
       }
     }
     preloadProtectedImages(urls);

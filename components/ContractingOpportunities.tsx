@@ -111,7 +111,7 @@ export default function ContractingOpportunities({ compact = false }: { compact?
           <Subheading className={compact ? "mb-4 text-sm font-bold uppercase tracking-wider text-slate-200" : "tayco-atelier-eyebrow mb-4 text-slate-200"}>
             Programs &amp; Certifications
           </Subheading>
-          <ul className="grid gap-3.5 sm:grid-cols-2">
+          <ul className="grid gap-3.5">
             {update.programs.map((program) => (
               <li
                 key={program.id}

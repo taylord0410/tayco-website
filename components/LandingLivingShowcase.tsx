@@ -173,19 +173,19 @@ export interface TransformationPair {
 export const TRANSFORMATION_PAIRS: TransformationPair[] = [
   {
     id: "div01_01",
-    division: "div01",
-    divisionLabel: "Structural & Millwork",
+    division: "div04",
+    divisionLabel: "Roofing",
     siteDivision: "single-family",
     code: "TR-01",
-    title: "Two-Story Wood Framing & Roof Trusses",
-    subtitle: "Foundation slab to complete structural shell",
-    csiSpec: "Framing",
+    title: "Estate Architectural Shingle & Copper Flashing",
+    subtitle: "Stripped roof deck and ice shield to finished gable roof",
+    csiSpec: "Roofing",
     beforeImg: "/curated/pairs/div01_01_antes.jpg",
-    afterImg: "/curated/pairs/div01_01_despues.jpg",
+    afterImg: "/curated/pairs/tr01-after-estate-roof.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Structural framing from foundation sill plates to wall sheathing and roof trusses.",
-    highlights: ["Engineered roof trusses", "Structural wall sheathing", "Timber wood framing"],
+    summary: "Complete roof deck inspection, synthetic ice-and-water underlayment, copper chimney flashing, and dimensional shingle installation.",
+    highlights: ["Synthetic ice & water shield", "Copper chimney & valley flashing", "Dimensional architectural shingles"],
   },
   {
     id: "div04_03",
@@ -193,15 +193,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Roofing",
     siteDivision: "commercial",
     code: "TR-02",
-    title: "Flat Roof Heat-Welded TPO System",
-    subtitle: "Aged membrane to high-reflectivity white TPO",
+    title: "Commercial TPO Roof & Terrace Envelope",
+    subtitle: "Tapered insulation layout to heat-welded TPO roof",
     csiSpec: "Roofing",
-    beforeImg: "/curated/pairs/div04_03_antes.jpg",
+    beforeImg: "/curated/pairs/tr02-before-tpo-roof.jpg",
     afterImg: "/curated/pairs/div04_03_despues.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Low-slope roof recovery with tapered insulation, parapet terminations, and heat-welded TPO seams.",
-    highlights: ["Tapered drainage slope", "Heat-welded TPO membrane", "Parapet & curb flashing"],
+    summary: "Low-slope commercial roof build with tapered polyiso insulation, parapet terminations, and heat-welded white TPO membrane.",
+    highlights: ["Tapered drainage slope", "Heat-welded TPO membrane", "Parapet coping & curb flashing"],
   },
   {
     id: "div03_02",
@@ -209,15 +209,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "single-family",
     code: "TR-03",
-    title: "Kitchen Remodel & Quartz Island",
-    subtitle: "Custom white shaker cabinetry and quartz surfaces",
+    title: "Custom White-Oak Foyer & Staircase Remodel",
+    subtitle: "Subfloor prep and rough-in to wide-plank oak foyer",
     csiSpec: "Remodeling",
     beforeImg: "/curated/pairs/div03_02_antes.jpg",
     afterImg: "/curated/pairs/tr03-after-white-shaker-kitchen.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Interior layout transformation with custom shaker cabinetry, quartz countertops, and hardwood flooring.",
-    highlights: ["Custom shaker cabinetry", "Veined quartz island", "Hardwood flooring & lighting"],
+    summary: "Entryway and staircase remodel progressing from subfloor leveling and framing rough-in to wide-plank white-oak flooring and custom millwork.",
+    highlights: ["Subfloor leveling & acoustic prep", "Wide-plank white-oak flooring", "Custom stair treads & balustrade"],
   },
   {
     id: "div02_02",
@@ -225,15 +225,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Exterior & Masonry",
     siteDivision: "single-family",
     code: "TR-04",
-    title: "Board-and-Batten Siding & Exterior Trim",
-    subtitle: "Vertical cladding and matte-black window trim",
+    title: "Natural Cedar & Charcoal Cladding Envelope",
+    subtitle: "Weather barrier and furring to finished cedar siding",
     csiSpec: "Siding",
     beforeImg: "/curated/pairs/div02_02_antes.jpg",
-    afterImg: "/curated/pairs/div02_02_despues.jpg",
+    afterImg: "/curated/pairs/tr04-after-cedar-siding.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Exterior envelope upgrade with weather barrier, vertical board-and-batten siding, and custom window casings.",
-    highlights: ["Weather-resistive barrier", "Board-and-batten siding", "Custom window & fascia trim"],
+    summary: "Exterior envelope upgrade from housewrap and rainscreen furring strips to natural western red cedar siding, charcoal cladding, and wrap deck.",
+    highlights: ["Drainable weather-resistive barrier", "Natural cedar & charcoal cladding", "Custom window trim & wrap deck"],
   },
   {
     id: "div04_02",
@@ -257,15 +257,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Structural & Millwork",
     siteDivision: "single-family",
     code: "TR-06",
-    title: "Built-In Millwork, Coffered Ceiling & Stone Hearth",
-    subtitle: "Custom cabinetry, ceiling beams, and stone fireplace",
+    title: "Custom Walnut Butler's Pantry & Millwork",
+    subtitle: "Plywood cabinet carcasses and ledger prep to walnut cabinetry",
     csiSpec: "Carpentry",
     beforeImg: "/curated/pairs/div01_03_antes.jpg",
     afterImg: "/curated/pairs/tr06-after-built-in-fireplace.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Finish carpentry combining built-in bookcases, stacked-stone hearth with timber mantel, and coffered ceiling grid.",
-    highlights: ["Floor-to-ceiling bookcases", "Stacked-stone fireplace", "Coffered ceiling beams"],
+    summary: "Finish carpentry progressing from laser-leveled wall ledgers and unfinished birch base carcasses to full-height walnut cabinetry, stone counters, and crown molding.",
+    highlights: ["Laser-leveled ledger & base carcasses", "Custom walnut cabinetry & uppers", "Stone countertops & crown trim"],
   },
   {
     id: "div03_01",
@@ -273,15 +273,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "commercial",
     code: "TR-07",
-    title: "Steel-Stud Framing to Smooth Drywall",
-    subtitle: "Metal stud partitions to taped and primed drywall",
-    csiSpec: "Drywall",
+    title: "Honed Limestone Atrium & Walnut Fit-Out",
+    subtitle: "Slab substrate prep to Class-A corporate lobby",
+    csiSpec: "Flooring",
     beforeImg: "/curated/pairs/div03_01_antes.jpg",
     afterImg: "/curated/pairs/div03_01_despues.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Interior progression from cold-formed steel stud layout to acoustic insulation and smooth gypsum board finish.",
-    highlights: ["Fire-rated gypsum assemblies", "Laser-aligned rough openings", "Smooth joint finish"],
+    summary: "Double-height corporate lobby transformation from concrete slab preparation and rough-in to honed limestone tile and acoustic walnut millwork.",
+    highlights: ["Laser-leveled mortar setting bed", "Large-format honed limestone", "Acoustic walnut slat wall panels"],
   },
   {
     id: "div02_03",
@@ -303,17 +303,17 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div01_02",
     division: "div01",
     divisionLabel: "Structural & Millwork",
-    siteDivision: "single-family",
+    siteDivision: "commercial",
     code: "TR-09",
-    title: "Timber Deck & Staircase Reconstruction",
-    subtitle: "Concrete pier footings and cedar deck structure",
+    title: "Executive Atrium Walnut Millwork & Fit-Out",
+    subtitle: "Wall furring and rough carcasses to acoustic walnut boardroom",
     csiSpec: "Carpentry",
     beforeImg: "/curated/pairs/div01_02_antes.jpg",
     afterImg: "/curated/pairs/tr09-after-cedar-deck.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Deck reconstruction with concrete pier footings, structural framing, flashed ledger board, and cedar decking.",
-    highlights: ["Flashed structural ledger", "Stair stringers & guardrails", "Cedar deck boards"],
+    summary: "Commercial atrium boardroom progressing from structural wall furring and rough millwork carcasses to architectural walnut slat walls and custom woodwork.",
+    highlights: ["Wall furring & acoustic backing", "Architectural walnut slat panels", "Custom executive millwork package"],
   },
   {
     id: "div04_04",
@@ -335,17 +335,17 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     id: "div02_04",
     division: "div02",
     divisionLabel: "Exterior & Masonry",
-    siteDivision: "single-family",
+    siteDivision: "commercial",
     code: "TR-11",
-    title: "Cedar Privacy Fence & Concrete Footings",
-    subtitle: "Laser-leveled cedar panels and continuous top rail",
-    csiSpec: "Carpentry",
+    title: "Ashlar Limestone Colonnade & Storefront Facade",
+    subtitle: "Masonry backup substrate to honed ashlar limestone",
+    csiSpec: "Masonry",
     beforeImg: "/curated/pairs/div02_04_antes.jpg",
     afterImg: "/curated/pairs/div02_04_despues.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Perimeter boundary upgrade with set-in-concrete posts, western red cedar privacy boards, and top cap trim.",
-    highlights: ["Concrete post footings", "Western red cedar boards", "Continuous top cap rail"],
+    summary: "Commercial colonnade envelope progressing from structural backup framing and waterproofing membrane to anchored ashlar limestone masonry.",
+    highlights: ["Fluid-applied air & moisture barrier", "Stainless-steel masonry anchors", "Honed ashlar limestone facade"],
   },
   {
     id: "div03_04",
@@ -353,15 +353,15 @@ export const TRANSFORMATION_PAIRS: TransformationPair[] = [
     divisionLabel: "Interiors & Fit-Outs",
     siteDivision: "single-family",
     code: "TR-12",
-    title: "Lower-Level Living Suite & LVP Flooring",
-    subtitle: "Insulated walls, recessed lighting, and wide-plank flooring",
-    csiSpec: "Remodeling",
-    beforeImg: "/curated/pairs/div03_04_antes.jpg",
+    title: "Level-5 Gypsum Living Suite & Stone Hearth",
+    subtitle: "Taped drywall and rough hearth to finished living room",
+    csiSpec: "Drywall",
+    beforeImg: "/curated/pairs/tr12-before-drywall-hearth.jpg",
     afterImg: "/curated/pairs/tr12-after-finished-basement.jpg",
     beforeTag: "Before",
     afterTag: "After",
-    summary: "Lower-level finish with insulated perimeter framing, smooth drywall ceiling, recessed LEDs, and LVP flooring.",
-    highlights: ["Insulated perimeter framing", "Recessed LED ceiling grid", "Wide-plank LVP flooring"],
+    summary: "Interior living suite progression from taped and skim-coated gypsum walls to smooth architectural paint, stone fireplace, and recessed lighting.",
+    highlights: ["Level-5 skim-coated gypsum", "Recessed LED ceiling lighting", "Natural stone hearth & oak flooring"],
   },
 ];
 
@@ -413,7 +413,7 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
     trade: "Framing",
     csi: "DIV 06",
     sector: "Townhomes",
-    image: "/curated/properties/mkt-twn-framing-rooftop.jpg",
+    image: "/curated/magazine/marquee-top-03-framing.jpg",
   },
   {
     id: "m-top-4",
@@ -425,7 +425,7 @@ export const MARQUEE_TRACK_TOP: MarqueeShot[] = [
   },
   {
     id: "m-top-5",
-    title: "Natural Slate Gable & Copper Flashing",
+    title: "Dimensional Gable Roof & Flashing",
     trade: "Roofing",
     csi: "DIV 07",
     sector: "Residential",
@@ -476,11 +476,11 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   },
   {
     id: "m-bot-3",
-    title: "Curved Soffit & Gypsum Board Assembly",
+    title: "Acoustic Soffit & Gypsum Board Assembly",
     trade: "Drywall",
     csi: "DIV 09",
     sector: "Commercial",
-    image: "/work/drywall_commercial.jpg",
+    image: "/curated/magazine/marquee-bot-03-drywall.jpg",
   },
   {
     id: "m-bot-4",
@@ -496,7 +496,7 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
     trade: "Carpentry",
     csi: "DIV 06",
     sector: "Commercial",
-    image: "/work/carpentry_commercial.jpg",
+    image: "/curated/magazine/marquee-bot-05-carpentry.jpg",
   },
   {
     id: "m-bot-6",
@@ -508,7 +508,7 @@ export const MARQUEE_TRACK_BOTTOM: MarqueeShot[] = [
   },
   {
     id: "m-bot-7",
-    title: "Exposed Timber & Steel Loft Coatings",
+    title: "Interior Wall Coatings & Trim Finish",
     trade: "Painting",
     csi: "DIV 09",
     sector: "Commercial",
@@ -538,7 +538,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Milwaukee · Madison · Green Bay",
     primaryFocus: "Architectural Fit-Outs, Roofing, Siding & Full-Scale Renovations",
     mobilization: "Primary HQ Dispatch",
-    sampleImage: "/curated/properties/mkt-com-roofing-greenroof.jpg",
+    sampleImage: "/curated/hero/com-hq-sunset.jpg",
   },
   {
     state: "IL",
@@ -554,7 +554,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Des Moines · Cedar Rapids · Davenport",
     primaryFocus: "Storm Recovery, Standing-Seam Roofing & Turnkey Remodeling",
     mobilization: "Regional Crew Hub",
-    sampleImage: "/curated/properties/mkt-twn-framing-partywall.jpg",
+    sampleImage: "/curated/hero/res-farmhouse-metal.jpg",
   },
   {
     state: "IN",
@@ -594,7 +594,7 @@ export const REGIONAL_STATE_HUBS: Array<{
     corridor: "Dallas–Fort Worth · Houston · Austin",
     primaryFocus: "Ground-Up Architectural, Multi-Suite Turnovers & Large-Loss Recovery",
     mobilization: "South Central Hub",
-    sampleImage: "/curated/properties/duplex-06-austin-limestone-infill.jpg",
+    sampleImage: "/curated/hero/com-plaza-stone.jpg",
   },
 ];
 
@@ -1344,6 +1344,76 @@ export function getMarqueeTracksForSiteDivision(
   };
 }
 
+function resolveMarqueeShotStages(shot: MarqueeShot): Array<{
+  stageBadge: string;
+  shortTag: string;
+  src: string;
+}> {
+  const tradeNorm = shot.trade.toLowerCase();
+  const sectorNorm = shot.sector.toLowerCase();
+  const sectorKey = sectorNorm.includes("multi")
+    ? "multifamily"
+    : sectorNorm.includes("town")
+      ? "townhomes"
+      : sectorNorm.includes("commercial")
+        ? "commercial"
+        : "residential";
+
+  if (tradeNorm.includes("foundation") || tradeNorm.includes("concrete")) {
+    return [
+      {
+        stageBadge: "Stage 1 · Preparation",
+        shortTag: "01 · Prep",
+        src: "/work/stages/concrete_commercial_prep.jpg",
+      },
+      {
+        stageBadge: "Stage 2 · Installation",
+        shortTag: "02 · Work",
+        src: "/work/stages/concrete_commercial_install.jpg",
+      },
+      {
+        stageBadge: "Stage 3 · Completed",
+        shortTag: "03 · Done",
+        src: "/work/stages/concrete_commercial_finish.jpg",
+      },
+    ];
+  }
+
+  const tradeSlug = tradeNorm.includes("framing")
+    ? "framing"
+    : tradeNorm.includes("carpentry")
+      ? "carpentry"
+      : tradeNorm.includes("roof")
+        ? "roofing"
+        : tradeNorm.includes("drywall")
+          ? "drywall"
+          : tradeNorm.includes("paint")
+            ? "painting"
+            : tradeNorm.includes("floor")
+              ? "flooring"
+              : tradeNorm.includes("masonry") || tradeNorm.includes("stone")
+                ? "stone"
+                : "siding";
+
+  return [
+    {
+      stageBadge: "Stage 1 · Preparation",
+      shortTag: "01 · Prep",
+      src: `/work/stages/${tradeSlug}_${sectorKey}_prep.jpg`,
+    },
+    {
+      stageBadge: "Stage 2 · Installation",
+      shortTag: "02 · Work",
+      src: `/work/stages/${tradeSlug}_${sectorKey}_install.jpg`,
+    },
+    {
+      stageBadge: "Stage 3 · Completed",
+      shortTag: "03 · Done",
+      src: `/work/${tradeSlug}_${sectorKey}.jpg`,
+    },
+  ];
+}
+
 export function DualTrackArchitecturalMarquee({
   siteDivision,
 }: {
@@ -1356,6 +1426,15 @@ export function DualTrackArchitecturalMarquee({
     effectiveSiteDivision
   );
   const [selectedShot, setSelectedShot] = useState<MarqueeShot | null>(null);
+  const [selectedStageIdx, setSelectedStageIdx] = useState<0 | 1 | 2>(1);
+
+  const openShot = (shot: MarqueeShot) => {
+    setSelectedShot(shot);
+    setSelectedStageIdx(1);
+  };
+
+  const activeStages = selectedShot ? resolveMarqueeShotStages(selectedShot) : [];
+  const activeStageFrame = activeStages[selectedStageIdx] ?? activeStages[1];
 
   return (
     <div className="py-10 border-t border-white/10 relative overflow-hidden">
@@ -1365,25 +1444,15 @@ export function DualTrackArchitecturalMarquee({
         </h3>
       </div>
 
-      {/* Selected Shot Quick Inspector Drawer */}
+      {/* Selected Shot 3-Stage Same-Building Inspector */}
       <TaycoModalOverlay
         isOpen={Boolean(selectedShot)}
         onClose={() => setSelectedShot(null)}
         onStepPrev={() => {
-          if (!selectedShot) return;
-          const idx = allShots.findIndex((s) => s.id === selectedShot.id);
-          if (idx !== -1) {
-            const nextIdx = (idx - 1 + allShots.length) % allShots.length;
-            setSelectedShot(allShots[nextIdx] ?? null);
-          }
+          setSelectedStageIdx((prev) => ((prev + 2) % 3) as 0 | 1 | 2);
         }}
         onStepNext={() => {
-          if (!selectedShot) return;
-          const idx = allShots.findIndex((s) => s.id === selectedShot.id);
-          if (idx !== -1) {
-            const nextIdx = (idx + 1) % allShots.length;
-            setSelectedShot(allShots[nextIdx] ?? null);
-          }
+          setSelectedStageIdx((prev) => ((prev + 1) % 3) as 0 | 1 | 2);
         }}
         ariaLabel={selectedShot?.title ?? "Photograph"}
       >
@@ -1396,32 +1465,101 @@ export function DualTrackArchitecturalMarquee({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {selectedShot && (
+            {selectedShot && activeStageFrame && (
               <>
-                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-2">
-                  <p className="text-xs text-slate-300">{selectedShot.trade}</p>
-                  <button type="button" autoFocus onClick={() => setSelectedShot(null)} aria-label="Close photograph" className="min-h-11 rounded-xl border border-amber-200/30 px-3 text-sm text-amber-100 cursor-pointer">Close ✕</button>
+                <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-200">{selectedShot.trade}</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border border-amber-300/45 bg-amber-400/15 text-amber-200">
+                      {activeStageFrame.stageBadge}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const idx = allShots.findIndex((s) => s.id === selectedShot.id);
+                        if (idx !== -1) {
+                          const nextIdx = (idx + 1) % allShots.length;
+                          const nextShot = allShots[nextIdx] ?? null;
+                          setSelectedShot(nextShot);
+                          setSelectedStageIdx(1);
+                        }
+                      }}
+                      className="min-h-9 rounded-xl border border-white/15 px-3 text-xs font-semibold text-slate-200 hover:bg-white/10 cursor-pointer"
+                    >
+                      Next Building →
+                    </button>
+                    <button type="button" autoFocus onClick={() => setSelectedShot(null)} aria-label="Close photograph" className="min-h-10 rounded-xl border border-amber-200/30 px-3 text-sm text-amber-100 cursor-pointer">Close ✕</button>
+                  </div>
                 </header>
-                <div {...stageGestureHandlers} className="relative h-[min(45dvh,460px)] shrink-0 w-full bg-[#040811]">
+                <div {...stageGestureHandlers} className="relative h-[min(46dvh,450px)] shrink-0 w-full bg-[#040811]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <ProtectedImage
-                    src={selectedShot.image}
+                    src={activeStageFrame.src}
                     auditIgnore={true}
-                    alt={selectedShot.title}
+                    alt={`${selectedShot.title} — ${activeStageFrame.stageBadge}`}
                     className="w-full h-full object-contain"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStageIdx((prev) => ((prev + 2) % 3) as 0 | 1 | 2)}
+                    aria-label="Previous stage"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#050A14]/80 border border-white/20 text-amber-200 hover:bg-amber-400 hover:text-[#050A14] flex items-center justify-center cursor-pointer"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStageIdx((prev) => ((prev + 1) % 3) as 0 | 1 | 2)}
+                    aria-label="Next stage"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#050A14]/80 border border-white/20 text-amber-200 hover:bg-amber-400 hover:text-[#050A14] flex items-center justify-center cursor-pointer"
+                  >
+                    ›
+                  </button>
                 </div>
-                <div tabIndex={0} className="min-h-0 overflow-y-auto overscroll-contain p-4 border-t border-white/10">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                <div tabIndex={0} className="min-h-0 overflow-y-auto overscroll-contain p-4 border-t border-white/10 space-y-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {activeStages.map((st, sIdx) => {
+                      const isSt = sIdx === selectedStageIdx;
+                      return (
+                        <button
+                          key={st.src}
+                          type="button"
+                          aria-pressed={isSt}
+                          onClick={() => setSelectedStageIdx(sIdx as 0 | 1 | 2)}
+                          className="rounded-xl border p-1.5 flex items-center gap-2 text-left cursor-pointer transition-all"
+                          style={{
+                            background: isSt ? "rgba(27, 58, 107, 0.65)" : "rgba(7, 14, 26, 0.85)",
+                            borderColor: isSt ? "#F3D37A" : "rgba(201, 168, 76, 0.25)",
+                          }}
+                        >
+                          <div className="relative w-12 sm:w-16 aspect-[3/2] rounded-lg overflow-hidden shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <ProtectedImage
+                              src={st.src}
+                              auditIgnore={true}
+                              alt={st.stageBadge}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <span className="text-[11px] font-mono font-bold text-amber-100 leading-tight">
+                            {st.stageBadge}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                     <div>
                       <span className="text-xs font-mono text-amber-200">
-                        {selectedShot.trade}
+                        {selectedShot.sector} · {selectedShot.trade}
                       </span>
-                      <div className="text-lg font-black text-white mt-0.5">
+                      <div className="text-base sm:text-lg font-black text-white mt-0.5">
                         {selectedShot.title}
                       </div>
                     </div>
-                    <ImageReferenceButton compact src={selectedShot.image} />
+                    <ImageReferenceButton compact src={activeStageFrame.src} />
                   </div>
                 </div>
               </>
@@ -1437,7 +1575,7 @@ export function DualTrackArchitecturalMarquee({
             <button
               key={`${shot.id}-${idx}`}
               type="button"
-              onClick={() => setSelectedShot(shot)}
+              onClick={() => openShot(shot)}
               className="tayco-filmstrip-card group text-left cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1460,7 +1598,7 @@ export function DualTrackArchitecturalMarquee({
             <button
               key={`${shot.id}-${idx}`}
               type="button"
-              onClick={() => setSelectedShot(shot)}
+              onClick={() => openShot(shot)}
               className="tayco-filmstrip-card group text-left cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

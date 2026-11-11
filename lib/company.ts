@@ -28,7 +28,6 @@ export const COMPANY_CONTRACTING_UPDATE = {
     { id: "sam", category: "Federal registration", label: "SAM.gov — Federal Contractor Registration" },
     { id: "certifications", category: "Business certifications", label: "SBE, WBE, MBE & ESBE Certifications" },
     { id: "programs", category: "Contracting programs", label: "Federal & State Contracting Programs" },
-    { id: "opportunities", category: "Contracting opportunities", label: "Union & Private Contracting Opportunities" },
   ],
 } as const;
 

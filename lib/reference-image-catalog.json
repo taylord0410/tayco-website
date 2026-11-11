@@ -285,6 +285,11 @@
     "title": "Res Navy Kitchen"
   },
   {
+    "id": "REF-B165D5A3FFB9",
+    "src": "/curated/magazine/home-process-02.jpg",
+    "title": "Home Process 02"
+  },
+  {
     "id": "REF-923D13F77A85",
     "src": "/curated/magazine/revista_ca_cab_1.jpg",
     "title": "Revista Ca Cab 1"
@@ -842,57 +847,57 @@
   {
     "id": "REF-C232DC58EAAE",
     "src": "/curated/properties/mkt-com-concrete-stone-night.jpg",
-    "title": "Commercial · Concrete Stone Night"
+    "title": "Commercial \u00b7 Concrete Stone Night"
   },
   {
     "id": "REF-901388BD7E06",
     "src": "/curated/properties/mkt-com-concrete-stone.jpg",
-    "title": "Commercial · Concrete Stone"
+    "title": "Commercial \u00b7 Concrete Stone"
   },
   {
     "id": "REF-D2388E1B4313",
     "src": "/curated/properties/mkt-com-concrete-tiltup-night.jpg",
-    "title": "Commercial · Concrete Tiltup Night"
+    "title": "Commercial \u00b7 Concrete Tiltup Night"
   },
   {
     "id": "REF-BADC722745E5",
     "src": "/curated/properties/mkt-com-concrete-tiltup.jpg",
-    "title": "Commercial · Concrete Tiltup"
+    "title": "Commercial \u00b7 Concrete Tiltup"
   },
   {
     "id": "REF-D20DDF720AB4",
     "src": "/curated/properties/mkt-com-drywall-ceilings-night.jpg",
-    "title": "Commercial · Drywall Ceilings Night"
+    "title": "Commercial \u00b7 Drywall Ceilings Night"
   },
   {
     "id": "REF-90AAF39074DE",
     "src": "/curated/properties/mkt-com-drywall-ceilings.jpg",
-    "title": "Commercial · Drywall Ceilings"
+    "title": "Commercial \u00b7 Drywall Ceilings"
   },
   {
     "id": "REF-4CEFAA8ADB3C",
     "src": "/curated/properties/mkt-com-roofing-greenroof-night.jpg",
-    "title": "Commercial · Roofing Greenroof Night"
+    "title": "Commercial \u00b7 Roofing Greenroof Night"
   },
   {
     "id": "REF-A76D39F77E65",
     "src": "/curated/properties/mkt-com-roofing-greenroof.jpg",
-    "title": "Commercial · Roofing Greenroof"
+    "title": "Commercial \u00b7 Roofing Greenroof"
   },
   {
     "id": "REF-27B3C9DC3300",
     "src": "/curated/properties/mkt-com-roofing-tpo-night.jpg",
-    "title": "Commercial · Roofing Tpo Night"
+    "title": "Commercial \u00b7 Roofing Tpo Night"
   },
   {
     "id": "REF-1D38849A9C8B",
     "src": "/curated/properties/mkt-com-roofing-tpo.jpg",
-    "title": "Commercial · Roofing Tpo"
+    "title": "Commercial \u00b7 Roofing Tpo"
   },
   {
     "id": "REF-D8A55B9E18D1",
     "src": "/curated/properties/mkt-com-stone-colonnade-night.jpg",
-    "title": "Commercial · Stone Colonnade Night"
+    "title": "Commercial \u00b7 Stone Colonnade Night"
   },
   {
     "id": "REF-5AFC9542ADEB",
@@ -902,17 +907,17 @@
   {
     "id": "REF-52399388D8B8",
     "src": "/curated/properties/mkt-com-stone-masonry-night.jpg",
-    "title": "Commercial · Stone Masonry Night"
+    "title": "Commercial \u00b7 Stone Masonry Night"
   },
   {
     "id": "REF-38ECB0FF4E38",
     "src": "/curated/properties/mkt-com-stone-masonry.jpg",
-    "title": "Commercial · Stone Masonry"
+    "title": "Commercial \u00b7 Stone Masonry"
   },
   {
     "id": "REF-3C7971C11ED2",
     "src": "/curated/properties/mkt-mf-carpentry-lounge-night.jpg",
-    "title": "Multifamily · Carpentry Lounge Night"
+    "title": "Multifamily \u00b7 Carpentry Lounge Night"
   },
   {
     "id": "REF-454F2622F158",
@@ -922,47 +927,47 @@
   {
     "id": "REF-7E4E87541823",
     "src": "/curated/properties/mkt-mf-concrete-podium-night.jpg",
-    "title": "Multifamily · Concrete Podium Night"
+    "title": "Multifamily \u00b7 Concrete Podium Night"
   },
   {
     "id": "REF-28D42EA44B2A",
     "src": "/curated/properties/mkt-mf-concrete-podium.jpg",
-    "title": "Multifamily · Concrete Podium"
+    "title": "Multifamily \u00b7 Concrete Podium"
   },
   {
     "id": "REF-05544B7CAF46",
     "src": "/curated/properties/mkt-mf-drywall-night.jpg",
-    "title": "Multifamily · Drywall Night"
+    "title": "Multifamily \u00b7 Drywall Night"
   },
   {
     "id": "REF-5059C2704B45",
     "src": "/curated/properties/mkt-mf-drywall.jpg",
-    "title": "Multifamily · Drywall"
+    "title": "Multifamily \u00b7 Drywall"
   },
   {
     "id": "REF-2B05599167F9",
     "src": "/curated/properties/mkt-mf-flooring-concrete-night.jpg",
-    "title": "Multifamily · Flooring Concrete Night"
+    "title": "Multifamily \u00b7 Flooring Concrete Night"
   },
   {
     "id": "REF-C559298FC1B7",
     "src": "/curated/properties/mkt-mf-flooring-concrete.jpg",
-    "title": "Multifamily · Flooring Concrete"
+    "title": "Multifamily \u00b7 Flooring Concrete"
   },
   {
     "id": "REF-81D9840A5392",
     "src": "/curated/properties/mkt-mf-framing-night.jpg",
-    "title": "Multifamily · Framing Night"
+    "title": "Multifamily \u00b7 Framing Night"
   },
   {
     "id": "REF-5FB420710017",
     "src": "/curated/properties/mkt-mf-framing-trusses-night.jpg",
-    "title": "Multifamily · Framing Trusses Night"
+    "title": "Multifamily \u00b7 Framing Trusses Night"
   },
   {
     "id": "REF-F22B1F38CF60",
     "src": "/curated/properties/mkt-mf-framing-trusses.jpg",
-    "title": "Multifamily · Framing Trusses"
+    "title": "Multifamily \u00b7 Framing Trusses"
   },
   {
     "id": "REF-08678B1EF805",
@@ -972,97 +977,97 @@
   {
     "id": "REF-6F66D62B7A2F",
     "src": "/curated/properties/mkt-mf-roofing-night.jpg",
-    "title": "Multifamily · Roofing Night"
+    "title": "Multifamily \u00b7 Roofing Night"
   },
   {
     "id": "REF-1C35F1F8D19B",
     "src": "/curated/properties/mkt-mf-roofing.jpg",
-    "title": "Multifamily · Roofing"
+    "title": "Multifamily \u00b7 Roofing"
   },
   {
     "id": "REF-55E36DB2B6F0",
     "src": "/curated/properties/mkt-mf-stone-courtyard-night.jpg",
-    "title": "Multifamily · Stone Courtyard Night"
+    "title": "Multifamily \u00b7 Stone Courtyard Night"
   },
   {
     "id": "REF-4D64DFA3A50F",
     "src": "/curated/properties/mkt-mf-stone-courtyard.jpg",
-    "title": "Multifamily · Stone Courtyard"
+    "title": "Multifamily \u00b7 Stone Courtyard"
   },
   {
     "id": "REF-995BAFF23CBC",
     "src": "/curated/properties/mkt-mf-stone-entry-night.jpg",
-    "title": "Multifamily · Stone Entry Night"
+    "title": "Multifamily \u00b7 Stone Entry Night"
   },
   {
     "id": "REF-1B69F599FFE6",
     "src": "/curated/properties/mkt-mf-stone-entry.jpg",
-    "title": "Multifamily · Stone Entry"
+    "title": "Multifamily \u00b7 Stone Entry"
   },
   {
     "id": "REF-4B87E28AD2CF",
     "src": "/curated/properties/mkt-sfh-concrete-night.jpg",
-    "title": "Single-Family · Concrete Night"
+    "title": "Single-Family \u00b7 Concrete Night"
   },
   {
     "id": "REF-C8CC8F0B5E6B",
     "src": "/curated/properties/mkt-sfh-concrete.jpg",
-    "title": "Single-Family · Concrete"
+    "title": "Single-Family \u00b7 Concrete"
   },
   {
     "id": "REF-CBE8D11DDEE7",
     "src": "/curated/properties/mkt-sfh-drywall-flooring-night.jpg",
-    "title": "Single-Family · Drywall Flooring Night"
+    "title": "Single-Family \u00b7 Drywall Flooring Night"
   },
   {
     "id": "REF-C01C056A77A4",
     "src": "/curated/properties/mkt-sfh-drywall-flooring.jpg",
-    "title": "Single-Family · Drywall Flooring"
+    "title": "Single-Family \u00b7 Drywall Flooring"
   },
   {
     "id": "REF-AC43DCB56BDC",
     "src": "/curated/properties/mkt-sfh-framing-night.jpg",
-    "title": "Single-Family · Framing Night"
+    "title": "Single-Family \u00b7 Framing Night"
   },
   {
     "id": "REF-39760406159B",
     "src": "/curated/properties/mkt-sfh-framing.jpg",
-    "title": "Single-Family · Framing"
+    "title": "Single-Family \u00b7 Framing"
   },
   {
     "id": "REF-A988B0A54EAA",
     "src": "/curated/properties/mkt-sfh-stone-exterior-night.jpg",
-    "title": "Single-Family · Stone Exterior Night"
+    "title": "Single-Family \u00b7 Stone Exterior Night"
   },
   {
     "id": "REF-9373E199F4F6",
     "src": "/curated/properties/mkt-sfh-stone-exterior.jpg",
-    "title": "Single-Family · Stone Exterior"
+    "title": "Single-Family \u00b7 Stone Exterior"
   },
   {
     "id": "REF-F47CCF82E2F3",
     "src": "/curated/properties/mkt-twn-carpentry-library-night.jpg",
-    "title": "Townhomes · Carpentry Library Night"
+    "title": "Townhomes \u00b7 Carpentry Library Night"
   },
   {
     "id": "REF-77E3007D4CB5",
     "src": "/curated/properties/mkt-twn-carpentry-library.jpg",
-    "title": "Townhomes · Carpentry Library"
+    "title": "Townhomes \u00b7 Carpentry Library"
   },
   {
     "id": "REF-7E4FB7E0D52F",
     "src": "/curated/properties/mkt-twn-carpentry-pergola-night.jpg",
-    "title": "Townhomes · Carpentry Pergola Night"
+    "title": "Townhomes \u00b7 Carpentry Pergola Night"
   },
   {
     "id": "REF-49B702C185FB",
     "src": "/curated/properties/mkt-twn-carpentry-pergola.jpg",
-    "title": "Townhomes · Carpentry Pergola"
+    "title": "Townhomes \u00b7 Carpentry Pergola"
   },
   {
     "id": "REF-F4C88FF3D9F3",
     "src": "/curated/properties/mkt-twn-concrete-drive-night.jpg",
-    "title": "Townhomes · Concrete Drive Night"
+    "title": "Townhomes \u00b7 Concrete Drive Night"
   },
   {
     "id": "REF-201FCD780DFA",
@@ -1072,17 +1077,17 @@
   {
     "id": "REF-D911D03C36AD",
     "src": "/curated/properties/mkt-twn-concrete-stone-night.jpg",
-    "title": "Townhomes · Concrete Stone Night"
+    "title": "Townhomes \u00b7 Concrete Stone Night"
   },
   {
     "id": "REF-946F56719076",
     "src": "/curated/properties/mkt-twn-concrete-stone.jpg",
-    "title": "Townhomes · Concrete Stone"
+    "title": "Townhomes \u00b7 Concrete Stone"
   },
   {
     "id": "REF-E99AD277039F",
     "src": "/curated/properties/mkt-twn-drywall-gallery-night.jpg",
-    "title": "Townhomes · Drywall Gallery Night"
+    "title": "Townhomes \u00b7 Drywall Gallery Night"
   },
   {
     "id": "REF-EF15C3026DAA",
@@ -1092,102 +1097,102 @@
   {
     "id": "REF-790545610614",
     "src": "/curated/properties/mkt-twn-flooring-herringbone-night.jpg",
-    "title": "Townhomes · Flooring Herringbone Night"
+    "title": "Townhomes \u00b7 Flooring Herringbone Night"
   },
   {
     "id": "REF-AF24E7AE054C",
     "src": "/curated/properties/mkt-twn-flooring-herringbone.jpg",
-    "title": "Townhomes · Flooring Herringbone"
+    "title": "Townhomes \u00b7 Flooring Herringbone"
   },
   {
     "id": "REF-1F925683063E",
     "src": "/curated/properties/mkt-twn-flooring-stairtreads-night.jpg",
-    "title": "Townhomes · Flooring Stairtreads Night"
+    "title": "Townhomes \u00b7 Flooring Stairtreads Night"
   },
   {
     "id": "REF-D951778F3C5D",
     "src": "/curated/properties/mkt-twn-flooring-stairtreads.jpg",
-    "title": "Townhomes · Flooring Stairtreads"
+    "title": "Townhomes \u00b7 Flooring Stairtreads"
   },
   {
     "id": "REF-A04A821E8194",
     "src": "/curated/properties/mkt-twn-framing-drywall-night.jpg",
-    "title": "Townhomes · Framing Drywall Night"
+    "title": "Townhomes \u00b7 Framing Drywall Night"
   },
   {
     "id": "REF-BF21F29D1884",
     "src": "/curated/properties/mkt-twn-framing-drywall.jpg",
-    "title": "Townhomes · Framing Drywall"
+    "title": "Townhomes \u00b7 Framing Drywall"
   },
   {
     "id": "REF-4AE432868C16",
     "src": "/curated/properties/mkt-twn-framing-partywall-night.jpg",
-    "title": "Townhomes · Framing Partywall Night"
+    "title": "Townhomes \u00b7 Framing Partywall Night"
   },
   {
     "id": "REF-6AEF09C26AF5",
     "src": "/curated/properties/mkt-twn-framing-partywall.jpg",
-    "title": "Townhomes · Framing Partywall"
+    "title": "Townhomes \u00b7 Framing Partywall"
   },
   {
     "id": "REF-187ACCD23D77",
     "src": "/curated/properties/mkt-twn-framing-rooftop-night.jpg",
-    "title": "Townhomes · Framing Rooftop Night"
+    "title": "Townhomes \u00b7 Framing Rooftop Night"
   },
   {
     "id": "REF-7993295E01AC",
     "src": "/curated/properties/mkt-twn-framing-rooftop.jpg",
-    "title": "Townhomes · Framing Rooftop"
+    "title": "Townhomes \u00b7 Framing Rooftop"
   },
   {
     "id": "REF-555F3B365E12",
     "src": "/curated/properties/mkt-twn-framing-row-night.jpg",
-    "title": "Townhomes · Framing Row Night"
+    "title": "Townhomes \u00b7 Framing Row Night"
   },
   {
     "id": "REF-AAB9E0369DB6",
     "src": "/curated/properties/mkt-twn-framing-row.jpg",
-    "title": "Townhomes · Framing Row"
+    "title": "Townhomes \u00b7 Framing Row"
   },
   {
     "id": "REF-9656F3A98D0B",
     "src": "/curated/properties/mkt-twn-roofing-siding-night.jpg",
-    "title": "Townhomes · Roofing Siding Night"
+    "title": "Townhomes \u00b7 Roofing Siding Night"
   },
   {
     "id": "REF-DD3DD646EDD8",
     "src": "/curated/properties/mkt-twn-roofing-siding.jpg",
-    "title": "Townhomes · Roofing Siding"
+    "title": "Townhomes \u00b7 Roofing Siding"
   },
   {
     "id": "REF-595A57720980",
     "src": "/curated/properties/mkt-twn-stone-brownstone-night.jpg",
-    "title": "Townhomes · Stone Brownstone Night"
+    "title": "Townhomes \u00b7 Stone Brownstone Night"
   },
   {
     "id": "REF-14693F1965CC",
     "src": "/curated/properties/mkt-twn-stone-brownstone.jpg",
-    "title": "Townhomes · Stone Brownstone"
+    "title": "Townhomes \u00b7 Stone Brownstone"
   },
   {
     "id": "REF-186579F86543",
     "src": "/curated/properties/mkt-twn-stone-gardenwall-night.jpg",
-    "title": "Townhomes · Stone Gardenwall Night"
+    "title": "Townhomes \u00b7 Stone Gardenwall Night"
   },
   {
     "id": "REF-5703C9295758",
     "src": "/curated/properties/mkt-twn-stone-gardenwall.jpg",
-    "title": "Townhomes · Stone Gardenwall"
+    "title": "Townhomes \u00b7 Stone Gardenwall"
   },
   {
     "id": "REF-4D258DEA39FD",
     "src": "/curated/properties/mkt-twn-stone-hearth-night.jpg",
-    "title": "Townhomes · Stone Hearth Night"
+    "title": "Townhomes \u00b7 Stone Hearth Night"
   },
   {
     "id": "REF-4D91BB129F1A",
     "src": "/curated/properties/mkt-twn-stone-hearth.jpg",
-    "title": "Townhomes · Stone Hearth"
+    "title": "Townhomes \u00b7 Stone Hearth"
   },
   {
     "id": "REF-8E1ABE5C1A26",
@@ -1480,6 +1485,11 @@
     "title": "Carpentry Residential"
   },
   {
+    "id": "REF-656F44ABAB8D",
+    "src": "/work/carpentry_townhomes.jpg",
+    "title": "Carpentry Townhomes"
+  },
+  {
     "id": "REF-07A877BD192C",
     "src": "/work/drywall_commercial.jpg",
     "title": "Drywall Commercial"
@@ -1493,6 +1503,11 @@
     "id": "REF-3FD29AF58796",
     "src": "/work/drywall_residential.jpg",
     "title": "Drywall Residential"
+  },
+  {
+    "id": "REF-AA4FE8DD5C93",
+    "src": "/work/drywall_townhomes.jpg",
+    "title": "Drywall Townhomes"
   },
   {
     "id": "REF-82292195F579",
@@ -1660,6 +1675,11 @@
     "title": "Flooring Residential"
   },
   {
+    "id": "REF-24FEE7B4D440",
+    "src": "/work/flooring_townhomes.jpg",
+    "title": "Flooring Townhomes"
+  },
+  {
     "id": "REF-619941411AC2",
     "src": "/work/framing_commercial.jpg",
     "title": "Framing Commercial"
@@ -1673,6 +1693,11 @@
     "id": "REF-33C97789F04A",
     "src": "/work/framing_residential.jpg",
     "title": "Framing Residential"
+  },
+  {
+    "id": "REF-FF3E0BAFA259",
+    "src": "/work/framing_townhomes.jpg",
+    "title": "Framing Townhomes"
   },
   {
     "id": "REF-140EB00037DE",
@@ -1690,6 +1715,11 @@
     "title": "Painting Residential"
   },
   {
+    "id": "REF-D6F740A4A173",
+    "src": "/work/painting_townhomes.jpg",
+    "title": "Painting Townhomes"
+  },
+  {
     "id": "REF-CC54A0E51156",
     "src": "/work/roofing_commercial.jpg",
     "title": "Roofing Commercial"
@@ -1703,6 +1733,11 @@
     "id": "REF-4A848D445F9C",
     "src": "/work/roofing_residential.jpg",
     "title": "Roofing Residential"
+  },
+  {
+    "id": "REF-F0C32F0F9981",
+    "src": "/work/roofing_townhomes.jpg",
+    "title": "Roofing Townhomes"
   },
   {
     "id": "REF-4771960331BF",
@@ -1720,6 +1755,346 @@
     "title": "Siding Residential"
   },
   {
+    "id": "REF-66D649A818EA",
+    "src": "/work/siding_townhomes.jpg",
+    "title": "Siding Townhomes"
+  },
+  {
+    "id": "REF-1DAEB687A22A",
+    "src": "/work/stages/carpentry_commercial_install.jpg",
+    "title": "Carpentry Commercial Install"
+  },
+  {
+    "id": "REF-E72422E74E86",
+    "src": "/work/stages/carpentry_commercial_prep.jpg",
+    "title": "Carpentry Commercial Prep"
+  },
+  {
+    "id": "REF-2FFA187A8AEB",
+    "src": "/work/stages/carpentry_multifamily_install.jpg",
+    "title": "Carpentry Multifamily Install"
+  },
+  {
+    "id": "REF-3818A19ADFF4",
+    "src": "/work/stages/carpentry_multifamily_prep.jpg",
+    "title": "Carpentry Multifamily Prep"
+  },
+  {
+    "id": "REF-1E4294E5A6AB",
+    "src": "/work/stages/carpentry_residential_install.jpg",
+    "title": "Carpentry Residential Install"
+  },
+  {
+    "id": "REF-8DE946DAC587",
+    "src": "/work/stages/carpentry_residential_prep.jpg",
+    "title": "Carpentry Residential Prep"
+  },
+  {
+    "id": "REF-675CD7CC04B3",
+    "src": "/work/stages/carpentry_townhomes_install.jpg",
+    "title": "Carpentry Townhomes Install"
+  },
+  {
+    "id": "REF-AEADC12282B0",
+    "src": "/work/stages/carpentry_townhomes_prep.jpg",
+    "title": "Carpentry Townhomes Prep"
+  },
+  {
+    "id": "REF-8D950865543F",
+    "src": "/work/stages/concrete_commercial_finish.jpg",
+    "title": "Concrete Commercial Finish"
+  },
+  {
+    "id": "REF-762DDEECD341",
+    "src": "/work/stages/concrete_commercial_install.jpg",
+    "title": "Concrete Commercial Install"
+  },
+  {
+    "id": "REF-37529CBA9C93",
+    "src": "/work/stages/concrete_commercial_prep.jpg",
+    "title": "Concrete Commercial Prep"
+  },
+  {
+    "id": "REF-A80AC414988C",
+    "src": "/work/stages/drywall_commercial_install.jpg",
+    "title": "Drywall Commercial Install"
+  },
+  {
+    "id": "REF-EBA48910AC59",
+    "src": "/work/stages/drywall_commercial_prep.jpg",
+    "title": "Drywall Commercial Prep"
+  },
+  {
+    "id": "REF-16142E7B26BC",
+    "src": "/work/stages/drywall_multifamily_install.jpg",
+    "title": "Drywall Multifamily Install"
+  },
+  {
+    "id": "REF-93DB9D54D3DF",
+    "src": "/work/stages/drywall_multifamily_prep.jpg",
+    "title": "Drywall Multifamily Prep"
+  },
+  {
+    "id": "REF-9C8E718032B1",
+    "src": "/work/stages/drywall_residential_install.jpg",
+    "title": "Drywall Residential Install"
+  },
+  {
+    "id": "REF-306150626C82",
+    "src": "/work/stages/drywall_residential_prep.jpg",
+    "title": "Drywall Residential Prep"
+  },
+  {
+    "id": "REF-DCB2965E6555",
+    "src": "/work/stages/drywall_townhomes_install.jpg",
+    "title": "Drywall Townhomes Install"
+  },
+  {
+    "id": "REF-D1D251EDCD5E",
+    "src": "/work/stages/drywall_townhomes_prep.jpg",
+    "title": "Drywall Townhomes Prep"
+  },
+  {
+    "id": "REF-C50D3CF37028",
+    "src": "/work/stages/flooring_commercial_install.jpg",
+    "title": "Flooring Commercial Install"
+  },
+  {
+    "id": "REF-36159DD48C82",
+    "src": "/work/stages/flooring_commercial_prep.jpg",
+    "title": "Flooring Commercial Prep"
+  },
+  {
+    "id": "REF-42D33CA0A8BF",
+    "src": "/work/stages/flooring_multifamily_install.jpg",
+    "title": "Flooring Multifamily Install"
+  },
+  {
+    "id": "REF-72814B97C220",
+    "src": "/work/stages/flooring_multifamily_prep.jpg",
+    "title": "Flooring Multifamily Prep"
+  },
+  {
+    "id": "REF-B5E9E255F0DD",
+    "src": "/work/stages/flooring_residential_install.jpg",
+    "title": "Flooring Residential Install"
+  },
+  {
+    "id": "REF-640F5432D555",
+    "src": "/work/stages/flooring_residential_prep.jpg",
+    "title": "Flooring Residential Prep"
+  },
+  {
+    "id": "REF-5BF062244ADF",
+    "src": "/work/stages/flooring_townhomes_install.jpg",
+    "title": "Flooring Townhomes Install"
+  },
+  {
+    "id": "REF-7E5B6B95A421",
+    "src": "/work/stages/flooring_townhomes_prep.jpg",
+    "title": "Flooring Townhomes Prep"
+  },
+  {
+    "id": "REF-170A5C6EED4C",
+    "src": "/work/stages/framing_commercial_install.jpg",
+    "title": "Framing Commercial Install"
+  },
+  {
+    "id": "REF-AA6CA61A6356",
+    "src": "/work/stages/framing_commercial_prep.jpg",
+    "title": "Framing Commercial Prep"
+  },
+  {
+    "id": "REF-B88F8C0E7B30",
+    "src": "/work/stages/framing_multifamily_install.jpg",
+    "title": "Framing Multifamily Install"
+  },
+  {
+    "id": "REF-5E9B362DA9AB",
+    "src": "/work/stages/framing_multifamily_prep.jpg",
+    "title": "Framing Multifamily Prep"
+  },
+  {
+    "id": "REF-40DD7CAEB323",
+    "src": "/work/stages/framing_residential_install.jpg",
+    "title": "Framing Residential Install"
+  },
+  {
+    "id": "REF-82695839A8B6",
+    "src": "/work/stages/framing_residential_prep.jpg",
+    "title": "Framing Residential Prep"
+  },
+  {
+    "id": "REF-2B50D05B3C1D",
+    "src": "/work/stages/framing_townhomes_install.jpg",
+    "title": "Framing Townhomes Install"
+  },
+  {
+    "id": "REF-CC94628B52D2",
+    "src": "/work/stages/framing_townhomes_prep.jpg",
+    "title": "Framing Townhomes Prep"
+  },
+  {
+    "id": "REF-C892C410B293",
+    "src": "/work/stages/painting_commercial_install.jpg",
+    "title": "Painting Commercial Install"
+  },
+  {
+    "id": "REF-848240D72170",
+    "src": "/work/stages/painting_commercial_prep.jpg",
+    "title": "Painting Commercial Prep"
+  },
+  {
+    "id": "REF-14B485A2D815",
+    "src": "/work/stages/painting_multifamily_install.jpg",
+    "title": "Painting Multifamily Install"
+  },
+  {
+    "id": "REF-7F20E3C36BAC",
+    "src": "/work/stages/painting_multifamily_prep.jpg",
+    "title": "Painting Multifamily Prep"
+  },
+  {
+    "id": "REF-298A2A1C7C03",
+    "src": "/work/stages/painting_residential_install.jpg",
+    "title": "Painting Residential Install"
+  },
+  {
+    "id": "REF-C143B26E06CA",
+    "src": "/work/stages/painting_residential_prep.jpg",
+    "title": "Painting Residential Prep"
+  },
+  {
+    "id": "REF-44B6513BE301",
+    "src": "/work/stages/painting_townhomes_install.jpg",
+    "title": "Painting Townhomes Install"
+  },
+  {
+    "id": "REF-3898880500E3",
+    "src": "/work/stages/painting_townhomes_prep.jpg",
+    "title": "Painting Townhomes Prep"
+  },
+  {
+    "id": "REF-22C8DE018D5F",
+    "src": "/work/stages/roofing_commercial_install.jpg",
+    "title": "Roofing Commercial Install"
+  },
+  {
+    "id": "REF-14EAD4A6FCE8",
+    "src": "/work/stages/roofing_commercial_prep.jpg",
+    "title": "Roofing Commercial Prep"
+  },
+  {
+    "id": "REF-F92CBBC4A12D",
+    "src": "/work/stages/roofing_multifamily_install.jpg",
+    "title": "Roofing Multifamily Install"
+  },
+  {
+    "id": "REF-FADBFE4520CE",
+    "src": "/work/stages/roofing_multifamily_prep.jpg",
+    "title": "Roofing Multifamily Prep"
+  },
+  {
+    "id": "REF-E3BC214C5D41",
+    "src": "/work/stages/roofing_residential_install.jpg",
+    "title": "Roofing Residential Install"
+  },
+  {
+    "id": "REF-6E2CC589CEB2",
+    "src": "/work/stages/roofing_residential_prep.jpg",
+    "title": "Roofing Residential Prep"
+  },
+  {
+    "id": "REF-03A5C6E65FCF",
+    "src": "/work/stages/roofing_townhomes_install.jpg",
+    "title": "Roofing Townhomes Install"
+  },
+  {
+    "id": "REF-9F5219A36FFA",
+    "src": "/work/stages/roofing_townhomes_prep.jpg",
+    "title": "Roofing Townhomes Prep"
+  },
+  {
+    "id": "REF-6A730ADA479A",
+    "src": "/work/stages/siding_commercial_install.jpg",
+    "title": "Siding Commercial Install"
+  },
+  {
+    "id": "REF-B298A8C260FA",
+    "src": "/work/stages/siding_commercial_prep.jpg",
+    "title": "Siding Commercial Prep"
+  },
+  {
+    "id": "REF-BA23F1310918",
+    "src": "/work/stages/siding_multifamily_install.jpg",
+    "title": "Siding Multifamily Install"
+  },
+  {
+    "id": "REF-D081DDED82B7",
+    "src": "/work/stages/siding_multifamily_prep.jpg",
+    "title": "Siding Multifamily Prep"
+  },
+  {
+    "id": "REF-9C497FB6BFCB",
+    "src": "/work/stages/siding_residential_install.jpg",
+    "title": "Siding Residential Install"
+  },
+  {
+    "id": "REF-383B65B44CE0",
+    "src": "/work/stages/siding_residential_prep.jpg",
+    "title": "Siding Residential Prep"
+  },
+  {
+    "id": "REF-8F23B1169FF6",
+    "src": "/work/stages/siding_townhomes_install.jpg",
+    "title": "Siding Townhomes Install"
+  },
+  {
+    "id": "REF-F99F56A70229",
+    "src": "/work/stages/siding_townhomes_prep.jpg",
+    "title": "Siding Townhomes Prep"
+  },
+  {
+    "id": "REF-E032F6703E7B",
+    "src": "/work/stages/stone_commercial_install.jpg",
+    "title": "Stone Commercial Install"
+  },
+  {
+    "id": "REF-C5A05D0631A7",
+    "src": "/work/stages/stone_commercial_prep.jpg",
+    "title": "Stone Commercial Prep"
+  },
+  {
+    "id": "REF-B4716D567871",
+    "src": "/work/stages/stone_multifamily_install.jpg",
+    "title": "Stone Multifamily Install"
+  },
+  {
+    "id": "REF-D18B2E652A8F",
+    "src": "/work/stages/stone_multifamily_prep.jpg",
+    "title": "Stone Multifamily Prep"
+  },
+  {
+    "id": "REF-4C36390EEF1E",
+    "src": "/work/stages/stone_residential_install.jpg",
+    "title": "Stone Residential Install"
+  },
+  {
+    "id": "REF-F636C110A6FA",
+    "src": "/work/stages/stone_residential_prep.jpg",
+    "title": "Stone Residential Prep"
+  },
+  {
+    "id": "REF-C0506EAE9369",
+    "src": "/work/stages/stone_townhomes_install.jpg",
+    "title": "Stone Townhomes Install"
+  },
+  {
+    "id": "REF-1AB02DA68512",
+    "src": "/work/stages/stone_townhomes_prep.jpg",
+    "title": "Stone Townhomes Prep"
+  },
+  {
     "id": "REF-1ADB371EBF6E",
     "src": "/work/stone_commercial.jpg",
     "title": "Stone Commercial"
@@ -1730,48 +2105,13 @@
     "title": "Stone Multifamily"
   },
   {
-    "id": "REF-656F44ABAB8D",
-    "src": "/work/carpentry_townhomes.jpg",
-    "title": "Carpentry Townhomes"
-  },
-  {
-    "id": "REF-AA4FE8DD5C93",
-    "src": "/work/drywall_townhomes.jpg",
-    "title": "Drywall Townhomes"
-  },
-  {
-    "id": "REF-24FEE7B4D440",
-    "src": "/work/flooring_townhomes.jpg",
-    "title": "Flooring Townhomes"
-  },
-  {
-    "id": "REF-FF3E0BAFA259",
-    "src": "/work/framing_townhomes.jpg",
-    "title": "Framing Townhomes"
-  },
-  {
-    "id": "REF-D6F740A4A173",
-    "src": "/work/painting_townhomes.jpg",
-    "title": "Painting Townhomes"
-  },
-  {
-    "id": "REF-F0C32F0F9981",
-    "src": "/work/roofing_townhomes.jpg",
-    "title": "Roofing Townhomes"
-  },
-  {
-    "id": "REF-66D649A818EA",
-    "src": "/work/siding_townhomes.jpg",
-    "title": "Siding Townhomes"
+    "id": "REF-4E6C2929E4DA",
+    "src": "/work/stone_residential.jpg",
+    "title": "Stone Residential"
   },
   {
     "id": "REF-4080E365AFD1",
     "src": "/work/stone_townhomes.jpg",
     "title": "Stone Townhomes"
-  },
-  {
-    "id": "REF-4E6C2929E4DA",
-    "src": "/work/stone_residential.jpg",
-    "title": "Stone Residential"
   }
 ]

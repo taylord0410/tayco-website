@@ -76,6 +76,37 @@ const TRADES = [
 const photo = (trade: string, sector: SectorKey) =>
   `/work/${trade}_${sector}.jpg`;
 
+interface StageFrameSpec {
+  stageIndex: 0 | 1 | 2;
+  shortTag: string;
+  stageBadge: string;
+  src: string;
+}
+
+const buildBuildingStageFrames = (
+  tradeSlug: string,
+  sector: SectorKey
+): StageFrameSpec[] => [
+  {
+    stageIndex: 0,
+    shortTag: "01 · Prep",
+    stageBadge: "Stage 1 · Preparation",
+    src: `/work/stages/${tradeSlug}_${sector}_prep.jpg`,
+  },
+  {
+    stageIndex: 1,
+    shortTag: "02 · Work",
+    stageBadge: "Stage 2 · Installation",
+    src: `/work/stages/${tradeSlug}_${sector}_install.jpg`,
+  },
+  {
+    stageIndex: 2,
+    shortTag: "03 · Done",
+    stageBadge: "Stage 3 · Completed",
+    src: photo(tradeSlug, sector),
+  },
+];
+
 const FLOOR_TYPES = [
   { slug: "hardwood", name: "Hardwood", csi: "Hardwood" },
   {
@@ -106,19 +137,78 @@ interface GalleryZoomItem {
   src: string;
   alt: string;
   csi: string;
+  stageBadge?: string;
+  shortTag?: string;
+  divisionBadge?: string;
+  sectorKey?: SectorKey;
 }
 
 export default function TradeGallery() {
   const [active, setActive] = useState(TRADES[0].slug);
+  // Default every card to stage 1 ("Stage 2 · Installation") so active work performed is foregrounded
+  // alongside the 3-stage progression thumbnails of the same building.
+  const [cardStageMap, setCardStageMap] = useState<Record<string, 0 | 1 | 2>>({});
   const [zoomItem, setZoomItem] = useState<GalleryZoomItem | null>(null);
   const [zoomItems, setZoomItems] = useState<GalleryZoomItem[]>([]);
   const [zoomIdx, setZoomIdx] = useState<number>(0);
+  const [zoomSectorKey, setZoomSectorKey] = useState<SectorKey | null>(null);
 
-  const openZoom = useCallback((items: GalleryZoomItem[], index: number) => {
+  const trade = TRADES.find((t) => t.slug === active) ?? TRADES[0];
+
+  const getSectorZoomSequence = useCallback(
+    (tradeSlug: string, tradeName: string, sectorKey: SectorKey): GalleryZoomItem[] => {
+      const sectorMeta = SECTORS.find((s) => s.key === sectorKey) ?? SECTORS[0];
+      return buildBuildingStageFrames(tradeSlug, sectorKey).map((st) => ({
+        src: st.src,
+        alt: `${sectorMeta.badge} ${tradeName} — ${st.stageBadge}`,
+        csi: tradeName,
+        stageBadge: st.stageBadge,
+        shortTag: st.shortTag,
+        divisionBadge: sectorMeta.badge,
+        sectorKey,
+      }));
+    },
+    []
+  );
+
+  const openBuildingZoom = useCallback(
+    (sectorKey: SectorKey, initialStage: 0 | 1 | 2) => {
+      const items = getSectorZoomSequence(trade.slug, trade.name, sectorKey);
+      setZoomSectorKey(sectorKey);
+      setZoomItems(items);
+      setZoomIdx(initialStage);
+      setZoomItem(items[initialStage] ?? items[0] ?? null);
+    },
+    [getSectorZoomSequence, trade.slug, trade.name]
+  );
+
+  const openFlooringZoom = useCallback((items: GalleryZoomItem[], index: number) => {
+    setZoomSectorKey(null);
     setZoomItems(items);
     setZoomIdx(index);
     setZoomItem(items[index] ?? null);
   }, []);
+
+  const selectZoomIndex = useCallback(
+    (nextIdx: number) => {
+      if (nextIdx < 0 || nextIdx >= zoomItems.length) return;
+      setZoomIdx(nextIdx);
+      setZoomItem(zoomItems[nextIdx] ?? null);
+    },
+    [zoomItems]
+  );
+
+  const switchZoomSector = useCallback(
+    (nextSector: SectorKey) => {
+      const items = getSectorZoomSequence(trade.slug, trade.name, nextSector);
+      const nextStage: 0 | 1 | 2 = zoomIdx === 0 || zoomIdx === 1 || zoomIdx === 2 ? zoomIdx : 1;
+      setZoomSectorKey(nextSector);
+      setZoomItems(items);
+      setZoomIdx(nextStage);
+      setZoomItem(items[nextStage] ?? items[0] ?? null);
+    },
+    [getSectorZoomSequence, trade.slug, trade.name, zoomIdx]
+  );
 
   const handleStepPrev = useCallback(() => {
     setZoomIdx((current) => {
@@ -142,19 +232,8 @@ export default function TradeGallery() {
     setZoomItem(null);
     setZoomItems([]);
     setZoomIdx(0);
+    setZoomSectorKey(null);
   }, []);
-
-  const trade = TRADES.find((t) => t.slug === active) ?? TRADES[0];
-
-  const sectorPhotos = React.useMemo<GalleryZoomItem[]>(
-    () =>
-      SECTORS.map((s) => ({
-        src: photo(trade.slug, s.key),
-        alt: trade.name,
-        csi: trade.name,
-      })),
-    [trade.slug, trade.name]
-  );
 
   const flooringPhotos = React.useMemo<GalleryZoomItem[]>(
     () =>
@@ -192,15 +271,18 @@ export default function TradeGallery() {
         </TaycoPillDock>
       </div>
 
-      {/* 4-Photo Simultaneous Gallery Grid for the Active Specialty */}
+      {/* 4-Division Same-Building 3-Stage Progression Grid for the Active Specialty */}
       <div
         className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 max-md:flex max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-3 tayco-no-scrollbar"
         role="region"
         aria-label={trade.name}
       >
-        {SECTORS.map((s, idx) => {
-          const src = photo(trade.slug, s.key);
-          const alt = trade.name;
+        {SECTORS.map((s) => {
+          const cardId = `${trade.slug}_${s.key}`;
+          const activeStageIdx: 0 | 1 | 2 = cardStageMap[cardId] ?? 1;
+          const stages = buildBuildingStageFrames(trade.slug, s.key);
+          const currentFrame = stages[activeStageIdx] ?? stages[1];
+          const alt = `${s.badge} ${trade.name} — ${currentFrame.stageBadge}`;
           return (
             <figure
               key={s.key}
@@ -212,22 +294,102 @@ export default function TradeGallery() {
                 borderColor: "rgba(201, 168, 76, 0.38)",
               }}
             >
+              {/* Division + Active Stage Header */}
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <span
+                  className="text-[11px] font-sans font-bold tracking-wide truncate"
+                  style={{ color: "#F4F2EA" }}
+                >
+                  {s.badge}
+                </span>
+                <span
+                  className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border shrink-0"
+                  style={{
+                    background: "rgba(201, 168, 76, 0.14)",
+                    borderColor: "rgba(201, 168, 76, 0.45)",
+                    color: "#F3D37A",
+                  }}
+                >
+                  {currentFrame.stageBadge}
+                </span>
+              </div>
+
+              {/* Unobstructed Active Stage Photograph */}
               <button
                 type="button"
-                onClick={() => openZoom(sectorPhotos, idx)}
-                aria-label={`View ${alt} photograph`}
+                onClick={() => openBuildingZoom(s.key, activeStageIdx)}
+                aria-label={`View ${alt} progression`}
                 className="relative block w-full rounded-xl overflow-hidden aspect-[3/2] border cursor-pointer"
                 style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
               >
                 <Image
                   fill
                   sizes="(min-width: 1280px) 23vw, (min-width: 768px) 45vw, 90vw"
-                  src={src}
+                  src={currentFrame.src}
                   alt={alt}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
               </button>
+
+              {/* 3-Stage Same-Building Progression Strip (01 Prep -> 02 Work -> 03 Done) */}
+              <div
+                className="grid grid-cols-3 gap-1.5 mt-2.5"
+                role="group"
+                aria-label={`${s.badge} ${trade.name} construction stages`}
+              >
+                {stages.map((st) => {
+                  const isSelected = st.stageIndex === activeStageIdx;
+                  return (
+                    <button
+                      key={st.stageIndex}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() =>
+                        setCardStageMap((prev) => ({
+                          ...prev,
+                          [cardId]: st.stageIndex,
+                        }))
+                      }
+                      className="relative rounded-lg overflow-hidden border text-left transition-all cursor-pointer flex flex-col"
+                      style={{
+                        background: "#070E1A",
+                        borderColor: isSelected
+                          ? "#F3D37A"
+                          : "rgba(201, 168, 76, 0.24)",
+                        boxShadow: isSelected
+                          ? "0 0 0 1px #C9A84C"
+                          : "none",
+                        opacity: isSelected ? 1 : 0.78,
+                      }}
+                    >
+                      <div className="relative w-full aspect-[3/2] overflow-hidden">
+                        <Image
+                          fill
+                          auditIgnore={true}
+                          sizes="96px"
+                          src={st.src}
+                          alt={`${s.badge} ${trade.name} ${st.stageBadge}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                      <span
+                        className="block w-full text-center py-1 text-[9px] font-mono font-bold tracking-tight truncate px-1"
+                        style={{
+                          color: isSelected ? "#070E1A" : "#CBD5E1",
+                          background: isSelected
+                            ? "linear-gradient(135deg, #C9A84C 0%, #F3D37A 100%)"
+                            : "rgba(11, 23, 42, 0.92)",
+                        }}
+                      >
+                        {st.shortTag}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
               <div className="preview-orbits" aria-hidden="true"><i /><i /><i /></div>
             </figure>
           );
@@ -275,7 +437,7 @@ export default function TradeGallery() {
                       <button
                         key={n}
                         type="button"
-                        onClick={() => openZoom(flooringPhotos, fPhotoIdx)}
+                        onClick={() => openFlooringZoom(flooringPhotos, fPhotoIdx)}
                         className="relative block w-full rounded-xl overflow-hidden border aspect-[3/2] cursor-pointer hover:opacity-95 transition-opacity"
                         style={{ borderColor: "rgba(201, 168, 76, 0.32)" }}
                       >
@@ -320,8 +482,8 @@ export default function TradeGallery() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
-                <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
                   <span
                     className="px-2.5 py-0.5 rounded-full text-xs font-mono font-black shrink-0"
                     style={{
@@ -332,12 +494,29 @@ export default function TradeGallery() {
                   >
                     {zoomItem.csi}
                   </span>
-                  <span
-                    className="text-xs sm:text-sm font-bold truncate"
-                    style={{ color: "#F4F2EA" }}
-                  >
-                    {zoomItem.alt}
-                  </span>
+                  {zoomItem.divisionBadge && (
+                    <span
+                      className="px-2.5 py-0.5 rounded-full text-xs font-sans font-bold border shrink-0"
+                      style={{
+                        borderColor: "rgba(255,255,255,0.2)",
+                        color: "#F4F2EA",
+                      }}
+                    >
+                      {zoomItem.divisionBadge}
+                    </span>
+                  )}
+                  {zoomItem.stageBadge && (
+                    <span
+                      className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border shrink-0"
+                      style={{
+                        background: "rgba(201, 168, 76, 0.14)",
+                        borderColor: "rgba(201, 168, 76, 0.48)",
+                        color: "#F3D37A",
+                      }}
+                    >
+                      {zoomItem.stageBadge}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {zoomItems.length > 1 && (
@@ -375,6 +554,35 @@ export default function TradeGallery() {
                 </div>
               </div>
 
+              {/* Division Switcher inside Lightbox when inspecting a Trade Building */}
+              {zoomSectorKey && (
+                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  {SECTORS.map((sec) => {
+                    const isCurrentSec = sec.key === zoomSectorKey;
+                    return (
+                      <button
+                        key={sec.key}
+                        type="button"
+                        aria-pressed={isCurrentSec}
+                        onClick={() => switchZoomSector(sec.key)}
+                        className="px-3 py-1 rounded-full text-[11px] font-sans font-bold border transition-colors cursor-pointer"
+                        style={{
+                          background: isCurrentSec
+                            ? "rgba(201, 168, 76, 0.22)"
+                            : "rgba(15, 32, 64, 0.65)",
+                          borderColor: isCurrentSec
+                            ? "#F3D37A"
+                            : "rgba(255, 255, 255, 0.14)",
+                          color: isCurrentSec ? "#F3D37A" : "#CBD5E1",
+                        }}
+                      >
+                        {sec.badge}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <div
                 data-tayco-wheel-stage="true"
                 onWheel={stageGestureHandlers.onWheel}
@@ -382,24 +590,25 @@ export default function TradeGallery() {
                 onPointerUp={stageGestureHandlers.onPointerUp}
                 className="relative w-full overflow-hidden rounded-xl border flex items-center justify-center bg-[#03060D]"
                 style={{
-                  maxHeight: "65dvh",
+                  maxHeight: "56dvh",
                   borderColor: "rgba(201, 168, 76, 0.28)",
                 }}
               >
                 <Image
                   width={1440}
                   height={960}
+                  auditIgnore={true}
                   sizes="95vw"
                   src={zoomItem.src}
                   alt={zoomItem.alt}
-                  className="w-full h-auto max-h-[65dvh] object-contain select-none"
+                  className="w-full h-auto max-h-[56dvh] object-contain select-none"
                 />
                 {zoomItems.length > 1 && (
                   <>
                     <button
                       type="button"
                       onClick={handleStepPrev}
-                      aria-label="Previous image"
+                      aria-label="Previous stage"
                       className="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#050A14]/75 backdrop-blur-md border border-white/20 text-[#F3D37A] hover:bg-[#C9A84C] hover:text-[#050A14] flex items-center justify-center transition-all cursor-pointer shadow-lg"
                     >
                       ‹
@@ -407,7 +616,7 @@ export default function TradeGallery() {
                     <button
                       type="button"
                       onClick={handleStepNext}
-                      aria-label="Next image"
+                      aria-label="Next stage"
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#050A14]/75 backdrop-blur-md border border-white/20 text-[#F3D37A] hover:bg-[#C9A84C] hover:text-[#050A14] flex items-center justify-center transition-all cursor-pointer shadow-lg"
                     >
                       ›
@@ -416,12 +625,55 @@ export default function TradeGallery() {
                 )}
               </div>
 
+              {/* 3-Stage Same-Building Selector Strip inside Modal */}
+              {zoomSectorKey && zoomItems.length === 3 && (
+                <div className="grid grid-cols-3 gap-2.5 mt-3">
+                  {zoomItems.map((stItem, idx) => {
+                    const activeSt = idx === zoomIdx;
+                    return (
+                      <button
+                        key={stItem.src}
+                        type="button"
+                        aria-pressed={activeSt}
+                        onClick={() => selectZoomIndex(idx)}
+                        className="rounded-xl overflow-hidden border text-left transition-all cursor-pointer flex items-center gap-2.5 p-1.5"
+                        style={{
+                          background: activeSt
+                            ? "rgba(27, 58, 107, 0.65)"
+                            : "rgba(7, 14, 26, 0.85)",
+                          borderColor: activeSt
+                            ? "#F3D37A"
+                            : "rgba(201, 168, 76, 0.24)",
+                        }}
+                      >
+                        <div className="relative w-14 sm:w-20 aspect-[3/2] rounded-lg overflow-hidden shrink-0">
+                          <Image
+                            fill
+                            auditIgnore={true}
+                            sizes="96px"
+                            src={stItem.src}
+                            alt={stItem.alt}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span
+                          className="text-[11px] sm:text-xs font-mono font-bold leading-tight"
+                          style={{ color: activeSt ? "#F3D37A" : "#CBD5E1" }}
+                        >
+                          {stItem.stageBadge ?? stItem.shortTag}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <div
                 className="flex flex-wrap items-center justify-between gap-3 mt-3.5 pt-3.5 border-t"
                 style={{ borderColor: "rgba(201, 168, 76, 0.25)" }}
               >
                 <span className="text-xs font-mono text-slate-300">
-                  Trade gallery · Discuss materials and scope with TAYCO
+                  Same-building 3-stage progression · Preparation → Installation → Completed
                 </span>
                 <div className="flex items-center gap-2.5">
                   <Link

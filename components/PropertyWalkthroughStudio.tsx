@@ -11,6 +11,12 @@ import {
   type MarketSpecialtyService,
   type PropertyListing,
 } from "@/lib/property-catalog";
+import {
+  buildOrderedSpecialtyFrames,
+  resolveSpecialtyNightPair,
+  selectSpecialtyCardPreviews,
+  type SpecialtyConstructionStage,
+} from "@/lib/photo-specialty";
 import { TaycoModalOverlay } from "@/components/ui/TaycoDesignSystem";
 
 export interface WalkthroughHotspot {
@@ -39,6 +45,9 @@ export interface WalkthroughStop {
   title: string;
   src: string;
   nightSrc: string;
+  hasNightVariant?: boolean;
+  stage?: SpecialtyConstructionStage;
+  stageBadge?: string;
   spatialNarrative: string;
   portalButtonLabel: string;
   sunDirectionX: number;
@@ -791,7 +800,7 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
   "sfh-101": {
     foyerLiving: {
       src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      label: "Stone Hearth Great Room & Porch Sightline",
     },
     kitchenCore: {
       src: "/curated/hero/res-navy-kitchen.jpg",
@@ -799,11 +808,11 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
     },
     upperSuite: {
       src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      label: "Upstairs Primary Suite & Wide-Plank White Oak Flooring",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/residential/sf-walkout-concrete-patio.jpg",
+      label: "Lower-Level Walkout Concrete Patio & Integrated Fire Bowl",
     },
   },
   "sfh-102": {
@@ -812,88 +821,88 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Entry Foyer, White-Oak Staircase & Great Room Sightline",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/pairs/div03_02_despues.jpg",
+      label: "Custom Walnut Butler's Pantry & Shaker Millwork",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/capabilities/res-basement-media.jpg",
+      label: "Finished Lower-Level Media & Entertainment Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/hero/res-multitier-deck.jpg",
+      label: "Multi-Tier Timber Deck & Rear Outdoor Living",
     },
   },
   "sfh-103": {
     foyerLiving: {
-      src: "/curated/properties/interior-limestone-modern-living.jpg",
-      label: "Entry Foyer, Honed Limestone Feature Pier & Great Room",
+      src: "/curated/pairs/div01_03_despues.jpg",
+      label: "Built-In Bookcases, Fireplace Mantel & Exposed Oak Beams",
     },
     kitchenCore: {
       src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Rift-Oak & Quartz Waterfall Island Chef's Kitchen",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Primary Suite Spa Bath, Freestanding Tub & Glass Shower",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-sfh-stone-exterior.jpg",
+      label: "Cut Limestone Watertable, Stone Arch & Terrace Masonry",
     },
   },
   "sfh-104": {
     foyerLiving: {
-      src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      src: "/curated/properties/sf-drywall-seq1-finish.jpg",
+      label: "Sunlit Great Room, Smooth Level-5 Walls & Recessed Lighting",
     },
     kitchenCore: {
       src: "/curated/residential/div01_08_despues.jpg",
       label: "Open-Concept Kitchen, Hardwood Floors & Recessed Lighting",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-sfh-drywall-flooring.jpg",
+      label: "Upper-Level Suite, Recessed Cove Ceiling & Oak Floors",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/residential/div01_07_despues.jpg",
+      label: "Private Rear Concrete Patio & Landscaped Yard",
     },
   },
   "sfh-105": {
     foyerLiving: {
       src: "/curated/properties/interior-custom-foyer-oak-staircase.jpg",
-      label: "Entry Foyer, White-Oak Staircase & Great Room Sightline",
+      label: "Entry Foyer, Solid Oak Stair Treads & Custom Trim",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/magazine/revista_ca_cab_1.jpg",
+      label: "Custom Inset Cabinetry & Stone Countertops",
     },
     upperSuite: {
       src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      label: "Primary Suite Porcelain Spa Bath & Custom Vanity",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-sfh-concrete.jpg",
+      label: "Saw-Cut Architectural Concrete Walk & Landscaped Court",
     },
   },
   "sfh-106": {
     foyerLiving: {
-      src: "/curated/properties/interior-singlefamily-greatroom-stone.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      src: "/curated/properties/sf-drywall-seq1-finish.jpg",
+      label: "Main-Level Living Room, Smooth Gypsum & Custom Trim",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/pairs/div03_02_despues.jpg",
+      label: "Custom Cabinetry, Glass-Front Uppers & Stone Counters",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/pairs/div03_04_despues.jpg",
+      label: "Refinished Wide-Plank Hardwood & Sunroom Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/residential/div01_04_despues.jpg",
+      label: "Black-Frame Architectural Window & Exterior Trim Package",
     },
   },
 
@@ -901,109 +910,109 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
   "dpx-201": {
     foyerLiving: {
       src: "/curated/properties/interior-duplex-brick-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      label: "Brick-Accent Great Room & Acoustic Oak Flooring",
     },
     kitchenCore: {
       src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Chef's Kitchen, Waterfall Island & Brick Window View",
     },
     upperSuite: {
       src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      label: "Upper-Level Primary Suite & Acoustic Hardwood Underlayment",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-mf-stone-courtyard.jpg",
+      label: "Courtyard Limestone Planter Walls & Outdoor Kitchen",
     },
   },
   "dpx-202": {
     foyerLiving: {
       src: "/curated/properties/interior-limestone-modern-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      label: "Honed Limestone Feature Pier & Open-Plan Living Room",
     },
     kitchenCore: {
       src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Rift-Oak & Slate Chef's Kitchen Looking at Courtyard",
     },
     upperSuite: {
       src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      label: "Upper-Suite Porcelain Spa Bath & Walk-In Shower",
     },
     patioTerrace: {
       src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      label: "Divided Rear Brick & Cedar Courtyard Patio",
     },
   },
   "dpx-203": {
     foyerLiving: {
-      src: "/curated/properties/interior-duplex-brick-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      src: "/curated/properties/interior-custom-foyer-oak-staircase.jpg",
+      label: "Unit Entry Foyer, White-Oak Stair & Living Sightline",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/magazine/revista_ca_cab_1.jpg",
+      label: "Dual-Unit Custom Kitchen Cabinetry & Stone Counters",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-mf-drywall.jpg",
+      label: "STC-Rated Corridor, Acoustic Ceiling & Unit Entries",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-mf-concrete-podium.jpg",
+      label: "Reinforced Concrete Podium Deck & Parking Apron",
     },
   },
   "dpx-204": {
     foyerLiving: {
-      src: "/curated/properties/interior-duplex-brick-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      src: "/curated/properties/mkt-mf-carpentry-lounge.jpg",
+      label: "Custom White-Oak Built-In Lounge & Alcove Millwork",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/residential/div01_08_despues.jpg",
+      label: "Bright Open-Concept Dining & Kitchen Suite",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-mf-flooring-concrete.jpg",
+      label: "Polished Concrete & Wide-Plank White Oak Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/pairs/div01_02_despues.jpg",
+      label: "Private Divided Rear Timber Decks & Outdoor Living",
     },
   },
   "dpx-205": {
     foyerLiving: {
-      src: "/curated/properties/interior-duplex-brick-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      src: "/curated/properties/mkt-mf-stone-entry.jpg",
+      label: "Monumental Stone Entry Lobby & Custom Millwork Canopy",
     },
     kitchenCore: {
       src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Primary Unit Open Kitchen & Quartz Waterfall Island",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/capabilities/res-basement-media.jpg",
+      label: "Acoustic Lounge Drywall & Recessed LED Soffit Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-mf-roofing.jpg",
+      label: "Multi-Unit Gable Shingle & Standing-Seam Roof System",
     },
   },
   "dpx-206": {
     foyerLiving: {
       src: "/curated/properties/interior-limestone-modern-living.jpg",
-      label: "Entry Foyer, Great Room & Exterior Porch Sightline",
+      label: "Texas Limestone Pier Living & Dining Volume",
     },
     kitchenCore: {
       src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Waterproof Wide-Plank Oak & Waterfall Quartz Kitchen",
     },
     upperSuite: {
       src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      label: "Upper Level: Primary Suite & En-Suite Spa Bath",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-duplex-rear-patio-courtyard.jpg",
-      label: "Asymmetric Rear Covered Brick & Cedar Patio Looking into Kitchen",
+      src: "/curated/properties/mkt-mf-stone-courtyard.jpg",
+      label: "Limestone Planter Courtyard & Covered Carport Walk",
     },
   },
 
@@ -1014,106 +1023,106 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Parlor Living Room & Polygonal 3-Window Street Bay",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
+      label: "Parlor Chef's Kitchen, Marble Island & Bay Window",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-twn-flooring-stairtreads.jpg",
+      label: "Three-Story White-Oak Waterfall Stair & Upper Landing",
     },
     patioTerrace: {
       src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      label: "Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
     },
   },
   "twn-302": {
     foyerLiving: {
-      src: "/curated/properties/interior-townhouse-living-bay.jpg",
-      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      src: "/curated/properties/interior-limestone-modern-living.jpg",
+      label: "Corner Parlor Limestone Living & Dining Suite",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-limestone-modern-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/pairs/div03_02_despues.jpg",
+      label: "Main-Level Waterfall Quartz Kitchen & Walnut Millwork",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-twn-drywall-gallery.jpg",
+      label: "Three-Story Stairwell Gallery Drywall & Linear LEDs",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      src: "/curated/properties/mkt-twn-carpentry-pergola.jpg",
+      label: "Rooftop Cedar Louvered Pergola & Outdoor Millwork",
     },
   },
   "twn-303": {
     foyerLiving: {
-      src: "/curated/properties/interior-townhouse-living-bay.jpg",
-      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      src: "/curated/properties/mkt-twn-carpentry-library.jpg",
+      label: "Parlor Study with Custom Oak Bookcases & Coffered Ceiling",
     },
     kitchenCore: {
       src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      label: "Parlor Bay Window & Custom White Shaker Kitchen",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/residential/div04_05_despues.jpg",
+      label: "Primary Suite Bathroom, Dual Vanity & Walk-In Shower",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      src: "/curated/properties/mkt-twn-stone-gardenwall.jpg",
+      label: "Courtyard Bluestone Patio, Brick Piers & Limestone Wall",
     },
   },
   "twn-304": {
     foyerLiving: {
-      src: "/curated/properties/interior-townhouse-living-bay.jpg",
-      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      src: "/curated/properties/mkt-twn-stone-hearth.jpg",
+      label: "End-Unit Parlor Oak Flooring & Honed Limestone Hearth",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/properties/mkt-twn-flooring-herringbone.jpg",
+      label: "European White-Oak Herringbone Parlor & Dining",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/mkt-twn-framing-drywall.jpg",
+      label: "Multi-Level Stairwell Drywall & Recessed Cove Lighting",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      src: "/curated/properties/mkt-twn-concrete-stone.jpg",
+      label: "Limestone Entry Stoops, Planter Walls & Sidewalk Apron",
     },
   },
   "twn-305": {
     foyerLiving: {
       src: "/curated/properties/interior-townhouse-living-bay.jpg",
-      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      label: "Stepped-Grade Parlor Living & Acoustic Party Wall",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-townhouse-parlor-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/residential/div01_08_despues.jpg",
+      label: "Sunlit Parlor Kitchen & Hardwood Great Room",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/properties/interior-primary-spa-bath-walkin.jpg",
+      label: "Top-Floor Porcelain Spa Bath & Custom Glass Enclosure",
     },
     patioTerrace: {
       src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      label: "Rooftop Terrace Porcelain Pavers & Fire Table",
     },
   },
   "twn-306": {
     foyerLiving: {
-      src: "/curated/properties/interior-townhouse-living-bay.jpg",
-      label: "Parlor Living Room & Polygonal 3-Window Street Bay",
+      src: "/curated/magazine/revista_ca_finish_1.jpg",
+      label: "Custom Parlor Millwork, Trim Carpentry & Interior Doors",
     },
     kitchenCore: {
-      src: "/curated/properties/interior-duplex-brick-kitchen.jpg",
-      label: "Open-Concept Chef's Kitchen, Waterfall Quartz Island & Custom Millwork",
+      src: "/curated/properties/mkt-twn-carpentry-library.jpg",
+      label: "Built-In Library Cabinetry & Coffered Parlor Ceiling",
     },
     upperSuite: {
-      src: "/curated/properties/interior-primary-suite-oak-bedroom.jpg",
-      label: "Upstairs Primary Suite, Walk-In Dressing Room & Porcelain Spa Bath",
+      src: "/curated/pairs/div03_04_despues.jpg",
+      label: "Top-Floor Primary Bedroom Suite & Hardwood Flooring",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-townhouse-rooftop-terrace.jpg",
-      label: "Private Cedar-Pergola Rooftop Terrace & Outdoor Kitchen",
+      src: "/curated/properties/mkt-twn-concrete-drive.jpg",
+      label: "Rear-Alley Saw-Cut Concrete Apron & Tuck-Under Garages",
     },
   },
 
@@ -1132,14 +1141,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Executive Acoustic Wood-Slat Conference Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      src: "/curated/properties/mkt-com-stone-colonnade.jpg",
+      label: "Monumental Indiana Limestone Colonnade & Plaza Entry",
     },
   },
   "com-402": {
     foyerLiving: {
-      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
-      label: "Double-Height Limestone Atrium & Glass Boardroom",
+      src: "/curated/properties/mkt-com-drywall-ceilings.jpg",
+      label: "Linear Wood-Baffle Ceiling & Glass Partition Gallery",
     },
     kitchenCore: {
       src: "/curated/hero/com-reception-walnut.jpg",
@@ -1150,14 +1159,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Custom Walnut Architectural Tenant Lounge",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      src: "/curated/properties/mkt-com-roofing-greenroof.jpg",
+      label: "Standing-Seam Canopy, Parapet Roof & Terrace Deck",
     },
   },
   "com-403": {
     foyerLiving: {
-      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
-      label: "Double-Height Limestone Atrium & Glass Boardroom",
+      src: "/curated/properties/mkt-com-concrete-stone.jpg",
+      label: "Architectural Concrete Entry Plaza & Retaining Planters",
     },
     kitchenCore: {
       src: "/curated/capabilities/com-retail-led.jpg",
@@ -1169,13 +1178,13 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
     },
     patioTerrace: {
       src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      label: "Hospitality Mezzanine Bar & Covered Limestone Terrace",
     },
   },
   "com-404": {
     foyerLiving: {
-      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
-      label: "Double-Height Limestone Atrium & Glass Boardroom",
+      src: "/curated/properties/com-siding-seq1-finish.jpg",
+      label: "Oblique Architectural Metal Panel & Storefront Entry",
     },
     kitchenCore: {
       src: "/curated/commercial/com-open-plan-office-fitout.jpg",
@@ -1186,14 +1195,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Clinical & Medical Professional Corridor Suite",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      src: "/curated/commercial/com-parking-apron-ada-v2.jpg",
+      label: "Reinforced Concrete Parking Apron, Curbs & ADA Walks",
     },
   },
   "com-405": {
     foyerLiving: {
-      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
-      label: "Double-Height Limestone Atrium & Glass Boardroom",
+      src: "/curated/properties/com-framing-seq1-finish.jpg",
+      label: "Two-Story Structural Steel & Cold-Formed Stud Shell",
     },
     kitchenCore: {
       src: "/curated/commercial/cx_x3.jpg",
@@ -1204,14 +1213,14 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Heavy-Duty Diamond-Polished Reinforced Concrete Slab",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      src: "/curated/properties/mkt-com-concrete-tiltup.jpg",
+      label: "Tilt-Up Concrete Panels & Saw-Cut Logistics Apron",
     },
   },
   "com-406": {
     foyerLiving: {
-      src: "/curated/properties/interior-commercial-boardroom-atrium.jpg",
-      label: "Double-Height Limestone Atrium & Glass Boardroom",
+      src: "/curated/properties/mkt-com-stone-colonnade.jpg",
+      label: "Architectural Cut-Limestone Colonnade & Storefront",
     },
     kitchenCore: {
       src: "/curated/commercial/com-tenant-space-stone-storefront.jpg",
@@ -1222,8 +1231,8 @@ export const WALKTHROUGH_ROOMS_BY_PROJECT_ID: Readonly<
       label: "Large-Format Porcelain Lobby & Common Corridor",
     },
     patioTerrace: {
-      src: "/curated/properties/interior-commercial-executive-lounge-terrace.jpg",
-      label: "Executive Mezzanine Lounge & Covered Limestone Terrace",
+      src: "/curated/properties/mkt-com-concrete-stone.jpg",
+      label: "Architectural Concrete Plaza & Masonry Planter Court",
     },
   },
 };
@@ -1340,7 +1349,8 @@ export function buildCoherentWalkthrough(
       floorLevel: "Level 1 · Street Perspective (35° Oblique)",
       title: exteriorFrame.label,
       src: exteriorFrame.src,
-      nightSrc: resolveNightImageSrc(exteriorFrame.src),
+      nightSrc: resolveSpecialtyNightPair(exteriorFrame.src).nightSrc,
+      hasNightVariant: resolveSpecialtyNightPair(exteriorFrame.src).hasNightVariant,
       spatialNarrative: isCommercial
         ? `Oblique street view of ${prop.title}. Tap the portal over the entrance or a thumbnail below to walk into the main lobby.`
         : `A 35° exterior view of ${prop.title}. Change the time of day to see golden-hour light or the night photograph with its 2700K interior lighting on.`,
@@ -1399,7 +1409,8 @@ export function buildCoherentWalkthrough(
       floorLevel: "Level 1 · Main Arrival & Living Core",
       title: projectRooms.foyerLiving.label,
       src: foyerLivingSrc,
-      nightSrc: resolveNightImageSrc(foyerLivingSrc),
+      nightSrc: resolveSpecialtyNightPair(foyerLivingSrc).nightSrc,
+      hasNightVariant: resolveSpecialtyNightPair(foyerLivingSrc).hasNightVariant,
       spatialNarrative: isCommercial
         ? "You have just entered the main lobby, with daylight from the entry glazing and the finishes that set the tone for the rest of the building."
         : "Through the front door, the black-framed windows look back at the same brick or stone porch pier from Step 01, while the white-oak floor leads straight to the kitchen.",
@@ -1455,7 +1466,8 @@ export function buildCoherentWalkthrough(
       floorLevel: "Level 1 · Culinary & Open-Concept Dining Core",
       title: projectRooms.kitchenCore.label,
       src: kitchenCoreSrc,
-      nightSrc: resolveNightImageSrc(kitchenCoreSrc),
+      nightSrc: resolveSpecialtyNightPair(kitchenCoreSrc).nightSrc,
+      hasNightVariant: resolveSpecialtyNightPair(kitchenCoreSrc).hasNightVariant,
       spatialNarrative: isCommercial
         ? `Moving into the tenant core of ${prop.title}: interior finishes, architectural LED lighting and integrated MEP systems.`
         : "From the living room into the open kitchen: the waterfall island, custom cabinetry and warm pendants share the same white-oak floor and the view to the exterior masonry.",
@@ -1513,7 +1525,8 @@ export function buildCoherentWalkthrough(
         : "Level 2 · Upstairs Primary Bedroom, Walk-In & Spa Bath",
       title: projectRooms.upperSuite.label,
       src: upperSuiteSrc,
-      nightSrc: resolveNightImageSrc(upperSuiteSrc),
+      nightSrc: resolveSpecialtyNightPair(upperSuiteSrc).nightSrc,
+      hasNightVariant: resolveSpecialtyNightPair(upperSuiteSrc).hasNightVariant,
       spatialNarrative: isCommercial
         ? `Inside ${prop.title}: the structural frame, rated assemblies and acoustic insulation behind the finished space.`
         : "Up the white-oak stair to the primary suite and its porcelain spa bath, with a frameless glass shower and a view of the tree canopy.",
@@ -1579,7 +1592,8 @@ export function buildCoherentWalkthrough(
         : "Level 1 Rear · Indoor-Outdoor Covered Courtyard",
       title: projectRooms.patioTerrace.label,
       src: patioTerraceSrc,
-      nightSrc: resolveNightImageSrc(patioTerraceSrc),
+      nightSrc: resolveSpecialtyNightPair(patioTerraceSrc).nightSrc,
+      hasNightVariant: resolveSpecialtyNightPair(patioTerraceSrc).hasNightVariant,
       spatialNarrative: isCommercial
         ? "The tour ends on the outdoor terrace, connected directly to the interior lounge."
         : isTownhouse
@@ -1646,17 +1660,10 @@ export function buildSpecialtyWalkthroughStops(
   extraFrames?: { src: string; label: string }[]
 ): WalkthroughStop[] {
   const isUncoveredFraming = service.specialtyId === "framing";
-  const baseCount = service.triptych.length;
-  const seen = new Set(service.triptych.map((f) => f.src));
-  const combinedPhotos: { src: string; label: string; caption?: string; tag?: string }[] = [
-    ...service.triptych,
-  ];
-  for (const ef of extraFrames ?? []) {
-    if (!seen.has(ef.src)) {
-      seen.add(ef.src);
-      combinedPhotos.push(ef);
-    }
-  }
+  const combinedPhotos = buildOrderedSpecialtyFrames(
+    service.triptych,
+    extraFrames
+  );
   return combinedPhotos.map((photo, idx) => {
     const stepNumber = String(idx + 1).padStart(2, "0");
     const shortWords = photo.label
@@ -1665,7 +1672,7 @@ export function buildSpecialtyWalkthroughStops(
       .filter(Boolean)
       .slice(0, 2)
       .join(" ");
-    const cleanCaption = (photo as unknown as { caption?: string }).caption;
+    const cleanCaption = photo.caption;
     return {
       stepNumber,
       shortRoomName: shortWords || `View ${stepNumber}`,
@@ -1673,7 +1680,10 @@ export function buildSpecialtyWalkthroughStops(
       floorLevel: service.specialtyLabel,
       title: photo.label,
       src: photo.src,
-      nightSrc: idx < baseCount ? resolveNightImageSrc(photo.src) : photo.src,
+      nightSrc: photo.nightSrc,
+      hasNightVariant: photo.hasNightVariant,
+      stage: photo.stage,
+      stageBadge: photo.stageBadge,
       spatialNarrative: cleanCaption
         ? `${service.summary} — ${cleanCaption}`
         : `${service.summary} — ${photo.label}.`,
@@ -1759,6 +1769,7 @@ function toShortWorkName(title: string): string {
 export function PropertyWalkthroughStudioModal({
   property,
   initialStepIndex = 0,
+  initialSequenceStage,
   initialSolarHour = 12.5,
   initialSpecialtyId,
   extraSpecialtyFrames,
@@ -1766,6 +1777,7 @@ export function PropertyWalkthroughStudioModal({
 }: {
   property: PropertyListing;
   initialStepIndex?: number;
+  initialSequenceStage?: 0 | 1 | 2;
   initialSolarHour?: number;
   initialSpecialtyId?: string;
   extraSpecialtyFrames?: Partial<
@@ -1778,9 +1790,12 @@ export function PropertyWalkthroughStudioModal({
     [property.category]
   );
 
-  const studioMode = initialSpecialtyId ? "specialty" : "walkthrough";
-  const selectedSpecialtyId =
-    initialSpecialtyId ?? marketSpecialties[0]?.specialtyId ?? "roofing";
+  const [studioMode, setStudioMode] = useState<"specialty" | "walkthrough">(
+    initialSpecialtyId ? "specialty" : "walkthrough"
+  );
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string>(
+    initialSpecialtyId ?? marketSpecialties[0]?.specialtyId ?? "roofing"
+  );
 
   const activeSpecialty = React.useMemo(
     () =>
@@ -1796,7 +1811,7 @@ export function PropertyWalkthroughStudioModal({
     [property]
   );
 
-  const specialtyStops = React.useMemo(
+  const allSpecialtyStops = React.useMemo(
     () =>
       activeSpecialty
         ? buildSpecialtyWalkthroughStops(
@@ -1807,23 +1822,80 @@ export function PropertyWalkthroughStudioModal({
     [activeSpecialty, extraSpecialtyFrames]
   );
 
+  // Isolate the coherent 3-stage same-building sequence (Stage 1 -> Stage 2 -> Stage 3)
+  // so stepping Next/Prev stays on the exact same project without jumping across unrelated houses.
+  const specialtyStops = React.useMemo(() => {
+    if (!activeSpecialty || allSpecialtyStops.length === 0) return [];
+    const ordered = buildOrderedSpecialtyFrames(
+      activeSpecialty.triptych,
+      extraSpecialtyFrames?.[activeSpecialty.specialtyId]
+    );
+    const previews = selectSpecialtyCardPreviews(ordered);
+    const picked = previews
+      .map((pf) => allSpecialtyStops.find((s) => s.src === pf.src))
+      .filter((s): s is WalkthroughStop => Boolean(s));
+    return picked.length > 0
+      ? picked.map((s, idx) => ({
+          ...s,
+          stepNumber: String(idx + 1).padStart(2, "0"),
+        }))
+      : allSpecialtyStops;
+  }, [activeSpecialty, extraSpecialtyFrames, allSpecialtyStops]);
+
   const stops =
     studioMode === "specialty" && specialtyStops.length > 0
       ? specialtyStops
       : walkthroughStops;
 
+  const resolvedInitialStopIdx = React.useMemo(() => {
+    if (studioMode === "specialty" && specialtyStops.length > 0) {
+      if (initialSequenceStage !== undefined) {
+        return Math.max(0, Math.min(specialtyStops.length - 1, initialSequenceStage));
+      }
+      const clickedGlobal = allSpecialtyStops[initialStepIndex];
+      if (clickedGlobal) {
+        const mappedIdx = specialtyStops.findIndex(
+          (s) => s.src === clickedGlobal.src
+        );
+        if (mappedIdx >= 0) return mappedIdx;
+      }
+      return 0;
+    }
+    return Math.max(0, Math.min(stops.length - 1, initialStepIndex));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [activeStopIdx, setActiveStopIdx] = useState<number>(
-    Math.max(0, Math.min(stops.length - 1, initialStepIndex))
+    resolvedInitialStopIdx
   );
+  const [solarHour, setSolarHour] = useState<number>(initialSolarHour);
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   const activeStop = stops[activeStopIdx] ?? stops[0];
   const activePalette = DESIGNER_PALETTES[0];
-  const lighting = computeSolarLightingState(initialSolarHour);
+  const hasCurrentNightVariant = Boolean(
+    activeStop?.nightSrc &&
+      activeStop.nightSrc !== activeStop.src &&
+      (activeStop.hasNightVariant ?? true)
+  );
+  const effectiveSolarHour =
+    solarHour >= 19.5 && !hasCurrentNightVariant ? 13.5 : solarHour;
+  const lighting = computeSolarLightingState(effectiveSolarHour);
+  const activeMood: "day" | "sunset" | "night" =
+    effectiveSolarHour >= 19.5
+      ? "night"
+      : effectiveSolarHour >= 17.0
+      ? "sunset"
+      : "day";
 
   const allWalkthroughUrls = React.useMemo(
-    () => stops.flatMap((s) => [s.src, s.nightSrc]),
+    () =>
+      stops.flatMap((s) =>
+        s.nightSrc && s.nightSrc !== s.src && (s.hasNightVariant ?? true)
+          ? [s.src, s.nightSrc]
+          : [s.src]
+      ),
     [stops]
   );
 
@@ -1833,18 +1905,29 @@ export function PropertyWalkthroughStudioModal({
 
   const handleStepChange = useCallback(
     (nextIdx: number) => {
+      if (stops.length === 0) return;
       const wrapped = ((nextIdx % stops.length) + stops.length) % stops.length;
       if (wrapped === activeStopIdx) return;
-      waitForDecodedSurfaces(allWalkthroughUrls).then(() => {
-        setActiveStopIdx(wrapped);
-      });
+      const targetStop = stops[wrapped] ?? stops[0];
+      const targetHasNight = Boolean(
+        targetStop?.nightSrc &&
+          targetStop.nightSrc !== targetStop.src &&
+          (targetStop.hasNightVariant ?? true)
+      );
+      const targetUrls = targetStop
+        ? targetHasNight
+          ? [targetStop.src, targetStop.nightSrc]
+          : [targetStop.src]
+        : [];
+      setActiveStopIdx(wrapped);
+      void waitForDecodedSurfaces(targetUrls);
     },
-    [activeStopIdx, stops.length, allWalkthroughUrls]
+    [activeStopIdx, stops]
   );
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (["1", "2", "3", "4", "5"].includes(e.key)) {
+      if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(e.key)) {
         const idx = Number(e.key) - 1;
         if (idx < stops.length) {
           handleStepChange(idx);
@@ -1864,6 +1947,11 @@ export function PropertyWalkthroughStudioModal({
       .join(" ") || "none";
 
   const shortWorkName = toShortWorkName(activeStop.title);
+  const activeStageBadge = activeStop.stageBadge;
+  const activeBackdropSrc =
+    lighting.isNight && hasCurrentNightVariant
+      ? activeStop.nightSrc
+      : activeStop.src;
 
   return (
     <TaycoModalOverlay
@@ -1891,7 +1979,7 @@ export function PropertyWalkthroughStudioModal({
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* ── MINIMAL TOP BAR: COUNTER + CLOSE ── */}
+          {/* ── MINIMAL TOP BAR: COUNTER + STAGE BADGE + DAY/SUNSET/NIGHT + CLOSE ── */}
           <div
             className="px-4 sm:px-6 py-2.5 border-b flex items-center justify-between gap-3 shrink-0"
             style={{
@@ -1899,17 +1987,126 @@ export function PropertyWalkthroughStudioModal({
               borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
-            <span className="text-xs font-mono font-bold text-[#F3D37A]">
-              {activeStopIdx + 1} / {stops.length}
-            </span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-xs font-mono font-bold text-[#F3D37A] shrink-0">
+                {activeStopIdx + 1} / {stops.length}
+              </span>
+              {activeStageBadge ? (
+                <span
+                  translate="no"
+                  className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#F3D37A]/15 text-[#F3D37A] border border-[#F3D37A]/35 truncate"
+                >
+                  {activeStageBadge}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <div
+                translate="no"
+                className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#070E1A] border border-white/15"
+              >
+                {(
+                  [
+                    { id: "day", label: "Day", hour: 13.5 },
+                    { id: "sunset", label: "Sunset", hour: 18.5 },
+                    { id: "night", label: "Night", hour: 21.5 },
+                  ] as const
+                ).map((m) => {
+                  const isNightBtn = m.id === "night";
+                  const disabled = isNightBtn && !hasCurrentNightVariant;
+                  const active = activeMood === m.id && !disabled;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => {
+                        if (!disabled) setSolarHour(m.hour);
+                      }}
+                      className={`inline-flex items-center gap-1 px-2.5 min-h-[28px] whitespace-nowrap rounded-full text-[9px] font-mono font-bold transition-all duration-300 ${
+                        disabled
+                          ? "opacity-40 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      style={{
+                        background: active ? "#E5C97B" : "transparent",
+                        color: active ? "#050A14" : "#CBD5E1",
+                      }}
+                      title={
+                        disabled
+                          ? "Night variant not available for this stage"
+                          : `Preview ${m.label} photography`
+                      }
+                    >
+                      <SolarPhaseIcon phase={m.id} className="w-2.5 h-2.5" />
+                      <span>{disabled ? "Day Only" : m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                data-magnetic
+                onClick={onClose}
+                aria-label="Close studio"
+                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] w-11 h-11 rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* ── WORK PERFORMED BY TRADE (STAGE 1 -> 2 -> 3) + COMPLETED TOUR SWITCHER ── */}
+          <div className="px-4 sm:px-6 py-2 border-b border-white/10 bg-[#050A14] flex items-center gap-1.5 overflow-x-auto tayco-no-scrollbar shrink-0">
+            {marketSpecialties.map((spec) => {
+              const isSpecActive =
+                studioMode === "specialty" &&
+                activeSpecialty?.specialtyId === spec.specialtyId;
+              return (
+                <button
+                  key={spec.id}
+                  type="button"
+                  onClick={() => {
+                    setStudioMode("specialty");
+                    setSelectedSpecialtyId(spec.specialtyId);
+                    setActiveStopIdx(0);
+                  }}
+                  className="px-3 min-h-[30px] rounded-full text-[11px] font-sans font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0"
+                  style={{
+                    background: isSpecActive
+                      ? "linear-gradient(135deg, #C9A84C 0%, #DFC06C 100%)"
+                      : "rgba(15, 32, 64, 0.55)",
+                    color: isSpecActive ? "#050A14" : "#CBD5E1",
+                    borderColor: isSpecActive
+                      ? "#F3D37A"
+                      : "rgba(201, 168, 76, 0.28)",
+                  }}
+                >
+                  {spec.specialtyLabel}
+                </button>
+              );
+            })}
             <button
               type="button"
-              data-magnetic
-              onClick={onClose}
-              aria-label="Close studio"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] w-11 h-11 rounded-full text-sm font-sans font-semibold bg-white/5 text-slate-200 border border-white/15 cursor-pointer hover:bg-[#C9A84C] hover:text-[#050A14] hover:border-[#C9A84C] transition-all duration-300"
+              onClick={() => {
+                setStudioMode("walkthrough");
+                setActiveStopIdx(0);
+              }}
+              className="px-3 min-h-[30px] rounded-full text-[11px] font-sans font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0 ml-auto"
+              style={{
+                background:
+                  studioMode === "walkthrough"
+                    ? "linear-gradient(135deg, #C9A84C 0%, #DFC06C 100%)"
+                    : "rgba(15, 32, 64, 0.55)",
+                color: studioMode === "walkthrough" ? "#050A14" : "#CBD5E1",
+                borderColor:
+                  studioMode === "walkthrough"
+                    ? "#F3D37A"
+                    : "rgba(201, 168, 76, 0.28)",
+              }}
             >
-              ✕
+              Completed Spaces
             </button>
           </div>
 
@@ -1925,7 +2122,7 @@ export function PropertyWalkthroughStudioModal({
               style={{ isolation: "isolate" }}
             >
               <ProtectedImage
-                src={activeStop.src}
+                src={activeBackdropSrc}
                 alt=""
                 auditIgnore={true}
                 loading="eager"
@@ -1934,9 +2131,19 @@ export function PropertyWalkthroughStudioModal({
               />
               {stops.map((stop, idx) => {
                 const isCurrent = idx === activeStopIdx;
+                const stopHasNight = Boolean(
+                  stop.nightSrc &&
+                    stop.nightSrc !== stop.src &&
+                    (stop.hasNightVariant ?? true)
+                );
+                const effectiveStopSrc =
+                  lighting.isNight && stopHasNight ? stop.nightSrc : stop.src;
+                const effectiveStopFilter = lighting.isNight
+                  ? "none"
+                  : combinedFilter;
                 return (
                   <div
-                    key={stop.stepNumber}
+                    key={`${stop.src}-${stop.stepNumber}`}
                     aria-hidden={!isCurrent}
                     className="absolute inset-0 w-full h-full pointer-events-none z-10"
                     style={{
@@ -1948,14 +2155,15 @@ export function PropertyWalkthroughStudioModal({
                     <div
                       className="absolute inset-0 w-full h-full pointer-events-none"
                       style={{
-                        filter: combinedFilter,
+                        filter: effectiveStopFilter,
                         transition:
                           "filter 480ms cubic-bezier(0.22, 1, 0.36, 1)",
                       }}
                     >
                       <ProtectedImage
-                        src={stop.src}
+                        src={effectiveStopSrc}
                         syncUrls={allWalkthroughUrls}
+                        auditIgnore={true}
                         alt={`${property.title} — ${stop.title}`}
                         loading="eager"
                         className="w-full h-full object-contain"
@@ -1985,6 +2193,57 @@ export function PropertyWalkthroughStudioModal({
                 ›
               </button>
             </div>
+
+            {/* ── 3-STAGE SAME-BUILDING PROGRESSION STRIP (SPECIALTY MODE) ── */}
+            {studioMode === "specialty" && stops.length === 3 && (
+              <div className="px-4 sm:px-6 py-2 bg-[#060C18] border-t border-white/10 grid grid-cols-3 gap-2 shrink-0">
+                {stops.map((st, idx) => {
+                  const isCurrentStage = idx === activeStopIdx;
+                  const thumbHasNight = Boolean(
+                    st.nightSrc &&
+                      st.nightSrc !== st.src &&
+                      (st.hasNightVariant ?? true)
+                  );
+                  const thumbSrc =
+                    lighting.isNight && thumbHasNight ? st.nightSrc : st.src;
+                  return (
+                    <button
+                      key={`${st.src}-${idx}`}
+                      type="button"
+                      aria-pressed={isCurrentStage}
+                      onClick={() => handleStepChange(idx)}
+                      className="rounded-xl border p-1.5 flex items-center gap-2.5 text-left transition-all cursor-pointer"
+                      style={{
+                        background: isCurrentStage
+                          ? "rgba(27, 58, 107, 0.65)"
+                          : "rgba(7, 14, 26, 0.88)",
+                        borderColor: isCurrentStage
+                          ? "#F3D37A"
+                          : "rgba(201, 168, 76, 0.25)",
+                      }}
+                    >
+                      <div className="relative w-12 sm:w-16 aspect-[3/2] rounded-lg overflow-hidden shrink-0">
+                        <ProtectedImage
+                          src={thumbSrc}
+                          auditIgnore={true}
+                          alt={st.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span
+                        translate="no"
+                        className="text-[10px] sm:text-xs font-mono font-bold leading-tight truncate"
+                        style={{
+                          color: isCurrentStage ? "#F3D37A" : "#CBD5E1",
+                        }}
+                      >
+                        {st.stageBadge ?? `Stage ${idx + 1}`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {/* ── EQUILIBRIUM BOTTOM BAR: ONE SHORT WORK NAME + ONE REQUEST ESTIMATE CTA ── */}
             <div className="px-4 sm:px-6 py-3 bg-[#050A14] border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 shrink-0">

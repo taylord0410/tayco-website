@@ -142,13 +142,17 @@ export async function GET(request: NextRequest) {
 
   try {
     const asset = await getScrambledAsset(rawPath, resolvedFile);
+    const cacheControlHeader =
+      process.env.NODE_ENV === "production"
+        ? "private, max-age=86400, stale-while-revalidate=604800, no-transform"
+        : "private, no-cache, no-transform";
     const ifNoneMatch = request.headers.get("if-none-match");
     if (ifNoneMatch && ifNoneMatch === asset.etag) {
       return new NextResponse(null, {
         status: 304,
         headers: {
           ETag: asset.etag,
-          "Cache-Control": "private, max-age=86400, stale-while-revalidate=604800, no-transform",
+          "Cache-Control": cacheControlHeader,
           "X-Tayco-Shield": "encrypted-canvas-stream-304",
         },
       });
@@ -160,7 +164,7 @@ export async function GET(request: NextRequest) {
         "Content-Type": "application/octet-stream",
         "X-Content-Type-Options": "nosniff",
         ETag: asset.etag,
-        "Cache-Control": "private, max-age=86400, stale-while-revalidate=604800, no-transform",
+        "Cache-Control": cacheControlHeader,
         "Cross-Origin-Resource-Policy": "same-origin",
         "X-Robots-Tag": "noimageindex, noarchive, nosnippet, noai, noimageai",
         "X-Tayco-Shield": "encrypted-canvas-stream",

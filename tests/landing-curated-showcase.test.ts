@@ -351,6 +351,7 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
 
       const walkthroughStops = buildCoherentWalkthrough(prop);
       assert.equal(walkthroughStops.length, 5);
+      const isHomePrimaryListing = prop.id === items[0].id;
       for (const stop of walkthroughStops) {
         assertPublicImageExists(
           stop.src,
@@ -360,10 +361,23 @@ test("4 Primary Markets (Single-Family Homes, Multifamily, Townhomes, Commercial
           stop.nightSrc,
           `Walkthrough Night ${prop.code} Step ${stop.stepNumber}`
         );
-        assert.ok(
-          stop.nightSrc.endsWith("-night.jpg"),
-          `Walkthrough Night image for ${prop.code} Step ${stop.stepNumber} must end with -night.jpg, got ${stop.nightSrc}`
-        );
+        if (isHomePrimaryListing || stop.hasNightVariant !== false) {
+          assert.equal(
+            stop.hasNightVariant,
+            true,
+            `Home primary walkthrough ${prop.code} Step ${stop.stepNumber} must have an approved 9:30 PM night variant`
+          );
+          assert.ok(
+            stop.nightSrc.endsWith("-night.jpg"),
+            `Walkthrough Night image for ${prop.code} Step ${stop.stepNumber} must end with -night.jpg, got ${stop.nightSrc}`
+          );
+        } else {
+          assert.equal(
+            stop.nightSrc,
+            stop.src,
+            `Withheld Night stop ${prop.code} Step ${stop.stepNumber} must fall back cleanly to Day src without filter darkening`
+          );
+        }
       }
     }
   }
