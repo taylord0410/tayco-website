@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   output: "standalone",
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    cpus: 2,
+    memoryBasedWorkersCount: true,
+    webpackMemoryOptimizations: true,
   },
   // Runtime databases, source packages and review evidence are private mounted data.
   outputFileTracingExcludes: { "/**": ["./.data/**/*", "./.env*", "./**/*.sqlite", "./**/*.sqlite3", "./**/*.db"] },

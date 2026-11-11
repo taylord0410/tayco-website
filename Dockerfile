@@ -1,17 +1,13 @@
 # Multi-stage Dockerfile for Next.js Standalone
 FROM node:24-alpine AS base
+RUN apk add --no-cache libc6-compat
 
 # 1. Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
 RUN npm ci
-
-# Private operator commands use the same production dependencies as the server.
-FROM deps AS runtime-deps
-RUN npm prune --omit=dev
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
@@ -22,12 +18,13 @@ COPY . .
 RUN mkdir -p private-operator-inputs
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 # Public origin for canonical links and the share card (lib/site-url.ts), inlined at build time.
 # Railway hands a service variable to the build only through a declared ARG. No default on purpose:
 # set it once the domain's DNS points at this service, or canonicals would name another host.
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-RUN npm run build
+RUN npm run build && npm prune --omit=dev
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
@@ -51,7 +48,7 @@ RUN chown nextjs:nodejs .next .data
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=runtime-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
