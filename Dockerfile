@@ -18,13 +18,13 @@ COPY . .
 RUN mkdir -p private-operator-inputs
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS="--max-old-space-size=3072"
+ENV NODE_OPTIONS="--max-old-space-size=3072 --dns-result-order=ipv4first --no-network-family-autoselection"
 # Public origin for canonical links and the share card (lib/site-url.ts), inlined at build time.
 # Railway hands a service variable to the build only through a declared ARG. No default on purpose:
 # set it once the domain's DNS points at this service, or canonicals would name another host.
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-RUN npm run build && npm prune --omit=dev
+RUN npm run build 2>&1 && npm prune --omit=dev 2>&1
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
@@ -32,6 +32,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--dns-result-order=ipv4first --no-network-family-autoselection"
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
