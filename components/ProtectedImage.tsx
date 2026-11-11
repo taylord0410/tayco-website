@@ -23,6 +23,281 @@ const decodedSurfaceCache = new Map<string, Promise<HTMLCanvasElement>>();
 const resolvedSurfaceMap = new Map<string, HTMLCanvasElement>();
 const resolvedContentHashMap = new Map<string, string>();
 let canvasPrototypesLocked = false;
+let captureGuardInstalled = false;
+let cachedForensicGrainTile: HTMLCanvasElement | null = null;
+
+const SESSION_OPTICAL_SALT: number = (() => {
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return arr[0] >>> 0;
+  }
+  return 0x5a7c93e1;
+})();
+
+function hashSeed(input: string, salt: number): number {
+  let h = (0x811c9dc5 ^ salt) >>> 0;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+function getForensicGrainTile(): HTMLCanvasElement | null {
+  if (typeof document === "undefined") return null;
+  if (cachedForensicGrainTile) return cachedForensicGrainTile;
+
+  // 256x256 seamless Gaussian silver-halide emulsion (organic analog film crystals, zero RGB digital static)
+  const size = 256;
+  const tile = document.createElement("canvas");
+  tile.width = size;
+  tile.height = size;
+  const tctx = tile.getContext("2d");
+  if (!tctx) return null;
+
+  const rawField = new Float32Array(size * size);
+  let state = (SESSION_OPTICAL_SALT ^ 0x9e3779b9) >>> 0;
+
+  for (let i = 0; i < size * size; i++) {
+    // Sum of 4 uniform samples -> smooth Gaussian bell curve in [-1, +1] (no harsh salt-and-pepper)
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    const s1 = state >>> 0;
+    const u1 = (s1 & 0xff) / 255;
+    const u2 = ((s1 >>> 8) & 0xff) / 255;
+    const u3 = ((s1 >>> 16) & 0xff) / 255;
+    const u4 = ((s1 >>> 24) & 0xff) / 255;
+    rawField[i] = (u1 + u2 + u3 + u4) * 0.5 - 1.0;
+  }
+
+  const img = tctx.createImageData(size, size);
+  const data = img.data;
+  const mask = size - 1;
+
+  // Soft 3x3 organic silver-crystal cluster filter (wraps seamlessly at tile borders)
+  for (let y = 0; y < size; y++) {
+    const ym1 = ((y - 1) & mask) * size;
+    const y0 = y * size;
+    const yp1 = ((y + 1) & mask) * size;
+    for (let x = 0; x < size; x++) {
+      const xm1 = (x - 1) & mask;
+      const xp1 = (x + 1) & mask;
+      const center = rawField[y0 + x];
+      const cross =
+        rawField[ym1 + x] + rawField[yp1 + x] + rawField[y0 + xm1] + rawField[y0 + xp1];
+      const diag =
+        rawField[ym1 + xm1] + rawField[ym1 + xp1] + rawField[yp1 + xm1] + rawField[yp1 + xp1];
+
+      // Balanced crisp + silky analog crystal (~1.25px organic cluster)
+      const g = center * 0.54 + cross * 0.085 + diag * 0.03;
+      // Map centered at neutral 128 for pure soft-light emulsion blending
+      const delta = Math.max(-118, Math.min(118, g * 138));
+      const luma = 128 + delta;
+
+      // Coherent warm-platinum silver tone (ivory warmth in bright crystals, cool slate in dark crystals)
+      const warmShift = delta >= 0 ? 2.5 : -1.5;
+      const idx = (y0 + x) * 4;
+      data[idx] = Math.max(0, Math.min(255, Math.round(luma + warmShift)));
+      data[idx + 1] = Math.max(0, Math.min(255, Math.round(luma + warmShift * 0.35)));
+      data[idx + 2] = Math.max(0, Math.min(255, Math.round(luma - warmShift)));
+      data[idx + 3] = 255;
+    }
+  }
+
+  tctx.putImageData(img, 0, 0);
+  cachedForensicGrainTile = tile;
+  return tile;
+}
+
+/**
+ * Aesthetic medium-format editorial film shield painted into offscreen canvas pixels:
+ * 1) Session-unique micro-angle (±0.72°..±1.10°), subtle perspective shear, and ~4.8% overscan re-framing
+ * 2) Golden-hour corner sunlight bloom + subtle architectural vignette
+ * 3) Seamless 256x256 Gaussian warm-silver film emulsion blended via soft-light across 100% of pixels
+ */
+function paintOpticalShieldedBitmap(
+  ctx: CanvasRenderingContext2D,
+  bitmap: ImageBitmap,
+  w: number,
+  h: number,
+  src: string
+): void {
+  const seed = hashSeed(src, SESSION_OPTICAL_SALT);
+  const signA = (seed & 1) === 0 ? 1 : -1;
+  const signB = (seed & 2) === 0 ? 1 : -1;
+  const angleDeg = signA * (0.72 + ((seed >>> 3) % 39) * 0.01);
+  const angleRad = (angleDeg * Math.PI) / 180;
+  const shearX = signB * (0.0048 + ((seed >>> 9) % 36) * 0.0001);
+  const panX = (((seed >>> 15) % 21) - 10) * 0.0009 * w;
+  const panY = (((seed >>> 20) % 21) - 10) * 0.0009 * h;
+  const overscan = 1.048;
+
+  ctx.save();
+  ctx.translate(w / 2 + panX, h / 2 + panY);
+  ctx.rotate(angleRad);
+  ctx.transform(overscan, 0, shearX, overscan, 0, 0);
+  ctx.drawImage(bitmap, -w / 2, -h / 2, w, h);
+  ctx.restore();
+
+  // Golden-hour radial sun-bloom from upper corner + velvety slate falloff
+  const sunX = signA > 0 ? w * 0.14 : w * 0.86;
+  const sunY = h * 0.12;
+  const sunRadius = Math.max(w, h) * 0.95;
+  const radial = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius);
+  radial.addColorStop(0, "rgba(255, 244, 218, 0.082)");
+  radial.addColorStop(0.48, "rgba(255, 249, 238, 0.018)");
+  radial.addColorStop(1, "rgba(11, 17, 30, 0.085)");
+  ctx.fillStyle = radial;
+  ctx.fillRect(0, 0, w, h);
+
+  // Imperceptible forensic micro-signature during normal browsing (zero visible grain to the naked eye)
+  const grainTile = getForensicGrainTile();
+  if (grainTile) {
+    const pattern = ctx.createPattern(grainTile, "repeat");
+    if (pattern) {
+      ctx.save();
+      ctx.globalCompositeOperation = "soft-light";
+      ctx.globalAlpha = 0.045;
+      ctx.translate((seed >>> 5) % 128, (seed >>> 11) % 128);
+      ctx.fillStyle = pattern;
+      ctx.fillRect(-128, -128, w + 256, h + 256);
+      ctx.restore();
+    }
+  }
+}
+
+function installCaptureDeflectionGuard(): void {
+  if (captureGuardInstalled || typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
+  captureGuardInstalled = true;
+
+  if (!document.querySelector('svg[data-tayco-capture-svg="v3"]')) {
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svgEl = document.createElementNS(svgNS, "svg");
+    svgEl.setAttribute("data-tayco-capture-svg", "v3");
+    svgEl.setAttribute("aria-hidden", "true");
+    svgEl.setAttribute("width", "0");
+    svgEl.setAttribute("height", "0");
+    svgEl.style.cssText = "position:fixed;width:0;height:0;pointer-events:none;opacity:0;overflow:hidden";
+    const turbSeed = (SESSION_OPTICAL_SALT % 991) + 1;
+    svgEl.innerHTML = `
+      <defs>
+        <filter id="tayco-capture-aesthetic-v3" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.85" result="proMistBlur" />
+          <feBlend in="SourceGraphic" in2="proMistBlur" mode="lighten" result="halationBloom" />
+          <feComposite in="SourceGraphic" in2="halationBloom" operator="arithmetic" k1="0" k2="0.72" k3="0.28" k4="0" result="velvetBase" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="${turbSeed}" stitchTiles="stitch" result="rawFilm" />
+          <feColorMatrix in="rawFilm" type="matrix" values="
+            0.115 0.115 0.115 0 0.328
+            0.112 0.112 0.112 0 0.332
+            0.108 0.108 0.108 0 0.338
+            0     0     0     0 1" result="fineSilver" />
+          <feBlend in="velvetBase" in2="fineSilver" mode="overlay" result="grainedFilm" />
+          <feColorMatrix in="grainedFilm" type="matrix" values="
+            0.94  0.05  0.00  0 -0.018
+            0.02  0.89  0.02  0 -0.022
+            0.00  0.03  0.81  0 -0.008
+            0     0     0     1  0" result="goldenEditorial" />
+          <feComposite in="goldenEditorial" in2="SourceGraphic" operator="in" />
+        </filter>
+      </defs>
+    `;
+    (document.body || document.documentElement).appendChild(svgEl);
+  }
+
+  if (!document.querySelector('style[data-tayco-capture-guard="v1"]')) {
+    const styleEl = document.createElement("style");
+    styleEl.dataset.taycoCaptureGuard = "v1";
+    styleEl.textContent = `
+      canvas[data-protected-canvas="v39"]:not([data-unshielded="true"]) {
+        transition: filter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      html[data-tayco-capture-guard="active"] canvas[data-protected-canvas="v39"]:not([data-unshielded="true"]) {
+        transition: none !important;
+        filter: url(#tayco-capture-aesthetic-v3);
+      }
+      @media print {
+        canvas[data-protected-canvas="v39"]:not([data-unshielded="true"]) {
+          filter: url(#tayco-capture-aesthetic-v3) blur(10px) !important;
+          opacity: 0.42 !important;
+        }
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  let releaseTimer = 0;
+  let shortcutLockedUntil = 0;
+  let pointerInsideViewport = false;
+
+  const clearGuardNow = () => {
+    if (Date.now() < shortcutLockedUntil) return;
+    if (releaseTimer) {
+      window.clearTimeout(releaseTimer);
+      releaseTimer = 0;
+    }
+    delete document.documentElement.dataset.taycoCaptureGuard;
+  };
+
+  // Applies aesthetic film grain in 0 ms for the OS capture shutter window, then ALWAYS returns to clean
+  const pulseCaptureShutter = (durationMs: number, lockFromPointer = false) => {
+    if (releaseTimer) {
+      window.clearTimeout(releaseTimer);
+      releaseTimer = 0;
+    }
+    if (lockFromPointer) {
+      shortcutLockedUntil = Date.now() + 320;
+    }
+    document.documentElement.dataset.taycoCaptureGuard = "active";
+    releaseTimer = window.setTimeout(() => {
+      releaseTimer = 0;
+      delete document.documentElement.dataset.taycoCaptureGuard;
+    }, durationMs);
+  };
+
+  const docEl = document.documentElement;
+  docEl.addEventListener("mouseenter", () => {
+    pointerInsideViewport = true;
+  }, { passive: true });
+  docEl.addEventListener("mouseleave", () => {
+    pointerInsideViewport = false;
+  }, { passive: true });
+  window.addEventListener("pointermove", () => {
+    pointerInsideViewport = true;
+    clearGuardNow();
+  }, { passive: true });
+  window.addEventListener("wheel", clearGuardNow, { passive: true });
+  window.addEventListener("touchstart", clearGuardNow, { passive: true });
+  window.addEventListener("focus", clearGuardNow, { passive: true });
+
+  // Only pulse on window blur when pointer is inside the viewport (e.g. Win+Shift+S / Cmd+Shift+4 overlay),
+  // avoiding false activation when clicking side-by-side windows/tabs, and auto-releasing after 850 ms
+  window.addEventListener(
+    "blur",
+    () => {
+      if (pointerInsideViewport && document.visibilityState === "visible") {
+        pulseCaptureShutter(850, false);
+      }
+    },
+    { passive: true }
+  );
+
+  const onCaptureShortcut = (e: KeyboardEvent) => {
+    const key = e.key || "";
+    const isPrintScreen = key === "PrintScreen" || e.code === "PrintScreen";
+    const isSnipCombo =
+      (e.metaKey && e.shiftKey && ["s", "S", "3", "4", "5"].includes(key)) ||
+      (e.ctrlKey && (key === "p" || key === "P"));
+    if (isPrintScreen || isSnipCombo) {
+      pulseCaptureShutter(1100, true);
+    }
+  };
+  window.addEventListener("keydown", onCaptureShortcut, { capture: true });
+  window.addEventListener("keyup", onCaptureShortcut, { capture: true });
+}
 
 /** Normalizes an image path to its canonical visual stem (stripping query strings and -night suffix) */
 export function normalizeVisualStem(src: string): string {
@@ -100,6 +375,16 @@ function lockProtectedCanvasExports(): void {
     return origToBlob.call(this, callback, type, quality);
   };
 
+  if (typeof HTMLCanvasElement.prototype.captureStream === "function") {
+    const origCaptureStream = HTMLCanvasElement.prototype.captureStream;
+    HTMLCanvasElement.prototype.captureStream = function (frameRequestRate?: number) {
+      if (this.dataset?.protectedCanvas === "v39" && typeof MediaStream !== "undefined") {
+        return new MediaStream();
+      }
+      return origCaptureStream.call(this, frameRequestRate);
+    };
+  }
+
   if (typeof CanvasRenderingContext2D !== "undefined") {
     const origGetImageData = CanvasRenderingContext2D.prototype.getImageData;
     CanvasRenderingContext2D.prototype.getImageData = function (
@@ -174,7 +459,11 @@ export function fetchDecodedSurface(src: string): Promise<HTMLCanvasElement> {
       offscreen.height = h;
       const ctx = offscreen.getContext("2d", { alpha: lower.endsWith(".png") });
       if (ctx) {
-        ctx.drawImage(bitmap, 0, 0, w, h);
+        if (cleanSrc === "/logo.png" || lower.endsWith(".png")) {
+          ctx.drawImage(bitmap, 0, 0, w, h);
+        } else {
+          paintOpticalShieldedBitmap(ctx, bitmap, w, h, cleanSrc);
+        }
       }
       bitmap.close();
       resolvedContentHashMap.set(src, contentHash);
@@ -332,6 +621,7 @@ export default function ProtectedImage({
 
   useEffect(() => {
     lockProtectedCanvasExports();
+    installCaptureDeflectionGuard();
   }, []);
 
   useEffect(() => {
@@ -532,6 +822,7 @@ export default function ProtectedImage({
       width={typeof width === "number" ? width : 16}
       height={typeof height === "number" ? height : 10}
       data-protected-canvas="v39"
+      data-unshielded={assetStem === "logo" ? "true" : undefined}
       data-asset-id={assetId}
       data-asset-stem={assetStem}
       data-content-hash={resolvedContentHashMap.get(src) || undefined}
